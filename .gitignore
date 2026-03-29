@@ -56,5 +56,5 @@ Thumbs.db
 
 # ── IDE ───────────────────────────────────────────────────────────────────────
 .idea/
-.vscode/settings.json
+.vscode/settings.json.local
 *.iml
