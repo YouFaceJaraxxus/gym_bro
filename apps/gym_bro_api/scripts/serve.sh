@@ -21,13 +21,15 @@ done
 
 SERVE_CMD="supabase functions serve${FUNCTION:+ $FUNCTION}"
 
+TMPENV=$(mktemp /tmp/gym_bro_env.XXXXXX)
+trap "rm -f $TMPENV" EXIT
+
 if $PROD; then
   echo "▶ Starting functions locally → PROD Supabase (via Doppler)"
-  TMPENV=$(mktemp /tmp/gym_bro_env.XXXXXX)
-  trap "rm -f $TMPENV" EXIT
   doppler secrets download --no-file --format env > "$TMPENV"
-  eval "$SERVE_CMD --env-file $TMPENV"
 else
   echo "▶ Starting functions locally → LOCAL Docker Supabase"
-  eval "$SERVE_CMD"
+  cat "$SCRIPT_DIR/../.env.local" > "$TMPENV"
 fi
+
+eval "$SERVE_CMD --env-file $TMPENV"
