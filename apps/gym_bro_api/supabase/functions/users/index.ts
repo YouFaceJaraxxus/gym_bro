@@ -32,7 +32,7 @@ function authFetch(path: string, body: unknown): Promise<Response> {
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
-const STATIC_SEGMENTS = new Set(["signup", "signin", "google", "me", "test"]);
+const STATIC_SEGMENTS = new Set(["signup", "signin", "google", "refresh", "me", "test"]);
 
 function parseSegment(pathname: string): string | null {
   const match = pathname.match(/^\/users\/([^/]+)$/);
@@ -152,6 +152,27 @@ Deno.serve(async (req: Request) => {
     }
 
     return json({ ...session, profile });
+  }
+
+  // ── POST /users/refresh ───────────────────────────────────────────────────────
+  // Exchanges a refresh token for a new session. Works for all providers
+  // (email/password, Google, Apple, OAuth) — Supabase's refresh grant is
+  // provider-agnostic.
+  if (req.method === "POST" && segment === "refresh") {
+    const body = await req.json().catch(() => null);
+    const { refresh_token } = body ?? {};
+
+    if (!refresh_token) return jsonError("refresh_token is required", 400);
+
+    const res = await authFetch("/token?grant_type=refresh_token", { refresh_token });
+    const session: AuthSession = await res.json();
+
+    if (!res.ok) {
+      const err = (session as unknown as { error_description?: string; msg?: string });
+      return jsonError(err.error_description ?? err.msg ?? "Token refresh failed", res.status);
+    }
+
+    return json(session);
   }
 
   // ── GET /users/test ───────────────────────────────────────────────────────────
