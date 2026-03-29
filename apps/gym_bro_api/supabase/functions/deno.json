@@ -4,9 +4,5 @@
   },
   "imports": {
     "@supabase/supabase-js": "jsr:@supabase/supabase-js@2"
-  },
-  "tasks": {
-    "serve": "../../scripts/serve.sh",
-    "serve:prod": "../../scripts/serve.sh --prod"
   }
 }
