@@ -1,9 +1,4 @@
-import { createClient } from "jsr:@supabase/supabase-js@2";
-
-const supabase = createClient(
-  Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-);
+import { db as supabase } from "../_shared/config.ts";
 
 /** Hash a password using SHA-256 via Web Crypto (not bcrypt — use a proper
  *  password hashing library like argon2 in production). */
