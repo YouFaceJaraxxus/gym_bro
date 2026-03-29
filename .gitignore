@@ -3,7 +3,6 @@
 .env.*
 !.env.example
 !.env.template
-!.env.local
 
 # ── Supabase ──────────────────────────────────────────────────────────────────
 apps/gym_bro_api/supabase/.temp/
