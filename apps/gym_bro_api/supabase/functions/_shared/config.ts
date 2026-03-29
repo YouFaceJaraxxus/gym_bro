@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from "jsr:@supabase/supabase-js@2";
+import { Database } from "../../types/schema/public.ts";
 
 // APP_SUPABASE_URL / APP_SERVICE_ROLE_KEY are custom vars the local runtime
 // won't override — set them via `doppler run -- supabase functions serve`
@@ -21,4 +22,4 @@ export const ENV = IS_LOCAL ? "local" : "production";
 
 console.log(`[config] targeting ${ENV} DB → ${supabaseUrl}`);
 
-export const db: SupabaseClient = createClient(supabaseUrl, serviceRoleKey);
+export const db: SupabaseClient<Database> = createClient<Database>(supabaseUrl, serviceRoleKey);

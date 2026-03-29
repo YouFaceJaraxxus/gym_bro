@@ -1,4 +1,5 @@
 import { db as supabase } from "../_shared/config.ts";
+import type { UserInsert, UserUpdate } from "../../types/schema/public.ts";
 
 /** Hash a password using SHA-256 via Web Crypto (not bcrypt — use a proper
  *  password hashing library like argon2 in production). */
@@ -23,7 +24,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === "GET" && !id) {
     const { data, error } = await supabase
       .from("users")
-      .select("id, username, email, name, last_name, created_at, updated_at");
+      .select("id, username, email, name, last_name, role, created_at, updated_at");
 
     if (error) return jsonError(error.message, 500);
     return json(data);
@@ -33,7 +34,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === "GET" && id) {
     const { data, error } = await supabase
       .from("users")
-      .select("id, username, email, name, last_name, created_at, updated_at")
+      .select("id, username, email, name, last_name, role, created_at, updated_at")
       .eq("id", id)
       .maybeSingle();
 
@@ -45,7 +46,7 @@ Deno.serve(async (req: Request) => {
   // ── POST /users ─────────────────────────────────────────────────────────────
   if (req.method === "POST" && !id) {
     const body = await req.json().catch(() => null);
-    const { username, email, password, name, last_name } = body ?? {};
+    const { username, email, password, name, last_name, role } = body ?? {};
 
     if (!username || !email || !password || !name || !last_name) {
       return jsonError(
@@ -55,10 +56,11 @@ Deno.serve(async (req: Request) => {
     }
 
     const hashed = await hashPassword(password);
+    const insert: UserInsert = { username, email, password: hashed, name, last_name, ...(role && { role }) };
     const { data, error } = await supabase
       .from("users")
-      .insert({ username, email, password: hashed, name, last_name })
-      .select("id, username, email, name, last_name, created_at, updated_at")
+      .insert(insert)
+      .select("id, username, email, name, last_name, role, created_at, updated_at")
       .single();
 
     if (error) return jsonError(error.message, 409);
@@ -74,13 +76,16 @@ Deno.serve(async (req: Request) => {
 
     // Prevent id/created_at overrides; hash password if provided
     const { id: _id, created_at: _ca, ...fields } = body;
-    if (fields.password) fields.password = await hashPassword(fields.password);
+    const update: UserUpdate = {
+      ...fields,
+      ...(fields.password && { password: await hashPassword(fields.password) }),
+    };
 
     const { data, error } = await supabase
       .from("users")
-      .update(fields)
+      .update(update)
       .eq("id", id)
-      .select("id, username, email, name, last_name, created_at, updated_at")
+      .select("id, username, email, name, last_name, role, created_at, updated_at")
       .maybeSingle();
 
     if (error) return jsonError(error.message, 500);
