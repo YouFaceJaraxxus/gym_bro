@@ -1,5 +1,5 @@
-import { Kysely, PostgresDialect } from "kysely";
-import pg from "pg";
+import { Kysely, PostgresDialect } from "npm:kysely@^0.27";
+import pg from "npm:pg@^8";
 import { Database } from "../../types/schema/public.ts";
 
 const { Pool } = pg;

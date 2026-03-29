@@ -3,7 +3,7 @@ import {
   Insertable,
   Selectable,
   Updateable,
-} from "kysely";
+} from "npm:kysely@^0.27";
 
 export type UserRole =
   | "admin"
