@@ -26,5 +26,8 @@ if $LOCAL; then
   eval "$SERVE_CMD"
 else
   echo "▶ Starting functions locally → PROD Supabase (via Doppler)"
-  doppler run -- $SERVE_CMD
+  TMPENV=$(mktemp /tmp/gym_bro_env.XXXXXX)
+  trap "rm -f $TMPENV" EXIT
+  doppler secrets download --no-file --format env > "$TMPENV"
+  eval "$SERVE_CMD --env-file $TMPENV"
 fi
