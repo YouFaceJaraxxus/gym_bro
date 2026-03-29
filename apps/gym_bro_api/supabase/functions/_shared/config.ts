@@ -19,4 +19,6 @@ export const IS_LOCAL = supabaseUrl.includes("127.0.0.1") ||
 
 export const ENV = IS_LOCAL ? "local" : "production";
 
+console.log(`[config] targeting ${ENV} DB → ${supabaseUrl}`);
+
 export const db: SupabaseClient = createClient(supabaseUrl, serviceRoleKey);
