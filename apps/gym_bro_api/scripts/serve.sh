@@ -9,25 +9,25 @@
 
 set -euo pipefail
 
-LOCAL=false
+PROD=false
 FUNCTION=""
 
 for arg in "$@"; do
   case "$arg" in
-    --local) LOCAL=true ;;
+    --prod) PROD=true ;;
     *) FUNCTION="$arg" ;;
   esac
 done
 
 SERVE_CMD="supabase functions serve${FUNCTION:+ $FUNCTION}"
 
-if $LOCAL; then
-  echo "▶ Starting functions locally → LOCAL Docker Supabase"
-  eval "$SERVE_CMD"
-else
+if $PROD; then
   echo "▶ Starting functions locally → PROD Supabase (via Doppler)"
   TMPENV=$(mktemp /tmp/gym_bro_env.XXXXXX)
   trap "rm -f $TMPENV" EXIT
   doppler secrets download --no-file --format env > "$TMPENV"
   eval "$SERVE_CMD --env-file $TMPENV"
+else
+  echo "▶ Starting functions locally → LOCAL Docker Supabase"
+  eval "$SERVE_CMD"
 fi
