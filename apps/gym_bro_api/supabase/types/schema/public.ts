@@ -1,5 +1,9 @@
-// Kysely-style schema types for the public schema.
-// Used to type the Supabase client via createClient<Database>().
+import {
+  Generated,
+  Insertable,
+  Selectable,
+  Updateable,
+} from "kysely";
 
 export type UserRole =
   | "admin"
@@ -8,50 +12,22 @@ export type UserRole =
   | "employee_trainer"
   | "member";
 
-export interface UserRow {
-  id: string;
+export interface UsersTable {
+  id: Generated<string>;
   username: string;
   email: string;
   password: string;
   name: string;
   last_name: string;
-  role: UserRole;
-  created_at: string;
-  updated_at: string;
+  role: Generated<UserRole>;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
 }
 
-export interface UserInsert {
-  id?: string;
-  username: string;
-  email: string;
-  password: string;
-  name: string;
-  last_name: string;
-  role?: UserRole;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface UserUpdate {
-  username?: string;
-  email?: string;
-  password?: string;
-  name?: string;
-  last_name?: string;
-  role?: UserRole;
-}
+export type User = Selectable<UsersTable>;
+export type UserInsert = Insertable<UsersTable>;
+export type UserUpdate = Updateable<UsersTable>;
 
 export interface Database {
-  public: {
-    Tables: {
-      users: {
-        Row: UserRow;
-        Insert: UserInsert;
-        Update: UserUpdate;
-      };
-    };
-    Enums: {
-      user_role: UserRole;
-    };
-  };
+  users: UsersTable;
 }

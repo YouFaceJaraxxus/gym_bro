@@ -1,8 +1,17 @@
-import { db as supabase } from "../_shared/config.ts";
+import { db } from "../_shared/config.ts";
 import type { UserInsert, UserUpdate } from "../../types/schema/public.ts";
 
-/** Hash a password using SHA-256 via Web Crypto (not bcrypt — use a proper
- *  password hashing library like argon2 in production). */
+const SAFE_COLUMNS = [
+  "id",
+  "username",
+  "email",
+  "name",
+  "last_name",
+  "role",
+  "created_at",
+  "updated_at",
+] as const;
+
 async function hashPassword(plain: string): Promise<string> {
   const encoded = new TextEncoder().encode(plain);
   const hashBuffer = await crypto.subtle.digest("SHA-256", encoded);
@@ -22,25 +31,24 @@ Deno.serve(async (req: Request) => {
 
   // ── GET /users ──────────────────────────────────────────────────────────────
   if (req.method === "GET" && !id) {
-    const { data, error } = await supabase
-      .from("users")
-      .select("id, username, email, name, last_name, role, created_at, updated_at");
+    const users = await db
+      .selectFrom("users")
+      .select(SAFE_COLUMNS)
+      .execute();
 
-    if (error) return jsonError(error.message, 500);
-    return json(data);
+    return json(users);
   }
 
   // ── GET /users/:id ──────────────────────────────────────────────────────────
   if (req.method === "GET" && id) {
-    const { data, error } = await supabase
-      .from("users")
-      .select("id, username, email, name, last_name, role, created_at, updated_at")
-      .eq("id", id)
-      .maybeSingle();
+    const user = await db
+      .selectFrom("users")
+      .select(SAFE_COLUMNS)
+      .where("id", "=", id)
+      .executeTakeFirst();
 
-    if (error) return jsonError(error.message, 500);
-    if (!data) return jsonError("User not found", 404);
-    return json(data);
+    if (!user) return jsonError("User not found", 404);
+    return json(user);
   }
 
   // ── POST /users ─────────────────────────────────────────────────────────────
@@ -55,16 +63,22 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const hashed = await hashPassword(password);
-    const insert: UserInsert = { username, email, password: hashed, name, last_name, ...(role && { role }) };
-    const { data, error } = await supabase
-      .from("users")
-      .insert(insert)
-      .select("id, username, email, name, last_name, role, created_at, updated_at")
-      .single();
+    const insert: UserInsert = {
+      username,
+      email,
+      password: await hashPassword(password),
+      name,
+      last_name,
+      ...(role && { role }),
+    };
 
-    if (error) return jsonError(error.message, 409);
-    return json(data, 201);
+    const user = await db
+      .insertInto("users")
+      .values(insert)
+      .returning(SAFE_COLUMNS)
+      .executeTakeFirst();
+
+    return json(user, 201);
   }
 
   // ── PUT /users/:id ──────────────────────────────────────────────────────────
@@ -74,34 +88,31 @@ Deno.serve(async (req: Request) => {
       return jsonError("Request body must not be empty", 400);
     }
 
-    // Prevent id/created_at overrides; hash password if provided
     const { id: _id, created_at: _ca, ...fields } = body;
     const update: UserUpdate = {
       ...fields,
       ...(fields.password && { password: await hashPassword(fields.password) }),
     };
 
-    const { data, error } = await supabase
-      .from("users")
-      .update(update)
-      .eq("id", id)
-      .select("id, username, email, name, last_name, role, created_at, updated_at")
-      .maybeSingle();
+    const user = await db
+      .updateTable("users")
+      .set(update)
+      .where("id", "=", id)
+      .returning(SAFE_COLUMNS)
+      .executeTakeFirst();
 
-    if (error) return jsonError(error.message, 500);
-    if (!data) return jsonError("User not found", 404);
-    return json(data);
+    if (!user) return jsonError("User not found", 404);
+    return json(user);
   }
 
   // ── DELETE /users/:id ───────────────────────────────────────────────────────
   if (req.method === "DELETE" && id) {
-    const { error, count } = await supabase
-      .from("users")
-      .delete({ count: "exact" })
-      .eq("id", id);
+    const result = await db
+      .deleteFrom("users")
+      .where("id", "=", id)
+      .executeTakeFirst();
 
-    if (error) return jsonError(error.message, 500);
-    if (count === 0) return jsonError("User not found", 404);
+    if (!result.numDeletedRows) return jsonError("User not found", 404);
     return new Response(null, { status: 204 });
   }
 

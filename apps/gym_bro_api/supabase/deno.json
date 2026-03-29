@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.window"]
+  },
+  "imports": {
+    "@supabase/supabase-js": "jsr:@supabase/supabase-js@2",
+    "kysely": "npm:kysely@^0.27",
+    "pg": "npm:pg@^8"
+  }
+}
