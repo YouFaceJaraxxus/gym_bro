@@ -355,7 +355,7 @@ authorization_url_path = "/oauth/consent"
 allow_dynamic_registration = false
 
 [functions.users]
-verify_jwt = true
+verify_jwt = false
 
 [edge_runtime]
 enabled = true
