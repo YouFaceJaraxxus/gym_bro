@@ -74,13 +74,33 @@ Deno.serve(async (req: Request) => {
       ...(role && { role }),
     };
 
+    const gymRoleTables = {
+      trainer: "trainer",
+      member: "member",
+      employee: "employee",
+      employee_trainer: "employee_trainer",
+    } as const;
+    type GymRole = keyof typeof gymRoleTables;
+
+    const { gym_id } = body ?? {};
+
     const user = await db
       .insertInto("users")
       .values(insert)
       .returning(SAFE_COLUMNS)
       .executeTakeFirstOrThrow();
 
-    return json({ message: "Check your email to verify your account.", user }, 201);
+    let role_assignment = null;
+    if (role && gym_id && role in gymRoleTables) {
+      const table = gymRoleTables[role as GymRole];
+      role_assignment = await db
+        .insertInto(table)
+        .values({ user_id: user.id, gym_id })
+        .returningAll()
+        .executeTakeFirstOrThrow();
+    }
+
+    return json({ message: "Check your email to verify your account.", user, role_assignment }, 201);
   }
 
   // ── POST /users/signin ────────────────────────────────────────────────────────
