@@ -1,11 +1,8 @@
+import '../models/user_profile.dart';
 import 'auth_service.dart';
 import 'auth_storage.dart';
 
-/// Manages the current auth session across all sign-in providers.
-///
-/// Supabase returns the same session shape (access_token, refresh_token,
-/// expires_in) regardless of provider (email/password, Google, Apple, OAuth),
-/// so [setSession] and [getValidToken] work identically for all of them.
+/// Manages the current auth session and user profile across all sign-in providers.
 class AuthManager {
   static final instance = AuthManager._();
   AuthManager._();
@@ -16,10 +13,12 @@ class AuthManager {
   String? _accessToken;
   String? _refreshToken;
   DateTime? _expiresAt;
+  UserProfile? _profile;
 
   bool get hasSession => _accessToken != null && _refreshToken != null;
+  UserProfile? get profile => _profile;
 
-  /// Called on app start. Loads persisted tokens and refreshes them if expired.
+  /// Called on app start. Loads persisted tokens + profile and refreshes if expired.
   /// Returns true if a usable session was restored.
   Future<bool> tryRestoreSession() async {
     final stored = await _storage.load();
@@ -28,6 +27,7 @@ class AuthManager {
     _accessToken = stored.accessToken;
     _refreshToken = stored.refreshToken;
     _expiresAt = stored.expiresAt;
+    _profile = stored.profile;
 
     if (_isExpired()) {
       try {
@@ -37,6 +37,15 @@ class AuthManager {
         return false;
       }
     }
+
+    // If profile wasn't in storage (e.g. session created before this version),
+    // fetch it from the API. Non-fatal if it fails.
+    if (_profile == null) {
+      try {
+        await _fetchAndStoreProfile();
+      } catch (_) {}
+    }
+
     return true;
   }
 
@@ -47,27 +56,41 @@ class AuthManager {
     return _accessToken!;
   }
 
-  /// Store a new session returned by any sign-in method (email, Google, etc.).
-  void setSession(Map<String, dynamic> data) {
+  /// Store a new session returned by any sign-in method.
+  /// Pass [profileData] (the `profile` map from the API response) to persist
+  /// the user profile alongside the session tokens.
+  Future<void> setSession(
+    Map<String, dynamic> data, {
+    Map<String, dynamic>? profileData,
+  }) async {
     _accessToken = data['access_token'] as String;
     _refreshToken = data['refresh_token'] as String;
     final expiresIn = (data['expires_in'] as num).toInt();
     _expiresAt = DateTime.now().add(Duration(seconds: expiresIn));
-    _storage.save(
+    if (profileData != null) {
+      _profile = UserProfile.fromJson(profileData);
+    }
+    await _storage.save(
       accessToken: _accessToken!,
       refreshToken: _refreshToken!,
       expiresIn: expiresIn,
+      profile: _profile,
     );
+  }
+
+  Future<void> updateProfile(UserProfile profile) async {
+    _profile = profile;
+    await _storage.saveProfile(profile);
   }
 
   Future<void> clear() async {
     _accessToken = null;
     _refreshToken = null;
     _expiresAt = null;
+    _profile = null;
     await _storage.clear();
   }
 
-  // Treat tokens as expired 60 s early to avoid sending a stale token.
   bool _isExpired() {
     if (_expiresAt == null) return true;
     return DateTime.now().isAfter(_expiresAt!.subtract(const Duration(seconds: 60)));
@@ -75,6 +98,24 @@ class AuthManager {
 
   Future<void> _doRefresh() async {
     final data = await _authService.refresh(_refreshToken!);
-    setSession(data);
+    _accessToken = data['access_token'] as String;
+    _refreshToken = data['refresh_token'] as String;
+    final expiresIn = (data['expires_in'] as num).toInt();
+    _expiresAt = DateTime.now().add(Duration(seconds: expiresIn));
+    await _storage.save(
+      accessToken: _accessToken!,
+      refreshToken: _refreshToken!,
+      expiresIn: expiresIn,
+      profile: _profile,
+    );
+  }
+
+  Future<void> _fetchAndStoreProfile() async {
+    final data = await _authService.testEndpoint(_accessToken!);
+    final profileData = data['profile'] as Map<String, dynamic>?;
+    if (profileData != null) {
+      _profile = UserProfile.fromJson(profileData);
+      await _storage.saveProfile(_profile!);
+    }
   }
 }

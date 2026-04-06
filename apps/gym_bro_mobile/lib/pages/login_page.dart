@@ -36,7 +36,10 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
       );
-      AuthManager.instance.setSession(data);
+      await AuthManager.instance.setSession(
+        data,
+        profileData: data['profile'] as Map<String, dynamic>?,
+      );
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
       }

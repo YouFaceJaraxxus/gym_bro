@@ -1,5 +1,5 @@
 CREATE TYPE user_role AS ENUM (
-  'admin',
+  'owner',
   'trainer',
   'employee',
   'employee_trainer',

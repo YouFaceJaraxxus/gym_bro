@@ -9,7 +9,7 @@ import type {
 // ── Enums ─────────────────────────────────────────────────────────────────────
 
 export type UserRole =
-  | "admin"
+  | "owner"
   | "trainer"
   | "employee"
   | "employee_trainer"

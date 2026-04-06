@@ -368,8 +368,12 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
-# [edge_runtime.secrets]
-# secret_key = "env(SECRET_VALUE)"
+# Custom env vars injected into every edge function.
+# Values use env() to read from the host shell — source .env.local before
+# running `supabase start` (see scripts/dev.sh).
+[edge_runtime.secrets]
+POSTGRES_URL = "env(POSTGRES_URL)"
+SUPER_ADMIN_PASS = "env(SUPER_ADMIN_PASS)"
 
 [analytics]
 enabled = true

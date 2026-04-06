@@ -6,6 +6,8 @@ import type { Database } from "../../types/schema/public.ts";
 const { Pool } = pg;
 
 // ── Postgres / Kysely ─────────────────────────────────────────────────────────
+// POSTGRES_URL is injected by the edge runtime via [edge_runtime.secrets] in
+// config.toml — it is always present when this module loads in the container.
 
 const postgresUrl = Deno.env.get("POSTGRES_URL");
 if (!postgresUrl) throw new Error("POSTGRES_URL must be set");
