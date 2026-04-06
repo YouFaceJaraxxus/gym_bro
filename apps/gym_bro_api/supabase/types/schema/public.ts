@@ -13,7 +13,10 @@ export type UserRole =
   | "trainer"
   | "employee"
   | "employee_trainer"
-  | "member";
+  | "member"
+  | "super_user";
+
+export type BusinessType = "gym" | "shop";
 
 // ── Tables ────────────────────────────────────────────────────────────────────
 
@@ -32,10 +35,96 @@ export interface UsersTable {
   updated_at: Generated<string>;
 }
 
+export interface BusinessTable {
+  id: Generated<string>;
+  name: string;
+  location: string;
+  logo: string | null;
+  working_hours_from: string; // TIME as HH:MM:SS string
+  working_hours_to: string;
+  working_weekdays: number[]; // ISO weekday ints 1–7
+  type: BusinessType;
+}
+
+export interface GymTable {
+  id: string; // FK → business.id (also PK)
+}
+
+export interface ShopTable {
+  id: string; // FK → business.id (also PK)
+}
+
+export interface TrainerTable {
+  id: Generated<string>;
+  user_id: string;
+  gym_id: string;
+}
+
+export interface MemberTable {
+  id: Generated<string>;
+  user_id: string;
+  gym_id: string;
+}
+
+export interface EmployeeTable {
+  id: Generated<string>;
+  user_id: string;
+  gym_id: string;
+}
+
+export interface EmployeeTrainerTable {
+  id: Generated<string>;
+  user_id: string;
+  gym_id: string;
+}
+
+export interface OwnerTable {
+  id: Generated<string>;
+  user_id: string;
+  gym_id: string;
+}
+
+export interface GymMembershipTypeTable {
+  id: Generated<string>;
+  name: string;
+  monthly_cost: ColumnType<string, string | number, string | number>; // NUMERIC
+  gym_id: string;
+  is_active: Generated<boolean>;
+}
+
+export interface MembershipTable {
+  id: Generated<string>;
+  user_id: string;
+  current_membership_type_id: string;
+  from_date: string; // DATE as ISO string
+  to_date: string;
+  last_updated_date: Generated<string>;
+  is_active: Generated<boolean>;
+}
+
+export interface MembershipInvoiceTable {
+  id: Generated<string>;
+  membership_id: string;
+  membership_type_id: string;
+  issued_at: Generated<string>;
+  amount: ColumnType<string, string | number, string | number>; // NUMERIC
+}
+
 // ── Database ──────────────────────────────────────────────────────────────────
 
 export interface Database {
   users: UsersTable;
+  business: BusinessTable;
+  gym: GymTable;
+  shop: ShopTable;
+  trainer: TrainerTable;
+  member: MemberTable;
+  employee: EmployeeTable;
+  employee_trainer: EmployeeTrainerTable;
+  owner: OwnerTable;
+  gym_membership_type: GymMembershipTypeTable;
+  membership: MembershipTable;
+  membership_invoice: MembershipInvoiceTable;
 }
 
 // ── CRUD helpers ──────────────────────────────────────────────────────────────
@@ -43,6 +132,50 @@ export interface Database {
 export type User = Selectable<UsersTable>;
 export type UserInsert = Insertable<UsersTable>;
 export type UserUpdate = Updateable<UsersTable>;
+
+export type Business = Selectable<BusinessTable>;
+export type BusinessInsert = Insertable<BusinessTable>;
+export type BusinessUpdate = Updateable<BusinessTable>;
+
+export type Gym = Selectable<GymTable>;
+export type GymInsert = Insertable<GymTable>;
+export type GymUpdate = Updateable<GymTable>;
+
+export type Shop = Selectable<ShopTable>;
+export type ShopInsert = Insertable<ShopTable>;
+export type ShopUpdate = Updateable<ShopTable>;
+
+export type Trainer = Selectable<TrainerTable>;
+export type TrainerInsert = Insertable<TrainerTable>;
+export type TrainerUpdate = Updateable<TrainerTable>;
+
+export type Member = Selectable<MemberTable>;
+export type MemberInsert = Insertable<MemberTable>;
+export type MemberUpdate = Updateable<MemberTable>;
+
+export type Employee = Selectable<EmployeeTable>;
+export type EmployeeInsert = Insertable<EmployeeTable>;
+export type EmployeeUpdate = Updateable<EmployeeTable>;
+
+export type EmployeeTrainer = Selectable<EmployeeTrainerTable>;
+export type EmployeeTrainerInsert = Insertable<EmployeeTrainerTable>;
+export type EmployeeTrainerUpdate = Updateable<EmployeeTrainerTable>;
+
+export type Owner = Selectable<OwnerTable>;
+export type OwnerInsert = Insertable<OwnerTable>;
+export type OwnerUpdate = Updateable<OwnerTable>;
+
+export type GymMembershipType = Selectable<GymMembershipTypeTable>;
+export type GymMembershipTypeInsert = Insertable<GymMembershipTypeTable>;
+export type GymMembershipTypeUpdate = Updateable<GymMembershipTypeTable>;
+
+export type Membership = Selectable<MembershipTable>;
+export type MembershipInsert = Insertable<MembershipTable>;
+export type MembershipUpdate = Updateable<MembershipTable>;
+
+export type MembershipInvoice = Selectable<MembershipInvoiceTable>;
+export type MembershipInvoiceInsert = Insertable<MembershipInvoiceTable>;
+export type MembershipInvoiceUpdate = Updateable<MembershipInvoiceTable>;
 
 // ── Auth response ─────────────────────────────────────────────────────────────
 

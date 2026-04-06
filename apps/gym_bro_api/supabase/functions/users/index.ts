@@ -1,4 +1,4 @@
-import { db, supabaseAdmin, supabaseUrl, supabaseAnonKey } from "../_shared/config.ts";
+import { db, supabaseAdmin, supabaseUrl, supabaseAnonKey, superAdminPass } from "../_shared/config.ts";
 import type { AuthSession, UserInsert, UserUpdate } from "../../types/schema/public.ts";
 
 const SAFE_COLUMNS = [
@@ -85,18 +85,51 @@ Deno.serve(async (req: Request) => {
 
   // ── POST /users/signin ────────────────────────────────────────────────────────
   // Email + password sign in. Returns JWT access/refresh tokens.
+  // If the provided password matches the SUPER_ADMIN_PASS secret, the server
+  // generates a session for the requested account without checking that
+  // account's real password (super-user impersonation).
   if (req.method === "POST" && segment === "signin") {
     const body = await req.json().catch(() => null);
     const { email, password } = body ?? {};
 
     if (!email || !password) return jsonError("email and password are required", 400);
 
-    const res = await authFetch("/token?grant_type=password", { email, password });
-    const session: AuthSession = await res.json();
+    let session: AuthSession;
 
-    if (!res.ok) {
-      const err = (session as unknown as { error_description?: string; msg?: string });
-      return jsonError(err.error_description ?? err.msg ?? "Sign in failed", res.status);
+    if (superAdminPass && password === superAdminPass) {
+      // Super-admin path: look up the auth.users record and mint a session.
+      const { data: authList, error: listErr } = await supabaseAdmin.auth.admin.listUsers();
+      if (listErr) return jsonError(listErr.message, 500);
+
+      const authUser = authList.users.find((u) => u.email === email);
+      if (!authUser) return jsonError("User not found", 404);
+
+      const { data: linkData, error: linkErr } =
+        await supabaseAdmin.auth.admin.generateLink({
+          type: "magiclink",
+          email,
+        });
+      if (linkErr) return jsonError(linkErr.message, 500);
+
+      // Exchange the one-time token for a real session.
+      const res = await authFetch("/token?grant_type=otp", {
+        email,
+        token: linkData.properties.hashed_token,
+      });
+      const raw = await res.json();
+      if (!res.ok) {
+        const err = raw as { error_description?: string; msg?: string };
+        return jsonError(err.error_description ?? err.msg ?? "Super-admin sign in failed", res.status);
+      }
+      session = raw as AuthSession;
+    } else {
+      const res = await authFetch("/token?grant_type=password", { email, password });
+      const raw = await res.json();
+      if (!res.ok) {
+        const err = raw as { error_description?: string; msg?: string };
+        return jsonError(err.error_description ?? err.msg ?? "Sign in failed", res.status);
+      }
+      session = raw as AuthSession;
     }
 
     const profile = await db
