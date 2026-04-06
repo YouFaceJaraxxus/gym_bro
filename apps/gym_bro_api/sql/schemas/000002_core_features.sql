@@ -55,11 +55,18 @@ CREATE TABLE IF NOT EXISTS employee_trainer (
   UNIQUE (user_id, gym_id)
 );
 
-CREATE TABLE IF NOT EXISTS owner (
+CREATE TABLE IF NOT EXISTS gym_owner (
   id          UUID  PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id     UUID  NOT NULL REFERENCES users(id)     ON DELETE RESTRICT ON UPDATE CASCADE,
-  gym_id      UUID  NOT NULL REFERENCES gym(id)       ON DELETE RESTRICT ON UPDATE CASCADE,
+  user_id     UUID  NOT NULL REFERENCES users(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  gym_id      UUID  NOT NULL REFERENCES gym(id)   ON DELETE RESTRICT ON UPDATE CASCADE,
   UNIQUE (user_id, gym_id)
+);
+
+CREATE TABLE IF NOT EXISTS shop_owner (
+  id          UUID  PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID  NOT NULL REFERENCES users(id)  ON DELETE RESTRICT ON UPDATE CASCADE,
+  shop_id     UUID  NOT NULL REFERENCES shop(id)   ON DELETE RESTRICT ON UPDATE CASCADE,
+  UNIQUE (user_id, shop_id)
 );
 
 -- ── Memberships ───────────────────────────────────────────────────────────────

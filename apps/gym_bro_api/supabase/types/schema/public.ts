@@ -78,10 +78,16 @@ export interface EmployeeTrainerTable {
   gym_id: string;
 }
 
-export interface OwnerTable {
+export interface GymOwnerTable {
   id: Generated<string>;
   user_id: string;
   gym_id: string;
+}
+
+export interface ShopOwnerTable {
+  id: Generated<string>;
+  user_id: string;
+  shop_id: string;
 }
 
 export interface GymMembershipTypeTable {
@@ -121,7 +127,8 @@ export interface Database {
   member: MemberTable;
   employee: EmployeeTable;
   employee_trainer: EmployeeTrainerTable;
-  owner: OwnerTable;
+  gym_owner: GymOwnerTable;
+  shop_owner: ShopOwnerTable;
   gym_membership_type: GymMembershipTypeTable;
   membership: MembershipTable;
   membership_invoice: MembershipInvoiceTable;
@@ -161,9 +168,13 @@ export type EmployeeTrainer = Selectable<EmployeeTrainerTable>;
 export type EmployeeTrainerInsert = Insertable<EmployeeTrainerTable>;
 export type EmployeeTrainerUpdate = Updateable<EmployeeTrainerTable>;
 
-export type Owner = Selectable<OwnerTable>;
-export type OwnerInsert = Insertable<OwnerTable>;
-export type OwnerUpdate = Updateable<OwnerTable>;
+export type GymOwner = Selectable<GymOwnerTable>;
+export type GymOwnerInsert = Insertable<GymOwnerTable>;
+export type GymOwnerUpdate = Updateable<GymOwnerTable>;
+
+export type ShopOwner = Selectable<ShopOwnerTable>;
+export type ShopOwnerInsert = Insertable<ShopOwnerTable>;
+export type ShopOwnerUpdate = Updateable<ShopOwnerTable>;
 
 export type GymMembershipType = Selectable<GymMembershipTypeTable>;
 export type GymMembershipTypeInsert = Insertable<GymMembershipTypeTable>;
