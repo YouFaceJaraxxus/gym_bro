@@ -66,22 +66,23 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
     if (saved == true) _load();
   }
 
-  void _openDetail(Business b) {
+  Future<void> _openDetail(Business b) async {
     if (b.type == 'gym') {
-      Navigator.push(
+      await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (_) =>
                 GymDetailPage(gymId: b.id, gymName: b.name)),
       );
     } else {
-      Navigator.push(
+      await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (_) =>
                 ShopDetailPage(shopId: b.id, shopName: b.name)),
       );
     }
+    _load();
   }
 
   @override
@@ -109,46 +110,62 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
 
     return Stack(
       children: [
-        _businesses.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+        RefreshIndicator(
+          onRefresh: _load,
+          child: _businesses.isEmpty
+              ? LayoutBuilder(
+                  builder: (context, constraints) => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: constraints.maxHeight,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.business_outlined,
+                                  size: 48,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .outline),
+                              const SizedBox(height: 16),
+                              const Text('No businesses yet'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(
+                      left: 16, right: 16, top: 16, bottom: 88),
                   children: [
-                    Icon(Icons.business_outlined,
-                        size: 48,
-                        color: Theme.of(context).colorScheme.outline),
-                    const SizedBox(height: 16),
-                    const Text('No businesses yet'),
+                    if (gyms.isNotEmpty) ...[
+                      _SectionHeader(
+                          icon: Icons.fitness_center, label: 'Gyms'),
+                      for (final b in gyms)
+                        _BusinessTile(
+                          business: b,
+                          onTap: () => _openDetail(b),
+                          onEdit: () => _openEditForm(b),
+                        ),
+                      const SizedBox(height: 8),
+                    ],
+                    if (shops.isNotEmpty) ...[
+                      _SectionHeader(
+                          icon: Icons.store_outlined, label: 'Shops'),
+                      for (final b in shops)
+                        _BusinessTile(
+                          business: b,
+                          onTap: () => _openDetail(b),
+                          onEdit: () => _openEditForm(b),
+                        ),
+                    ],
                   ],
                 ),
-              )
-            : ListView(
-                padding: const EdgeInsets.only(
-                    left: 16, right: 16, top: 16, bottom: 88),
-                children: [
-                  if (gyms.isNotEmpty) ...[
-                    _SectionHeader(
-                        icon: Icons.fitness_center, label: 'Gyms'),
-                    for (final b in gyms)
-                      _BusinessTile(
-                        business: b,
-                        onTap: () => _openDetail(b),
-                        onEdit: () => _openEditForm(b),
-                      ),
-                    const SizedBox(height: 8),
-                  ],
-                  if (shops.isNotEmpty) ...[
-                    _SectionHeader(
-                        icon: Icons.store_outlined, label: 'Shops'),
-                    for (final b in shops)
-                      _BusinessTile(
-                        business: b,
-                        onTap: () => _openDetail(b),
-                        onEdit: () => _openEditForm(b),
-                      ),
-                  ],
-                ],
-              ),
+        ),
         Positioned(
           bottom: 16,
           right: 16,

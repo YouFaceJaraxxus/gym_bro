@@ -2,24 +2,23 @@ import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
-import 'add_gym_member_page.dart';
+import 'add_gym_employee_page.dart';
 
-class GymMembersPage extends StatefulWidget {
-  const GymMembersPage(
+class GymEmployeesPage extends StatefulWidget {
+  const GymEmployeesPage(
       {super.key, required this.gymId, required this.gymName});
 
   final String gymId;
   final String gymName;
 
   @override
-  State<GymMembersPage> createState() => _GymMembersPageState();
+  State<GymEmployeesPage> createState() => _GymEmployeesPageState();
 }
 
-class _GymMembersPageState extends State<GymMembersPage> {
+class _GymEmployeesPageState extends State<GymEmployeesPage> {
   final _api = ApiService();
 
-  // Each entry: {memberId, user}
-  List<({String memberId, UserProfile user})> _members = [];
+  List<({String employeeId, UserProfile user})> _employees = [];
   bool _loading = true;
   String? _error;
 
@@ -37,22 +36,22 @@ class _GymMembersPageState extends State<GymMembersPage> {
     try {
       final token = await AuthManager.instance.getValidToken();
       final results = await Future.wait([
-        _api.getMembers(token, gymId: widget.gymId),
+        _api.getEmployees(token, gymId: widget.gymId),
         _api.getUsers(token),
       ]);
-      final memberRows = results[0] as List<Map<String, dynamic>>;
+      final employeeRows = results[0] as List<Map<String, dynamic>>;
       final allUsers = results[1] as List<UserProfile>;
       final userMap = {for (final u in allUsers) u.id: u};
 
       if (mounted) {
         setState(() {
-          _members = memberRows
+          _employees = employeeRows
               .map((r) {
                 final u = userMap[r['user_id'] as String];
                 if (u == null) return null;
-                return (memberId: r['id'] as String, user: u);
+                return (employeeId: r['id'] as String, user: u);
               })
-              .whereType<({String memberId, UserProfile user})>()
+              .whereType<({String employeeId, UserProfile user})>()
               .toList();
           _loading = false;
         });
@@ -67,12 +66,13 @@ class _GymMembersPageState extends State<GymMembersPage> {
     }
   }
 
-  Future<void> _removeMember(String memberId) async {
+  Future<void> _removeEmployee(String employeeId) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Remove member?'),
-        content: const Text('This will remove the member from this gym.'),
+        title: const Text('Remove employee?'),
+        content:
+            const Text('This will remove the employee from this gym.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -86,7 +86,7 @@ class _GymMembersPageState extends State<GymMembersPage> {
     if (confirmed != true) return;
     try {
       final token = await AuthManager.instance.getValidToken();
-      await _api.removeMember(token, memberId);
+      await _api.removeEmployee(token, employeeId);
       _load();
     } catch (e) {
       if (mounted) {
@@ -102,7 +102,7 @@ class _GymMembersPageState extends State<GymMembersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.gymName} — Members')),
+      appBar: AppBar(title: Text('${widget.gymName} — Staff')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -113,13 +113,14 @@ class _GymMembersPageState extends State<GymMembersPage> {
           final added = await Navigator.push<bool>(
             context,
             MaterialPageRoute(
-              builder: (_) => AddGymMemberPage(gymId: widget.gymId),
+              builder: (_) =>
+                  AddGymEmployeePage(gymId: widget.gymId),
             ),
           );
           if (added == true) _load();
         },
         icon: const Icon(Icons.person_add_outlined),
-        label: const Text('Add Member'),
+        label: const Text('Add Employee'),
       ),
     );
   }
@@ -141,7 +142,7 @@ class _GymMembersPageState extends State<GymMembersPage> {
   }
 
   Widget _buildList() {
-    if (_members.isEmpty) {
+    if (_employees.isEmpty) {
       return RefreshIndicator(
         onRefresh: _load,
         child: LayoutBuilder(
@@ -154,11 +155,11 @@ class _GymMembersPageState extends State<GymMembersPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.people_outline,
+                      Icon(Icons.badge_outlined,
                           size: 48,
                           color: Theme.of(context).colorScheme.outline),
                       const SizedBox(height: 16),
-                      const Text('No members yet'),
+                      const Text('No employees yet'),
                     ],
                   ),
                 ),
@@ -174,28 +175,28 @@ class _GymMembersPageState extends State<GymMembersPage> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding:
             const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 88),
-        itemCount: _members.length,
-      itemBuilder: (_, i) {
-        final entry = _members[i];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 10),
-          child: ListTile(
-            leading: CircleAvatar(
-              child: Text(entry.user.name.isNotEmpty
-                  ? entry.user.name[0].toUpperCase()
-                  : '?'),
+        itemCount: _employees.length,
+        itemBuilder: (_, i) {
+          final entry = _employees[i];
+          return Card(
+            margin: const EdgeInsets.only(bottom: 10),
+            child: ListTile(
+              leading: CircleAvatar(
+                child: Text(entry.user.name.isNotEmpty
+                    ? entry.user.name[0].toUpperCase()
+                    : '?'),
+              ),
+              title: Text(entry.user.fullName),
+              subtitle: Text(entry.user.email),
+              trailing: IconButton(
+                icon: const Icon(Icons.remove_circle_outline),
+                color: Theme.of(context).colorScheme.error,
+                tooltip: 'Remove',
+                onPressed: () => _removeEmployee(entry.employeeId),
+              ),
             ),
-            title: Text(entry.user.fullName),
-            subtitle: Text(entry.user.email),
-            trailing: IconButton(
-              icon: const Icon(Icons.remove_circle_outline),
-              color: Theme.of(context).colorScheme.error,
-              tooltip: 'Remove',
-              onPressed: () => _removeMember(entry.memberId),
-            ),
-          ),
-        );
-      },
+          );
+        },
       ),
     );
   }

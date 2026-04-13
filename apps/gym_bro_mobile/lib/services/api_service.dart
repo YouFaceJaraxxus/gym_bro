@@ -199,6 +199,25 @@ class ApiService {
     return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
   }
 
+  Future<Map<String, dynamic>> addEmployee(
+      String token, String userId, String gymId) async {
+    final r = await _client.post(
+      Uri.parse('$_base/employees'),
+      headers: _headers(token),
+      body: jsonEncode({'user_id': userId, 'gym_id': gymId}),
+    );
+    _check(r);
+    return jsonDecode(r.body) as Map<String, dynamic>;
+  }
+
+  Future<void> removeEmployee(String token, String employeeId) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/employees/$employeeId'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
   // ── Shop items ──────────────────────────────────────────────────────────────
 
   Future<List<ShopItem>> getShopItems(String token,

@@ -131,28 +131,45 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
 
   Widget _buildList() {
     if (_items.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.inventory_2_outlined,
-                size: 48,
-                color: Theme.of(context).colorScheme.outline),
-            const SizedBox(height: 16),
-            const Text('No items yet'),
-          ],
+      return RefreshIndicator(
+        onRefresh: _load,
+        child: LayoutBuilder(
+          builder: (context, constraints) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              SizedBox(
+                height: constraints.maxHeight,
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.inventory_2_outlined,
+                          size: 48,
+                          color: Theme.of(context).colorScheme.outline),
+                      const SizedBox(height: 16),
+                      const Text('No items yet'),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    return ListView.builder(
-      padding:
-          const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 88),
-      itemCount: _items.length,
-      itemBuilder: (_, i) => _ShopItemTile(
-        item: _items[i],
-        onEdit: () => _openForm(item: _items[i]),
-        onDelete: () => _delete(_items[i]),
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding:
+            const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 88),
+        itemCount: _items.length,
+        itemBuilder: (_, i) => _ShopItemTile(
+          item: _items[i],
+          onEdit: () => _openForm(item: _items[i]),
+          onDelete: () => _delete(_items[i]),
+        ),
       ),
     );
   }

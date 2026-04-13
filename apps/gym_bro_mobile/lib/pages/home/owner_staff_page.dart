@@ -2,22 +2,21 @@ import 'package:flutter/material.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
-import '../gym_members_page.dart';
+import '../gym_employees_page.dart';
 
-class OwnerMembersPage extends StatefulWidget {
-  const OwnerMembersPage({super.key, required this.profile});
+class OwnerStaffPage extends StatefulWidget {
+  const OwnerStaffPage({super.key, required this.profile});
 
   final UserProfile profile;
 
   @override
-  State<OwnerMembersPage> createState() => _OwnerMembersPageState();
+  State<OwnerStaffPage> createState() => _OwnerStaffPageState();
 }
 
-class _OwnerMembersPageState extends State<OwnerMembersPage> {
+class _OwnerStaffPageState extends State<OwnerStaffPage> {
   final _api = ApiService();
 
-  // Each entry: {gymId, gymName, memberCount}
-  List<({String gymId, String gymName, int memberCount})> _gyms = [];
+  List<({String gymId, String gymName, int employeeCount})> _gyms = [];
   bool _loading = true;
   String? _error;
 
@@ -52,10 +51,10 @@ class _OwnerMembersPageState extends State<OwnerMembersPage> {
           .where((b) => gymIds.contains(b.id) && b.type == 'gym')
           .toList();
 
-      // 3. Fetch member counts in parallel.
-      final memberLists = await Future.wait(
+      // 3. Fetch employee counts in parallel.
+      final employeeLists = await Future.wait(
         ownedGyms.map(
-            (g) => _api.getMembers(token, gymId: g.id)),
+            (g) => _api.getEmployees(token, gymId: g.id)),
       );
 
       if (mounted) {
@@ -65,7 +64,7 @@ class _OwnerMembersPageState extends State<OwnerMembersPage> {
             return (
               gymId: b.id,
               gymName: b.name,
-              memberCount: memberLists[i].length,
+              employeeCount: employeeLists[i].length,
             );
           });
           _loading = false;
@@ -158,13 +157,13 @@ class _OwnerMembersPageState extends State<OwnerMembersPage> {
               ),
               title: Text(entry.gymName),
               subtitle: Text(
-                  '${entry.memberCount} member${entry.memberCount == 1 ? '' : 's'}'),
+                  '${entry.employeeCount} employee${entry.employeeCount == 1 ? '' : 's'}'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () async {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => GymMembersPage(
+                    builder: (_) => GymEmployeesPage(
                         gymId: entry.gymId,
                         gymName: entry.gymName),
                   ),

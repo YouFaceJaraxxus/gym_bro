@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'gym_employees_page.dart';
 import 'gym_members_page.dart';
 
 class GymDetailPage extends StatefulWidget {
@@ -100,97 +101,124 @@ class _GymDetailPageState extends State<GymDetailPage> {
   }
 
   Widget _buildContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Overview card ────────────────────────────────────────────
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primaryContainer,
-                    child: Icon(Icons.fitness_center,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onPrimaryContainer),
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _StatChip(
-                          icon: Icons.people_outline,
-                          label: '${_members.length} members'),
-                      const SizedBox(height: 4),
-                      _StatChip(
-                          icon: Icons.badge_outlined,
-                          label: '${_employees.length} employees'),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // ── Members section ──────────────────────────────────────────
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Members',
-                  style: Theme.of(context).textTheme.titleMedium),
-              TextButton.icon(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => GymMembersPage(
-                        gymId: widget.gymId,
-                        gymName: widget.gymName),
-                  ),
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Overview card ──────────────────────────────────────────
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primaryContainer,
+                      child: Icon(Icons.fitness_center,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onPrimaryContainer),
+                    ),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _StatChip(
+                            icon: Icons.people_outline,
+                            label: '${_members.length} members'),
+                        const SizedBox(height: 4),
+                        _StatChip(
+                            icon: Icons.badge_outlined,
+                            label: '${_employees.length} employees'),
+                      ],
+                    ),
+                  ],
                 ),
-                icon: const Icon(Icons.open_in_new, size: 16),
-                label: const Text('Manage'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          if (_members.isEmpty)
-            _EmptyHint(
-                icon: Icons.people_outline, label: 'No members yet')
-          else
-            for (final u in _members.take(5))
-              _UserRow(user: u),
-          if (_members.length > 5)
-            Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                '+ ${_members.length - 5} more',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(
-                        color: Theme.of(context).colorScheme.primary),
               ),
             ),
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // ── Employees section ────────────────────────────────────────
-          Text('Employees',
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          if (_employees.isEmpty)
-            _EmptyHint(
-                icon: Icons.badge_outlined, label: 'No employees yet')
-          else
-            for (final u in _employees)
-              _UserRow(user: u),
-        ],
+            // ── Members section ────────────────────────────────────────
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Members',
+                    style: Theme.of(context).textTheme.titleMedium),
+                TextButton.icon(
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => GymMembersPage(
+                            gymId: widget.gymId,
+                            gymName: widget.gymName),
+                      ),
+                    );
+                    _load();
+                  },
+                  icon: const Icon(Icons.open_in_new, size: 16),
+                  label: const Text('Manage'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (_members.isEmpty)
+              _EmptyHint(
+                  icon: Icons.people_outline, label: 'No members yet')
+            else
+              for (final u in _members.take(5))
+                _UserRow(user: u),
+            if (_members.length > 5)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  '+ ${_members.length - 5} more',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(
+                          color: Theme.of(context).colorScheme.primary),
+                ),
+              ),
+            const SizedBox(height: 24),
+
+            // ── Employees section ──────────────────────────────────────
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Employees',
+                    style: Theme.of(context).textTheme.titleMedium),
+                TextButton.icon(
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => GymEmployeesPage(
+                            gymId: widget.gymId,
+                            gymName: widget.gymName),
+                      ),
+                    );
+                    _load();
+                  },
+                  icon: const Icon(Icons.open_in_new, size: 16),
+                  label: const Text('Manage'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (_employees.isEmpty)
+              _EmptyHint(
+                  icon: Icons.badge_outlined, label: 'No employees yet')
+            else
+              for (final u in _employees)
+                _UserRow(user: u),
+          ],
+        ),
       ),
     );
   }

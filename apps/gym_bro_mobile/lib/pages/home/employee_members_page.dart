@@ -161,23 +161,38 @@ class _EmployeeMembersPageState extends State<EmployeeMembersPage> {
 
     return Stack(
       children: [
-        _members.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.people_outline,
-                        size: 48,
-                        color: Theme.of(context).colorScheme.outline),
-                    const SizedBox(height: 16),
-                    const Text('No members yet'),
-                  ],
-                ),
-              )
-            : ListView.builder(
-                padding: const EdgeInsets.only(
-                    left: 16, right: 16, top: 16, bottom: 88),
-                itemCount: _members.length + 1,
+        RefreshIndicator(
+          onRefresh: _load,
+          child: _members.isEmpty
+              ? LayoutBuilder(
+                  builder: (context, constraints) => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: constraints.maxHeight,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.people_outline,
+                                  size: 48,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .outline),
+                              const SizedBox(height: 16),
+                              const Text('No members yet'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(
+                      left: 16, right: 16, top: 16, bottom: 88),
+                  itemCount: _members.length + 1,
                 itemBuilder: (_, i) {
                   if (i == 0) {
                     return Padding(
@@ -226,6 +241,7 @@ class _EmployeeMembersPageState extends State<EmployeeMembersPage> {
                   );
                 },
               ),
+        ),
         Positioned(
           bottom: 16,
           right: 16,

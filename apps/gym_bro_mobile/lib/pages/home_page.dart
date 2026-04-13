@@ -5,6 +5,7 @@ import '../services/auth_service.dart';
 import 'home/owner_home_page.dart';
 import 'home/owner_businesses_page.dart';
 import 'home/owner_members_page.dart';
+import 'home/owner_staff_page.dart';
 import 'home/employee_members_page.dart';
 import 'home/member_home_page.dart';
 import 'home/trainer_home_page.dart';
@@ -200,6 +201,7 @@ class _HomePageState extends State<HomePage> {
     if (profile.role == UserRole.owner) {
       if (index == 1) return const OwnerBusinessesPage();
       if (index == 2) return OwnerMembersPage(profile: profile);
+      if (index == 3) return OwnerStaffPage(profile: profile);
     }
 
     // Employee-specific tabs.

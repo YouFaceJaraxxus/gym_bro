@@ -93,8 +93,10 @@ Deno.serve(async (req: Request) => {
         .executeTakeFirstOrThrow();
       if (type === "gym") {
         await trx.insertInto("gym").values({ id: biz.id }).execute();
+        await trx.insertInto("gym_owner").values({ user_id: user.id, gym_id: biz.id }).execute();
       } else {
         await trx.insertInto("shop").values({ id: biz.id }).execute();
+        await trx.insertInto("shop_owner").values({ user_id: user.id, shop_id: biz.id }).execute();
       }
       return biz;
     });
