@@ -36,6 +36,7 @@ Deno.serve(async (req: Request) => {
       .values({ user_id, gym_id })
       .returningAll()
       .executeTakeFirstOrThrow();
+    await db.updateTable("users").set({ role: "employee_trainer" }).where("id", "=", user_id).execute();
     return json(row, 201);
   }
 
