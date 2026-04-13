@@ -18,6 +18,8 @@ export type UserRole =
 
 export type BusinessType = "gym" | "shop";
 
+export type ShopItemType = "equipment" | "supplement" | "gift_card";
+
 // ── Tables ────────────────────────────────────────────────────────────────────
 
 export interface UsersTable {
@@ -116,6 +118,31 @@ export interface MembershipInvoiceTable {
   amount: ColumnType<string, string | number, string | number>; // NUMERIC
 }
 
+export interface ShopItemTable {
+  id: Generated<string>;
+  shop_id: string;
+  type: ShopItemType;
+  name: string;
+  description: string | null;
+  price: ColumnType<string, string | number, string | number>; // NUMERIC
+  is_active: Generated<boolean>;
+  active_until: string | null; // TIMESTAMPTZ as ISO string
+}
+
+export interface InvoiceTable {
+  id: Generated<string>;
+  date: Generated<string>; // DATE as ISO string, defaults to CURRENT_DATE
+  // Maintained by trigger; never set manually. Use ColumnType<select, never, never>.
+  total: ColumnType<string, never, never>;
+}
+
+export interface InvoiceItemTable {
+  id: Generated<string>;
+  invoice_id: string;
+  shop_item_id: string;
+  quantity: number;
+}
+
 // ── Database ──────────────────────────────────────────────────────────────────
 
 export interface Database {
@@ -132,6 +159,9 @@ export interface Database {
   gym_membership_type: GymMembershipTypeTable;
   membership: MembershipTable;
   membership_invoice: MembershipInvoiceTable;
+  shop_item: ShopItemTable;
+  invoice: InvoiceTable;
+  invoice_item: InvoiceItemTable;
 }
 
 // ── CRUD helpers ──────────────────────────────────────────────────────────────
@@ -187,6 +217,17 @@ export type MembershipUpdate = Updateable<MembershipTable>;
 export type MembershipInvoice = Selectable<MembershipInvoiceTable>;
 export type MembershipInvoiceInsert = Insertable<MembershipInvoiceTable>;
 export type MembershipInvoiceUpdate = Updateable<MembershipInvoiceTable>;
+
+export type ShopItem = Selectable<ShopItemTable>;
+export type ShopItemInsert = Insertable<ShopItemTable>;
+export type ShopItemUpdate = Updateable<ShopItemTable>;
+
+export type Invoice = Selectable<InvoiceTable>;
+export type InvoiceInsert = Insertable<InvoiceTable>;
+
+export type InvoiceItem = Selectable<InvoiceItemTable>;
+export type InvoiceItemInsert = Insertable<InvoiceItemTable>;
+export type InvoiceItemUpdate = Updateable<InvoiceItemTable>;
 
 // ── Auth response ─────────────────────────────────────────────────────────────
 

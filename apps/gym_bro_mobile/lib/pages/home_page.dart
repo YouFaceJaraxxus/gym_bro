@@ -3,6 +3,9 @@ import '../models/user_profile.dart';
 import '../services/auth_manager.dart';
 import '../services/auth_service.dart';
 import 'home/owner_home_page.dart';
+import 'home/owner_businesses_page.dart';
+import 'home/owner_members_page.dart';
+import 'home/employee_members_page.dart';
 import 'home/member_home_page.dart';
 import 'home/trainer_home_page.dart';
 import 'home/employee_home_page.dart';
@@ -15,8 +18,9 @@ typedef _Tab = ({String label, IconData icon});
 
 const _ownerTabs = <_Tab>[
   (label: 'Home', icon: Icons.home_outlined),
-  (label: 'Staff', icon: Icons.badge_outlined),
+  (label: 'Businesses', icon: Icons.business_outlined),
   (label: 'Members', icon: Icons.people_outline),
+  (label: 'Staff', icon: Icons.badge_outlined),
   (label: 'Profile', icon: Icons.person_outline),
 ];
 
@@ -36,6 +40,7 @@ const _trainerTabs = <_Tab>[
 
 const _employeeTabs = <_Tab>[
   (label: 'Home', icon: Icons.home_outlined),
+  (label: 'Members', icon: Icons.people_outline),
   (label: 'Schedule', icon: Icons.schedule_outlined),
   (label: 'Profile', icon: Icons.person_outline),
 ];
@@ -190,6 +195,19 @@ class _HomePageState extends State<HomePage> {
         UserRole.superUser => SuperUserHomePage(profile: profile),
       };
     }
+
+    // Owner-specific tabs.
+    if (profile.role == UserRole.owner) {
+      if (index == 1) return const OwnerBusinessesPage();
+      if (index == 2) return OwnerMembersPage(profile: profile);
+    }
+
+    // Employee-specific tabs.
+    if (profile.role == UserRole.employee ||
+        profile.role == UserRole.employeeTrainer) {
+      if (index == 1) return EmployeeMembersPage(profile: profile);
+    }
+
     // Remaining tabs show a placeholder until their pages are built.
     final tabs = _tabsForRole(profile.role);
     return Center(
