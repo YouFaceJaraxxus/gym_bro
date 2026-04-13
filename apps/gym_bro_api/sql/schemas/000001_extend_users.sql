@@ -4,6 +4,7 @@ CREATE TYPE user_role AS ENUM (
   'employee',
   'employee_trainer',
   'member'
+  'super_user'
 );
 
 ALTER TABLE users
