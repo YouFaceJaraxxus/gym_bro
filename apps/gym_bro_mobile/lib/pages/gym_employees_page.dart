@@ -4,6 +4,17 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'add_gym_employee_page.dart';
 
+enum _StaffType { employee, employeeTrainer }
+
+class _StaffEntry {
+  final String staffId;
+  final _StaffType type;
+  final UserProfile user;
+
+  const _StaffEntry(
+      {required this.staffId, required this.type, required this.user});
+}
+
 class GymEmployeesPage extends StatefulWidget {
   const GymEmployeesPage(
       {super.key, required this.gymId, required this.gymName});
@@ -18,7 +29,7 @@ class GymEmployeesPage extends StatefulWidget {
 class _GymEmployeesPageState extends State<GymEmployeesPage> {
   final _api = ApiService();
 
-  List<({String employeeId, UserProfile user})> _employees = [];
+  List<_StaffEntry> _staff = [];
   bool _loading = true;
   String? _error;
 
@@ -37,22 +48,25 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
       final token = await AuthManager.instance.getValidToken();
       final results = await Future.wait([
         _api.getEmployees(token, gymId: widget.gymId),
-        _api.getUsers(token),
+        _api.getEmployeeTrainers(token, gymId: widget.gymId),
       ]);
-      final employeeRows = results[0] as List<Map<String, dynamic>>;
-      final allUsers = results[1] as List<UserProfile>;
-      final userMap = {for (final u in allUsers) u.id: u};
+      final employeeRows = results[0];
+      final trainerRows = results[1];
 
       if (mounted) {
         setState(() {
-          _employees = employeeRows
-              .map((r) {
-                final u = userMap[r['user_id'] as String];
-                if (u == null) return null;
-                return (employeeId: r['id'] as String, user: u);
-              })
-              .whereType<({String employeeId, UserProfile user})>()
-              .toList();
+          _staff = [
+            ...employeeRows.map((r) => _StaffEntry(
+                  staffId: r['id'] as String,
+                  type: _StaffType.employee,
+                  user: UserProfile.fromJson(r),
+                )),
+            ...trainerRows.map((r) => _StaffEntry(
+                  staffId: r['id'] as String,
+                  type: _StaffType.employeeTrainer,
+                  user: UserProfile.fromJson(r),
+                )),
+          ];
           _loading = false;
         });
       }
@@ -66,13 +80,13 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
     }
   }
 
-  Future<void> _removeEmployee(String employeeId) async {
+  Future<void> _removeStaff(_StaffEntry entry) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Remove employee?'),
+        title: const Text('Remove staff member?'),
         content:
-            const Text('This will remove the employee from this gym.'),
+            const Text('This will remove them from this gym.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -86,7 +100,11 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
     if (confirmed != true) return;
     try {
       final token = await AuthManager.instance.getValidToken();
-      await _api.removeEmployee(token, employeeId);
+      if (entry.type == _StaffType.employee) {
+        await _api.removeEmployee(token, entry.staffId);
+      } else {
+        await _api.removeEmployeeTrainer(token, entry.staffId);
+      }
       _load();
     } catch (e) {
       if (mounted) {
@@ -142,7 +160,7 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
   }
 
   Widget _buildList() {
-    if (_employees.isEmpty) {
+    if (_staff.isEmpty) {
       return RefreshIndicator(
         onRefresh: _load,
         child: LayoutBuilder(
@@ -159,7 +177,7 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
                           size: 48,
                           color: Theme.of(context).colorScheme.outline),
                       const SizedBox(height: 16),
-                      const Text('No employees yet'),
+                      const Text('No staff yet'),
                     ],
                   ),
                 ),
@@ -175,9 +193,9 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding:
             const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 88),
-        itemCount: _employees.length,
+        itemCount: _staff.length,
         itemBuilder: (_, i) {
-          final entry = _employees[i];
+          final entry = _staff[i];
           return Card(
             margin: const EdgeInsets.only(bottom: 10),
             child: ListTile(
@@ -187,12 +205,14 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
                     : '?'),
               ),
               title: Text(entry.user.fullName),
-              subtitle: Text(entry.user.email),
+              subtitle: Text(
+                '${entry.user.email}  ·  ${entry.type == _StaffType.employeeTrainer ? 'Emp. Trainer' : 'Employee'}',
+              ),
               trailing: IconButton(
                 icon: const Icon(Icons.remove_circle_outline),
                 color: Theme.of(context).colorScheme.error,
                 tooltip: 'Remove',
-                onPressed: () => _removeEmployee(entry.employeeId),
+                onPressed: () => _removeStaff(entry),
               ),
             ),
           );

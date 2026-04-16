@@ -32,7 +32,7 @@ function authFetch(path: string, body: unknown): Promise<Response> {
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
-const STATIC_SEGMENTS = new Set(["signup", "signin", "google", "refresh", "me", "test"]);
+const STATIC_SEGMENTS = new Set(["signup", "signin", "google", "refresh", "me", "test", "verify-invite"]);
 
 function parseSegment(pathname: string): string | null {
   const match = pathname.match(/^\/users\/([^/]+)$/);
@@ -42,12 +42,19 @@ function parseSegment(pathname: string): string | null {
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
-  const { pathname } = new URL(req.url);
+  const url = new URL(req.url);
+  const { pathname } = url;
   const segment = parseSegment(pathname);
   const id = segment && !STATIC_SEGMENTS.has(segment) ? segment : null;
 
   // ── POST /users/signup ────────────────────────────────────────────────────────
-  // Creates a Supabase Auth user and a public profile. Sends a verification email.
+  // Two paths:
+  //   A) Normal signup — no existing profile for this email. Creates a Supabase Auth
+  //      user + public profile and sends a verification email.
+  //   B) Invited signup — an owner pre-added this email via the employee flow, so a
+  //      users row (with auth_id) already exists. We update the auth user's password,
+  //      confirm the email, update the profile with the user's chosen name/username,
+  //      and return a live session so the app can navigate straight to home.
   if (req.method === "POST" && segment === "signup") {
     const body = await req.json().catch(() => null);
     const { email, password, username, name, last_name, role } = body ?? {};
@@ -56,6 +63,41 @@ Deno.serve(async (req: Request) => {
       return jsonError("Missing required fields: email, password, username, name, last_name", 400);
     }
 
+    // ── Path B: pre-invited user ──────────────────────────────────────────────
+    const existingProfile = await db
+      .selectFrom("users")
+      .select(["id", "auth_id"])
+      .where("email", "=", email)
+      .executeTakeFirst();
+
+    if (existingProfile?.auth_id) {
+      // Update the auth user: set the password they chose and confirm the email.
+      const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(
+        existingProfile.auth_id,
+        { password, email_confirm: true, user_metadata: { username, name, last_name } },
+      );
+      if (updateErr) return jsonError(updateErr.message, 400);
+
+      // Let the user update their own display name / username.
+      const updated = await db
+        .updateTable("users")
+        .set({ username, name, last_name })
+        .where("id", "=", existingProfile.id)
+        .returning(SAFE_COLUMNS)
+        .executeTakeFirstOrThrow();
+
+      // Sign them in immediately so the app can open the home screen.
+      const res = await authFetch("/token?grant_type=password", { email, password });
+      const raw = await res.json();
+      if (!res.ok) {
+        const err = raw as { error_description?: string; msg?: string };
+        return jsonError(err.error_description ?? err.msg ?? "Sign in failed", res.status);
+      }
+
+      return json({ ...raw, profile: updated }, 200);
+    }
+
+    // ── Path A: brand-new user ────────────────────────────────────────────────
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
@@ -207,6 +249,64 @@ Deno.serve(async (req: Request) => {
     return json({ ...session, profile });
   }
 
+  // ── POST /users/verify-invite ─────────────────────────────────────────────────
+  // Verifies the 6-digit OTP from an invite email ("alternatively use a code").
+  // Also sets the user's password so they can log in with email/password later.
+  // Returns a live session identical to sign-in so the app can navigate to home.
+  if (req.method === "POST" && segment === "verify-invite") {
+    const body = await req.json().catch(() => null);
+    const { email, token, password } = body ?? {};
+
+    if (!email || !token || !password) {
+      return jsonError("email, token, and password are required", 400);
+    }
+    if (password.length < 6) {
+      return jsonError("Password must be at least 6 characters", 400);
+    }
+
+    // 1. Exchange the OTP for a session.
+    // Supabase uses different token types depending on which email was sent:
+    //   "invite"     → "You have been invited" email
+    //   "magiclink"  → "Your Magic Link" / recovery email
+    // Try both so the screen works regardless of which email the user received.
+    let verifyRaw: Record<string, unknown> | null = null;
+    for (const type of ["invite", "magiclink"] as const) {
+      const res = await authFetch("/verify", { type, token, email });
+      const body = await res.json() as Record<string, unknown>;
+      if (res.ok) { verifyRaw = body; break; }
+      // Keep trying if the token is just the wrong type; bail on other errors.
+      const code = (body as { error_code?: string }).error_code;
+      if (code !== "otp_expired") {
+        return jsonError(
+          (body as { msg?: string; message?: string }).msg ??
+          (body as { message?: string }).message ??
+          "Invalid or expired code",
+          res.status,
+        );
+      }
+    }
+    if (!verifyRaw) {
+      return jsonError("Invalid or expired code — request a new invite link", 403);
+    }
+    const session = verifyRaw as unknown as AuthSession;
+
+    // 2. Set the chosen password and confirm the email on the auth user.
+    const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(
+      session.user.id,
+      { password, email_confirm: true },
+    );
+    if (updateErr) return jsonError(updateErr.message, 400);
+
+    // 3. Return the session alongside the public profile.
+    const profile = await db
+      .selectFrom("users")
+      .select(SAFE_COLUMNS)
+      .where("auth_id", "=", session.user.id)
+      .executeTakeFirst();
+
+    return json({ ...session, profile });
+  }
+
   // ── POST /users/refresh ───────────────────────────────────────────────────────
   // Exchanges a refresh token for a new session. Works for all providers
   // (email/password, Google, Apple, OAuth) — Supabase's refresh grant is
@@ -260,10 +360,12 @@ Deno.serve(async (req: Request) => {
     return json(profile);
   }
 
-  // ── GET /users ────────────────────────────────────────────────────────────────
+  // ── GET /users — optional ?email= filter ─────────────────────────────────────
   if (req.method === "GET" && !segment) {
-    const users = await db.selectFrom("users").select(SAFE_COLUMNS).execute();
-    return json(users);
+    const emailFilter = url.searchParams.get("email");
+    let query = db.selectFrom("users").select(SAFE_COLUMNS);
+    if (emailFilter) query = query.where("email", "=", emailFilter);
+    return json(await query.execute());
   }
 
   // ── GET /users/:id ────────────────────────────────────────────────────────────

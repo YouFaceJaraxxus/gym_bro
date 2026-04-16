@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 
@@ -14,181 +13,193 @@ class AddGymEmployeePage extends StatefulWidget {
 
 class _AddGymEmployeePageState extends State<AddGymEmployeePage> {
   final _api = ApiService();
-  final _searchCtrl = TextEditingController();
 
-  List<UserProfile> _available = [];
-  List<UserProfile> _filtered = [];
-  bool _loading = true;
-  String? _error;
-  String? _adding; // user id currently being added
+  // ── form fields ───────────────────────────────────────────────────────────
+  final _emailCtrl = TextEditingController();
+  final _nameCtrl = TextEditingController();
+  final _lastNameCtrl = TextEditingController();
+  final _usernameCtrl = TextEditingController();
+  String _employeeType = 'employee';
+
+  // ── existing employee emails for duplicate check ───────────────────────────
+  Set<String> _existingEmails = {};
+  bool _loadingEmails = true;
+
+  bool _adding = false;
 
   @override
   void initState() {
     super.initState();
-    _load();
-    _searchCtrl.addListener(_filter);
+    _emailCtrl.addListener(() => setState(() {}));
+    _loadExistingEmails();
   }
 
   @override
   void dispose() {
-    _searchCtrl.dispose();
+    _emailCtrl.dispose();
+    _nameCtrl.dispose();
+    _lastNameCtrl.dispose();
+    _usernameCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _load() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+  Future<void> _loadExistingEmails() async {
     try {
       final token = await AuthManager.instance.getValidToken();
       final results = await Future.wait([
-        _api.getUsers(token),
         _api.getEmployees(token, gymId: widget.gymId),
+        _api.getEmployeeTrainers(token, gymId: widget.gymId),
       ]);
-      final allUsers = results[0] as List<UserProfile>;
-      final employeeRows = results[1] as List<Map<String, dynamic>>;
-      final employeeUserIds =
-          employeeRows.map((r) => r['user_id'] as String).toSet();
-
-      if (mounted) {
-        setState(() {
-          _available = allUsers
-              .where((u) => !employeeUserIds.contains(u.id))
-              .toList();
-          _filtered = List.of(_available);
-          _loading = false;
-        });
+      final emails = <String>{};
+      for (final row in [...results[0], ...results[1]]) {
+        final e = row['email'] as String?;
+        if (e != null) emails.add(e.toLowerCase());
       }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString().replaceFirst('Exception: ', '');
-          _loading = false;
-        });
-      }
+      if (mounted) setState(() { _existingEmails = emails; _loadingEmails = false; });
+    } catch (_) {
+      if (mounted) setState(() => _loadingEmails = false);
     }
   }
 
-  void _filter() {
-    final q = _searchCtrl.text.trim().toLowerCase();
-    setState(() {
-      _filtered = q.isEmpty
-          ? List.of(_available)
-          : _available.where((u) {
-              return u.fullName.toLowerCase().contains(q) ||
-                  u.email.toLowerCase().contains(q) ||
-                  u.username.toLowerCase().contains(q);
-            }).toList();
-    });
-  }
+  bool get _emailDuplicate =>
+      _existingEmails.contains(_emailCtrl.text.trim().toLowerCase());
 
-  Future<void> _add(UserProfile user) async {
-    setState(() => _adding = user.id);
+  bool get _canSubmit =>
+      !_loadingEmails &&
+      !_adding &&
+      !_emailDuplicate &&
+      _emailCtrl.text.trim().isNotEmpty &&
+      _nameCtrl.text.trim().isNotEmpty &&
+      _lastNameCtrl.text.trim().isNotEmpty &&
+      _usernameCtrl.text.trim().isNotEmpty;
+
+  Future<void> _add() async {
+    setState(() => _adding = true);
     try {
       final token = await AuthManager.instance.getValidToken();
-      await _api.addEmployee(token, user.id, widget.gymId);
+      await _api.addEmployee(
+        token,
+        email: _emailCtrl.text.trim(),
+        name: _nameCtrl.text.trim(),
+        lastName: _lastNameCtrl.text.trim(),
+        username: _usernameCtrl.text.trim(),
+        gymId: widget.gymId,
+        employeeType: _employeeType,
+      );
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  e.toString().replaceFirst('Exception: ', ''))),
+          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
         );
-        setState(() => _adding = null);
+        setState(() => _adding = false);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDuplicate = _emailDuplicate;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Add Employee')),
-      body: Column(
-        children: [
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: TextField(
-              controller: _searchCtrl,
-              decoration: InputDecoration(
-                hintText: 'Search by name, email or username',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchCtrl.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchCtrl.clear();
-                          _filter();
-                        },
-                      )
-                    : null,
+      body: _loadingEmails
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ── Email ─────────────────────────────────────────────────
+                  TextField(
+                    controller: _emailCtrl,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      border: const OutlineInputBorder(),
+                      errorText: isDuplicate ? 'Email already in use' : null,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // ── Name fields ───────────────────────────────────────────
+                  TextField(
+                    controller: _nameCtrl,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: const InputDecoration(
+                      labelText: 'First name',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _lastNameCtrl,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: const InputDecoration(
+                      labelText: 'Last name',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _usernameCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Username',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // ── Role ──────────────────────────────────────────────────
+                  Text('Role', style: Theme.of(context).textTheme.labelLarge),
+                  const SizedBox(height: 8),
+                  SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(
+                          value: 'employee',
+                          label: Text('Employee'),
+                          icon: Icon(Icons.badge_outlined)),
+                      ButtonSegment(
+                          value: 'employee_trainer',
+                          label: Text('Emp. Trainer'),
+                          icon: Icon(Icons.fitness_center)),
+                    ],
+                    selected: {_employeeType},
+                    onSelectionChanged: (s) =>
+                        setState(() => _employeeType = s.first),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ── Add button ────────────────────────────────────────────
+                  FilledButton(
+                    onPressed: _canSubmit ? _add : null,
+                    style: isDuplicate
+                        ? FilledButton.styleFrom(
+                            backgroundColor: cs.surfaceContainerHighest,
+                            foregroundColor: cs.onSurfaceVariant,
+                          )
+                        : null,
+                    child: _adding
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Text('Add'),
+                  ),
+                  if (isDuplicate) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'Email already in use',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: cs.error, fontSize: 13),
+                    ),
+                  ],
+                ],
               ),
             ),
-          ),
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(_error!),
-                            const SizedBox(height: 12),
-                            FilledButton(
-                                onPressed: _load,
-                                child: const Text('Retry')),
-                          ],
-                        ),
-                      )
-                    : _filtered.isEmpty
-                        ? Center(
-                            child: Text(
-                              _searchCtrl.text.isEmpty
-                                  ? 'All users are already employees'
-                                  : 'No matching users',
-                              style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .outline),
-                            ),
-                          )
-                        : ListView.builder(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16),
-                            itemCount: _filtered.length,
-                            itemBuilder: (_, i) {
-                              final u = _filtered[i];
-                              final isAdding = _adding == u.id;
-                              return ListTile(
-                                leading: CircleAvatar(
-                                  child: Text(u.name.isNotEmpty
-                                      ? u.name[0].toUpperCase()
-                                      : '?'),
-                                ),
-                                title: Text(u.fullName),
-                                subtitle: Text(u.email),
-                                trailing: isAdding
-                                    ? const SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 2),
-                                      )
-                                    : FilledButton.tonal(
-                                        onPressed: _adding != null
-                                            ? null
-                                            : () => _add(u),
-                                        child: const Text('Add'),
-                                      ),
-                              );
-                            },
-                          ),
-          ),
-        ],
-      ),
     );
   }
 }

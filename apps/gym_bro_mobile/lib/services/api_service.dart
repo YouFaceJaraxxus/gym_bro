@@ -83,6 +83,18 @@ class ApiService {
         .toList();
   }
 
+  /// Returns the user with [email], or null if none exists.
+  Future<UserProfile?> getUserByEmail(String token, String email) async {
+    final r = await _client.get(
+      Uri.parse('$_base/users?email=${Uri.encodeComponent(email)}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    final list = (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+    if (list.isEmpty) return null;
+    return UserProfile.fromJson(list.first);
+  }
+
   Future<UserProfile> createUser(
     String token, {
     required String email,
@@ -199,12 +211,37 @@ class ApiService {
     return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
   }
 
+  /// Add an employee or employee-trainer to a gym.
+  ///
+  /// Provide either [userId] (existing user) or [email] + [name] + [lastName]
+  /// + [username] (new user to create). [employeeType] must be `"employee"` or
+  /// `"employee_trainer"`.
   Future<Map<String, dynamic>> addEmployee(
-      String token, String userId, String gymId) async {
+    String token, {
+    String? userId,
+    String? email,
+    String? name,
+    String? lastName,
+    String? username,
+    required String gymId,
+    required String employeeType,
+  }) async {
+    final body = <String, dynamic>{
+      'gym_id': gymId,
+      'employee_type': employeeType,
+    };
+    if (userId != null) {
+      body['user_id'] = userId;
+    } else {
+      body['email'] = email;
+      if (name != null) body['name'] = name;
+      if (lastName != null) body['last_name'] = lastName;
+      if (username != null) body['username'] = username;
+    }
     final r = await _client.post(
       Uri.parse('$_base/employees'),
       headers: _headers(token),
-      body: jsonEncode({'user_id': userId, 'gym_id': gymId}),
+      body: jsonEncode(body),
     );
     _check(r);
     return jsonDecode(r.body) as Map<String, dynamic>;
@@ -213,6 +250,32 @@ class ApiService {
   Future<void> removeEmployee(String token, String employeeId) async {
     final r = await _client.delete(
       Uri.parse('$_base/employees/$employeeId'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Employee-trainers ────────────────────────────────────────────────────────
+
+  /// Returns employee_trainer rows with user info embedded:
+  /// [{id, user_id, gym_id, email, name, last_name, username, role}, ...]
+  Future<List<Map<String, dynamic>>> getEmployeeTrainers(
+      String token, {String? gymId, String? userId}) async {
+    final params = <String>[];
+    if (gymId != null) params.add('gym_id=$gymId');
+    if (userId != null) params.add('user_id=$userId');
+    final q = params.isEmpty ? '' : '?${params.join('&')}';
+    final r = await _client.get(
+      Uri.parse('$_base/employee-trainers$q'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+  }
+
+  Future<void> removeEmployeeTrainer(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/employee-trainers/$id'),
       headers: _headers(token),
     );
     if (r.statusCode >= 400 && r.statusCode != 204) _check(r);

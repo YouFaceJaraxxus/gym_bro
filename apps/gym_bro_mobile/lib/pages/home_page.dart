@@ -48,6 +48,7 @@ const _employeeTabs = <_Tab>[
 
 const _employeeTrainerTabs = <_Tab>[
   (label: 'Home', icon: Icons.home_outlined),
+  (label: 'Members', icon: Icons.people_outline),
   (label: 'Classes', icon: Icons.fitness_center_outlined),
   (label: 'Schedule', icon: Icons.schedule_outlined),
   (label: 'Profile', icon: Icons.person_outline),
@@ -204,7 +205,7 @@ class _HomePageState extends State<HomePage> {
       if (index == 3) return OwnerStaffPage(profile: profile);
     }
 
-    // Employee-specific tabs.
+    // Employee / employee-trainer Members tab (index 1 for both roles).
     if (profile.role == UserRole.employee ||
         profile.role == UserRole.employeeTrainer) {
       if (index == 1) return EmployeeMembersPage(profile: profile);

@@ -78,6 +78,17 @@ class AuthManager {
     );
   }
 
+  /// Fetches the user profile from the API if it isn't already loaded.
+  /// Call this after establishing a session from a deep link or any path
+  /// that doesn't return profile data alongside the tokens.
+  Future<void> ensureProfile() async {
+    if (_profile == null && hasSession) {
+      try {
+        await _fetchAndStoreProfile();
+      } catch (_) {}
+    }
+  }
+
   Future<void> updateProfile(UserProfile profile) async {
     _profile = profile;
     await _storage.saveProfile(profile);

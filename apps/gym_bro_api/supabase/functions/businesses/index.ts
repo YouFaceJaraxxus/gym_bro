@@ -34,10 +34,32 @@ Deno.serve(async (req: Request) => {
   const url = new URL(req.url);
   const id = parseId(url.pathname);
 
-  // ── GET /businesses — public, optional ?type=gym|shop filter ─────────────────
+  // ── GET /businesses — requires auth, returns only the caller's owned businesses ─
   if (req.method === "GET" && !id) {
+    const { user, error: authError } = await requireAuth(req);
+    if (!user) return jsonError(authError ?? "Unauthorized", 401);
+
+    const profile = await db
+      .selectFrom("users")
+      .select(["id"])
+      .where("auth_id", "=", user.id)
+      .executeTakeFirst();
+    if (!profile) return jsonError("User profile not found", 404);
+
+    const [gymOwners, shopOwners] = await Promise.all([
+      db.selectFrom("gym_owner").select(["gym_id"]).where("user_id", "=", profile.id).execute(),
+      db.selectFrom("shop_owner").select(["shop_id"]).where("user_id", "=", profile.id).execute(),
+    ]);
+
+    const ownedIds = [
+      ...gymOwners.map((r) => r.gym_id),
+      ...shopOwners.map((r) => r.shop_id),
+    ];
+
+    if (ownedIds.length === 0) return json([]);
+
     const typeFilter = url.searchParams.get("type");
-    let query = db.selectFrom("business").select(COLS);
+    let query = db.selectFrom("business").select(COLS).where("id", "in", ownedIds);
     if (typeFilter === "gym" || typeFilter === "shop") {
       query = query.where("type", "=", typeFilter);
     }

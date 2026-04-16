@@ -16,6 +16,19 @@ function parseId(pathname: string): string | null {
   return match ? match[1] : null;
 }
 
+// ── Columns returned alongside employee_trainer rows ─────────────────────────
+
+const SELECT_COLS = [
+  "employee_trainer.id",
+  "employee_trainer.user_id",
+  "employee_trainer.gym_id",
+  "users.email",
+  "users.name",
+  "users.last_name",
+  "users.username",
+  "users.role",
+] as const;
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -41,12 +54,16 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── GET /employee-trainers — optional ?user_id= and/or ?gym_id= filters ──────
+  // Returns rows with user info embedded.
   if (req.method === "GET" && !id) {
     const userId = url.searchParams.get("user_id");
     const gymId = url.searchParams.get("gym_id");
-    let query = db.selectFrom("employee_trainer").selectAll();
-    if (userId) query = query.where("user_id", "=", userId);
-    if (gymId) query = query.where("gym_id", "=", gymId);
+    let query = db
+      .selectFrom("employee_trainer")
+      .innerJoin("users", "users.id", "employee_trainer.user_id")
+      .select(SELECT_COLS);
+    if (userId) query = query.where("employee_trainer.user_id", "=", userId);
+    if (gymId) query = query.where("employee_trainer.gym_id", "=", gymId);
     return json(await query.execute());
   }
 
@@ -54,8 +71,9 @@ Deno.serve(async (req: Request) => {
   if (req.method === "GET" && id) {
     const row = await db
       .selectFrom("employee_trainer")
-      .selectAll()
-      .where("id", "=", id)
+      .innerJoin("users", "users.id", "employee_trainer.user_id")
+      .select(SELECT_COLS)
+      .where("employee_trainer.id", "=", id)
       .executeTakeFirst();
     if (!row) return jsonError("Employee-trainer not found", 404);
     return json(row);

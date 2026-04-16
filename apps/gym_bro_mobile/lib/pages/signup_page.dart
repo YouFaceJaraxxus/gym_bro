@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/auth_manager.dart';
 import '../services/auth_service.dart';
 
 class SignupPage extends StatefulWidget {
@@ -37,14 +38,22 @@ class _SignupPageState extends State<SignupPage> {
       _error = null;
     });
     try {
-      await _authService.signup(
+      final data = await _authService.signup(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
         username: _usernameCtrl.text.trim(),
         name: _nameCtrl.text.trim(),
         lastName: _lastNameCtrl.text.trim(),
       );
-      if (mounted) {
+      if (!mounted) return;
+      if (data.containsKey('access_token')) {
+        // Invited user — backend returned a live session, go straight to home.
+        await AuthManager.instance.setSession(
+          data,
+          profileData: data['profile'] as Map<String, dynamic>?,
+        );
+        if (mounted) Navigator.pushReplacementNamed(context, '/home');
+      } else {
         Navigator.pushReplacementNamed(context, '/check-email');
       }
     } catch (e) {

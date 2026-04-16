@@ -98,6 +98,10 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () => Navigator.pushReplacementNamed(context, '/signup'),
                 child: const Text("Don't have an account? Sign up"),
               ),
+              TextButton(
+                onPressed: () => Navigator.pushNamed(context, '/verify-invite'),
+                child: const Text('Have an invite code?'),
+              ),
             ],
           ),
         ),
