@@ -32,7 +32,7 @@ function authFetch(path: string, body: unknown): Promise<Response> {
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
-const STATIC_SEGMENTS = new Set(["signup", "signin", "google", "refresh", "me", "test", "verify-invite"]);
+const STATIC_SEGMENTS = new Set(["signup", "signin", "google", "refresh", "me", "test", "verify-invite", "resend-invite"]);
 
 function parseSegment(pathname: string): string | null {
   const match = pathname.match(/^\/users\/([^/]+)$/);
@@ -347,6 +347,21 @@ Deno.serve(async (req: Request) => {
 
   const { user, error: authError } = await requireAuth(req);
   if (!user) return jsonError(authError ?? "Unauthorized", 401);
+
+  // ── POST /users/resend-invite ─────────────────────────────────────────────────
+  // Re-sends the Supabase invite email for a user who hasn't accepted yet.
+  // Called by owners/managers from the employee or member detail screen.
+  if (req.method === "POST" && segment === "resend-invite") {
+    const body = await req.json().catch(() => null);
+    const { email } = body ?? {};
+    if (!email) return jsonError("email is required", 400);
+
+    const redirectTo = Deno.env.get("APP_INVITE_REDIRECT_URL") ?? "gymbroo://auth/callback";
+    const { error: inviteErr } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, { redirectTo });
+    if (inviteErr) return jsonError(inviteErr.message, 400);
+
+    return json({ success: true });
+  }
 
   // ── GET /users/me ─────────────────────────────────────────────────────────────
   if (req.method === "GET" && segment === "me") {

@@ -3,6 +3,8 @@ import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'add_gym_member_page.dart';
+import 'edit_gym_member_page.dart';
+import 'invite_gym_member_page.dart';
 
 class GymMembersPage extends StatefulWidget {
   const GymMembersPage(
@@ -18,7 +20,6 @@ class GymMembersPage extends StatefulWidget {
 class _GymMembersPageState extends State<GymMembersPage> {
   final _api = ApiService();
 
-  // Each entry: {memberId, user}
   List<({String memberId, UserProfile user})> _members = [];
   bool _loading = true;
   String? _error;
@@ -67,6 +68,25 @@ class _GymMembersPageState extends State<GymMembersPage> {
     }
   }
 
+  Future<void> _resendInvite(({String memberId, UserProfile user}) entry) async {
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      await _api.resendInvite(token, entry.user.email);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invite resent')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        );
+      }
+    }
+  }
+
   Future<void> _removeMember(String memberId) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -99,6 +119,65 @@ class _GymMembersPageState extends State<GymMembersPage> {
     }
   }
 
+  Future<void> _openEdit(({String memberId, UserProfile user}) entry) async {
+    final result = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditGymMemberPage(
+          memberId: entry.memberId,
+          user: entry.user,
+          gymName: widget.gymName,
+        ),
+      ),
+    );
+    if (result == 'removed') _load();
+  }
+
+  void _showAddOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.search),
+              title: const Text('Add existing user'),
+              subtitle: const Text('Search users already in the system'),
+              onTap: () async {
+                Navigator.pop(context);
+                final added = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AddGymMemberPage(gymId: widget.gymId),
+                  ),
+                );
+                if (added == true) _load();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.mark_email_unread_outlined),
+              title: const Text('Invite new member'),
+              subtitle: const Text('Send an invite link by email'),
+              onTap: () async {
+                Navigator.pop(context);
+                final added = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        InviteGymMemberPage(gymId: widget.gymId),
+                  ),
+                );
+                if (added == true) _load();
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,15 +188,7 @@ class _GymMembersPageState extends State<GymMembersPage> {
               ? _buildError()
               : _buildList(),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final added = await Navigator.push<bool>(
-            context,
-            MaterialPageRoute(
-              builder: (_) => AddGymMemberPage(gymId: widget.gymId),
-            ),
-          );
-          if (added == true) _load();
-        },
+        onPressed: _showAddOptions,
         icon: const Icon(Icons.person_add_outlined),
         label: const Text('Add Member'),
       ),
@@ -175,28 +246,64 @@ class _GymMembersPageState extends State<GymMembersPage> {
         padding:
             const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 88),
         itemCount: _members.length,
-      itemBuilder: (_, i) {
-        final entry = _members[i];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 10),
-          child: ListTile(
-            leading: CircleAvatar(
-              child: Text(entry.user.name.isNotEmpty
-                  ? entry.user.name[0].toUpperCase()
-                  : '?'),
+        itemBuilder: (_, i) {
+          final entry = _members[i];
+          return Card(
+            margin: const EdgeInsets.only(bottom: 10),
+            child: ListTile(
+              onTap: () => _openEdit(entry),
+              leading: CircleAvatar(
+                child: Text(entry.user.name.isNotEmpty
+                    ? entry.user.name[0].toUpperCase()
+                    : '?'),
+              ),
+              title: Text(entry.user.fullName),
+              subtitle: Text(entry.user.email),
+              trailing: PopupMenuButton<_MemberAction>(
+                icon: const Icon(Icons.more_vert),
+                onSelected: (action) {
+                  switch (action) {
+                    case _MemberAction.edit:
+                      _openEdit(entry);
+                    case _MemberAction.resendInvite:
+                      _resendInvite(entry);
+                    case _MemberAction.remove:
+                      _removeMember(entry.memberId);
+                  }
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(
+                    value: _MemberAction.edit,
+                    child: ListTile(
+                      leading: Icon(Icons.edit_outlined),
+                      title: Text('Edit Member'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _MemberAction.resendInvite,
+                    child: ListTile(
+                      leading: Icon(Icons.mark_email_unread_outlined),
+                      title: Text('Resend Invite'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _MemberAction.remove,
+                    child: ListTile(
+                      leading: Icon(Icons.person_remove_outlined),
+                      title: Text('Remove'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            title: Text(entry.user.fullName),
-            subtitle: Text(entry.user.email),
-            trailing: IconButton(
-              icon: const Icon(Icons.remove_circle_outline),
-              color: Theme.of(context).colorScheme.error,
-              tooltip: 'Remove',
-              onPressed: () => _removeMember(entry.memberId),
-            ),
-          ),
-        );
-      },
+          );
+        },
       ),
     );
   }
 }
+
+enum _MemberAction { edit, resendInvite, remove }

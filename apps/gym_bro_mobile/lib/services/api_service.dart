@@ -194,6 +194,40 @@ class ApiService {
     if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
   }
 
+  /// Invite a new member by email (creates the user + member row, sends invite email).
+  Future<Map<String, dynamic>> inviteMember(
+    String token, {
+    required String email,
+    required String name,
+    required String lastName,
+    required String username,
+    required String gymId,
+  }) async {
+    final r = await _client.post(
+      Uri.parse('$_base/members'),
+      headers: _headers(token),
+      body: jsonEncode({
+        'email': email,
+        'name': name,
+        'last_name': lastName,
+        'username': username,
+        'gym_id': gymId,
+      }),
+    );
+    _check(r);
+    return jsonDecode(r.body) as Map<String, dynamic>;
+  }
+
+  /// Re-sends the invite email for a user who hasn't set their password yet.
+  Future<void> resendInvite(String token, String email) async {
+    final r = await _client.post(
+      Uri.parse('$_base/users/resend-invite'),
+      headers: _headers(token),
+      body: jsonEncode({'email': email}),
+    );
+    _check(r);
+  }
+
   // ── Employees ───────────────────────────────────────────────────────────────
 
   /// Returns employee rows: [{id, user_id, gym_id}, ...]
