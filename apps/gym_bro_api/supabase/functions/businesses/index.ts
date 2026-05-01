@@ -107,6 +107,13 @@ Deno.serve(async (req: Request) => {
       type,
     };
 
+    const profile = await db
+      .selectFrom("users")
+      .select(["id"])
+      .where("auth_id", "=", user.id)
+      .executeTakeFirst();
+    if (!profile) return jsonError("User profile not found", 404);
+
     const business = await db.transaction().execute(async (trx) => {
       const biz = await trx
         .insertInto("business")
@@ -115,10 +122,10 @@ Deno.serve(async (req: Request) => {
         .executeTakeFirstOrThrow();
       if (type === "gym") {
         await trx.insertInto("gym").values({ id: biz.id }).execute();
-        await trx.insertInto("gym_owner").values({ user_id: user.id, gym_id: biz.id }).execute();
+        await trx.insertInto("gym_owner").values({ user_id: profile.id, gym_id: biz.id }).execute();
       } else {
         await trx.insertInto("shop").values({ id: biz.id }).execute();
-        await trx.insertInto("shop_owner").values({ user_id: user.id, shop_id: biz.id }).execute();
+        await trx.insertInto("shop_owner").values({ user_id: profile.id, shop_id: biz.id }).execute();
       }
       return biz;
     });
