@@ -315,6 +315,57 @@ class ApiService {
     if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
   }
 
+  // ── Shop vendors ─────────────────────────────────────────────────────────────
+
+  Future<List<Map<String, dynamic>>> getShopVendors(
+      String token, {String? shopId, String? userId}) async {
+    final params = <String>[];
+    if (shopId != null) params.add('shop_id=$shopId');
+    if (userId != null) params.add('user_id=$userId');
+    final q = params.isEmpty ? '' : '?${params.join('&')}';
+    final r = await _client.get(
+      Uri.parse('$_base/shop-vendors$q'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+  }
+
+  Future<Map<String, dynamic>> addShopVendor(
+    String token, {
+    String? userId,
+    String? email,
+    String? name,
+    String? lastName,
+    String? username,
+    required String shopId,
+  }) async {
+    final body = <String, dynamic>{'shop_id': shopId};
+    if (userId != null) {
+      body['user_id'] = userId;
+    } else {
+      body['email'] = email;
+      if (name != null) body['name'] = name;
+      if (lastName != null) body['last_name'] = lastName;
+      if (username != null) body['username'] = username;
+    }
+    final r = await _client.post(
+      Uri.parse('$_base/shop-vendors'),
+      headers: _headers(token),
+      body: jsonEncode(body),
+    );
+    _check(r);
+    return jsonDecode(r.body) as Map<String, dynamic>;
+  }
+
+  Future<void> removeShopVendor(String token, String vendorId) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/shop-vendors/$vendorId'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
   // ── Shop items ──────────────────────────────────────────────────────────────
 
   Future<List<ShopItem>> getShopItems(String token,

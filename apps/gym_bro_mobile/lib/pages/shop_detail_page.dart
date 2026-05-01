@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/shop_item.dart';
+import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'shop_item_form_page.dart';
+import 'shop_vendors_page.dart';
 
 class ShopDetailPage extends StatefulWidget {
   const ShopDetailPage(
@@ -18,6 +20,7 @@ class ShopDetailPage extends StatefulWidget {
 class _ShopDetailPageState extends State<ShopDetailPage> {
   final _api = ApiService();
   List<ShopItem> _items = [];
+  List<UserProfile> _vendors = [];
   bool _loading = true;
   String? _error;
 
@@ -34,10 +37,16 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
     });
     try {
       final token = await AuthManager.instance.getValidToken();
-      final items = await _api.getShopItems(token, shopId: widget.shopId);
+      final results = await Future.wait([
+        _api.getShopItems(token, shopId: widget.shopId),
+        _api.getShopVendors(token, shopId: widget.shopId),
+      ]);
       if (mounted) {
         setState(() {
-          _items = items;
+          _items = results[0] as List<ShopItem>;
+          _vendors = (results[1] as List<Map<String, dynamic>>)
+              .map((r) => UserProfile.fromJson(r))
+              .toList();
           _loading = false;
         });
       }
@@ -104,7 +113,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
           ? const Center(child: CircularProgressIndicator())
           : _error != null
               ? _buildError()
-              : _buildList(),
+              : _buildContent(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openForm(),
         icon: const Icon(Icons.add),
@@ -129,46 +138,107 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
     );
   }
 
-  Widget _buildList() {
-    if (_items.isEmpty) {
-      return RefreshIndicator(
-        onRefresh: _load,
-        child: LayoutBuilder(
-          builder: (context, constraints) => ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              SizedBox(
-                height: constraints.maxHeight,
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.inventory_2_outlined,
-                          size: 48,
-                          color: Theme.of(context).colorScheme.outline),
-                      const SizedBox(height: 16),
-                      const Text('No items yet'),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
+  Widget _buildContent() {
     return RefreshIndicator(
       onRefresh: _load,
-      child: ListView.builder(
+      child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding:
-            const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 88),
-        itemCount: _items.length,
-        itemBuilder: (_, i) => _ShopItemTile(
-          item: _items[i],
-          onEdit: () => _openForm(item: _items[i]),
-          onDelete: () => _delete(_items[i]),
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 88),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Vendors section ───────────────────────────────────────────
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Vendors',
+                    style: Theme.of(context).textTheme.titleMedium),
+                TextButton.icon(
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ShopVendorsPage(
+                            shopId: widget.shopId,
+                            shopName: widget.shopName),
+                      ),
+                    );
+                    _load();
+                  },
+                  icon: const Icon(Icons.open_in_new, size: 16),
+                  label: const Text('Manage'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (_vendors.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Row(
+                  children: [
+                    Icon(Icons.storefront_outlined,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.outline),
+                    const SizedBox(width: 8),
+                    Text('No vendors yet',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.outline)),
+                  ],
+                ),
+              )
+            else
+              for (final v in _vendors.take(5))
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: CircleAvatar(
+                    child: Text(v.name.isNotEmpty
+                        ? v.name[0].toUpperCase()
+                        : '?'),
+                  ),
+                  title: Text(v.fullName),
+                  subtitle: Text(v.email),
+                ),
+            if (_vendors.length > 5)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  '+ ${_vendors.length - 5} more',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary),
+                ),
+              ),
+
+            const SizedBox(height: 24),
+
+            // ── Items section ─────────────────────────────────────────────
+            Text('Items', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            if (_items.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Row(
+                  children: [
+                    Icon(Icons.inventory_2_outlined,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.outline),
+                    const SizedBox(width: 8),
+                    Text('No items yet',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.outline)),
+                  ],
+                ),
+              )
+            else
+              for (final item in _items)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: _ShopItemTile(
+                    item: item,
+                    onEdit: () => _openForm(item: item),
+                    onDelete: () => _delete(item),
+                  ),
+                ),
+          ],
         ),
       ),
     );

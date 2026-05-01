@@ -14,7 +14,8 @@ export type UserRole =
   | "employee"
   | "employee_trainer"
   | "member"
-  | "super_user";
+  | "super_user"
+  | "shop_vendor";
 
 export type BusinessType = "gym" | "shop";
 
@@ -92,6 +93,12 @@ export interface ShopOwnerTable {
   shop_id: string;
 }
 
+export interface ShopVendorTable {
+  id: Generated<string>;
+  user_id: string;
+  shop_id: string;
+}
+
 export interface GymMembershipTypeTable {
   id: Generated<string>;
   name: string;
@@ -156,6 +163,7 @@ export interface Database {
   employee_trainer: EmployeeTrainerTable;
   gym_owner: GymOwnerTable;
   shop_owner: ShopOwnerTable;
+  shop_vendor: ShopVendorTable;
   gym_membership_type: GymMembershipTypeTable;
   membership: MembershipTable;
   membership_invoice: MembershipInvoiceTable;
@@ -205,6 +213,10 @@ export type GymOwnerUpdate = Updateable<GymOwnerTable>;
 export type ShopOwner = Selectable<ShopOwnerTable>;
 export type ShopOwnerInsert = Insertable<ShopOwnerTable>;
 export type ShopOwnerUpdate = Updateable<ShopOwnerTable>;
+
+export type ShopVendor = Selectable<ShopVendorTable>;
+export type ShopVendorInsert = Insertable<ShopVendorTable>;
+export type ShopVendorUpdate = Updateable<ShopVendorTable>;
 
 export type GymMembershipType = Selectable<GymMembershipTypeTable>;
 export type GymMembershipTypeInsert = Insertable<GymMembershipTypeTable>;
