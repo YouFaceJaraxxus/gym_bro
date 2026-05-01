@@ -93,6 +93,36 @@ class AuthService {
     return data;
   }
 
+  Future<void> forgotPassword(String email) async {
+    final response = await _client.post(
+      Uri.parse('$_baseUrl/forgot-password'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+    if (response.statusCode >= 400) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      throw Exception(data['error'] ?? 'Failed to send reset email');
+    }
+  }
+
+  Future<void> resetPassword({
+    required String accessToken,
+    required String password,
+  }) async {
+    final response = await _client.post(
+      Uri.parse('$_baseUrl/reset-password'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({'password': password}),
+    );
+    if (response.statusCode >= 400) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      throw Exception(data['error'] ?? 'Password reset failed');
+    }
+  }
+
   Future<Map<String, dynamic>> testEndpoint(String accessToken) async {
     final response = await _client.get(
       Uri.parse('$_baseUrl/test'),

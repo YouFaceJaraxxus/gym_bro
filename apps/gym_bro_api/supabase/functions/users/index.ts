@@ -32,7 +32,7 @@ function authFetch(path: string, body: unknown): Promise<Response> {
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
-const STATIC_SEGMENTS = new Set(["signup", "signin", "google", "refresh", "me", "test", "verify-invite", "resend-invite"]);
+const STATIC_SEGMENTS = new Set(["signup", "signin", "google", "refresh", "me", "test", "verify-invite", "resend-invite", "forgot-password", "reset-password"]);
 
 function parseSegment(pathname: string): string | null {
   const match = pathname.match(/^\/users\/([^/]+)$/);
@@ -307,6 +307,20 @@ Deno.serve(async (req: Request) => {
     return json({ ...session, profile });
   }
 
+  // ── POST /users/forgot-password ──────────────────────────────────────────────
+  // Sends a password-reset email. Always returns 200 to avoid revealing whether
+  // the email is registered.
+  if (req.method === "POST" && segment === "forgot-password") {
+    const body = await req.json().catch(() => null);
+    const { email } = body ?? {};
+    if (!email) return jsonError("email is required", 400);
+
+    const redirectTo = Deno.env.get("APP_INVITE_REDIRECT_URL") ?? "gymbroo://auth/callback";
+    await supabaseAdmin.auth.resetPasswordForEmail(email, { redirectTo });
+
+    return json({ success: true });
+  }
+
   // ── POST /users/refresh ───────────────────────────────────────────────────────
   // Exchanges a refresh token for a new session. Works for all providers
   // (email/password, Google, Apple, OAuth) — Supabase's refresh grant is
@@ -347,6 +361,24 @@ Deno.serve(async (req: Request) => {
 
   const { user, error: authError } = await requireAuth(req);
   if (!user) return jsonError(authError ?? "Unauthorized", 401);
+
+  // ── POST /users/reset-password ───────────────────────────────────────────────
+  // Updates the authenticated user's password. Called after a recovery deep link
+  // sets the session (type=recovery).
+  if (req.method === "POST" && segment === "reset-password") {
+    const body = await req.json().catch(() => null);
+    const { password } = body ?? {};
+    if (!password) return jsonError("password is required", 400);
+    if (password.length < 6) return jsonError("Password must be at least 6 characters", 400);
+
+    const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(
+      user.id,
+      { password },
+    );
+    if (updateErr) return jsonError(updateErr.message, 400);
+
+    return json({ success: true });
+  }
 
   // ── POST /users/resend-invite ─────────────────────────────────────────────────
   // Re-sends the Supabase invite email for a user who hasn't accepted yet.

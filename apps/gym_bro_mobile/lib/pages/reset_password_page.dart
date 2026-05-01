@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import '../services/auth_manager.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class ResetPasswordPage extends StatefulWidget {
+  const ResetPasswordPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<ResetPasswordPage> createState() => _ResetPasswordPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  final _confirmCtrl = TextEditingController();
   final _authService = AuthService();
 
   bool _loading = false;
@@ -20,8 +20,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    _emailCtrl.dispose();
     _passwordCtrl.dispose();
+    _confirmCtrl.dispose();
     super.dispose();
   }
 
@@ -32,13 +32,10 @@ class _LoginPageState extends State<LoginPage> {
       _error = null;
     });
     try {
-      final data = await _authService.signin(
-        email: _emailCtrl.text.trim(),
+      final token = await AuthManager.instance.getValidToken();
+      await _authService.resetPassword(
+        accessToken: token,
         password: _passwordCtrl.text,
-      );
-      await AuthManager.instance.setSession(
-        data,
-        profileData: data['profile'] as Map<String, dynamic>?,
       );
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/home');
@@ -53,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Log In')),
+      appBar: AppBar(title: const Text('Reset Password')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -61,18 +58,31 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Text(
+                'Enter a new password for your account.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 24),
               TextFormField(
-                controller: _emailCtrl,
-                decoration: const InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
-                validator: (v) => (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+                controller: _passwordCtrl,
+                decoration: const InputDecoration(labelText: 'New Password'),
+                obscureText: true,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Required';
+                  if (v.length < 6) return 'Password must be at least 6 characters';
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(
-                controller: _passwordCtrl,
-                decoration: const InputDecoration(labelText: 'Password'),
+                controller: _confirmCtrl,
+                decoration: const InputDecoration(labelText: 'Confirm Password'),
                 obscureText: true,
-                validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Required';
+                  if (v != _passwordCtrl.text) return 'Passwords do not match';
+                  return null;
+                },
               ),
               const SizedBox(height: 24),
               if (_error != null)
@@ -91,20 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text('Log In'),
-              ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
-                child: const Text('Forgot password?'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pushReplacementNamed(context, '/signup'),
-                child: const Text("Don't have an account? Sign up"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/verify-invite'),
-                child: const Text('Have an invite code?'),
+                    : const Text('Set New Password'),
               ),
             ],
           ),

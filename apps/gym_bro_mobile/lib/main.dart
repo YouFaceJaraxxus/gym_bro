@@ -7,6 +7,8 @@ import 'pages/check_email_page.dart';
 import 'pages/login_page.dart';
 import 'pages/home_page.dart';
 import 'pages/verify_invite_page.dart';
+import 'pages/forgot_password_page.dart';
+import 'pages/reset_password_page.dart';
 import 'services/auth_manager.dart';
 
 void main() {
@@ -32,6 +34,8 @@ class GymBroApp extends StatelessWidget {
         '/login': (_) => const LoginPage(),
         '/home': (_) => const HomePage(),
         '/verify-invite': (_) => const VerifyInvitePage(),
+        '/forgot-password': (_) => const ForgotPasswordPage(),
+        '/reset-password': (_) => const ResetPasswordPage(),
       },
     );
   }
@@ -99,10 +103,13 @@ class _AppInitState extends State<_AppInit> {
       'refresh_token': refreshToken,
       'expires_in': int.tryParse(expiresIn ?? '') ?? 3600,
     });
-    await AuthManager.instance.ensureProfile();
 
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, '/home');
+    final type = params['type'];
+    if (type == 'recovery') {
+      if (mounted) Navigator.pushReplacementNamed(context, '/reset-password');
+    } else {
+      await AuthManager.instance.ensureProfile();
+      if (mounted) Navigator.pushReplacementNamed(context, '/home');
     }
     return true;
   }
