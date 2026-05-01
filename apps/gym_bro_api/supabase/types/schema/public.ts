@@ -132,6 +132,7 @@ export interface ShopItemTable {
   name: string;
   description: string | null;
   price: ColumnType<string, string | number, string | number>; // NUMERIC
+  quantity: Generated<number>;
   is_active: Generated<boolean>;
   active_until: string | null; // TIMESTAMPTZ as ISO string
 }

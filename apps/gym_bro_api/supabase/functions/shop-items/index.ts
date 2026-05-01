@@ -8,6 +8,7 @@ const COLS = [
   "name",
   "description",
   "price",
+  "quantity",
   "is_active",
   "active_until",
 ] as const;
@@ -63,13 +64,16 @@ Deno.serve(async (req: Request) => {
   // ── POST /shop-items ──────────────────────────────────────────────────────────
   if (req.method === "POST" && !id) {
     const body = await req.json().catch(() => null);
-    const { shop_id, type, name, description, price, is_active, active_until } = body ?? {};
+    const { shop_id, type, name, description, price, quantity, is_active, active_until } = body ?? {};
 
-    if (!shop_id || !type || !name || price == null) {
-      return jsonError("Missing required fields: shop_id, type, name, price", 400);
+    if (!shop_id || !type || !name || price == null || quantity == null) {
+      return jsonError("Missing required fields: shop_id, type, name, price, quantity", 400);
     }
     if (!["equipment", "supplement", "gift_card"].includes(type)) {
       return jsonError("type must be 'equipment', 'supplement', or 'gift_card'", 400);
+    }
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return jsonError("quantity must be a positive integer", 400);
     }
 
     const insert: ShopItemInsert = {
@@ -78,6 +82,7 @@ Deno.serve(async (req: Request) => {
       name,
       description: description ?? null,
       price,
+      quantity,
       is_active: is_active ?? true,
       active_until: active_until ?? null,
     };

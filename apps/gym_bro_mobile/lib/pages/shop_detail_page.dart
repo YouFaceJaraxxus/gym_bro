@@ -297,11 +297,18 @@ class _ShopItemTile extends StatelessWidget {
           children: [
             Text(item.type.displayName,
                 style: Theme.of(context).textTheme.bodySmall),
-            Text('\$${item.price.toStringAsFixed(2)}',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: cs.primary)),
+            Row(
+              children: [
+                Text('\$${item.price.toStringAsFixed(2)}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: cs.primary)),
+                const SizedBox(width: 12),
+                Text('Qty: ${item.quantity}',
+                    style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
           ],
         ),
         isThreeLine: true,

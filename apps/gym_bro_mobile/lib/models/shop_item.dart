@@ -27,6 +27,7 @@ class ShopItem {
   final String name;
   final String? description;
   final double price;
+  final int quantity;
   final bool isActive;
   final DateTime? activeUntil;
 
@@ -37,6 +38,7 @@ class ShopItem {
     required this.name,
     this.description,
     required this.price,
+    required this.quantity,
     required this.isActive,
     this.activeUntil,
   });
@@ -48,6 +50,7 @@ class ShopItem {
         name: json['name'] as String,
         description: json['description'] as String?,
         price: double.parse(json['price'].toString()),
+        quantity: json['quantity'] as int? ?? 1,
         isActive: json['is_active'] as bool? ?? true,
         activeUntil: json['active_until'] != null
             ? DateTime.tryParse(json['active_until'] as String)

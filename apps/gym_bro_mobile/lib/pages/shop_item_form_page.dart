@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/shop_item.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/quantity_input.dart';
 
 class ShopItemFormPage extends StatefulWidget {
   const ShopItemFormPage(
@@ -25,6 +26,7 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
   late final TextEditingController _priceCtrl;
 
   late ShopItemType _type;
+  late int _quantity;
   late bool _isActive;
   DateTime? _activeUntil;
 
@@ -42,6 +44,7 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
     _priceCtrl = TextEditingController(
         text: it != null ? it.price.toStringAsFixed(2) : '');
     _type = it?.type ?? ShopItemType.equipment;
+    _quantity = it?.quantity ?? 1;
     _isActive = it?.isActive ?? true;
     _activeUntil = it?.activeUntil;
   }
@@ -83,6 +86,7 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
             ? null
             : _descCtrl.text.trim(),
         'price': double.parse(_priceCtrl.text.trim()),
+        'quantity': _quantity,
         'is_active': _isActive,
         'active_until': _activeUntil?.toIso8601String(),
       };
@@ -143,6 +147,17 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Text('Quantity'),
+                  const SizedBox(width: 16),
+                  QuantityInput(
+                    value: _quantity,
+                    onChanged: (v) => setState(() => _quantity = v),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<ShopItemType>(
