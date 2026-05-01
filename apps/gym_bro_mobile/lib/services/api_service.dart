@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/business.dart';
 import '../models/shop_item.dart';
 import '../models/user_profile.dart';
+import '../models/user_search_result.dart';
 
 // Android emulator → host machine is 10.0.2.2
 // iOS simulator   → localhost works fine
@@ -80,6 +81,28 @@ class ApiService {
     _check(r);
     return (jsonDecode(r.body) as List)
         .map((e) => UserProfile.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// Returns the user with [email], or null if none exists.
+  Future<List<UserSearchResult>> searchUsers(
+    String token, {
+    String query = '',
+    int page = 0,
+    int pageSize = 10,
+  }) async {
+    final params = [
+      'q=${Uri.encodeComponent(query)}',
+      'page=$page',
+      'page_size=$pageSize',
+    ];
+    final r = await _client.get(
+      Uri.parse('$_base/search-users?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => UserSearchResult.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
