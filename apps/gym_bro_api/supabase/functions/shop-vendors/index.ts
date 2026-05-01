@@ -30,6 +30,26 @@ const SELECT_COLS = [
   "users.role",
 ] as const;
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+async function getInternalUser(authId: string) {
+  return db
+    .selectFrom("users")
+    .select(["id", "name", "last_name"])
+    .where("auth_id", "=", authId)
+    .executeTakeFirst();
+}
+
+async function getShopName(shopId: string): Promise<string> {
+  const row = await db
+    .selectFrom("business")
+    .innerJoin("shop", "shop.id", "business.id")
+    .select(["business.name"])
+    .where("shop.id", "=", shopId)
+    .executeTakeFirst();
+  return row?.name ?? "the shop";
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -40,15 +60,21 @@ Deno.serve(async (req: Request) => {
   const id = parseId(url.pathname);
 
   // ── POST /shop-vendors ────────────────────────────────────────────────────────
-  // Accepts either user_id (existing user) or email + name + last_name + username
-  // (new user to be created via invite email).
+  // For existing users: sends an invite notification (pending) instead of an
+  // immediate insert. For new users (email invite path): inserts immediately
+  // and sends the Supabase auth invite email to set up their account.
   if (req.method === "POST" && !id) {
     const body = await req.json().catch(() => null);
     const { user_id, shop_id, email, name, last_name, username } = body ?? {};
 
     if (!shop_id) return jsonError("shop_id is required", 400);
 
+    // Resolve the calling user's internal ID (for self-add check + invite)
+    const callerInternal = await getInternalUser(user.id);
+    if (!callerInternal) return jsonError("Caller user not found", 404);
+
     let resolvedUserId: string = user_id;
+    let isNewUser = false;
 
     if (!resolvedUserId) {
       if (!email) return jsonError("Either user_id or email is required", 400);
@@ -92,9 +118,48 @@ Deno.serve(async (req: Request) => {
           .executeTakeFirstOrThrow();
 
         resolvedUserId = newUser.id;
+        isNewUser = true;
       }
     }
 
+    // ── Self-add guard ────────────────────────────────────────────────────────
+    if (resolvedUserId === callerInternal.id) {
+      return jsonError("You cannot add yourself as a vendor", 400);
+    }
+
+    // ── Duplicate guard ───────────────────────────────────────────────────────
+    const existingVendor = await db
+      .selectFrom("shop_vendor")
+      .select(["id"])
+      .where("user_id", "=", resolvedUserId)
+      .where("shop_id", "=", shop_id)
+      .executeTakeFirst();
+    if (existingVendor) {
+      return jsonError("This user is already a vendor at this shop", 409);
+    }
+
+    // ── Existing user: send invite notification ───────────────────────────────
+    if (!isNewUser) {
+      const shopName = await getShopName(shop_id);
+      await db
+        .insertInto("notification")
+        .values({
+          user_id: resolvedUserId,
+          type: "vendor_shop_invite",
+          title: `You've been invited to join ${shopName}`,
+          body: `You have a pending invitation to work at ${shopName} as a Vendor.`,
+          metadata: JSON.stringify({
+            invite_status: "pending",
+            inviter_id: callerInternal.id,
+            shop_id,
+            shop_name: shopName,
+          }),
+        })
+        .execute();
+      return json({ invited: true, user_id: resolvedUserId }, 200);
+    }
+
+    // ── New user: insert immediately ──────────────────────────────────────────
     const row = await db
       .insertInto("shop_vendor")
       .values({ user_id: resolvedUserId, shop_id })

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import '../models/app_notification.dart';
 import '../models/business.dart';
 import '../models/shop_item.dart';
 import '../models/user_profile.dart';
@@ -432,6 +433,79 @@ class ApiService {
   Future<void> deleteShopItem(String token, String id) async {
     final r = await _client.delete(
       Uri.parse('$_base/shop-items/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Notifications ────────────────────────────────────────────────────────────
+
+  Future<NotificationPage> getNotifications(
+    String token, {
+    required String userId,
+    int page = 0,
+    int pageSize = 20,
+    bool unreadOnly = false,
+  }) async {
+    final params = [
+      'user_id=${Uri.encodeComponent(userId)}',
+      'page=$page',
+      'page_size=$pageSize',
+      if (unreadOnly) 'unread_only=true',
+    ];
+    final r = await _client.get(
+      Uri.parse('$_base/notifications?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return NotificationPage.fromJson(
+        jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<AppNotification> markNotificationRead(
+      String token, String notificationId) async {
+    final r = await _client.post(
+      Uri.parse('$_base/notifications/$notificationId/read'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return AppNotification.fromJson(
+        jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<AppNotification> acceptInvite(
+      String token, String notificationId) async {
+    final r = await _client.post(
+      Uri.parse('$_base/notifications/$notificationId/accept'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return AppNotification.fromJson(
+        jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<AppNotification> declineInvite(
+      String token, String notificationId) async {
+    final r = await _client.post(
+      Uri.parse('$_base/notifications/$notificationId/decline'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return AppNotification.fromJson(
+        jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> markAllNotificationsRead(String token) async {
+    final r = await _client.post(
+      Uri.parse('$_base/notifications/mark-all-read'),
+      headers: _headers(token),
+    );
+    _check(r);
+  }
+
+  Future<void> deleteNotification(String token, String notificationId) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/notifications/$notificationId'),
       headers: _headers(token),
     );
     if (r.statusCode >= 400 && r.statusCode != 204) _check(r);

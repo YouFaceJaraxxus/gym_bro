@@ -21,6 +21,24 @@ export type BusinessType = "gym" | "shop";
 
 export type ShopItemType = "equipment" | "supplement" | "gift_card";
 
+export type NotificationType =
+  | "employee_gym_invite"
+  | "vendor_shop_invite"
+  | "member_invite"
+  | "news"
+  | "events"
+  | "training"
+  | "training_update"
+  | "class_reminder"
+  | "shop_item_update"
+  | "purchase_made"
+  | "membership_expiring"
+  | "invoice_issued"
+  | "member_subscription_extended"
+  | "member_join"
+  | "employee_join"
+  | "vendor_join";
+
 // ── Tables ────────────────────────────────────────────────────────────────────
 
 export interface UsersTable {
@@ -79,6 +97,7 @@ export interface EmployeeTrainerTable {
   id: Generated<string>;
   user_id: string;
   gym_id: string;
+  trainer_id: string | null; // FK → trainer.id
 }
 
 export interface GymOwnerTable {
@@ -151,6 +170,23 @@ export interface InvoiceItemTable {
   quantity: number;
 }
 
+export interface NotificationTable {
+  id: Generated<string>;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  body: string | null;
+  // JSONB — invite notifications include invite_status, inviter_id, entity_name,
+  // gym_id/employee_type (employee_gym_invite) or shop_id (vendor_shop_invite).
+  metadata: ColumnType<
+    Record<string, unknown> | null,
+    Record<string, unknown> | null | undefined,
+    Record<string, unknown> | null | undefined
+  >;
+  is_read: Generated<boolean>;
+  created_at: Generated<string>;
+}
+
 // ── Database ──────────────────────────────────────────────────────────────────
 
 export interface Database {
@@ -171,6 +207,7 @@ export interface Database {
   shop_item: ShopItemTable;
   invoice: InvoiceTable;
   invoice_item: InvoiceItemTable;
+  notification: NotificationTable;
 }
 
 // ── CRUD helpers ──────────────────────────────────────────────────────────────
@@ -241,6 +278,10 @@ export type InvoiceInsert = Insertable<InvoiceTable>;
 export type InvoiceItem = Selectable<InvoiceItemTable>;
 export type InvoiceItemInsert = Insertable<InvoiceItemTable>;
 export type InvoiceItemUpdate = Updateable<InvoiceItemTable>;
+
+export type Notification = Selectable<NotificationTable>;
+export type NotificationInsert = Insertable<NotificationTable>;
+export type NotificationUpdate = Updateable<NotificationTable>;
 
 // ── Auth response ─────────────────────────────────────────────────────────────
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
+import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/auth_service.dart';
 import 'home/owner_home_page.dart';
@@ -12,6 +13,7 @@ import 'home/trainer_home_page.dart';
 import 'home/employee_home_page.dart';
 import 'home/employee_trainer_home_page.dart';
 import 'home/super_user_home_page.dart';
+import 'notifications_page.dart';
 
 // ── Per-role nav tab definitions ──────────────────────────────────────────────
 
@@ -81,11 +83,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _authService = AuthService();
+  final _api = ApiService();
 
   int _tabIndex = 0;
   UserProfile? _profile;
   bool _loading = true;
   String? _error;
+  int _unreadNotifications = 0;
 
   @override
   void initState() {
@@ -102,6 +106,7 @@ class _HomePageState extends State<HomePage> {
         _profile = cached;
         _loading = false;
       });
+      _refreshUnreadCount(cached.id);
     }
     try {
       final token = await AuthManager.instance.getValidToken();
@@ -116,6 +121,7 @@ class _HomePageState extends State<HomePage> {
           _loading = false;
           _error = null;
         });
+        _refreshUnreadCount(fresh.id);
       }
     } catch (e) {
       if (mounted && _profile == null) {
@@ -125,6 +131,29 @@ class _HomePageState extends State<HomePage> {
         });
       }
     }
+  }
+
+  Future<void> _refreshUnreadCount(String userId) async {
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final page = await _api.getNotifications(
+        token,
+        userId: userId,
+        page: 0,
+        pageSize: 1,
+      );
+      if (mounted) setState(() => _unreadNotifications = page.unreadCount);
+    } catch (_) {}
+  }
+
+  Future<void> _openNotifications() async {
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(builder: (_) => const NotificationsPage()),
+    );
+    // Refresh badge when returning from notifications
+    final profile = _profile;
+    if (profile != null && mounted) _refreshUnreadCount(profile.id);
   }
 
   Future<void> _logout() async {
@@ -166,6 +195,43 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(tabs[_tabIndex].label),
         actions: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined),
+                tooltip: 'Notifications',
+                onPressed: _openNotifications,
+              ),
+              if (_unreadNotifications > 0)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: IgnorePointer(
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.error,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints:
+                          const BoxConstraints(minWidth: 16, minHeight: 16),
+                      child: Text(
+                        _unreadNotifications > 99
+                            ? '99+'
+                            : '$_unreadNotifications',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onError,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Log out',
