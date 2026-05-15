@@ -28,8 +28,12 @@ class ApiService {
 
   void _check(http.Response r) {
     if (r.statusCode >= 400) {
-      final d = jsonDecode(r.body) as Map<String, dynamic>;
-      throw Exception(d['error'] ?? 'Request failed (${r.statusCode})');
+      try {
+        final d = jsonDecode(r.body) as Map<String, dynamic>;
+        throw Exception(d['error'] ?? 'Request failed (${r.statusCode})');
+      } on FormatException {
+        throw Exception('Request failed (${r.statusCode})');
+      }
     }
   }
 
@@ -817,6 +821,7 @@ class ApiService {
       Uri.parse('$_base/food-items?${params.join('&')}'),
       headers: _headers(token),
     );
+    if (r.statusCode == 404) return [];
     _check(r);
     return (jsonDecode(r.body) as List)
         .map((e) => FoodItem.fromJson(e as Map<String, dynamic>))
@@ -876,6 +881,7 @@ class ApiService {
       Uri.parse('$_base/recipes?${params.join('&')}'),
       headers: _headers(token),
     );
+    if (r.statusCode == 404) return [];
     _check(r);
     return (jsonDecode(r.body) as List)
         .map((e) => Recipe.fromJson(e as Map<String, dynamic>))
@@ -935,6 +941,7 @@ class ApiService {
       Uri.parse('$_base/daily-meal-plans?${params.join('&')}'),
       headers: _headers(token),
     );
+    if (r.statusCode == 404) return [];
     _check(r);
     return (jsonDecode(r.body) as List)
         .map((e) => DailyMealPlan.fromJson(e as Map<String, dynamic>))
@@ -994,6 +1001,7 @@ class ApiService {
       Uri.parse('$_base/meal-plans?${params.join('&')}'),
       headers: _headers(token),
     );
+    if (r.statusCode == 404) return [];
     _check(r);
     return (jsonDecode(r.body) as List)
         .map((e) => MealPlan.fromJson(e as Map<String, dynamic>))
@@ -1052,6 +1060,7 @@ class ApiService {
       Uri.parse('$_base/meal-plan-assignments$q'),
       headers: _headers(token),
     );
+    if (r.statusCode == 404) return [];
     _check(r);
     return (jsonDecode(r.body) as List)
         .map((e) => MealPlanAssignment.fromJson(e as Map<String, dynamic>))
