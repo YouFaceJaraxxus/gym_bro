@@ -14,53 +14,64 @@ import 'home/employee_home_page.dart';
 import 'home/employee_trainer_home_page.dart';
 import 'home/super_user_home_page.dart';
 import 'notifications_page.dart';
+import 'exercises_page.dart';
+import 'workouts_page.dart';
+import 'sessions_page.dart';
 
 // ── Per-role nav tab definitions ──────────────────────────────────────────────
 
 typedef _Tab = ({String label, IconData icon});
+
+// Shared workout tabs appended to every role's list before Profile.
+const _sharedTabs = <_Tab>[
+  (label: 'Exercises', icon: Icons.sports_gymnastics_outlined),
+  (label: 'Workouts', icon: Icons.fitness_center_outlined),
+  (label: 'Sessions', icon: Icons.timer_outlined),
+  (label: 'Profile', icon: Icons.person_outline),
+];
 
 const _ownerTabs = <_Tab>[
   (label: 'Home', icon: Icons.home_outlined),
   (label: 'Businesses', icon: Icons.business_outlined),
   (label: 'Members', icon: Icons.people_outline),
   (label: 'Staff', icon: Icons.badge_outlined),
-  (label: 'Profile', icon: Icons.person_outline),
+  ..._sharedTabs,
 ];
 
 const _memberTabs = <_Tab>[
   (label: 'Home', icon: Icons.home_outlined),
   (label: 'Membership', icon: Icons.card_membership_outlined),
   (label: 'Schedule', icon: Icons.calendar_today_outlined),
-  (label: 'Profile', icon: Icons.person_outline),
+  ..._sharedTabs,
 ];
 
 const _trainerTabs = <_Tab>[
   (label: 'Home', icon: Icons.home_outlined),
   (label: 'Classes', icon: Icons.fitness_center_outlined),
   (label: 'Members', icon: Icons.people_outline),
-  (label: 'Profile', icon: Icons.person_outline),
+  ..._sharedTabs,
 ];
 
 const _employeeTabs = <_Tab>[
   (label: 'Home', icon: Icons.home_outlined),
   (label: 'Members', icon: Icons.people_outline),
   (label: 'Schedule', icon: Icons.schedule_outlined),
-  (label: 'Profile', icon: Icons.person_outline),
+  ..._sharedTabs,
 ];
 
 const _employeeTrainerTabs = <_Tab>[
   (label: 'Home', icon: Icons.home_outlined),
   (label: 'Members', icon: Icons.people_outline),
-  (label: 'Classes', icon: Icons.fitness_center_outlined),
+  (label: 'Classes', icon: Icons.sports_gymnastics_outlined),
   (label: 'Schedule', icon: Icons.schedule_outlined),
-  (label: 'Profile', icon: Icons.person_outline),
+  ..._sharedTabs,
 ];
 
 const _superUserTabs = <_Tab>[
   (label: 'Home', icon: Icons.home_outlined),
   (label: 'Businesses', icon: Icons.business_outlined),
   (label: 'Users', icon: Icons.manage_accounts_outlined),
-  (label: 'Profile', icon: Icons.person_outline),
+  ..._sharedTabs,
 ];
 
 List<_Tab> _tabsForRole(UserRole role) => switch (role) {
@@ -277,8 +288,14 @@ class _HomePageState extends State<HomePage> {
       if (index == 1) return EmployeeMembersPage(profile: profile);
     }
 
-    // Remaining tabs show a placeholder until their pages are built.
+    // Shared workout tabs — always the last 4 entries in every role's list.
     final tabs = _tabsForRole(profile.role);
+    final tabCount = tabs.length;
+    if (index == tabCount - 4) return const ExercisesPage();
+    if (index == tabCount - 3) return const WorkoutsPage();
+    if (index == tabCount - 2) return const SessionsPage();
+
+    // Remaining tabs show a placeholder until their pages are built.
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,

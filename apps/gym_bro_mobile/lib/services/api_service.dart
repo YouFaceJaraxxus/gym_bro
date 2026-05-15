@@ -3,7 +3,11 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/app_notification.dart';
 import '../models/business.dart';
+import '../models/exercise.dart';
+import '../models/routine.dart';
 import '../models/shop_item.dart';
+import '../models/training.dart';
+import '../models/training_session.dart';
 import '../models/user_profile.dart';
 import '../models/user_search_result.dart';
 
@@ -506,6 +510,289 @@ class ApiService {
   Future<void> deleteNotification(String token, String notificationId) async {
     final r = await _client.delete(
       Uri.parse('$_base/notifications/$notificationId'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Exercises ────────────────────────────────────────────────────────────────
+
+  Future<List<Exercise>> getExercises(
+    String token, {
+    String? name,
+    MuscleGroup? muscle,
+    String? authorId,
+    bool? isPublic,
+    int page = 0,
+    int pageSize = 20,
+  }) async {
+    final params = <String>[
+      'page=$page',
+      'page_size=$pageSize',
+    ];
+    if (name != null) params.add('name=${Uri.encodeComponent(name)}');
+    if (muscle != null) params.add('muscle=${muscle.apiValue}');
+    if (authorId != null) params.add('author_id=$authorId');
+    if (isPublic != null) params.add('is_public=$isPublic');
+    final r = await _client.get(
+      Uri.parse('$_base/exercises?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => Exercise.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Exercise> getExercise(String token, String id) async {
+    final r = await _client.get(
+      Uri.parse('$_base/exercises/$id'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return Exercise.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<Exercise> createExercise(String token, Map<String, dynamic> data) async {
+    final r = await _client.post(
+      Uri.parse('$_base/exercises'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return Exercise.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<Exercise> updateExercise(String token, String id, Map<String, dynamic> data) async {
+    final r = await _client.put(
+      Uri.parse('$_base/exercises/$id'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return Exercise.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deleteExercise(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/exercises/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Trainings ────────────────────────────────────────────────────────────────
+
+  Future<List<Training>> getTrainings(
+    String token, {
+    String? name,
+    String? authorId,
+    bool mine = false,
+    int page = 0,
+    int pageSize = 20,
+  }) async {
+    final params = <String>[
+      'page=$page',
+      'page_size=$pageSize',
+    ];
+    if (name != null) params.add('name=${Uri.encodeComponent(name)}');
+    if (authorId != null) params.add('author_id=$authorId');
+    if (mine) params.add('mine=true');
+    final r = await _client.get(
+      Uri.parse('$_base/trainings?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => Training.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Training> getTraining(String token, String id) async {
+    final r = await _client.get(
+      Uri.parse('$_base/trainings/$id'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return Training.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<Training> createTraining(String token, Map<String, dynamic> data) async {
+    final r = await _client.post(
+      Uri.parse('$_base/trainings'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return Training.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<Training> updateTraining(String token, String id, Map<String, dynamic> data) async {
+    final r = await _client.put(
+      Uri.parse('$_base/trainings/$id'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return Training.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deleteTraining(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/trainings/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Routines ─────────────────────────────────────────────────────────────────
+
+  Future<List<Routine>> getRoutines(
+    String token, {
+    String? name,
+    String? authorId,
+    bool mine = false,
+    int page = 0,
+    int pageSize = 20,
+  }) async {
+    final params = <String>[
+      'page=$page',
+      'page_size=$pageSize',
+    ];
+    if (name != null) params.add('name=${Uri.encodeComponent(name)}');
+    if (authorId != null) params.add('author_id=$authorId');
+    if (mine) params.add('mine=true');
+    final r = await _client.get(
+      Uri.parse('$_base/routines?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => Routine.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Routine> getRoutine(String token, String id) async {
+    final r = await _client.get(
+      Uri.parse('$_base/routines/$id'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return Routine.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<Routine> createRoutine(String token, Map<String, dynamic> data) async {
+    final r = await _client.post(
+      Uri.parse('$_base/routines'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return Routine.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<Routine> updateRoutine(String token, String id, Map<String, dynamic> data) async {
+    final r = await _client.put(
+      Uri.parse('$_base/routines/$id'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return Routine.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deleteRoutine(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/routines/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Training sessions ────────────────────────────────────────────────────────
+
+  Future<List<TrainingSession>> getTrainingSessions(
+    String token, {
+    String? userId,
+    String? trainingId,
+    int page = 0,
+    int pageSize = 20,
+  }) async {
+    final params = <String>[
+      'page=$page',
+      'page_size=$pageSize',
+    ];
+    if (userId != null) params.add('user_id=$userId');
+    if (trainingId != null) params.add('training_id=$trainingId');
+    final r = await _client.get(
+      Uri.parse('$_base/training-sessions?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => TrainingSession.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<TrainingSession> getTrainingSession(String token, String id) async {
+    final r = await _client.get(
+      Uri.parse('$_base/training-sessions/$id'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<TrainingSession> startTrainingSession(
+    String token, {
+    String? trainingId,
+    String? trainerId,
+    String? notes,
+  }) async {
+    final r = await _client.post(
+      Uri.parse('$_base/training-sessions'),
+      headers: _headers(token),
+      body: jsonEncode({
+        'training_id': trainingId,
+        'trainer_id': trainerId,
+        'notes': notes,
+      }),
+    );
+    _check(r);
+    return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<TrainingSession> updateTrainingSession(
+    String token,
+    String id,
+    Map<String, dynamic> data,
+  ) async {
+    final r = await _client.put(
+      Uri.parse('$_base/training-sessions/$id'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<SessionSetLog> logSessionSet(
+    String token,
+    String sessionId,
+    Map<String, dynamic> data,
+  ) async {
+    final r = await _client.post(
+      Uri.parse('$_base/training-sessions/$sessionId/sets'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return SessionSetLog.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deleteTrainingSession(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/training-sessions/$id'),
       headers: _headers(token),
     );
     if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
