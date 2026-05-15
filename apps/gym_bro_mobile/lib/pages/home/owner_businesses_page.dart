@@ -4,6 +4,8 @@ import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../business_form_page.dart';
 import '../gym_detail_page.dart';
+import '../owner_all_members_page.dart';
+import '../owner_all_staff_page.dart';
 import '../shop_detail_page.dart';
 
 class OwnerBusinessesPage extends StatefulWidget {
@@ -112,59 +114,86 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
       children: [
         RefreshIndicator(
           onRefresh: _load,
-          child: _businesses.isEmpty
-              ? LayoutBuilder(
-                  builder: (context, constraints) => ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      SizedBox(
-                        height: constraints.maxHeight,
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.business_outlined,
-                                  size: 48,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .outline),
-                              const SizedBox(height: 16),
-                              const Text('No businesses yet'),
-                            ],
-                          ),
-                        ),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(
+                left: 16, right: 16, top: 16, bottom: 88),
+            children: [
+              // ── Quick-access row ──────────────────────────────────────
+              Row(
+                children: [
+                  Expanded(
+                    child: _QuickAccessCard(
+                      icon: Icons.people_outline,
+                      label: 'Members',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const OwnerAllMembersPage()),
                       ),
-                    ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _QuickAccessCard(
+                      icon: Icons.badge_outlined,
+                      label: 'Staff',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const OwnerAllStaffPage()),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // ── Business cards ────────────────────────────────────────
+              if (_businesses.isEmpty)
+                SizedBox(
+                  height: 200,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.business_outlined,
+                            size: 48,
+                            color:
+                                Theme.of(context).colorScheme.outline),
+                        const SizedBox(height: 16),
+                        const Text('No businesses yet'),
+                      ],
+                    ),
                   ),
                 )
-              : ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.only(
-                      left: 16, right: 16, top: 16, bottom: 88),
-                  children: [
-                    if (gyms.isNotEmpty) ...[
-                      _SectionHeader(
-                          icon: Icons.fitness_center, label: 'Gyms'),
-                      for (final b in gyms)
-                        _BusinessTile(
-                          business: b,
-                          onTap: () => _openDetail(b),
-                          onEdit: () => _openEditForm(b),
-                        ),
-                      const SizedBox(height: 8),
-                    ],
-                    if (shops.isNotEmpty) ...[
-                      _SectionHeader(
-                          icon: Icons.store_outlined, label: 'Shops'),
-                      for (final b in shops)
-                        _BusinessTile(
-                          business: b,
-                          onTap: () => _openDetail(b),
-                          onEdit: () => _openEditForm(b),
-                        ),
-                    ],
-                  ],
-                ),
+              else ...[
+                if (gyms.isNotEmpty) ...[
+                  _SectionHeader(
+                      icon: Icons.fitness_center, label: 'Gyms'),
+                  for (final b in gyms)
+                    _BusinessTile(
+                      business: b,
+                      onTap: () => _openDetail(b),
+                      onEdit: () => _openEditForm(b),
+                    ),
+                  const SizedBox(height: 8),
+                ],
+                if (shops.isNotEmpty) ...[
+                  _SectionHeader(
+                      icon: Icons.store_outlined, label: 'Shops'),
+                  for (final b in shops)
+                    _BusinessTile(
+                      business: b,
+                      onTap: () => _openDetail(b),
+                      onEdit: () => _openEditForm(b),
+                    ),
+                ],
+              ],
+            ],
+          ),
         ),
         Positioned(
           bottom: 16,
@@ -202,6 +231,46 @@ class _SectionHeader extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _QuickAccessCard extends StatelessWidget {
+  const _QuickAccessCard({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Card(
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: cs.primary),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                    fontWeight: FontWeight.w600, color: cs.primary),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

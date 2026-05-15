@@ -5,8 +5,6 @@ import '../services/auth_manager.dart';
 import '../services/auth_service.dart';
 import 'home/owner_home_page.dart';
 import 'home/owner_businesses_page.dart';
-import 'home/owner_members_page.dart';
-import 'home/owner_staff_page.dart';
 import 'home/employee_members_page.dart';
 import 'home/member_home_page.dart';
 import 'home/trainer_home_page.dart';
@@ -14,27 +12,21 @@ import 'home/employee_home_page.dart';
 import 'home/employee_trainer_home_page.dart';
 import 'home/super_user_home_page.dart';
 import 'notifications_page.dart';
-import 'exercises_page.dart';
-import 'workouts_page.dart';
-import 'sessions_page.dart';
+import 'gym_hub_page.dart';
 
 // ── Per-role nav tab definitions ──────────────────────────────────────────────
 
 typedef _Tab = ({String label, IconData icon});
 
-// Shared workout tabs appended to every role's list before Profile.
+// Shared tabs appended to every role's list.
 const _sharedTabs = <_Tab>[
-  (label: 'Exercises', icon: Icons.sports_gymnastics_outlined),
-  (label: 'Workouts', icon: Icons.fitness_center_outlined),
-  (label: 'Sessions', icon: Icons.timer_outlined),
+  (label: 'Gym', icon: Icons.fitness_center),
   (label: 'Profile', icon: Icons.person_outline),
 ];
 
 const _ownerTabs = <_Tab>[
   (label: 'Home', icon: Icons.home_outlined),
   (label: 'Businesses', icon: Icons.business_outlined),
-  (label: 'Members', icon: Icons.people_outline),
-  (label: 'Staff', icon: Icons.badge_outlined),
   ..._sharedTabs,
 ];
 
@@ -256,7 +248,7 @@ class _HomePageState extends State<HomePage> {
         onDestinationSelected: (i) => setState(() => _tabIndex = i),
         destinations: [
           for (final tab in tabs)
-            NavigationDestination(icon: Icon(tab.icon), label: tab.label),
+            NavigationDestination(icon: Icon(tab.icon), label: ''),
         ],
       ),
     );
@@ -278,8 +270,6 @@ class _HomePageState extends State<HomePage> {
     // Owner-specific tabs.
     if (profile.role == UserRole.owner) {
       if (index == 1) return const OwnerBusinessesPage();
-      if (index == 2) return OwnerMembersPage(profile: profile);
-      if (index == 3) return OwnerStaffPage(profile: profile);
     }
 
     // Employee / employee-trainer Members tab (index 1 for both roles).
@@ -288,12 +278,10 @@ class _HomePageState extends State<HomePage> {
       if (index == 1) return EmployeeMembersPage(profile: profile);
     }
 
-    // Shared workout tabs — always the last 4 entries in every role's list.
+    // Shared gym tab — always the second-to-last entry in every role's list.
     final tabs = _tabsForRole(profile.role);
     final tabCount = tabs.length;
-    if (index == tabCount - 4) return const ExercisesPage();
-    if (index == tabCount - 3) return const WorkoutsPage();
-    if (index == tabCount - 2) return const SessionsPage();
+    if (index == tabCount - 2) return const GymHubPage();
 
     // Remaining tabs show a placeholder until their pages are built.
     return Center(

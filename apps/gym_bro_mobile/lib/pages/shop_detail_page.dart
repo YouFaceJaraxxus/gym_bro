@@ -147,11 +147,11 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Vendors section ───────────────────────────────────────────
+            // ── Staff / Vendors section ───────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Vendors',
+                Text('Staff / Vendors',
                     style: Theme.of(context).textTheme.titleMedium),
                 TextButton.icon(
                   onPressed: () async {
