@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/app_notification.dart';
 import '../models/business.dart';
 import '../models/exercise.dart';
+import '../models/meal_plan.dart';
 import '../models/routine.dart';
 import '../models/shop_item.dart';
 import '../models/training.dart';
@@ -793,6 +794,284 @@ class ApiService {
   Future<void> deleteTrainingSession(String token, String id) async {
     final r = await _client.delete(
       Uri.parse('$_base/training-sessions/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Food Items ───────────────────────────────────────────────────────────────
+
+  Future<List<FoodItem>> getFoodItems(
+    String token, {
+    String? name,
+    FoodItemType? type,
+    bool mine = false,
+    int page = 0,
+    int pageSize = 20,
+  }) async {
+    final params = <String>['page=$page', 'page_size=$pageSize'];
+    if (name != null) params.add('name=${Uri.encodeComponent(name)}');
+    if (type != null) params.add('type=${type.apiValue}');
+    if (mine) params.add('mine=true');
+    final r = await _client.get(
+      Uri.parse('$_base/food-items?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => FoodItem.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<FoodItem> getFoodItem(String token, String id) async {
+    final r = await _client.get(
+      Uri.parse('$_base/food-items/$id'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return FoodItem.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<FoodItem> createFoodItem(String token, Map<String, dynamic> data) async {
+    final r = await _client.post(
+      Uri.parse('$_base/food-items'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return FoodItem.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<FoodItem> updateFoodItem(String token, String id, Map<String, dynamic> data) async {
+    final r = await _client.put(
+      Uri.parse('$_base/food-items/$id'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return FoodItem.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deleteFoodItem(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/food-items/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Recipes ──────────────────────────────────────────────────────────────────
+
+  Future<List<Recipe>> getRecipes(
+    String token, {
+    String? name,
+    bool mine = false,
+    int page = 0,
+    int pageSize = 20,
+  }) async {
+    final params = <String>['page=$page', 'page_size=$pageSize'];
+    if (name != null) params.add('name=${Uri.encodeComponent(name)}');
+    if (mine) params.add('mine=true');
+    final r = await _client.get(
+      Uri.parse('$_base/recipes?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => Recipe.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Recipe> getRecipe(String token, String id) async {
+    final r = await _client.get(
+      Uri.parse('$_base/recipes/$id'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return Recipe.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<Recipe> createRecipe(String token, Map<String, dynamic> data) async {
+    final r = await _client.post(
+      Uri.parse('$_base/recipes'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return Recipe.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<Recipe> updateRecipe(String token, String id, Map<String, dynamic> data) async {
+    final r = await _client.put(
+      Uri.parse('$_base/recipes/$id'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return Recipe.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deleteRecipe(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/recipes/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Daily Meal Plans ──────────────────────────────────────────────────────────
+
+  Future<List<DailyMealPlan>> getDailyMealPlans(
+    String token, {
+    String? name,
+    bool mine = false,
+    int page = 0,
+    int pageSize = 20,
+  }) async {
+    final params = <String>['page=$page', 'page_size=$pageSize'];
+    if (name != null) params.add('name=${Uri.encodeComponent(name)}');
+    if (mine) params.add('mine=true');
+    final r = await _client.get(
+      Uri.parse('$_base/daily-meal-plans?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => DailyMealPlan.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<DailyMealPlan> getDailyMealPlan(String token, String id) async {
+    final r = await _client.get(
+      Uri.parse('$_base/daily-meal-plans/$id'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return DailyMealPlan.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<DailyMealPlan> createDailyMealPlan(String token, Map<String, dynamic> data) async {
+    final r = await _client.post(
+      Uri.parse('$_base/daily-meal-plans'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return DailyMealPlan.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<DailyMealPlan> updateDailyMealPlan(String token, String id, Map<String, dynamic> data) async {
+    final r = await _client.put(
+      Uri.parse('$_base/daily-meal-plans/$id'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return DailyMealPlan.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deleteDailyMealPlan(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/daily-meal-plans/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Meal Plans ────────────────────────────────────────────────────────────────
+
+  Future<List<MealPlan>> getMealPlans(
+    String token, {
+    String? name,
+    bool mine = false,
+    int page = 0,
+    int pageSize = 20,
+  }) async {
+    final params = <String>['page=$page', 'page_size=$pageSize'];
+    if (name != null) params.add('name=${Uri.encodeComponent(name)}');
+    if (mine) params.add('mine=true');
+    final r = await _client.get(
+      Uri.parse('$_base/meal-plans?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => MealPlan.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<MealPlan> getMealPlan(String token, String id) async {
+    final r = await _client.get(
+      Uri.parse('$_base/meal-plans/$id'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return MealPlan.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<MealPlan> createMealPlan(String token, Map<String, dynamic> data) async {
+    final r = await _client.post(
+      Uri.parse('$_base/meal-plans'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return MealPlan.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<MealPlan> updateMealPlan(String token, String id, Map<String, dynamic> data) async {
+    final r = await _client.put(
+      Uri.parse('$_base/meal-plans/$id'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return MealPlan.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deleteMealPlan(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/meal-plans/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Meal Plan Assignments ─────────────────────────────────────────────────────
+
+  Future<List<MealPlanAssignment>> getMealPlanAssignments(
+    String token, {
+    String? userId,
+    String? mealPlanId,
+  }) async {
+    final params = <String>[];
+    if (userId != null) params.add('user_id=$userId');
+    if (mealPlanId != null) params.add('meal_plan_id=$mealPlanId');
+    final q = params.isEmpty ? '' : '?${params.join('&')}';
+    final r = await _client.get(
+      Uri.parse('$_base/meal-plan-assignments$q'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => MealPlanAssignment.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<MealPlanAssignment> createMealPlanAssignment(
+      String token, Map<String, dynamic> data) async {
+    final r = await _client.post(
+      Uri.parse('$_base/meal-plan-assignments'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return MealPlanAssignment.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deleteMealPlanAssignment(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/meal-plan-assignments/$id'),
       headers: _headers(token),
     );
     if (r.statusCode >= 400 && r.statusCode != 204) _check(r);

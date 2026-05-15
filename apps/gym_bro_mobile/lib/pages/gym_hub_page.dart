@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'exercises_page.dart';
 import 'workouts_page.dart';
 import 'sessions_page.dart';
+import 'meal_plans_page.dart';
 
 class GymHubPage extends StatelessWidget {
   const GymHubPage({super.key});
@@ -38,6 +39,16 @@ class GymHubPage extends StatelessWidget {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const SessionsPage()),
+          ),
+        ),
+        const SizedBox(height: 14),
+        _HubCard(
+          icon: Icons.restaurant_menu_outlined,
+          label: 'Meal Plans',
+          subtitle: 'Food, recipes and nutrition',
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MealPlansPage()),
           ),
         ),
       ],
