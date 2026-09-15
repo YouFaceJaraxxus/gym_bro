@@ -41,10 +41,21 @@ Deno.serve(async (req: Request) => {
 
     const profile = await db
       .selectFrom("users")
-      .select(["id"])
+      .select(["id", "role"])
       .where("auth_id", "=", user.id)
       .executeTakeFirst();
     if (!profile) return jsonError("User profile not found", 404);
+
+    const typeFilter = url.searchParams.get("type");
+
+    // Super users can see every business, not just ones they own.
+    if (profile.role === "super_user") {
+      let allQuery = db.selectFrom("business").select(COLS);
+      if (typeFilter === "gym" || typeFilter === "shop") {
+        allQuery = allQuery.where("type", "=", typeFilter);
+      }
+      return json(await allQuery.orderBy("name", "asc").execute());
+    }
 
     const [gymOwners, shopOwners] = await Promise.all([
       db.selectFrom("gym_owner").select(["gym_id"]).where("user_id", "=", profile.id).execute(),
@@ -58,7 +69,6 @@ Deno.serve(async (req: Request) => {
 
     if (ownedIds.length === 0) return json([]);
 
-    const typeFilter = url.searchParams.get("type");
     let query = db.selectFrom("business").select(COLS).where("id", "in", ownedIds);
     if (typeFilter === "gym" || typeFilter === "shop") {
       query = query.where("type", "=", typeFilter);

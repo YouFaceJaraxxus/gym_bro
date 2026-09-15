@@ -6,7 +6,11 @@ import 'session_detail_page.dart';
 import 'session_log_page.dart';
 
 class SessionsPage extends StatefulWidget {
-  const SessionsPage({super.key});
+  const SessionsPage({super.key, this.asTrainerId});
+
+  /// When set, shows sessions this trainer is running for others ("Classes")
+  /// instead of the caller's own sessions ("Schedule").
+  final String? asTrainerId;
 
   @override
   State<SessionsPage> createState() => _SessionsPageState();
@@ -19,6 +23,8 @@ class _SessionsPageState extends State<SessionsPage> {
   String? _error;
   int _page = 0;
   bool _hasMore = true;
+
+  bool get _isTrainerView => widget.asTrainerId != null;
 
   @override
   void initState() {
@@ -40,6 +46,7 @@ class _SessionsPageState extends State<SessionsPage> {
       final token = await AuthManager.instance.getValidToken();
       final results = await _api.getTrainingSessions(
         token,
+        trainerId: widget.asTrainerId,
         page: _page,
         pageSize: 20,
       );
@@ -64,18 +71,20 @@ class _SessionsPageState extends State<SessionsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sessions')),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const SessionLogPage()),
-          );
-          if (result == true) _load(reset: true);
-        },
-        icon: const Icon(Icons.play_arrow),
-        label: const Text('New Session'),
-      ),
+      appBar: AppBar(title: Text(_isTrainerView ? 'Classes' : 'Sessions')),
+      floatingActionButton: _isTrainerView
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SessionLogPage()),
+                );
+                if (result == true) _load(reset: true);
+              },
+              icon: const Icon(Icons.play_arrow),
+              label: const Text('New Session'),
+            ),
       body: _buildBody(),
     );
   }
@@ -97,15 +106,23 @@ class _SessionsPageState extends State<SessionsPage> {
       );
     }
     if (_sessions.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.fitness_center, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text('No sessions yet', style: TextStyle(fontSize: 18, color: Colors.grey)),
-            SizedBox(height: 8),
-            Text('Tap + to start your first workout', style: TextStyle(color: Colors.grey)),
+            const Icon(Icons.fitness_center, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              _isTrainerView ? 'No classes yet' : 'No sessions yet',
+              style: const TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _isTrainerView
+                  ? 'Sessions you run for members will show up here'
+                  : 'Tap + to start your first workout',
+              style: const TextStyle(color: Colors.grey),
+            ),
           ],
         ),
       );

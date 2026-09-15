@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/image_upload_field.dart';
 
 class RecipeFormPage extends StatefulWidget {
   final Recipe? recipe;
@@ -338,6 +339,19 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
                           controller: img.urlController,
                           decoration: const InputDecoration(labelText: 'Image URL', border: InputBorder.none),
                           keyboardType: TextInputType.url,
+                        ),
+                      ),
+                      Tooltip(
+                        message: 'Upload photo',
+                        child: IconButton(
+                          icon: const Icon(Icons.upload_outlined),
+                          onPressed: () => pickAndUploadImage(
+                            context: context,
+                            bucket: 'media',
+                            folder: 'recipes',
+                            onUploaded: (url) => setState(() => img.urlController.text = url),
+                            onUploadingChanged: (_) {},
+                          ),
                         ),
                       ),
                       // Thumbnail selector

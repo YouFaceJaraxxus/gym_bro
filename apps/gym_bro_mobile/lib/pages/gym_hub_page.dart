@@ -1,11 +1,82 @@
 import 'package:flutter/material.dart';
+import '../models/user_profile.dart';
+import '../services/api_service.dart';
+import '../services/auth_manager.dart';
 import 'exercises_page.dart';
 import 'workouts_page.dart';
 import 'sessions_page.dart';
 import 'meal_plans_page.dart';
+import 'posts_page.dart';
 
 class GymHubPage extends StatelessWidget {
-  const GymHubPage({super.key});
+  const GymHubPage({super.key, this.profile});
+
+  final UserProfile? profile;
+
+  /// Resolves the (business id, business name, canPost) the current user
+  /// belongs to, trying every role relationship in turn. Returns null if none
+  /// is found (e.g. a super_user with no personal membership/staff role).
+  Future<({String id, String name, bool canPost})?> _resolveBusiness() async {
+    final p = profile;
+    if (p == null) return null;
+    final token = await AuthManager.instance.getValidToken();
+    final api = ApiService();
+
+    Future<String?> firstGymId(Future<List<Map<String, dynamic>>> Function() fetch, String key) async {
+      try {
+        final rows = await fetch();
+        return rows.isNotEmpty ? rows.first[key] as String? : null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    final staffGymId = await firstGymId(() => api.getEmployees(token, userId: p.id), 'gym_id') ??
+        await firstGymId(() => api.getTrainers(token, userId: p.id), 'gym_id') ??
+        await firstGymId(() => api.getEmployeeTrainers(token, userId: p.id), 'gym_id') ??
+        await firstGymId(() => api.getGymOwners(token, userId: p.id), 'gym_id');
+
+    final gymId = staffGymId ?? await firstGymId(() => api.getMembers(token, userId: p.id), 'gym_id');
+
+    if (gymId != null) {
+      try {
+        final business = await api.getBusiness(token, gymId);
+        return (id: gymId, name: business.name, canPost: staffGymId != null);
+      } catch (_) {}
+    }
+
+    final shopId = await firstGymId(() => api.getShopOwners(token, userId: p.id), 'shop_id') ??
+        await firstGymId(() => api.getShopVendors(token, userId: p.id), 'shop_id');
+    if (shopId != null) {
+      try {
+        final business = await api.getBusiness(token, shopId);
+        return (id: shopId, name: business.name, canPost: true);
+      } catch (_) {}
+    }
+
+    return null;
+  }
+
+  Future<void> _openCommunity(BuildContext context) async {
+    final resolved = await _resolveBusiness();
+    if (!context.mounted) return;
+    if (resolved == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("You're not linked to a gym or shop yet")),
+      );
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PostsPage(
+          businessId: resolved.id,
+          businessName: resolved.name,
+          canPost: resolved.canPost,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +122,15 @@ class GymHubPage extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const MealPlansPage()),
           ),
         ),
+        if (profile != null) ...[
+          const SizedBox(height: 14),
+          _HubCard(
+            icon: Icons.forum_outlined,
+            label: 'Community',
+            subtitle: 'Posts and announcements from your gym',
+            onTap: () => _openCommunity(context),
+          ),
+        ],
       ],
     );
   }

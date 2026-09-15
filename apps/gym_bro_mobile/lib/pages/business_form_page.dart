@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/business.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/image_upload_field.dart';
 
 class BusinessFormPage extends StatefulWidget {
   const BusinessFormPage({super.key, this.business});
@@ -24,6 +25,7 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
   late TimeOfDay _fromTime;
   late TimeOfDay _toTime;
   late Set<int> _weekdays;
+  String? _logo;
 
   bool _loading = false;
   String? _error;
@@ -55,6 +57,7 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
         : const TimeOfDay(hour: 17, minute: 0);
     _weekdays =
         b != null ? b.workingWeekdays.toSet() : {1, 2, 3, 4, 5};
+    _logo = b?.logo;
   }
 
   @override
@@ -111,6 +114,7 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
         'working_hours_from': _formatTime(_fromTime),
         'working_hours_to': _formatTime(_toTime),
         'working_weekdays': sortedDays,
+        'logo': _logo,
       };
 
       if (_isEditing) {
@@ -140,6 +144,14 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              ImagePickerField(
+                imageUrl: _logo,
+                folder: 'businesses',
+                label: 'Add logo',
+                height: 120,
+                onUploaded: (url) => setState(() => _logo = url),
+              ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _nameCtrl,
                 decoration: const InputDecoration(labelText: 'Name'),

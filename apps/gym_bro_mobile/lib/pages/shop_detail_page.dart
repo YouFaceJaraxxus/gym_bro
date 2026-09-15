@@ -3,6 +3,7 @@ import '../models/shop_item.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'posts_page.dart';
 import 'shop_item_form_page.dart';
 import 'shop_vendors_page.dart';
 
@@ -108,7 +109,25 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.shopName)),
+      appBar: AppBar(
+        title: Text(widget.shopName),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.forum_outlined),
+            tooltip: 'Posts',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PostsPage(
+                  businessId: widget.shopId,
+                  businessName: widget.shopName,
+                  canPost: true,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -269,16 +288,19 @@ class _ShopItemTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor:
-              item.isActive ? cs.primaryContainer : cs.surfaceContainerHighest,
-          child: Icon(
-            _typeIcon(item.type),
-            color: item.isActive
-                ? cs.onPrimaryContainer
-                : cs.onSurfaceVariant,
-          ),
-        ),
+        leading: item.imageUrl != null
+            ? CircleAvatar(backgroundImage: NetworkImage(item.imageUrl!))
+            : CircleAvatar(
+                backgroundColor: item.isActive
+                    ? cs.primaryContainer
+                    : cs.surfaceContainerHighest,
+                child: Icon(
+                  _typeIcon(item.type),
+                  color: item.isActive
+                      ? cs.onPrimaryContainer
+                      : cs.onSurfaceVariant,
+                ),
+              ),
         title: Row(
           children: [
             Expanded(child: Text(item.name)),

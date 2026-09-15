@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/image_upload_field.dart';
 
 class MealPlanFormPage extends StatefulWidget {
   final MealPlan? plan;
@@ -256,6 +257,17 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
                             border: InputBorder.none,
                             isDense: true,
                           ),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'Upload photo',
+                        icon: const Icon(Icons.upload_outlined, size: 20),
+                        onPressed: () => pickAndUploadImage(
+                          context: context,
+                          bucket: 'media',
+                          folder: 'meal-plans',
+                          onUploaded: (url) => setState(() => img.urlController.text = url),
+                          onUploadingChanged: (_) {},
                         ),
                       ),
                       IconButton(

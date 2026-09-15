@@ -1,11 +1,14 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 
+// Web            → dart:io Platform is unavailable, always use localhost
 // Android emulator → host machine is 10.0.2.2
 // iOS simulator   → localhost works fine
 // Physical device → use your machine's LAN IP (e.g. 192.168.x.x)
-final _baseUrl = 'http://${Platform.isAndroid ? '10.0.2.2' : 'localhost'}:54321/functions/v1/users';
+final _baseUrl =
+    'http://${!kIsWeb && Platform.isAndroid ? '10.0.2.2' : 'localhost'}:54321/functions/v1/users';
 
 class AuthService {
   final _client = http.Client();

@@ -775,7 +775,7 @@ class DailyMealPlanCard extends StatelessWidget {
                       value: '${plan.fatTotal.toStringAsFixed(1)}g'),
                   const Spacer(),
                   Text(
-                    '${plan.slots.length} meal${plan.slots.length == 1 ? '' : 's'}',
+                    '${plan.displayMealCount} meal${plan.displayMealCount == 1 ? '' : 's'}',
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],

@@ -35,6 +35,7 @@ class UserProfile {
   final String name;
   final String lastName;
   final UserRole role;
+  final String? avatarUrl;
 
   const UserProfile({
     required this.id,
@@ -43,6 +44,7 @@ class UserProfile {
     required this.name,
     required this.lastName,
     required this.role,
+    this.avatarUrl,
   });
 
   String get fullName => '$name $lastName'.trim();
@@ -55,6 +57,7 @@ class UserProfile {
       name: json['name'] as String,
       lastName: json['last_name'] as String,
       role: UserRole.fromString(json['role'] as String? ?? 'member'),
+      avatarUrl: json['avatar_url'] as String?,
     );
   }
 
@@ -64,6 +67,7 @@ class UserProfile {
         'email': email,
         'name': name,
         'last_name': lastName,
+        'avatar_url': avatarUrl,
         'role': switch (role) {
           UserRole.owner => 'owner',
           UserRole.trainer => 'trainer',

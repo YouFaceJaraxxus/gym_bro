@@ -11,8 +11,12 @@ import 'home/trainer_home_page.dart';
 import 'home/employee_home_page.dart';
 import 'home/employee_trainer_home_page.dart';
 import 'home/super_user_home_page.dart';
+import 'home/owner_users_page.dart';
 import 'notifications_page.dart';
 import 'gym_hub_page.dart';
+import 'profile_page.dart';
+import 'sessions_page.dart';
+import 'membership_page.dart';
 
 // ── Per-role nav tab definitions ──────────────────────────────────────────────
 
@@ -267,9 +271,14 @@ class _HomePageState extends State<HomePage> {
       };
     }
 
-    // Owner-specific tabs.
-    if (profile.role == UserRole.owner) {
+    // Owner / super-user Businesses tab.
+    if (profile.role == UserRole.owner || profile.role == UserRole.superUser) {
       if (index == 1) return const OwnerBusinessesPage();
+    }
+
+    // Super-user Users tab.
+    if (profile.role == UserRole.superUser) {
+      if (index == 2) return const OwnerUsersPage();
     }
 
     // Employee / employee-trainer Members tab (index 1 for both roles).
@@ -278,10 +287,40 @@ class _HomePageState extends State<HomePage> {
       if (index == 1) return EmployeeMembersPage(profile: profile);
     }
 
+    // Member Membership + Schedule (their own sessions).
+    if (profile.role == UserRole.member) {
+      if (index == 1) return MembershipPage(profile: profile);
+      if (index == 2) return const SessionsPage();
+    }
+
+    // Employee Schedule (their own logged sessions, if any).
+    if (profile.role == UserRole.employee) {
+      if (index == 2) return const SessionsPage();
+    }
+
+    // Trainer Classes (sessions they run for members).
+    if (profile.role == UserRole.trainer) {
+      if (index == 1) return SessionsPage(asTrainerId: profile.id);
+    }
+
+    // Employee-trainer Classes + Schedule.
+    if (profile.role == UserRole.employeeTrainer) {
+      if (index == 2) return SessionsPage(asTrainerId: profile.id);
+      if (index == 3) return const SessionsPage();
+    }
+
     // Shared gym tab — always the second-to-last entry in every role's list.
     final tabs = _tabsForRole(profile.role);
     final tabCount = tabs.length;
-    if (index == tabCount - 2) return const GymHubPage();
+    if (index == tabCount - 2) return GymHubPage(profile: profile);
+
+    // Shared Profile tab — always the last entry in every role's list.
+    if (index == tabCount - 1) {
+      return ProfilePage(
+        profile: profile,
+        onUpdated: (updated) => setState(() => _profile = updated),
+      );
+    }
 
     // Remaining tabs show a placeholder until their pages are built.
     return Center(

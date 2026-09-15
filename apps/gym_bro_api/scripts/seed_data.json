@@ -1,0 +1,2172 @@
+{
+  "businesses": [
+    {
+      "name": "Ironclad Fitness",
+      "location": "482 Halsey Street, Brooklyn, NY 11233",
+      "type": "gym",
+      "working_hours_from": "05:00:00",
+      "working_hours_to": "23:00:00",
+      "working_weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "logo_image_key": "gym-logo"
+    },
+    {
+      "name": "Peak Performance Supply Co.",
+      "location": "17 Court Street, Brooklyn, NY 11201",
+      "type": "shop",
+      "working_hours_from": "09:00:00",
+      "working_hours_to": "19:00:00",
+      "working_weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "logo_image_key": "shop-logo"
+    }
+  ],
+  "personas": [
+    {
+      "username": "marcusbennett",
+      "email": "marcus.bennett@example.com",
+      "first_name": "Marcus",
+      "last_name": "Bennett",
+      "role": "owner",
+      "avatar_key": "marcusbennett"
+    },
+    {
+      "username": "elenavasquez",
+      "email": "elena.vasquez@example.com",
+      "first_name": "Elena",
+      "last_name": "Vasquez",
+      "role": "trainer",
+      "avatar_key": "elenavasquez"
+    },
+    {
+      "username": "jamalcarter",
+      "email": "jamal.carter@example.com",
+      "first_name": "Jamal",
+      "last_name": "Carter",
+      "role": "trainer",
+      "avatar_key": "jamalcarter"
+    },
+    {
+      "username": "priyanair",
+      "email": "priya.nair@example.com",
+      "first_name": "Priya",
+      "last_name": "Nair",
+      "role": "employee",
+      "avatar_key": "priyanair"
+    },
+    {
+      "username": "tobiasschmidt",
+      "email": "tobias.schmidt@example.com",
+      "first_name": "Tobias",
+      "last_name": "Schmidt",
+      "role": "employee",
+      "avatar_key": "tobiasschmidt"
+    },
+    {
+      "username": "aishamohammed",
+      "email": "aisha.mohammed@example.com",
+      "first_name": "Aisha",
+      "last_name": "Mohammed",
+      "role": "employee_trainer",
+      "avatar_key": "aishamohammed"
+    },
+    {
+      "username": "liamoconnor",
+      "email": "liam.oconnor@example.com",
+      "first_name": "Liam",
+      "last_name": "O'Connor",
+      "role": "member",
+      "avatar_key": "liamoconnor"
+    },
+    {
+      "username": "sofiarossi",
+      "email": "sofia.rossi@example.com",
+      "first_name": "Sofia",
+      "last_name": "Rossi",
+      "role": "member",
+      "avatar_key": "sofiarossi"
+    },
+    {
+      "username": "kenjitanaka",
+      "email": "kenji.tanaka@example.com",
+      "first_name": "Kenji",
+      "last_name": "Tanaka",
+      "role": "member",
+      "avatar_key": "kenjitanaka"
+    },
+    {
+      "username": "graceokafor",
+      "email": "grace.okafor@example.com",
+      "first_name": "Grace",
+      "last_name": "Okafor",
+      "role": "member",
+      "avatar_key": "graceokafor"
+    },
+    {
+      "username": "danielkim",
+      "email": "daniel.kim@example.com",
+      "first_name": "Daniel",
+      "last_name": "Kim",
+      "role": "member",
+      "avatar_key": "danielkim"
+    },
+    {
+      "username": "nataliapetrova",
+      "email": "natalia.petrova@example.com",
+      "first_name": "Natalia",
+      "last_name": "Petrova",
+      "role": "member",
+      "avatar_key": "nataliapetrova"
+    },
+    {
+      "username": "ravideshmukh",
+      "email": "ravi.deshmukh@example.com",
+      "first_name": "Ravi",
+      "last_name": "Deshmukh",
+      "role": "shop_vendor",
+      "avatar_key": "ravideshmukh"
+    },
+    {
+      "username": "chloeanderson",
+      "email": "chloe.anderson@example.com",
+      "first_name": "Chloe",
+      "last_name": "Anderson",
+      "role": "super_user",
+      "avatar_key": "chloeanderson"
+    }
+  ],
+  "exercises": [
+    {
+      "name": "Barbell Back Squat",
+      "description": "A compound lower-body lift where a loaded barbell rests across the upper back while the lifter squats down and drives back up.",
+      "note": "Keep your chest up and drive through mid-foot on the way up.",
+      "primary_muscles": [
+        "quads_all",
+        "glutes_maximus"
+      ],
+      "secondary_muscles": [
+        "hamstrings",
+        "abs_lower"
+      ]
+    },
+    {
+      "name": "Conventional Deadlift",
+      "description": "A full-body pulling movement where a barbell is lifted from the floor to hip level by extending the hips and knees together.",
+      "note": "Push the floor away with your legs before your back takes over.",
+      "primary_muscles": [
+        "hamstrings",
+        "glutes_maximus",
+        "back_lower"
+      ],
+      "secondary_muscles": [
+        "quads_all",
+        "back_traps",
+        "forearms_all"
+      ]
+    },
+    {
+      "name": "Barbell Bench Press",
+      "description": "A horizontal pressing exercise performed lying on a flat bench, lowering a barbell to the chest and pressing it back up.",
+      "note": "Retract your shoulder blades and keep your feet planted for a stable base.",
+      "primary_muscles": [
+        "chest_all"
+      ],
+      "secondary_muscles": [
+        "triceps_all",
+        "delts_front"
+      ]
+    },
+    {
+      "name": "Pull-Up",
+      "description": "A vertical pulling bodyweight exercise where the lifter hangs from a bar and pulls their chin above it.",
+      "note": "Initiate the pull by driving your elbows down toward your hips.",
+      "primary_muscles": [
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "biceps",
+        "back_mid"
+      ]
+    },
+    {
+      "name": "Overhead Press",
+      "description": "A standing barbell press that moves the bar from shoulder height to full lockout overhead.",
+      "note": "Brace your core hard to avoid overarching your lower back.",
+      "primary_muscles": [
+        "delts_all"
+      ],
+      "secondary_muscles": [
+        "triceps_all",
+        "abs_upper"
+      ]
+    },
+    {
+      "name": "Dumbbell Bicep Curl",
+      "description": "An isolation exercise that flexes the elbow to curl a pair of dumbbells from the thighs up to shoulder height.",
+      "note": "Avoid swinging the weight — let the biceps do the work.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ]
+    },
+    {
+      "name": "Cable Tricep Pushdown",
+      "description": "An isolation exercise using a cable machine and a bar or rope attachment to extend the elbows against resistance.",
+      "note": "Keep your elbows pinned to your sides throughout the movement.",
+      "primary_muscles": [
+        "triceps_all"
+      ],
+      "secondary_muscles": [
+        "forearms_top"
+      ]
+    },
+    {
+      "name": "Leg Press",
+      "description": "A machine-based compound exercise where the lifter pushes a weighted platform away using the legs while seated at an angle.",
+      "note": "Avoid locking your knees out fully at the top of each rep.",
+      "primary_muscles": [
+        "quads_all"
+      ],
+      "secondary_muscles": [
+        "glutes_maximus",
+        "hamstrings"
+      ]
+    },
+    {
+      "name": "Romanian Deadlift",
+      "description": "A hip-hinge exercise performed with a barbell, lowering the weight along the legs while keeping the knees only slightly bent.",
+      "note": "Feel the stretch in your hamstrings and stop before your back rounds.",
+      "primary_muscles": [
+        "hamstrings",
+        "glutes_maximus"
+      ],
+      "secondary_muscles": [
+        "back_lower"
+      ]
+    },
+    {
+      "name": "Plank",
+      "description": "An isometric core-stability exercise holding a straight-line body position supported on the forearms and toes.",
+      "note": "Squeeze your glutes and avoid letting your hips sag.",
+      "primary_muscles": [
+        "abs_upper",
+        "abs_lower"
+      ],
+      "secondary_muscles": [
+        "abs_obliques"
+      ]
+    },
+    {
+      "name": "Lat Pulldown",
+      "description": "A machine exercise that pulls a cable-attached bar down toward the upper chest while seated, targeting the back.",
+      "note": "Lead with your elbows rather than pulling with your hands.",
+      "primary_muscles": [
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "biceps",
+        "back_mid"
+      ]
+    },
+    {
+      "name": "One-Arm Dumbbell Row",
+      "description": "A unilateral rowing exercise performed bracing one hand and knee on a bench while pulling a dumbbell to the hip with the other arm.",
+      "note": "Keep your torso still and pull with your elbow, not your hand.",
+      "primary_muscles": [
+        "back_mid",
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "biceps",
+        "delts_rear"
+      ]
+    },
+    {
+      "name": "Walking Lunges",
+      "description": "A dynamic lower-body exercise stepping forward into alternating lunges while carrying dumbbells or a barbell.",
+      "note": "Keep your front knee tracking over your toes with each step.",
+      "primary_muscles": [
+        "quads_all",
+        "glutes_maximus"
+      ],
+      "secondary_muscles": [
+        "hamstrings",
+        "calves"
+      ]
+    },
+    {
+      "name": "Barbell Hip Thrust",
+      "description": "A glute-focused exercise where the upper back rests on a bench and the hips drive a loaded barbell upward.",
+      "note": "Tuck your chin and drive through your heels at the top.",
+      "primary_muscles": [
+        "glutes_maximus"
+      ],
+      "secondary_muscles": [
+        "hamstrings",
+        "quads_all"
+      ]
+    },
+    {
+      "name": "Face Pull",
+      "description": "A cable exercise pulling a rope attachment toward the face at eye level to target the rear shoulders and upper back.",
+      "note": "Flare your elbows high and squeeze your shoulder blades at the end.",
+      "primary_muscles": [
+        "delts_rear"
+      ],
+      "secondary_muscles": [
+        "back_traps",
+        "back_rhomboids"
+      ]
+    },
+    {
+      "name": "Standing Calf Raise",
+      "description": "An isolation exercise raising the heels off the ground while standing, usually loaded with a machine or dumbbells.",
+      "note": "Pause briefly at the top and control the descent.",
+      "primary_muscles": [
+        "calves"
+      ],
+      "secondary_muscles": []
+    },
+    {
+      "name": "Incline Dumbbell Press",
+      "description": "A pressing exercise performed on an inclined bench with dumbbells to emphasize the upper chest.",
+      "note": "Set the bench to a moderate 30-45 degree angle to keep the focus on the chest.",
+      "primary_muscles": [
+        "chest_upper"
+      ],
+      "secondary_muscles": [
+        "delts_front",
+        "triceps_all"
+      ]
+    },
+    {
+      "name": "Cable Chest Fly",
+      "description": "An isolation exercise bringing two cable handles together in front of the chest in a wide arcing motion.",
+      "note": "Keep a slight bend in your elbows throughout the arc.",
+      "primary_muscles": [
+        "chest_all"
+      ],
+      "secondary_muscles": [
+        "delts_front"
+      ]
+    },
+    {
+      "name": "Seated Cable Row",
+      "description": "A horizontal pulling exercise performed seated at a low cable pulley, rowing a handle toward the torso.",
+      "note": "Drive your chest forward slightly before pulling to get a full stretch.",
+      "primary_muscles": [
+        "back_mid"
+      ],
+      "secondary_muscles": [
+        "back_lats",
+        "biceps"
+      ]
+    },
+    {
+      "name": "Dumbbell Lateral Raise",
+      "description": "An isolation exercise raising dumbbells out to the sides to shoulder height to target the middle deltoids.",
+      "note": "Lead with your elbows and avoid using momentum to swing the weight up.",
+      "primary_muscles": [
+        "delts_medial"
+      ],
+      "secondary_muscles": [
+        "delts_front"
+      ]
+    },
+    {
+      "name": "Hammer Curl",
+      "description": "A biceps and forearm exercise curling dumbbells with a neutral, palms-facing-in grip.",
+      "note": "Keep your wrists locked in the neutral position throughout.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ]
+    },
+    {
+      "name": "Lying Tricep Extension (Skull Crusher)",
+      "description": "An isolation exercise lying on a bench and lowering a barbell or EZ-bar toward the forehead by bending only the elbows.",
+      "note": "Keep your upper arms stationary and pointed toward the ceiling.",
+      "primary_muscles": [
+        "triceps_all"
+      ],
+      "secondary_muscles": []
+    },
+    {
+      "name": "Hanging Leg Raise",
+      "description": "A core exercise hanging from a pull-up bar and raising the legs toward the torso using the lower abdominals.",
+      "note": "Avoid swinging — control the movement on the way down too.",
+      "primary_muscles": [
+        "abs_lower"
+      ],
+      "secondary_muscles": [
+        "abs_obliques",
+        "forearms_all"
+      ]
+    },
+    {
+      "name": "Bulgarian Split Squat",
+      "description": "A single-leg squat variation performed with the rear foot elevated on a bench behind the lifter.",
+      "note": "Keep most of your weight on the front leg and descend under control.",
+      "primary_muscles": [
+        "quads_all",
+        "glutes_maximus"
+      ],
+      "secondary_muscles": [
+        "hamstrings"
+      ]
+    }
+  ],
+  "trainings": [
+    {
+      "name": "Push Day A",
+      "description": "A chest, shoulder, and triceps focused session built around heavy pressing followed by targeted isolation work.",
+      "sets": [
+        {
+          "exercise_name": "Barbell Bench Press",
+          "type": "standard",
+          "position": 1,
+          "sets_count": 4,
+          "rep_range": "6-10",
+          "rest_seconds": 120
+        },
+        {
+          "exercise_name": "Overhead Press",
+          "type": "standard",
+          "position": 2,
+          "sets_count": 4,
+          "rep_range": "6-10",
+          "rest_seconds": 90
+        },
+        {
+          "exercise_name": "Incline Dumbbell Press",
+          "type": "standard",
+          "position": 3,
+          "sets_count": 3,
+          "rep_range": "8-12",
+          "rest_seconds": 75
+        },
+        {
+          "exercise_name": "Dumbbell Lateral Raise",
+          "type": "superset",
+          "position": 4,
+          "sets_count": 3,
+          "rep_range": "12-15",
+          "rest_seconds": 60
+        },
+        {
+          "exercise_name": "Cable Tricep Pushdown",
+          "type": "superset",
+          "position": 4,
+          "sets_count": 3,
+          "rep_range": "12-15",
+          "rest_seconds": 60
+        },
+        {
+          "exercise_name": "Lying Tricep Extension (Skull Crusher)",
+          "type": "standard",
+          "position": 5,
+          "sets_count": 3,
+          "rep_range": "10-12",
+          "rest_seconds": 75
+        }
+      ]
+    },
+    {
+      "name": "Pull Day A",
+      "description": "A back and biceps session starting with a heavy hinge pull and finishing with an arm-focused superset.",
+      "sets": [
+        {
+          "exercise_name": "Conventional Deadlift",
+          "type": "standard",
+          "position": 1,
+          "sets_count": 4,
+          "rep_range": "5-8",
+          "rest_seconds": 150
+        },
+        {
+          "exercise_name": "Pull-Up",
+          "type": "standard",
+          "position": 2,
+          "sets_count": 4,
+          "rep_range": "6-10",
+          "rest_seconds": 90
+        },
+        {
+          "exercise_name": "Seated Cable Row",
+          "type": "standard",
+          "position": 3,
+          "sets_count": 4,
+          "rep_range": "8-12",
+          "rest_seconds": 75
+        },
+        {
+          "exercise_name": "One-Arm Dumbbell Row",
+          "type": "standard",
+          "position": 4,
+          "sets_count": 3,
+          "rep_range": "8-12",
+          "rest_seconds": 75
+        },
+        {
+          "exercise_name": "Face Pull",
+          "type": "standard",
+          "position": 5,
+          "sets_count": 3,
+          "rep_range": "12-15",
+          "rest_seconds": 60
+        },
+        {
+          "exercise_name": "Dumbbell Bicep Curl",
+          "type": "superset",
+          "position": 6,
+          "sets_count": 3,
+          "rep_range": "10-12",
+          "rest_seconds": 45
+        },
+        {
+          "exercise_name": "Hammer Curl",
+          "type": "superset",
+          "position": 6,
+          "sets_count": 3,
+          "rep_range": "10-12",
+          "rest_seconds": 45
+        }
+      ]
+    },
+    {
+      "name": "Leg Day",
+      "description": "A quad-dominant and posterior chain session covering squatting, hinging, and unilateral accessory work.",
+      "sets": [
+        {
+          "exercise_name": "Barbell Back Squat",
+          "type": "standard",
+          "position": 1,
+          "sets_count": 5,
+          "rep_range": "5-8",
+          "rest_seconds": 150
+        },
+        {
+          "exercise_name": "Romanian Deadlift",
+          "type": "standard",
+          "position": 2,
+          "sets_count": 4,
+          "rep_range": "8-10",
+          "rest_seconds": 120
+        },
+        {
+          "exercise_name": "Leg Press",
+          "type": "standard",
+          "position": 3,
+          "sets_count": 4,
+          "rep_range": "10-12",
+          "rest_seconds": 90
+        },
+        {
+          "exercise_name": "Bulgarian Split Squat",
+          "type": "standard",
+          "position": 4,
+          "sets_count": 3,
+          "rep_range": "10-12",
+          "rest_seconds": 75
+        },
+        {
+          "exercise_name": "Walking Lunges",
+          "type": "standard",
+          "position": 5,
+          "sets_count": 3,
+          "rep_range": "12-15",
+          "rest_seconds": 60
+        },
+        {
+          "exercise_name": "Standing Calf Raise",
+          "type": "dropset",
+          "position": 6,
+          "sets_count": 4,
+          "rep_range": "15-20",
+          "rest_seconds": 45
+        }
+      ]
+    },
+    {
+      "name": "Full Body Beginner",
+      "description": "An introductory full-body routine covering one major push, pull, and lower-body lift plus a short core finisher.",
+      "sets": [
+        {
+          "exercise_name": "Barbell Back Squat",
+          "type": "standard",
+          "position": 1,
+          "sets_count": 3,
+          "rep_range": "10-12",
+          "rest_seconds": 90
+        },
+        {
+          "exercise_name": "Barbell Bench Press",
+          "type": "standard",
+          "position": 2,
+          "sets_count": 3,
+          "rep_range": "10-12",
+          "rest_seconds": 90
+        },
+        {
+          "exercise_name": "Lat Pulldown",
+          "type": "standard",
+          "position": 3,
+          "sets_count": 3,
+          "rep_range": "10-12",
+          "rest_seconds": 75
+        },
+        {
+          "exercise_name": "Barbell Hip Thrust",
+          "type": "standard",
+          "position": 4,
+          "sets_count": 3,
+          "rep_range": "10-12",
+          "rest_seconds": 75
+        },
+        {
+          "exercise_name": "Plank",
+          "type": "circuit",
+          "position": 5,
+          "sets_count": 3,
+          "rep_range": "30-45 sec",
+          "rest_seconds": 45
+        },
+        {
+          "exercise_name": "Dumbbell Bicep Curl",
+          "type": "standard",
+          "position": 6,
+          "sets_count": 2,
+          "rep_range": "12-15",
+          "rest_seconds": 45
+        }
+      ]
+    },
+    {
+      "name": "Core & Lower Body Finisher",
+      "description": "A shorter accessory session pairing glute and hamstring work with a core-focused circuit.",
+      "sets": [
+        {
+          "exercise_name": "Barbell Hip Thrust",
+          "type": "standard",
+          "position": 1,
+          "sets_count": 4,
+          "rep_range": "8-12",
+          "rest_seconds": 90
+        },
+        {
+          "exercise_name": "Walking Lunges",
+          "type": "standard",
+          "position": 2,
+          "sets_count": 3,
+          "rep_range": "12-15",
+          "rest_seconds": 60
+        },
+        {
+          "exercise_name": "Romanian Deadlift",
+          "type": "standard",
+          "position": 3,
+          "sets_count": 3,
+          "rep_range": "10-12",
+          "rest_seconds": 90
+        },
+        {
+          "exercise_name": "Plank",
+          "type": "circuit",
+          "position": 4,
+          "sets_count": 3,
+          "rep_range": "45-60 sec",
+          "rest_seconds": 30
+        },
+        {
+          "exercise_name": "Hanging Leg Raise",
+          "type": "circuit",
+          "position": 4,
+          "sets_count": 3,
+          "rep_range": "10-15",
+          "rest_seconds": 30
+        },
+        {
+          "exercise_name": "Standing Calf Raise",
+          "type": "standard",
+          "position": 5,
+          "sets_count": 3,
+          "rep_range": "15-20",
+          "rest_seconds": 45
+        }
+      ]
+    }
+  ],
+  "routines": [
+    {
+      "name": "Push Pull Legs",
+      "description": "A classic 6-day-per-week split rotating through push, pull, and leg sessions twice before repeating, with one rest day.",
+      "schedule_type": "fixed_weeks",
+      "num_weeks": 4,
+      "training_names": [
+        "Push Day A",
+        "Pull Day A",
+        "Leg Day",
+        "Push Day A",
+        "Pull Day A",
+        "Leg Day"
+      ]
+    },
+    {
+      "name": "Full Body 3x/Week",
+      "description": "A beginner-friendly full-body routine trained three non-consecutive days a week with a core and glute finisher mid-week.",
+      "schedule_type": "fixed_weeks",
+      "num_weeks": 4,
+      "training_names": [
+        "Full Body Beginner",
+        "Core & Lower Body Finisher",
+        "Full Body Beginner"
+      ]
+    }
+  ],
+  "food_items": [
+    {
+      "name": "Chicken Breast, Skinless",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "poultry",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 165,
+      "protein_per_100": 31.0,
+      "carb_per_100": 0.0,
+      "fat_per_100": 3.6,
+      "fiber_per_100": 0.0
+    },
+    {
+      "name": "Lean Ground Beef, 93% Lean",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "meat_beef",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 152,
+      "protein_per_100": 21.4,
+      "carb_per_100": 0.0,
+      "fat_per_100": 7.2,
+      "fiber_per_100": 0.0
+    },
+    {
+      "name": "Atlantic Salmon Fillet",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "fish",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 208,
+      "protein_per_100": 20.4,
+      "carb_per_100": 0.0,
+      "fat_per_100": 13.4,
+      "fiber_per_100": 0.0
+    },
+    {
+      "name": "Whole Egg",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "egg",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 143,
+      "protein_per_100": 12.6,
+      "carb_per_100": 0.7,
+      "fat_per_100": 9.5,
+      "fiber_per_100": 0.0
+    },
+    {
+      "name": "Firm Tofu",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "legume_bean",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 144,
+      "protein_per_100": 15.5,
+      "carb_per_100": 2.8,
+      "fat_per_100": 8.7,
+      "fiber_per_100": 1.2
+    },
+    {
+      "name": "Greek Yogurt, Plain (2%)",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "dairy_yogurt",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 73,
+      "protein_per_100": 9.0,
+      "carb_per_100": 3.9,
+      "fat_per_100": 2.0,
+      "fiber_per_100": 0.0
+    },
+    {
+      "name": "Turkey Breast, Skinless",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "poultry",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 135,
+      "protein_per_100": 30.1,
+      "carb_per_100": 0.0,
+      "fat_per_100": 1.0,
+      "fiber_per_100": 0.0
+    },
+    {
+      "name": "White Rice, Cooked",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "rice",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 130,
+      "protein_per_100": 2.7,
+      "carb_per_100": 28.2,
+      "fat_per_100": 0.3,
+      "fiber_per_100": 0.4
+    },
+    {
+      "name": "Rolled Oats",
+      "brand": "Quaker",
+      "type": "food",
+      "food_subtype": "grain_cereal",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 389,
+      "protein_per_100": 16.9,
+      "carb_per_100": 66.3,
+      "fat_per_100": 6.9,
+      "fiber_per_100": 10.6
+    },
+    {
+      "name": "Sweet Potato, Baked",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "potato_tuber",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 90,
+      "protein_per_100": 2.0,
+      "carb_per_100": 20.7,
+      "fat_per_100": 0.1,
+      "fiber_per_100": 3.3
+    },
+    {
+      "name": "Whole Wheat Bread",
+      "brand": "Nature's Own",
+      "type": "food",
+      "food_subtype": "bread_bakery",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 247,
+      "protein_per_100": 13.0,
+      "carb_per_100": 41.0,
+      "fat_per_100": 3.5,
+      "fiber_per_100": 6.0
+    },
+    {
+      "name": "Quinoa, Cooked",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "grain_cereal",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 120,
+      "protein_per_100": 4.4,
+      "carb_per_100": 21.3,
+      "fat_per_100": 1.9,
+      "fiber_per_100": 2.8
+    },
+    {
+      "name": "Whole Wheat Pasta, Cooked",
+      "brand": "Barilla",
+      "type": "food",
+      "food_subtype": "pasta_noodle",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 124,
+      "protein_per_100": 5.3,
+      "carb_per_100": 26.5,
+      "fat_per_100": 0.5,
+      "fiber_per_100": 3.9
+    },
+    {
+      "name": "Extra Virgin Olive Oil",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "oil_fat",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 884,
+      "protein_per_100": 0.0,
+      "carb_per_100": 0.0,
+      "fat_per_100": 100.0,
+      "fiber_per_100": 0.0
+    },
+    {
+      "name": "Almonds, Raw",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "nut",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 579,
+      "protein_per_100": 21.2,
+      "carb_per_100": 21.6,
+      "fat_per_100": 49.9,
+      "fiber_per_100": 12.5
+    },
+    {
+      "name": "Avocado",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "fruit",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 160,
+      "protein_per_100": 2.0,
+      "carb_per_100": 8.5,
+      "fat_per_100": 14.7,
+      "fiber_per_100": 6.7
+    },
+    {
+      "name": "Natural Peanut Butter",
+      "brand": "Jif",
+      "type": "food",
+      "food_subtype": "nut",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 588,
+      "protein_per_100": 25.1,
+      "carb_per_100": 20.0,
+      "fat_per_100": 50.4,
+      "fiber_per_100": 6.0
+    },
+    {
+      "name": "Chia Seeds",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "seed",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 486,
+      "protein_per_100": 16.5,
+      "carb_per_100": 42.1,
+      "fat_per_100": 30.7,
+      "fiber_per_100": 34.4
+    },
+    {
+      "name": "Broccoli, Raw",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "vegetable",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 34,
+      "protein_per_100": 2.8,
+      "carb_per_100": 6.6,
+      "fat_per_100": 0.4,
+      "fiber_per_100": 2.6
+    },
+    {
+      "name": "Spinach, Raw",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "vegetable",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 23,
+      "protein_per_100": 2.9,
+      "carb_per_100": 3.6,
+      "fat_per_100": 0.4,
+      "fiber_per_100": 2.2
+    },
+    {
+      "name": "Red Bell Pepper",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "vegetable",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 31,
+      "protein_per_100": 1.0,
+      "carb_per_100": 6.0,
+      "fat_per_100": 0.3,
+      "fiber_per_100": 2.1
+    },
+    {
+      "name": "Carrot, Raw",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "vegetable",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 41,
+      "protein_per_100": 0.9,
+      "carb_per_100": 9.6,
+      "fat_per_100": 0.2,
+      "fiber_per_100": 2.8
+    },
+    {
+      "name": "Banana",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "fruit",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 89,
+      "protein_per_100": 1.1,
+      "carb_per_100": 22.8,
+      "fat_per_100": 0.3,
+      "fiber_per_100": 2.6
+    },
+    {
+      "name": "Apple",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "fruit",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 52,
+      "protein_per_100": 0.3,
+      "carb_per_100": 13.8,
+      "fat_per_100": 0.2,
+      "fiber_per_100": 2.4
+    },
+    {
+      "name": "Blueberries",
+      "brand": null,
+      "type": "food",
+      "food_subtype": "fruit",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 57,
+      "protein_per_100": 0.7,
+      "carb_per_100": 14.5,
+      "fat_per_100": 0.3,
+      "fiber_per_100": 2.4
+    },
+    {
+      "name": "Whole Milk",
+      "brand": null,
+      "type": "drink",
+      "food_subtype": null,
+      "drink_subtype": "milk_dairy",
+      "spice_subtype": null,
+      "serving_unit": "ml",
+      "kcal_per_100": 61,
+      "protein_per_100": 3.2,
+      "carb_per_100": 4.8,
+      "fat_per_100": 3.3,
+      "fiber_per_100": 0.0
+    },
+    {
+      "name": "Orange Juice, 100%",
+      "brand": "Tropicana",
+      "type": "drink",
+      "food_subtype": null,
+      "drink_subtype": "juice_fruit",
+      "spice_subtype": null,
+      "serving_unit": "ml",
+      "kcal_per_100": 45,
+      "protein_per_100": 0.7,
+      "carb_per_100": 10.4,
+      "fat_per_100": 0.2,
+      "fiber_per_100": 0.2
+    },
+    {
+      "name": "Whey Protein Powder, Vanilla",
+      "brand": "Optimum Nutrition",
+      "type": "food",
+      "food_subtype": "supplement_powder",
+      "drink_subtype": null,
+      "spice_subtype": null,
+      "serving_unit": "g",
+      "kcal_per_100": 375,
+      "protein_per_100": 80.0,
+      "carb_per_100": 8.0,
+      "fat_per_100": 3.5,
+      "fiber_per_100": 1.0
+    },
+    {
+      "name": "Sea Salt",
+      "brand": null,
+      "type": "spice",
+      "food_subtype": null,
+      "drink_subtype": null,
+      "spice_subtype": "salt",
+      "serving_unit": "g",
+      "kcal_per_100": 0,
+      "protein_per_100": 0.0,
+      "carb_per_100": 0.0,
+      "fat_per_100": 0.0,
+      "fiber_per_100": 0.0
+    },
+    {
+      "name": "Black Pepper, Ground",
+      "brand": null,
+      "type": "spice",
+      "food_subtype": null,
+      "drink_subtype": null,
+      "spice_subtype": "spice_ground",
+      "serving_unit": "g",
+      "kcal_per_100": 251,
+      "protein_per_100": 10.4,
+      "carb_per_100": 63.9,
+      "fat_per_100": 3.3,
+      "fiber_per_100": 25.3
+    }
+  ],
+  "recipes": [
+    {
+      "name": "Grilled Chicken & Rice Bowl",
+      "description": "A simple high-protein bowl of seasoned grilled chicken over rice with steamed broccoli, finished with a drizzle of olive oil.",
+      "servings": 2,
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 20,
+      "ingredients": [
+        {
+          "food_item_name": "Chicken Breast, Skinless",
+          "quantity_g_or_ml": 300,
+          "note": "cut into fillets"
+        },
+        {
+          "food_item_name": "White Rice, Cooked",
+          "quantity_g_or_ml": 300,
+          "note": null
+        },
+        {
+          "food_item_name": "Broccoli, Raw",
+          "quantity_g_or_ml": 150,
+          "note": "cut into florets"
+        },
+        {
+          "food_item_name": "Extra Virgin Olive Oil",
+          "quantity_g_or_ml": 15,
+          "note": null
+        },
+        {
+          "food_item_name": "Sea Salt",
+          "quantity_g_or_ml": 3,
+          "note": null
+        },
+        {
+          "food_item_name": "Black Pepper, Ground",
+          "quantity_g_or_ml": 1,
+          "note": "to taste"
+        }
+      ],
+      "steps": [
+        "Season the chicken fillets with salt and pepper.",
+        "Grill the chicken over medium-high heat for 6-7 minutes per side until cooked through.",
+        "Steam the broccoli florets for 4-5 minutes until tender-crisp.",
+        "Slice the chicken and divide it with the rice and broccoli between two bowls.",
+        "Drizzle with olive oil before serving."
+      ]
+    },
+    {
+      "name": "Overnight Oats",
+      "description": "A no-cook breakfast of rolled oats soaked overnight in milk and yogurt, topped with fresh blueberries.",
+      "servings": 1,
+      "prep_time_minutes": 5,
+      "cook_time_minutes": 0,
+      "ingredients": [
+        {
+          "food_item_name": "Rolled Oats",
+          "quantity_g_or_ml": 80,
+          "note": null
+        },
+        {
+          "food_item_name": "Whole Milk",
+          "quantity_g_or_ml": 200,
+          "note": null
+        },
+        {
+          "food_item_name": "Greek Yogurt, Plain (2%)",
+          "quantity_g_or_ml": 100,
+          "note": null
+        },
+        {
+          "food_item_name": "Chia Seeds",
+          "quantity_g_or_ml": 10,
+          "note": null
+        },
+        {
+          "food_item_name": "Blueberries",
+          "quantity_g_or_ml": 50,
+          "note": "for topping"
+        }
+      ],
+      "steps": [
+        "Combine the oats, milk, yogurt, and chia seeds in a jar or container.",
+        "Stir well until fully mixed.",
+        "Cover and refrigerate overnight, or at least 4 hours.",
+        "Top with blueberries before serving."
+      ]
+    },
+    {
+      "name": "Protein Pancakes",
+      "description": "Fluffy pancakes blended with whey protein and oats for a post-workout-friendly breakfast, topped with fresh banana.",
+      "servings": 2,
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 10,
+      "ingredients": [
+        {
+          "food_item_name": "Whole Egg",
+          "quantity_g_or_ml": 150,
+          "note": "about 3 eggs"
+        },
+        {
+          "food_item_name": "Rolled Oats",
+          "quantity_g_or_ml": 60,
+          "note": null
+        },
+        {
+          "food_item_name": "Whey Protein Powder, Vanilla",
+          "quantity_g_or_ml": 30,
+          "note": null
+        },
+        {
+          "food_item_name": "Whole Milk",
+          "quantity_g_or_ml": 50,
+          "note": null
+        },
+        {
+          "food_item_name": "Banana",
+          "quantity_g_or_ml": 100,
+          "note": "sliced, for topping"
+        }
+      ],
+      "steps": [
+        "Blend the eggs, oats, protein powder, and milk until smooth.",
+        "Heat a non-stick pan over medium heat and lightly grease it.",
+        "Pour small rounds of batter into the pan and cook until bubbles form on the surface.",
+        "Flip and cook the other side until golden.",
+        "Serve topped with sliced banana."
+      ]
+    },
+    {
+      "name": "Greek Yogurt Parfait",
+      "description": "Layers of thick Greek yogurt and blueberries topped with almonds and a drizzle of peanut butter for crunch and healthy fats.",
+      "servings": 1,
+      "prep_time_minutes": 5,
+      "cook_time_minutes": 0,
+      "ingredients": [
+        {
+          "food_item_name": "Greek Yogurt, Plain (2%)",
+          "quantity_g_or_ml": 250,
+          "note": null
+        },
+        {
+          "food_item_name": "Blueberries",
+          "quantity_g_or_ml": 80,
+          "note": null
+        },
+        {
+          "food_item_name": "Almonds, Raw",
+          "quantity_g_or_ml": 20,
+          "note": "roughly chopped"
+        },
+        {
+          "food_item_name": "Natural Peanut Butter",
+          "quantity_g_or_ml": 15,
+          "note": "melted slightly for drizzling"
+        }
+      ],
+      "steps": [
+        "Spoon half of the yogurt into a glass or jar.",
+        "Add a layer of blueberries, then repeat with the remaining yogurt and berries.",
+        "Top with chopped almonds.",
+        "Drizzle with peanut butter and serve immediately."
+      ]
+    },
+    {
+      "name": "Salmon & Broccoli Sheet Pan",
+      "description": "An easy one-pan dinner of roasted salmon fillets with broccoli and carrots, seasoned and finished with olive oil.",
+      "servings": 2,
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 20,
+      "ingredients": [
+        {
+          "food_item_name": "Atlantic Salmon Fillet",
+          "quantity_g_or_ml": 300,
+          "note": null
+        },
+        {
+          "food_item_name": "Broccoli, Raw",
+          "quantity_g_or_ml": 200,
+          "note": "cut into florets"
+        },
+        {
+          "food_item_name": "Carrot, Raw",
+          "quantity_g_or_ml": 100,
+          "note": "sliced"
+        },
+        {
+          "food_item_name": "Extra Virgin Olive Oil",
+          "quantity_g_or_ml": 15,
+          "note": null
+        },
+        {
+          "food_item_name": "Sea Salt",
+          "quantity_g_or_ml": 3,
+          "note": null
+        },
+        {
+          "food_item_name": "Black Pepper, Ground",
+          "quantity_g_or_ml": 1,
+          "note": "to taste"
+        }
+      ],
+      "steps": [
+        "Preheat the oven to 200°C (400°F).",
+        "Toss the broccoli and carrots with olive oil, salt, and pepper on a sheet pan.",
+        "Nestle the salmon fillets among the vegetables and season them as well.",
+        "Roast for 18-20 minutes until the salmon flakes easily and vegetables are tender.",
+        "Serve immediately."
+      ]
+    },
+    {
+      "name": "Turkey Chili",
+      "description": "A hearty, lean chili simmered with ground turkey, bell peppers, and carrots for a warming high-protein dinner.",
+      "servings": 4,
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 35,
+      "ingredients": [
+        {
+          "food_item_name": "Turkey Breast, Skinless",
+          "quantity_g_or_ml": 400,
+          "note": "diced or ground"
+        },
+        {
+          "food_item_name": "Red Bell Pepper",
+          "quantity_g_or_ml": 150,
+          "note": "diced"
+        },
+        {
+          "food_item_name": "Carrot, Raw",
+          "quantity_g_or_ml": 100,
+          "note": "diced"
+        },
+        {
+          "food_item_name": "Extra Virgin Olive Oil",
+          "quantity_g_or_ml": 10,
+          "note": null
+        },
+        {
+          "food_item_name": "Sea Salt",
+          "quantity_g_or_ml": 3,
+          "note": null
+        },
+        {
+          "food_item_name": "Black Pepper, Ground",
+          "quantity_g_or_ml": 2,
+          "note": "to taste"
+        }
+      ],
+      "steps": [
+        "Heat the olive oil in a large pot over medium heat.",
+        "Add the turkey and cook, breaking it apart, until browned.",
+        "Stir in the bell pepper and carrot and cook for 5 minutes.",
+        "Season with salt and pepper, then reduce heat and simmer for 25-30 minutes.",
+        "Serve hot."
+      ]
+    },
+    {
+      "name": "Veggie Omelette",
+      "description": "A quick savory omelette packed with spinach and bell pepper, ideal for a light high-protein meal any time of day.",
+      "servings": 1,
+      "prep_time_minutes": 5,
+      "cook_time_minutes": 8,
+      "ingredients": [
+        {
+          "food_item_name": "Whole Egg",
+          "quantity_g_or_ml": 150,
+          "note": "about 3 eggs"
+        },
+        {
+          "food_item_name": "Spinach, Raw",
+          "quantity_g_or_ml": 40,
+          "note": null
+        },
+        {
+          "food_item_name": "Red Bell Pepper",
+          "quantity_g_or_ml": 50,
+          "note": "diced"
+        },
+        {
+          "food_item_name": "Extra Virgin Olive Oil",
+          "quantity_g_or_ml": 5,
+          "note": null
+        },
+        {
+          "food_item_name": "Sea Salt",
+          "quantity_g_or_ml": 1,
+          "note": null
+        }
+      ],
+      "steps": [
+        "Whisk the eggs with a pinch of salt.",
+        "Heat the olive oil in a non-stick pan over medium heat and sauté the spinach and pepper for 2-3 minutes.",
+        "Pour the eggs over the vegetables and let them set around the edges.",
+        "Fold the omelette in half once mostly set and cook for another minute.",
+        "Slide onto a plate and serve."
+      ]
+    },
+    {
+      "name": "Post-Workout Smoothie",
+      "description": "A quick blended shake combining whey protein, banana, and peanut butter for fast post-training recovery.",
+      "servings": 1,
+      "prep_time_minutes": 5,
+      "cook_time_minutes": 0,
+      "ingredients": [
+        {
+          "food_item_name": "Whey Protein Powder, Vanilla",
+          "quantity_g_or_ml": 30,
+          "note": null
+        },
+        {
+          "food_item_name": "Banana",
+          "quantity_g_or_ml": 120,
+          "note": null
+        },
+        {
+          "food_item_name": "Whole Milk",
+          "quantity_g_or_ml": 250,
+          "note": null
+        },
+        {
+          "food_item_name": "Natural Peanut Butter",
+          "quantity_g_or_ml": 15,
+          "note": null
+        },
+        {
+          "food_item_name": "Chia Seeds",
+          "quantity_g_or_ml": 10,
+          "note": null
+        }
+      ],
+      "steps": [
+        "Add all ingredients to a blender.",
+        "Blend on high until smooth and creamy.",
+        "Pour into a glass and serve immediately."
+      ]
+    }
+  ],
+  "daily_meal_plans": [
+    {
+      "name": "High Protein Cutting Day",
+      "description": "A calorie-conscious day built around lean protein sources at every meal to support fat loss while preserving muscle.",
+      "slots": [
+        {
+          "slot_type": "breakfast",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Protein Pancakes",
+              "servings": 1
+            }
+          ]
+        },
+        {
+          "slot_type": "morning_snack",
+          "entries": [
+            {
+              "source": "food_item",
+              "name": "Apple",
+              "quantity_g_or_ml": 150
+            },
+            {
+              "source": "food_item",
+              "name": "Almonds, Raw",
+              "quantity_g_or_ml": 20
+            }
+          ]
+        },
+        {
+          "slot_type": "lunch",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Grilled Chicken & Rice Bowl",
+              "servings": 1
+            }
+          ]
+        },
+        {
+          "slot_type": "afternoon_snack",
+          "entries": [
+            {
+              "source": "food_item",
+              "name": "Greek Yogurt, Plain (2%)",
+              "quantity_g_or_ml": 200
+            }
+          ]
+        },
+        {
+          "slot_type": "dinner",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Salmon & Broccoli Sheet Pan",
+              "servings": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Balanced Maintenance Day",
+      "description": "An evenly balanced day of whole foods across three meals and a light evening snack, suited for weight maintenance.",
+      "slots": [
+        {
+          "slot_type": "breakfast",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Overnight Oats",
+              "servings": 1
+            }
+          ]
+        },
+        {
+          "slot_type": "lunch",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Veggie Omelette",
+              "servings": 1
+            },
+            {
+              "source": "food_item",
+              "name": "Whole Wheat Bread",
+              "quantity_g_or_ml": 60
+            }
+          ]
+        },
+        {
+          "slot_type": "dinner",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Turkey Chili",
+              "servings": 1
+            }
+          ]
+        },
+        {
+          "slot_type": "evening_snack",
+          "entries": [
+            {
+              "source": "food_item",
+              "name": "Blueberries",
+              "quantity_g_or_ml": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Lean Bulk Fuel Day",
+      "description": "A higher-calorie, carb-forward day timed around training to support muscle growth without excess fat gain.",
+      "slots": [
+        {
+          "slot_type": "breakfast",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Protein Pancakes",
+              "servings": 1.5
+            }
+          ]
+        },
+        {
+          "slot_type": "pre_workout",
+          "entries": [
+            {
+              "source": "food_item",
+              "name": "Banana",
+              "quantity_g_or_ml": 120
+            },
+            {
+              "source": "food_item",
+              "name": "Whole Wheat Bread",
+              "quantity_g_or_ml": 60
+            }
+          ]
+        },
+        {
+          "slot_type": "post_workout",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Post-Workout Smoothie",
+              "servings": 1
+            }
+          ]
+        },
+        {
+          "slot_type": "dinner",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Grilled Chicken & Rice Bowl",
+              "servings": 1.5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Rest Day Light Eating",
+      "description": "A lighter, lower-carb day for non-training days, still built around whole foods and quality protein.",
+      "slots": [
+        {
+          "slot_type": "breakfast",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Greek Yogurt Parfait",
+              "servings": 1
+            }
+          ]
+        },
+        {
+          "slot_type": "lunch",
+          "entries": [
+            {
+              "source": "food_item",
+              "name": "Quinoa, Cooked",
+              "quantity_g_or_ml": 150
+            },
+            {
+              "source": "food_item",
+              "name": "Spinach, Raw",
+              "quantity_g_or_ml": 60
+            },
+            {
+              "source": "food_item",
+              "name": "Chicken Breast, Skinless",
+              "quantity_g_or_ml": 120
+            }
+          ]
+        },
+        {
+          "slot_type": "dinner",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Veggie Omelette",
+              "servings": 1
+            },
+            {
+              "source": "food_item",
+              "name": "Avocado",
+              "quantity_g_or_ml": 50
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Pre-Competition Carb Load Day",
+      "description": "A carbohydrate-heavy day designed to top off glycogen stores in the days before a competition or event.",
+      "slots": [
+        {
+          "slot_type": "breakfast",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Overnight Oats",
+              "servings": 1.5
+            }
+          ]
+        },
+        {
+          "slot_type": "morning_snack",
+          "entries": [
+            {
+              "source": "food_item",
+              "name": "Banana",
+              "quantity_g_or_ml": 130
+            }
+          ]
+        },
+        {
+          "slot_type": "lunch",
+          "entries": [
+            {
+              "source": "food_item",
+              "name": "White Rice, Cooked",
+              "quantity_g_or_ml": 300
+            },
+            {
+              "source": "food_item",
+              "name": "Chicken Breast, Skinless",
+              "quantity_g_or_ml": 150
+            }
+          ]
+        },
+        {
+          "slot_type": "afternoon_snack",
+          "entries": [
+            {
+              "source": "food_item",
+              "name": "Orange Juice, 100%",
+              "quantity_g_or_ml": 250
+            }
+          ]
+        },
+        {
+          "slot_type": "dinner",
+          "entries": [
+            {
+              "source": "food_item",
+              "name": "Whole Wheat Pasta, Cooked",
+              "quantity_g_or_ml": 250
+            },
+            {
+              "source": "food_item",
+              "name": "Lean Ground Beef, 93% Lean",
+              "quantity_g_or_ml": 150
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vegetarian Reset Day",
+      "description": "A fully plant-based day built around tofu, quinoa, and whole grains for a protein-adequate meat-free reset.",
+      "slots": [
+        {
+          "slot_type": "breakfast",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Overnight Oats",
+              "servings": 1
+            }
+          ]
+        },
+        {
+          "slot_type": "lunch",
+          "entries": [
+            {
+              "source": "food_item",
+              "name": "Firm Tofu",
+              "quantity_g_or_ml": 200
+            },
+            {
+              "source": "food_item",
+              "name": "Quinoa, Cooked",
+              "quantity_g_or_ml": 150
+            },
+            {
+              "source": "food_item",
+              "name": "Broccoli, Raw",
+              "quantity_g_or_ml": 100
+            }
+          ]
+        },
+        {
+          "slot_type": "afternoon_snack",
+          "entries": [
+            {
+              "source": "food_item",
+              "name": "Apple",
+              "quantity_g_or_ml": 150
+            },
+            {
+              "source": "food_item",
+              "name": "Natural Peanut Butter",
+              "quantity_g_or_ml": 20
+            }
+          ]
+        },
+        {
+          "slot_type": "dinner",
+          "entries": [
+            {
+              "source": "recipe",
+              "name": "Veggie Omelette",
+              "servings": 1
+            },
+            {
+              "source": "food_item",
+              "name": "Sweet Potato, Baked",
+              "quantity_g_or_ml": 200
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "meal_plans": [
+    {
+      "name": "4-Week Lean Bulk",
+      "description": "A four-week progressive nutrition plan pairing higher-calorie training days with balanced maintenance days to build muscle steadily.",
+      "num_weeks": 4,
+      "days": [
+        {
+          "week_number": 1,
+          "day_of_week": 1,
+          "daily_meal_plan_name": "Lean Bulk Fuel Day"
+        },
+        {
+          "week_number": 1,
+          "day_of_week": 3,
+          "daily_meal_plan_name": "Balanced Maintenance Day"
+        },
+        {
+          "week_number": 1,
+          "day_of_week": 5,
+          "daily_meal_plan_name": "Lean Bulk Fuel Day"
+        },
+        {
+          "week_number": 2,
+          "day_of_week": 1,
+          "daily_meal_plan_name": "Lean Bulk Fuel Day"
+        },
+        {
+          "week_number": 2,
+          "day_of_week": 4,
+          "daily_meal_plan_name": "Balanced Maintenance Day"
+        },
+        {
+          "week_number": 3,
+          "day_of_week": 1,
+          "daily_meal_plan_name": "Lean Bulk Fuel Day"
+        },
+        {
+          "week_number": 4,
+          "day_of_week": 1,
+          "daily_meal_plan_name": "Lean Bulk Fuel Day"
+        }
+      ]
+    },
+    {
+      "name": "2-Week Shred",
+      "description": "A short, aggressive two-week cutting plan leaning on high-protein cutting days with lighter rest days worked in.",
+      "num_weeks": 2,
+      "days": [
+        {
+          "week_number": 1,
+          "day_of_week": 1,
+          "daily_meal_plan_name": "High Protein Cutting Day"
+        },
+        {
+          "week_number": 1,
+          "day_of_week": 3,
+          "daily_meal_plan_name": "Rest Day Light Eating"
+        },
+        {
+          "week_number": 1,
+          "day_of_week": 5,
+          "daily_meal_plan_name": "High Protein Cutting Day"
+        },
+        {
+          "week_number": 2,
+          "day_of_week": 1,
+          "daily_meal_plan_name": "High Protein Cutting Day"
+        },
+        {
+          "week_number": 2,
+          "day_of_week": 3,
+          "daily_meal_plan_name": "Rest Day Light Eating"
+        },
+        {
+          "week_number": 2,
+          "day_of_week": 6,
+          "daily_meal_plan_name": "High Protein Cutting Day"
+        }
+      ]
+    },
+    {
+      "name": "1-Week Vegetarian Kickstart",
+      "description": "A one-week introductory plan for members trying a meat-free approach, alternating vegetarian reset days with balanced days.",
+      "num_weeks": 1,
+      "days": [
+        {
+          "week_number": 1,
+          "day_of_week": 1,
+          "daily_meal_plan_name": "Vegetarian Reset Day"
+        },
+        {
+          "week_number": 1,
+          "day_of_week": 2,
+          "daily_meal_plan_name": "Balanced Maintenance Day"
+        },
+        {
+          "week_number": 1,
+          "day_of_week": 3,
+          "daily_meal_plan_name": "Vegetarian Reset Day"
+        },
+        {
+          "week_number": 1,
+          "day_of_week": 4,
+          "daily_meal_plan_name": "Rest Day Light Eating"
+        },
+        {
+          "week_number": 1,
+          "day_of_week": 5,
+          "daily_meal_plan_name": "Vegetarian Reset Day"
+        }
+      ]
+    }
+  ],
+  "shop_products": [
+    {
+      "name": "Whey Protein Isolate - 2lb",
+      "description": "Fast-absorbing whey protein isolate with 25g of protein per scoop, low in lactose and fat.",
+      "type": "supplement",
+      "price": 44.99,
+      "quantity": 60
+    },
+    {
+      "name": "Creatine Monohydrate - 300g",
+      "description": "Micronized creatine monohydrate powder for strength, power, and muscle recovery support.",
+      "type": "supplement",
+      "price": 19.99,
+      "quantity": 85
+    },
+    {
+      "name": "Pre-Workout Formula - 30 Servings",
+      "description": "Energy and focus blend with caffeine, beta-alanine, and citrulline malate for high-intensity training.",
+      "type": "supplement",
+      "price": 34.99,
+      "quantity": 45
+    },
+    {
+      "name": "BCAA Powder - Watermelon",
+      "description": "Branched-chain amino acid powder to support recovery and reduce muscle soreness during training blocks.",
+      "type": "supplement",
+      "price": 27.99,
+      "quantity": 50
+    },
+    {
+      "name": "Daily Multivitamin - 90 Capsules",
+      "description": "A full-spectrum daily multivitamin formulated for active adults, covering key vitamins and minerals.",
+      "type": "supplement",
+      "price": 15.99,
+      "quantity": 70
+    },
+    {
+      "name": "Fish Oil Omega-3 Softgels - 120ct",
+      "description": "Purified fish oil softgels delivering EPA and DHA to support joint and cardiovascular health.",
+      "type": "supplement",
+      "price": 21.99,
+      "quantity": 55
+    },
+    {
+      "name": "Casein Protein - Night-Time - 2lb",
+      "description": "Slow-digesting micellar casein protein designed for overnight muscle recovery.",
+      "type": "supplement",
+      "price": 39.99,
+      "quantity": 40
+    },
+    {
+      "name": "Resistance Bands Set",
+      "description": "A set of five color-coded resistance bands with varying tension levels for strength and mobility work.",
+      "type": "equipment",
+      "price": 24.99,
+      "quantity": 65
+    },
+    {
+      "name": "Premium Yoga Mat",
+      "description": "A 6mm-thick non-slip yoga mat suitable for stretching, mobility, and floor exercises.",
+      "type": "equipment",
+      "price": 32.99,
+      "quantity": 40
+    },
+    {
+      "name": "Leather Lifting Straps",
+      "description": "Durable leather wrist straps that improve grip on heavy pulling movements like deadlifts and rows.",
+      "type": "equipment",
+      "price": 16.99,
+      "quantity": 50
+    },
+    {
+      "name": "Padded Gym Gloves",
+      "description": "Breathable weightlifting gloves with palm padding to reduce callusing and improve bar grip.",
+      "type": "equipment",
+      "price": 18.99,
+      "quantity": 60
+    },
+    {
+      "name": "High-Density Foam Roller",
+      "description": "A firm foam roller for self-myofascial release and post-workout muscle recovery.",
+      "type": "equipment",
+      "price": 22.99,
+      "quantity": 45
+    },
+    {
+      "name": "Insulated Steel Water Bottle - 32oz",
+      "description": "A double-wall insulated stainless steel bottle that keeps drinks cold for up to 24 hours.",
+      "type": "equipment",
+      "price": 26.99,
+      "quantity": 75
+    },
+    {
+      "name": "Ironclad Gym Duffel Bag",
+      "description": "A spacious gym duffel bag with a separate ventilated shoe compartment and wet-gear pocket.",
+      "type": "equipment",
+      "price": 49.99,
+      "quantity": 30
+    },
+    {
+      "name": "Speed Jump Rope",
+      "description": "An adjustable-length speed rope with ball-bearing handles for cardio and conditioning work.",
+      "type": "equipment",
+      "price": 14.99,
+      "quantity": 55
+    },
+    {
+      "name": "Gym Chalk Block - 8 Pack",
+      "description": "Blocks of magnesium carbonate chalk to improve grip security during heavy lifts.",
+      "type": "equipment",
+      "price": 12.99,
+      "quantity": 80
+    },
+    {
+      "name": "$25 Gift Card",
+      "description": "A $25 gift card redeemable for any product or membership add-on in the shop.",
+      "type": "gift_card",
+      "price": 25.0,
+      "quantity": 100
+    },
+    {
+      "name": "$50 Gift Card",
+      "description": "A $50 gift card redeemable for any product or membership add-on in the shop.",
+      "type": "gift_card",
+      "price": 50.0,
+      "quantity": 100
+    }
+  ],
+  "posts": [
+    {
+      "author_persona_username": "marcusbennett",
+      "content": "Big news: our new squat rack section opens this Saturday with six brand-new stations. Come check it out and say hi at the front desk for a free shaker bottle while supplies last.",
+      "has_image": true
+    },
+    {
+      "author_persona_username": "elenavasquez",
+      "content": "Happy Monday! Remember, consistency beats intensity every single time. Show up today even if it's just for twenty minutes — future you will thank you.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "jamalcarter",
+      "content": "Quick coaching tip: if your lower back rounds during deadlifts, drop the weight and rebuild the pattern from the floor up. No ego, just good reps.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "priyanair",
+      "content": "Heads up — the 6:30am spin class on Tuesdays is moving to 7:00am starting next week to make room for a new mobility class. Full updated schedule is posted at the front desk.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "tobiasschmidt",
+      "content": "The locker room showers on the east side will be closed for maintenance this Thursday from 10am to 2pm. West side showers stay open as usual, sorry for the inconvenience!",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "aishamohammed",
+      "content": "Shoutout to Daniel Kim for hitting a 30lb PR on his deadlift this week! Five months of showing up consistently is really starting to pay off. Proud of you.",
+      "has_image": true
+    },
+    {
+      "author_persona_username": "marcusbennett",
+      "content": "Ironclad Fitness will be open reduced hours on Thanksgiving Day, 7am-1pm, and closed on Christmas Day. Normal hours resume December 26th. Happy holidays, everyone!",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "elenavasquez",
+      "content": "Our 4-week Push Pull Legs challenge kicks off this Monday. Sign up at the front desk to get a free program printout and be entered to win a month of personal training.",
+      "has_image": true
+    },
+    {
+      "author_persona_username": "jamalcarter",
+      "content": "Friendly reminder to re-rack your weights and wipe down equipment after use — small habit, huge difference for everyone training around you.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "aishamohammed",
+      "content": "New mobility and stretching class launching this Sunday at 9am. Great for anyone dealing with tight hips or shoulders from heavy lifting during the week.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "priyanair",
+      "content": "We just restocked the smoothie bar with fresh mango and spinach blends. Perfect post-workout refuel on your way out.",
+      "has_image": true
+    },
+    {
+      "author_persona_username": "ravideshmukh",
+      "content": "The shop just got a fresh shipment of whey isolate and creatine back in stock after last week's sellout. Grab yours before they're gone again!",
+      "has_image": true
+    },
+    {
+      "author_persona_username": "tobiasschmidt",
+      "content": "Gift cards are 10% off for the rest of the month — a great excuse to treat a friend or family member to their first month at Ironclad.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "marcusbennett",
+      "content": "Thank you to everyone who came out to our 5K charity run this past weekend. Together we raised over $2,400 for the local youth sports program!",
+      "has_image": true
+    },
+    {
+      "author_persona_username": "jamalcarter",
+      "content": "This month's challenge: log three strength sessions a week for four weeks straight. Finishers get a shoutout wall spot and a free protein shaker.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "elenavasquez",
+      "content": "Progress isn't always visible on the scale. Better sleep, more energy, and lifting heavier than last month all count. Keep going.",
+      "has_image": false
+    }
+  ]
+}

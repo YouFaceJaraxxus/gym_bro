@@ -8,6 +8,7 @@ const SAFE_COLUMNS = [
   "name",
   "last_name",
   "role",
+  "avatar_url",
   "auth_id",
   "created_at",
   "updated_at",

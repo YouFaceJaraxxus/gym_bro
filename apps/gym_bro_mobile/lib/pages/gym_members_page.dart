@@ -127,6 +127,7 @@ class _GymMembersPageState extends State<GymMembersPage> {
           memberId: entry.memberId,
           user: entry.user,
           gymName: widget.gymName,
+          gymId: widget.gymId,
         ),
       ),
     );

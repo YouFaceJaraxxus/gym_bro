@@ -3,6 +3,7 @@ import '../models/routine.dart';
 import '../models/training.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/image_upload_field.dart';
 
 class RoutineFormPage extends StatefulWidget {
   final Routine? routine;
@@ -25,6 +26,7 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
   bool _isPublic = false;
   RoutineScheduleType _scheduleType = RoutineScheduleType.wildcard;
   bool _saving = false;
+  String? _thumbnailUrl;
 
   final List<_RoutineTrainingDraft> _entries = [];
 
@@ -40,6 +42,7 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
     _numWeeks = TextEditingController(text: r?.numWeeks?.toString() ?? '');
     _isPublic = r?.isPublic ?? false;
     _scheduleType = r?.scheduleType ?? RoutineScheduleType.wildcard;
+    _thumbnailUrl = r?.thumbnailUrl.isNotEmpty == true ? r!.thumbnailUrl : null;
     if (r != null) {
       for (final t in r.trainings) {
         _entries.add(_RoutineTrainingDraft(
@@ -102,7 +105,9 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
         'is_public': _isPublic,
         'schedule_type': _scheduleType.apiValue,
         'num_weeks': numWeeks,
-        'images': <Map<String, dynamic>>[],
+        'images': _thumbnailUrl != null
+            ? [{'url': _thumbnailUrl, 'is_thumbnail': true, 'position': 0}]
+            : <Map<String, dynamic>>[],
         'trainings': _entries.asMap().entries.map((e) => e.value.toJson(e.key)).toList(),
       };
 
@@ -143,6 +148,13 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            ImagePickerField(
+              imageUrl: _thumbnailUrl,
+              folder: 'routines',
+              label: 'Add cover photo',
+              onUploaded: (url) => setState(() => _thumbnailUrl = url),
+            ),
+            const SizedBox(height: 14),
             TextFormField(
               controller: _name,
               decoration: const InputDecoration(labelText: 'Routine name *'),

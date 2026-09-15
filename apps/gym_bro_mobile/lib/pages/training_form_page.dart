@@ -3,6 +3,7 @@ import '../models/exercise.dart';
 import '../models/training.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/image_upload_field.dart';
 
 /// Create or edit a training program with sets, exercises, and drops.
 class TrainingFormPage extends StatefulWidget {
@@ -24,6 +25,7 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
 
   bool _isPublic = false;
   bool _saving = false;
+  String? _thumbnailUrl;
 
   // Mutable in-memory set list while editing
   final List<_SetDraft> _sets = [];
@@ -38,6 +40,7 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
     _description = TextEditingController(text: t?.description ?? '');
     _notes = TextEditingController(text: t?.notes ?? '');
     _isPublic = t?.isPublic ?? false;
+    _thumbnailUrl = t?.thumbnailUrl.isNotEmpty == true ? t!.thumbnailUrl : null;
     if (t != null) {
       for (final s in t.sets) {
         _sets.add(_SetDraft.fromModel(s));
@@ -63,7 +66,9 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
         'description': _description.text.trim().isEmpty ? null : _description.text.trim(),
         'notes': _notes.text.trim().isEmpty ? null : _notes.text.trim(),
         'is_public': _isPublic,
-        'images': <Map<String, dynamic>>[],
+        'images': _thumbnailUrl != null
+            ? [{'url': _thumbnailUrl, 'is_thumbnail': true, 'position': 0}]
+            : <Map<String, dynamic>>[],
         'sets': _sets.map((s) => s.toJson()).toList(),
       };
 
@@ -112,6 +117,13 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            ImagePickerField(
+              imageUrl: _thumbnailUrl,
+              folder: 'trainings',
+              label: 'Add cover photo',
+              onUploaded: (url) => setState(() => _thumbnailUrl = url),
+            ),
+            const SizedBox(height: 14),
             TextFormField(
               controller: _name,
               decoration: const InputDecoration(labelText: 'Training name *'),

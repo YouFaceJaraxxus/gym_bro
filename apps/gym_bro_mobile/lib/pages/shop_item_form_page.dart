@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/shop_item.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/image_upload_field.dart';
 import '../widgets/quantity_input.dart';
 
 class ShopItemFormPage extends StatefulWidget {
@@ -29,6 +30,7 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
   late int _quantity;
   late bool _isActive;
   DateTime? _activeUntil;
+  String? _imageUrl;
 
   bool _loading = false;
   String? _error;
@@ -47,6 +49,7 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
     _quantity = it?.quantity ?? 1;
     _isActive = it?.isActive ?? true;
     _activeUntil = it?.activeUntil;
+    _imageUrl = it?.imageUrl;
   }
 
   @override
@@ -89,6 +92,7 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
         'quantity': _quantity,
         'is_active': _isActive,
         'active_until': _activeUntil?.toIso8601String(),
+        'image_url': _imageUrl,
       };
 
       if (_isEditing) {
@@ -120,6 +124,13 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              ImagePickerField(
+                imageUrl: _imageUrl,
+                folder: 'shop-items',
+                label: 'Add product photo',
+                onUploaded: (url) => setState(() => _imageUrl = url),
+              ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _nameCtrl,
                 decoration: const InputDecoration(labelText: 'Name'),

@@ -3,7 +3,7 @@ CREATE TYPE user_role AS ENUM (
   'trainer',
   'employee',
   'employee_trainer',
-  'member'
+  'member',
   'super_user'
 );
 

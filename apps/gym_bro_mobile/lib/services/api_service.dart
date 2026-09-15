@@ -1,10 +1,14 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import '../models/app_notification.dart';
 import '../models/business.dart';
 import '../models/exercise.dart';
 import '../models/meal_plan.dart';
+import '../models/membership.dart';
+import '../models/post.dart';
 import '../models/routine.dart';
 import '../models/shop_item.dart';
 import '../models/training.dart';
@@ -12,11 +16,11 @@ import '../models/training_session.dart';
 import '../models/user_profile.dart';
 import '../models/user_search_result.dart';
 
+// Web            → dart:io Platform is unavailable, always use localhost
 // Android emulator → host machine is 10.0.2.2
 // iOS simulator   → localhost works fine
 // Physical device → use your machine's LAN IP (e.g. 192.168.x.x)
-final _base =
-    'http://${Platform.isAndroid ? '10.0.2.2' : 'localhost'}:54321/functions/v1';
+final _base = 'http://${!kIsWeb && Platform.isAndroid ? '10.0.2.2' : 'localhost'}:54321/functions/v1';
 
 class ApiService {
   final _client = http.Client();
@@ -163,6 +167,42 @@ class ApiService {
     );
     _check(r);
     return UserProfile.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  // ── Uploads ─────────────────────────────────────────────────────────────────
+
+  /// Uploads an image to Supabase Storage via the `uploads` edge function and
+  /// returns its public URL. [bucket] is 'avatars' or 'media'; [folder] groups
+  /// uploads within a bucket (e.g. 'exercises', 'recipes', 'businesses',
+  /// 'shop-items', 'posts') and may be omitted.
+  Future<String> uploadImage(
+    String token, {
+    required List<int> bytes,
+    required String filename,
+    required String bucket,
+    String? folder,
+  }) async {
+    final request = http.MultipartRequest('POST', Uri.parse('$_base/uploads'))
+      ..headers['Authorization'] = 'Bearer $token'
+      ..fields['bucket'] = bucket;
+    if (folder != null) request.fields['folder'] = folder;
+    request.files.add(http.MultipartFile.fromBytes(
+      'file',
+      bytes,
+      filename: filename,
+      contentType: _mimeTypeFor(filename),
+    ));
+    final streamed = await _client.send(request);
+    final r = await http.Response.fromStream(streamed);
+    _check(r);
+    return (jsonDecode(r.body) as Map<String, dynamic>)['url'] as String;
+  }
+
+  MediaType _mimeTypeFor(String filename) {
+    final lower = filename.toLowerCase();
+    if (lower.endsWith('.png')) return MediaType('image', 'png');
+    if (lower.endsWith('.webp')) return MediaType('image', 'webp');
+    return MediaType('image', 'jpeg');
   }
 
   // ── Gym / Shop owners ───────────────────────────────────────────────────────
@@ -719,6 +759,7 @@ class ApiService {
   Future<List<TrainingSession>> getTrainingSessions(
     String token, {
     String? userId,
+    String? trainerId,
     String? trainingId,
     int page = 0,
     int pageSize = 20,
@@ -728,6 +769,7 @@ class ApiService {
       'page_size=$pageSize',
     ];
     if (userId != null) params.add('user_id=$userId');
+    if (trainerId != null) params.add('trainer_id=$trainerId');
     if (trainingId != null) params.add('training_id=$trainingId');
     final r = await _client.get(
       Uri.parse('$_base/training-sessions?${params.join('&')}'),
@@ -1081,6 +1123,194 @@ class ApiService {
   Future<void> deleteMealPlanAssignment(String token, String id) async {
     final r = await _client.delete(
       Uri.parse('$_base/meal-plan-assignments/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Gym Membership Types ───────────────────────────────────────────────────────
+
+  Future<List<GymMembershipType>> getGymMembershipTypes(
+    String token, {
+    String? gymId,
+    bool? isActive,
+  }) async {
+    final params = <String>[];
+    if (gymId != null) params.add('gym_id=$gymId');
+    if (isActive != null) params.add('is_active=$isActive');
+    final q = params.isEmpty ? '' : '?${params.join('&')}';
+    final r = await _client.get(
+      Uri.parse('$_base/gym-membership-types$q'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => GymMembershipType.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<GymMembershipType> createGymMembershipType(
+      String token, Map<String, dynamic> data) async {
+    final r = await _client.post(
+      Uri.parse('$_base/gym-membership-types'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return GymMembershipType.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<GymMembershipType> updateGymMembershipType(
+      String token, String id, Map<String, dynamic> data) async {
+    final r = await _client.put(
+      Uri.parse('$_base/gym-membership-types/$id'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return GymMembershipType.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deleteGymMembershipType(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/gym-membership-types/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Memberships ─────────────────────────────────────────────────────────────
+
+  Future<List<Membership>> getMemberships(
+    String token, {
+    String? userId,
+    bool? isActive,
+  }) async {
+    final params = <String>[];
+    if (userId != null) params.add('user_id=$userId');
+    if (isActive != null) params.add('is_active=$isActive');
+    final q = params.isEmpty ? '' : '?${params.join('&')}';
+    final r = await _client.get(
+      Uri.parse('$_base/memberships$q'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => Membership.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Membership> createMembership(
+      String token, Map<String, dynamic> data) async {
+    final r = await _client.post(
+      Uri.parse('$_base/memberships'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return Membership.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<Membership> updateMembership(
+      String token, String id, Map<String, dynamic> data) async {
+    final r = await _client.put(
+      Uri.parse('$_base/memberships/$id'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return Membership.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deleteMembership(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/memberships/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Membership Invoices ────────────────────────────────────────────────────
+
+  Future<List<MembershipInvoice>> getMembershipInvoices(
+    String token, {
+    String? membershipId,
+  }) async {
+    final q = membershipId != null ? '?membership_id=$membershipId' : '';
+    final r = await _client.get(
+      Uri.parse('$_base/membership-invoices$q'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => MembershipInvoice.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<MembershipInvoice> createMembershipInvoice(
+      String token, Map<String, dynamic> data) async {
+    final r = await _client.post(
+      Uri.parse('$_base/membership-invoices'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return MembershipInvoice.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  // ── Trainers ────────────────────────────────────────────────────────────────
+
+  /// Returns trainer rows: [{id, user_id, gym_id}, ...]
+  Future<List<Map<String, dynamic>>> getTrainers(
+      String token, {String? gymId, String? userId}) async {
+    final params = <String>[];
+    if (gymId != null) params.add('gym_id=$gymId');
+    if (userId != null) params.add('user_id=$userId');
+    final q = params.isEmpty ? '' : '?${params.join('&')}';
+    final r = await _client.get(
+      Uri.parse('$_base/trainers$q'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
+  }
+
+  // ── Posts ───────────────────────────────────────────────────────────────────
+
+  Future<List<Post>> getPosts(
+    String token, {
+    required String businessId,
+    int page = 0,
+    int pageSize = 20,
+  }) async {
+    final params = [
+      'business_id=$businessId',
+      'page=$page',
+      'page_size=$pageSize',
+    ];
+    final r = await _client.get(
+      Uri.parse('$_base/posts?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => Post.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Post> createPost(String token, Map<String, dynamic> data) async {
+    final r = await _client.post(
+      Uri.parse('$_base/posts'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return Post.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deletePost(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/posts/$id'),
       headers: _headers(token),
     );
     if (r.statusCode >= 400 && r.statusCode != 204) _check(r);

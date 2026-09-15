@@ -4,6 +4,8 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'gym_employees_page.dart';
 import 'gym_members_page.dart';
+import 'membership_types_page.dart';
+import 'posts_page.dart';
 
 class GymDetailPage extends StatefulWidget {
   const GymDetailPage(
@@ -137,6 +139,21 @@ class _GymDetailPageState extends State<GymDetailPage> {
                             label: '${_employees.length} employees'),
                       ],
                     ),
+                    const Spacer(),
+                    OutlinedButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PostsPage(
+                            businessId: widget.gymId,
+                            businessName: widget.gymName,
+                            canPost: true,
+                          ),
+                        ),
+                      ),
+                      icon: const Icon(Icons.forum_outlined, size: 18),
+                      label: const Text('Posts'),
+                    ),
                   ],
                 ),
               ),
@@ -185,6 +202,38 @@ class _GymDetailPageState extends State<GymDetailPage> {
                           color: Theme.of(context).colorScheme.primary),
                 ),
               ),
+            const SizedBox(height: 24),
+
+            // ── Membership types section ───────────────────────────────
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Membership Types',
+                    style: Theme.of(context).textTheme.titleMedium),
+                TextButton.icon(
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MembershipTypesPage(
+                            gymId: widget.gymId,
+                            gymName: widget.gymName),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.open_in_new, size: 16),
+                  label: const Text('Manage'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Set up pricing plans members can be enrolled in.',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Theme.of(context).colorScheme.outline),
+            ),
             const SizedBox(height: 24),
 
             // ── Employees section ──────────────────────────────────────

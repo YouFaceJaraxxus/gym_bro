@@ -1,3 +1,7 @@
+// Postgres numeric columns are serialized as JSON strings by the API, so these
+// fields can arrive as either a String or a num depending on the endpoint.
+double? _toDouble(dynamic v) => v == null ? null : double.parse(v.toString());
+
 // ── Enums ──────────────────────────────────────────────────────────────────────
 
 enum FoodItemType {
@@ -360,7 +364,7 @@ class FoodItemVitamin {
         vitamin: json['vitamin'] != null
             ? Vitamin.fromJson(json['vitamin'] as Map<String, dynamic>)
             : null,
-        amountPer100: (json['amount_per_100'] as num).toDouble(),
+        amountPer100: _toDouble(json['amount_per_100'])!,
         unit: json['unit'] as String?,
       );
 
@@ -391,7 +395,7 @@ class FoodItemMineral {
         mineral: json['mineral'] != null
             ? Mineral.fromJson(json['mineral'] as Map<String, dynamic>)
             : null,
-        amountPer100: (json['amount_per_100'] as num).toDouble(),
+        amountPer100: _toDouble(json['amount_per_100'])!,
         unit: json['unit'] as String?,
       );
 
@@ -469,11 +473,11 @@ class FoodItem {
             ? SpiceSubtype.fromApiValue(json['spice_subtype'] as String)
             : null,
         servingUnit: ServingUnit.fromApiValue(json['serving_unit'] as String? ?? 'g'),
-        kcalPer100: (json['kcal_per_100'] as num?)?.toDouble() ?? 0,
-        proteinPer100: (json['protein_per_100'] as num?)?.toDouble() ?? 0,
-        carbPer100: (json['carb_per_100'] as num?)?.toDouble() ?? 0,
-        fatPer100: (json['fat_per_100'] as num?)?.toDouble() ?? 0,
-        fiberPer100: (json['fiber_per_100'] as num?)?.toDouble() ?? 0,
+        kcalPer100: _toDouble(json['kcal_per_100']) ?? 0,
+        proteinPer100: _toDouble(json['protein_per_100']) ?? 0,
+        carbPer100: _toDouble(json['carb_per_100']) ?? 0,
+        fatPer100: _toDouble(json['fat_per_100']) ?? 0,
+        fiberPer100: _toDouble(json['fiber_per_100']) ?? 0,
         authorId: json['author_id'] as String?,
         isPublic: json['is_public'] as bool? ?? true,
         isSystem: json['is_system'] as bool? ?? false,
@@ -544,7 +548,7 @@ class RecipeIngredient {
         foodItem: json['food_item'] != null
             ? FoodItem.fromJson(json['food_item'] as Map<String, dynamic>)
             : null,
-        quantity: (json['quantity'] as num).toDouble(),
+        quantity: _toDouble(json['quantity'])!,
         note: json['note'] as String?,
         position: json['position'] as int? ?? 0,
       );
@@ -702,11 +706,11 @@ class Recipe {
         servings: json['servings'] as int? ?? 1,
         prepTimeMinutes: json['prep_time_minutes'] as int?,
         cookTimeMinutes: json['cook_time_minutes'] as int?,
-        kcalPerServing: (json['kcal_per_serving'] as num?)?.toDouble() ?? 0,
-        proteinPerServing: (json['protein_per_serving'] as num?)?.toDouble() ?? 0,
-        carbPerServing: (json['carb_per_serving'] as num?)?.toDouble() ?? 0,
-        fatPerServing: (json['fat_per_serving'] as num?)?.toDouble() ?? 0,
-        fiberPerServing: (json['fiber_per_serving'] as num?)?.toDouble() ?? 0,
+        kcalPerServing: _toDouble(json['kcal_per_serving']) ?? 0,
+        proteinPerServing: _toDouble(json['protein_per_serving']) ?? 0,
+        carbPerServing: _toDouble(json['carb_per_serving']) ?? 0,
+        fatPerServing: _toDouble(json['fat_per_serving']) ?? 0,
+        fiberPerServing: _toDouble(json['fiber_per_serving']) ?? 0,
         isPublic: json['is_public'] as bool? ?? false,
         isSystem: json['is_system'] as bool? ?? false,
         ingredients: (json['ingredients'] as List<dynamic>? ?? [])
@@ -795,8 +799,8 @@ class DailyMealPlanSlotEntry {
         recipe: json['recipe'] != null
             ? Recipe.fromJson(json['recipe'] as Map<String, dynamic>)
             : null,
-        quantity: (json['quantity'] as num?)?.toDouble(),
-        servings: (json['servings'] as num?)?.toDouble() ?? 1.0,
+        quantity: _toDouble(json['quantity']),
+        servings: _toDouble(json['servings']) ?? 1.0,
         position: json['position'] as int? ?? 0,
         note: json['note'] as String?,
       );
@@ -903,6 +907,8 @@ class DailyMealPlan {
   final double fatTotal;
   final double fiberTotal;
   final List<DailyMealPlanSlot> slots;
+  // Only populated by the list endpoint, which omits nested slots for performance.
+  final int? mealCount;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -919,6 +925,7 @@ class DailyMealPlan {
     required this.fatTotal,
     required this.fiberTotal,
     required this.slots,
+    this.mealCount,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -930,17 +937,20 @@ class DailyMealPlan {
         authorId: json['author_id'] as String?,
         isPublic: json['is_public'] as bool? ?? false,
         isSystem: json['is_system'] as bool? ?? false,
-        kcalTotal: (json['kcal_total'] as num?)?.toDouble() ?? 0,
-        proteinTotal: (json['protein_total'] as num?)?.toDouble() ?? 0,
-        carbTotal: (json['carb_total'] as num?)?.toDouble() ?? 0,
-        fatTotal: (json['fat_total'] as num?)?.toDouble() ?? 0,
-        fiberTotal: (json['fiber_total'] as num?)?.toDouble() ?? 0,
+        kcalTotal: _toDouble(json['kcal_total']) ?? 0,
+        proteinTotal: _toDouble(json['protein_total']) ?? 0,
+        carbTotal: _toDouble(json['carb_total']) ?? 0,
+        fatTotal: _toDouble(json['fat_total']) ?? 0,
+        fiberTotal: _toDouble(json['fiber_total']) ?? 0,
         slots: (json['slots'] as List<dynamic>? ?? [])
             .map((s) => DailyMealPlanSlot.fromJson(s as Map<String, dynamic>))
             .toList(),
+        mealCount: json['meal_count'] as int?,
         createdAt: DateTime.parse(json['created_at'] as String),
         updatedAt: DateTime.parse(json['updated_at'] as String),
       );
+
+  int get displayMealCount => mealCount ?? slots.length;
 
   Map<String, dynamic> toJson() => {
         'name': name,

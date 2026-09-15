@@ -62,6 +62,58 @@ export type NotificationType =
   | "employee_join"
   | "vendor_join";
 
+// ── Meal plan enums ───────────────────────────────────────────────────────────
+
+export type FoodItemType = "food" | "spice" | "drink";
+
+export type FoodSubtype =
+  | "vegetable" | "fruit" | "mushroom" | "herb_fresh"
+  | "meat_beef" | "meat_pork" | "meat_lamb" | "meat_game" | "poultry"
+  | "fish" | "seafood" | "egg"
+  | "dairy_milk" | "dairy_cheese" | "dairy_yogurt" | "dairy_cream" | "dairy_butter"
+  | "plant_milk"
+  | "grain_cereal" | "pasta_noodle" | "rice" | "bread_bakery"
+  | "potato_tuber" | "corn_maize"
+  | "legume_bean" | "legume_lentil" | "nut" | "seed"
+  | "oil_fat"
+  | "canned_food" | "frozen_food" | "processed_meat" | "ready_meal"
+  | "snack_chips" | "snack_bar" | "cereal_bar"
+  | "chocolate_candy" | "biscuit_cookie" | "sweetener" | "jam_spread"
+  | "baking_ingredient"
+  | "sauce_condiment" | "dressing"
+  | "baby_food" | "supplement_powder" | "other_food";
+
+export type DrinkSubtype =
+  | "water_still" | "water_sparkling" | "water_flavoured"
+  | "juice_fruit" | "juice_vegetable"
+  | "smoothie" | "shake"
+  | "milk_dairy" | "milk_plant"
+  | "coffee" | "espresso" | "tea_black" | "tea_green" | "tea_herbal"
+  | "soda" | "energy_drink" | "sports_drink" | "isotonic"
+  | "alcohol_beer" | "alcohol_cider" | "alcohol_wine" | "alcohol_spirit" | "alcohol_cocktail"
+  | "protein_shake" | "meal_replacement"
+  | "kombucha" | "kefir_drink"
+  | "other_drink";
+
+export type SpiceSubtype =
+  | "herb_dried" | "spice_ground" | "spice_whole" | "spice_seed"
+  | "seasoning_blend" | "rub" | "marinade_dry"
+  | "salt" | "pepper"
+  | "extract_essence"
+  | "other_spice";
+
+export type ServingUnit = "g" | "ml";
+
+export type MealSlotType =
+  | "breakfast"
+  | "morning_snack"
+  | "lunch"
+  | "afternoon_snack"
+  | "dinner"
+  | "evening_snack"
+  | "pre_workout"
+  | "post_workout";
+
 // ── Tables ────────────────────────────────────────────────────────────────────
 
 export interface UsersTable {
@@ -73,6 +125,7 @@ export interface UsersTable {
   name: string;
   last_name: string;
   role: Generated<UserRole>; // DB default: 'member'
+  avatar_url: string | null;
   // Links to auth.users. Null for rows created outside the auth flow.
   auth_id: ColumnType<string | null, string | null | undefined, string | null>;
   created_at: Generated<string>;
@@ -177,6 +230,7 @@ export interface ShopItemTable {
   quantity: Generated<number>;
   is_active: Generated<boolean>;
   active_until: string | null; // TIMESTAMPTZ as ISO string
+  image_url: string | null;
 }
 
 export interface InvoiceTable {
@@ -340,6 +394,208 @@ export interface SessionDropLogTable {
   note: string | null;
 }
 
+// ── Meal plan system tables ───────────────────────────────────────────────────
+
+export interface VitaminTable {
+  id: Generated<string>;
+  name: string;
+  symbol: string | null;
+  default_unit: Generated<string>;
+}
+
+export interface MineralTable {
+  id: Generated<string>;
+  name: string;
+  symbol: string | null;
+  default_unit: Generated<string>;
+}
+
+export interface FoodItemTable {
+  id: Generated<string>;
+  name: string;
+  brand: string | null;
+  barcode: string | null;
+  type: FoodItemType;
+  food_subtype: FoodSubtype | null;
+  drink_subtype: DrinkSubtype | null;
+  spice_subtype: SpiceSubtype | null;
+  serving_unit: Generated<ServingUnit>;
+  // Macros per 100g or 100ml — NUMERIC, returned as string by pg.
+  kcal_per_100: ColumnType<string, string | number | undefined, string | number>;
+  protein_per_100: ColumnType<string, string | number | undefined, string | number>;
+  carb_per_100: ColumnType<string, string | number | undefined, string | number>;
+  fat_per_100: ColumnType<string, string | number | undefined, string | number>;
+  fiber_per_100: ColumnType<string, string | number | undefined, string | number>;
+  author_id: string | null;
+  is_public: Generated<boolean>;
+  is_system: Generated<boolean>;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface FoodItemVitaminTable {
+  food_item_id: string;
+  vitamin_id: string;
+  amount_per_100: ColumnType<string, string | number | undefined, string | number>;
+  unit: string | null;
+}
+
+export interface FoodItemMineralTable {
+  food_item_id: string;
+  mineral_id: string;
+  amount_per_100: ColumnType<string, string | number | undefined, string | number>;
+  unit: string | null;
+}
+
+export interface RecipeTable {
+  id: Generated<string>;
+  name: string;
+  description: string | null;
+  author_id: string | null;
+  servings: Generated<number>;
+  prep_time_minutes: number | null;
+  cook_time_minutes: number | null;
+  // Macros per serving — recomputed by the app whenever ingredients change.
+  kcal_per_serving: ColumnType<string, string | number | undefined, string | number>;
+  protein_per_serving: ColumnType<string, string | number | undefined, string | number>;
+  carb_per_serving: ColumnType<string, string | number | undefined, string | number>;
+  fat_per_serving: ColumnType<string, string | number | undefined, string | number>;
+  fiber_per_serving: ColumnType<string, string | number | undefined, string | number>;
+  is_public: Generated<boolean>;
+  is_system: Generated<boolean>;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface RecipeIngredientTable {
+  id: Generated<string>;
+  recipe_id: string;
+  food_item_id: string;
+  quantity: ColumnType<string, string | number, string | number>; // in food_item.serving_unit
+  note: string | null;
+  position: Generated<number>;
+}
+
+export interface RecipeStepTable {
+  id: Generated<string>;
+  recipe_id: string;
+  position: Generated<number>;
+  instruction: string;
+  image_url: string | null;
+}
+
+export interface RecipeImageTable {
+  id: Generated<string>;
+  recipe_id: string;
+  url: string;
+  is_thumbnail: Generated<boolean>;
+  position: Generated<number>;
+}
+
+export interface RecipeVideoTable {
+  id: Generated<string>;
+  recipe_id: string;
+  url: string;
+  title: string | null;
+  position: Generated<number>;
+}
+
+export interface DailyMealPlanTable {
+  id: Generated<string>;
+  name: string;
+  description: string | null;
+  author_id: string | null;
+  is_public: Generated<boolean>;
+  is_system: Generated<boolean>;
+  // Totals recomputed by the app whenever entries change.
+  kcal_total: ColumnType<string, string | number | undefined, string | number>;
+  protein_total: ColumnType<string, string | number | undefined, string | number>;
+  carb_total: ColumnType<string, string | number | undefined, string | number>;
+  fat_total: ColumnType<string, string | number | undefined, string | number>;
+  fiber_total: ColumnType<string, string | number | undefined, string | number>;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface DailyMealPlanSlotTable {
+  id: Generated<string>;
+  daily_meal_plan_id: string;
+  slot_type: MealSlotType;
+  position: Generated<number>;
+  note: string | null;
+}
+
+export interface DailyMealPlanSlotEntryTable {
+  id: Generated<string>;
+  daily_meal_plan_slot_id: string;
+  food_item_id: string | null;
+  recipe_id: string | null;
+  // in food_item.serving_unit — only used when food_item_id is set
+  quantity: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  // used when recipe_id is set (e.g. 0.5 = half a recipe serving) — DEFAULT 1.0
+  servings: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  position: Generated<number>;
+  note: string | null;
+}
+
+export interface MealPlanTable {
+  id: Generated<string>;
+  name: string;
+  description: string | null;
+  author_id: string | null;
+  is_public: Generated<boolean>;
+  is_system: Generated<boolean>;
+  num_weeks: Generated<number>; // CHECK (num_weeks BETWEEN 1 AND 4)
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface MealPlanImageTable {
+  id: Generated<string>;
+  meal_plan_id: string;
+  url: string;
+  is_thumbnail: Generated<boolean>;
+  position: Generated<number>;
+}
+
+export interface MealPlanDayTable {
+  id: Generated<string>;
+  meal_plan_id: string;
+  daily_meal_plan_id: string;
+  week_number: number; // CHECK (week_number >= 1)
+  day_of_week: number; // CHECK (day_of_week BETWEEN 1 AND 7)
+  note: string | null;
+}
+
+export interface MealPlanAssignmentTable {
+  id: Generated<string>;
+  meal_plan_id: string;
+  user_id: string;
+  assigned_by_id: string | null;
+  start_date: string | null; // DATE as ISO string
+  end_date: string | null;
+  note: string | null;
+  created_at: Generated<string>;
+}
+
+// ── Posts (gym/shop community feed) ───────────────────────────────────────────
+
+export interface PostTable {
+  id: Generated<string>;
+  business_id: string;
+  author_id: string | null;
+  content: string;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface PostImageTable {
+  id: Generated<string>;
+  post_id: string;
+  url: string;
+  position: Generated<number>;
+}
+
 // ── Database ──────────────────────────────────────────────────────────────────
 
 export interface Database {
@@ -373,6 +629,25 @@ export interface Database {
   training_session: TrainingSessionTable;
   session_set_log: SessionSetLogTable;
   session_drop_log: SessionDropLogTable;
+  vitamin: VitaminTable;
+  mineral: MineralTable;
+  food_item: FoodItemTable;
+  food_item_vitamin: FoodItemVitaminTable;
+  food_item_mineral: FoodItemMineralTable;
+  recipe: RecipeTable;
+  recipe_ingredient: RecipeIngredientTable;
+  recipe_step: RecipeStepTable;
+  recipe_image: RecipeImageTable;
+  recipe_video: RecipeVideoTable;
+  daily_meal_plan: DailyMealPlanTable;
+  daily_meal_plan_slot: DailyMealPlanSlotTable;
+  daily_meal_plan_slot_entry: DailyMealPlanSlotEntryTable;
+  meal_plan: MealPlanTable;
+  meal_plan_image: MealPlanImageTable;
+  meal_plan_day: MealPlanDayTable;
+  meal_plan_assignment: MealPlanAssignmentTable;
+  post: PostTable;
+  post_image: PostImageTable;
 }
 
 // ── CRUD helpers ──────────────────────────────────────────────────────────────
@@ -488,6 +763,71 @@ export type SessionSetLogInsert = Insertable<SessionSetLogTable>;
 
 export type SessionDropLog = Selectable<SessionDropLogTable>;
 export type SessionDropLogInsert = Insertable<SessionDropLogTable>;
+
+export type Vitamin = Selectable<VitaminTable>;
+export type VitaminInsert = Insertable<VitaminTable>;
+export type VitaminUpdate = Updateable<VitaminTable>;
+
+export type Mineral = Selectable<MineralTable>;
+export type MineralInsert = Insertable<MineralTable>;
+export type MineralUpdate = Updateable<MineralTable>;
+
+export type FoodItem = Selectable<FoodItemTable>;
+export type FoodItemInsert = Insertable<FoodItemTable>;
+export type FoodItemUpdate = Updateable<FoodItemTable>;
+
+export type FoodItemVitamin = Selectable<FoodItemVitaminTable>;
+export type FoodItemVitaminInsert = Insertable<FoodItemVitaminTable>;
+
+export type FoodItemMineral = Selectable<FoodItemMineralTable>;
+export type FoodItemMineralInsert = Insertable<FoodItemMineralTable>;
+
+export type Recipe = Selectable<RecipeTable>;
+export type RecipeInsert = Insertable<RecipeTable>;
+export type RecipeUpdate = Updateable<RecipeTable>;
+
+export type RecipeIngredient = Selectable<RecipeIngredientTable>;
+export type RecipeIngredientInsert = Insertable<RecipeIngredientTable>;
+
+export type RecipeStep = Selectable<RecipeStepTable>;
+export type RecipeStepInsert = Insertable<RecipeStepTable>;
+
+export type RecipeImage = Selectable<RecipeImageTable>;
+export type RecipeImageInsert = Insertable<RecipeImageTable>;
+
+export type RecipeVideo = Selectable<RecipeVideoTable>;
+export type RecipeVideoInsert = Insertable<RecipeVideoTable>;
+
+export type DailyMealPlan = Selectable<DailyMealPlanTable>;
+export type DailyMealPlanInsert = Insertable<DailyMealPlanTable>;
+export type DailyMealPlanUpdate = Updateable<DailyMealPlanTable>;
+
+export type DailyMealPlanSlot = Selectable<DailyMealPlanSlotTable>;
+export type DailyMealPlanSlotInsert = Insertable<DailyMealPlanSlotTable>;
+
+export type DailyMealPlanSlotEntry = Selectable<DailyMealPlanSlotEntryTable>;
+export type DailyMealPlanSlotEntryInsert = Insertable<DailyMealPlanSlotEntryTable>;
+
+export type MealPlan = Selectable<MealPlanTable>;
+export type MealPlanInsert = Insertable<MealPlanTable>;
+export type MealPlanUpdate = Updateable<MealPlanTable>;
+
+export type MealPlanImage = Selectable<MealPlanImageTable>;
+export type MealPlanImageInsert = Insertable<MealPlanImageTable>;
+
+export type MealPlanDay = Selectable<MealPlanDayTable>;
+export type MealPlanDayInsert = Insertable<MealPlanDayTable>;
+
+export type MealPlanAssignment = Selectable<MealPlanAssignmentTable>;
+export type MealPlanAssignmentInsert = Insertable<MealPlanAssignmentTable>;
+export type MealPlanAssignmentUpdate = Updateable<MealPlanAssignmentTable>;
+
+export type Post = Selectable<PostTable>;
+export type PostInsert = Insertable<PostTable>;
+export type PostUpdate = Updateable<PostTable>;
+
+export type PostImage = Selectable<PostImageTable>;
+export type PostImageInsert = Insertable<PostImageTable>;
 
 // ── Auth response ─────────────────────────────────────────────────────────────
 

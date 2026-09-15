@@ -11,6 +11,7 @@ const COLS = [
   "quantity",
   "is_active",
   "active_until",
+  "image_url",
 ] as const;
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
@@ -64,7 +65,8 @@ Deno.serve(async (req: Request) => {
   // ── POST /shop-items ──────────────────────────────────────────────────────────
   if (req.method === "POST" && !id) {
     const body = await req.json().catch(() => null);
-    const { shop_id, type, name, description, price, quantity, is_active, active_until } = body ?? {};
+    const { shop_id, type, name, description, price, quantity, is_active, active_until, image_url } =
+      body ?? {};
 
     if (!shop_id || !type || !name || price == null || quantity == null) {
       return jsonError("Missing required fields: shop_id, type, name, price, quantity", 400);
@@ -85,6 +87,7 @@ Deno.serve(async (req: Request) => {
       quantity,
       is_active: is_active ?? true,
       active_until: active_until ?? null,
+      image_url: image_url ?? null,
     };
 
     const item = await db

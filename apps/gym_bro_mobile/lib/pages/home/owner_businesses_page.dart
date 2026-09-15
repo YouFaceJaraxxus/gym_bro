@@ -299,16 +299,18 @@ class _BusinessTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              CircleAvatar(
-                backgroundColor:
-                    isGym ? cs.primaryContainer : cs.secondaryContainer,
-                child: Icon(
-                  isGym ? Icons.fitness_center : Icons.store,
-                  color: isGym
-                      ? cs.onPrimaryContainer
-                      : cs.onSecondaryContainer,
-                ),
-              ),
+              business.logo != null
+                  ? CircleAvatar(backgroundImage: NetworkImage(business.logo!))
+                  : CircleAvatar(
+                      backgroundColor:
+                          isGym ? cs.primaryContainer : cs.secondaryContainer,
+                      child: Icon(
+                        isGym ? Icons.fitness_center : Icons.store,
+                        color: isGym
+                            ? cs.onPrimaryContainer
+                            : cs.onSecondaryContainer,
+                      ),
+                    ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/exercise.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/image_upload_field.dart';
 import '../widgets/muscle_diagram.dart';
 
 class ExerciseFormPage extends StatefulWidget {
@@ -154,10 +155,11 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
               maxLines: 2,
             ),
             const SizedBox(height: 16),
-            TextFormField(
-              controller: _imageUrl,
-              decoration: const InputDecoration(labelText: 'Image URL'),
-              keyboardType: TextInputType.url,
+            ImagePickerField(
+              imageUrl: _imageUrl.text.isEmpty ? null : _imageUrl.text,
+              folder: 'exercises',
+              label: 'Add exercise photo',
+              onUploaded: (url) => setState(() => _imageUrl.text = url),
             ),
             const SizedBox(height: 16),
             TextFormField(

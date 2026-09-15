@@ -30,6 +30,7 @@ class ShopItem {
   final int quantity;
   final bool isActive;
   final DateTime? activeUntil;
+  final String? imageUrl;
 
   const ShopItem({
     required this.id,
@@ -41,6 +42,7 @@ class ShopItem {
     required this.quantity,
     required this.isActive,
     this.activeUntil,
+    this.imageUrl,
   });
 
   factory ShopItem.fromJson(Map<String, dynamic> json) => ShopItem(
@@ -55,5 +57,6 @@ class ShopItem {
         activeUntil: json['active_until'] != null
             ? DateTime.tryParse(json['active_until'] as String)
             : null,
+        imageUrl: json['image_url'] as String?,
       );
 }

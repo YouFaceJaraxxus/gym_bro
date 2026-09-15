@@ -119,18 +119,27 @@ Deno.serve(async (req: Request) => {
 
   // ── GET /training-sessions — list user's sessions ─────────────────────────────
   if (req.method === "GET" && !id) {
-    const targetUserId = url.searchParams.get("user_id") ?? dbUser.id;
+    const trainerId = url.searchParams.get("trainer_id");
     const trainingId = url.searchParams.get("training_id");
     const page = parseInt(url.searchParams.get("page") ?? "0");
     const pageSize = Math.min(parseInt(url.searchParams.get("page_size") ?? "20"), 100);
 
-    // Only super_user can read other users' sessions
-    if (targetUserId !== dbUser.id && dbUser.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
+    let query = db.selectFrom("training_session").select(SESSION_COLS);
 
-    let query = db.selectFrom("training_session").select(SESSION_COLS)
-      .where("user_id", "=", targetUserId);
+    if (trainerId) {
+      // "Classes I'm running" view — only the trainer themself or super_user may read it.
+      if (trainerId !== dbUser.id && dbUser.role !== "super_user") {
+        return jsonError("Forbidden", 403);
+      }
+      query = query.where("trainer_id", "=", trainerId);
+    } else {
+      const targetUserId = url.searchParams.get("user_id") ?? dbUser.id;
+      // Only super_user can read other users' sessions
+      if (targetUserId !== dbUser.id && dbUser.role !== "super_user") {
+        return jsonError("Forbidden", 403);
+      }
+      query = query.where("user_id", "=", targetUserId);
+    }
 
     if (trainingId) query = query.where("training_id", "=", trainingId);
 
