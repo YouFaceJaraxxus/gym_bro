@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
 import '../models/app_notification.dart';
-import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
-import 'gym_detail_page.dart';
+import '../services/notification_router.dart';
 import 'invite_accept_page.dart';
-import 'meal_plans_page.dart';
-import 'membership_page.dart';
-import 'posts_page.dart';
-import 'shop_detail_page.dart';
 
 const _kPageSize = 20;
 
@@ -28,12 +26,11 @@ class _CacheEntry {
     List<AppNotification>? items,
     bool? hasMore,
     int? pagesLoaded,
-  }) =>
-      _CacheEntry(
-        items: items ?? this.items,
-        hasMore: hasMore ?? this.hasMore,
-        pagesLoaded: pagesLoaded ?? this.pagesLoaded,
-      );
+  }) => _CacheEntry(
+    items: items ?? this.items,
+    hasMore: hasMore ?? this.hasMore,
+    pagesLoaded: pagesLoaded ?? this.pagesLoaded,
+  );
 }
 
 class NotificationsPage extends StatefulWidget {
@@ -69,7 +66,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
     try {
       final token = await AuthManager.instance.getValidToken();
       final profile = AuthManager.instance.profile;
-      if (profile == null) throw Exception('No profile');
+      if (profile == null) {
+        if (!mounted) return;
+        throw Exception(context.l10n.shellHomeProfileLoadFailed);
+      }
 
       final page = await _api.getNotifications(
         token,
@@ -134,16 +134,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
       if (!mounted) return;
       setState(() {
         final updated = _cache?.items
-            .map((n) => AppNotification(
-                  id: n.id,
-                  userId: n.userId,
-                  type: n.type,
-                  title: n.title,
-                  body: n.body,
-                  metadata: n.metadata,
-                  isRead: true,
-                  createdAt: n.createdAt,
-                ))
+            .map(
+              (n) => AppNotification(
+                id: n.id,
+                userId: n.userId,
+                type: n.type,
+                title: n.title,
+                body: n.body,
+                metadata: n.metadata,
+                isRead: true,
+                createdAt: n.createdAt,
+              ),
+            )
             .toList();
         if (updated != null) {
           _cache = _cache?.copyWith(items: updated);
@@ -190,96 +192,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   /// Opens the screen a non-invite notification refers to, if any.
-  Future<void> _navigateFor(AppNotification notif) async {
-    final profile = AuthManager.instance.profile;
-    if (profile == null) return;
-
-    switch (notif.type) {
-      case NotificationType.invoiceIssued:
-      case NotificationType.memberSubscriptionExtended:
-      case NotificationType.membershipExpiring:
-        await Navigator.push<void>(
-          context,
-          MaterialPageRoute(
-            builder: (_) => Scaffold(
-              appBar: AppBar(title: const Text('Membership')),
-              body: MembershipPage(profile: profile),
-            ),
-          ),
-        );
-
-      case NotificationType.news:
-        final businessId = notif.metadata?['business_id'] as String?;
-        if (businessId == null) return;
-        try {
-          final token = await AuthManager.instance.getValidToken();
-          final business = await _api.getBusiness(token, businessId);
-          if (!mounted) return;
-          await Navigator.push<void>(
-            context,
-            MaterialPageRoute(
-              builder: (_) => PostsPage(
-                businessId: business.id,
-                businessName: business.name,
-              ),
-            ),
-          );
-        } catch (e) {
-          _showError(e);
-        }
-
-      case NotificationType.memberJoin:
-      case NotificationType.employeeJoin:
-      case NotificationType.vendorJoin:
-        await _openManagedBusiness(notif, profile);
-
-      case NotificationType.training:
-        // "New meal plan assigned".
-        await Navigator.push<void>(
-          context,
-          MaterialPageRoute(builder: (_) => const MealPlansPage()),
-        );
-
-      default:
-        // Nothing to open — marking read is enough.
-        break;
-    }
-  }
-
-  /// Opens the gym / shop from a *_join notification, but only when the
-  /// current user manages that business.
-  Future<void> _openManagedBusiness(
-      AppNotification notif, UserProfile profile) async {
-    final isShop = notif.type == NotificationType.vendorJoin ||
-        (notif.gymId == null && notif.shopId != null);
-    final businessId = (isShop ? notif.shopId : notif.gymId) ??
-        notif.metadata?['business_id'] as String?;
-    if (businessId == null) return;
-
-    try {
-      final token = await AuthManager.instance.getValidToken();
-      if (profile.role != UserRole.superUser) {
-        final rows = isShop
-            ? await _api.getShopOwners(token, userId: profile.id)
-            : await _api.getGymOwners(token, userId: profile.id);
-        final key = isShop ? 'shop_id' : 'gym_id';
-        if (!rows.any((r) => r[key] == businessId)) return;
-      }
-      final name = notif.entityName ??
-          (await _api.getBusiness(token, businessId)).name;
-      if (!mounted) return;
-      await Navigator.push<void>(
-        context,
-        MaterialPageRoute(
-          builder: (_) => isShop
-              ? ShopDetailPage(shopId: businessId, shopName: name)
-              : GymDetailPage(gymId: businessId, gymName: name),
-        ),
-      );
-    } catch (e) {
-      _showError(e);
-    }
-  }
+  Future<void> _navigateFor(AppNotification notif) => NotificationRouter.open(
+    context,
+    notif.type.apiValue,
+    notif.metadata ?? const {},
+  );
 
   void _showError(Object e) {
     if (!mounted) return;
@@ -296,9 +213,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     // Optimistically remove; restore on failure.
     setState(() {
-      _cache = cached.copyWith(
-        items: [...cached.items]..removeAt(index),
-      );
+      _cache = cached.copyWith(items: [...cached.items]..removeAt(index));
       if (!notif.isRead && _unreadCount > 0) _unreadCount--;
     });
     try {
@@ -344,15 +259,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(l10n.shellHomeNotifications),
         actions: [
           if (_unreadCount > 0)
             TextButton(
               onPressed: _markAllRead,
-              child: const Text('Mark all read'),
+              child: Text(l10n.shellMarkAllRead),
             ),
         ],
       ),
@@ -361,6 +277,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildBody(ColorScheme cs) {
+    final l10n = context.l10n;
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -376,8 +293,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
               Text(_error!),
               const SizedBox(height: 16),
               FilledButton(
-                  onPressed: () => _load(refresh: true),
-                  child: const Text('Retry')),
+                onPressed: () => _load(refresh: true),
+                child: Text(l10n.commonRetry),
+              ),
             ],
           ),
         ),
@@ -391,14 +309,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.notifications_none_outlined,
-                size: 56, color: cs.outline),
+            Icon(
+              Icons.notifications_none_outlined,
+              size: 56,
+              color: cs.outline,
+            ),
             const SizedBox(height: 16),
-            Text('No notifications yet',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: cs.outline)),
+            Text(
+              l10n.shellNoNotifications,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: cs.outline),
+            ),
           ],
         ),
       );
@@ -413,12 +335,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: _loadingMore
-                  ? const Center(
-                      child: CircularProgressIndicator(strokeWidth: 2))
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        semanticsLabel: l10n.commonLoading,
+                      ),
+                    )
                   : Center(
                       child: OutlinedButton(
-                          onPressed: _loadMore,
-                          child: const Text('Load more'))),
+                        onPressed: _loadMore,
+                        child: Text(l10n.shellLoadMore),
+                      ),
+                    ),
             );
           }
           final notif = items[index];
@@ -432,9 +360,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
               child: Icon(Icons.delete_outline, color: cs.onErrorContainer),
             ),
             onDismissed: (_) => _delete(notif),
-            child: _NotificationTile(
-              notification: notif,
-              onTap: () => _openNotification(notif),
+            // Swipe-to-delete isn't reachable with a screen reader.
+            child: Semantics(
+              customSemanticsActions: {
+                CustomSemanticsAction(label: l10n.commonDelete): () =>
+                    _delete(notif),
+              },
+              child: _NotificationTile(
+                notification: notif,
+                onTap: () => _openNotification(notif),
+              ),
             ),
           );
         },
@@ -447,157 +382,199 @@ class _NotificationTile extends StatelessWidget {
   final AppNotification notification;
   final VoidCallback onTap;
 
-  const _NotificationTile({
-    required this.notification,
-    required this.onTap,
-  });
+  const _NotificationTile({required this.notification, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final n = notification;
     final cs = Theme.of(context).colorScheme;
     final ts = Theme.of(context).textTheme;
+    final l10n = context.l10n;
 
     final icon = _iconFor(n.type);
     final color = _colorFor(n, cs);
     final isInvitePending =
         n.type.isInvite && n.inviteStatus == InviteStatus.pending;
 
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        color: n.isRead ? null : cs.primaryContainer.withValues(alpha: 0.18),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              backgroundColor: color.withValues(alpha: 0.15),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            color: n.isRead
+                ? null
+                : cs.primaryContainer.withValues(alpha: 0.18),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ExcludeSemantics(
+                  child: CircleAvatar(
+                    backgroundColor: color.withValues(alpha: 0.15),
+                    child: Icon(icon, color: color, size: 20),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          n.title,
-                          style: ts.bodyMedium?.copyWith(
-                            fontWeight: n.isRead
-                                ? FontWeight.normal
-                                : FontWeight.bold,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              n.title,
+                              style: ts.bodyMedium?.copyWith(
+                                fontWeight: n.isRead
+                                    ? FontWeight.normal
+                                    : FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            _timeAgo(context, n.createdAt),
+                            semanticsLabel: _timeAgoSemantics(
+                              context,
+                              n.createdAt,
+                            ),
+                            style: ts.bodySmall?.copyWith(color: cs.outline),
+                          ),
+                        ],
+                      ),
+                      if (n.body != null && n.body!.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          n.body!,
+                          style: ts.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                      if (isInvitePending) ...[
+                        const SizedBox(height: 6),
+                        Chip(
+                          label: Text(l10n.shellInvitePending),
+                          avatar: const Icon(Icons.pending_outlined, size: 14),
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          backgroundColor: cs.secondaryContainer,
+                          labelStyle: TextStyle(
+                            fontSize: 11,
+                            color: cs.onSecondaryContainer,
                           ),
                         ),
-                      ),
-                      Text(
-                        _timeAgo(n.createdAt),
-                        style: ts.bodySmall?.copyWith(color: cs.outline),
-                      ),
+                      ] else if (n.type.isInvite) ...[
+                        const SizedBox(height: 6),
+                        Chip(
+                          label: Text(
+                            n.inviteStatus == InviteStatus.accepted
+                                ? l10n.shellInviteAccepted
+                                : l10n.shellInviteDeclinedChip,
+                          ),
+                          avatar: Icon(
+                            n.inviteStatus == InviteStatus.accepted
+                                ? Icons.check_circle_outline
+                                : Icons.cancel_outlined,
+                            size: 14,
+                          ),
+                          visualDensity: VisualDensity.compact,
+                          padding: EdgeInsets.zero,
+                          backgroundColor:
+                              n.inviteStatus == InviteStatus.accepted
+                              ? cs.primaryContainer
+                              : cs.errorContainer,
+                          labelStyle: TextStyle(
+                            fontSize: 11,
+                            color: n.inviteStatus == InviteStatus.accepted
+                                ? cs.onPrimaryContainer
+                                : cs.onErrorContainer,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
-                  if (n.body != null && n.body!.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      n.body!,
-                      style: ts.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                  if (isInvitePending) ...[
-                    const SizedBox(height: 6),
-                    Chip(
-                      label: const Text('Pending response'),
-                      avatar: const Icon(Icons.pending_outlined, size: 14),
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      backgroundColor: cs.secondaryContainer,
-                      labelStyle: TextStyle(
-                          fontSize: 11, color: cs.onSecondaryContainer),
-                    ),
-                  ] else if (n.type.isInvite) ...[
-                    const SizedBox(height: 6),
-                    Chip(
-                      label: Text(
-                        n.inviteStatus == InviteStatus.accepted
-                            ? 'Accepted'
-                            : 'Declined',
-                      ),
-                      avatar: Icon(
-                        n.inviteStatus == InviteStatus.accepted
-                            ? Icons.check_circle_outline
-                            : Icons.cancel_outlined,
-                        size: 14,
-                      ),
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      backgroundColor: n.inviteStatus == InviteStatus.accepted
-                          ? cs.primaryContainer
-                          : cs.errorContainer,
-                      labelStyle: TextStyle(
-                        fontSize: 11,
-                        color: n.inviteStatus == InviteStatus.accepted
-                            ? cs.onPrimaryContainer
-                            : cs.onErrorContainer,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            if (!n.isRead) ...[
-              const SizedBox(width: 8),
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: cs.primary,
-                  shape: BoxShape.circle,
                 ),
-              ),
-            ],
-          ],
+                if (!n.isRead) ...[
+                  const SizedBox(width: 8),
+                  Semantics(
+                    label: l10n.shellNotificationUnread,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: cs.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
   IconData _iconFor(NotificationType t) => switch (t) {
-        NotificationType.employeeGymInvite => Icons.fitness_center_outlined,
-        NotificationType.vendorShopInvite => Icons.storefront_outlined,
-        NotificationType.memberInvite => Icons.person_add_alt_outlined,
-        NotificationType.news => Icons.newspaper_outlined,
-        NotificationType.events => Icons.event_outlined,
-        NotificationType.training => Icons.sports_outlined,
-        NotificationType.trainingUpdate => Icons.update_outlined,
-        NotificationType.classReminder => Icons.alarm_outlined,
-        NotificationType.shopItemUpdate => Icons.inventory_2_outlined,
-        NotificationType.purchaseMade => Icons.receipt_outlined,
-        NotificationType.membershipExpiring => Icons.warning_amber_outlined,
-        NotificationType.invoiceIssued => Icons.description_outlined,
-        NotificationType.memberSubscriptionExtended =>
-          Icons.card_membership_outlined,
-        NotificationType.memberJoin => Icons.person_outlined,
-        NotificationType.employeeJoin => Icons.badge_outlined,
-        NotificationType.vendorJoin => Icons.storefront_outlined,
-      };
+    NotificationType.employeeGymInvite => Icons.fitness_center_outlined,
+    NotificationType.vendorShopInvite => Icons.storefront_outlined,
+    NotificationType.memberInvite => Icons.person_add_alt_outlined,
+    NotificationType.news => Icons.newspaper_outlined,
+    NotificationType.events => Icons.event_outlined,
+    NotificationType.training => Icons.sports_outlined,
+    NotificationType.trainingUpdate => Icons.update_outlined,
+    NotificationType.classReminder => Icons.alarm_outlined,
+    NotificationType.shopItemUpdate => Icons.inventory_2_outlined,
+    NotificationType.purchaseMade => Icons.receipt_outlined,
+    NotificationType.membershipExpiring => Icons.warning_amber_outlined,
+    NotificationType.invoiceIssued => Icons.description_outlined,
+    NotificationType.memberSubscriptionExtended =>
+      Icons.card_membership_outlined,
+    NotificationType.memberJoin => Icons.person_outlined,
+    NotificationType.employeeJoin => Icons.badge_outlined,
+    NotificationType.vendorJoin => Icons.storefront_outlined,
+    NotificationType.postComment => Icons.chat_bubble_outline,
+    NotificationType.shiftAssigned => Icons.schedule_outlined,
+    NotificationType.orderUpdate => Icons.local_shipping_outlined,
+    NotificationType.paymentReceived => Icons.payments_outlined,
+    NotificationType.sessionComment => Icons.comment_outlined,
+  };
 
   Color _colorFor(AppNotification n, ColorScheme cs) {
     if (n.type == NotificationType.membershipExpiring) return cs.error;
     if (n.type.isInvite) return cs.primary;
-    if (n.type == NotificationType.purchaseMade) return cs.tertiary;
+    if (n.type == NotificationType.purchaseMade ||
+        n.type == NotificationType.orderUpdate ||
+        n.type == NotificationType.paymentReceived) {
+      return cs.tertiary;
+    }
     return cs.secondary;
   }
 
-  String _timeAgo(DateTime dt) {
+  String _timeAgo(BuildContext context, DateTime dt) {
+    final l10n = context.l10n;
     final diff = DateTime.now().difference(dt);
-    if (diff.inSeconds < 60) return 'now';
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m';
-    if (diff.inHours < 24) return '${diff.inHours}h';
-    if (diff.inDays < 7) return '${diff.inDays}d';
-    return '${dt.day}/${dt.month}';
+    if (diff.inSeconds < 60) return l10n.shellTimeNow;
+    if (diff.inMinutes < 60) return l10n.shellTimeMinutesShort(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.shellTimeHoursShort(diff.inHours);
+    if (diff.inDays < 7) return l10n.shellTimeDaysShort(diff.inDays);
+    return DateFormat.MMMd(
+      Localizations.localeOf(context).toString(),
+    ).format(dt.toLocal());
+  }
+
+  /// Spelled-out version of [_timeAgo] for screen readers.
+  String _timeAgoSemantics(BuildContext context, DateTime dt) {
+    final l10n = context.l10n;
+    final diff = DateTime.now().difference(dt);
+    if (diff.inSeconds < 60) return l10n.shellTimeNow;
+    if (diff.inMinutes < 60) return l10n.shellTimeMinutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.shellTimeHoursAgo(diff.inHours);
+    if (diff.inDays < 7) return l10n.shellTimeDaysAgo(diff.inDays);
+    return _timeAgo(context, dt);
   }
 }

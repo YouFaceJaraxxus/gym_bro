@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
+import 'package:intl/intl.dart';
 import '../../models/training_session.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
@@ -30,8 +32,8 @@ class _TrainerHomePageState extends State<TrainerHomePage> {
         padding: const EdgeInsets.all(24),
         children: [
           HomeHeader(
-            title: 'Welcome, ${widget.profile.name}',
-            subtitle: widget.profile.role.displayName,
+            title: context.l10n.shellWelcome(widget.profile.name),
+            subtitle: widget.profile.role.label(context.l10n),
           ),
           TrainerTodaySection(
             key: ValueKey('trainer-$_refreshTick'),
@@ -76,25 +78,28 @@ class _TrainerTodaySectionState extends State<TrainerTodaySection> {
     try {
       final token = await AuthManager.instance.getValidToken();
       final results = await Future.wait([
-        _api.getTrainingSessions(token,
-            trainerId: widget.profile.id, page: 0, pageSize: 50),
+        _api.getTrainingSessions(
+          token,
+          trainerId: widget.profile.id,
+          page: 0,
+          pageSize: 50,
+        ),
         loadCoachedMembers(_api, token, widget.profile.id),
-        _api.getUsers(token),
       ]);
       final sessions = results[0] as List<TrainingSession>;
       final members = results[1] as List<CoachedMember>;
-      final users = results[2] as List<UserProfile>;
 
       final today = DateUtils.dateOnly(DateTime.now());
-      final todays = sessions
-          .where((s) => DateUtils.isSameDay(s.startedAt.toLocal(), today))
-          .toList()
-        ..sort((a, b) => a.startedAt.compareTo(b.startedAt));
+      final todays =
+          sessions
+              .where((s) => DateUtils.isSameDay(s.startedAt.toLocal(), today))
+              .toList()
+            ..sort((a, b) => a.startedAt.compareTo(b.startedAt));
 
       if (mounted) {
         setState(() {
           _today = todays;
-          _users = {for (final u in users) u.id: u};
+          _users = {for (final m in members) m.user.id: m.user};
           _memberCount = members.map((m) => m.user.id).toSet().length;
           _loading = false;
         });
@@ -109,14 +114,14 @@ class _TrainerTodaySectionState extends State<TrainerTodaySection> {
     }
   }
 
-  String _time(DateTime d) {
-    final l = d.toLocal();
-    return '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
-  }
+  String _time(DateTime d) => DateFormat.Hm(
+    Localizations.localeOf(context).toString(),
+  ).format(d.toLocal());
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     if (_loading) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 32),
@@ -132,25 +137,33 @@ class _TrainerTodaySectionState extends State<TrainerTodaySection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        HomeSectionTitle("Today's sessions",
-            trailing: Text('${_today.length}',
-                style: Theme.of(context).textTheme.titleMedium)),
+        HomeSectionTitle(
+          l10n.shellTodaysSessions,
+          trailing: Text(
+            '${_today.length}',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
         if (_today.isEmpty)
-          const HomeEmpty(
-              icon: Icons.today_outlined, label: 'No sessions with you today')
+          HomeEmpty(
+            icon: Icons.today_outlined,
+            label: l10n.shellNoSessionsToday,
+          )
         else
           for (final s in _today)
             Card(
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
                 leading: Icon(
-                  s.isActive ? Icons.play_circle_outline : Icons.check_circle_outline,
+                  s.isActive
+                      ? Icons.play_circle_outline
+                      : Icons.check_circle_outline,
                   color: s.isActive ? cs.primary : cs.outline,
                 ),
-                title: Text(_users[s.userId]?.fullName ?? 'Member'),
+                title: Text(_users[s.userId]?.fullName ?? l10n.shellRoleMember),
                 subtitle: Text(
                   s.isActive
-                      ? 'Started ${_time(s.startedAt)} · in progress'
+                      ? l10n.shellSessionStartedInProgress(_time(s.startedAt))
                       : '${_time(s.startedAt)} · ${s.durationLabel}',
                 ),
                 trailing: const Icon(Icons.chevron_right),
@@ -158,7 +171,8 @@ class _TrainerTodaySectionState extends State<TrainerTodaySection> {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => SessionDetailPage(sessionId: s.id)),
+                      builder: (_) => SessionDetailPage(sessionId: s.id),
+                    ),
                   );
                   _load();
                 },
@@ -167,12 +181,15 @@ class _TrainerTodaySectionState extends State<TrainerTodaySection> {
         const SizedBox(height: 16),
         StatTile(
           icon: Icons.people_outline,
-          label: 'Members you coach',
+          label: l10n.shellMembersYouCoach,
           value: '$_memberCount',
           color: cs.primaryContainer,
           onTap: () async {
             await pushTabPage<void>(
-                context, 'Members', TrainerMembersPage(profile: widget.profile));
+              context,
+              l10n.shellTabMembers,
+              TrainerMembersPage(profile: widget.profile),
+            );
             _load();
           },
         ),

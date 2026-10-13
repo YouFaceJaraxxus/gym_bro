@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../theme.dart';
 import '../widgets/image_upload_field.dart';
+import 'nutrition/nutrition_widgets.dart';
 
 class RecipeFormPage extends StatefulWidget {
   final Recipe? recipe;
@@ -144,19 +148,19 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Add ${picked.name}'),
+        title: Text(ctx.l10n.nutritionAddNamed(picked.name)),
         content: TextField(
           controller: qtyController,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
-            labelText: 'Quantity (${picked.servingUnit.displayName})',
-            hintText: 'e.g. 150',
+            labelText: ctx.l10n.nutritionLabelWithUnit(ctx.l10n.nutritionQuantity, picked.servingUnit.displayName),
+            hintText: ctx.l10n.nutritionBarcodeExample('150'),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Add')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(ctx.l10n.commonCancel)),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: Text(ctx.l10n.nutritionAdd)),
         ],
       ),
     );
@@ -233,8 +237,12 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
     } catch (e) {
       setState(() => _saving = false);
       if (mounted) {
+        final cs = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(errorText(e), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
+          ),
         );
       }
     }
@@ -245,10 +253,13 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
   @override
   Widget build(BuildContext context) {
     final macros = _computedMacros();
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final macroColors = MacroColors.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Recipe' : 'New Recipe'),
+        title: Text(_isEditing ? l10n.nutritionEditRecipeTitle : l10n.nutritionNewRecipeTitle),
         actions: [
           if (_saving)
             const Padding(
@@ -256,7 +267,7 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
               child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
             )
           else
-            TextButton(onPressed: _save, child: const Text('Save')),
+            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
         ],
       ),
       body: Form(
@@ -265,28 +276,28 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
           padding: const EdgeInsets.all(16),
           children: [
             // ── Basic info ───────────────────────────────────────────────────
-            _SectionHeader('Basic Info'),
+            _SectionHeader(l10n.nutritionBasicInfo),
             const SizedBox(height: 10),
             TextFormField(
               controller: _name,
-              decoration: const InputDecoration(labelText: 'Recipe name *'),
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+              decoration: InputDecoration(labelText: l10n.nutritionRecipeNameRequiredLabel),
+              validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _description,
-              decoration: const InputDecoration(labelText: 'Description'),
+              decoration: InputDecoration(labelText: l10n.nutritionDescription),
               maxLines: 3,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _servings,
-              decoration: const InputDecoration(labelText: 'Servings *'),
+              decoration: InputDecoration(labelText: l10n.nutritionServingsRequiredLabel),
               keyboardType: TextInputType.number,
               onChanged: (_) => setState(() {}),
               validator: (v) {
                 final n = int.tryParse(v?.trim() ?? '');
-                if (n == null || n < 1) return 'Enter a valid number';
+                if (n == null || n < 1) return l10n.nutritionEnterValidNumber;
                 return null;
               },
             ),
@@ -296,7 +307,7 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
                 Expanded(
                   child: TextFormField(
                     controller: _prepTime,
-                    decoration: const InputDecoration(labelText: 'Prep (min)'),
+                    decoration: InputDecoration(labelText: l10n.nutritionPrepMinLabel),
                     keyboardType: TextInputType.number,
                   ),
                 ),
@@ -304,7 +315,7 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
                 Expanded(
                   child: TextFormField(
                     controller: _cookTime,
-                    decoration: const InputDecoration(labelText: 'Cook (min)'),
+                    decoration: InputDecoration(labelText: l10n.nutritionCookMinLabel),
                     keyboardType: TextInputType.number,
                   ),
                 ),
@@ -312,8 +323,8 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
             ),
             const SizedBox(height: 8),
             SwitchListTile(
-              title: const Text('Public'),
-              subtitle: const Text('Visible to all users'),
+              title: Text(l10n.nutritionPublic),
+              subtitle: Text(l10n.nutritionVisibleToAllUsers),
               value: _isPublic,
               onChanged: (v) => setState(() => _isPublic = v),
               contentPadding: EdgeInsets.zero,
@@ -321,7 +332,7 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
             const SizedBox(height: 24),
 
             // ── Images ───────────────────────────────────────────────────────
-            _SectionHeader('Images'),
+            _SectionHeader(l10n.nutritionImages),
             const SizedBox(height: 10),
             ..._images.asMap().entries.map((e) {
               final i = e.key;
@@ -337,36 +348,34 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
                       Expanded(
                         child: TextFormField(
                           controller: img.urlController,
-                          decoration: const InputDecoration(labelText: 'Image URL', border: InputBorder.none),
+                          decoration: InputDecoration(labelText: l10n.nutritionImageUrl, border: InputBorder.none),
                           keyboardType: TextInputType.url,
                         ),
                       ),
-                      Tooltip(
-                        message: 'Upload photo',
-                        child: IconButton(
-                          icon: const Icon(Icons.upload_outlined),
-                          onPressed: () => pickAndUploadImage(
-                            context: context,
-                            bucket: 'media',
-                            folder: 'recipes',
-                            onUploaded: (url) => setState(() => img.urlController.text = url),
-                            onUploadingChanged: (_) {},
-                          ),
+                      IconButton(
+                        tooltip: l10n.nutritionUploadPhoto,
+                        icon: const Icon(Icons.upload_outlined),
+                        onPressed: () => pickAndUploadImage(
+                          context: context,
+                          bucket: 'media',
+                          folder: 'recipes',
+                          onUploaded: (url) => setState(() => img.urlController.text = url),
+                          onUploadingChanged: (_) {},
                         ),
                       ),
                       // Thumbnail selector
-                      Tooltip(
-                        message: 'Set as thumbnail',
-                        child: IconButton(
-                          icon: Icon(
-                            img.isThumbnail ? Icons.star : Icons.star_border,
-                            color: img.isThumbnail ? Colors.amber : Colors.grey,
-                          ),
-                          onPressed: () => _setThumbnail(i),
+                      IconButton(
+                        tooltip: img.isThumbnail ? l10n.nutritionThumbnail : l10n.nutritionSetAsThumbnail,
+                        isSelected: img.isThumbnail,
+                        icon: Icon(
+                          img.isThumbnail ? Icons.star : Icons.star_border,
+                          color: img.isThumbnail ? context.appColors.warning : cs.onSurfaceVariant,
                         ),
+                        onPressed: () => _setThumbnail(i),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
+                        tooltip: l10n.nutritionRemoveImage,
+                        icon: Icon(Icons.close, color: cs.error),
                         onPressed: () => setState(() {
                           _images[i].dispose();
                           _images.removeAt(i);
@@ -383,19 +392,19 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
                     isThumbnail: _images.isEmpty,
                   ))),
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add image'),
+              label: Text(l10n.nutritionAddImage),
             ),
             const SizedBox(height: 24),
 
             // ── Ingredients ─────────────────────────────────────────────────
-            _SectionHeader('Ingredients'),
+            _SectionHeader(l10n.nutritionIngredients),
             const SizedBox(height: 10),
             if (_ingredients.isEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'No ingredients added yet',
-                  style: TextStyle(color: Colors.grey.shade500, fontStyle: FontStyle.italic),
+                  l10n.nutritionNoIngredientsYet,
+                  style: TextStyle(color: cs.onSurfaceVariant, fontStyle: FontStyle.italic),
                 ),
               )
             else
@@ -427,19 +436,19 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
             TextButton.icon(
               onPressed: _openFoodPicker,
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add ingredient'),
+              label: Text(l10n.nutritionAddIngredient),
             ),
             const SizedBox(height: 24),
 
             // ── Steps ────────────────────────────────────────────────────────
-            _SectionHeader('Steps'),
+            _SectionHeader(l10n.nutritionSteps),
             const SizedBox(height: 10),
             if (_steps.isEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
-                  'No steps added yet',
-                  style: TextStyle(color: Colors.grey.shade500, fontStyle: FontStyle.italic),
+                  l10n.nutritionNoStepsYet,
+                  style: TextStyle(color: cs.onSurfaceVariant, fontStyle: FontStyle.italic),
                 ),
               )
             else
@@ -473,12 +482,12 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
                     imageUrlController: TextEditingController(),
                   ))),
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add step'),
+              label: Text(l10n.nutritionAddStep),
             ),
             const SizedBox(height: 24),
 
             // ── Videos ───────────────────────────────────────────────────────
-            _SectionHeader('Videos'),
+            _SectionHeader(l10n.nutritionVideos),
             const SizedBox(height: 10),
             ..._videos.asMap().entries.map((e) {
               final i = e.key;
@@ -496,18 +505,19 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
                           children: [
                             TextFormField(
                               controller: v.urlController,
-                              decoration: const InputDecoration(labelText: 'Video URL', border: InputBorder.none),
+                              decoration: InputDecoration(labelText: l10n.nutritionVideoUrl, border: InputBorder.none),
                               keyboardType: TextInputType.url,
                             ),
                             TextFormField(
                               controller: v.titleController,
-                              decoration: const InputDecoration(labelText: 'Title (optional)', border: InputBorder.none),
+                              decoration: InputDecoration(labelText: l10n.nutritionTitleOptional, border: InputBorder.none),
                             ),
                           ],
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.red),
+                        tooltip: l10n.nutritionRemoveVideo,
+                        icon: Icon(Icons.close, color: cs.error),
                         onPressed: () => setState(() {
                           _videos[i].dispose();
                           _videos.removeAt(i);
@@ -524,22 +534,22 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
                     titleController: TextEditingController(),
                   ))),
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add video'),
+              label: Text(l10n.nutritionAddVideo),
             ),
             const SizedBox(height: 24),
 
             // ── Macro summary ────────────────────────────────────────────────
-            _SectionHeader('Computed per serving'),
+            _SectionHeader(l10n.nutritionComputedPerServing),
             const SizedBox(height: 10),
             Row(
               children: [
-                Expanded(child: _MacroReadout(label: 'Kcal', value: macros.kcal, color: Colors.orange.shade600)),
+                Expanded(child: _MacroReadout(label: l10n.nutritionKcal, value: macros.kcal, color: macroColors.kcal)),
                 const SizedBox(width: 6),
-                Expanded(child: _MacroReadout(label: 'Protein', value: macros.protein, color: Colors.blue.shade600, unit: 'g')),
+                Expanded(child: _MacroReadout(label: l10n.nutritionProtein, value: macros.protein, color: macroColors.protein, unit: 'g')),
                 const SizedBox(width: 6),
-                Expanded(child: _MacroReadout(label: 'Carbs', value: macros.carb, color: Colors.amber.shade700, unit: 'g')),
+                Expanded(child: _MacroReadout(label: l10n.nutritionCarbsShort, value: macros.carb, color: macroColors.carb, unit: 'g')),
                 const SizedBox(width: 6),
-                Expanded(child: _MacroReadout(label: 'Fat', value: macros.fat, color: Colors.red.shade400, unit: 'g')),
+                Expanded(child: _MacroReadout(label: l10n.nutritionFat, value: macros.fat, color: macroColors.fat, unit: 'g')),
               ],
             ),
             const SizedBox(height: 40),
@@ -626,6 +636,8 @@ class _IngredientTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -636,9 +648,9 @@ class _IngredientTile extends StatelessWidget {
           children: [
             ReorderableDragStartListener(
               index: index,
-              child: const Padding(
-                padding: EdgeInsets.only(top: 14, left: 4, right: 4),
-                child: Icon(Icons.drag_handle, color: Colors.grey),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 14, left: 4, right: 4),
+                child: Icon(Icons.drag_handle, color: cs.onSurfaceVariant, semanticLabel: l10n.nutritionDragToReorder),
               ),
             ),
             Expanded(
@@ -652,7 +664,7 @@ class _IngredientTile extends StatelessWidget {
                         child: TextField(
                           controller: draft.quantityController,
                           decoration: InputDecoration(
-                            labelText: 'Qty (${draft.servingUnit.displayName})',
+                            labelText: l10n.nutritionLabelWithUnit(l10n.nutritionQtyShort, draft.servingUnit.displayName),
                             border: InputBorder.none,
                             isDense: true,
                           ),
@@ -664,8 +676,8 @@ class _IngredientTile extends StatelessWidget {
                       Expanded(
                         child: TextField(
                           controller: draft.noteController,
-                          decoration: const InputDecoration(
-                            labelText: 'Note (optional)',
+                          decoration: InputDecoration(
+                            labelText: l10n.nutritionNoteOptional,
                             border: InputBorder.none,
                             isDense: true,
                           ),
@@ -677,7 +689,8 @@ class _IngredientTile extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.close, color: Colors.red, size: 20),
+              tooltip: l10n.nutritionRemoveIngredient,
+              icon: Icon(Icons.close, color: cs.error, size: 20),
               onPressed: onRemove,
             ),
           ],
@@ -701,6 +714,8 @@ class _StepTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -711,20 +726,20 @@ class _StepTile extends StatelessWidget {
           children: [
             ReorderableDragStartListener(
               index: stepNumber - 1,
-              child: const Padding(
-                padding: EdgeInsets.only(top: 14, left: 4, right: 4),
-                child: Icon(Icons.drag_handle, color: Colors.grey),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 14, left: 4, right: 4),
+                child: Icon(Icons.drag_handle, color: cs.onSurfaceVariant, semanticLabel: l10n.nutritionDragToReorder),
               ),
             ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Step $stepNumber', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: Colors.grey)),
+                  Text(l10n.nutritionStepNumber(stepNumber), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: cs.onSurfaceVariant)),
                   TextField(
                     controller: draft.instructionController,
-                    decoration: const InputDecoration(
-                      hintText: 'Instruction…',
+                    decoration: InputDecoration(
+                      hintText: l10n.nutritionInstructionHint,
                       border: InputBorder.none,
                       isDense: true,
                     ),
@@ -733,8 +748,8 @@ class _StepTile extends StatelessWidget {
                   ),
                   TextField(
                     controller: draft.imageUrlController,
-                    decoration: const InputDecoration(
-                      labelText: 'Step image URL (optional)',
+                    decoration: InputDecoration(
+                      labelText: l10n.nutritionStepImageUrlOptional,
                       border: InputBorder.none,
                       isDense: true,
                     ),
@@ -744,7 +759,8 @@ class _StepTile extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.close, color: Colors.red, size: 20),
+              tooltip: l10n.nutritionRemoveStep,
+              icon: Icon(Icons.close, color: cs.error, size: 20),
               onPressed: onRemove,
             ),
           ],
@@ -801,6 +817,8 @@ class _FoodPickerSheetState extends State<_FoodPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.65,
@@ -812,7 +830,7 @@ class _FoodPickerSheetState extends State<_FoodPickerSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: cs.outlineVariant,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -822,7 +840,7 @@ class _FoodPickerSheetState extends State<_FoodPickerSheet> {
               controller: _search,
               autofocus: false,
               decoration: InputDecoration(
-                hintText: 'Search food items…',
+                hintText: l10n.nutritionSearchFoodItemsHint,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
@@ -835,7 +853,7 @@ class _FoodPickerSheetState extends State<_FoodPickerSheet> {
           else if (_items.isEmpty)
             Expanded(
               child: Center(
-                child: Text('No results', style: TextStyle(color: Colors.grey.shade500)),
+                child: Text(l10n.nutritionNoResults, style: TextStyle(color: cs.onSurfaceVariant)),
               ),
             )
           else
@@ -848,12 +866,12 @@ class _FoodPickerSheetState extends State<_FoodPickerSheet> {
                   return ListTile(
                     title: Text(item.name),
                     subtitle: Text(
-                      [if (item.brand != null) item.brand!, item.subtypeLabel].join(' · '),
+                      [if (item.brand != null) item.brand!, item.subtypeLabel(l10n)].join(' · '),
                       style: const TextStyle(fontSize: 12),
                     ),
                     trailing: Text(
-                      item.servingUnitLabel,
-                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                      item.servingUnitLabel(l10n),
+                      style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
                     ),
                     onTap: () => Navigator.pop(context, item),
                   );
@@ -893,8 +911,9 @@ class _MacroReadout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final display = value < 0.1 ? '0' : value.toStringAsFixed(1);
-    return Container(
+    final display = value < 0.1 ? '0' : NumberFormat('0.0', Localizations.localeOf(context).toString()).format(value);
+    return MergeSemantics(
+      child: Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
@@ -910,6 +929,7 @@ class _MacroReadout extends StatelessWidget {
           const SizedBox(height: 2),
           Text(label, style: TextStyle(fontSize: 10, color: color.withValues(alpha: 0.8))),
         ],
+      ),
       ),
     );
   }

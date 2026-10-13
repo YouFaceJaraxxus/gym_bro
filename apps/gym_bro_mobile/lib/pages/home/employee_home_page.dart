@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../models/business.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../widgets/my_shifts_card.dart';
+import '../checkin/check_in_scanner_page.dart';
 import '../gym_members_page.dart';
 import '../invoices_page.dart';
 import 'home_widgets.dart';
@@ -30,9 +33,11 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
         padding: const EdgeInsets.all(24),
         children: [
           HomeHeader(
-            title: 'Hello, ${widget.profile.name}',
-            subtitle: widget.profile.role.displayName,
+            title: context.l10n.shellHello(widget.profile.name),
+            subtitle: widget.profile.role.label(context.l10n),
           ),
+          MyShiftsCard(key: ValueKey('shifts-$_refreshTick')),
+          const SizedBox(height: 8),
           StaffGymsSection(
             key: ValueKey('gyms-$_refreshTick'),
             profile: widget.profile,
@@ -125,11 +130,16 @@ class _StaffGymsSectionState extends State<StaffGymsSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        HomeSectionTitle(_gyms.length == 1 ? 'Your gym' : 'Your gyms'),
+        HomeSectionTitle(
+          _gyms.length == 1
+              ? context.l10n.shellYourGym
+              : context.l10n.shellYourGyms,
+        ),
         if (_gyms.isEmpty)
-          const HomeEmpty(
-              icon: Icons.fitness_center_outlined,
-              label: 'Not assigned to any gym yet')
+          HomeEmpty(
+            icon: Icons.fitness_center_outlined,
+            label: context.l10n.shellNotAssignedToGym,
+          )
         else
           for (final entry in _gyms)
             Card(
@@ -141,20 +151,28 @@ class _StaffGymsSectionState extends State<StaffGymsSection> {
                   children: [
                     Row(
                       children: [
-                        CircleAvatar(
-                          backgroundColor: cs.primaryContainer,
-                          child: Icon(Icons.fitness_center,
-                              color: cs.onPrimaryContainer),
+                        ExcludeSemantics(
+                          child: CircleAvatar(
+                            backgroundColor: cs.primaryContainer,
+                            child: Icon(
+                              Icons.fitness_center,
+                              color: cs.onPrimaryContainer,
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(entry.gym.name,
-                                  style: Theme.of(context).textTheme.titleMedium),
                               Text(
-                                '${entry.memberCount} member${entry.memberCount == 1 ? '' : 's'}',
+                                entry.gym.name,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              Text(
+                                context.l10n.shellMemberCount(
+                                  entry.memberCount,
+                                ),
                                 style: TextStyle(color: cs.onSurfaceVariant),
                               ),
                             ],
@@ -172,14 +190,15 @@ class _StaffGymsSectionState extends State<StaffGymsSection> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => GymMembersPage(
-                                      gymId: entry.gym.id,
-                                      gymName: entry.gym.name),
+                                    gymId: entry.gym.id,
+                                    gymName: entry.gym.name,
+                                  ),
                                 ),
                               );
                               _load();
                             },
                             icon: const Icon(Icons.people_outline, size: 18),
-                            label: const Text('Members'),
+                            label: Text(context.l10n.shellTabMembers),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -189,16 +208,36 @@ class _StaffGymsSectionState extends State<StaffGymsSection> {
                               context,
                               MaterialPageRoute(
                                 builder: (_) => InvoicesPage(
-                                    gymId: entry.gym.id,
-                                    gymName: entry.gym.name),
+                                  gymId: entry.gym.id,
+                                  gymName: entry.gym.name,
+                                ),
                               ),
                             ),
-                            icon: const Icon(Icons.receipt_long_outlined,
-                                size: 18),
-                            label: const Text('Invoices'),
+                            icon: const Icon(
+                              Icons.receipt_long_outlined,
+                              size: 18,
+                            ),
+                            label: Text(context.l10n.shellInvoices),
                           ),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.tonalIcon(
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CheckInScannerPage(
+                              gymId: entry.gym.id,
+                              gymName: entry.gym.name,
+                            ),
+                          ),
+                        ),
+                        icon: const Icon(Icons.qr_code_scanner, size: 18),
+                        label: Text(context.l10n.shellScanCheckIns),
+                      ),
                     ),
                   ],
                 ),

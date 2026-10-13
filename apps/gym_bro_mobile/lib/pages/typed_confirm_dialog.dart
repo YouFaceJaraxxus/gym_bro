@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 // ── Typed confirmation dialog ─────────────────────────────────────────────────
 
@@ -43,7 +44,7 @@ class _TypedConfirmDialogState extends State<TypedConfirmDialog> {
         children: [
           Text(widget.message),
           const SizedBox(height: 16),
-          Text('Type ${widget.confirmText} to confirm.'),
+          Text(context.l10n.shellTypeToConfirm(widget.confirmText)),
           const SizedBox(height: 8),
           TextField(
             controller: _ctrl,
@@ -56,7 +57,7 @@ class _TypedConfirmDialogState extends State<TypedConfirmDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.commonCancel),
         ),
         FilledButton(
           style: FilledButton.styleFrom(

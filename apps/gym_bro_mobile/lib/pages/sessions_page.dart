@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
 import '../models/training_session.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../theme.dart';
 import 'session_detail_page.dart';
+import 'progress/progress_page.dart';
 import 'session_log_page.dart';
 
 class SessionsPage extends StatefulWidget {
@@ -70,8 +74,22 @@ class _SessionsPageState extends State<SessionsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(_isTrainerView ? 'Classes' : 'Sessions')),
+      appBar: AppBar(
+        title: Text(_isTrainerView ? l10n.trainingSessionsClassesTitle : l10n.trainingSessionsTitle),
+        actions: [
+          if (!_isTrainerView)
+            IconButton(
+              tooltip: l10n.trainingSessionsMyProgress,
+              icon: const Icon(Icons.insights_outlined),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProgressPage()),
+              ),
+            ),
+        ],
+      ),
       floatingActionButton: _isTrainerView
           ? null
           : FloatingActionButton.extended(
@@ -83,13 +101,15 @@ class _SessionsPageState extends State<SessionsPage> {
                 if (result == true) _load(reset: true);
               },
               icon: const Icon(Icons.play_arrow),
-              label: const Text('New Session'),
+              label: Text(l10n.trainingSessionsNew),
             ),
       body: _buildBody(),
     );
   }
 
   Widget _buildBody() {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     if (_loading && _sessions.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -98,9 +118,9 @@ class _SessionsPageState extends State<SessionsPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_error!, style: const TextStyle(color: Colors.red)),
+            Text(_error!, style: TextStyle(color: cs.error)),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: () => _load(reset: true), child: const Text('Retry')),
+            ElevatedButton(onPressed: () => _load(reset: true), child: Text(l10n.commonRetry)),
           ],
         ),
       );
@@ -110,18 +130,19 @@ class _SessionsPageState extends State<SessionsPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.fitness_center, size: 64, color: Colors.grey),
+            Icon(Icons.fitness_center, size: 64, color: cs.onSurfaceVariant),
             const SizedBox(height: 16),
             Text(
-              _isTrainerView ? 'No classes yet' : 'No sessions yet',
-              style: const TextStyle(fontSize: 18, color: Colors.grey),
+              _isTrainerView ? l10n.trainingSessionsNoClasses : l10n.trainingSessionsEmpty,
+              style: TextStyle(fontSize: 18, color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 8),
             Text(
               _isTrainerView
-                  ? 'Sessions you run for members will show up here'
-                  : 'Tap + to start your first workout',
-              style: const TextStyle(color: Colors.grey),
+                  ? l10n.trainingSessionsNoClassesHint
+                  : l10n.trainingSessionsEmptyHint,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: cs.onSurfaceVariant),
             ),
           ],
         ),
@@ -173,7 +194,10 @@ class _SessionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateStr = _formatDate(session.startedAt);
+    final cs = Theme.of(context).colorScheme;
+    final appColors = context.appColors;
+    final l10n = context.l10n;
+    final dateStr = _formatDate(session.startedAt.toLocal(), l10n, Localizations.localeOf(context).toString());
     final duration = session.durationLabel;
 
     return Card(
@@ -182,17 +206,15 @@ class _SessionCard extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         leading: CircleAvatar(
-          backgroundColor: session.isActive
-              ? Colors.green.shade100
-              : Theme.of(context).colorScheme.primaryContainer,
+          backgroundColor: session.isActive ? appColors.successContainer : cs.primaryContainer,
           child: Icon(
             session.isActive ? Icons.radio_button_checked : Icons.fitness_center,
-            color: session.isActive ? Colors.green : null,
+            color: session.isActive ? appColors.onSuccessContainer : cs.onPrimaryContainer,
             size: 20,
           ),
         ),
         title: Text(
-          session.trainingId != null ? 'Training Session' : 'Free Session',
+          session.trainingId != null ? l10n.trainingSessionPlanned : l10n.trainingSessionFree,
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Column(
@@ -200,25 +222,38 @@ class _SessionCard extends StatelessWidget {
           children: [
             Text(dateStr, style: const TextStyle(fontSize: 12)),
             if (session.isActive)
-              const Text('In progress…', style: TextStyle(color: Colors.green, fontSize: 12))
+              Text(l10n.trainingSessionInProgress,
+                  style: TextStyle(color: appColors.success, fontSize: 12))
             else
-              Text(duration, style: const TextStyle(fontSize: 12)),
+              Text(duration,
+                  semanticsLabel: l10n.trainingSessionDurationSemantics(duration),
+                  style: const TextStyle(fontSize: 12)),
           ],
         ),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: session.commentCount > 0
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.forum_outlined, size: 16, color: cs.onSurfaceVariant),
+                  const SizedBox(width: 4),
+                  Text('${session.commentCount}',
+                      semanticsLabel: l10n.trainingSessionCommentCount(session.commentCount),
+                      style: TextStyle(color: cs.onSurfaceVariant)),
+                  const Icon(Icons.chevron_right),
+                ],
+              )
+            : const Icon(Icons.chevron_right),
         onTap: onTap,
       ),
     );
   }
 
-  String _formatDate(DateTime dt) {
+  String _formatDate(DateTime dt, AppLocalizations l10n, String locale) {
     final now = DateTime.now();
     final diff = now.difference(dt);
-    if (diff.inDays == 0) return 'Today ${_time(dt)}';
-    if (diff.inDays == 1) return 'Yesterday ${_time(dt)}';
-    return '${dt.day}/${dt.month}/${dt.year} ${_time(dt)}';
+    final time = DateFormat.Hm(locale).format(dt);
+    if (diff.inDays == 0) return l10n.trainingSessionTodayAt(time);
+    if (diff.inDays == 1) return l10n.trainingSessionYesterdayAt(time);
+    return '${DateFormat.yMMMd(locale).format(dt)} $time';
   }
-
-  String _time(DateTime dt) =>
-      '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 }

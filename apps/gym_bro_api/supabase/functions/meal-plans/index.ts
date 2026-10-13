@@ -3,7 +3,6 @@ import { db } from "../_shared/config.ts";
 import {
   type Caller,
   canEditAuthored,
-  coachesUser,
   forbidden,
   isSuperUser,
   json,
@@ -17,6 +16,7 @@ import type {
   MealPlanImageInsert,
   MealPlanDayInsert,
 } from "../../types/schema/public.ts";
+import { callerHasAssignedAccessToMealPlan } from "../_shared/nutrition.ts";
 
 const MEAL_PLAN_COLS = [
   "id",
@@ -62,30 +62,6 @@ async function optionalCaller(req: Request): Promise<Caller | null> {
 function canEdit(caller: Caller, row: { author_id: string | null; is_system: boolean }): boolean {
   if (row.is_system && !isSuperUser(caller)) return false;
   return canEditAuthored(caller, row.author_id);
-}
-
-/**
- * True when the caller was assigned one of these meal plans, or coaches
- * someone who was. Grants read access to private plans and the daily plans,
- * recipes and food items they reference.
- */
-async function callerHasAssignedAccessToMealPlan(
-  caller: Caller,
-  mealPlanId: string | string[],
-): Promise<boolean> {
-  const ids = [...new Set(Array.isArray(mealPlanId) ? mealPlanId : [mealPlanId])];
-  if (!ids.length) return false;
-  const rows = await db
-    .selectFrom("meal_plan_assignment")
-    .select("user_id")
-    .where("meal_plan_id", "in", ids)
-    .execute();
-  const targets = [...new Set(rows.map((r) => r.user_id))];
-  if (targets.includes(caller.id)) return true;
-  for (const target of targets) {
-    if (await coachesUser(caller, target)) return true;
-  }
-  return false;
 }
 
 // ── Path parsing ──────────────────────────────────────────────────────────────

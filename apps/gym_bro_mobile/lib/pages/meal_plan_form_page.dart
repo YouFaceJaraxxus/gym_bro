@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../theme.dart';
 import '../widgets/image_upload_field.dart';
+import 'nutrition/nutrition_widgets.dart';
 
 class MealPlanFormPage extends StatefulWidget {
   final MealPlan? plan;
@@ -31,8 +34,6 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
   final Map<(int, int), _DayDraft> _schedule = {};
 
   bool get _isEditing => widget.plan != null;
-
-  static const _dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   @override
   void initState() {
@@ -163,8 +164,12 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
     } catch (e) {
       setState(() => _saving = false);
       if (mounted) {
+        final cs = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(errorText(e), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
+          ),
         );
       }
     }
@@ -172,9 +177,12 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final locale = Localizations.localeOf(context).toString();
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Meal Plan' : 'New Meal Plan'),
+        title: Text(_isEditing ? l10n.nutritionEditMealPlanTitle : l10n.nutritionNewMealPlanTitle),
         actions: [
           if (_saving)
             const Padding(
@@ -186,7 +194,7 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
               ),
             )
           else
-            TextButton(onPressed: _save, child: const Text('Save')),
+            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
         ],
       ),
       body: Form(
@@ -197,28 +205,26 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
             // ── Basic ─────────────────────────────────────────────────────
             TextFormField(
               controller: _name,
-              decoration: const InputDecoration(labelText: 'Name *'),
+              decoration: InputDecoration(labelText: l10n.nutritionNameRequiredLabel),
               validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Required' : null,
+                  (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _description,
-              decoration: const InputDecoration(labelText: 'Description'),
+              decoration: InputDecoration(labelText: l10n.nutritionDescription),
               maxLines: 3,
             ),
             const SizedBox(height: 20),
 
             // numWeeks segmented button
-            const Text('Duration',
-                style: TextStyle(fontSize: 13, color: Colors.grey)),
+            Text(l10n.nutritionDuration,
+                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
             const SizedBox(height: 8),
             SegmentedButton<int>(
-              segments: const [
-                ButtonSegment(value: 1, label: Text('1 wk')),
-                ButtonSegment(value: 2, label: Text('2 wks')),
-                ButtonSegment(value: 3, label: Text('3 wks')),
-                ButtonSegment(value: 4, label: Text('4 wks')),
+              segments: [
+                for (final w in const [1, 2, 3, 4])
+                  ButtonSegment(value: w, label: Text(l10n.nutritionWeeksShort(w))),
               ],
               selected: {_numWeeks},
               onSelectionChanged: (s) {
@@ -227,8 +233,8 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
             ),
             const SizedBox(height: 8),
             SwitchListTile(
-              title: const Text('Public'),
-              subtitle: const Text('Visible to all users'),
+              title: Text(l10n.nutritionPublic),
+              subtitle: Text(l10n.nutritionVisibleToAllUsers),
               value: _isPublic,
               onChanged: (v) => setState(() => _isPublic = v),
               contentPadding: EdgeInsets.zero,
@@ -236,9 +242,9 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
 
             // ── Images ────────────────────────────────────────────────────
             const SizedBox(height: 20),
-            const Text('Images',
+            Text(l10n.nutritionImages,
                 style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             ..._images.asMap().entries.map((entry) {
               final i = entry.key;
@@ -254,15 +260,15 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
                       Expanded(
                         child: TextField(
                           controller: img.urlController,
-                          decoration: const InputDecoration(
-                            hintText: 'Image URL',
+                          decoration: InputDecoration(
+                            hintText: l10n.nutritionImageUrl,
                             border: InputBorder.none,
                             isDense: true,
                           ),
                         ),
                       ),
                       IconButton(
-                        tooltip: 'Upload photo',
+                        tooltip: l10n.nutritionUploadPhoto,
                         icon: const Icon(Icons.upload_outlined, size: 20),
                         onPressed: () => pickAndUploadImage(
                           context: context,
@@ -274,22 +280,24 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
                       ),
                       IconButton(
                         tooltip: img.isThumbnail
-                            ? 'Thumbnail'
-                            : 'Set as thumbnail',
+                            ? l10n.nutritionThumbnail
+                            : l10n.nutritionSetAsThumbnail,
+                        isSelected: img.isThumbnail,
                         icon: Icon(
                           img.isThumbnail
                               ? Icons.star
                               : Icons.star_border_outlined,
                           color: img.isThumbnail
-                              ? Colors.amber
-                              : Colors.grey,
+                              ? context.appColors.warning
+                              : cs.onSurfaceVariant,
                           size: 20,
                         ),
                         onPressed: () => _setThumbnail(i),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close,
-                            size: 18, color: Colors.red),
+                        tooltip: l10n.nutritionRemoveImage,
+                        icon: Icon(Icons.close,
+                            size: 18, color: cs.error),
                         onPressed: () => _removeImage(i),
                       ),
                     ],
@@ -300,14 +308,14 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
             OutlinedButton.icon(
               onPressed: _addImage,
               icon: const Icon(Icons.add),
-              label: const Text('Add image'),
+              label: Text(l10n.nutritionAddImage),
             ),
 
             // ── Schedule ──────────────────────────────────────────────────
             const SizedBox(height: 24),
-            const Text('Schedule',
+            Text(l10n.nutritionSchedule,
                 style:
-                    TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             ...List.generate(_numWeeks, (wi) {
               final weekNum = wi + 1;
@@ -316,12 +324,12 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14)),
                 child: ExpansionTile(
-                  title: Text('Week $weekNum',
+                  title: Text(l10n.nutritionWeekNumber(weekNum),
                       style:
                           const TextStyle(fontWeight: FontWeight.w600)),
                   children: List.generate(7, (di) {
                     final dayOfWeek = di + 1;
-                    final label = _dayLabels[di];
+                    final label = shortWeekdayName(dayOfWeek, locale);
                     final draft = _schedule[(weekNum, dayOfWeek)];
                     return ListTile(
                       dense: true,
@@ -334,9 +342,11 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
                       ),
                       title: draft?.dailyMealPlanName != null
                           ? Text(draft!.dailyMealPlanName!)
-                          : const Text('Unassigned',
-                              style: TextStyle(color: Colors.grey)),
+                          : Text(l10n.nutritionUnassigned,
+                              style: TextStyle(color: cs.onSurfaceVariant)),
                       trailing: IconButton(
+                        tooltip: l10n.nutritionChooseDailyPlanFor(
+                            l10n.nutritionWeekNumber(weekNum), label),
                         icon: const Icon(Icons.edit_outlined, size: 18),
                         onPressed: () =>
                             _pickDailyPlan(weekNum, dayOfWeek),
@@ -429,6 +439,8 @@ class _DailyPlanPickerSheetState extends State<_DailyPlanPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.75,
@@ -440,7 +452,7 @@ class _DailyPlanPickerSheetState extends State<_DailyPlanPickerSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: cs.outlineVariant,
                 borderRadius: BorderRadius.circular(2)),
           ),
           Padding(
@@ -449,7 +461,7 @@ class _DailyPlanPickerSheetState extends State<_DailyPlanPickerSheet> {
               controller: _search,
               autofocus: true,
               decoration: InputDecoration(
-                hintText: 'Search daily plans…',
+                hintText: l10n.nutritionSearchDailyPlansHint,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12)),
@@ -461,9 +473,9 @@ class _DailyPlanPickerSheetState extends State<_DailyPlanPickerSheet> {
           ),
           // Clear option
           ListTile(
-            leading: const Icon(Icons.block_outlined, color: Colors.grey),
-            title: const Text('Clear / Unassign',
-                style: TextStyle(color: Colors.grey)),
+            leading: Icon(Icons.block_outlined, color: cs.onSurfaceVariant),
+            title: Text(l10n.nutritionClearUnassign,
+                style: TextStyle(color: cs.onSurfaceVariant)),
             onTap: () => Navigator.pop(
                 context, const _DailyPlanPickResult(clear: true)),
           ),
@@ -481,10 +493,8 @@ class _DailyPlanPickerSheetState extends State<_DailyPlanPickerSheet> {
                     leading: const Icon(Icons.restaurant_menu_outlined),
                     title: Text(plan.name),
                     subtitle: Text(
-                      '${plan.kcalTotal.round()} kcal · '
-                      'P ${plan.proteinTotal.round()}g · '
-                      'C ${plan.carbTotal.round()}g · '
-                      'F ${plan.fatTotal.round()}g',
+                      '${l10n.nutritionKcalValue(plan.kcalTotal.round())} · '
+                      '${l10n.nutritionPcfGrams(plan.proteinTotal.round(), plan.carbTotal.round(), plan.fatTotal.round())}',
                       style: const TextStyle(fontSize: 11),
                     ),
                     onTap: () => Navigator.pop(

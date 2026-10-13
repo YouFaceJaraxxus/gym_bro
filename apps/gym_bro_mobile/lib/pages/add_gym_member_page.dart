@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/user_profile.dart';
+import '../l10n/l10n.dart';
+import '../models/user_search_result.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/user_search_field.dart';
 
 class AddGymMemberPage extends StatefulWidget {
   const AddGymMemberPage({super.key, required this.gymId});
@@ -14,10 +16,9 @@ class AddGymMemberPage extends StatefulWidget {
 
 class _AddGymMemberPageState extends State<AddGymMemberPage> {
   final _api = ApiService();
-  final _searchCtrl = TextEditingController();
 
-  List<UserProfile> _available = [];
-  List<UserProfile> _filtered = [];
+  /// User ids already members here, hidden from the search results.
+  Set<String> _memberUserIds = {};
   bool _loading = true;
   String? _error;
   String? _adding; // user id currently being added
@@ -26,13 +27,6 @@ class _AddGymMemberPageState extends State<AddGymMemberPage> {
   void initState() {
     super.initState();
     _load();
-    _searchCtrl.addListener(_filter);
-  }
-
-  @override
-  void dispose() {
-    _searchCtrl.dispose();
-    super.dispose();
   }
 
   Future<void> _load() async {
@@ -42,21 +36,11 @@ class _AddGymMemberPageState extends State<AddGymMemberPage> {
     });
     try {
       final token = await AuthManager.instance.getValidToken();
-      final results = await Future.wait([
-        _api.getUsers(token),
-        _api.getMembers(token, gymId: widget.gymId),
-      ]);
-      final allUsers = results[0] as List<UserProfile>;
-      final memberRows = results[1] as List<Map<String, dynamic>>;
-      final memberUserIds =
-          memberRows.map((r) => r['user_id'] as String).toSet();
-
+      final memberRows = await _api.getMembers(token, gymId: widget.gymId);
       if (mounted) {
         setState(() {
-          _available = allUsers
-              .where((u) => !memberUserIds.contains(u.id))
-              .toList();
-          _filtered = List.of(_available);
+          _memberUserIds =
+              memberRows.map((r) => r['user_id'] as String).toSet();
           _loading = false;
         });
       }
@@ -70,20 +54,7 @@ class _AddGymMemberPageState extends State<AddGymMemberPage> {
     }
   }
 
-  void _filter() {
-    final q = _searchCtrl.text.trim().toLowerCase();
-    setState(() {
-      _filtered = q.isEmpty
-          ? List.of(_available)
-          : _available.where((u) {
-              return u.fullName.toLowerCase().contains(q) ||
-                  u.email.toLowerCase().contains(q) ||
-                  u.username.toLowerCase().contains(q);
-            }).toList();
-    });
-  }
-
-  Future<void> _add(UserProfile user) async {
+  Future<void> _add(UserSearchResult user) async {
     setState(() => _adding = user.id);
     try {
       final token = await AuthManager.instance.getValidToken();
@@ -104,92 +75,31 @@ class _AddGymMemberPageState extends State<AddGymMemberPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Member')),
-      body: Column(
-        children: [
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: TextField(
-              controller: _searchCtrl,
-              decoration: InputDecoration(
-                hintText: 'Search by name, email or username',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchCtrl.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchCtrl.clear();
-                          _filter();
-                        },
-                      )
-                    : null,
-              ),
-            ),
-          ),
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(_error!),
-                            const SizedBox(height: 12),
-                            FilledButton(
-                                onPressed: _load,
-                                child: const Text('Retry')),
-                          ],
-                        ),
-                      )
-                    : _filtered.isEmpty
-                        ? Center(
-                            child: Text(
-                              _searchCtrl.text.isEmpty
-                                  ? 'All users are already members'
-                                  : 'No matching users',
-                              style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .outline),
-                            ),
-                          )
-                        : ListView.builder(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16),
-                            itemCount: _filtered.length,
-                            itemBuilder: (_, i) {
-                              final u = _filtered[i];
-                              final isAdding = _adding == u.id;
-                              return ListTile(
-                                leading: CircleAvatar(
-                                  child: Text(
-                                      u.name.isNotEmpty
-                                          ? u.name[0].toUpperCase()
-                                          : '?'),
-                                ),
-                                title: Text(u.fullName),
-                                subtitle: Text(u.email),
-                                trailing: isAdding
-                                    ? const SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                            strokeWidth: 2),
-                                      )
-                                    : FilledButton.tonal(
-                                        onPressed: _adding != null
-                                            ? null
-                                            : () => _add(u),
-                                        child: const Text('Add'),
-                                      ),
-                              );
-                            },
-                          ),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: Text(context.l10n.businessGymAddMember)),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _error != null
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(_error!),
+                      const SizedBox(height: 12),
+                      FilledButton(
+                          onPressed: _load,
+                          child: Text(context.l10n.commonRetry)),
+                    ],
+                  ),
+                )
+              : SingleChildScrollView(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: UserSearchField(
+                    excludeUserIds: _memberUserIds,
+                    addingUserId: _adding,
+                    onSelect: _add,
+                  ),
+                ),
     );
   }
 }

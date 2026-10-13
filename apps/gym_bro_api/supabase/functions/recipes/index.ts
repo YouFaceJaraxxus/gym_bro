@@ -3,7 +3,6 @@ import { db } from "../_shared/config.ts";
 import {
   type Caller,
   canEditAuthored,
-  coachesUser,
   forbidden,
   isSuperUser,
   json,
@@ -19,47 +18,14 @@ import type {
   RecipeImageInsert,
   RecipeVideoInsert,
 } from "../../types/schema/public.ts";
-
-const RECIPE_COLS = [
-  "id",
-  "name",
-  "description",
-  "author_id",
-  "servings",
-  "prep_time_minutes",
-  "cook_time_minutes",
-  "kcal_per_serving",
-  "protein_per_serving",
-  "carb_per_serving",
-  "fat_per_serving",
-  "fiber_per_serving",
-  "is_public",
-  "is_system",
-  "created_at",
-  "updated_at",
-] as const;
-
-const FOOD_ITEM_COLS = [
-  "id",
-  "name",
-  "brand",
-  "barcode",
-  "type",
-  "food_subtype",
-  "drink_subtype",
-  "spice_subtype",
-  "serving_unit",
-  "kcal_per_100",
-  "protein_per_100",
-  "carb_per_100",
-  "fat_per_100",
-  "fiber_per_100",
-  "author_id",
-  "is_public",
-  "is_system",
-  "created_at",
-  "updated_at",
-] as const;
+import {
+  callerHasAssignedAccessToMealPlan,
+  FOOD_ITEM_COLS,
+  mealPlansUsingRecipe,
+  RECIPE_COLS,
+  recomputeAfterRecipeChange,
+  recomputeRecipeMacros,
+} from "../_shared/nutrition.ts";
 
 const INGREDIENT_COLS = ["id", "recipe_id", "food_item_id", "quantity", "note", "position"] as const;
 const STEP_COLS = ["id", "recipe_id", "position", "instruction", "image_url"] as const;
@@ -79,42 +45,6 @@ async function optionalCaller(req: Request): Promise<Caller | null> {
 function canEdit(caller: Caller, row: { author_id: string | null; is_system: boolean }): boolean {
   if (row.is_system && !isSuperUser(caller)) return false;
   return canEditAuthored(caller, row.author_id);
-}
-
-/**
- * True when the caller was assigned one of these meal plans, or coaches
- * someone who was. Grants read access to private plans and the daily plans,
- * recipes and food items they reference.
- */
-async function callerHasAssignedAccessToMealPlan(
-  caller: Caller,
-  mealPlanId: string | string[],
-): Promise<boolean> {
-  const ids = [...new Set(Array.isArray(mealPlanId) ? mealPlanId : [mealPlanId])];
-  if (!ids.length) return false;
-  const rows = await db
-    .selectFrom("meal_plan_assignment")
-    .select("user_id")
-    .where("meal_plan_id", "in", ids)
-    .execute();
-  const targets = [...new Set(rows.map((r) => r.user_id))];
-  if (targets.includes(caller.id)) return true;
-  for (const target of targets) {
-    if (await coachesUser(caller, target)) return true;
-  }
-  return false;
-}
-
-/** Meal plans whose days contain this recipe. */
-async function mealPlansUsingRecipe(recipeId: string): Promise<string[]> {
-  const rows = await db
-    .selectFrom("daily_meal_plan_slot_entry")
-    .innerJoin("daily_meal_plan_slot", "daily_meal_plan_slot.id", "daily_meal_plan_slot_entry.daily_meal_plan_slot_id")
-    .innerJoin("meal_plan_day", "meal_plan_day.daily_meal_plan_id", "daily_meal_plan_slot.daily_meal_plan_id")
-    .select("meal_plan_day.meal_plan_id")
-    .where("daily_meal_plan_slot_entry.recipe_id", "=", recipeId)
-    .execute();
-  return rows.map((r) => r.meal_plan_id);
 }
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
@@ -229,54 +159,6 @@ async function replaceRecipeVideos(trx: Kysely<Database>, recipeId: string, vide
     position: v.position ?? idx,
   }));
   if (rows.length) await trx.insertInto("recipe_video").values(rows).execute();
-}
-
-// ── Macro recomputation ──────────────────────────────────────────────────────
-// Never trust client-supplied macro values — always derive kcal/protein/carb/
-// fat/fiber per serving from the current ingredient list and food_item macros.
-
-function round2(n: number): number {
-  return Math.round(n * 100) / 100;
-}
-
-async function recomputeRecipeMacros(trx: Kysely<Database>, recipeId: string, servings: number) {
-  const rows = await trx
-    .selectFrom("recipe_ingredient")
-    .innerJoin("food_item", "food_item.id", "recipe_ingredient.food_item_id")
-    .select([
-      "recipe_ingredient.quantity as quantity",
-      "food_item.kcal_per_100 as kcal_per_100",
-      "food_item.protein_per_100 as protein_per_100",
-      "food_item.carb_per_100 as carb_per_100",
-      "food_item.fat_per_100 as fat_per_100",
-      "food_item.fiber_per_100 as fiber_per_100",
-    ])
-    .where("recipe_ingredient.recipe_id", "=", recipeId)
-    .execute();
-
-  let kcal = 0, protein = 0, carb = 0, fat = 0, fiber = 0;
-  for (const r of rows) {
-    const qty = Number(r.quantity) / 100;
-    kcal += Number(r.kcal_per_100) * qty;
-    protein += Number(r.protein_per_100) * qty;
-    carb += Number(r.carb_per_100) * qty;
-    fat += Number(r.fat_per_100) * qty;
-    fiber += Number(r.fiber_per_100) * qty;
-  }
-
-  const s = servings > 0 ? servings : 1;
-
-  await trx
-    .updateTable("recipe")
-    .set({
-      kcal_per_serving: round2(kcal / s),
-      protein_per_serving: round2(protein / s),
-      carb_per_serving: round2(carb / s),
-      fat_per_serving: round2(fat / s),
-      fiber_per_serving: round2(fiber / s),
-    })
-    .where("id", "=", recipeId)
-    .execute();
 }
 
 // ── Postgres error mapping ────────────────────────────────────────────────────
@@ -468,6 +350,8 @@ async function handler(req: Request): Promise<Response> {
       const finalServings = servings ?? existing.servings;
       if (Array.isArray(ingredients) || servings !== undefined) {
         await recomputeRecipeMacros(trx, id, Number(finalServings));
+        // Daily plans using this recipe carry derived totals.
+        await recomputeAfterRecipeChange(trx, id);
       }
     });
 

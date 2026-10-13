@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../models/business.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
@@ -7,7 +8,10 @@ import '../member_progress_page.dart';
 
 /// Ids of every gym where [userId] coaches (trainer or employee-trainer).
 Future<Set<String>> loadCoachGymIds(
-    ApiService api, String token, String userId) async {
+  ApiService api,
+  String token,
+  String userId,
+) async {
   final rows = await Future.wait([
     api.getTrainers(token, userId: userId),
     api.getEmployeeTrainers(token, userId: userId),
@@ -22,30 +26,33 @@ typedef CoachedMember = ({UserProfile user, String gymId, String gymName});
 
 /// Every member of every gym where [userId] coaches, sorted by name.
 Future<List<CoachedMember>> loadCoachedMembers(
-    ApiService api, String token, String userId) async {
+  ApiService api,
+  String token,
+  String userId,
+) async {
   final gymIds = await loadCoachGymIds(api, token, userId);
   if (gymIds.isEmpty) return [];
   final ids = gymIds.toList();
   final results = await Future.wait([
     Future.wait(ids.map((id) => api.getBusiness(token, id))),
     Future.wait(ids.map((id) => api.getMembers(token, gymId: id))),
-    api.getUsers(token),
   ]);
   final gyms = results[0] as List<Business>;
   final memberLists = results[1] as List<List<Map<String, dynamic>>>;
-  final users = {for (final u in results[2] as List<UserProfile>) u.id: u};
 
   final out = <CoachedMember>[];
   for (var i = 0; i < ids.length; i++) {
     final gymName = gyms[i].name;
     for (final row in memberLists[i]) {
-      final u = users[row['user_id'] as String];
-      if (u == null || u.id == userId) continue;
+      final u = UserProfile.fromRoleRow(row);
+      if (u.id == userId) continue;
       out.add((user: u, gymId: ids[i], gymName: gymName));
     }
   }
-  out.sort((a, b) =>
-      a.user.fullName.toLowerCase().compareTo(b.user.fullName.toLowerCase()));
+  out.sort(
+    (a, b) =>
+        a.user.fullName.toLowerCase().compareTo(b.user.fullName.toLowerCase()),
+  );
   return out;
 }
 
@@ -109,16 +116,19 @@ class _TrainerMembersPageState extends State<TrainerMembersPage> {
     final q = _query.trim().toLowerCase();
     if (q.isEmpty) return _members;
     return _members
-        .where((m) =>
-            m.user.fullName.toLowerCase().contains(q) ||
-            m.user.email.toLowerCase().contains(q) ||
-            m.user.username.toLowerCase().contains(q))
+        .where(
+          (m) =>
+              m.user.fullName.toLowerCase().contains(q) ||
+              m.user.email.toLowerCase().contains(q) ||
+              m.user.username.toLowerCase().contains(q),
+        )
         .toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     if (_loading) return const Center(child: CircularProgressIndicator());
 
     if (_error != null && _members.isEmpty) {
@@ -132,7 +142,7 @@ class _TrainerMembersPageState extends State<TrainerMembersPage> {
               const SizedBox(height: 16),
               Text(_error!, textAlign: TextAlign.center),
               const SizedBox(height: 16),
-              FilledButton(onPressed: _load, child: const Text('Retry')),
+              FilledButton(onPressed: _load, child: Text(l10n.commonRetry)),
             ],
           ),
         ),
@@ -149,13 +159,13 @@ class _TrainerMembersPageState extends State<TrainerMembersPage> {
           child: TextField(
             controller: _searchCtrl,
             decoration: InputDecoration(
-              hintText: 'Search members',
+              hintText: l10n.shellSearchMembers,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _query.isEmpty
                   ? null
                   : IconButton(
                       icon: const Icon(Icons.clear),
-                      tooltip: 'Clear search',
+                      tooltip: l10n.shellClearSearch,
                       onPressed: () {
                         _searchCtrl.clear();
                         setState(() => _query = '');
@@ -181,12 +191,17 @@ class _TrainerMembersPageState extends State<TrainerMembersPage> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.people_outline,
-                                    size: 48, color: cs.outline),
+                                Icon(
+                                  Icons.people_outline,
+                                  size: 48,
+                                  color: cs.outline,
+                                ),
                                 const SizedBox(height: 16),
-                                Text(_members.isEmpty
-                                    ? 'No members at the gyms you coach at yet'
-                                    : 'No members match "$_query"'),
+                                Text(
+                                  _members.isEmpty
+                                      ? l10n.shellNoCoachedMembers
+                                      : l10n.shellNoMembersMatch(_query),
+                                ),
                               ],
                             ),
                           ),
@@ -203,20 +218,27 @@ class _TrainerMembersPageState extends State<TrainerMembersPage> {
                       return Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: m.user.avatarUrl != null
-                                ? NetworkImage(m.user.avatarUrl!)
-                                : null,
-                            child: m.user.avatarUrl == null
-                                ? Text(m.user.name.isNotEmpty
-                                    ? m.user.name[0].toUpperCase()
-                                    : '?')
-                                : null,
+                          // Decorative: the name is the tile title.
+                          leading: ExcludeSemantics(
+                            child: CircleAvatar(
+                              backgroundImage: m.user.avatarUrl != null
+                                  ? NetworkImage(m.user.avatarUrl!)
+                                  : null,
+                              child: m.user.avatarUrl == null
+                                  ? Text(
+                                      m.user.name.isNotEmpty
+                                          ? m.user.name[0].toUpperCase()
+                                          : '?',
+                                    )
+                                  : null,
+                            ),
                           ),
                           title: Text(m.user.fullName),
-                          subtitle: Text(multipleGyms
-                              ? '${m.gymName} · ${m.user.email}'
-                              : m.user.email),
+                          subtitle: Text(
+                            multipleGyms
+                                ? '${m.gymName} · ${m.user.email}'
+                                : m.user.email,
+                          ),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () => Navigator.push(
                             context,

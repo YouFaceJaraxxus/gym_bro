@@ -319,6 +319,33 @@ skip_nonce_check = false
 # If enabled, it will allow the user to successfully authenticate when the provider does not return an email address.
 email_optional = false
 
+# Google sign-in. The app gets a Google ID token natively (google_sign_in) and
+# POSTs it to /users/google, which exchanges it with GoTrue
+# (grant_type=id_token). Disabled until configured:
+#   1. Google Cloud Console → APIs & Services → Credentials, create OAuth client IDs:
+#      - "Web application": its client ID is the app's GOOGLE_SERVER_CLIENT_ID
+#        dart-define (the ID token's audience); its secret is
+#        SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET.
+#      - "iOS" (bundle id com.example.gymBroMobile or yours): its client ID is the
+#        app's GOOGLE_IOS_CLIENT_ID dart-define; add its reversed form as a URL
+#        scheme in ios/Runner/Info.plist.
+#      - "Android" (package name + SHA-1 of the signing key): nothing to copy, it
+#        just has to exist.
+#   2. export SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID=<web client id>[,<ios client id>]
+#      and SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET=<web client secret>, uncomment the
+#      block below and restart `supabase start`.
+#   3. Production: Dashboard → Authentication → Sign In / Providers → Google with the
+#      same values; list every client ID under "Client IDs".
+# [auth.external.google]
+# enabled = true
+# client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+# secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+# redirect_uri = ""
+# url = ""
+# # Native iOS sign-in embeds a nonce we can't forward; skip the check for id_token sign-in.
+# skip_nonce_check = true
+# email_optional = false
+
 # Allow Solana wallet holders to sign in to your project via the Sign in with Solana (SIWS, EIP-4361) standard.
 # You can configure "web3" rate limit in the [auth.rate_limit] section and set up [auth.captcha] if self-hosting.
 [auth.web3.solana]
@@ -359,6 +386,15 @@ allow_dynamic_registration = false
 [functions.users]
 verify_jwt = false
 
+# Stripe calls /payments/webhook without a Supabase JWT (verified by Stripe
+# signature instead). Every other /payments route checks the caller itself.
+[functions.payments]
+verify_jwt = false
+
+# Called by pg_cron with the CRON_SECRET header, not a user JWT.
+[functions.jobs]
+verify_jwt = false
+
 [edge_runtime]
 enabled = true
 # Supported request policies: `oneshot`, `per_worker`.
@@ -375,7 +411,17 @@ deno_version = 2
 # running `supabase start` (see scripts/dev.sh).
 [edge_runtime.secrets]
 POSTGRES_URL = "env(POSTGRES_URL)"
-SUPER_ADMIN_PASS = "env(SUPER_ADMIN_PASS)"
+# Push notifications (FCM HTTP v1 service account JSON, base64). Push is skipped when unset.
+FCM_SERVICE_ACCOUNT_B64 = "env(FCM_SERVICE_ACCOUNT_B64)"
+# Shared secret pg_cron sends to POST /jobs/run (see sql/cron.sql). /jobs answers 503 when unset.
+CRON_SECRET = "env(CRON_SECRET)"
+# Optional; every function reads these through optionalSecret(), which treats an
+# unexported variable (arriving as the literal "env(NAME)") as unset.
+STRIPE_SECRET_KEY = "env(STRIPE_SECRET_KEY)"
+STRIPE_WEBHOOK_SECRET = "env(STRIPE_WEBHOOK_SECRET)"
+PAYMENTS_CURRENCY = "env(PAYMENTS_CURRENCY)"
+PAYMENT_RETURN_URL = "env(PAYMENT_RETURN_URL)"
+CHECKIN_SECRET = "env(CHECKIN_SECRET)"
 
 [analytics]
 enabled = true

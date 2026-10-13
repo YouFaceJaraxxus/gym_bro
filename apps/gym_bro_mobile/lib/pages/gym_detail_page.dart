@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'checkin/attendance_page.dart';
+import 'checkin/check_in_scanner_page.dart';
+import 'classes/gym_schedule_page.dart';
 import 'gym_employees_page.dart';
 import 'gym_members_page.dart';
 import 'invoices_page.dart';
@@ -21,8 +25,8 @@ class GymDetailPage extends StatefulWidget {
 class _GymDetailPageState extends State<GymDetailPage> {
   final _api = ApiService();
 
-  /// Employees and employee-trainers, with a display label for the role.
-  List<({UserProfile user, String roleLabel})> _staff = [];
+  /// Employees and employee-trainers; [isTrainer] picks the role label.
+  List<({UserProfile user, bool isTrainer})> _staff = [];
   List<UserProfile> _members = [];
   bool _loading = true;
   String? _error;
@@ -44,28 +48,20 @@ class _GymDetailPageState extends State<GymDetailPage> {
         _api.getEmployees(token, gymId: widget.gymId),
         _api.getEmployeeTrainers(token, gymId: widget.gymId),
         _api.getMembers(token, gymId: widget.gymId),
-        _api.getUsers(token),
       ]);
-      final employeeRows = results[0] as List<Map<String, dynamic>>;
-      final employeeTrainerRows = results[1] as List<Map<String, dynamic>>;
-      final memberRows = results[2] as List<Map<String, dynamic>>;
-      final allUsers = results[3] as List<UserProfile>;
-      final userMap = {for (final u in allUsers) u.id: u};
+      final employeeRows = results[0];
+      final employeeTrainerRows = results[1];
+      final memberRows = results[2];
 
       if (mounted) {
         setState(() {
           _staff = [
             for (final r in employeeRows)
-              if (userMap[r['user_id'] as String] case final u?)
-                (user: u, roleLabel: 'Employee'),
+              (user: UserProfile.fromRoleRow(r), isTrainer: false),
             for (final r in employeeTrainerRows)
-              if (userMap[r['user_id'] as String] case final u?)
-                (user: u, roleLabel: 'Emp. Trainer'),
+              (user: UserProfile.fromRoleRow(r), isTrainer: true),
           ];
-          _members = memberRows
-              .map((r) => userMap[r['user_id'] as String])
-              .whereType<UserProfile>()
-              .toList();
+          _members = memberRows.map(UserProfile.fromRoleRow).toList();
           _loading = false;
         });
       }
@@ -78,6 +74,9 @@ class _GymDetailPageState extends State<GymDetailPage> {
       }
     }
   }
+
+  void _push(Widget page) =>
+      Navigator.push(context, MaterialPageRoute(builder: (_) => page));
 
   @override
   Widget build(BuildContext context) {
@@ -104,13 +103,17 @@ class _GymDetailPageState extends State<GymDetailPage> {
           const SizedBox(height: 16),
           Text(_error!),
           const SizedBox(height: 16),
-          FilledButton(onPressed: _load, child: const Text('Retry')),
+          FilledButton(
+            onPressed: _load,
+            child: Text(context.l10n.commonRetry),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildContent() {
+    final l10n = context.l10n;
     return RefreshIndicator(
       onRefresh: _load,
       child: SingleChildScrollView(
@@ -141,13 +144,14 @@ class _GymDetailPageState extends State<GymDetailPage> {
                       children: [
                         _StatChip(
                           icon: Icons.people_outline,
-                          label: '${_members.length} members',
+                          label: l10n.businessGymDetailMembersCount(_members.length),
                         ),
                         const SizedBox(height: 4),
                         _StatChip(
                           icon: Icons.badge_outlined,
-                          label:
-                              '${_staff.length} staff member${_staff.length == 1 ? '' : 's'}',
+                          label: l10n.businessGymDetailStaffCount(
+                            _staff.length,
+                          ),
                         ),
                       ],
                     ),
@@ -170,7 +174,7 @@ class _GymDetailPageState extends State<GymDetailPage> {
                             Icons.receipt_long_outlined,
                             size: 18,
                           ),
-                          label: const Text('Invoices'),
+                          label: Text(l10n.businessGymDetailInvoices),
                         ),
                         const SizedBox(height: 4),
                         OutlinedButton.icon(
@@ -185,7 +189,7 @@ class _GymDetailPageState extends State<GymDetailPage> {
                             ),
                           ),
                           icon: const Icon(Icons.forum_outlined, size: 18),
-                          label: const Text('Posts'),
+                          label: Text(l10n.businessGymDetailPosts),
                         ),
                       ],
                     ),
@@ -193,13 +197,49 @@ class _GymDetailPageState extends State<GymDetailPage> {
                 ),
               ),
             ),
+            const SizedBox(height: 12),
+
+            // ── Day-to-day operations ──────────────────────────────────
+            Row(
+              children: [
+                Expanded(
+                  child: _ActionTile(
+                    icon: Icons.calendar_month_outlined,
+                    label: l10n.businessGymDetailSchedule,
+                    onTap: () => _push(GymSchedulePage(
+                        gymId: widget.gymId, gymName: widget.gymName)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _ActionTile(
+                    icon: Icons.how_to_reg_outlined,
+                    label: l10n.businessGymDetailAttendance,
+                    onTap: () => _push(AttendancePage(
+                        gymId: widget.gymId, gymName: widget.gymName)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _ActionTile(
+                    icon: Icons.qr_code_scanner,
+                    label: l10n.businessGymDetailScanCheckIns,
+                    onTap: () => _push(CheckInScannerPage(
+                        gymId: widget.gymId, gymName: widget.gymName)),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 24),
 
             // ── Members section ────────────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Members', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  l10n.businessGymDetailMembers,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 TextButton.icon(
                   onPressed: () async {
                     await Navigator.push(
@@ -214,20 +254,26 @@ class _GymDetailPageState extends State<GymDetailPage> {
                     _load();
                   },
                   icon: const Icon(Icons.open_in_new, size: 16),
-                  label: const Text('Manage'),
+                  label: Text(
+                    l10n.businessGymDetailManage,
+                    semanticsLabel: l10n.businessGymDetailManageMembers,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             if (_members.isEmpty)
-              _EmptyHint(icon: Icons.people_outline, label: 'No members yet')
+              _EmptyHint(
+                icon: Icons.people_outline,
+                label: l10n.businessGymNoMembersYet,
+              )
             else
               for (final u in _members.take(5)) _UserRow(user: u),
             if (_members.length > 5)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
-                  '+ ${_members.length - 5} more',
+                  l10n.businessGymDetailMore(_members.length - 5),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                   ),
@@ -240,7 +286,7 @@ class _GymDetailPageState extends State<GymDetailPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Membership Types',
+                  l10n.businessGymDetailMembershipTypes,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 TextButton.icon(
@@ -256,13 +302,16 @@ class _GymDetailPageState extends State<GymDetailPage> {
                     );
                   },
                   icon: const Icon(Icons.open_in_new, size: 16),
-                  label: const Text('Manage'),
+                  label: Text(
+                    l10n.businessGymDetailManage,
+                    semanticsLabel: l10n.businessGymDetailManageMembershipTypes,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 4),
             Text(
-              'Set up pricing plans members can be enrolled in.',
+              l10n.businessGymDetailMembershipTypesHint,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.outline,
               ),
@@ -273,7 +322,10 @@ class _GymDetailPageState extends State<GymDetailPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Staff', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  l10n.businessGymDetailStaff,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 TextButton.icon(
                   onPressed: () async {
                     await Navigator.push(
@@ -288,16 +340,27 @@ class _GymDetailPageState extends State<GymDetailPage> {
                     _load();
                   },
                   icon: const Icon(Icons.open_in_new, size: 16),
-                  label: const Text('Manage'),
+                  label: Text(
+                    l10n.businessGymDetailManage,
+                    semanticsLabel: l10n.businessGymDetailManageStaff,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             if (_staff.isEmpty)
-              _EmptyHint(icon: Icons.badge_outlined, label: 'No staff yet')
+              _EmptyHint(
+                icon: Icons.badge_outlined,
+                label: l10n.businessGymNoStaffYet,
+              )
             else
               for (final s in _staff)
-                _UserRow(user: s.user, trailing: s.roleLabel),
+                _UserRow(
+                  user: s.user,
+                  trailing: s.isTrainer
+                      ? l10n.businessGymRoleEmployeeTrainerShort
+                      : l10n.businessGymRoleEmployee,
+                ),
           ],
         ),
       ),
@@ -336,7 +399,7 @@ class _UserRow extends StatelessWidget {
         child: Text(user.name.isNotEmpty ? user.name[0].toUpperCase() : '?'),
       ),
       title: Text(user.fullName),
-      subtitle: Text(user.email),
+      subtitle: user.email.isNotEmpty ? Text(user.email) : null,
       trailing: trailing == null
           ? null
           : Text(trailing!, style: Theme.of(context).textTheme.bodySmall),
@@ -362,6 +425,39 @@ class _EmptyHint extends StatelessWidget {
             style: TextStyle(color: Theme.of(context).colorScheme.outline),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ActionTile extends StatelessWidget {
+  const _ActionTile({required this.icon, required this.label, required this.onTap});
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Card(
+      margin: EdgeInsets.zero,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+          child: Column(
+            children: [
+              Icon(icon, color: cs.primary),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../theme.dart';
 import '../widgets/open_url.dart';
+import 'nutrition/nutrition_widgets.dart';
 import 'recipe_form_page.dart';
 
 class RecipeDetailPage extends StatefulWidget {
@@ -50,14 +54,14 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete recipe?'),
-        content: Text('Remove "${_recipe!.name}" permanently?'),
+        title: Text(ctx.l10n.nutritionDeleteRecipeTitle),
+        content: Text(ctx.l10n.nutritionRemovePermanently(_recipe!.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(ctx.l10n.commonCancel)),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(ctx).colorScheme.error),
+            child: Text(ctx.l10n.commonDelete),
           ),
         ],
       ),
@@ -69,8 +73,12 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {
+        final cs = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(errorText(e), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
+          ),
         );
       }
     }
@@ -78,6 +86,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     if (_loading) {
       return Scaffold(appBar: AppBar(), body: const Center(child: CircularProgressIndicator()));
     }
@@ -86,9 +96,9 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         appBar: AppBar(),
         body: Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(_error ?? 'Unknown error', style: const TextStyle(color: Colors.red)),
+            Text(_error ?? l10n.commonSomethingWentWrong, style: TextStyle(color: cs.error)),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: _load, child: const Text('Retry')),
+            ElevatedButton(onPressed: _load, child: Text(l10n.commonRetry)),
           ]),
         ),
       );
@@ -97,6 +107,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
     final item = _recipe!;
     final profile = AuthManager.instance.profile;
     final isOwner = profile != null && profile.id == item.authorId;
+    final macroColors = MacroColors.of(context);
+    final timeLabel = item.timeLabel(l10n);
 
     return Scaffold(
       appBar: AppBar(
@@ -104,6 +116,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
         actions: [
           if (isOwner) ...[
             IconButton(
+              tooltip: l10n.commonEdit,
               icon: const Icon(Icons.edit),
               onPressed: () async {
                 final updated = await Navigator.push<Recipe>(
@@ -114,6 +127,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
               },
             ),
             IconButton(
+              tooltip: l10n.commonDelete,
               icon: const Icon(Icons.delete_outline),
               onPressed: _delete,
             ),
@@ -133,6 +147,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                 ),
                 child: Image.network(
                   item.thumbnailUrlOrNull!,
+                  semanticLabel: l10n.nutritionPhotoOf(item.name),
                   height: 240,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -159,7 +174,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                       ),
                       if (!item.isPublic) ...[
                         const SizedBox(width: 8),
-                        const Icon(Icons.lock_outline, size: 18, color: Colors.grey),
+                        Icon(Icons.lock_outline, size: 18, color: cs.onSurfaceVariant, semanticLabel: l10n.nutritionPrivate),
                       ],
                     ],
                   ),
@@ -172,14 +187,14 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                     children: [
                       _MetaChip(
                         icon: Icons.people_outline,
-                        label: '${item.servings} ${item.servings == 1 ? 'serving' : 'servings'}',
+                        label: l10n.nutritionServingsAmount(item.servings, '${item.servings}'),
                       ),
-                      if (item.timeLabel.isNotEmpty)
-                        _MetaChip(icon: Icons.timer_outlined, label: item.timeLabel),
+                      if (timeLabel.isNotEmpty)
+                        _MetaChip(icon: Icons.timer_outlined, label: timeLabel),
                       _MetaChip(
                         icon: item.isPublic ? Icons.public : Icons.lock_outline,
-                        label: item.isPublic ? 'Public' : 'Private',
-                        color: item.isPublic ? Colors.green.shade700 : Colors.grey.shade600,
+                        label: item.isPublic ? l10n.nutritionPublic : l10n.nutritionPrivate,
+                        color: item.isPublic ? context.appColors.success : cs.onSurfaceVariant,
                       ),
                     ],
                   ),
@@ -188,18 +203,18 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                   // ── Macro strip ────────────────────────────────────────────
                   Row(
                     children: [
-                      Expanded(child: _MacroChip(label: 'Kcal', value: item.kcalPerServing, color: Colors.orange.shade600)),
+                      Expanded(child: _MacroChip(label: l10n.nutritionKcal, value: item.kcalPerServing, color: macroColors.kcal)),
                       const SizedBox(width: 6),
-                      Expanded(child: _MacroChip(label: 'Protein', value: item.proteinPerServing, color: Colors.blue.shade600, unit: 'g')),
+                      Expanded(child: _MacroChip(label: l10n.nutritionProtein, value: item.proteinPerServing, color: macroColors.protein, unit: 'g')),
                       const SizedBox(width: 6),
-                      Expanded(child: _MacroChip(label: 'Carbs', value: item.carbPerServing, color: Colors.amber.shade700, unit: 'g')),
+                      Expanded(child: _MacroChip(label: l10n.nutritionCarbsShort, value: item.carbPerServing, color: macroColors.carb, unit: 'g')),
                       const SizedBox(width: 6),
-                      Expanded(child: _MacroChip(label: 'Fat', value: item.fatPerServing, color: Colors.red.shade400, unit: 'g')),
+                      Expanded(child: _MacroChip(label: l10n.nutritionFat, value: item.fatPerServing, color: macroColors.fat, unit: 'g')),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Center(
-                    child: Text('per serving', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  Center(
+                    child: Text(l10n.nutritionPerServing, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
                   ),
                   const SizedBox(height: 20),
 
@@ -211,7 +226,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
                   // ── Ingredients ────────────────────────────────────────────
                   if (item.ingredients.isNotEmpty) ...[
-                    const Text('Ingredients', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(l10n.nutritionIngredients, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
                     ListView.separated(
                       shrinkWrap: true,
@@ -220,7 +235,8 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                       separatorBuilder: (_, i) => const Divider(height: 1),
                       itemBuilder: (context, i) {
                         final ing = item.ingredients[i];
-                        return Padding(
+                        return MergeSemantics(
+                          child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Row(
                             children: [
@@ -235,20 +251,21 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                     if (ing.note != null && ing.note!.isNotEmpty)
                                       Text(
                                         ing.note!,
-                                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                        style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                                       ),
                                   ],
                                 ),
                               ),
                               Text(
-                                ing.quantityLabel,
+                                ing.quantityLabel(l10n),
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.grey.shade700,
+                                  color: cs.onSurfaceVariant,
                                 ),
                               ),
                             ],
+                          ),
                           ),
                         );
                       },
@@ -258,7 +275,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
                   // ── Steps ──────────────────────────────────────────────────
                   if (item.steps.isNotEmpty) ...[
-                    const Text('Steps', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(l10n.nutritionSteps, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
                     ListView.separated(
                       shrinkWrap: true,
@@ -300,6 +317,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                       borderRadius: BorderRadius.circular(8),
                                       child: Image.network(
                                         step.imageUrl!,
+                                        semanticLabel: l10n.nutritionStepPhoto(i + 1),
                                         width: 80,
                                         height: 80,
                                         fit: BoxFit.cover,
@@ -319,7 +337,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
 
                   // ── Videos ─────────────────────────────────────────────────
                   if (item.videos.isNotEmpty) ...[
-                    const Text('Videos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(l10n.nutritionVideos, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
                     ListView.builder(
                       shrinkWrap: true,
@@ -333,16 +351,16 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                           child: ListTile(
                             leading: const Icon(Icons.play_circle_outline, size: 28),
                             title: Text(
-                              video.title?.isNotEmpty == true ? video.title! : 'Video ${i + 1}',
+                              video.title?.isNotEmpty == true ? video.title! : l10n.nutritionVideoNumber(i + 1),
                               style: const TextStyle(fontWeight: FontWeight.w500),
                             ),
                             subtitle: Text(
                               video.url,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.blue,
+                                color: cs.primary,
                                 decoration: TextDecoration.underline,
                               ),
                             ),
@@ -382,10 +400,9 @@ class _MacroChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final display = value == value.truncateToDouble()
-        ? value.toInt().toString()
-        : value.toStringAsFixed(1);
-    return Container(
+    final display = NumberFormat('0.#', Localizations.localeOf(context).toString()).format(value);
+    return MergeSemantics(
+      child: Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
@@ -402,6 +419,7 @@ class _MacroChip extends StatelessWidget {
           Text(label, style: TextStyle(fontSize: 10, color: color.withValues(alpha: 0.8))),
         ],
       ),
+      ),
     );
   }
 }
@@ -415,7 +433,7 @@ class _MetaChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? Colors.grey.shade700;
+    final c = color ?? Theme.of(context).colorScheme.onSurfaceVariant;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(

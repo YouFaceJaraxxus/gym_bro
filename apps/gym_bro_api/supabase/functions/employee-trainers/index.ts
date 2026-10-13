@@ -1,5 +1,5 @@
 import { db } from "../_shared/config.ts";
-import { canManageGym, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
+import { canCoachAtGym, canManageGym, forbidden, json, jsonError, redactEmails, requireCaller } from "../_shared/auth.ts";
 import { pgCode, assignRole, reconcileRoles } from "../_shared/roles.ts";
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
@@ -20,6 +20,7 @@ const SELECT_COLS = [
   "users.last_name",
   "users.username",
   "users.role",
+  "users.avatar_url",
 ] as const;
 
 // ── Handler ───────────────────────────────────────────────────────────────────
@@ -72,7 +73,8 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── GET /employee-trainers — optional ?user_id= and/or ?gym_id= filters ──────
-  // Returns rows with user info embedded.
+  // Returns rows with user info embedded; email only for the person themself
+  // and people who coach/staff at that gym.
   if (req.method === "GET" && !id) {
     const userId = url.searchParams.get("user_id");
     const gymId = url.searchParams.get("gym_id");
@@ -82,7 +84,7 @@ Deno.serve(async (req: Request) => {
       .select(SELECT_COLS);
     if (userId) query = query.where("employee_trainer.user_id", "=", userId);
     if (gymId) query = query.where("employee_trainer.gym_id", "=", gymId);
-    return json(await query.execute());
+    return json(await redactEmails(caller, await query.execute(), (r) => r.gym_id, canCoachAtGym));
   }
 
   // ── GET /employee-trainers/:id ────────────────────────────────────────────────
@@ -94,7 +96,7 @@ Deno.serve(async (req: Request) => {
       .where("employee_trainer.id", "=", id)
       .executeTakeFirst();
     if (!row) return jsonError("Employee-trainer not found", 404);
-    return json(row);
+    return json((await redactEmails(caller, [row], (r) => r.gym_id, canCoachAtGym))[0]);
   }
 
   // ── DELETE /employee-trainers/:id ─────────────────────────────────────────────

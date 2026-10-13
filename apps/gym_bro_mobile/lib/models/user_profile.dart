@@ -1,3 +1,5 @@
+import '../l10n/app_localizations.dart';
+
 enum UserRole {
   owner,
   trainer,
@@ -22,24 +24,25 @@ enum UserRole {
 
   /// The value stored in `users.role` on the API side.
   String get apiValue => switch (this) {
-        UserRole.owner => 'owner',
-        UserRole.trainer => 'trainer',
-        UserRole.employee => 'employee',
-        UserRole.employeeTrainer => 'employee_trainer',
-        UserRole.member => 'member',
-        UserRole.shopVendor => 'shop_vendor',
-        UserRole.superUser => 'super_user',
-      };
+    UserRole.owner => 'owner',
+    UserRole.trainer => 'trainer',
+    UserRole.employee => 'employee',
+    UserRole.employeeTrainer => 'employee_trainer',
+    UserRole.member => 'member',
+    UserRole.shopVendor => 'shop_vendor',
+    UserRole.superUser => 'super_user',
+  };
 
-  String get displayName => switch (this) {
-        UserRole.owner => 'Owner',
-        UserRole.trainer => 'Trainer',
-        UserRole.employee => 'Employee',
-        UserRole.employeeTrainer => 'Employee / Trainer',
-        UserRole.member => 'Member',
-        UserRole.shopVendor => 'Shop Vendor',
-        UserRole.superUser => 'Super User',
-      };
+  /// Localized role name for display.
+  String label(AppLocalizations l10n) => switch (this) {
+    UserRole.owner => l10n.shellRoleOwner,
+    UserRole.trainer => l10n.shellRoleTrainer,
+    UserRole.employee => l10n.shellRoleEmployee,
+    UserRole.employeeTrainer => l10n.shellRoleEmployeeTrainer,
+    UserRole.member => l10n.shellRoleMember,
+    UserRole.shopVendor => l10n.shellRoleShopVendor,
+    UserRole.superUser => l10n.shellRoleSuperUser,
+  };
 }
 
 class UserProfile {
@@ -67,7 +70,8 @@ class UserProfile {
     return UserProfile(
       id: json['id'] as String,
       username: json['username'] as String,
-      email: json['email'] as String,
+      // Omitted when the caller may not see it (GET /users/:id for others).
+      email: json['email'] as String? ?? '',
       name: json['name'] as String,
       lastName: json['last_name'] as String,
       role: UserRole.fromString(json['role'] as String? ?? 'member'),
@@ -75,13 +79,28 @@ class UserProfile {
     );
   }
 
+  /// The user embedded in a gym/shop role row (GET /members, /employees,
+  /// /employee-trainers, /trainers, /gym-owners, /shop-vendors): the user's
+  /// id is `user_id`, and `email` is only present for staff of that business.
+  factory UserProfile.fromRoleRow(Map<String, dynamic> row) {
+    return UserProfile(
+      id: row['user_id'] as String,
+      username: row['username'] as String? ?? '',
+      email: row['email'] as String? ?? '',
+      name: row['name'] as String? ?? '',
+      lastName: row['last_name'] as String? ?? '',
+      role: UserRole.fromString(row['role'] as String? ?? 'member'),
+      avatarUrl: row['avatar_url'] as String?,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'username': username,
-        'email': email,
-        'name': name,
-        'last_name': lastName,
-        'avatar_url': avatarUrl,
-        'role': role.apiValue,
-      };
+    'id': id,
+    'username': username,
+    'email': email,
+    'name': name,
+    'last_name': lastName,
+    'avatar_url': avatarUrl,
+    'role': role.apiValue,
+  };
 }

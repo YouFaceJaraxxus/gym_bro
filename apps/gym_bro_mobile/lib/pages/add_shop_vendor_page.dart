@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/user_search_result.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -127,9 +128,10 @@ class _AddShopVendorPageState extends State<AddShopVendorPage> {
     final cs = Theme.of(context).colorScheme;
     final isDuplicate = _emailDuplicate;
     final busy = _addingUserId != null || _inviting;
+    final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Vendor')),
+      appBar: AppBar(title: Text(l10n.businessMgmtAddVendor)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -146,7 +148,7 @@ class _AddShopVendorPageState extends State<AddShopVendorPage> {
 
             // ── Invite new user ───────────────────────────────────────────
             ExpansionTile(
-              title: const Text("Can't find them? Invite a new user"),
+              title: Text(l10n.businessMgmtInviteNewUser),
               tilePadding: EdgeInsets.zero,
               childrenPadding: EdgeInsets.zero,
               children: [
@@ -156,9 +158,9 @@ class _AddShopVendorPageState extends State<AddShopVendorPage> {
                   enabled: !busy,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: l10n.businessMgmtEmail,
                     border: const OutlineInputBorder(),
-                    errorText: isDuplicate ? 'Already a vendor for this shop' : null,
+                    errorText: isDuplicate ? l10n.businessMgmtAlreadyVendor : null,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -166,9 +168,9 @@ class _AddShopVendorPageState extends State<AddShopVendorPage> {
                   controller: _nameCtrl,
                   enabled: !busy,
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'First name',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.businessMgmtFirstName,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -176,36 +178,36 @@ class _AddShopVendorPageState extends State<AddShopVendorPage> {
                   controller: _lastNameCtrl,
                   enabled: !busy,
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Last name',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.businessMgmtLastName,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _usernameCtrl,
                   enabled: !busy,
-                  decoration: const InputDecoration(
-                    labelText: 'Username',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.businessMgmtUsername,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
                 FilledButton(
                   onPressed: _canInvite ? _invite : null,
                   child: _inviting
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                              strokeWidth: 2, color: cs.onSurfaceVariant),
                         )
-                      : const Text('Invite & Add Vendor'),
+                      : Text(l10n.businessMgmtInviteAndAddVendor),
                 ),
                 if (isDuplicate) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'This email is already a vendor for this shop',
+                    l10n.businessMgmtEmailAlreadyVendor,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: cs.error, fontSize: 13),
                   ),

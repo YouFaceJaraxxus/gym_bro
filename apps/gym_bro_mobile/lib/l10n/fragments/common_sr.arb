@@ -1,0 +1,23 @@
+{
+  "appTitle": "Gym Bro",
+  "commonOk": "U redu",
+  "commonCancel": "Otkaži",
+  "commonSave": "Sačuvaj",
+  "commonDelete": "Obriši",
+  "commonEdit": "Izmeni",
+  "commonRetry": "Pokušaj ponovo",
+  "commonClose": "Zatvori",
+  "commonConfirm": "Potvrdi",
+  "commonBack": "Nazad",
+  "commonSearch": "Pretraga",
+  "commonLoading": "Učitavanje…",
+  "commonSomethingWentWrong": "Nešto nije u redu",
+  "commonRequired": "Obavezno polje",
+  "commonYes": "Da",
+  "commonNo": "Ne",
+  "commonToday": "Danas",
+  "settingsLanguage": "Jezik",
+  "settingsLanguageSystem": "Podrazumevani jezik sistema",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageSerbian": "Srpski"
+}

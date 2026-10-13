@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../models/business.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
@@ -62,8 +63,8 @@ class _OwnerHomePageState extends State<OwnerHomePage> {
         padding: const EdgeInsets.all(24),
         children: [
           HomeHeader(
-            title: 'Welcome back, ${widget.profile.name}',
-            subtitle: widget.profile.role.displayName,
+            title: context.l10n.shellWelcomeBack(widget.profile.name),
+            subtitle: widget.profile.role.label(context.l10n),
           ),
           const SizedBox(height: 24),
           if (_loading)
@@ -75,10 +76,9 @@ class _OwnerHomePageState extends State<OwnerHomePage> {
             if (_error != null) HomeError(message: _error!, onRetry: _load),
             if (stats != null) ...[
               if (stats.gyms == 0)
-                const HomeEmpty(
+                HomeEmpty(
                   icon: Icons.fitness_center_outlined,
-                  label: "You don't own any gyms yet — add one from the "
-                      'Businesses tab.',
+                  label: context.l10n.shellOwnerNoGyms,
                 )
               else ...[
                 BusinessStatsView(stats: stats, onChanged: _load),
@@ -88,13 +88,13 @@ class _OwnerHomePageState extends State<OwnerHomePage> {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) =>
-                              const InvoicesPage(initialStatus: null)),
+                        builder: (_) => const InvoicesPage(initialStatus: null),
+                      ),
                     );
                     _load();
                   },
                   icon: const Icon(Icons.receipt_long_outlined),
-                  label: const Text('All invoices'),
+                  label: Text(context.l10n.shellOwnerAllInvoices),
                 ),
               ],
             ],

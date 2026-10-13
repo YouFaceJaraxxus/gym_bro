@@ -1,0 +1,538 @@
+{
+  "trainingProgressYesterday": "Yesterday",
+  "trainingChartNoData": "No data in this range",
+  "trainingChartDefaultSeries": "Progress",
+  "trainingChartSummary": "{series} chart, {count, plural, =1{1 data point} other{{count} data points}}, last value {value}",
+  "@trainingChartSummary": {
+    "placeholders": {
+      "series": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingRestTitle": "Rest",
+  "trainingRestRemaining": "{time} of rest remaining",
+  "@trainingRestRemaining": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingRestAddSeconds": "+{seconds} s",
+  "@trainingRestAddSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingRestAddSecondsTooltip": "Add {seconds} seconds",
+  "@trainingRestAddSecondsTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingRestSkip": "Skip",
+  "trainingRestPresetTooltip": "Rest for {time}",
+  "@trainingRestPresetTooltip": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingPlateTitle": "Plate calculator",
+  "trainingPlateTargetWeight": "Target weight",
+  "trainingPlateBar": "Bar",
+  "trainingPlateEnterTarget": "Enter a target weight to see the plates for each side.",
+  "trainingPlateWarmup": "Warm-up",
+  "trainingPlateSuggestedRamp": "Suggested ramp to {weight}",
+  "@trainingPlateSuggestedRamp": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingPlateNoWarmup": "Target is at or below the bar — no warm-up plates needed.",
+  "trainingPlateAvailable": "Plates: {plates}",
+  "@trainingPlateAvailable": {
+    "placeholders": {
+      "plates": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingPlateEachSide": "Each side",
+  "trainingPlateEmptyBar": "Empty bar",
+  "trainingPlateTotal": "Total {weight}",
+  "@trainingPlateTotal": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingPlateNotExact": "{target} can't be loaded exactly. Closest: {closest} ({difference}).",
+  "@trainingPlateNotExact": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      },
+      "closest": {
+        "type": "String"
+      },
+      "difference": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingPlatePerSide": "Per side: {plates}",
+  "@trainingPlatePerSide": {
+    "placeholders": {
+      "plates": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingProgressTitle": "Progress",
+  "trainingProgressTabTraining": "Training",
+  "trainingProgressTabBody": "Body",
+  "trainingProgressEmptyTitle": "No training logged yet",
+  "trainingProgressEmptyMessage": "Log a session and your volume, streak and personal records will show up here.",
+  "trainingProgressStatSessions7d": "Sessions · 7 days",
+  "trainingProgressStatSessions30d": "Sessions · 30 days",
+  "trainingProgressStatVolume30d": "Volume · 30 days",
+  "trainingProgressStatStreak": "Weekly streak",
+  "trainingProgressStreakWeeks": "{count, plural, =1{1 wk} other{{count} wks}}",
+  "@trainingProgressStreakWeeks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingProgressStreakStart": "Train this week to start one",
+  "trainingProgressStreakDone": "Trained this week",
+  "trainingProgressStreakKeep": "Train this week to keep it",
+  "trainingProgressLastSession": "Last session: {when}",
+  "@trainingProgressLastSession": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingProgressRecentPrs": "Recent PRs",
+  "trainingProgressLast30Days": "last 30 days",
+  "trainingProgressNoRecentPrs": "No new personal records in the last 30 days. Beat your best estimated 1RM on any lift to set one.",
+  "trainingProgressExercises": "Exercises",
+  "trainingProgressFilterExercises": "Filter exercises…",
+  "trainingProgressNoExercises": "No exercises logged yet",
+  "trainingProgressNoExercisesMatch": "No exercises match",
+  "trainingProgressE1rm": "e1RM {weight}",
+  "@trainingProgressE1rm": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingProgressTopWeight": "Top {weight}",
+  "@trainingProgressTopWeight": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingProgressSessionCount": "{count, plural, =1{1 session} other{{count} sessions}}",
+  "@trainingProgressSessionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingProgressTrendSemantics": "Trend, last value {value}",
+  "@trainingProgressTrendSemantics": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingProgressRange1m": "1M",
+  "trainingProgressRange3m": "3M",
+  "trainingProgressRange6m": "6M",
+  "trainingProgressRangeAll": "All",
+  "trainingProgressMetricE1rm": "e1RM",
+  "trainingProgressMetricWeight": "Best weight",
+  "trainingProgressMetricVolume": "Volume",
+  "trainingProgressChartE1rm": "Estimated 1-rep max ({unit})",
+  "@trainingProgressChartE1rm": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingProgressChartWeight": "Heaviest set ({unit})",
+  "@trainingProgressChartWeight": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingProgressChartVolume": "Session volume ({unit} × reps)",
+  "@trainingProgressChartVolume": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingProgressSeriesE1rm": "Estimated 1RM",
+  "trainingProgressSeriesWeight": "Heaviest set",
+  "trainingProgressSeriesVolume": "Session volume",
+  "trainingProgressPersonalRecords": "Personal records",
+  "trainingProgressBestE1rm": "Best e1RM",
+  "trainingProgressHeaviest": "Heaviest",
+  "trainingProgressBestVolume": "Best volume",
+  "trainingProgressSessionsHeading": "Sessions",
+  "trainingProgressSessionsInRange": "Sessions ({range})",
+  "@trainingProgressSessionsInRange": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingProgressNoSessionsInRange": "No sessions in this range",
+  "trainingProgressRepsCount": "{count, plural, =1{1 rep} other{{count} reps}}",
+  "@trainingProgressRepsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingProgressNoData": "No data",
+  "trainingMeasureDeleteTitle": "Delete measurement?",
+  "trainingMeasureDeleteMessage": "The entry from {date} will be removed.",
+  "@trainingMeasureDeleteMessage": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingMeasureEmptyTitle": "No measurements yet",
+  "trainingMeasureEmptyMessageOwn": "Log your body weight regularly to see your trend here.",
+  "trainingMeasureEmptyMessageOther": "Nothing logged yet.",
+  "trainingMeasureLogAction": "Log measurement",
+  "trainingMeasureEditTitle": "Edit measurement",
+  "trainingMeasureBodyWeight": "Body weight",
+  "trainingMeasureChangeSince": "{change} since {date}",
+  "@trainingMeasureChangeSince": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingMeasureLogHeading": "Log",
+  "trainingMeasureAdd": "Add",
+  "trainingMeasureBodyFatValue": "{value} % fat",
+  "@trainingMeasureBodyFatValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingMeasureDeleteTooltip": "Delete measurement",
+  "trainingMeasureInvalidNumbers": "Enter valid numbers",
+  "trainingMeasureNeedValue": "Enter a weight or a body-fat value",
+  "trainingMeasureBodyFatOptional": "Body fat (optional)",
+  "trainingMeasureNoteOptional": "Note (optional)",
+  "trainingMeasureDateLabel": "Date: {date}",
+  "@trainingMeasureDateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingSessionsTitle": "Sessions",
+  "trainingSessionsClassesTitle": "Classes",
+  "trainingSessionsMyProgress": "My progress",
+  "trainingSessionsNew": "New Session",
+  "trainingSessionsEmpty": "No sessions yet",
+  "trainingSessionsEmptyHint": "Tap + to start your first workout",
+  "trainingSessionsNoClasses": "No classes yet",
+  "trainingSessionsNoClassesHint": "Sessions you run for members will show up here",
+  "trainingSessionPlanned": "Training Session",
+  "trainingSessionFree": "Free Session",
+  "trainingSessionInProgress": "In progress",
+  "trainingSessionDurationSemantics": "Duration {duration}",
+  "@trainingSessionDurationSemantics": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingSessionCommentCount": "{count, plural, =1{1 comment} other{{count} comments}}",
+  "@trainingSessionCommentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingSessionTodayAt": "Today {time}",
+  "@trainingSessionTodayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingSessionYesterdayAt": "Yesterday {time}",
+  "@trainingSessionYesterdayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingSessionCommentEditTitle": "Edit comment",
+  "trainingSessionCommentDeleteTitle": "Delete comment?",
+  "trainingSessionCommentDeleteMessage": "This comment will be permanently removed.",
+  "trainingSessionSetDeleteTitle": "Delete set?",
+  "trainingSessionSetDeleteMessage": "This logged set will be permanently removed.",
+  "trainingSessionDeleteTitle": "Delete session?",
+  "trainingSessionDeleteMessage": "This log entry will be permanently removed.",
+  "trainingSessionDetailTitle": "Session Detail",
+  "trainingSessionDeleteTooltip": "Delete session",
+  "trainingSessionDate": "Date",
+  "trainingSessionDuration": "Duration",
+  "trainingSessionTrainer": "Trainer",
+  "trainingSessionNotes": "Notes",
+  "trainingSessionNoSets": "No sets logged",
+  "trainingSessionSetsLogged": "{count, plural, =1{1 Set Logged} other{{count} Sets Logged}}",
+  "@trainingSessionSetsLogged": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingSessionTapToEdit": "Tap a set to edit it.",
+  "trainingSessionSetTitle": "Set {number}",
+  "@trainingSessionSetTitle": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingSessionSetTitleWithExercise": "Set {number} · {exercise}",
+  "@trainingSessionSetTitleWithExercise": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "exercise": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingSessionComments": "Comments",
+  "trainingSessionNoComments": "No comments yet. Coaches and the athlete can leave feedback here.",
+  "trainingSessionCommentAthlete": "Athlete",
+  "trainingSessionCommentCoach": "Coach",
+  "trainingSessionCommentHint": "Add a comment…",
+  "trainingSessionSendComment": "Send comment",
+  "trainingSessionCommentYou": "You",
+  "trainingSessionDeletedUser": "Deleted user",
+  "trainingSessionCommentOptions": "Comment options",
+  "trainingSessionCommentEdited": "{when} · edited",
+  "@trainingSessionCommentEdited": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingSessionEditSetTooltip": "Edit set",
+  "trainingSessionDeleteSetTooltip": "Delete set",
+  "trainingSessionNoReps": "No reps recorded",
+  "trainingSessionRepsWholeNumber": "Reps must be a whole number",
+  "trainingSessionWeightNumber": "Weight must be a number",
+  "trainingSessionEditSetTitle": "Edit {title}",
+  "@trainingSessionEditSetTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingSessionDropNumber": "Drop {number}",
+  "@trainingSessionDropNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingSessionRepType": "Type",
+  "trainingSessionRemoveDrop": "Remove drop",
+  "trainingSessionAddDrop": "Add drop",
+  "trainingSessionNote": "Note",
+  "trainingLogOfflineSaved": "Saved offline — will sync when you're back online",
+  "trainingLogFinishTitle": "Finish session?",
+  "trainingLogFinishMessage": "This will record the end time of your workout.",
+  "trainingLogFinishMessageOffline": "This will record the end time of your workout. Sets saved offline will sync when you're back online.",
+  "trainingLogKeepGoing": "Keep going",
+  "trainingLogFinish": "Finish",
+  "trainingLogNewPr": "New PR! {exercise}",
+  "@trainingLogNewPr": {
+    "placeholders": {
+      "exercise": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingLogNewPrWithE1rm": "New PR! {exercise} — e1RM {weight}",
+  "@trainingLogNewPrWithE1rm": {
+    "placeholders": {
+      "exercise": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingLogStarting": "Starting session…",
+  "trainingLogCouldNotStart": "Could not start",
+  "trainingLogElapsed": "Elapsed time {time}",
+  "@trainingLogElapsed": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingLogPlateTooltip": "Plate calculator & warm-up",
+  "trainingLogStartRest": "Start rest timer",
+  "trainingLogExercise": "Exercise",
+  "trainingLogCouldNotLogSet": "Could not log set: {error}",
+  "@trainingLogCouldNotLogSet": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingLogSetHeader": "Set {number} · {type}",
+  "@trainingLogSetHeader": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingLogSetHeaderWithRest": "Set {number} · {type} · rest {rest}",
+  "@trainingLogSetHeaderWithRest": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "type": {
+        "type": "String"
+      },
+      "rest": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingLogSavedOfflineTooltip": "Saved offline — will sync",
+  "trainingLogPending": "Pending",
+  "trainingLogLogged": "Logged",
+  "trainingLogLogSet": "Log Set",
+  "trainingLogFirstSetHint": "Tap below to log your first set",
+  "trainingLogPendingSync": "Pending sync",
+  "trainingLogNewPrShort": "New PR",
+  "trainingLogLogASet": "Log a Set",
+  "trainingLogPickExercise": "Pick an exercise first",
+  "trainingLogEnterReps": "Enter the number of reps",
+  "trainingLogChooseExercise": "Tap to choose an exercise",
+  "trainingLogRepType": "Rep type",
+  "trainingLogWeight": "Weight",
+  "trainingLogBodyweightHint": "Blank = bodyweight",
+  "trainingLogEstimated1rm": "Estimated 1RM ≈ {weight}",
+  "@trainingLogEstimated1rm": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingLogLog": "Log",
+  "trainingMemberAssignRoutine": "Assign routine",
+  "trainingMemberAssignMealPlan": "Assign meal plan",
+  "trainingMemberRemoveAssignmentTitle": "Remove assignment?",
+  "trainingMemberRemoveAssignmentMessage": "\"{plan}\" will no longer be assigned to {member}.",
+  "@trainingMemberRemoveAssignmentMessage": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "member": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingMemberRemove": "Remove",
+  "trainingMemberAssign": "Assign",
+  "trainingMemberProgressSubtitle": "PRs, volume, body weight",
+  "trainingMemberFoodDiary": "Food diary",
+  "trainingMemberFoodDiarySubtitle": "Meals & macros",
+  "trainingMemberRoutines": "Routines",
+  "trainingMemberMealPlans": "Meal plans",
+  "trainingMemberRecentSessions": "Recent sessions",
+  "trainingMemberAssignedByYou": "Assigned by you",
+  "trainingMemberSelfAssigned": "Self-assigned",
+  "trainingMemberAssignedBy": "Assigned by {name}",
+  "@trainingMemberAssignedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingMemberAssignedByAnotherCoach": "Assigned by another coach",
+  "trainingMemberNoRoutines": "No routines assigned",
+  "trainingMemberNoSessions": "No training sessions logged yet",
+  "trainingMemberProgramWorkout": "Program workout",
+  "trainingMemberNoMealPlans": "No meal plans assigned"
+}

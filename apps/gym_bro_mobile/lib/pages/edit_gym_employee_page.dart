@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -40,26 +41,34 @@ class _EditGymEmployeePageState extends State<EditGymEmployeePage> {
 
   bool get _busy => _resending || _removing || _changingRole;
 
+  String _roleLabel(AppLocalizations l10n, String type) =>
+      type == 'employee_trainer'
+          ? l10n.businessGymRoleEmployeeTrainer
+          : l10n.businessGymRoleEmployee;
+
   Future<void> _changeRole(String newType) async {
     if (newType == _staffType) return;
-    final label = newType == 'employee_trainer'
-        ? 'Employee Trainer'
-        : 'Employee';
+    final l10n = context.l10n;
+    final label = _roleLabel(l10n, newType);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Change role?'),
+        title: Text(l10n.businessGymChangeRoleTitle),
         content: Text(
-          'Make ${widget.user.fullName} an $label at ${widget.gymName}?',
+          l10n.businessGymChangeRoleMessage(
+            widget.user.fullName,
+            label,
+            widget.gymName,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Change'),
+            child: Text(l10n.businessGymChange),
           ),
         ],
       ),
@@ -83,7 +92,9 @@ class _EditGymEmployeePageState extends State<EditGymEmployeePage> {
       });
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Role changed to $label')));
+      ).showSnackBar(
+        SnackBar(content: Text(l10n.businessGymRoleChangedTo(label))),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -102,7 +113,9 @@ class _EditGymEmployeePageState extends State<EditGymEmployeePage> {
       await _api.resendInvite(token, widget.user.email);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invite resent successfully')),
+          SnackBar(
+            content: Text(context.l10n.businessGymInviteResentSuccess),
+          ),
         );
       }
     } catch (e) {
@@ -117,21 +130,25 @@ class _EditGymEmployeePageState extends State<EditGymEmployeePage> {
   }
 
   Future<void> _remove() async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Remove staff member?'),
+        title: Text(l10n.businessGymRemoveStaffTitle),
         content: Text(
-          'This will remove ${widget.user.fullName} from ${widget.gymName}.',
+          l10n.businessGymRemoveFromGymMessage(
+            widget.user.fullName,
+            widget.gymName,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Remove'),
+            child: Text(l10n.businessGymRemove),
           ),
         ],
       ),
@@ -160,9 +177,8 @@ class _EditGymEmployeePageState extends State<EditGymEmployeePage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final typeLabel = _staffType == 'employee_trainer'
-        ? 'Employee / Trainer'
-        : 'Employee';
+    final l10n = context.l10n;
+    final typeLabel = _roleLabel(l10n, _staffType);
 
     return PopScope(
       canPop: false,
@@ -171,7 +187,7 @@ class _EditGymEmployeePageState extends State<EditGymEmployeePage> {
         Navigator.pop(context, _roleChanged ? 'changed' : null);
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Edit Employee')),
+        appBar: AppBar(title: Text(l10n.businessGymEditEmployee)),
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -213,19 +229,19 @@ class _EditGymEmployeePageState extends State<EditGymEmployeePage> {
                 children: [
                   ListTile(
                     leading: const Icon(Icons.email_outlined),
-                    title: const Text('Email'),
+                    title: Text(l10n.businessGymEmail),
                     subtitle: Text(widget.user.email),
                   ),
                   const Divider(height: 1, indent: 16),
                   ListTile(
                     leading: const Icon(Icons.alternate_email),
-                    title: const Text('Username'),
+                    title: Text(l10n.businessGymUsername),
                     subtitle: Text(widget.user.username),
                   ),
                   const Divider(height: 1, indent: 16),
                   ListTile(
                     leading: const Icon(Icons.business_outlined),
-                    title: const Text('Gym'),
+                    title: Text(l10n.businessGymGym),
                     subtitle: Text(widget.gymName),
                   ),
                 ],
@@ -235,19 +251,20 @@ class _EditGymEmployeePageState extends State<EditGymEmployeePage> {
             const SizedBox(height: 24),
 
             // ── Role ───────────────────────────────────────────────────────────
-            Text('Role', style: Theme.of(context).textTheme.titleSmall),
+            Text(l10n.businessGymRole,
+                style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             SegmentedButton<String>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: 'employee',
-                  label: Text('Employee'),
-                  icon: Icon(Icons.badge_outlined),
+                  label: Text(l10n.businessGymRoleEmployee),
+                  icon: const Icon(Icons.badge_outlined),
                 ),
                 ButtonSegment(
                   value: 'employee_trainer',
-                  label: Text('Employee Trainer'),
-                  icon: Icon(Icons.sports_gymnastics_outlined),
+                  label: Text(l10n.businessGymRoleEmployeeTrainer),
+                  icon: const Icon(Icons.sports_gymnastics_outlined),
                 ),
               ],
               selected: {_staffType},
@@ -273,7 +290,7 @@ class _EditGymEmployeePageState extends State<EditGymEmployeePage> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.mark_email_unread_outlined),
-              label: const Text('Resend Invite'),
+              label: Text(l10n.businessGymResendInvite),
             ),
 
             const SizedBox(height: 12),
@@ -291,7 +308,10 @@ class _EditGymEmployeePageState extends State<EditGymEmployeePage> {
                       ),
                     )
                   : Icon(Icons.person_remove_outlined, color: cs.error),
-              label: Text('Remove from Gym', style: TextStyle(color: cs.error)),
+              label: Text(
+                l10n.businessGymRemoveFromGym,
+                style: TextStyle(color: cs.error),
+              ),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: cs.error),
               ),

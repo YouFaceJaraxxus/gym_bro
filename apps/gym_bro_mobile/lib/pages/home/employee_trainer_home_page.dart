@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../models/user_profile.dart';
+import '../../widgets/my_shifts_card.dart';
 import 'employee_home_page.dart';
 import 'home_widgets.dart';
 import 'trainer_home_page.dart';
@@ -29,9 +31,11 @@ class _EmployeeTrainerHomePageState extends State<EmployeeTrainerHomePage> {
         padding: const EdgeInsets.all(24),
         children: [
           HomeHeader(
-            title: 'Welcome, ${widget.profile.name}',
-            subtitle: widget.profile.role.displayName,
+            title: context.l10n.shellWelcome(widget.profile.name),
+            subtitle: widget.profile.role.label(context.l10n),
           ),
+          MyShiftsCard(key: ValueKey('shifts-$_refreshTick')),
+          const SizedBox(height: 8),
           TrainerTodaySection(
             key: ValueKey('trainer-$_refreshTick'),
             profile: widget.profile,

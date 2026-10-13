@@ -1,23 +1,28 @@
-enum ShopItemType { equipment, supplement, giftCard;
+import '../l10n/app_localizations.dart';
+
+enum ShopItemType {
+  equipment,
+  supplement,
+  giftCard;
 
   static ShopItemType fromString(String v) => switch (v) {
-        'equipment' => ShopItemType.equipment,
-        'supplement' => ShopItemType.supplement,
-        'gift_card' => ShopItemType.giftCard,
-        _ => ShopItemType.equipment,
-      };
+    'equipment' => ShopItemType.equipment,
+    'supplement' => ShopItemType.supplement,
+    'gift_card' => ShopItemType.giftCard,
+    _ => ShopItemType.equipment,
+  };
 
   String get apiValue => switch (this) {
-        ShopItemType.equipment => 'equipment',
-        ShopItemType.supplement => 'supplement',
-        ShopItemType.giftCard => 'gift_card',
-      };
+    ShopItemType.equipment => 'equipment',
+    ShopItemType.supplement => 'supplement',
+    ShopItemType.giftCard => 'gift_card',
+  };
 
-  String get displayName => switch (this) {
-        ShopItemType.equipment => 'Equipment',
-        ShopItemType.supplement => 'Supplement',
-        ShopItemType.giftCard => 'Gift Card',
-      };
+  String label(AppLocalizations l10n) => switch (this) {
+    ShopItemType.equipment => l10n.businessItemTypeEquipment,
+    ShopItemType.supplement => l10n.businessItemTypeSupplement,
+    ShopItemType.giftCard => l10n.businessItemTypeGiftCard,
+  };
 }
 
 class ShopItem {
@@ -46,17 +51,17 @@ class ShopItem {
   });
 
   factory ShopItem.fromJson(Map<String, dynamic> json) => ShopItem(
-        id: json['id'] as String,
-        shopId: json['shop_id'] as String,
-        type: ShopItemType.fromString(json['type'] as String),
-        name: json['name'] as String,
-        description: json['description'] as String?,
-        price: double.parse(json['price'].toString()),
-        quantity: json['quantity'] as int? ?? 1,
-        isActive: json['is_active'] as bool? ?? true,
-        activeUntil: json['active_until'] != null
-            ? DateTime.tryParse(json['active_until'] as String)
-            : null,
-        imageUrl: json['image_url'] as String?,
-      );
+    id: json['id'] as String,
+    shopId: json['shop_id'] as String,
+    type: ShopItemType.fromString(json['type'] as String),
+    name: json['name'] as String,
+    description: json['description'] as String?,
+    price: double.parse(json['price'].toString()),
+    quantity: json['quantity'] as int? ?? 1,
+    isActive: json['is_active'] as bool? ?? true,
+    activeUntil: json['active_until'] != null
+        ? DateTime.tryParse(json['active_until'] as String)
+        : null,
+    imageUrl: json['image_url'] as String?,
+  );
 }

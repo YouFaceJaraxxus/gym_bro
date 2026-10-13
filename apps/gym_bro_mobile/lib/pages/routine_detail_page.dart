@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
 import '../models/routine.dart';
+import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../theme.dart';
+import '../widgets/routine_assign.dart';
 import 'routine_form_page.dart';
 
 class RoutineDetailPage extends StatefulWidget {
@@ -46,17 +51,19 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
   }
 
   Future<void> _delete() async {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete routine?'),
-        content: Text('Remove "${_routine!.name}" permanently?'),
+        title: Text(l10n.trainingRoutineDeleteTitle),
+        content: Text(l10n.trainingPlanDeleteBody(_routine!.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.commonCancel)),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            style: TextButton.styleFrom(foregroundColor: cs.error),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -69,7 +76,10 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e.toString(), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
+          ),
         );
       }
     }
@@ -77,6 +87,9 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final app = context.appColors;
     if (_loading) {
       return Scaffold(appBar: AppBar(), body: const Center(child: CircularProgressIndicator()));
     }
@@ -85,9 +98,9 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
         appBar: AppBar(),
         body: Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(_error ?? 'Unknown error', style: const TextStyle(color: Colors.red)),
+            Text(_error ?? l10n.commonSomethingWentWrong, style: TextStyle(color: cs.error)),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: _load, child: const Text('Retry')),
+            ElevatedButton(onPressed: _load, child: Text(l10n.commonRetry)),
           ]),
         ),
       );
@@ -96,13 +109,33 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
     final routine = _routine!;
     final profile = AuthManager.instance.profile;
     final isOwner = profile != null && profile.id == routine.authorId;
+    const coachRoles = {
+      UserRole.owner,
+      UserRole.trainer,
+      UserRole.employee,
+      UserRole.employeeTrainer,
+      UserRole.superUser,
+    };
+    final isCoach = profile != null && coachRoles.contains(profile.role);
+    // The API lets anyone assign public routines (or their own) to themselves
+    // or to members they coach.
+    final canAssign = isOwner ||
+        (isCoach && (routine.isPublic || profile.role == UserRole.superUser));
 
     return Scaffold(
+      floatingActionButton: canAssign
+          ? FloatingActionButton.extended(
+              onPressed: () => showAssignRoutineFlow(context, routine: routine),
+              icon: const Icon(Icons.assignment_ind_outlined),
+              label: Text(l10n.trainingAssignAction),
+            )
+          : null,
       appBar: AppBar(
         title: Text(routine.name),
         actions: [
           if (isOwner) ...[
             IconButton(
+              tooltip: l10n.trainingRoutineEditTooltip,
               icon: const Icon(Icons.edit),
               onPressed: () async {
                 final updated = await Navigator.push<Routine>(
@@ -112,14 +145,18 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                 if (updated != null) setState(() => _routine = updated);
               },
             ),
-            IconButton(icon: const Icon(Icons.delete_outline), onPressed: _delete),
+            IconButton(
+              tooltip: l10n.trainingRoutineDeleteTooltip,
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _delete,
+            ),
           ],
         ],
       ),
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.fromLTRB(16, 16, 16, canAssign ? 96 : 16),
           children: [
             if (routine.thumbnailUrl.isNotEmpty) ...[
               ClipRRect(
@@ -129,6 +166,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
+                  excludeFromSemantics: true,
                   errorBuilder: (context, error, stack) => const SizedBox.shrink(),
                 ),
               ),
@@ -141,9 +179,10 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
                 _ScheduleBadge(routine: routine),
                 const SizedBox(width: 8),
                 if (!routine.isPublic) ...[
-                  const Icon(Icons.lock_outline, size: 14, color: Colors.grey),
+                  Icon(Icons.lock_outline, size: 14, color: cs.onSurfaceVariant),
                   const SizedBox(width: 4),
-                  const Text('Private', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  Text(l10n.trainingRoutinePrivate,
+                      style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                 ],
               ],
             ),
@@ -158,23 +197,30 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
+                  color: app.warningContainer,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.amber.shade200),
+                  border: Border.all(color: app.warning.withValues(alpha: 0.4)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.sticky_note_2_outlined, size: 16, color: Colors.amber.shade700),
+                    Icon(Icons.sticky_note_2_outlined,
+                        size: 16,
+                        color: app.onWarningContainer,
+                        semanticLabel: l10n.trainingPlanNotes),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(routine.notes!)),
+                    Expanded(
+                      child: Text(routine.notes!,
+                          style: TextStyle(color: app.onWarningContainer)),
+                    ),
                   ],
                 ),
               ),
             ],
 
             const SizedBox(height: 24),
-            const Text('Schedule', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(l10n.trainingRoutineSchedule,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 12),
 
             if (routine.scheduleType == RoutineScheduleType.fixedWeeks)
@@ -195,15 +241,17 @@ class _ScheduleBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: cs.secondaryContainer,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        routine.scheduleLabel,
-        style: TextStyle(fontSize: 12, color: Colors.blue.shade700, fontWeight: FontWeight.w600),
+        routine.scheduleLabel(context.l10n),
+        style: TextStyle(
+            fontSize: 12, color: cs.onSecondaryContainer, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -222,18 +270,22 @@ class _FixedWeeksSchedule extends StatelessWidget {
       byWeek.putIfAbsent(rt.weekNumber!, () => {})[rt.dayOfWeek ?? 1] = rt;
     }
     final weeks = byWeek.keys.toList()..sort();
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final dayFmt = DateFormat.E(Localizations.localeOf(context).toString());
 
     return Column(
       children: weeks.map((week) {
         final days = byWeek[week]!;
         return ExpansionTile(
-          title: Text('Week $week', style: const TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(l10n.trainingRoutineWeek(week),
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           initiallyExpanded: week == 1,
           children: List.generate(7, (i) {
             final dow = i + 1;
             final entry = days[dow];
-            const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            final dayName = dayNames[i];
+            // 2024-01-01 was a Monday.
+            final dayName = dayFmt.format(DateTime(2024, 1, dow));
             return ListTile(
               dense: true,
               leading: SizedBox(
@@ -241,8 +293,9 @@ class _FixedWeeksSchedule extends StatelessWidget {
                 child: Text(dayName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
               ),
               title: entry != null
-                  ? Text(entry.training?.name ?? 'Training')
-                  : const Text('Rest day', style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic)),
+                  ? Text(entry.training?.name ?? l10n.trainingRoutineTrainingFallback)
+                  : Text(l10n.trainingRoutineRestDay,
+                      style: TextStyle(color: cs.onSurfaceVariant, fontStyle: FontStyle.italic)),
             );
           }),
         );
@@ -258,8 +311,10 @@ class _WildcardSchedule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     if (routine.trainings.isEmpty) {
-      return const Text('No trainings assigned yet', style: TextStyle(color: Colors.grey));
+      return Text(l10n.trainingRoutineNoTrainings,
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant));
     }
     return Column(
       children: routine.trainings.asMap().entries.map((entry) {
@@ -270,7 +325,7 @@ class _WildcardSchedule extends StatelessWidget {
             radius: 14,
             child: Text('${i + 1}', style: const TextStyle(fontSize: 12)),
           ),
-          title: Text(rt.training?.name ?? 'Training'),
+          title: Text(rt.training?.name ?? l10n.trainingRoutineTrainingFallback),
           subtitle: rt.note != null ? Text(rt.note!) : null,
         );
       }).toList(),

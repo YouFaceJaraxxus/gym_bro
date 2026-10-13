@@ -1,0 +1,19 @@
+{
+  "lock": false,
+  "compilerOptions": {
+    "lib": ["deno.window"]
+  },
+  "lint": {
+    "include": ["supabase/functions/", "tests/"],
+    "rules": {
+      "tags": ["recommended"],
+      "exclude": ["no-import-prefix"]
+    }
+  },
+  "tasks": {
+    "check": "deno check supabase/functions/*/index.ts tests/",
+    "lint": "deno lint",
+    "test:unit": "deno test --allow-env --allow-read tests/unit/",
+    "test:integration": "deno test --allow-net --allow-env tests/integration/"
+  }
+}

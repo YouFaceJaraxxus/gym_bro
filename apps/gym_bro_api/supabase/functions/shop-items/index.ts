@@ -2,6 +2,7 @@ import { db } from "../_shared/config.ts";
 import { canStaffShop, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
 import type { ShopItemInsert, ShopItemType, ShopItemUpdate } from "../../types/schema/public.ts";
 import { pgCode } from "../_shared/roles.ts";
+import { businessName, notify } from "../_shared/notify.ts";
 
 const COLS = [
   "id",
@@ -29,6 +30,33 @@ const UPDATABLE = [
   "active_until",
   "image_url",
 ] as const;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Item restocked (0 → n): tell buyers whose recent order with it was cancelled
+ * (typically because it ran out) that it's back.
+ */
+async function notifyBackInStock(itemId: string, shopId: string, itemName: string): Promise<void> {
+  const rows = await db
+    .selectFrom("invoice_item as ii")
+    .innerJoin("invoice as o", "o.id", "ii.invoice_id")
+    .select("o.user_id")
+    .distinct()
+    .where("ii.shop_item_id", "=", itemId)
+    .where("o.status", "=", "cancelled")
+    .where("o.user_id", "is not", null)
+    .where("o.cancelled_at", ">", new Date(Date.now() - 60 * 24 * 3600 * 1000).toISOString())
+    .execute();
+  if (rows.length === 0) return;
+  const shopName = await businessName(shopId);
+  await notify(rows.map((r) => r.user_id!), {
+    type: "shop_item_update",
+    title: `${itemName} is back in stock`,
+    body: `${shopName} has ${itemName} available again.`,
+    metadata: { shop_item_id: itemId, shop_id: shopId, shop_name: shopName },
+  });
+}
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -81,8 +109,8 @@ Deno.serve(async (req: Request) => {
     if (!ITEM_TYPES.includes(type)) {
       return jsonError("type must be 'equipment', 'supplement', or 'gift_card'", 400);
     }
-    if (!Number.isInteger(quantity) || quantity < 1) {
-      return jsonError("quantity must be a positive integer", 400);
+    if (!Number.isInteger(quantity) || quantity < 0) {
+      return jsonError("quantity must be a whole number of 0 or more", 400);
     }
     if (!(await canStaffShop(caller, shop_id))) return forbidden();
 
@@ -124,11 +152,11 @@ Deno.serve(async (req: Request) => {
     if (update.type !== undefined && !ITEM_TYPES.includes(update.type as ShopItemType)) {
       return jsonError("type must be 'equipment', 'supplement', or 'gift_card'", 400);
     }
-    if (update.quantity !== undefined && (!Number.isInteger(update.quantity) || update.quantity < 1)) {
-      return jsonError("quantity must be a positive integer", 400);
+    if (update.quantity !== undefined && (!Number.isInteger(update.quantity) || update.quantity < 0)) {
+      return jsonError("quantity must be a whole number of 0 or more", 400);
     }
 
-    const existing = await db.selectFrom("shop_item").select("shop_id").where("id", "=", id)
+    const existing = await db.selectFrom("shop_item").select(["shop_id", "quantity"]).where("id", "=", id)
       .executeTakeFirst();
     if (!existing) return jsonError("Shop item not found", 404);
     if (!(await canStaffShop(caller, existing.shop_id))) return forbidden();
@@ -140,6 +168,9 @@ Deno.serve(async (req: Request) => {
       .returning(COLS)
       .executeTakeFirst();
     if (!item) return jsonError("Shop item not found", 404);
+    if (existing.quantity === 0 && item.quantity > 0 && item.is_active) {
+      await notifyBackInStock(item.id, item.shop_id, item.name);
+    }
     return json(item);
   }
 

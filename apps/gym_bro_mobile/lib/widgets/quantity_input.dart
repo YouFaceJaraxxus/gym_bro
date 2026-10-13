@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
+
 class QuantityInput extends StatelessWidget {
   const QuantityInput({
     super.key,
@@ -23,18 +25,24 @@ class QuantityInput extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton.outlined(
+          tooltip: context.l10n.businessQuantityDecrease,
           icon: const Icon(Icons.remove),
           onPressed: canDecrement ? () => onChanged(value - 1) : null,
         ),
         SizedBox(
           width: 48,
-          child: Text(
-            '$value',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
+          child: Semantics(
+            label: context.l10n.businessQuantityValue(value),
+            excludeSemantics: true,
+            child: Text(
+              '$value',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
         ),
         IconButton.outlined(
+          tooltip: context.l10n.businessQuantityIncrease,
           icon: const Icon(Icons.add),
           onPressed: canIncrement ? () => onChanged(value + 1) : null,
         ),

@@ -1,6 +1,6 @@
 import type { Kysely } from "npm:kysely@^0.27";
 import { db, supabaseAdmin } from "../_shared/config.ts";
-import { canManageGym, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
+import { canCoachAtGym, canManageGym, forbidden, json, jsonError, redactEmails, requireCaller } from "../_shared/auth.ts";
 import type { Database, UserInsert } from "../../types/schema/public.ts";
 import { pgCode, assignRole, reconcileRoles } from "../_shared/roles.ts";
 
@@ -22,6 +22,7 @@ const SELECT_COLS = [
   "users.last_name",
   "users.username",
   "users.role",
+  "users.avatar_url",
 ] as const;
 
 type EmployeeType = "employee" | "employee_trainer";
@@ -92,6 +93,7 @@ async function staffRowWithUser(q: Kysely<Database>, userId: string, gymId: stri
       "users.last_name",
       "users.username",
       "users.role",
+      "users.avatar_url",
     ])
     .where(`${table}.user_id`, "=", userId)
     .where(`${table}.gym_id`, "=", gymId)
@@ -269,6 +271,7 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── GET /employees — optional ?user_id= and/or ?gym_id= filters ──────────────
+  // email only for the employee themself and people who coach/staff at that gym.
   if (req.method === "GET" && !id) {
     const userId = url.searchParams.get("user_id");
     const gymId = url.searchParams.get("gym_id");
@@ -278,7 +281,7 @@ Deno.serve(async (req: Request) => {
       .select(SELECT_COLS);
     if (userId) query = query.where("employee.user_id", "=", userId);
     if (gymId) query = query.where("employee.gym_id", "=", gymId);
-    return json(await query.execute());
+    return json(await redactEmails(caller, await query.execute(), (r) => r.gym_id, canCoachAtGym));
   }
 
   // ── GET /employees/:id ────────────────────────────────────────────────────────
@@ -290,7 +293,7 @@ Deno.serve(async (req: Request) => {
       .where("employee.id", "=", id)
       .executeTakeFirst();
     if (!row) return jsonError("Employee not found", 404);
-    return json(row);
+    return json((await redactEmails(caller, [row], (r) => r.gym_id, canCoachAtGym))[0]);
   }
 
   // ── DELETE /employees/:id ─────────────────────────────────────────────────────

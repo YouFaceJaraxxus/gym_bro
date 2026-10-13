@@ -1,0 +1,340 @@
+{
+  "trainingMuscleMapLabel": "Muscle diagram",
+  "trainingMuscleMapPrimary": "Primary: {muscles}",
+  "@trainingMuscleMapPrimary": {
+    "placeholders": {
+      "muscles": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingMuscleMapSecondary": "Secondary: {muscles}",
+  "@trainingMuscleMapSecondary": {
+    "placeholders": {
+      "muscles": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingMuscleMapNone": "No muscles highlighted",
+  "trainingMuscleMapLegendTarget": "Target",
+  "trainingMuscleMapLegendSecondary": "Secondary",
+  "trainingExerciseNoneFound": "No exercises found",
+  "trainingExerciseSearchHint": "Search exercises…",
+  "trainingCoachChooseMember": "Choose a member",
+  "trainingCoachNotSignedIn": "Not signed in",
+  "trainingCoachNoMembers": "No members to coach yet. Members of gyms where you work or train show up here.",
+  "trainingCoachNoMatches": "No members match your search",
+  "trainingCoachMyself": "Myself",
+  "trainingCoachYou": "you",
+  "trainingCoachSearchHint": "Search members…",
+  "trainingAssignPickerTitle": "Assign \"{routine}\" to…",
+  "@trainingAssignPickerTitle": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingAssignDoneSelf": "\"{routine}\" assigned to you",
+  "@trainingAssignDoneSelf": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingAssignDone": "\"{routine}\" assigned to {name}",
+  "@trainingAssignDone": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingAssignDialogTitle": "Assign routine",
+  "trainingAssignConfirmSelf": "Assign \"{routine}\" to yourself?",
+  "@trainingAssignConfirmSelf": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingAssignConfirm": "Assign \"{routine}\" to {name}?",
+  "@trainingAssignConfirm": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingAssignStart": "Start",
+  "trainingAssignEnd": "End",
+  "trainingAssignClearDates": "Clear dates",
+  "trainingAssignNoteLabel": "Note (optional)",
+  "trainingAssignNoteHint": "e.g. Focus on form, 3 sessions a week",
+  "trainingAssignAction": "Assign",
+  "trainingAssignNoRoutines": "No routines found",
+  "trainingRoutineTrainingCount": "{count, plural, =1{1 training} other{{count} trainings}}",
+  "@trainingRoutineTrainingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingRoutineMine": "Mine",
+  "trainingRoutinePrivate": "Private",
+  "trainingAssignSearchRoutinesHint": "Search routines…",
+  "trainingAssignStarts": "Starts {date}",
+  "@trainingAssignStarts": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingAssignEnds": "Ends {date}",
+  "@trainingAssignEnds": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingAssignAssignedOn": "Assigned {date}",
+  "@trainingAssignAssignedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingAssignRemoveTooltip": "Remove assignment",
+  "trainingAssignRemoveTitle": "Remove assignment?",
+  "trainingAssignRemoveBodyUser": "\"{routine}\" will no longer be assigned to {name}.",
+  "@trainingAssignRemoveBodyUser": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingAssignRemoveBody": "\"{routine}\" will no longer be assigned.",
+  "@trainingAssignRemoveBody": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingAssignRemoveAction": "Remove",
+  "trainingWorkoutsTitle": "Workouts",
+  "trainingWorkoutsTabTrainings": "Trainings",
+  "trainingWorkoutsTabRoutines": "Routines",
+  "trainingWorkoutsTabAssigned": "Assigned",
+  "trainingWorkoutsTabLibrary": "My Library",
+  "trainingWorkoutsCreate": "Create",
+  "trainingWorkoutsNewTraining": "New Training",
+  "trainingWorkoutsNewRoutine": "New Routine",
+  "trainingWorkoutsNoTrainings": "No trainings found",
+  "trainingWorkoutsAssignedToMe": "Assigned to me ({count})",
+  "@trainingWorkoutsAssignedToMe": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingWorkoutsAssignedByMe": "By me ({count})",
+  "@trainingWorkoutsAssignedByMe": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingWorkoutsByMeEmpty": "You haven't assigned routines to anyone yet.\nOpen a routine and tap Assign.",
+  "trainingWorkoutsToMeEmpty": "No routines assigned to you yet.\nYour coach's assignments show up here.",
+  "trainingWorkoutsAssignedFor": "For {name}",
+  "@trainingWorkoutsAssignedFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingWorkoutsAssignedForMember": "For a member",
+  "trainingWorkoutsSelfAssigned": "Self-assigned",
+  "trainingWorkoutsAssignedFrom": "From {name}",
+  "@trainingWorkoutsAssignedFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingWorkoutsAssignedFromCoach": "From your coach",
+  "trainingWorkoutsMyTrainings": "My Trainings",
+  "trainingWorkoutsMyRoutines": "My Routines",
+  "trainingWorkoutsClearSearch": "Clear search",
+  "trainingWorkoutsSetCount": "{count, plural, =1{1 set} other{{count} sets}}",
+  "@trainingWorkoutsSetCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingPlanDeleteTitle": "Delete training?",
+  "trainingPlanDeleteBody": "Remove \"{name}\" permanently?",
+  "@trainingPlanDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingPlanStartSession": "Start Session",
+  "trainingPlanNotes": "Notes",
+  "trainingPlanMusclesTrained": "Muscles Trained",
+  "trainingPlanProgramme": "Programme",
+  "trainingPlanRestSeconds": "Rest {seconds}s",
+  "@trainingPlanRestSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingExerciseFallbackName": "Exercise",
+  "trainingExerciseAlternating": "{name} (alternating)",
+  "@trainingExerciseAlternating": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingPlanDropLine": "Drop {number}: {details}",
+  "@trainingPlanDropLine": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingPlanEditTitle": "Edit Training",
+  "trainingPlanAddCoverPhoto": "Add cover photo",
+  "trainingPlanNameLabel": "Training name *",
+  "trainingPlanDescriptionLabel": "Description",
+  "trainingPlanPublic": "Public",
+  "trainingPlanPublicSubtitle": "Visible to all users",
+  "trainingPlanSets": "Sets",
+  "trainingPlanAddSet": "Add Set",
+  "trainingPlanReorderSet": "Drag to reorder",
+  "trainingPlanCollapse": "Collapse",
+  "trainingPlanExpand": "Expand",
+  "trainingPlanRemoveSet": "Remove set",
+  "trainingPlanAddExerciseToSuperset": "Add Exercise to Superset",
+  "trainingPlanSelectExercise": "Select exercise…",
+  "trainingPlanPickExercise": "Pick exercise",
+  "trainingPlanRemoveExercise": "Remove exercise",
+  "trainingPlanAddDrop": "Add Drop",
+  "trainingPlanMakeDropset": "Make Dropset",
+  "trainingPlanAlternatingShort": "Alt.",
+  "trainingPlanAlternating": "Alternating",
+  "trainingPlanDropNumber": "Drop {number}",
+  "@trainingPlanDropNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingPlanRemoveDrop": "Remove drop",
+  "trainingRoutineDeleteTitle": "Delete routine?",
+  "trainingRoutineEditTooltip": "Edit routine",
+  "trainingRoutineDeleteTooltip": "Delete routine",
+  "trainingRoutineSchedule": "Schedule",
+  "trainingRoutineWeek": "Week {week}",
+  "@trainingRoutineWeek": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingRoutineTrainingFallback": "Training",
+  "trainingRoutineRestDay": "Rest day",
+  "trainingRoutineNoTrainings": "No trainings assigned yet",
+  "trainingRoutineInvalidWeeks": "Enter a valid number of weeks",
+  "trainingRoutineEditTitle": "Edit Routine",
+  "trainingRoutineNameLabel": "Routine name *",
+  "trainingRoutineScheduleType": "Schedule Type",
+  "trainingRoutineNumWeeksLabel": "Number of weeks *",
+  "trainingRoutineNumWeeksHint": "e.g. 12",
+  "trainingRoutineInvalidNumber": "Enter a valid number",
+  "trainingRoutineAdd": "Add",
+  "trainingRoutineNoTrainingsAdded": "No trainings added yet",
+  "trainingRoutineWeekShortHint": "Wk",
+  "trainingRoutineWeekShort": "Wk {week}",
+  "@trainingRoutineWeekShort": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingRoutineDayHint": "Day",
+  "trainingRoutineRemoveTraining": "Remove training",
+  "trainingRoutineSearchTrainingsHint": "Search trainings…",
+  "trainingExerciseTitle": "Exercises",
+  "trainingExerciseFilterTooltip": "Filter by muscle",
+  "trainingExerciseFilterActiveTooltip": "Filter by muscle (current: {muscle})",
+  "@trainingExerciseFilterActiveTooltip": {
+    "placeholders": {
+      "muscle": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingExerciseNewTitle": "New Exercise",
+  "trainingExerciseMyPrivate": "My private",
+  "trainingExerciseClearFilter": "Clear filter",
+  "trainingExerciseNoPrivate": "You have no private exercises",
+  "trainingExerciseFilterTitle": "Filter by Muscle",
+  "trainingExerciseAllMuscles": "All muscles",
+  "trainingExerciseDeleteTitle": "Delete exercise?",
+  "trainingExercisePhoto": "Photo of {name}",
+  "@trainingExercisePhoto": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingExerciseTargetMuscles": "Target Muscles",
+  "trainingExerciseVideo": "Video",
+  "trainingExercisePrimaryMuscles": "Primary Muscles",
+  "trainingExerciseSecondaryMuscles": "Secondary Muscles",
+  "trainingExerciseEditTitle": "Edit Exercise",
+  "trainingExerciseNameLabel": "Exercise name *",
+  "trainingExerciseAddPhoto": "Add exercise photo",
+  "trainingExerciseVideoUrl": "Video URL",
+  "trainingExerciseTapToSelect": "Tap to select",
+  "trainingExerciseDone": "Done"
+}

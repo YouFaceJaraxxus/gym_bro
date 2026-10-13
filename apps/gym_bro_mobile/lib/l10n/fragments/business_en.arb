@@ -1,0 +1,1064 @@
+{
+  "businessInvoiceStatusUnpaid": "Unpaid",
+  "businessInvoiceStatusPaid": "Paid",
+  "businessInvoiceStatusVoid": "Void",
+  "businessItemTypeEquipment": "Equipment",
+  "businessItemTypeSupplement": "Supplement",
+  "businessItemTypeGiftCard": "Gift card",
+  "businessOrderStatusPending": "Pending",
+  "businessOrderStatusPaid": "Paid",
+  "businessOrderStatusFulfilled": "Fulfilled",
+  "businessOrderStatusCancelled": "Cancelled",
+  "businessPaymentMethodCard": "Card",
+  "businessPaymentMethodPayAtPickup": "Pay at pickup",
+  "businessPaymentStatusPending": "Pending",
+  "businessPaymentStatusPaid": "Paid",
+  "businessPaymentStatusFailed": "Failed",
+  "businessPaymentStatusCancelled": "Cancelled",
+  "businessPaymentStatusRefunded": "Refunded",
+  "businessQuantityDecrease": "Decrease quantity",
+  "businessQuantityIncrease": "Increase quantity",
+  "businessQuantityValue": "Quantity {value}",
+  "@businessQuantityValue": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "businessCheckInYesterday": "Yesterday",
+  "businessCheckInTitle": "Check in",
+  "businessCheckInNoGymTitle": "No gym to check in to",
+  "businessCheckInNoGymMessage": "Once a gym adds you as a member, your check-in code shows up here.",
+  "businessCheckInRecentVisits": "Recent visits",
+  "businessCheckInStaffNotice": "You are staff here, not a member. This code is for testing the scanner.",
+  "businessCheckInQrNotConfigured": "QR check-in isn't set up on this server yet. Ask the front desk to check you in by name.",
+  "businessCheckInQrSemantics": "Check-in QR code for {gym}",
+  "@businessCheckInQrSemantics": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "businessCheckInRefreshingCode": "Refreshing code…",
+  "businessCheckInRefreshFailed": "Couldn't refresh: {error}",
+  "@businessCheckInRefreshFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "businessCheckInNewCodeIn": "New code in {time}",
+  "@businessCheckInNewCodeIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "businessCheckInRefreshCode": "Refresh code",
+  "businessCheckInShowAtDesk": "Show this code at the front desk",
+  "businessCheckInVisitsThisMonth": "Visits this month",
+  "businessCheckInThisWeek": "This week",
+  "businessCheckInAllTime": "All time",
+  "businessCheckInNoVisitsTitle": "No visits yet",
+  "businessCheckInNoVisitsMessage": "Your check-ins will be listed here.",
+  "businessCheckInGymFallback": "Gym",
+  "businessCheckInByStaff": "by staff",
+  "businessCheckInShowMore": "Show more",
+  "businessCheckInPickDayHelp": "Show check-ins for",
+  "businessCheckInAttendanceTitle": "Attendance",
+  "businessCheckInScanTooltip": "Scan check-ins",
+  "businessCheckInMembersInDays": "Members ({days}d)",
+  "@businessCheckInMembersInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "businessCheckInLastDays": "{days, plural, =1{Last day} other{Last {days} days}}",
+  "@businessCheckInLastDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "businessCheckInTotalPerDay": "{count, plural, =1{1 check-in} other{{count} check-ins}} · {average} per day",
+  "@businessCheckInTotalPerDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "average": {
+        "type": "String"
+      }
+    }
+  },
+  "businessCheckInNoCheckInsInPeriod": "No check-ins in this period yet.",
+  "businessCheckInDailyChartSemantics": "Check-ins per day chart, last {days} days: {total} in total, {average} per day on average.",
+  "@businessCheckInDailyChartSemantics": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "average": {
+        "type": "String"
+      }
+    }
+  },
+  "businessCheckInBusiestHours": "Busiest hours",
+  "businessCheckInPeak": "Peak: {hours}",
+  "@businessCheckInPeak": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "businessCheckInNotEnoughData": "Not enough data yet.",
+  "businessCheckInHourlyChartSemantics": "Check-ins by hour chart. Busiest: {hours}.",
+  "@businessCheckInHourlyChartSemantics": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "businessCheckInTopMembers": "Top members",
+  "businessCheckInNoVisitsInPeriod": "No visits in this period.",
+  "businessCheckInLastVisit": "Last visit {when}",
+  "@businessCheckInLastVisit": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "businessCheckInVisitsUnit": "{count, plural, =1{visit} other{visits}}",
+  "@businessCheckInVisitsUnit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessCheckInCheckIns": "Check-ins",
+  "businessCheckInCount": "{count, plural, =1{1 check-in} other{{count} check-ins}}",
+  "@businessCheckInCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessCheckInPreviousDay": "Previous day",
+  "businessCheckInNextDay": "Next day",
+  "businessCheckInNoneToday": "No check-ins yet today",
+  "businessCheckInNoneOnDay": "No check-ins on this day",
+  "businessCheckInScanHint": "Scan a member's code to check them in.",
+  "businessCheckInOpenScanner": "Open scanner",
+  "businessCheckInMemberFallback": "Member",
+  "businessCheckInManual": "Manual check-in",
+  "businessCheckInQrScan": "QR scan",
+  "businessCheckInScanTitle": "Scan check-in",
+  "businessCheckInTorchOff": "Turn flashlight off",
+  "businessCheckInTorchOn": "Turn flashlight on",
+  "businessCheckInCheckingIn": "Checking in…",
+  "businessCheckInPointCamera": "Point the camera at a member's code",
+  "businessCheckInSessionCount": "{count, plural, =1{1 checked in this session} other{{count} checked in this session}}",
+  "@businessCheckInSessionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessCheckInManualShort": "Manual",
+  "businessCheckInResultCheckedIn": "Checked in",
+  "businessCheckInResultNoMembership": "No active membership",
+  "businessCheckInResultDuplicate": "Already checked in",
+  "businessCheckInResultFailed": "Check-in failed",
+  "businessCheckInCheckedInAt": "Checked in at {time}",
+  "@businessCheckInCheckedInAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "businessCheckInMembershipValidUntil": "{type} · valid until {date}",
+  "@businessCheckInMembershipValidUntil": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "businessCheckInMembershipEnded": "{type} · ended {date}",
+  "@businessCheckInMembershipEnded": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "businessCheckInNoMembershipOnFile": "No membership on file",
+  "businessCheckInDismissHint": "dismiss",
+  "businessCheckInCameraDenied": "Camera access is off",
+  "businessCheckInCameraUnavailable": "Camera unavailable",
+  "businessCheckInCameraDeniedMessage": "Allow camera access for Gym Bro in your device settings to scan member codes. You can still check members in by name.",
+  "businessCheckInCameraUnsupportedMessage": "This device can't scan codes. Check members in by name instead.",
+  "businessCheckInCameraStartFailed": "The camera couldn't start ({code}).",
+  "@businessCheckInCameraStartFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "businessCheckInSearchHint": "Search members by name or email",
+  "businessCheckInClearSearch": "Clear search",
+  "businessCheckInNoMembers": "No members yet",
+  "businessCheckInNoMatches": "No matching members",
+  "businessCheckInNoMembersMessage": "Members added to this gym show up here.",
+  "businessCheckInNoMatchesMessage": "Try a different name or email.",
+  "businessCheckInCheckInAction": "Check in",
+  "businessShopShop": "Shop",
+  "businessShopCustomer": "Customer",
+  "businessShopItemCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "@businessShopItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessShopAwaitingCardPayment": "Awaiting card payment",
+  "businessShopPaymentSuccessful": "Payment successful",
+  "businessShopCouldNotOpenPaymentPage": "Couldn't open the payment page",
+  "businessShopPaymentCancelled": "Payment cancelled",
+  "businessShopConfirmingPayment": "Confirming your payment…",
+  "businessShopPaymentNotConfirmedYet": "Couldn't confirm the payment yet. We'll notify you once it's done.",
+  "businessShopPaymentFailed": "Payment failed. You have not been charged.",
+  "businessShopPaymentRefunded": "Payment refunded",
+  "businessShopPaymentStillProcessing": "Your payment is still processing. We'll notify you once it's confirmed.",
+  "businessShopBuyMembershipTitle": "Buy a membership",
+  "businessShopOnlinePaymentsUnavailable": "Online payments are not available",
+  "businessShopBuyAtFrontDesk": "Buy or renew your membership at your gym's front desk.",
+  "businessShopNoMembershipsForSale": "No memberships for sale",
+  "businessShopNoGymSellsMemberships": "No gym sells memberships in the app yet.",
+  "businessShopSearchGyms": "Search gyms",
+  "businessShopNoGymsMatch": "No gyms match your search",
+  "businessShopFromPricePerMonth": "From {price}/month",
+  "@businessShopFromPricePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopMembershipType": "Membership type",
+  "businessShopPricePerMonth": "{price} / month",
+  "@businessShopPricePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopLength": "Length",
+  "businessShopPlanMonthlyAutoRenew": "Monthly, auto-renew",
+  "businessShopPlanMonths": "{months, plural, =1{1 month} other{{months} months}}",
+  "@businessShopPlanMonths": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "businessShopAutoRenewExplanation": "You're charged {price} now and every month after. Turn off auto-renew any time from your membership page.",
+  "@businessShopAutoRenewExplanation": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopOneTimeExplanation": "One payment of {price}. If you already have a membership at {gym}, it's extended.",
+  "@businessShopOneTimeExplanation": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopChooseDifferentGym": "Choose a different gym",
+  "businessShopSubscribePerMonth": "Subscribe · {price}/month",
+  "@businessShopSubscribePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopPayAmount": "Pay {price}",
+  "@businessShopPayAmount": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopMembershipPaymentSuccess": "Payment successful. Your membership is active!",
+  "businessShopYourCart": "Your cart",
+  "businessShopCartEmpty": "Your cart is empty",
+  "businessShopCartEmptyHint": "Tap a product to add it.",
+  "businessShopTotal": "Total",
+  "businessShopPayment": "Payment",
+  "businessShopPayByCard": "Pay by card",
+  "businessShopCardUnavailablePayAtPickup": "Card payments aren't available yet. Pay when you pick up your order.",
+  "businessShopCardPaymentHint": "You'll pay securely with Stripe, then pick up your order.",
+  "businessShopPickupPaymentHint": "Pay at the shop when you pick up your order.",
+  "businessShopNoteForShop": "Note for the shop (optional)",
+  "businessShopPlaceOrderAndPay": "Place order & pay {price}",
+  "@businessShopPlaceOrderAndPay": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopPlaceOrderTotal": "Place order · {price}",
+  "@businessShopPlaceOrderTotal": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopEmptyCart": "Empty cart",
+  "businessShopPriceEachLineTotal": "{price} each · {total}",
+  "@businessShopPriceEachLineTotal": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopRemove": "Remove",
+  "businessShopDecreaseQuantity": "Decrease quantity",
+  "businessShopIncreaseQuantity": "Increase quantity",
+  "businessShopQuantityValue": "Quantity: {count}",
+  "@businessShopQuantityValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessShopMyOrders": "My orders",
+  "businessShopNoOrdersYet": "No orders yet",
+  "businessShopNoOrdersYetMessage": "Products you order from a shop show up here.",
+  "businessShopBrowseShops": "Browse shops",
+  "businessShopOrderPaymentSuccess": "Payment successful. Your order is paid!",
+  "businessShopMarkAsPaidTitle": "Mark as paid?",
+  "businessShopConfirmPaidAtCounter": "Confirm the customer paid {total} at the counter.",
+  "@businessShopConfirmPaidAtCounter": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopMarkPaid": "Mark paid",
+  "businessShopMarkAsFulfilledTitle": "Mark as fulfilled?",
+  "businessShopCustomerPickedUp": "The customer has picked up their order.",
+  "businessShopMarkFulfilled": "Mark fulfilled",
+  "businessShopCancelOrderTitle": "Cancel this order?",
+  "businessShopItemsBackInStock": "The items go back into stock.",
+  "businessShopCardWillBeRefunded": "The card payment will be refunded.",
+  "businessShopCardOfAmountWillBeRefunded": "The card payment of {total} will be refunded.",
+  "@businessShopCardOfAmountWillBeRefunded": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopCancelOrder": "Cancel order",
+  "businessShopRefundDone": "The card payment was refunded.",
+  "businessShopRefundFailed": "The refund failed. Please refund it from Stripe.",
+  "businessShopRefundManual": "Refund the card payment manually.",
+  "businessShopOrderStatusChanged": "{status, select, paid{Order marked as paid.} fulfilled{Order marked as fulfilled.} cancelled{Order cancelled.} other{Order updated.}}",
+  "@businessShopOrderStatusChanged": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopOrderIdStatusChanged": "{status, select, paid{Order {id} marked as paid.} fulfilled{Order {id} marked as fulfilled.} cancelled{Order {id} cancelled.} other{Order {id} updated.}}",
+  "@businessShopOrderIdStatusChanged": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopOrder": "Order",
+  "businessShopOrderWithId": "Order {id}",
+  "@businessShopOrderWithId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopAwaitingYourCardPayment": "This order is waiting for your card payment.",
+  "businessShopCardUnavailableNow": "Card payments are unavailable right now. You can pay at pickup.",
+  "businessShopItems": "Items",
+  "businessShopNote": "Note",
+  "businessShopStatus": "Status",
+  "businessShopPayNow": "Pay now · {price}",
+  "@businessShopPayNow": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopTimelinePlaced": "Order placed",
+  "businessShopNotYet": "Not yet",
+  "businessShopConfirmBuyerPaid": "Confirm {name} paid {total}.",
+  "@businessShopConfirmBuyerPaid": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopConfirmCustomerPaid": "Confirm the customer paid {total}.",
+  "@businessShopConfirmCustomerPaid": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopBuyerPickedUp": "{name} picked up the order.",
+  "@businessShopBuyerPickedUp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopCustomerPickedUpOrder": "The customer picked up the order.",
+  "businessShopOrders": "Orders",
+  "businessShopFilterAll": "All",
+  "businessShopNoOrdersWithStatus": "{status, select, pending{No pending orders} paid{No paid orders} fulfilled{No fulfilled orders} cancelled{No cancelled orders} other{No orders}}",
+  "@businessShopNoOrdersWithStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopNewOrdersHint": "New orders from customers will show up here.",
+  "businessShopNoShopsYet": "No shops yet",
+  "businessShopNoShopsYetMessage": "Shops will appear here once they open.",
+  "businessShopProductCount": "{count, plural, =1{1 product} other{{count} products}}",
+  "@businessShopProductCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessShopInCartCount": "{count, plural, =1{1 item in cart} other{{count} items in cart}}",
+  "@businessShopInCartCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessShopRemovedFromCart": "Removed from your cart (no longer available): {items}",
+  "@businessShopRemovedFromCart": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopCart": "Cart",
+  "businessShopCartTotal": "Cart · {price}",
+  "@businessShopCartTotal": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopSearchProducts": "Search products",
+  "businessShopClearSearch": "Clear search",
+  "businessShopNoProductsYet": "This shop has no products yet",
+  "businessShopNoProductsMatch": "No products match your search",
+  "businessShopSoldOut": "Sold out",
+  "businessShopLeftCount": "{count} left",
+  "@businessShopLeftCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessShopOutOfStock": "Out of stock",
+  "businessShopInStock": "{count} in stock",
+  "@businessShopInStock": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessShopInYourCart": "{count} in your cart",
+  "@businessShopInYourCart": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessShopAvailableUntil": "Available until {date}",
+  "@businessShopAvailableUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopAddedToCart": "Added {quantity} × {name} to cart",
+  "@businessShopAddedToCart": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopAddWithPrice": "Add · {price}",
+  "@businessShopAddWithPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessShopAllStockInCart": "All available stock is in your cart",
+  "businessMgmtDeleteItemTitle": "Delete item?",
+  "businessMgmtDeleteItemMessage": "Remove “{name}” from this shop?",
+  "@businessMgmtDeleteItemMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtOrders": "Orders",
+  "businessMgmtOrdersSubtitle": "Customer orders, payments and pickups",
+  "businessMgmtPosts": "Posts",
+  "businessMgmtAddItem": "Add item",
+  "businessMgmtStaffVendors": "Staff / Vendors",
+  "businessMgmtManage": "Manage",
+  "businessMgmtNoVendorsYet": "No vendors yet",
+  "businessMgmtMoreCount": "+ {count} more",
+  "@businessMgmtMoreCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessMgmtItems": "Items",
+  "businessMgmtNoItemsYet": "No items yet",
+  "businessMgmtItemInactive": "Inactive",
+  "businessMgmtItemActive": "Active",
+  "businessMgmtOutOfStock": "Out of stock",
+  "businessMgmtQuantity": "Qty: {quantity}",
+  "@businessMgmtQuantity": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "businessMgmtEditItem": "Edit item",
+  "businessMgmtNewItem": "New item",
+  "businessMgmtAddProductPhoto": "Add product photo",
+  "businessMgmtName": "Name",
+  "businessMgmtDescriptionOptional": "Description (optional)",
+  "businessMgmtPrice": "Price",
+  "businessMgmtInvalidNumber": "Enter a valid number",
+  "businessMgmtInStock": "In stock",
+  "businessMgmtType": "Type",
+  "businessMgmtActiveUntil": "Active until",
+  "businessMgmtNoExpiry": "No expiry",
+  "businessMgmtClearDate": "Clear date",
+  "businessMgmtPickDate": "Pick date",
+  "businessMgmtSaveChanges": "Save changes",
+  "businessMgmtShopVendorsTitle": "{shopName} — Vendors",
+  "@businessMgmtShopVendorsTitle": {
+    "placeholders": {
+      "shopName": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtInviteResent": "Invite resent",
+  "businessMgmtInviteResentSuccess": "Invite resent successfully",
+  "businessMgmtRemoveVendorTitle": "Remove vendor?",
+  "businessMgmtRemoveVendorMessage": "This will remove them from this shop.",
+  "businessMgmtRemoveVendorFromShopMessage": "This will remove {name} from {shopName}.",
+  "@businessMgmtRemoveVendorFromShopMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "shopName": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtRemove": "Remove",
+  "businessMgmtAddVendor": "Add vendor",
+  "businessMgmtEditVendor": "Edit vendor",
+  "businessMgmtResendInvite": "Resend invite",
+  "businessMgmtVendorActions": "Vendor actions",
+  "businessMgmtInviteNewUser": "Can't find them? Invite a new user",
+  "businessMgmtEmail": "Email",
+  "businessMgmtFirstName": "First name",
+  "businessMgmtLastName": "Last name",
+  "businessMgmtUsername": "Username",
+  "businessMgmtAlreadyVendor": "Already a vendor for this shop",
+  "businessMgmtEmailAlreadyVendor": "This email is already a vendor for this shop",
+  "businessMgmtInviteAndAddVendor": "Invite & add vendor",
+  "businessMgmtVendor": "Vendor",
+  "businessMgmtShop": "Shop",
+  "businessMgmtRemoveFromShop": "Remove from shop",
+  "businessMgmtInvoice": "Invoice",
+  "businessMgmtInvoices": "Invoices",
+  "businessMgmtGymInvoicesTitle": "{gymName} — Invoices",
+  "@businessMgmtGymInvoicesTitle": {
+    "placeholders": {
+      "gymName": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtMarkUnpaid": "Mark unpaid",
+  "businessMgmtMarkPaid": "Mark paid",
+  "businessMgmtMarkVoid": "Mark void",
+  "businessMgmtInvoiceMarkedUnpaid": "Invoice marked unpaid",
+  "businessMgmtInvoiceMarkedPaid": "Invoice marked paid",
+  "businessMgmtInvoiceMarkedVoid": "Invoice marked void",
+  "businessMgmtGym": "Gym",
+  "businessMgmtAllGyms": "All gyms",
+  "businessMgmtAll": "All",
+  "businessMgmtNoInvoicesYet": "No invoices yet",
+  "businessMgmtNoUnpaidInvoices": "No unpaid invoices",
+  "businessMgmtNoPaidInvoices": "No paid invoices",
+  "businessMgmtNoVoidInvoices": "No void invoices",
+  "businessMgmtIssuedOn": "Issued {date}",
+  "@businessMgmtIssuedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtUnknownMember": "Unknown member",
+  "businessMgmtInvoicePaidThanks": "Invoice paid. Thank you!",
+  "businessMgmtTurnOffAutoRenewTitle": "Turn off auto-renew?",
+  "businessMgmtTurnOffAutoRenewMessage": "Your membership stays active until {date} and won't be charged again.",
+  "@businessMgmtTurnOffAutoRenewMessage": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtTurnOff": "Turn off",
+  "businessMgmtAutoRenewTurnedOff": "Auto-renew turned off",
+  "businessMgmtNoActiveMembership": "No active membership",
+  "businessMgmtNoMembershipBuyHint": "Buy a membership in the app, or ask your gym to set one up.",
+  "businessMgmtNoMembershipDeskHint": "Ask your gym to set up your membership plan. Payment happens at the front desk.",
+  "businessMgmtBuyMembership": "Buy a membership",
+  "businessMgmtActiveMembership": "Active membership",
+  "businessMgmtMembershipExpired": "Membership expired",
+  "businessMgmtMembership": "Membership",
+  "businessMgmtPerMonth": "{price}/month",
+  "@businessMgmtPerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtPerMonthShort": "{price}/mo",
+  "@businessMgmtPerMonthShort": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtRenewsMonthly": "Renews automatically every month",
+  "businessMgmtTurnOffAutoRenew": "Turn off auto-renew",
+  "businessMgmtAutoRenewOn": "Auto-renew on",
+  "businessMgmtExtendOrBuy": "Extend or buy a membership",
+  "businessMgmtRenewMembership": "Renew membership",
+  "businessMgmtPaymentsAtDesk": "Payments for memberships and invoices happen at your gym's front desk.",
+  "businessMgmtBillingHistory": "Billing history",
+  "businessMgmtUnpaidSummary": "{count, plural, =1{1 unpaid invoice} other{{count} unpaid invoices}} · {amount} due",
+  "@businessMgmtUnpaidSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtMembershipHistory": "Membership history",
+  "businessMgmtPayNow": "Pay now · {amount}",
+  "@businessMgmtPayNow": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtNewMembershipType": "New membership type",
+  "businessMgmtEditMembershipType": "Edit membership type",
+  "businessMgmtMonthlyCost": "Monthly cost",
+  "businessMgmtTypeActive": "Active",
+  "businessMgmtTypeInactive": "Inactive",
+  "businessMgmtDeleteMembershipTypeTitle": "Delete membership type?",
+  "businessMgmtDeleteMembershipTypeMessage": "This will delete “{name}”. Existing memberships referencing it will be kept.",
+  "@businessMgmtDeleteMembershipTypeMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtMembershipTypesTitle": "{gymName} · Membership types",
+  "@businessMgmtMembershipTypesTitle": {
+    "placeholders": {
+      "gymName": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtAddType": "Add type",
+  "businessMgmtNoMembershipTypesYet": "No membership types yet",
+  "businessMgmtEditNamed": "Edit {name}",
+  "@businessMgmtEditNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "businessMgmtDeleteNamed": "Delete {name}",
+  "@businessMgmtDeleteNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymFormTitleEdit": "Edit business",
+  "businessGymFormTitleNew": "New business",
+  "businessGymFormSelectWorkingDay": "Select at least one working day",
+  "businessGymFormDeleteTitle": "Delete {name}?",
+  "@businessGymFormDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymFormDeleteGymMessage": "This permanently deletes the gym with all its members, staff, membership types, memberships, invoices and posts.",
+  "businessGymFormDeleteShopMessage": "This permanently deletes the shop with all its items, vendors and posts.",
+  "businessGymFormDeleteGymAction": "Delete gym",
+  "businessGymFormDeleteShopAction": "Delete shop",
+  "businessGymFormDeleted": "{name} deleted",
+  "@businessGymFormDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymFormAddLogo": "Add logo",
+  "businessGymFormName": "Name",
+  "businessGymFormLocation": "Location",
+  "businessGymFormType": "Type",
+  "businessGymFormTypeGym": "Gym",
+  "businessGymFormTypeShop": "Shop",
+  "businessGymFormWorkingHours": "Working hours",
+  "businessGymFormFrom": "From",
+  "businessGymFormTo": "To",
+  "businessGymFormWorkingDays": "Working days",
+  "businessGymFormSaveChanges": "Save changes",
+  "businessGymFormCreate": "Create business",
+  "businessGymFormDelete": "Delete business",
+  "businessGymRoleMember": "Member",
+  "businessGymRoleEmployee": "Employee",
+  "businessGymRoleEmployeeTrainer": "Employee trainer",
+  "businessGymRoleEmployeeTrainerShort": "Emp. trainer",
+  "businessGymRoleVendor": "Vendor",
+  "businessGymDetailMembersCount": "{count, plural, =1{1 member} other{{count} members}}",
+  "@businessGymDetailMembersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessGymDetailStaffCount": "{count, plural, =1{1 staff member} other{{count} staff members}}",
+  "@businessGymDetailStaffCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessGymDetailInvoices": "Invoices",
+  "businessGymDetailPosts": "Posts",
+  "businessGymDetailSchedule": "Schedule",
+  "businessGymDetailAttendance": "Attendance",
+  "businessGymDetailScanCheckIns": "Scan check-ins",
+  "businessGymDetailMembers": "Members",
+  "businessGymDetailStaff": "Staff",
+  "businessGymDetailMembershipTypes": "Membership types",
+  "businessGymDetailMembershipTypesHint": "Set up pricing plans members can be enrolled in.",
+  "businessGymDetailManage": "Manage",
+  "businessGymDetailManageMembers": "Manage members",
+  "businessGymDetailManageMembershipTypes": "Manage membership types",
+  "businessGymDetailManageStaff": "Manage staff",
+  "businessGymDetailMore": "+ {count} more",
+  "@businessGymDetailMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "businessGymNoMembersYet": "No members yet",
+  "businessGymNoStaffYet": "No staff yet",
+  "businessGymMembersTitle": "{gym} — Members",
+  "@businessGymMembersTitle": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymInviteResent": "Invite resent",
+  "businessGymInviteResentSuccess": "Invite resent successfully",
+  "businessGymRemoveMemberTitle": "Remove member?",
+  "businessGymRemoveMemberMessage": "This will remove the member from this gym.",
+  "businessGymRemove": "Remove",
+  "businessGymAddExistingUser": "Add existing user",
+  "businessGymAddExistingUserHint": "Search users already in the system",
+  "businessGymInviteNewMember": "Invite new member",
+  "businessGymInviteNewMemberHint": "Send an invite link by email",
+  "businessGymAddMember": "Add member",
+  "businessGymEditMember": "Edit member",
+  "businessGymResendInvite": "Resend invite",
+  "businessGymMemberActions": "Member actions",
+  "businessGymInviteMemberTitle": "Invite member",
+  "businessGymEmail": "Email",
+  "businessGymFirstName": "First name",
+  "businessGymLastName": "Last name",
+  "businessGymUsername": "Username",
+  "businessGymGym": "Gym",
+  "businessGymAlreadyMember": "Already a member",
+  "businessGymSendInvite": "Send invite",
+  "businessGymMembershipTypeNotFound": "Membership type not found for this gym",
+  "businessGymExtendMembership": "Extend membership",
+  "businessGymPlusMonths": "{months, plural, =1{+1 month} other{+{months} months}}",
+  "@businessGymPlusMonths": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "businessGymMonths": "{months, plural, =1{1 month} other{{months} months}}",
+  "@businessGymMonths": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "businessGymExtendedUntil": "Extended until {date}",
+  "@businessGymExtendedUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymCancelMembershipTitle": "Cancel membership?",
+  "businessGymCancelMembershipMessage": "{member}'s {type} membership will be marked inactive. Billing history is kept.",
+  "@businessGymCancelMembershipMessage": {
+    "placeholders": {
+      "member": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymKeep": "Keep",
+  "businessGymCancelMembership": "Cancel membership",
+  "businessGymDeleteMembershipTitle": "Delete membership?",
+  "businessGymDeleteMembershipMessage": "This permanently deletes the {type} membership and its invoices. Use Cancel instead to keep the history.",
+  "@businessGymDeleteMembershipMessage": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymMembershipFallback": "Membership",
+  "businessGymNoMembershipTypes": "This gym has no membership types yet — add one first.",
+  "businessGymAssignMembership": "Assign membership",
+  "businessGymMembershipType": "Membership type",
+  "businessGymTypePerMonth": "{name} ({price}/mo)",
+  "@businessGymTypePerMonth": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymDuration": "Duration",
+  "businessGymAssign": "Assign",
+  "businessGymMembershipAssigned": "Membership assigned",
+  "businessGymRemoveFromGymMessage": "This will remove {name} from {gym}.",
+  "@businessGymRemoveFromGymMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymStatusActive": "Active",
+  "businessGymStatusExpired": "Expired",
+  "businessGymStatusCancelled": "Cancelled",
+  "businessGymMembershipActions": "Membership actions",
+  "businessGymExtend": "Extend",
+  "businessGymMemberships": "Memberships",
+  "businessGymNoMembershipAt": "No membership at {gym}",
+  "@businessGymNoMembershipAt": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymViewProgress": "View progress",
+  "businessGymRemoveFromGym": "Remove from gym",
+  "businessGymStaffTitle": "{gym} — Staff",
+  "@businessGymStaffTitle": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymRemoveStaffTitle": "Remove staff member?",
+  "businessGymRemoveStaffMessage": "This will remove them from this gym.",
+  "businessGymAddEmployee": "Add employee",
+  "businessGymEditEmployee": "Edit employee",
+  "businessGymEmployeeActions": "Employee actions",
+  "businessGymRole": "Role",
+  "businessGymInviteNewUserPrompt": "Can't find them? Invite a new user",
+  "businessGymAlreadyEmployee": "Already an employee at this gym",
+  "businessGymInviteAndAdd": "Invite & add",
+  "businessGymEmailAlreadyEmployed": "This email is already employed at this gym",
+  "businessGymChangeRoleTitle": "Change role?",
+  "businessGymChangeRoleMessage": "Change {name}'s role to {role} at {gym}?",
+  "@businessGymChangeRoleMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      },
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymChange": "Change",
+  "businessGymRoleChangedTo": "Role changed to {role}",
+  "@businessGymRoleChangedTo": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "businessGymAllMembersTitle": "All members",
+  "businessGymSearchMembersHint": "Search members…",
+  "businessGymClearSearch": "Clear search",
+  "businessGymAllGyms": "All gyms",
+  "businessGymNoMembersFound": "No members found",
+  "businessGymAllStaffTitle": "All staff",
+  "businessGymSearchStaffHint": "Search staff…",
+  "businessGymFilterAll": "All",
+  "businessGymNoStaffFound": "No staff found"
+}

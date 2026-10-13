@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
@@ -40,15 +41,18 @@ class _EmployeeMembersPageState extends State<EmployeeMembersPage> {
       // Fetch the right staff records based on role.
       final List<Map<String, dynamic>> staffRecords =
           widget.profile.role == UserRole.employeeTrainer
-              ? await _api.getEmployeeTrainers(token,
-                  userId: widget.profile.id)
-              : await _api.getEmployees(token, userId: widget.profile.id);
+          ? await _api.getEmployeeTrainers(token, userId: widget.profile.id)
+          : await _api.getEmployees(token, userId: widget.profile.id);
 
-      final gymIds =
-          staffRecords.map((r) => r['gym_id'] as String).toSet();
+      final gymIds = staffRecords.map((r) => r['gym_id'] as String).toSet();
 
       if (gymIds.isEmpty) {
-        if (mounted) setState(() { _gyms = []; _loading = false; });
+        if (mounted) {
+          setState(() {
+            _gyms = [];
+            _loading = false;
+          });
+        }
         return;
       }
 
@@ -94,12 +98,18 @@ class _EmployeeMembersPageState extends State<EmployeeMembersPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline,
-                size: 48, color: Theme.of(context).colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(_error!),
             const SizedBox(height: 16),
-            FilledButton(onPressed: _load, child: const Text('Retry')),
+            FilledButton(
+              onPressed: _load,
+              child: Text(context.l10n.commonRetry),
+            ),
           ],
         ),
       );
@@ -118,11 +128,13 @@ class _EmployeeMembersPageState extends State<EmployeeMembersPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.fitness_center_outlined,
-                          size: 48,
-                          color: Theme.of(context).colorScheme.outline),
+                      Icon(
+                        Icons.fitness_center_outlined,
+                        size: 48,
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
                       const SizedBox(height: 16),
-                      const Text('Not assigned to any gym yet'),
+                      Text(context.l10n.shellNotAssignedToGym),
                     ],
                   ),
                 ),
@@ -146,23 +158,23 @@ class _EmployeeMembersPageState extends State<EmployeeMembersPage> {
             clipBehavior: Clip.antiAlias,
             child: ListTile(
               leading: CircleAvatar(
-                backgroundColor:
-                    Theme.of(context).colorScheme.primaryContainer,
-                child: Icon(Icons.fitness_center,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onPrimaryContainer),
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                child: Icon(
+                  Icons.fitness_center,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
               ),
               title: Text(entry.gymName),
-              subtitle: Text(
-                  '${entry.memberCount} member${entry.memberCount == 1 ? '' : 's'}'),
+              subtitle: Text(context.l10n.shellMemberCount(entry.memberCount)),
               trailing: const Icon(Icons.chevron_right),
               onTap: () async {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => GymMembersPage(
-                        gymId: entry.gymId, gymName: entry.gymName),
+                      gymId: entry.gymId,
+                      gymName: entry.gymName,
+                    ),
                   ),
                 );
                 _load(); // refresh counts after returning

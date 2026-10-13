@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../models/training.dart';
 import '../services/api_service.dart';
@@ -59,6 +60,7 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    final cs = Theme.of(context).colorScheme;
     setState(() => _saving = true);
     try {
       final token = await AuthManager.instance.getValidToken();
@@ -84,7 +86,10 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
       setState(() => _saving = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e.toString(), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
+          ),
         );
       }
     }
@@ -100,9 +105,10 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Training' : 'New Training'),
+        title: Text(_isEditing ? l10n.trainingPlanEditTitle : l10n.trainingWorkoutsNewTraining),
         actions: [
           if (_saving)
             const Padding(
@@ -110,7 +116,7 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
               child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
             )
           else
-            TextButton(onPressed: _save, child: const Text('Save')),
+            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
         ],
       ),
       body: Form(
@@ -121,37 +127,38 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
             ImagePickerField(
               imageUrl: _thumbnailUrl,
               folder: 'trainings',
-              label: 'Add cover photo',
+              label: l10n.trainingPlanAddCoverPhoto,
               onUploaded: (url) => setState(() => _thumbnailUrl = url),
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _name,
-              decoration: const InputDecoration(labelText: 'Training name *'),
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+              decoration: InputDecoration(labelText: l10n.trainingPlanNameLabel),
+              validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _description,
-              decoration: const InputDecoration(labelText: 'Description'),
+              decoration: InputDecoration(labelText: l10n.trainingPlanDescriptionLabel),
               maxLines: 2,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _notes,
-              decoration: const InputDecoration(labelText: 'Notes'),
+              decoration: InputDecoration(labelText: l10n.trainingPlanNotes),
               maxLines: 2,
             ),
             const SizedBox(height: 8),
             SwitchListTile(
-              title: const Text('Public'),
-              subtitle: const Text('Visible to all users'),
+              title: Text(l10n.trainingPlanPublic),
+              subtitle: Text(l10n.trainingPlanPublicSubtitle),
               value: _isPublic,
               onChanged: (v) => setState(() => _isPublic = v),
               contentPadding: EdgeInsets.zero,
             ),
             const SizedBox(height: 20),
-            const Text('Sets', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(l10n.trainingPlanSets,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             ReorderableListView.builder(
               shrinkWrap: true,
@@ -178,7 +185,7 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
             OutlinedButton.icon(
               onPressed: _addSet,
               icon: const Icon(Icons.add),
-              label: const Text('Add Set'),
+              label: Text(l10n.trainingPlanAddSet),
             ),
             const SizedBox(height: 40),
           ],
@@ -314,6 +321,8 @@ class _SetDraftCardState extends State<_SetDraftCard> {
   @override
   Widget build(BuildContext context) {
     final draft = widget.draft;
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -322,7 +331,8 @@ class _SetDraftCardState extends State<_SetDraftCard> {
           ListTile(
             leading: ReorderableDragStartListener(
               index: widget.index,
-              child: const Icon(Icons.drag_handle, color: Colors.grey),
+              child: Icon(Icons.drag_handle,
+                  color: cs.onSurfaceVariant, semanticLabel: l10n.trainingPlanReorderSet),
             ),
             title: Row(
               children: [
@@ -331,7 +341,7 @@ class _SetDraftCardState extends State<_SetDraftCard> {
                   underline: const SizedBox.shrink(),
                   isDense: true,
                   items: WorkoutSetType.values
-                      .map((t) => DropdownMenuItem(value: t, child: Text(t.displayName, style: const TextStyle(fontSize: 13))))
+                      .map((t) => DropdownMenuItem(value: t, child: Text(t.label(l10n), style: const TextStyle(fontSize: 13))))
                       .toList(),
                   onChanged: (v) {
                     if (v != null) {
@@ -346,11 +356,13 @@ class _SetDraftCardState extends State<_SetDraftCard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
+                  tooltip: _expanded ? l10n.trainingPlanCollapse : l10n.trainingPlanExpand,
                   icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more),
                   onPressed: () => setState(() => _expanded = !_expanded),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close, color: Colors.red),
+                  tooltip: l10n.trainingPlanRemoveSet,
+                  icon: Icon(Icons.close, color: cs.error),
                   onPressed: widget.onRemove,
                 ),
               ],
@@ -385,7 +397,7 @@ class _SetDraftCardState extends State<_SetDraftCard> {
                         widget.onChanged();
                       },
                       icon: const Icon(Icons.add, size: 16),
-                      label: const Text('Add Exercise to Superset'),
+                      label: Text(l10n.trainingPlanAddExerciseToSuperset),
                     ),
                 ],
               ),
@@ -428,12 +440,14 @@ class _ExerciseDraftRowState extends State<_ExerciseDraftRow> {
   @override
   Widget build(BuildContext context) {
     final draft = widget.draft;
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Column(
         children: [
@@ -441,9 +455,9 @@ class _ExerciseDraftRowState extends State<_ExerciseDraftRow> {
             dense: true,
             leading: const Icon(Icons.fitness_center, size: 18),
             title: Text(
-              draft.exercise?.name ?? 'Select exercise…',
+              draft.exercise?.name ?? l10n.trainingPlanSelectExercise,
               style: TextStyle(
-                color: draft.exercise == null ? Colors.grey : null,
+                color: draft.exercise == null ? cs.onSurfaceVariant : null,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -453,11 +467,12 @@ class _ExerciseDraftRowState extends State<_ExerciseDraftRow> {
                 IconButton(
                   icon: const Icon(Icons.swap_horiz, size: 18),
                   onPressed: _pickExercise,
-                  tooltip: 'Pick exercise',
+                  tooltip: l10n.trainingPlanPickExercise,
                 ),
                 if (widget.showRemove)
                   IconButton(
-                    icon: const Icon(Icons.remove_circle_outline, size: 18, color: Colors.red),
+                    tooltip: l10n.trainingPlanRemoveExercise,
+                    icon: Icon(Icons.remove_circle_outline, size: 18, color: cs.error),
                     onPressed: widget.onRemove,
                   ),
               ],
@@ -502,22 +517,28 @@ class _ExerciseDraftRowState extends State<_ExerciseDraftRow> {
                       },
                       icon: const Icon(Icons.add, size: 14),
                       label: Text(
-                        draft.drops.length > 1 ? 'Add Drop' : 'Make Dropset',
+                        draft.drops.length > 1 ? l10n.trainingPlanAddDrop : l10n.trainingPlanMakeDropset,
                         style: const TextStyle(fontSize: 12),
                       ),
                     ),
                     const Spacer(),
-                    Row(
-                      children: [
-                        const Text('Alt.', style: TextStyle(fontSize: 12)),
-                        Switch(
-                          value: draft.isAlternating,
-                          onChanged: (v) {
-                            setState(() => draft.isAlternating = v);
-                            widget.onChanged();
-                          },
-                        ),
-                      ],
+                    MergeSemantics(
+                      child: Row(
+                        children: [
+                          Text(
+                            l10n.trainingPlanAlternatingShort,
+                            semanticsLabel: l10n.trainingPlanAlternating,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          Switch(
+                            value: draft.isAlternating,
+                            onChanged: (v) {
+                              setState(() => draft.isAlternating = v);
+                              widget.onChanged();
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -578,6 +599,8 @@ class _DropDraftRowState extends State<_DropDraftRow> {
   @override
   Widget build(BuildContext context) {
     final drop = widget.drop;
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Row(
@@ -586,8 +609,8 @@ class _DropDraftRowState extends State<_DropDraftRow> {
             SizedBox(
               width: 52,
               child: Text(
-                'Drop ${widget.dropIndex + 1}',
-                style: const TextStyle(fontSize: 11, color: Colors.grey),
+                l10n.trainingPlanDropNumber(widget.dropIndex + 1),
+                style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
               ),
             ),
           // Rep type selector
@@ -598,7 +621,7 @@ class _DropDraftRowState extends State<_DropDraftRow> {
             items: RepType.values
                 .map((t) => DropdownMenuItem(
                       value: t,
-                      child: Text(t.displayName, style: const TextStyle(fontSize: 12)),
+                      child: Text(t.label(l10n), style: const TextStyle(fontSize: 12)),
                     ))
                 .toList(),
             onChanged: (v) {
@@ -615,8 +638,8 @@ class _DropDraftRowState extends State<_DropDraftRow> {
               child: TextField(
                 controller: _reps,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  hintText: 'Reps',
+                decoration: InputDecoration(
+                  hintText: l10n.trainingRepTypeCount,
                   isDense: true,
                   contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 ),
@@ -652,7 +675,7 @@ class _DropDraftRowState extends State<_DropDraftRow> {
             items: BodySide.values
                 .map((s) => DropdownMenuItem(
                       value: s,
-                      child: Text(s.displayName, style: const TextStyle(fontSize: 12)),
+                      child: Text(s.label(l10n), style: const TextStyle(fontSize: 12)),
                     ))
                 .toList(),
             onChanged: (v) {
@@ -664,9 +687,9 @@ class _DropDraftRowState extends State<_DropDraftRow> {
           ),
           if (widget.showRemove)
             IconButton(
-              icon: const Icon(Icons.close, size: 16, color: Colors.red),
+              tooltip: l10n.trainingPlanRemoveDrop,
+              icon: Icon(Icons.close, size: 16, color: cs.error),
               onPressed: widget.onRemove,
-              padding: EdgeInsets.zero,
             ),
         ],
       ),

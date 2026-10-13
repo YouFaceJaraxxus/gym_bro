@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../models/business.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../shop/shop_orders_page.dart';
 import 'home_widgets.dart';
 import 'vendor_shop_page.dart';
 
@@ -61,10 +63,14 @@ class _VendorHomePageState extends State<VendorHomePage> {
         padding: const EdgeInsets.all(24),
         children: [
           HomeHeader(
-            title: 'Hello, ${widget.profile.name}',
-            subtitle: widget.profile.role.displayName,
+            title: context.l10n.shellHello(widget.profile.name),
+            subtitle: widget.profile.role.label(context.l10n),
           ),
-          HomeSectionTitle(_shops.length == 1 ? 'Your shop' : 'Your shops'),
+          HomeSectionTitle(
+            _shops.length == 1
+                ? context.l10n.shellYourShop
+                : context.l10n.shellYourShops,
+          ),
           if (_loading)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 32),
@@ -73,13 +79,28 @@ class _VendorHomePageState extends State<VendorHomePage> {
           else if (_error != null)
             HomeError(message: _error!, onRetry: _load)
           else if (_shops.isEmpty)
-            const HomeEmpty(
+            HomeEmpty(
               icon: Icons.storefront_outlined,
-              label: "You're not a vendor at any shop yet",
+              label: context.l10n.shellNotAVendor,
             )
           else
-            for (final shop in _shops)
+            for (final shop in _shops) ...[
               VendorShopTile(shop: shop, onReturn: _load),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: OutlinedButton.icon(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          ShopOrdersPage(shopId: shop.id, shopName: shop.name),
+                    ),
+                  ),
+                  icon: const Icon(Icons.receipt_long_outlined, size: 18),
+                  label: Text(context.l10n.shellOrdersForShop(shop.name)),
+                ),
+              ),
+            ],
         ],
       ),
     );

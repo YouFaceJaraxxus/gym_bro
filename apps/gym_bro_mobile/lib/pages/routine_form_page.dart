@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
 import '../models/routine.dart';
 import '../models/training.dart';
 import '../services/api_service.dart';
@@ -47,7 +49,7 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
       for (final t in r.trainings) {
         _entries.add(_RoutineTrainingDraft(
           trainingId: t.trainingId,
-          trainingName: t.training?.name ?? 'Training',
+          trainingName: t.training?.name,
           weekNumber: t.weekNumber,
           dayOfWeek: t.dayOfWeek,
           position: t.position,
@@ -82,11 +84,13 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     if (_scheduleType == RoutineScheduleType.fixedWeeks) {
       final weeks = int.tryParse(_numWeeks.text.trim());
       if (weeks == null || weeks < 1) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Enter a valid number of weeks')),
+          SnackBar(content: Text(l10n.trainingRoutineInvalidWeeks)),
         );
         return;
       }
@@ -122,7 +126,10 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
       setState(() => _saving = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e.toString(), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
+          ),
         );
       }
     }
@@ -130,9 +137,11 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Routine' : 'New Routine'),
+        title: Text(_isEditing ? l10n.trainingRoutineEditTitle : l10n.trainingWorkoutsNewRoutine),
         actions: [
           if (_saving)
             const Padding(
@@ -140,7 +149,7 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
               child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
             )
           else
-            TextButton(onPressed: _save, child: const Text('Save')),
+            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
         ],
       ),
       body: Form(
@@ -151,31 +160,31 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
             ImagePickerField(
               imageUrl: _thumbnailUrl,
               folder: 'routines',
-              label: 'Add cover photo',
+              label: l10n.trainingPlanAddCoverPhoto,
               onUploaded: (url) => setState(() => _thumbnailUrl = url),
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _name,
-              decoration: const InputDecoration(labelText: 'Routine name *'),
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+              decoration: InputDecoration(labelText: l10n.trainingRoutineNameLabel),
+              validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _description,
-              decoration: const InputDecoration(labelText: 'Description'),
+              decoration: InputDecoration(labelText: l10n.trainingPlanDescriptionLabel),
               maxLines: 2,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _notes,
-              decoration: const InputDecoration(labelText: 'Notes'),
+              decoration: InputDecoration(labelText: l10n.trainingPlanNotes),
               maxLines: 2,
             ),
             const SizedBox(height: 14),
             SwitchListTile(
-              title: const Text('Public'),
-              subtitle: const Text('Visible to all users'),
+              title: Text(l10n.trainingPlanPublic),
+              subtitle: Text(l10n.trainingPlanPublicSubtitle),
               value: _isPublic,
               onChanged: (v) => setState(() => _isPublic = v),
               contentPadding: EdgeInsets.zero,
@@ -183,12 +192,17 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
             const SizedBox(height: 16),
 
             // Schedule type
-            const Text('Schedule Type', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(l10n.trainingRoutineScheduleType,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             SegmentedButton<RoutineScheduleType>(
-              segments: const [
-                ButtonSegment(value: RoutineScheduleType.wildcard, label: Text('Wildcard')),
-                ButtonSegment(value: RoutineScheduleType.fixedWeeks, label: Text('Fixed Weeks')),
+              segments: [
+                ButtonSegment(
+                    value: RoutineScheduleType.wildcard,
+                    label: Text(RoutineScheduleType.wildcard.label(l10n))),
+                ButtonSegment(
+                    value: RoutineScheduleType.fixedWeeks,
+                    label: Text(RoutineScheduleType.fixedWeeks.label(l10n))),
               ],
               selected: {_scheduleType},
               onSelectionChanged: (s) => setState(() => _scheduleType = s.first),
@@ -198,15 +212,15 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
               const SizedBox(height: 14),
               TextFormField(
                 controller: _numWeeks,
-                decoration: const InputDecoration(
-                  labelText: 'Number of weeks *',
-                  hintText: 'e.g. 12',
+                decoration: InputDecoration(
+                  labelText: l10n.trainingRoutineNumWeeksLabel,
+                  hintText: l10n.trainingRoutineNumWeeksHint,
                 ),
                 keyboardType: TextInputType.number,
                 validator: (v) {
                   if (_scheduleType != RoutineScheduleType.fixedWeeks) return null;
                   final n = int.tryParse(v ?? '');
-                  if (n == null || n < 1) return 'Enter a valid number';
+                  if (n == null || n < 1) return l10n.trainingRoutineInvalidNumber;
                   return null;
                 },
               ),
@@ -216,21 +230,23 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Trainings', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(l10n.trainingWorkoutsTabTrainings,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 TextButton.icon(
                   onPressed: _pickTraining,
                   icon: const Icon(Icons.add, size: 18),
-                  label: const Text('Add'),
+                  label: Text(l10n.trainingRoutineAdd),
                 ),
               ],
             ),
             const SizedBox(height: 8),
 
             if (_entries.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(16),
+              Padding(
+                padding: const EdgeInsets.all(16),
                 child: Center(
-                  child: Text('No trainings added yet', style: TextStyle(color: Colors.grey)),
+                  child: Text(l10n.trainingRoutineNoTrainingsAdded,
+                      style: TextStyle(color: cs.onSurfaceVariant)),
                 ),
               )
             else
@@ -269,7 +285,9 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
 
 class _RoutineTrainingDraft {
   final String trainingId;
-  final String trainingName;
+
+  /// Null when the API row has no embedded training; shown as a fallback.
+  final String? trainingName;
   int? weekNumber;
   int? dayOfWeek;
   int position;
@@ -311,31 +329,34 @@ class _TrainingEntryTile extends StatelessWidget {
     required this.onRemove,
   });
 
-  static const _dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final dayFmt = DateFormat.E(Localizations.localeOf(context).toString());
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: ListTile(
         leading: ReorderableDragStartListener(
           index: index,
-          child: const Icon(Icons.drag_handle, color: Colors.grey),
+          child: Icon(Icons.drag_handle,
+              color: cs.onSurfaceVariant, semanticLabel: l10n.trainingPlanReorderSet),
         ),
-        title: Text(entry.trainingName, style: const TextStyle(fontWeight: FontWeight.w600)),
+        title: Text(entry.trainingName ?? l10n.trainingRoutineTrainingFallback,
+            style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: scheduleType == RoutineScheduleType.fixedWeeks
             ? Row(
                 children: [
                   // Week picker
                   DropdownButton<int>(
                     value: entry.weekNumber,
-                    hint: const Text('Wk', style: TextStyle(fontSize: 12)),
+                    hint: Text(l10n.trainingRoutineWeekShortHint, style: const TextStyle(fontSize: 12)),
                     isDense: true,
                     underline: const SizedBox.shrink(),
                     items: List.generate(numWeeks, (i) => DropdownMenuItem(
                       value: i + 1,
-                      child: Text('Wk ${i + 1}', style: const TextStyle(fontSize: 12)),
+                      child: Text(l10n.trainingRoutineWeekShort(i + 1), style: const TextStyle(fontSize: 12)),
                     )),
                     onChanged: (v) {
                       entry.weekNumber = v;
@@ -346,12 +367,14 @@ class _TrainingEntryTile extends StatelessWidget {
                   // Day picker
                   DropdownButton<int>(
                     value: entry.dayOfWeek,
-                    hint: const Text('Day', style: TextStyle(fontSize: 12)),
+                    hint: Text(l10n.trainingRoutineDayHint, style: const TextStyle(fontSize: 12)),
                     isDense: true,
                     underline: const SizedBox.shrink(),
                     items: List.generate(7, (i) => DropdownMenuItem(
                       value: i + 1,
-                      child: Text(_dayNames[i], style: const TextStyle(fontSize: 12)),
+                      // 2024-01-01 was a Monday.
+                      child: Text(dayFmt.format(DateTime(2024, 1, i + 1)),
+                          style: const TextStyle(fontSize: 12)),
                     )),
                     onChanged: (v) {
                       entry.dayOfWeek = v;
@@ -362,7 +385,8 @@ class _TrainingEntryTile extends StatelessWidget {
               )
             : null,
         trailing: IconButton(
-          icon: const Icon(Icons.close, color: Colors.red),
+          tooltip: l10n.trainingRoutineRemoveTraining,
+          icon: Icon(Icons.close, color: cs.error),
           onPressed: onRemove,
         ),
       ),
@@ -416,14 +440,16 @@ class _TrainingPickerSheetState extends State<_TrainingPickerSheet> {
           const SizedBox(height: 12),
           Container(
             width: 40, height: 4,
-            decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+            decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.outlineVariant,
+                borderRadius: BorderRadius.circular(2)),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: TextField(
               controller: _search,
               decoration: InputDecoration(
-                hintText: 'Search trainings…',
+                hintText: context.l10n.trainingRoutineSearchTrainingsHint,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),

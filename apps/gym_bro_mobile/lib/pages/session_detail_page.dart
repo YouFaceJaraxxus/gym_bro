@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
+import '../models/coaching.dart';
 import '../models/training.dart';
 import '../models/training_session.dart';
+import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../services/settings_service.dart';
 
 class SessionDetailPage extends StatefulWidget {
   final String sessionId;
@@ -22,10 +27,136 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
   final Map<String, String> _exerciseNames = {};
   bool _changed = false;
 
+  // Comments thread (owner ↔ coaches).
+  List<SessionComment> _comments = [];
+  bool _commentsLoading = true;
+  String? _commentsError;
+  final _composer = TextEditingController();
+  bool _posting = false;
+
   @override
   void initState() {
     super.initState();
     _load();
+    _loadComments();
+  }
+
+  @override
+  void dispose() {
+    _composer.dispose();
+    super.dispose();
+  }
+
+  Future<void> _refresh() => Future.wait([_load(), _loadComments()]);
+
+  Future<void> _loadComments() async {
+    setState(() {
+      _commentsLoading = true;
+      _commentsError = null;
+    });
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final items = await _api.getSessionComments(token, widget.sessionId);
+      if (!mounted) return;
+      setState(() {
+        _comments = items;
+        _commentsLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _commentsError = e.toString().replaceFirst('Exception: ', '');
+        _commentsLoading = false;
+      });
+    }
+  }
+
+  Future<void> _postComment() async {
+    final body = _composer.text.trim();
+    if (body.isEmpty || _posting) return;
+    setState(() => _posting = true);
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final c = await _api.addSessionComment(token, widget.sessionId, body);
+      if (!mounted) return;
+      _composer.clear();
+      FocusScope.of(context).unfocus();
+      setState(() {
+        _comments = [..._comments, c];
+        _posting = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _posting = false);
+      _showError(e);
+    }
+  }
+
+  Future<void> _editComment(SessionComment c) async {
+    final controller = TextEditingController(text: c.body);
+    final l10n = context.l10n;
+    final body = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.trainingSessionCommentEditTitle),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          minLines: 1,
+          maxLines: 6,
+          maxLength: 4000,
+          textCapitalization: TextCapitalization.sentences,
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l10n.commonCancel)),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: Text(l10n.commonSave),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (body == null || body.isEmpty || body == c.body || !mounted) return;
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final updated = await _api.updateSessionComment(token, c.id, body);
+      if (!mounted) return;
+      setState(() {
+        _comments = [for (final x in _comments) x.id == c.id ? updated : x];
+      });
+    } catch (e) {
+      _showError(e);
+    }
+  }
+
+  Future<void> _deleteComment(SessionComment c) async {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.trainingSessionCommentDeleteTitle),
+        content: Text(l10n.trainingSessionCommentDeleteMessage),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.commonCancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: cs.error),
+            child: Text(l10n.commonDelete),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      await _api.deleteSessionComment(token, c.id);
+      if (!mounted) return;
+      setState(() => _comments = _comments.where((x) => x.id != c.id).toList());
+    } catch (e) {
+      _showError(e);
+    }
   }
 
   Future<void> _load() async {
@@ -78,8 +209,12 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
 
   void _showError(Object e) {
     if (!mounted) return;
+    final cs = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(e.toString(), style: TextStyle(color: cs.onError)),
+        backgroundColor: cs.error,
+      ),
     );
   }
 
@@ -101,20 +236,22 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
   }
 
   Future<void> _deleteSet(SessionSetLog setLog) async {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete set?'),
-        content: const Text('This logged set will be permanently removed.'),
+        title: Text(l10n.trainingSessionSetDeleteTitle),
+        content: Text(l10n.trainingSessionSetDeleteMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            style: TextButton.styleFrom(foregroundColor: cs.error),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -131,20 +268,22 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
   }
 
   Future<void> _delete() async {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete session?'),
-        content: const Text('This log entry will be permanently removed.'),
+        title: Text(l10n.trainingSessionDeleteTitle),
+        content: Text(l10n.trainingSessionDeleteMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            style: TextButton.styleFrom(foregroundColor: cs.error),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -155,16 +294,15 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
       await _api.deleteTrainingSession(token, widget.sessionId);
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-        );
-      }
+      _showError(e);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     if (_loading) {
       return Scaffold(
         appBar: AppBar(),
@@ -179,11 +317,11 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                _error ?? 'Unknown error',
-                style: const TextStyle(color: Colors.red),
+                _error ?? l10n.commonSomethingWentWrong,
+                style: TextStyle(color: cs.error),
               ),
               const SizedBox(height: 12),
-              ElevatedButton(onPressed: _load, child: const Text('Retry')),
+              ElevatedButton(onPressed: _load, child: Text(l10n.commonRetry)),
             ],
           ),
         ),
@@ -201,17 +339,19 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Session Detail'),
+          title: Text(l10n.trainingSessionDetailTitle),
           actions: [
             if (isOwner)
               IconButton(
+                tooltip: l10n.trainingSessionDeleteTooltip,
                 icon: const Icon(Icons.delete_outline),
                 onPressed: _delete,
               ),
           ],
         ),
+        bottomNavigationBar: _buildComposer(),
         body: RefreshIndicator(
-          onRefresh: _load,
+          onRefresh: _refresh,
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -226,26 +366,26 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
                     children: [
                       _SummaryRow(
                         icon: Icons.calendar_today,
-                        label: 'Date',
-                        value: _formatDate(session.startedAt),
+                        label: l10n.trainingSessionDate,
+                        value: _formatDate(session.startedAt, locale),
                       ),
                       _SummaryRow(
                         icon: Icons.timer_outlined,
-                        label: 'Duration',
+                        label: l10n.trainingSessionDuration,
                         value: session.isActive
-                            ? 'In progress'
+                            ? l10n.trainingSessionInProgress
                             : session.durationLabel,
                       ),
                       if (session.trainerId != null)
                         _SummaryRow(
                           icon: Icons.person_outline,
-                          label: 'Trainer',
-                          value: session.trainerId!,
+                          label: l10n.trainingSessionTrainer,
+                          value: session.trainerName ?? l10n.trainingSessionTrainer,
                         ),
                       if (session.notes != null && session.notes!.isNotEmpty)
                         _SummaryRow(
                           icon: Icons.notes,
-                          label: 'Notes',
+                          label: l10n.trainingSessionNotes,
                           value: session.notes!,
                         ),
                     ],
@@ -256,18 +396,18 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
               const SizedBox(height: 20),
 
               if (session.setLogs.isEmpty)
-                const Center(
+                Center(
                   child: Padding(
-                    padding: EdgeInsets.all(32),
+                    padding: const EdgeInsets.all(32),
                     child: Text(
-                      'No sets logged',
-                      style: TextStyle(color: Colors.grey),
+                      l10n.trainingSessionNoSets,
+                      style: TextStyle(color: cs.onSurfaceVariant),
                     ),
                   ),
                 )
               else ...[
                 Text(
-                  '${session.setLogs.length} Set${session.setLogs.length == 1 ? '' : 's'} Logged',
+                  l10n.trainingSessionSetsLogged(session.setLogs.length),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -275,11 +415,11 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
                 ),
                 const SizedBox(height: 12),
                 if (isOwner)
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 8),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
                     child: Text(
-                      'Tap a set to edit it.',
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      l10n.trainingSessionTapToEdit,
+                      style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                     ),
                   ),
                 ...session.setLogs.asMap().entries.map((entry) {
@@ -288,8 +428,8 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
                       ? _exerciseNames[setLog.exerciseId]
                       : null;
                   final title = exName != null
-                      ? 'Set ${entry.key + 1} · $exName'
-                      : 'Set ${entry.key + 1}';
+                      ? l10n.trainingSessionSetTitleWithExercise(entry.key + 1, exName)
+                      : l10n.trainingSessionSetTitle(entry.key + 1);
                   return _SetLogCard(
                     title: title,
                     setLog: setLog,
@@ -298,6 +438,8 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
                   );
                 }),
               ],
+              const SizedBox(height: 24),
+              ..._buildComments(session),
             ],
           ),
         ),
@@ -305,9 +447,229 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
     );
   }
 
-  String _formatDate(DateTime dt) {
-    return '${dt.day}/${dt.month}/${dt.year} '
-        '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+  List<Widget> _buildComments(TrainingSession session) {
+    final cs = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    final count = _commentsLoading && _comments.isEmpty ? session.commentCount : _comments.length;
+    final me = AuthManager.instance.profile;
+    final isSuper = me?.role == UserRole.superUser;
+    final l10n = context.l10n;
+    return [
+      Row(
+        children: [
+          Icon(Icons.forum_outlined, size: 20, color: cs.primary),
+          const SizedBox(width: 6),
+          Text(l10n.trainingSessionComments, style: text.titleMedium),
+          const SizedBox(width: 6),
+          if (count > 0)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: cs.secondaryContainer,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text('$count',
+                  semanticsLabel: l10n.trainingSessionCommentCount(count),
+                  style: text.labelSmall?.copyWith(color: cs.onSecondaryContainer)),
+            ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      if (_commentsLoading && _comments.isEmpty)
+        const Padding(
+          padding: EdgeInsets.all(16),
+          child: Center(child: CircularProgressIndicator()),
+        )
+      else if (_commentsError != null && _comments.isEmpty)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Column(
+            children: [
+              Text(_commentsError!, style: TextStyle(color: cs.error), textAlign: TextAlign.center),
+              const SizedBox(height: 8),
+              FilledButton.tonal(onPressed: _loadComments, child: Text(l10n.commonRetry)),
+            ],
+          ),
+        )
+      else if (_comments.isEmpty)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Text(
+            l10n.trainingSessionNoComments,
+            style: TextStyle(color: cs.onSurfaceVariant),
+          ),
+        )
+      else
+        ..._comments.map((c) {
+          final mine = me != null && c.authorId == me.id;
+          final isAthlete = c.authorId == session.userId;
+          return _CommentTile(
+            comment: c,
+            label: isAthlete ? l10n.trainingSessionCommentAthlete : l10n.trainingSessionCommentCoach,
+            mine: mine,
+            onEdit: mine ? () => _editComment(c) : null,
+            onDelete: mine || isSuper ? () => _deleteComment(c) : null,
+          );
+        }),
+    ];
+  }
+
+  Widget _buildComposer() {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 12,
+          right: 4,
+          top: 6,
+          bottom: 6 + MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _composer,
+                minLines: 1,
+                maxLines: 4,
+                maxLength: 4000,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  hintText: l10n.trainingSessionCommentHint,
+                  counterText: '',
+                  isDense: true,
+                  filled: true,
+                  fillColor: cs.surfaceContainerHighest,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                ),
+                onChanged: (_) => setState(() {}),
+              ),
+            ),
+            _posting
+                ? const Padding(
+                    padding: EdgeInsets.all(12),
+                    child: SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2)),
+                  )
+                : IconButton(
+                    tooltip: l10n.trainingSessionSendComment,
+                    icon: Icon(Icons.send, color: _composer.text.trim().isEmpty ? cs.outline : cs.primary),
+                    onPressed: _composer.text.trim().isEmpty ? null : _postComment,
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime dt, String locale) =>
+      DateFormat.yMMMd(locale).add_Hm().format(dt.toLocal());
+}
+
+class _CommentTile extends StatelessWidget {
+  final SessionComment comment;
+  final String label;
+  final bool mine;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+
+  const _CommentTile({
+    required this.comment,
+    required this.label,
+    required this.mine,
+    this.onEdit,
+    this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
+    final c = comment;
+    final name =
+        mine ? l10n.trainingSessionCommentYou : (c.authorName ?? l10n.trainingSessionDeletedUser);
+    final when = DateFormat.MMMd(locale).add_jm().format(c.createdAt.toLocal());
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // The author's name is shown next to the avatar.
+          ExcludeSemantics(
+            child: CircleAvatar(
+              radius: 18,
+              backgroundImage: c.authorAvatarUrl != null ? NetworkImage(c.authorAvatarUrl!) : null,
+              child: c.authorAvatarUrl == null
+                  ? Text(name.isEmpty ? '?' : name[0].toUpperCase())
+                  : null,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(12, 8, 4, 10),
+              decoration: BoxDecoration(
+                color: mine ? cs.primaryContainer : cs.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(name,
+                            overflow: TextOverflow.ellipsis,
+                            style: text.labelLarge?.copyWith(
+                                color: mine ? cs.onPrimaryContainer : cs.onSurface)),
+                      ),
+                      const SizedBox(width: 6),
+                      Text('· $label',
+                          style: text.labelSmall?.copyWith(
+                              color: mine ? cs.onPrimaryContainer : cs.onSurfaceVariant)),
+                      const Spacer(),
+                      if (onEdit != null || onDelete != null)
+                        PopupMenuButton<String>(
+                          tooltip: l10n.trainingSessionCommentOptions,
+                          iconSize: 18,
+                          icon: Icon(Icons.more_vert,
+                              color: mine ? cs.onPrimaryContainer : cs.onSurfaceVariant),
+                          onSelected: (v) => v == 'edit' ? onEdit?.call() : onDelete?.call(),
+                          itemBuilder: (_) => [
+                            if (onEdit != null)
+                              PopupMenuItem(value: 'edit', child: Text(l10n.commonEdit)),
+                            if (onDelete != null)
+                              PopupMenuItem(value: 'delete', child: Text(l10n.commonDelete)),
+                          ],
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Text(c.body,
+                        style: text.bodyMedium?.copyWith(
+                            color: mine ? cs.onPrimaryContainer : cs.onSurface)),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    c.isEdited ? l10n.trainingSessionCommentEdited(when) : when,
+                    style: text.labelSmall?.copyWith(
+                        color: (mine ? cs.onPrimaryContainer : cs.onSurfaceVariant)
+                            .withValues(alpha: 0.8)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -324,15 +686,18 @@ class _SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: Colors.grey),
-          const SizedBox(width: 10),
-          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.w600)),
-          Expanded(child: Text(value)),
-        ],
+    final cs = Theme.of(context).colorScheme;
+    return MergeSemantics(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: cs.onSurfaceVariant),
+            const SizedBox(width: 10),
+            Text('$label: ', style: const TextStyle(fontWeight: FontWeight.w600)),
+            Expanded(child: Text(value)),
+          ],
+        ),
       ),
     );
   }
@@ -353,6 +718,8 @@ class _SetLogCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -374,17 +741,17 @@ class _SetLogCard extends StatelessWidget {
                   ),
                   if (onEdit != null)
                     IconButton(
-                      tooltip: 'Edit set',
+                      tooltip: l10n.trainingSessionEditSetTooltip,
                       icon: const Icon(Icons.edit_outlined, size: 18),
                       onPressed: onEdit,
                     ),
                   if (onDelete != null)
                     IconButton(
-                      tooltip: 'Delete set',
-                      icon: const Icon(
+                      tooltip: l10n.trainingSessionDeleteSetTooltip,
+                      icon: Icon(
                         Icons.delete_outline,
                         size: 18,
-                        color: Colors.red,
+                        color: cs.error,
                       ),
                       onPressed: onDelete,
                     ),
@@ -395,14 +762,14 @@ class _SetLogCard extends StatelessWidget {
               if (setLog.note != null && setLog.note!.isNotEmpty) ...[
                 Text(
                   setLog.note!,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 4),
               ],
               if (setLog.dropLogs.isEmpty)
-                const Text(
-                  'No reps recorded',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                Text(
+                  l10n.trainingSessionNoReps,
+                  style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                 )
               else
                 ...setLog.dropLogs.map(
@@ -410,13 +777,13 @@ class _SetLogCard extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.arrow_right,
                           size: 16,
-                          color: Colors.grey,
+                          color: cs.onSurfaceVariant,
                         ),
                         const SizedBox(width: 4),
-                        Text(d.label, style: const TextStyle(fontSize: 13)),
+                        Text(d.label(l10n), style: const TextStyle(fontSize: 13)),
                       ],
                     ),
                   ),
@@ -448,11 +815,15 @@ class _DropDraft {
     required this.side,
   }) : reps = TextEditingController(text: repCount?.toString() ?? ''),
        weight = TextEditingController(
-         text: weightKg == null ? '' : _fmtWeight(weightKg),
+         text: weightKg == null
+             ? ''
+             : _fmtWeight(SettingsService.instance.toDisplayWeight(weightKg)),
        );
 
-  static String _fmtWeight(double w) =>
-      w == w.truncateToDouble() ? w.toInt().toString() : w.toString();
+  static String _fmtWeight(double w) {
+    final r = double.parse(w.toStringAsFixed(2));
+    return r == r.truncateToDouble() ? r.toInt().toString() : r.toString();
+  }
 
   void dispose() {
     reps.dispose();
@@ -532,11 +903,11 @@ class _EditSetSheetState extends State<_EditSetSheet> {
       final reps = int.tryParse(repsText);
       final weight = double.tryParse(weightText);
       if (d.repType == RepType.count && repsText.isNotEmpty && reps == null) {
-        setState(() => _error = 'Reps must be a whole number');
+        setState(() => _error = context.l10n.trainingSessionRepsWholeNumber);
         return;
       }
       if (weightText.isNotEmpty && weight == null) {
-        setState(() => _error = 'Weight must be a number');
+        setState(() => _error = context.l10n.trainingSessionWeightNumber);
         return;
       }
       drops.add({
@@ -544,7 +915,9 @@ class _EditSetSheetState extends State<_EditSetSheet> {
         'drop_number': i,
         'rep_type_actual': d.repType.apiValue,
         'rep_count_actual': d.repType == RepType.count ? reps : null,
-        'weight_kg_actual': weight,
+        'weight_kg_actual': weight == null
+            ? null
+            : double.parse(SettingsService.instance.fromDisplayWeight(weight).toStringAsFixed(2)),
         'side': d.side.apiValue,
       });
     }
@@ -556,6 +929,8 @@ class _EditSetSheetState extends State<_EditSetSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom + 16,
@@ -569,7 +944,7 @@ class _EditSetSheetState extends State<_EditSetSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Edit ${widget.title}',
+              l10n.trainingSessionEditSetTitle(widget.title),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -588,15 +963,15 @@ class _EditSetSheetState extends State<_EditSetSheet> {
                         isDense: true,
                         decoration: InputDecoration(
                           labelText: _drops.length > 1
-                              ? 'Drop ${i + 1}'
-                              : 'Type',
+                              ? l10n.trainingSessionDropNumber(i + 1)
+                              : l10n.trainingSessionRepType,
                           isDense: true,
                         ),
                         items: RepType.values
                             .map(
                               (t) => DropdownMenuItem(
                                 value: t,
-                                child: Text(t.displayName),
+                                child: Text(t.label(l10n)),
                               ),
                             )
                             .toList(),
@@ -610,8 +985,8 @@ class _EditSetSheetState extends State<_EditSetSheet> {
                         child: TextField(
                           controller: d.reps,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: 'Reps',
+                          decoration: InputDecoration(
+                            labelText: l10n.trainingRepTypeCount,
                             isDense: true,
                           ),
                         ),
@@ -624,18 +999,19 @@ class _EditSetSheetState extends State<_EditSetSheet> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
-                        decoration: const InputDecoration(
-                          labelText: 'kg',
+                        decoration: InputDecoration(
+                          labelText: SettingsService.instance.weightUnit.value,
                           isDense: true,
                         ),
                       ),
                     ),
                     if (_drops.length > 1)
                       IconButton(
-                        icon: const Icon(
+                        tooltip: l10n.trainingSessionRemoveDrop,
+                        icon: Icon(
                           Icons.close,
                           size: 18,
-                          color: Colors.red,
+                          color: cs.error,
                         ),
                         onPressed: () => _removeDrop(i),
                       ),
@@ -646,17 +1022,17 @@ class _EditSetSheetState extends State<_EditSetSheet> {
             TextButton.icon(
               onPressed: _addDrop,
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add drop'),
+              label: Text(l10n.trainingSessionAddDrop),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _note,
-              decoration: const InputDecoration(labelText: 'Note'),
+              decoration: InputDecoration(labelText: l10n.trainingSessionNote),
               maxLines: 2,
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
-              Text(_error!, style: const TextStyle(color: Colors.red)),
+              Text(_error!, style: TextStyle(color: cs.error)),
             ],
             const SizedBox(height: 20),
             Row(
@@ -664,14 +1040,14 @@ class _EditSetSheetState extends State<_EditSetSheet> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
+                    child: Text(l10n.commonCancel),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _submit,
-                    child: const Text('Save'),
+                    child: Text(l10n.commonSave),
                   ),
                 ),
               ],

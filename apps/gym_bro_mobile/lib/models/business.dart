@@ -1,3 +1,16 @@
+import 'package:intl/intl.dart';
+
+/// Localized weekday name for an ISO weekday (1 = Monday … 7 = Sunday),
+/// e.g. `Mon` / `pon` (or `Monday` / `ponedeljak` with [abbreviated] false).
+/// [locale] is usually `Localizations.localeOf(context).toString()`.
+String weekdayLabel(int isoWeekday, String locale, {bool abbreviated = true}) {
+  // 1 January 2024 was a Monday.
+  final day = DateTime(2024, 1, isoWeekday);
+  return (abbreviated ? DateFormat.E(locale) : DateFormat.EEEE(locale)).format(
+    day,
+  );
+}
+
 class Business {
   final String id;
   final String name;
@@ -20,15 +33,15 @@ class Business {
   });
 
   factory Business.fromJson(Map<String, dynamic> json) => Business(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        location: json['location'] as String,
-        logo: json['logo'] as String?,
-        workingHoursFrom: json['working_hours_from'] as String,
-        workingHoursTo: json['working_hours_to'] as String,
-        workingWeekdays: List<int>.from(json['working_weekdays'] as List),
-        type: json['type'] as String,
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    location: json['location'] as String,
+    logo: json['logo'] as String?,
+    workingHoursFrom: json['working_hours_from'] as String,
+    workingHoursTo: json['working_hours_to'] as String,
+    workingWeekdays: List<int>.from(json['working_weekdays'] as List),
+    type: json['type'] as String,
+  );
 }
 
 /// One row of `expiring_soon` in GET /businesses/stats.
@@ -91,17 +104,17 @@ class BusinessStats {
   static int _int(dynamic v) => v == null ? 0 : int.parse(v.toString());
 
   factory BusinessStats.fromJson(Map<String, dynamic> json) => BusinessStats(
-        gyms: _int(json['gyms']),
-        membersTotal: _int(json['members_total']),
-        activeMemberships: _int(json['active_memberships']),
-        staffTotal: _int(json['staff_total']),
-        invoicesMonthCount: _int(json['invoices_month_count']),
-        invoicesMonthTotal: json['invoices_month_total'] == null
-            ? 0
-            : double.parse(json['invoices_month_total'].toString()),
-        unpaidInvoicesCount: _int(json['unpaid_invoices_count']),
-        expiringSoon: (json['expiring_soon'] as List? ?? [])
-            .map((e) => ExpiringMembership.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+    gyms: _int(json['gyms']),
+    membersTotal: _int(json['members_total']),
+    activeMemberships: _int(json['active_memberships']),
+    staffTotal: _int(json['staff_total']),
+    invoicesMonthCount: _int(json['invoices_month_count']),
+    invoicesMonthTotal: json['invoices_month_total'] == null
+        ? 0
+        : double.parse(json['invoices_month_total'].toString()),
+    unpaidInvoicesCount: _int(json['unpaid_invoices_count']),
+    expiringSoon: (json['expiring_soon'] as List? ?? [])
+        .map((e) => ExpiringMembership.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
 }

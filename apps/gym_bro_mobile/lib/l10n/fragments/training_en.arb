@@ -1,0 +1,539 @@
+{
+  "trainingMuscleChestAll": "Chest",
+  "trainingMuscleChestUpper": "Upper Chest",
+  "trainingMuscleChestLower": "Lower Chest",
+  "trainingMuscleBackAll": "Back",
+  "trainingMuscleBackUpper": "Upper Back",
+  "trainingMuscleBackMid": "Mid Back",
+  "trainingMuscleBackLower": "Lower Back",
+  "trainingMuscleBackRhomboids": "Rhomboids",
+  "trainingMuscleBackTraps": "Traps",
+  "trainingMuscleBackLats": "Lats",
+  "trainingMuscleDeltsAll": "Deltoids",
+  "trainingMuscleDeltsFront": "Front Delt",
+  "trainingMuscleDeltsMedial": "Side Delt",
+  "trainingMuscleDeltsRear": "Rear Delt",
+  "trainingMuscleBiceps": "Biceps",
+  "trainingMuscleTricepsAll": "Triceps",
+  "trainingMuscleTricepsLong": "Triceps Long Head",
+  "trainingMuscleTricepsLateral": "Triceps Lateral",
+  "trainingMuscleTricepsMedial": "Triceps Medial",
+  "trainingMuscleForearmsAll": "Forearms",
+  "trainingMuscleForearmsTop": "Forearms (Top)",
+  "trainingMuscleForearmsBottom": "Forearms (Bottom)",
+  "trainingMuscleAbsUpper": "Upper Abs",
+  "trainingMuscleAbsLower": "Lower Abs",
+  "trainingMuscleAbsObliques": "Obliques",
+  "trainingMuscleQuadsAll": "Quads",
+  "trainingMuscleQuadsMedial": "Medial Quad",
+  "trainingMuscleQuadsLateral": "Lateral Quad",
+  "trainingMuscleHamstrings": "Hamstrings",
+  "trainingMuscleGlutesAll": "Glutes",
+  "trainingMuscleGlutesMedius": "Glute Medius",
+  "trainingMuscleGlutesMinimus": "Glute Minimus",
+  "trainingMuscleGlutesMaximus": "Glute Maximus",
+  "trainingMuscleCalves": "Calves",
+  "trainingMuscleNeck": "Neck",
+  "trainingSetTypeStandard": "Straight Set",
+  "trainingSetTypeSuperset": "Superset",
+  "trainingSetTypeDropset": "Drop Set",
+  "trainingSetTypeCircuit": "Circuit",
+  "trainingRepTypeCount": "Reps",
+  "trainingRepTypeFailure": "To Failure",
+  "trainingRepFailureShort": "Failure",
+  "trainingRepsTimes": "{count}x",
+  "@trainingRepsTimes": {
+    "description": "Planned/logged rep count, e.g. 8x",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingSideBoth": "Both",
+  "trainingSideLeft": "Left",
+  "trainingSideRight": "Right",
+  "trainingDropCount": "{count, plural, =1{1 drop} other{{count} drops}}",
+  "@trainingDropCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingScheduleFixedWeeks": "Fixed Weeks",
+  "trainingScheduleWildcard": "Wildcard",
+  "trainingWeekProgram": "{weeks}-Week Program",
+  "@trainingWeekProgram": {
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingBookingBooked": "Booked",
+  "trainingBookingWaitlisted": "Waitlisted",
+  "trainingBookingCancelled": "Cancelled",
+  "trainingBookingAttended": "Attended",
+  "trainingBookingNoShow": "No-show",
+  "trainingStaffRoleEmployee": "Employee",
+  "trainingStaffRoleEmployeeTrainer": "Employee / Trainer",
+  "trainingStaffRoleTrainer": "Trainer",
+  "trainingScheduleNextDay": "{range} (+1 day)",
+  "@trainingScheduleNextDay": {
+    "description": "Time range that ends the next day",
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingScheduleMinutes": "{minutes} min",
+  "@trainingScheduleMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingScheduleHours": "{hours} h",
+  "@trainingScheduleHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingScheduleHoursMinutes": "{hours} h {minutes} min",
+  "@trainingScheduleHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingScheduleTomorrow": "Tomorrow",
+  "trainingScheduleYesterday": "Yesterday",
+  "trainingSchedulePreviousWeek": "Previous week",
+  "trainingScheduleNextWeek": "Next week",
+  "trainingScheduleThisWeek": "This week",
+  "trainingScheduleHasClasses": "has classes",
+  "trainingClassFull": "Full",
+  "trainingClassFullWaiting": "Full · {count} waiting",
+  "@trainingClassFullWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassSpotsLeft": "{count, plural, =1{1 spot left} other{{count} spots left}}",
+  "@trainingClassSpotsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassBookedOf": "{booked}/{capacity} booked",
+  "@trainingClassBookedOf": {
+    "placeholders": {
+      "booked": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassCapacity": "Capacity",
+  "trainingClassBook": "Book",
+  "trainingClassJoinWaitlist": "Join waitlist",
+  "trainingClassCancelBooking": "Cancel booking",
+  "trainingClassWaitlistedPosition": "Waitlisted #{position}",
+  "@trainingClassWaitlistedPosition": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassWeekly": "Weekly class",
+  "trainingClassCancelled": "Cancelled",
+  "trainingClassKeep": "Keep",
+  "trainingClassLeaveWaitlistQuestion": "Leave waitlist?",
+  "trainingClassCancelBookingQuestion": "Cancel booking?",
+  "trainingClassLeaveWaitlistMessage": "You'll lose your place in line for {title}.",
+  "@trainingClassLeaveWaitlistMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingClassCancelBookingMessage": "Your spot in {title} will be given to the next person on the waitlist.",
+  "@trainingClassCancelBookingMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingClassLeaveWaitlist": "Leave waitlist",
+  "trainingClassBookingCancelled": "Booking cancelled",
+  "trainingClassWaitlistJoined": "Class is full. You're #{position} on the waitlist.",
+  "@trainingClassWaitlistJoined": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassWaitlistJoinedNoPosition": "Class is full. You're on the waitlist.",
+  "@trainingClassWaitlistJoinedNoPosition": {},
+  "trainingClassBookedFor": "You're booked for {title}",
+  "@trainingClassBookedFor": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingShiftOnNow": "On now",
+  "trainingClassCancelNotifyPeople": "{count, plural, =1{1 person booked or waitlisted will be notified.} other{{count} people booked or waitlisted will be notified.}}",
+  "@trainingClassCancelNotifyPeople": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassNobodyBooked": "Nobody has booked yet.",
+  "trainingClassCancelQuestion": "Cancel class?",
+  "trainingClassCancelThisOnly": "Cancel this class only",
+  "trainingClassCancelThisAndFuture": "Cancel this and future classes",
+  "trainingClassKeepClass": "Keep class",
+  "trainingClassCancelClass": "Cancel class",
+  "trainingClassClassesCancelled": "Classes cancelled",
+  "trainingClassClassCancelled": "Class cancelled",
+  "trainingClassRemoveQuestion": "Remove {name}?",
+  "@trainingClassRemoveQuestion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingClassMember": "Member",
+  "trainingClassRemoveWaitlistMessage": "They'll be taken off the waitlist.",
+  "trainingClassRemoveBookedMessage": "Their spot will go to the next person on the waitlist.",
+  "trainingClassRemove": "Remove",
+  "trainingClassTitle": "Class",
+  "trainingClassEdit": "Edit class",
+  "trainingClassWasCancelled": "This class was cancelled",
+  "trainingClassWeeklySeries": "Part of a weekly series",
+  "trainingClassAbout": "About",
+  "trainingClassSpots": "Spots",
+  "trainingClassEnded": "This class has ended.",
+  "trainingClassInProgress": "This class is in progress.",
+  "trainingClassRoster": "Roster",
+  "trainingClassAttendedOf": "{attended}/{total} attended",
+  "@trainingClassAttendedOf": {
+    "placeholders": {
+      "attended": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassNoBookingsYet": "No one has booked yet",
+  "trainingClassWaitlistCount": "Waitlist ({count})",
+  "@trainingClassWaitlistCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassWaitlistPosition": "#{position} on the waitlist",
+  "@trainingClassWaitlistPosition": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassBookedAt": "Booked {when}",
+  "@trainingClassBookedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingClassAttendedUndo": "Attended (tap to undo)",
+  "trainingClassMarkAttended": "Mark attended",
+  "trainingClassNoShowUndo": "No-show (tap to undo)",
+  "trainingClassMarkNoShow": "Mark no-show",
+  "trainingClassMore": "More",
+  "trainingClassRemoveFromClass": "Remove from class",
+  "trainingClassStartInFuture": "Pick a start time in the future",
+  "trainingClassUpdated": "Class updated",
+  "trainingClassWeeklyCreated": "{count} weekly classes created",
+  "@trainingClassWeeklyCreated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassCreated": "Class created",
+  "trainingClassNew": "New class",
+  "trainingClassNoGyms": "No gyms to schedule at",
+  "trainingClassNoGymsMessage": "You can create classes at gyms where you are a trainer, staff member or owner.",
+  "trainingClassCurrentTrainer": "Current trainer",
+  "trainingClassGym": "Gym",
+  "trainingClassTitleLabel": "Title",
+  "trainingClassTitleHint": "e.g. Morning HIIT",
+  "trainingClassTitleRequired": "Give the class a title",
+  "trainingClassDescriptionOptional": "Description (optional)",
+  "trainingClassLocationOptional": "Location (optional)",
+  "trainingClassLocationHint": "e.g. Studio A",
+  "trainingClassWhen": "When",
+  "trainingClassDuration": "Duration",
+  "trainingClassEndsAt": "Ends at {time}",
+  "@trainingClassEndsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingClassCapacityHelper": "Extra people join a waitlist",
+  "trainingClassCapacityMin": "Enter at least 1",
+  "trainingClassCapacityMax": "That's a lot of people — 500 max",
+  "trainingClassCapacityBelowBooked": "{count, plural, =1{1 person is already booked} other{{count} people are already booked}}",
+  "@trainingClassCapacityBelowBooked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassNoTrainer": "No trainer",
+  "trainingClassNameYou": "{name} (you)",
+  "@trainingClassNameYou": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingClassYou": "You",
+  "trainingClassRepeatWeekly": "Repeat weekly",
+  "trainingClassRepeatSummary": "Every {weekday} for {weeks} weeks",
+  "@trainingClassRepeatSummary": {
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassOneOff": "One-off class",
+  "trainingClassWeeks": "Weeks",
+  "trainingClassWeeksValue": "{count, plural, =1{1 week} other{{count} weeks}}",
+  "@trainingClassWeeksValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassApplyToSeries": "Apply to this and future classes",
+  "trainingClassApplyToSeriesOn": "Changes apply to every later class in this weekly series",
+  "trainingClassApplyToSeriesOff": "Only this class changes",
+  "trainingClassNotifyOnChange": "People who booked are notified if the time or location changes.",
+  "trainingClassSaveChanges": "Save changes",
+  "trainingClassCreate": "Create class",
+  "trainingClassClasses": "Classes",
+  "trainingClassRefresh": "Refresh",
+  "trainingClassMyBookings": "My bookings",
+  "trainingClassMyBookingsCount": "My bookings ({count})",
+  "@trainingClassMyBookingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassNoneScheduled": "No classes scheduled",
+  "trainingClassNoneScheduledMessage": "Your gyms haven't scheduled any classes for the next two weeks. Check back soon.",
+  "trainingClassNothingOn": "Nothing on {day}",
+  "@trainingClassNothingOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingClassNextClass": "Next class: {title}, {day} at {time}.",
+  "@trainingClassNextClass": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingClassJumpToNext": "Jump to next class",
+  "trainingClassNoBookings": "No bookings yet",
+  "trainingClassNoBookingsMessage": "Classes you book or join the waitlist for show up here.",
+  "trainingClassBrowse": "Browse classes",
+  "trainingScheduleTitle": "Schedule",
+  "trainingShiftShifts": "Shifts",
+  "trainingClassNoneThisWeek": "No classes this week",
+  "trainingClassNoneThisWeekCreate": "Create a class or a weekly series for members to book.",
+  "trainingClassNoneThisWeekMessage": "Nothing has been scheduled for this week yet.",
+  "trainingClassCreateOne": "Create a class",
+  "trainingClassCount": "{count, plural, =1{1 class} other{{count} classes}}",
+  "@trainingClassCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingShiftDeleteQuestion": "Delete shift?",
+  "trainingShiftDeleteMessage": "{name}'s shift on {day} will be removed.",
+  "@trainingShiftDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingShiftDeleted": "Shift deleted",
+  "trainingShiftAdd": "Add shift",
+  "trainingShiftNoneThisWeek": "No shifts this week",
+  "trainingShiftNoneThisWeekManage": "Plan who's working when. Staff get notified about their shifts.",
+  "trainingShiftNoneThisWeekMessage": "No one has been scheduled for this week yet.",
+  "trainingShiftAddOne": "Add a shift",
+  "trainingShiftCount": "{count, plural, =1{1 shift} other{{count} shifts}}",
+  "@trainingShiftCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingShiftAddOn": "Add shift on {day}",
+  "@trainingShiftAddOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingShiftNone": "No shifts",
+  "trainingShiftOptions": "Shift options",
+  "trainingShiftMyShifts": "My shifts",
+  "trainingShiftNoUpcoming": "No upcoming shifts",
+  "trainingShiftNoUpcomingMessage": "When a manager schedules you, your shifts show up here and you get a notification.",
+  "trainingShiftNextDays": "Next {days} days",
+  "@trainingShiftNextDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassNotSignedIn": "Not signed in",
+  "trainingClassMyClasses": "My classes",
+  "trainingClassUpcoming": "Upcoming",
+  "trainingClassUpcomingCount": "Upcoming ({count})",
+  "@trainingClassUpcomingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingClassPast": "Past",
+  "trainingClassNoUpcoming": "No upcoming classes",
+  "trainingClassNoUpcomingMessage": "Schedule a one-off class or a weekly series and members can book it.",
+  "trainingClassNoPast": "No past classes",
+  "trainingClassNoPastMessage": "Classes you taught in the last {days} days show up here.",
+  "@trainingClassNoPastMessage": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "trainingShiftUpdated": "Shift updated",
+  "trainingShiftAdded": "Shift added",
+  "trainingShiftDeleteNotifyMessage": "{name}'s shift on {day} will be removed and they'll be notified.",
+  "@trainingShiftDeleteNotifyMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingShiftEdit": "Edit shift",
+  "trainingShiftNew": "New shift",
+  "trainingShiftDelete": "Delete shift",
+  "trainingShiftNoStaff": "No staff to schedule",
+  "trainingShiftNoStaffMessage": "Add employees, employee-trainers or trainers to this gym first.",
+  "trainingShiftStaffMember": "Staff member",
+  "trainingShiftPickStaff": "Pick who works this shift",
+  "trainingShiftStart": "Start {time}",
+  "@trainingShiftStart": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingShiftEnd": "End {time}",
+  "@trainingShiftEnd": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingShiftEndsNextDay": "{duration} · ends the next day",
+  "@trainingShiftEndsNextDay": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingShiftNoteOptional": "Note (optional)",
+  "trainingShiftNoteHint": "e.g. Front desk, open up",
+  "trainingShiftNextShifts": "Next shifts",
+  "trainingShiftSeeAll": "See all",
+  "trainingShiftLoadFailed": "Couldn't load shifts",
+  "trainingShiftFree": "You're free. New shifts will show up here."
+}

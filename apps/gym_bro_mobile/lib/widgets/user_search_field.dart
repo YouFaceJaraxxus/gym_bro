@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/user_search_result.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -22,12 +23,11 @@ class _CacheEntry {
     List<UserSearchResult>? results,
     bool? hasMore,
     int? pagesLoaded,
-  }) =>
-      _CacheEntry(
-        results: results ?? this.results,
-        hasMore: hasMore ?? this.hasMore,
-        pagesLoaded: pagesLoaded ?? this.pagesLoaded,
-      );
+  }) => _CacheEntry(
+    results: results ?? this.results,
+    hasMore: hasMore ?? this.hasMore,
+    pagesLoaded: pagesLoaded ?? this.pagesLoaded,
+  );
 }
 
 /// Embedded paginated user search. Place inside a [SingleChildScrollView] —
@@ -110,8 +110,12 @@ class _UserSearchFieldState extends State<UserSearchField> {
 
     try {
       final token = await AuthManager.instance.getValidToken();
-      final results = await _api.searchUsers(token,
-          query: query, page: 0, pageSize: _kPageSize);
+      final results = await _api.searchUsers(
+        token,
+        query: query,
+        page: 0,
+        pageSize: _kPageSize,
+      );
       if (!mounted || _activeQuery != query) return;
       _cache[query] = _CacheEntry(
         results: results,
@@ -167,6 +171,7 @@ class _UserSearchFieldState extends State<UserSearchField> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final visible = _visible;
 
     return Column(
@@ -176,12 +181,13 @@ class _UserSearchFieldState extends State<UserSearchField> {
           controller: _ctrl,
           enabled: widget.enabled,
           decoration: InputDecoration(
-            hintText: 'Search by name or username',
+            hintText: l10n.shellUserSearchHint,
             prefixIcon: const Icon(Icons.search),
             border: const OutlineInputBorder(),
             suffixIcon: _ctrl.text.isNotEmpty
                 ? IconButton(
                     icon: const Icon(Icons.clear),
+                    tooltip: l10n.shellClearSearch,
                     onPressed: () {
                       _ctrl.clear();
                       _search('');
@@ -209,18 +215,20 @@ class _UserSearchFieldState extends State<UserSearchField> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Text(
-              'No users found',
+              l10n.shellNoUsersFound,
               textAlign: TextAlign.center,
               style: TextStyle(color: cs.outline),
             ),
           )
         else
-          ...visible.map((u) => _UserTile(
-                user: u,
-                isAdding: widget.addingUserId == u.id,
-                canAdd: widget.enabled && widget.addingUserId == null,
-                onAdd: () => widget.onSelect(u),
-              )),
+          ...visible.map(
+            (u) => _UserTile(
+              user: u,
+              isAdding: widget.addingUserId == u.id,
+              canAdd: widget.enabled && widget.addingUserId == null,
+              onAdd: () => widget.onSelect(u),
+            ),
+          ),
         if (_hasMore && !_loading)
           Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -233,7 +241,7 @@ class _UserSearchFieldState extends State<UserSearchField> {
                   )
                 : OutlinedButton(
                     onPressed: widget.enabled ? _loadMore : null,
-                    child: const Text('Show more'),
+                    child: Text(l10n.shellShowMore),
                   ),
           ),
       ],
@@ -257,12 +265,13 @@ class _UserTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final initials = user.name.isNotEmpty ? user.name[0].toUpperCase() : '?';
-    final chips = _roleChips(user.roleEntries);
+    final l10n = context.l10n;
+    final chips = _roleChips(l10n, user.roleEntries);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: ListTile(
-        leading: CircleAvatar(child: Text(initials)),
+        leading: ExcludeSemantics(child: CircleAvatar(child: Text(initials))),
         title: Text(user.fullName),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,46 +283,53 @@ class _UserTile extends StatelessWidget {
             if (chips.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Wrap(
-                  spacing: 4,
-                  runSpacing: 2,
-                  children: chips,
-                ),
+                child: Wrap(spacing: 4, runSpacing: 2, children: chips),
               ),
           ],
         ),
         isThreeLine: chips.isNotEmpty,
         trailing: isAdding
-            ? const SizedBox(
+            ? SizedBox(
                 width: 24,
                 height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  semanticsLabel: l10n.shellUserSearchAdding,
+                ),
               )
-            : FilledButton.tonal(
-                onPressed: canAdd ? onAdd : null,
-                child: const Text('Add'),
+            : Semantics(
+                label: l10n.shellUserSearchAddLabel(user.fullName),
+                excludeSemantics: true,
+                button: true,
+                enabled: canAdd,
+                child: FilledButton.tonal(
+                  onPressed: canAdd ? onAdd : null,
+                  child: Text(l10n.shellUserSearchAdd),
+                ),
               ),
       ),
     );
   }
 
-  static const _roleLabels = <String, String>{
-    'member': 'Member',
-    'employee': 'Employee',
-    'employee_trainer': 'Emp. Trainer',
-    'trainer': 'Trainer',
-    'gym_owner': 'Gym Owner',
-    'shop_owner': 'Shop Owner',
-    'shop_vendor': 'Vendor',
-  };
+  static String? _roleLabel(AppLocalizations l10n, String type) =>
+      switch (type) {
+        'member' => l10n.shellRoleMember,
+        'employee' => l10n.shellRoleEmployee,
+        'employee_trainer' => l10n.shellRoleEmployeeTrainerShort,
+        'trainer' => l10n.shellRoleTrainer,
+        'gym_owner' => l10n.shellRoleGymOwner,
+        'shop_owner' => l10n.shellRoleShopOwner,
+        'shop_vendor' => l10n.shellRoleVendor,
+        _ => null,
+      };
 
-  List<Widget> _roleChips(List<UserRoleEntry> entries) {
+  List<Widget> _roleChips(AppLocalizations l10n, List<UserRoleEntry> entries) {
     final seen = <String>{};
     final chips = <Widget>[];
 
     for (final e in entries) {
       if (!seen.add(e.type)) continue;
-      chips.add(_chip(_roleLabels[e.type] ?? e.type));
+      chips.add(_chip(_roleLabel(l10n, e.type) ?? e.type));
       if (chips.length >= 3) break;
     }
 
@@ -324,9 +340,9 @@ class _UserTile extends StatelessWidget {
   }
 
   Widget _chip(String label) => Chip(
-        label: Text(label, style: const TextStyle(fontSize: 10)),
-        visualDensity: VisualDensity.compact,
-        padding: EdgeInsets.zero,
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      );
+    label: Text(label, style: const TextStyle(fontSize: 10)),
+    visualDensity: VisualDensity.compact,
+    padding: EdgeInsets.zero,
+    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  );
 }

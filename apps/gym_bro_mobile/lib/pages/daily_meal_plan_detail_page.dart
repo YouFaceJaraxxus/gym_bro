@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'daily_meal_plan_form_page.dart';
+import 'nutrition/nutrition_widgets.dart';
 
 class DailyMealPlanDetailPage extends StatefulWidget {
   final String dailyMealPlanId;
@@ -49,14 +51,14 @@ class _DailyMealPlanDetailPageState extends State<DailyMealPlanDetailPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete meal plan?'),
-        content: Text('Remove "${_plan!.name}" permanently?'),
+        title: Text(ctx.l10n.nutritionDeleteMealPlanTitle),
+        content: Text(ctx.l10n.nutritionRemovePermanently(_plan!.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(ctx.l10n.commonCancel)),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(ctx).colorScheme.error),
+            child: Text(ctx.l10n.commonDelete),
           ),
         ],
       ),
@@ -68,8 +70,12 @@ class _DailyMealPlanDetailPageState extends State<DailyMealPlanDetailPage> {
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {
+        final cs = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(errorText(e), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
+          ),
         );
       }
     }
@@ -77,6 +83,8 @@ class _DailyMealPlanDetailPageState extends State<DailyMealPlanDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     if (_loading) {
       return Scaffold(appBar: AppBar(), body: const Center(child: CircularProgressIndicator()));
     }
@@ -85,9 +93,9 @@ class _DailyMealPlanDetailPageState extends State<DailyMealPlanDetailPage> {
         appBar: AppBar(),
         body: Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(_error ?? 'Unknown error', style: const TextStyle(color: Colors.red)),
+            Text(_error ?? l10n.commonSomethingWentWrong, style: TextStyle(color: cs.error)),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: _load, child: const Text('Retry')),
+            ElevatedButton(onPressed: _load, child: Text(l10n.commonRetry)),
           ]),
         ),
       );
@@ -104,6 +112,7 @@ class _DailyMealPlanDetailPageState extends State<DailyMealPlanDetailPage> {
         actions: [
           if (isOwner) ...[
             IconButton(
+              tooltip: l10n.commonEdit,
               icon: const Icon(Icons.edit),
               onPressed: () async {
                 final updated = await Navigator.push<DailyMealPlan>(
@@ -113,7 +122,7 @@ class _DailyMealPlanDetailPageState extends State<DailyMealPlanDetailPage> {
                 if (updated != null) setState(() => _plan = updated);
               },
             ),
-            IconButton(icon: const Icon(Icons.delete_outline), onPressed: _delete),
+            IconButton(tooltip: l10n.commonDelete, icon: const Icon(Icons.delete_outline), onPressed: _delete),
           ],
         ],
       ),
@@ -129,15 +138,15 @@ class _DailyMealPlanDetailPageState extends State<DailyMealPlanDetailPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
+                      color: cs.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.lock_outline, size: 12, color: Colors.grey),
-                        SizedBox(width: 4),
-                        Text('Private', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        Icon(Icons.lock_outline, size: 12, color: cs.onSurfaceVariant),
+                        const SizedBox(width: 4),
+                        Text(l10n.nutritionPrivate, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                       ],
                     ),
                   ),
@@ -146,7 +155,7 @@ class _DailyMealPlanDetailPageState extends State<DailyMealPlanDetailPage> {
               const SizedBox(height: 10),
             ],
             if (plan.description != null && plan.description!.isNotEmpty) ...[
-              Text(plan.description!, style: const TextStyle(color: Colors.black87)),
+              Text(plan.description!, style: TextStyle(color: cs.onSurface)),
               const SizedBox(height: 16),
             ],
 
@@ -156,10 +165,10 @@ class _DailyMealPlanDetailPageState extends State<DailyMealPlanDetailPage> {
 
             // Slots
             if (sortedSlots.isEmpty)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 32),
-                  child: Text('No meals added yet', style: TextStyle(color: Colors.grey)),
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  child: Text(l10n.nutritionNoMealsYet, style: TextStyle(color: cs.onSurfaceVariant)),
                 ),
               )
             else
@@ -180,19 +189,21 @@ class _DayMacroBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = MacroColors.of(context);
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         child: Row(
           children: [
-            _MacroCell(label: 'kcal', value: plan.kcalTotal.round().toString(), color: Colors.orange.shade700),
+            _MacroCell(label: l10n.nutritionKcal, value: plan.kcalTotal.round().toString(), color: colors.kcal),
             _MacroDivider(),
-            _MacroCell(label: 'protein', value: '${plan.proteinTotal.round()}g', color: Colors.red.shade400),
+            _MacroCell(label: l10n.nutritionProtein, value: '${plan.proteinTotal.round()}g', color: colors.protein),
             _MacroDivider(),
-            _MacroCell(label: 'carbs', value: '${plan.carbTotal.round()}g', color: Colors.amber.shade700),
+            _MacroCell(label: l10n.nutritionCarbsShort, value: '${plan.carbTotal.round()}g', color: colors.carb),
             _MacroDivider(),
-            _MacroCell(label: 'fat', value: '${plan.fatTotal.round()}g', color: Colors.blue.shade400),
+            _MacroCell(label: l10n.nutritionFat, value: '${plan.fatTotal.round()}g', color: colors.fat),
           ],
         ),
       ),
@@ -210,13 +221,15 @@ class _MacroCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Column(
+      child: MergeSemantics(
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: color)),
           const SizedBox(height: 2),
-          Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+          Text(label, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ],
+        ),
       ),
     );
   }
@@ -225,7 +238,7 @@ class _MacroCell extends StatelessWidget {
 class _MacroDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(width: 1, height: 32, color: Colors.grey.shade200, margin: const EdgeInsets.symmetric(horizontal: 4));
+    return Container(width: 1, height: 32, color: Theme.of(context).colorScheme.outlineVariant, margin: const EdgeInsets.symmetric(horizontal: 4));
   }
 }
 
@@ -239,19 +252,21 @@ class _SlotExpansionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sortedEntries = [...slot.entries]..sort((a, b) => a.position.compareTo(b.position));
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: ExpansionTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Text(slot.slotType.displayName, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text('${slot.kcalTotal.round()} kcal', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        title: Text(slot.slotType.label(l10n), style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text(l10n.nutritionKcalValue(slot.kcalTotal.round()), style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
         children: sortedEntries.isEmpty
             ? [
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 4, 16, 12),
-                  child: Text('No entries', style: TextStyle(color: Colors.grey, fontSize: 13)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                  child: Text(l10n.nutritionNoEntries, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
                 ),
               ]
             : sortedEntries.map((entry) => _EntryListTile(entry: entry)).toList(),
@@ -267,18 +282,22 @@ class _EntryListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    final l10n = context.l10n;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return MergeSemantics(
+      child: ListTile(
       dense: true,
-      title: Text(entry.displayName, style: const TextStyle(fontWeight: FontWeight.w500)),
+      title: Text(entry.displayName(l10n), style: const TextStyle(fontWeight: FontWeight.w500)),
       subtitle: entry.kcal > 0
           ? Text(
-              '${entry.kcal.round()} kcal',
-              style: const TextStyle(fontSize: 11, color: Colors.grey),
+              l10n.nutritionKcalValue(entry.kcal.round()),
+              style: TextStyle(fontSize: 11, color: muted),
             )
           : null,
       trailing: Text(
-        entry.amountLabel,
-        style: const TextStyle(fontSize: 12, color: Colors.grey),
+        entry.amountLabel(l10n),
+        style: TextStyle(fontSize: 12, color: muted),
+      ),
       ),
     );
   }

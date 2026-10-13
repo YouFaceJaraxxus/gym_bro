@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/business.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -33,16 +34,6 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
   String? _error;
 
   bool get _isEditing => widget.business != null;
-
-  static const _weekdayLabels = {
-    1: 'Mon',
-    2: 'Tue',
-    3: 'Wed',
-    4: 'Thu',
-    5: 'Fri',
-    6: 'Sat',
-    7: 'Sun',
-  };
 
   @override
   void initState() {
@@ -97,7 +88,7 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_weekdays.isEmpty) {
-      setState(() => _error = 'Select at least one working day');
+      setState(() => _error = context.l10n.businessGymFormSelectWorkingDay);
       return;
     }
 
@@ -136,18 +127,19 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
 
   Future<void> _delete() async {
     final business = widget.business!;
-    final kind = business.type == 'gym' ? 'gym' : 'shop';
+    final l10n = context.l10n;
+    final isGym = business.type == 'gym';
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => TypedConfirmDialog(
-        title: 'Delete ${business.name}?',
-        message: business.type == 'gym'
-            ? 'This permanently deletes the gym with all its members, staff, '
-                'membership types, memberships, invoices and posts.'
-            : 'This permanently deletes the shop with all its items, vendors '
-                'and posts.',
+        title: l10n.businessGymFormDeleteTitle(business.name),
+        message: isGym
+            ? l10n.businessGymFormDeleteGymMessage
+            : l10n.businessGymFormDeleteShopMessage,
         confirmText: business.name,
-        actionLabel: 'Delete $kind',
+        actionLabel: isGym
+            ? l10n.businessGymFormDeleteGymAction
+            : l10n.businessGymFormDeleteShopAction,
       ),
     );
     if (confirmed != true || !mounted) return;
@@ -161,7 +153,8 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
       await _api.deleteBusiness(token, business.id);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${business.name} deleted')),
+        SnackBar(
+            content: Text(context.l10n.businessGymFormDeleted(business.name))),
       );
       Navigator.pop(context, true);
     } catch (e) {
@@ -176,9 +169,13 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     return Scaffold(
       appBar: AppBar(
-          title: Text(_isEditing ? 'Edit Business' : 'New Business')),
+          title: Text(_isEditing
+              ? l10n.businessGymFormTitleEdit
+              : l10n.businessGymFormTitleNew)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -189,34 +186,40 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
               ImagePickerField(
                 imageUrl: _logo,
                 folder: 'businesses',
-                label: 'Add logo',
+                label: l10n.businessGymFormAddLogo,
                 height: 120,
                 onUploaded: (url) => setState(() => _logo = url),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameCtrl,
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+                decoration:
+                    InputDecoration(labelText: l10n.businessGymFormName),
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? l10n.commonRequired
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _locationCtrl,
                 decoration:
-                    const InputDecoration(labelText: 'Location'),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+                    InputDecoration(labelText: l10n.businessGymFormLocation),
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? l10n.commonRequired
+                    : null,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 key: ValueKey(_type),
                 initialValue: _type,
-                decoration: const InputDecoration(labelText: 'Type'),
-                items: const [
-                  DropdownMenuItem(value: 'gym', child: Text('Gym')),
+                decoration:
+                    InputDecoration(labelText: l10n.businessGymFormType),
+                items: [
                   DropdownMenuItem(
-                      value: 'shop', child: Text('Shop')),
+                      value: 'gym', child: Text(l10n.businessGymFormTypeGym)),
+                  DropdownMenuItem(
+                      value: 'shop',
+                      child: Text(l10n.businessGymFormTypeShop)),
                 ],
                 // Type is immutable after creation.
                 onChanged: _isEditing
@@ -226,14 +229,14 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
                       },
               ),
               const SizedBox(height: 24),
-              Text('Working Hours',
+              Text(l10n.businessGymFormWorkingHours,
                   style: Theme.of(context).textTheme.labelLarge),
               const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
                     child: _TimeTile(
-                      label: 'From',
+                      label: l10n.businessGymFormFrom,
                       time: _fromTime,
                       onTap: () => _pickTime(isFrom: true),
                     ),
@@ -241,7 +244,7 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _TimeTile(
-                      label: 'To',
+                      label: l10n.businessGymFormTo,
                       time: _toTime,
                       onTap: () => _pickTime(isFrom: false),
                     ),
@@ -249,22 +252,21 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
                 ],
               ),
               const SizedBox(height: 24),
-              Text('Working Days',
+              Text(l10n.businessGymFormWorkingDays,
                   style: Theme.of(context).textTheme.labelLarge),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
                 children: [
-                  for (final entry in _weekdayLabels.entries)
+                  for (var day = 1; day <= 7; day++)
                     FilterChip(
-                      label: Text(entry.value),
-                      selected: _weekdays.contains(entry.key),
+                      label: Text(weekdayLabel(day, locale)),
+                      tooltip: weekdayLabel(day, locale, abbreviated: false),
+                      selected: _weekdays.contains(day),
                       onSelected: (sel) {
                         setState(() {
-                          sel
-                              ? _weekdays.add(entry.key)
-                              : _weekdays.remove(entry.key);
+                          sel ? _weekdays.add(day) : _weekdays.remove(day);
                         });
                       },
                     ),
@@ -286,12 +288,13 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
                     ? const SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                        // Button is disabled while loading, so use the
+                        // default (primary) color instead of onPrimary.
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Text(_isEditing
-                        ? 'Save Changes'
-                        : 'Create Business'),
+                        ? l10n.businessGymFormSaveChanges
+                        : l10n.businessGymFormCreate),
               ),
               if (_isEditing) ...[
                 const SizedBox(height: 32),
@@ -307,7 +310,7 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
                         )
                       : Icon(Icons.delete_forever_outlined,
                           color: Theme.of(context).colorScheme.error),
-                  label: Text('Delete Business',
+                  label: Text(l10n.businessGymFormDelete,
                       style: TextStyle(
                           color: Theme.of(context).colorScheme.error)),
                   style: OutlinedButton.styleFrom(

@@ -62,7 +62,17 @@ export type NotificationType =
   | "member_subscription_extended"
   | "member_join"
   | "employee_join"
-  | "vendor_join";
+  | "vendor_join"
+  | "post_comment"
+  | "shift_assigned"
+  | "order_update"
+  | "payment_received"
+  | "session_comment";
+
+export type PaymentStatus = "pending" | "succeeded" | "failed" | "cancelled" | "refunded";
+export type PaymentKind = "invoice" | "order" | "membership";
+export type OrderStatus = "pending" | "paid" | "fulfilled" | "cancelled";
+export type BookingStatus = "booked" | "waitlisted" | "cancelled" | "attended" | "no_show";
 
 // ── Meal plan enums ───────────────────────────────────────────────────────────
 
@@ -212,6 +222,8 @@ export interface MembershipTable {
   to_date: string;
   last_updated_date: Generated<string>;
   is_active: Generated<boolean>;
+  auto_renew: Generated<boolean>;
+  stripe_subscription_id: string | null;
 }
 
 export interface MembershipInvoiceTable {
@@ -242,6 +254,16 @@ export interface InvoiceTable {
   date: Generated<string>; // DATE as ISO string, defaults to CURRENT_DATE
   // Maintained by trigger; never set manually. Use ColumnType<select, never, never>.
   total: ColumnType<string, never, never>;
+  // Shop order fields (000012). An invoice row is a shop order.
+  user_id: string | null;
+  shop_id: string | null;
+  status: Generated<OrderStatus>;
+  payment_method: Generated<"card" | "pay_at_pickup">;
+  note: string | null;
+  created_at: Generated<string>;
+  paid_at: string | null;
+  fulfilled_at: string | null;
+  cancelled_at: string | null;
 }
 
 export interface InvoiceItemTable {
@@ -249,6 +271,7 @@ export interface InvoiceItemTable {
   invoice_id: string;
   shop_item_id: string;
   quantity: number;
+  unit_price: ColumnType<string | null, string | number | null | undefined, string | number | null>; // NUMERIC snapshot
 }
 
 export interface NotificationTable {
@@ -602,6 +625,169 @@ export interface PostImageTable {
 
 // ── Database ──────────────────────────────────────────────────────────────────
 
+
+// ── 000012: product features ──────────────────────────────────────────────────
+
+type Numeric = ColumnType<string, string | number, string | number>;
+type NullableNumeric = ColumnType<string | null, string | number | null | undefined, string | number | null>;
+
+export interface DeviceTokenTable {
+  id: Generated<string>;
+  user_id: string;
+  token: string;
+  platform: "android" | "ios" | "web" | "macos";
+  created_at: Generated<string>;
+  last_seen_at: Generated<string>;
+}
+
+export interface UserSettingsTable {
+  user_id: string;
+  push_enabled: Generated<boolean>;
+  muted_types: Generated<NotificationType[]>;
+  weight_unit: Generated<"kg" | "lb">;
+  theme_mode: Generated<"system" | "light" | "dark">;
+  locale: string | null;
+  updated_at: Generated<string>;
+}
+
+export interface AdminAuditLogTable {
+  id: Generated<string>;
+  actor_id: string | null;
+  action: string;
+  target_user_id: string | null;
+  metadata: Generated<Record<string, unknown>>;
+  created_at: Generated<string>;
+}
+
+export interface PaymentTable {
+  id: Generated<string>;
+  user_id: string | null;
+  kind: PaymentKind;
+  membership_invoice_id: string | null;
+  order_id: string | null;
+  membership_type_id: string | null;
+  membership_id: string | null;
+  stripe_checkout_session_id: string | null;
+  stripe_payment_intent_id: string | null;
+  stripe_subscription_id: string | null;
+  stripe_invoice_id: string | null; // 000013: renewal idempotency
+  amount: Numeric;
+  currency: Generated<string>;
+  status: Generated<PaymentStatus>;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface GymClassTable {
+  id: Generated<string>;
+  gym_id: string;
+  trainer_id: string | null;
+  title: string;
+  description: string | null;
+  location: string | null;
+  starts_at: string;
+  ends_at: string;
+  capacity: number;
+  series_id: string | null;
+  cancelled_at: string | null;
+  reminder_sent_at: string | null;
+  created_by: string | null;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface ClassBookingTable {
+  id: Generated<string>;
+  class_id: string;
+  user_id: string;
+  status: Generated<BookingStatus>;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface StaffShiftTable {
+  id: Generated<string>;
+  gym_id: string;
+  user_id: string;
+  starts_at: string;
+  ends_at: string;
+  note: string | null;
+  created_by: string | null;
+  created_at: Generated<string>;
+}
+
+export interface BodyMeasurementTable {
+  id: Generated<string>;
+  user_id: string;
+  measured_on: Generated<string>;
+  weight_kg: NullableNumeric;
+  body_fat_pct: NullableNumeric;
+  note: string | null;
+  created_at: Generated<string>;
+}
+
+export interface RoutineAssignmentTable {
+  id: Generated<string>;
+  routine_id: string;
+  user_id: string;
+  assigned_by_id: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  note: string | null;
+  created_at: Generated<string>;
+}
+
+export interface SessionCommentTable {
+  id: Generated<string>;
+  session_id: string;
+  author_id: string | null;
+  body: string;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface PostCommentTable {
+  id: Generated<string>;
+  post_id: string;
+  author_id: string | null;
+  body: string;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface PostLikeTable {
+  post_id: string;
+  user_id: string;
+  created_at: Generated<string>;
+}
+
+export interface CheckInTable {
+  id: Generated<string>;
+  gym_id: string;
+  user_id: string;
+  checked_in_at: Generated<string>;
+  checked_in_by: string | null;
+  method: Generated<"qr" | "manual">;
+}
+
+export interface FoodLogTable {
+  id: Generated<string>;
+  user_id: string;
+  log_date: Generated<string>;
+  slot_type: MealSlotType;
+  food_item_id: string | null;
+  recipe_id: string | null;
+  name: string;
+  amount: Numeric;
+  kcal: Generated<Numeric>;
+  protein: Generated<Numeric>;
+  carb: Generated<Numeric>;
+  fat: Generated<Numeric>;
+  fiber: Generated<Numeric>;
+  note: string | null;
+  created_at: Generated<string>;
+}
+
 export interface Database {
   users: UsersTable;
   business: BusinessTable;
@@ -652,6 +838,20 @@ export interface Database {
   meal_plan_assignment: MealPlanAssignmentTable;
   post: PostTable;
   post_image: PostImageTable;
+  device_token: DeviceTokenTable;
+  user_settings: UserSettingsTable;
+  admin_audit_log: AdminAuditLogTable;
+  payment: PaymentTable;
+  gym_class: GymClassTable;
+  class_booking: ClassBookingTable;
+  staff_shift: StaffShiftTable;
+  body_measurement: BodyMeasurementTable;
+  routine_assignment: RoutineAssignmentTable;
+  session_comment: SessionCommentTable;
+  post_comment: PostCommentTable;
+  post_like: PostLikeTable;
+  check_in: CheckInTable;
+  food_log: FoodLogTable;
 }
 
 // ── CRUD helpers ──────────────────────────────────────────────────────────────

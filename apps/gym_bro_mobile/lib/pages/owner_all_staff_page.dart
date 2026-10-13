@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/business.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
@@ -13,10 +14,12 @@ class OwnerAllStaffPage extends StatefulWidget {
   State<OwnerAllStaffPage> createState() => _OwnerAllStaffPageState();
 }
 
+enum _StaffRole { employee, employeeTrainer, vendor }
+
 class _StaffItem {
   final Business business;
   final UserProfile user;
-  final String role;
+  final _StaffRole role;
 
   const _StaffItem(
       {required this.business, required this.user, required this.role});
@@ -75,13 +78,13 @@ class _OwnerAllStaffPageState extends State<OwnerAllStaffPage> {
           items.add(_StaffItem(
               business: gym,
               user: UserProfile.fromJson(r),
-              role: 'Employee'));
+              role: _StaffRole.employee));
         }
         for (final r in results[1]) {
           items.add(_StaffItem(
               business: gym,
               user: UserProfile.fromJson(r),
-              role: 'Emp. Trainer'));
+              role: _StaffRole.employeeTrainer));
         }
       }
 
@@ -92,7 +95,7 @@ class _OwnerAllStaffPageState extends State<OwnerAllStaffPage> {
           items.add(_StaffItem(
               business: shop,
               user: UserProfile.fromJson(r),
-              role: 'Vendor'));
+              role: _StaffRole.vendor));
         }
       }
 
@@ -129,7 +132,7 @@ class _OwnerAllStaffPageState extends State<OwnerAllStaffPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('All Staff')),
+      appBar: AppBar(title: Text(context.l10n.businessGymAllStaffTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -148,14 +151,22 @@ class _OwnerAllStaffPageState extends State<OwnerAllStaffPage> {
           const SizedBox(height: 16),
           Text(_error!),
           const SizedBox(height: 16),
-          FilledButton(onPressed: _load, child: const Text('Retry')),
+          FilledButton(
+              onPressed: _load, child: Text(context.l10n.commonRetry)),
         ],
       ),
     );
   }
 
+  String _roleLabel(AppLocalizations l10n, _StaffRole role) => switch (role) {
+        _StaffRole.employee => l10n.businessGymRoleEmployee,
+        _StaffRole.employeeTrainer => l10n.businessGymRoleEmployeeTrainerShort,
+        _StaffRole.vendor => l10n.businessGymRoleVendor,
+      };
+
   Widget _buildContent() {
     final items = _filtered;
+    final l10n = context.l10n;
     return RefreshIndicator(
       onRefresh: _load,
       child: Column(
@@ -165,7 +176,7 @@ class _OwnerAllStaffPageState extends State<OwnerAllStaffPage> {
             child: TextField(
               controller: _search,
               decoration: InputDecoration(
-                hintText: 'Search staff…',
+                hintText: l10n.businessGymSearchStaffHint,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12)),
@@ -174,6 +185,7 @@ class _OwnerAllStaffPageState extends State<OwnerAllStaffPage> {
                 suffixIcon: _search.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
+                        tooltip: l10n.businessGymClearSearch,
                         onPressed: () {
                           _search.clear();
                           setState(() {});
@@ -192,7 +204,7 @@ class _OwnerAllStaffPageState extends State<OwnerAllStaffPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
                   FilterChip(
-                    label: const Text('All'),
+                    label: Text(l10n.businessGymFilterAll),
                     selected: _filterBusinessId == null,
                     onSelected: (_) =>
                         setState(() => _filterBusinessId = null),
@@ -204,7 +216,10 @@ class _OwnerAllStaffPageState extends State<OwnerAllStaffPage> {
                           b.type == 'gym'
                               ? Icons.fitness_center
                               : Icons.store,
-                          size: 16),
+                          size: 16,
+                          semanticLabel: b.type == 'gym'
+                              ? l10n.businessGymFormTypeGym
+                              : l10n.businessGymFormTypeShop),
                       label: Text(b.name),
                       selected: _filterBusinessId == b.id,
                       onSelected: (_) =>
@@ -218,7 +233,7 @@ class _OwnerAllStaffPageState extends State<OwnerAllStaffPage> {
           const SizedBox(height: 8),
           Expanded(
             child: items.isEmpty
-                ? const Center(child: Text('No staff found'))
+                ? Center(child: Text(l10n.businessGymNoStaffFound))
                 : ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -235,12 +250,15 @@ class _OwnerAllStaffPageState extends State<OwnerAllStaffPage> {
                           ),
                           title: Text(item.user.fullName),
                           subtitle: Text(
-                              '${item.user.email}  ·  ${item.role}  ·  ${item.business.name}'),
+                              '${item.user.email}  ·  ${_roleLabel(l10n, item.role)}  ·  ${item.business.name}'),
                           trailing: Icon(
                             item.business.type == 'gym'
                                 ? Icons.fitness_center
                                 : Icons.store,
                             size: 16,
+                            semanticLabel: item.business.type == 'gym'
+                                ? l10n.businessGymFormTypeGym
+                                : l10n.businessGymFormTypeShop,
                             color: Theme.of(context)
                                 .colorScheme
                                 .onSurfaceVariant,

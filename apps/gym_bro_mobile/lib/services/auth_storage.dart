@@ -8,6 +8,9 @@ class AuthStorage {
   static const _keyExpiresAt = 'expires_at';
   static const _keyProfile = 'user_profile';
 
+  /// A super user's own session, kept aside while they impersonate someone.
+  static const _keyAdminSession = 'admin_session';
+
   final _storage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
@@ -59,5 +62,21 @@ class AuthStorage {
     );
   }
 
+  Future<void> saveAdminSession(Map<String, dynamic> session) =>
+      _storage.write(key: _keyAdminSession, value: jsonEncode(session));
+
+  Future<Map<String, dynamic>?> loadAdminSession() async {
+    final raw = await _storage.read(key: _keyAdminSession);
+    if (raw == null) return null;
+    try {
+      return jsonDecode(raw) as Map<String, dynamic>;
+    } on FormatException {
+      return null;
+    }
+  }
+
+  Future<void> clearAdminSession() => _storage.delete(key: _keyAdminSession);
+
+  /// Removes everything, including a kept-aside admin session.
   Future<void> clear() => _storage.deleteAll();
 }

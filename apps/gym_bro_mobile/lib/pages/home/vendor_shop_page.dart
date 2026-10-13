@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../models/business.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../shop/shop_orders_page.dart';
 import '../shop_detail_page.dart';
 
 /// The shops [userId] sells for (shop_vendor rows → businesses), by name.
 Future<List<Business>> loadVendorShops(
-    ApiService api, String token, String userId) async {
+  ApiService api,
+  String token,
+  String userId,
+) async {
   final rows = await api.getShopVendors(token, userId: userId);
   final ids = {for (final r in rows) r['shop_id'] as String};
   final shops = await Future.wait(ids.map((id) => api.getBusiness(token, id)));
@@ -78,7 +83,10 @@ class _VendorShopPageState extends State<VendorShopPage> {
               const SizedBox(height: 16),
               Text(_error!, textAlign: TextAlign.center),
               const SizedBox(height: 16),
-              FilledButton(onPressed: _load, child: const Text('Retry')),
+              FilledButton(
+                onPressed: _load,
+                child: Text(context.l10n.commonRetry),
+              ),
             ],
           ),
         ),
@@ -109,10 +117,13 @@ class _VendorShopPageState extends State<VendorShopPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.storefront_outlined,
-                          size: 48, color: cs.outline),
+                      Icon(
+                        Icons.storefront_outlined,
+                        size: 48,
+                        color: cs.outline,
+                      ),
                       const SizedBox(height: 16),
-                      const Text("You're not a vendor at any shop yet"),
+                      Text(context.l10n.shellNotAVendor),
                     ],
                   ),
                 ),
@@ -131,11 +142,12 @@ class _VendorShopPageState extends State<VendorShopPage> {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text('Choose a shop',
-                style: Theme.of(context).textTheme.titleMedium),
+            child: Text(
+              context.l10n.shellChooseShop,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
-          for (final shop in _shops)
-            VendorShopTile(shop: shop),
+          for (final shop in _shops) VendorShopTile(shop: shop),
         ],
       ),
     );
@@ -155,15 +167,37 @@ class VendorShopTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        leading: shop.logo != null
-            ? CircleAvatar(backgroundImage: NetworkImage(shop.logo!))
-            : CircleAvatar(
-                backgroundColor: cs.secondaryContainer,
-                child: Icon(Icons.storefront, color: cs.onSecondaryContainer),
-              ),
+        // Decorative: the shop name is the tile title.
+        leading: ExcludeSemantics(
+          child: shop.logo != null
+              ? CircleAvatar(backgroundImage: NetworkImage(shop.logo!))
+              : CircleAvatar(
+                  backgroundColor: cs.secondaryContainer,
+                  child: Icon(Icons.storefront, color: cs.onSecondaryContainer),
+                ),
+        ),
         title: Text(shop.name),
         subtitle: Text(shop.location),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.receipt_long_outlined),
+              tooltip: context.l10n.shellOrdersForShop(shop.name),
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        ShopOrdersPage(shopId: shop.id, shopName: shop.name),
+                  ),
+                );
+                onReturn?.call();
+              },
+            ),
+            const Icon(Icons.chevron_right),
+          ],
+        ),
         onTap: () async {
           await Navigator.push(
             context,

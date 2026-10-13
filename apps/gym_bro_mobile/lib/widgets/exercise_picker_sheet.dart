@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -66,6 +67,8 @@ class _ExercisePickerSheetState extends State<ExercisePickerSheet> {
   }
 
   Widget _buildList(ScrollController scroll) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -75,17 +78,18 @@ class _ExercisePickerSheetState extends State<ExercisePickerSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(_error!,
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: cs.error),
                 textAlign: TextAlign.center),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: _load, child: const Text('Retry')),
+            ElevatedButton(onPressed: _load, child: Text(l10n.commonRetry)),
           ],
         ),
       );
     }
     if (_exercises.isEmpty) {
-      return const Center(
-        child: Text('No exercises found', style: TextStyle(color: Colors.grey)),
+      return Center(
+        child: Text(l10n.trainingExerciseNoneFound,
+            style: TextStyle(color: cs.onSurfaceVariant)),
       );
     }
     return ListView.builder(
@@ -102,6 +106,7 @@ class _ExercisePickerSheetState extends State<ExercisePickerSheet> {
                     width: 40,
                     height: 40,
                     fit: BoxFit.cover,
+                    excludeFromSemantics: true,
                     errorBuilder: (context, error, stack) =>
                         const Icon(Icons.fitness_center),
                   ),
@@ -111,7 +116,7 @@ class _ExercisePickerSheetState extends State<ExercisePickerSheet> {
           subtitle: ex.primaryMuscles.isEmpty
               ? null
               : Text(
-                  ex.primaryMuscles.map((m) => m.displayName).join(', '),
+                  ex.primaryMuscles.map((m) => m.label(l10n)).join(', '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 11),
@@ -135,7 +140,7 @@ class _ExercisePickerSheetState extends State<ExercisePickerSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: Theme.of(context).colorScheme.outlineVariant,
                 borderRadius: BorderRadius.circular(2)),
           ),
           Padding(
@@ -145,7 +150,7 @@ class _ExercisePickerSheetState extends State<ExercisePickerSheet> {
               autofocus: true,
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
-                hintText: 'Search exercises…',
+                hintText: context.l10n.trainingExerciseSearchHint,
                 prefixIcon: const Icon(Icons.search),
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

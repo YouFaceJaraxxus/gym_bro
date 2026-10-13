@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -31,7 +32,8 @@ class _EditShopVendorPageState extends State<EditShopVendorPage> {
       await _api.resendInvite(token, widget.user.email);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invite resent successfully')),
+          SnackBar(
+              content: Text(context.l10n.businessMgmtInviteResentSuccess)),
         );
       }
     } catch (e) {
@@ -49,16 +51,16 @@ class _EditShopVendorPageState extends State<EditShopVendorPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Remove vendor?'),
-        content: Text(
-            'This will remove ${widget.user.fullName} from ${widget.shopName}.'),
+        title: Text(context.l10n.businessMgmtRemoveVendorTitle),
+        content: Text(context.l10n.businessMgmtRemoveVendorFromShopMessage(
+            widget.user.fullName, widget.shopName)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+              child: Text(context.l10n.commonCancel)),
           FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Remove')),
+              child: Text(context.l10n.businessMgmtRemove)),
         ],
       ),
     );
@@ -82,22 +84,25 @@ class _EditShopVendorPageState extends State<EditShopVendorPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Vendor')),
+      appBar: AppBar(title: Text(l10n.businessMgmtEditVendor)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           Center(
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 36,
-                  child: Text(
-                    widget.user.name.isNotEmpty
-                        ? widget.user.name[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(fontSize: 28),
+                ExcludeSemantics(
+                  child: CircleAvatar(
+                    radius: 36,
+                    child: Text(
+                      widget.user.name.isNotEmpty
+                          ? widget.user.name[0].toUpperCase()
+                          : '?',
+                      style: const TextStyle(fontSize: 28),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -107,7 +112,7 @@ class _EditShopVendorPageState extends State<EditShopVendorPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Vendor',
+                  l10n.businessMgmtVendor,
                   style: TextStyle(color: cs.primary, fontWeight: FontWeight.w500),
                 ),
               ],
@@ -119,22 +124,28 @@ class _EditShopVendorPageState extends State<EditShopVendorPage> {
           Card(
             child: Column(
               children: [
-                ListTile(
-                  leading: const Icon(Icons.email_outlined),
-                  title: const Text('Email'),
-                  subtitle: Text(widget.user.email),
+                MergeSemantics(
+                  child: ListTile(
+                    leading: const Icon(Icons.email_outlined),
+                    title: Text(l10n.businessMgmtEmail),
+                    subtitle: Text(widget.user.email),
+                  ),
                 ),
                 const Divider(height: 1, indent: 16),
-                ListTile(
-                  leading: const Icon(Icons.alternate_email),
-                  title: const Text('Username'),
-                  subtitle: Text(widget.user.username),
+                MergeSemantics(
+                  child: ListTile(
+                    leading: const Icon(Icons.alternate_email),
+                    title: Text(l10n.businessMgmtUsername),
+                    subtitle: Text(widget.user.username),
+                  ),
                 ),
                 const Divider(height: 1, indent: 16),
-                ListTile(
-                  leading: const Icon(Icons.storefront_outlined),
-                  title: const Text('Shop'),
-                  subtitle: Text(widget.shopName),
+                MergeSemantics(
+                  child: ListTile(
+                    leading: const Icon(Icons.storefront_outlined),
+                    title: Text(l10n.businessMgmtShop),
+                    subtitle: Text(widget.shopName),
+                  ),
                 ),
               ],
             ),
@@ -151,7 +162,7 @@ class _EditShopVendorPageState extends State<EditShopVendorPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.mark_email_unread_outlined),
-            label: const Text('Resend Invite'),
+            label: Text(l10n.businessMgmtResendInvite),
           ),
 
           const SizedBox(height: 12),
@@ -166,7 +177,7 @@ class _EditShopVendorPageState extends State<EditShopVendorPage> {
                         strokeWidth: 2, color: cs.error),
                   )
                 : Icon(Icons.person_remove_outlined, color: cs.error),
-            label: Text('Remove from Shop', style: TextStyle(color: cs.error)),
+            label: Text(l10n.businessMgmtRemoveFromShop, style: TextStyle(color: cs.error)),
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: cs.error),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import 'package:flutter/services.dart';
 import '../services/auth_manager.dart';
 import '../services/auth_service.dart';
@@ -62,8 +63,9 @@ class _VerifyInvitePageState extends State<VerifyInvitePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Activate Invite')),
+      appBar: AppBar(title: Text(l10n.shellActivateInviteTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -72,11 +74,10 @@ class _VerifyInvitePageState extends State<VerifyInvitePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Enter the 6-digit code from your invite email along with the email address and a password you\'d like to use.',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                l10n.shellActivateInviteIntro,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -84,9 +85,10 @@ class _VerifyInvitePageState extends State<VerifyInvitePage> {
               TextFormField(
                 controller: _emailCtrl,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (v) =>
-                    (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+                decoration: InputDecoration(labelText: l10n.shellAuthEmail),
+                validator: (v) => (v == null || !v.contains('@'))
+                    ? l10n.shellAuthInvalidEmail
+                    : null,
               ),
               const SizedBox(height: 12),
 
@@ -98,13 +100,14 @@ class _VerifyInvitePageState extends State<VerifyInvitePage> {
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(6),
                 ],
-                decoration: const InputDecoration(
-                  labelText: 'Invite code',
-                  hintText: '6-digit code',
+                decoration: InputDecoration(
+                  labelText: l10n.shellInviteCode,
+                  hintText: l10n.shellInviteCodeHint,
                   counterText: '',
                 ),
-                validator: (v) =>
-                    (v == null || v.length != 6) ? 'Enter the 6-digit code' : null,
+                validator: (v) => (v == null || v.length != 6)
+                    ? l10n.shellInviteCodeInvalid
+                    : null,
               ),
               const SizedBox(height: 12),
 
@@ -113,17 +116,23 @@ class _VerifyInvitePageState extends State<VerifyInvitePage> {
                 controller: _passwordCtrl,
                 obscureText: _obscurePassword,
                 decoration: InputDecoration(
-                  labelText: 'New password',
+                  labelText: l10n.shellNewPassword,
                   suffixIcon: IconButton(
-                    icon: Icon(_obscurePassword
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined),
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                    tooltip: _obscurePassword
+                        ? l10n.shellShowPassword
+                        : l10n.shellHidePassword,
                     onPressed: () =>
                         setState(() => _obscurePassword = !_obscurePassword),
                   ),
                 ),
-                validator: (v) =>
-                    (v == null || v.length < 6) ? 'Minimum 6 characters' : null,
+                validator: (v) => (v == null || v.length < 6)
+                    ? l10n.shellAuthPasswordMin(6)
+                    : null,
               ),
               const SizedBox(height: 12),
 
@@ -132,17 +141,22 @@ class _VerifyInvitePageState extends State<VerifyInvitePage> {
                 controller: _confirmCtrl,
                 obscureText: _obscureConfirm,
                 decoration: InputDecoration(
-                  labelText: 'Confirm password',
+                  labelText: l10n.shellConfirmPassword,
                   suffixIcon: IconButton(
-                    icon: Icon(_obscureConfirm
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined),
+                    icon: Icon(
+                      _obscureConfirm
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                    tooltip: _obscureConfirm
+                        ? l10n.shellShowPassword
+                        : l10n.shellHidePassword,
                     onPressed: () =>
                         setState(() => _obscureConfirm = !_obscureConfirm),
                   ),
                 ),
                 validator: (v) => v != _passwordCtrl.text
-                    ? 'Passwords do not match'
+                    ? l10n.shellPasswordsDontMatch
                     : null,
               ),
               const SizedBox(height: 24),
@@ -152,26 +166,29 @@ class _VerifyInvitePageState extends State<VerifyInvitePage> {
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
                     _error!,
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.error),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                 ),
 
               FilledButton(
                 onPressed: _loading ? null : _submit,
                 child: _loading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2,
+                          semanticsLabel: l10n.commonLoading,
+                        ),
                       )
-                    : const Text('Activate Account'),
+                    : Text(l10n.shellActivateAccount),
               ),
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Back'),
+                child: Text(l10n.commonBack),
               ),
             ],
           ),

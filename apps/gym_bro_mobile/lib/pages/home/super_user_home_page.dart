@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../models/business.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
@@ -62,6 +63,7 @@ class _SuperUserHomePageState extends State<SuperUserHomePage> {
   @override
   Widget build(BuildContext context) {
     final stats = _stats;
+    final l10n = context.l10n;
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
@@ -69,39 +71,41 @@ class _SuperUserHomePageState extends State<SuperUserHomePage> {
         padding: const EdgeInsets.all(24),
         children: [
           HomeHeader(
-            title: 'Admin Panel',
+            title: l10n.shellAdminPanel,
             subtitle:
-                '${widget.profile.username} · ${widget.profile.role.displayName}',
+                '${widget.profile.username} · ${widget.profile.role.label(l10n)}',
           ),
           const SizedBox(height: 24),
           _AdminTile(
             icon: Icons.business_outlined,
-            label: 'Businesses',
-            subtitle: 'Manage gyms & shops',
-            onTap: () => _open('Businesses', const OwnerBusinessesPage()),
+            label: l10n.shellTabBusinesses,
+            subtitle: l10n.shellAdminBusinessesSubtitle,
+            onTap: () =>
+                _open(l10n.shellTabBusinesses, const OwnerBusinessesPage()),
           ),
           const SizedBox(height: 8),
           _AdminTile(
             icon: Icons.people_outline,
-            label: 'Users',
-            subtitle: 'Manage all accounts',
-            onTap: () => _open('Users', const OwnerUsersPage()),
+            label: l10n.shellTabUsers,
+            subtitle: l10n.shellAdminUsersSubtitle,
+            onTap: () => _open(l10n.shellTabUsers, const OwnerUsersPage()),
           ),
           const SizedBox(height: 8),
           _AdminTile(
             icon: Icons.receipt_long_outlined,
-            label: 'Invoices',
-            subtitle: 'View all membership invoices',
+            label: l10n.shellInvoices,
+            subtitle: l10n.shellAdminInvoicesSubtitle,
             onTap: () async {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => const InvoicesPage(initialStatus: null)),
+                  builder: (_) => const InvoicesPage(initialStatus: null),
+                ),
               );
               _load();
             },
           ),
-          const HomeSectionTitle('Platform overview'),
+          HomeSectionTitle(l10n.shellPlatformOverview),
           if (_loading)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 48),
@@ -109,7 +113,8 @@ class _SuperUserHomePageState extends State<SuperUserHomePage> {
             )
           else ...[
             if (_error != null) HomeError(message: _error!, onRetry: _load),
-            if (stats != null) BusinessStatsView(stats: stats, onChanged: _load),
+            if (stats != null)
+              BusinessStatsView(stats: stats, onChanged: _load),
           ],
         ],
       ),

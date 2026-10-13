@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../../l10n/l10n.dart';
 import '../../models/business.dart';
 import '../../models/membership.dart';
+import '../../models/payment.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
@@ -23,10 +26,9 @@ class HomeHeader extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           subtitle,
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(color: Theme.of(context).colorScheme.primary),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
       ],
     );
@@ -75,9 +77,15 @@ class HomeError extends StatelessWidget {
             Icon(Icons.error_outline, color: cs.onErrorContainer),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(message, style: TextStyle(color: cs.onErrorContainer)),
+              child: Text(
+                message,
+                style: TextStyle(color: cs.onErrorContainer),
+              ),
             ),
-            TextButton(onPressed: onRetry, child: const Text('Retry')),
+            TextButton(
+              onPressed: onRetry,
+              child: Text(context.l10n.commonRetry),
+            ),
           ],
         ),
       ),
@@ -101,7 +109,9 @@ class HomeEmpty extends StatelessWidget {
         children: [
           Icon(icon, size: 20, color: outline),
           const SizedBox(width: 8),
-          Expanded(child: Text(label, style: TextStyle(color: outline))),
+          Expanded(
+            child: Text(label, style: TextStyle(color: outline)),
+          ),
         ],
       ),
     );
@@ -130,31 +140,42 @@ class StatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ts = Theme.of(context).textTheme;
-    return Card(
-      color: color,
-      margin: EdgeInsets.zero,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+    // Read as one item ("12, Members, …"), and as a button when tappable.
+    return MergeSemantics(
+      child: Semantics(
+        button: onTap != null,
+        child: Card(
+          color: color,
+          margin: EdgeInsets.zero,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(icon, size: 20),
-                  const Spacer(),
-                  if (onTap != null) const Icon(Icons.chevron_right, size: 18),
+                  Row(
+                    children: [
+                      Icon(icon, size: 20),
+                      const Spacer(),
+                      if (onTap != null)
+                        const Icon(Icons.chevron_right, size: 18),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(value, style: ts.headlineSmall),
+                  Text(label, style: ts.bodySmall),
+                  if (detail != null)
+                    Text(
+                      detail!,
+                      style: ts.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Text(value, style: ts.headlineSmall),
-              Text(label, style: ts.bodySmall),
-              if (detail != null)
-                Text(detail!,
-                    style: ts.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
-            ],
+            ),
           ),
         ),
       ),
@@ -172,23 +193,25 @@ class StatGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final rows = <Widget>[];
     for (var i = 0; i < children.length; i += 2) {
-      rows.add(Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(child: children[i]),
-              const SizedBox(width: 12),
-              Expanded(
-                child: i + 1 < children.length
-                    ? children[i + 1]
-                    : const SizedBox.shrink(),
-              ),
-            ],
+      rows.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: children[i]),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: i + 1 < children.length
+                      ? children[i + 1]
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ),
           ),
         ),
-      ));
+      );
     }
     return Column(children: rows);
   }
@@ -208,7 +231,10 @@ class BusinessStatsView extends StatelessWidget {
   /// Called after returning from a page that may have changed the numbers.
   final VoidCallback onChanged;
 
-  Future<void> _openInvoices(BuildContext context, InvoiceStatus? status) async {
+  Future<void> _openInvoices(
+    BuildContext context,
+    InvoiceStatus? status,
+  ) async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => InvoicesPage(initialStatus: status)),
@@ -219,73 +245,92 @@ class BusinessStatsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final s = stats;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        StatGrid(children: [
-          StatTile(
-            icon: Icons.people_outline,
-            label: 'Members',
-            value: '${s.membersTotal}',
-            detail: '${s.gyms} gym${s.gyms == 1 ? '' : 's'}',
-            color: cs.primaryContainer,
+        StatGrid(
+          children: [
+            StatTile(
+              icon: Icons.people_outline,
+              label: l10n.shellStatsMembers,
+              value: '${s.membersTotal}',
+              detail: l10n.shellStatsGymCount(s.gyms),
+              color: cs.primaryContainer,
+            ),
+            StatTile(
+              icon: Icons.card_membership_outlined,
+              label: l10n.shellStatsActiveMemberships,
+              value: '${s.activeMemberships}',
+              color: cs.primaryContainer,
+            ),
+            StatTile(
+              icon: Icons.badge_outlined,
+              label: l10n.shellStatsStaff,
+              value: '${s.staffTotal}',
+              color: cs.secondaryContainer,
+            ),
+            StatTile(
+              icon: Icons.receipt_long_outlined,
+              label: l10n.shellStatsInvoicesThisMonth,
+              value: '${s.invoicesMonthCount}',
+              detail: formatMoney(s.invoicesMonthTotal),
+              color: cs.secondaryContainer,
+              onTap: () => _openInvoices(context, null),
+            ),
+            StatTile(
+              icon: Icons.pending_actions_outlined,
+              label: l10n.shellStatsUnpaidInvoices,
+              value: '${s.unpaidInvoicesCount}',
+              color: s.unpaidInvoicesCount > 0
+                  ? cs.tertiaryContainer
+                  : cs.surfaceContainerHighest,
+              onTap: () => _openInvoices(context, InvoiceStatus.unpaid),
+            ),
+          ],
+        ),
+        HomeSectionTitle(
+          l10n.shellStatsExpiringSoon,
+          trailing: Text(
+            l10n.shellStatsNext14Days,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: cs.outline),
           ),
-          StatTile(
-            icon: Icons.card_membership_outlined,
-            label: 'Active memberships',
-            value: '${s.activeMemberships}',
-            color: cs.primaryContainer,
-          ),
-          StatTile(
-            icon: Icons.badge_outlined,
-            label: 'Staff',
-            value: '${s.staffTotal}',
-            color: cs.secondaryContainer,
-          ),
-          StatTile(
-            icon: Icons.receipt_long_outlined,
-            label: 'Invoices this month',
-            value: '${s.invoicesMonthCount}',
-            detail: '\$${s.invoicesMonthTotal.toStringAsFixed(2)}',
-            color: cs.secondaryContainer,
-            onTap: () => _openInvoices(context, null),
-          ),
-          StatTile(
-            icon: Icons.pending_actions_outlined,
-            label: 'Unpaid invoices',
-            value: '${s.unpaidInvoicesCount}',
-            color: s.unpaidInvoicesCount > 0
-                ? cs.tertiaryContainer
-                : cs.surfaceContainerHighest,
-            onTap: () => _openInvoices(context, InvoiceStatus.unpaid),
-          ),
-        ]),
-        HomeSectionTitle('Expiring soon',
-            trailing: Text('next 14 days',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall
-                    ?.copyWith(color: cs.outline))),
+        ),
         if (s.expiringSoon.isEmpty)
-          const HomeEmpty(
+          HomeEmpty(
             icon: Icons.event_available_outlined,
-            label: 'No memberships expiring in the next two weeks',
+            label: l10n.shellStatsNoneExpiring,
           )
         else
           for (final e in s.expiringSoon)
             Card(
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
-                leading: CircleAvatar(
-                  child: Text(e.name.isNotEmpty ? e.name[0].toUpperCase() : '?'),
+                leading: ExcludeSemantics(
+                  child: CircleAvatar(
+                    child: Text(
+                      e.name.isNotEmpty ? e.name[0].toUpperCase() : '?',
+                    ),
+                  ),
                 ),
                 title: Text(e.fullName),
-                subtitle: Text('${e.gymName} · ends ${_daysLeft(e.toDate)}'),
+                subtitle: Text(
+                  l10n.shellStatsEndsOn(
+                    e.gymName,
+                    _daysLeft(context, e.toDate),
+                  ),
+                ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () async {
-                  await openGymMember(context,
-                      userId: e.userId, gymId: e.gymId, gymName: e.gymName);
+                  await openGymMember(
+                    context,
+                    userId: e.userId,
+                    gymId: e.gymId,
+                    gymName: e.gymName,
+                  );
                   onChanged();
                 },
               ),
@@ -294,12 +339,16 @@ class BusinessStatsView extends StatelessWidget {
     );
   }
 
-  static String _daysLeft(DateTime to) {
+  static String _daysLeft(BuildContext context, DateTime to) {
+    final l10n = context.l10n;
     final today = DateUtils.dateOnly(DateTime.now());
     final days = DateUtils.dateOnly(to).difference(today).inDays;
-    if (days <= 0) return 'today';
-    if (days == 1) return 'tomorrow';
-    return 'in $days days (${to.day}/${to.month})';
+    if (days <= 0) return l10n.shellStatsEndsToday;
+    if (days == 1) return l10n.shellStatsEndsTomorrow;
+    final date = DateFormat.MMMd(
+      Localizations.localeOf(context).toString(),
+    ).format(to);
+    return l10n.shellStatsEndsInDays(days, date);
   }
 }
 
@@ -320,7 +369,10 @@ Future<void> openGymMember(
     ]);
     final rows = results[0] as List<Map<String, dynamic>>;
     final user = results[1] as UserProfile;
-    if (rows.isEmpty) throw Exception('${user.fullName} is no longer a member');
+    if (rows.isEmpty) {
+      if (!context.mounted) return;
+      throw Exception(context.l10n.shellNoLongerMember(user.fullName));
+    }
     if (!context.mounted) return;
     await Navigator.push(
       context,
@@ -347,7 +399,10 @@ Future<T?> pushTabPage<T>(BuildContext context, String title, Widget body) {
   return Navigator.push<T>(
     context,
     MaterialPageRoute(
-      builder: (_) => Scaffold(appBar: AppBar(title: Text(title)), body: body),
+      builder: (_) => Scaffold(
+        appBar: AppBar(title: Text(title)),
+        body: body,
+      ),
     ),
   );
 }

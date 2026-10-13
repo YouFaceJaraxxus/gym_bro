@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -71,7 +72,7 @@ class _ShopVendorsPageState extends State<ShopVendorsPage> {
       await _api.resendInvite(token, entry.user.email);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invite resent')),
+          SnackBar(content: Text(context.l10n.businessMgmtInviteResent)),
         );
       }
     } catch (e) {
@@ -87,15 +88,15 @@ class _ShopVendorsPageState extends State<ShopVendorsPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Remove vendor?'),
-        content: const Text('This will remove them from this shop.'),
+        title: Text(context.l10n.businessMgmtRemoveVendorTitle),
+        content: Text(context.l10n.businessMgmtRemoveVendorMessage),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+              child: Text(context.l10n.commonCancel)),
           FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Remove')),
+              child: Text(context.l10n.businessMgmtRemove)),
         ],
       ),
     );
@@ -130,7 +131,8 @@ class _ShopVendorsPageState extends State<ShopVendorsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.shopName} — Vendors')),
+      appBar: AppBar(
+          title: Text(context.l10n.businessMgmtShopVendorsTitle(widget.shopName))),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -147,7 +149,7 @@ class _ShopVendorsPageState extends State<ShopVendorsPage> {
           if (added == true) _load();
         },
         icon: const Icon(Icons.person_add_outlined),
-        label: const Text('Add Vendor'),
+        label: Text(context.l10n.businessMgmtAddVendor),
       ),
     );
   }
@@ -162,7 +164,8 @@ class _ShopVendorsPageState extends State<ShopVendorsPage> {
           const SizedBox(height: 16),
           Text(_error!),
           const SizedBox(height: 16),
-          FilledButton(onPressed: _load, child: const Text('Retry')),
+          FilledButton(
+              onPressed: _load, child: Text(context.l10n.commonRetry)),
         ],
       ),
     );
@@ -186,7 +189,7 @@ class _ShopVendorsPageState extends State<ShopVendorsPage> {
                           size: 48,
                           color: Theme.of(context).colorScheme.outline),
                       const SizedBox(height: 16),
-                      const Text('No vendors yet'),
+                      Text(context.l10n.businessMgmtNoVendorsYet),
                     ],
                   ),
                 ),
@@ -210,15 +213,18 @@ class _ShopVendorsPageState extends State<ShopVendorsPage> {
             margin: const EdgeInsets.only(bottom: 10),
             child: ListTile(
               onTap: () => _openEdit(entry),
-              leading: CircleAvatar(
-                child: Text(entry.user.name.isNotEmpty
-                    ? entry.user.name[0].toUpperCase()
-                    : '?'),
+              leading: ExcludeSemantics(
+                child: CircleAvatar(
+                  child: Text(entry.user.name.isNotEmpty
+                      ? entry.user.name[0].toUpperCase()
+                      : '?'),
+                ),
               ),
               title: Text(entry.user.fullName),
               subtitle: Text(entry.user.email),
               trailing: PopupMenuButton<_VendorAction>(
                 icon: const Icon(Icons.more_vert),
+                tooltip: context.l10n.businessMgmtVendorActions,
                 onSelected: (action) {
                   switch (action) {
                     case _VendorAction.edit:
@@ -229,28 +235,28 @@ class _ShopVendorsPageState extends State<ShopVendorsPage> {
                       _removeVendor(entry);
                   }
                 },
-                itemBuilder: (_) => const [
+                itemBuilder: (_) => [
                   PopupMenuItem(
                     value: _VendorAction.edit,
                     child: ListTile(
-                      leading: Icon(Icons.edit_outlined),
-                      title: Text('Edit Vendor'),
+                      leading: const Icon(Icons.edit_outlined),
+                      title: Text(context.l10n.businessMgmtEditVendor),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                   PopupMenuItem(
                     value: _VendorAction.resendInvite,
                     child: ListTile(
-                      leading: Icon(Icons.mark_email_unread_outlined),
-                      title: Text('Resend Invite'),
+                      leading: const Icon(Icons.mark_email_unread_outlined),
+                      title: Text(context.l10n.businessMgmtResendInvite),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                   PopupMenuItem(
                     value: _VendorAction.remove,
                     child: ListTile(
-                      leading: Icon(Icons.person_remove_outlined),
-                      title: Text('Remove'),
+                      leading: const Icon(Icons.person_remove_outlined),
+                      title: Text(context.l10n.businessMgmtRemove),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),

@@ -52,7 +52,7 @@ function parseId(pathname: string): string | null {
 
 // ── Response shaping ──────────────────────────────────────────────────────────
 // Each row: assignment columns + `meal_plan` (flat row or null) +
-// `meal_plan_name` + `assigned_by_name` ("Name Last" or null).
+// `meal_plan_name` + `assigned_by_name` / `user_name` ("Name Last" or null).
 
 async function withDetails<T extends AssignmentRow>(assignments: T[]) {
   const planIds = [...new Set(assignments.map((a) => a.meal_plan_id))];
@@ -61,19 +61,23 @@ async function withDetails<T extends AssignmentRow>(assignments: T[]) {
     : [];
   const planMap = Object.fromEntries(plans.map((p) => [p.id, p]));
 
-  const assignerIds = [...new Set(assignments.map((a) => a.assigned_by_id).filter((x): x is string => !!x))];
-  const assigners = assignerIds.length
-    ? await db.selectFrom("users").select(["id", "name", "last_name"]).where("id", "in", assignerIds).execute()
+  // Assigners and assignees in one lookup.
+  const userIds = [
+    ...new Set(assignments.flatMap((a) => [a.assigned_by_id, a.user_id]).filter((x): x is string => !!x)),
+  ];
+  const users = userIds.length
+    ? await db.selectFrom("users").select(["id", "name", "last_name"]).where("id", "in", userIds).execute()
     : [];
-  const assignerName = Object.fromEntries(
-    assigners.map((u) => [u.id, `${u.name ?? ""} ${u.last_name ?? ""}`.trim() || null]),
+  const userName = Object.fromEntries(
+    users.map((u) => [u.id, `${u.name ?? ""} ${u.last_name ?? ""}`.trim() || null]),
   );
 
   return assignments.map((a) => ({
     ...a,
     meal_plan: planMap[a.meal_plan_id] ?? null,
     meal_plan_name: planMap[a.meal_plan_id]?.name ?? null,
-    assigned_by_name: a.assigned_by_id ? assignerName[a.assigned_by_id] ?? null : null,
+    assigned_by_name: a.assigned_by_id ? userName[a.assigned_by_id] ?? null : null,
+    user_name: userName[a.user_id] ?? null,
   }));
 }
 

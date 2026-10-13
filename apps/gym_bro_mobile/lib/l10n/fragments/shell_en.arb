@@ -1,0 +1,556 @@
+{
+  "shellTabHome": "Home",
+  "shellTabBusinesses": "Businesses",
+  "shellTabMembership": "Membership",
+  "shellTabSchedule": "Schedule",
+  "shellTabClasses": "Classes",
+  "shellTabMembers": "Members",
+  "shellTabMyShop": "My Shop",
+  "shellTabUsers": "Users",
+  "shellTabGym": "Gym",
+  "shellTabProfile": "Profile",
+  "shellHomeProfileLoadFailed": "Could not load profile",
+  "shellHomeBackToLogin": "Back to login",
+  "shellHomeNotifications": "Notifications",
+  "shellHomeNotificationsUnread": "{count, plural, =1{Notifications, 1 unread} other{Notifications, {count} unread}}",
+  "@shellHomeNotificationsUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shellHomeReturnToAdmin": "Return to admin",
+  "shellHomeLogOut": "Log out",
+  "shellHomeViewingAs": "Viewing as {name}",
+  "@shellHomeViewingAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellRoleOwner": "Owner",
+  "shellRoleTrainer": "Trainer",
+  "shellRoleEmployee": "Employee",
+  "shellRoleEmployeeTrainer": "Employee / Trainer",
+  "shellRoleMember": "Member",
+  "shellRoleShopVendor": "Shop vendor",
+  "shellRoleSuperUser": "Super user",
+  "shellStatsMembers": "Members",
+  "shellStatsGymCount": "{count, plural, =1{1 gym} other{{count} gyms}}",
+  "@shellStatsGymCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shellStatsActiveMemberships": "Active memberships",
+  "shellStatsStaff": "Staff",
+  "shellStatsInvoicesThisMonth": "Invoices this month",
+  "shellStatsUnpaidInvoices": "Unpaid invoices",
+  "shellStatsExpiringSoon": "Expiring soon",
+  "shellStatsNext14Days": "next 14 days",
+  "shellStatsNoneExpiring": "No memberships expiring in the next two weeks",
+  "shellStatsEndsOn": "{gym} · ends {when}",
+  "@shellStatsEndsOn": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "shellStatsEndsToday": "today",
+  "shellStatsEndsTomorrow": "tomorrow",
+  "shellStatsEndsInDays": "{days, plural, =1{in 1 day ({date})} other{in {days} days ({date})}}",
+  "@shellStatsEndsInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "shellNoLongerMember": "{name} is no longer a member",
+  "@shellNoLongerMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellWelcomeBack": "Welcome back, {name}",
+  "@shellWelcomeBack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellWelcome": "Welcome, {name}",
+  "@shellWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellHello": "Hello, {name}",
+  "@shellHello": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellOwnerNoGyms": "You don't own any gyms yet — add one from the Businesses tab.",
+  "shellOwnerAllInvoices": "All invoices",
+  "shellYourGym": "Your gym",
+  "shellYourGyms": "Your gyms",
+  "shellNotAssignedToGym": "Not assigned to any gym yet",
+  "shellMemberCount": "{count, plural, =1{1 member} other{{count} members}}",
+  "@shellMemberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shellInvoices": "Invoices",
+  "shellScanCheckIns": "Scan check-ins",
+  "shellHey": "Hey, {name}!",
+  "@shellHey": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellMyMembership": "My membership",
+  "shellMembershipLoadFailed": "Couldn't load your membership",
+  "shellNoActiveMembership": "No active membership",
+  "shellMembershipActive": "Active",
+  "shellMembershipValidUntil": "{type} · valid until {date}",
+  "@shellMembershipValidUntil": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "shellUpcomingClasses": "Upcoming classes",
+  "shellUnavailable": "Unavailable",
+  "shellSessionInProgress": "Session in progress",
+  "shellNoneScheduled": "None scheduled",
+  "shellNoBusinesses": "No businesses yet",
+  "shellGyms": "Gyms",
+  "shellShops": "Shops",
+  "shellAddBusiness": "Add business",
+  "shellEditBusiness": "Edit {name}",
+  "@shellEditBusiness": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellNoUsers": "No users yet",
+  "shellAddUser": "Add user",
+  "shellEditUser": "Edit {name}",
+  "@shellEditUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellAdminPanel": "Admin panel",
+  "shellAdminBusinessesSubtitle": "Manage gyms & shops",
+  "shellAdminUsersSubtitle": "Manage all accounts",
+  "shellAdminInvoicesSubtitle": "View all membership invoices",
+  "shellPlatformOverview": "Platform overview",
+  "shellTodaysSessions": "Today's sessions",
+  "shellNoSessionsToday": "No sessions with you today",
+  "shellSessionStartedInProgress": "Started {time} · in progress",
+  "@shellSessionStartedInProgress": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "shellMembersYouCoach": "Members you coach",
+  "shellSearchMembers": "Search members",
+  "shellClearSearch": "Clear search",
+  "shellNoCoachedMembers": "No members at the gyms you coach at yet",
+  "shellNoMembersMatch": "No members match \"{query}\"",
+  "@shellNoMembersMatch": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "shellYourShop": "Your shop",
+  "shellYourShops": "Your shops",
+  "shellNotAVendor": "You're not a vendor at any shop yet",
+  "shellOrdersForShop": "Orders · {shop}",
+  "@shellOrdersForShop": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "shellChooseShop": "Choose a shop",
+  "shellLogIn": "Log in",
+  "shellAuthEmail": "Email",
+  "shellAuthPassword": "Password",
+  "shellAuthFirstName": "First name",
+  "shellAuthLastName": "Last name",
+  "shellAuthUsername": "Username",
+  "shellAuthInvalidEmail": "Enter a valid email",
+  "shellAuthPasswordMin": "Minimum {count} characters",
+  "@shellAuthPasswordMin": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shellForgotPasswordLink": "Forgot password?",
+  "shellNoAccountSignUp": "Don't have an account? Sign up",
+  "shellHaveInviteCode": "Have an invite code?",
+  "shellSignupEmailTaken": "An account with this email already exists.",
+  "shellSignupPendingInviteTitle": "You have a pending invite",
+  "shellSignupPendingInviteBody": "An account for {email} was already created by an invite. We've re-sent the invite email — enter the 6-digit code from it to activate your account.",
+  "@shellSignupPendingInviteBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "shellSignupEnterCode": "Enter code",
+  "shellCreateAccount": "Create account",
+  "shellLogInInstead": "Log in instead",
+  "shellSignUp": "Sign up",
+  "shellHaveAccountLogIn": "Already have an account? Log in",
+  "shellCheckEmailTitle": "Check your email",
+  "shellCheckEmailBody": "We sent you a confirmation link. Please verify your email before logging in.",
+  "shellGoToLogin": "Go to login",
+  "shellForgotPasswordTitle": "Forgot password",
+  "shellForgotPasswordIntro": "Enter your email and we'll send you a link to reset your password.",
+  "shellSendResetLink": "Send reset link",
+  "shellResetLinkSent": "We sent a password reset link to {email}.",
+  "@shellResetLinkSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "shellResetPasswordTitle": "Reset password",
+  "shellResetPasswordIntro": "Enter a new password for your account.",
+  "shellNewPassword": "New password",
+  "shellConfirmPassword": "Confirm password",
+  "shellPasswordsDontMatch": "Passwords do not match",
+  "shellSetNewPassword": "Set new password",
+  "shellActivateInviteTitle": "Activate invite",
+  "shellActivateInviteIntro": "Enter the 6-digit code from your invite email along with the email address and a password you'd like to use.",
+  "shellInviteCode": "Invite code",
+  "shellInviteCodeHint": "6-digit code",
+  "shellInviteCodeInvalid": "Enter the 6-digit code",
+  "shellShowPassword": "Show password",
+  "shellHidePassword": "Hide password",
+  "shellActivateAccount": "Activate account",
+  "shellProfileUpdated": "Profile updated",
+  "shellSaveChanges": "Save changes",
+  "shellMyProgress": "My progress",
+  "shellMyProgressSubtitle": "Lifts, body weight and streaks",
+  "shellMyOrders": "My orders",
+  "shellMyOrdersSubtitle": "Shop orders and pickups",
+  "shellSettings": "Settings",
+  "shellSettingsSubtitle": "Theme, units, notifications, account",
+  "shellTypeToConfirm": "Type {text} to confirm.",
+  "@shellTypeToConfirm": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "shellCouldNotOpenUrl": "Could not open {url}",
+  "@shellCouldNotOpenUrl": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "shellOffline": "You're offline — showing saved data",
+  "shellOfflinePending": "{count, plural, =1{You're offline — showing saved data · 1 change waiting to sync} other{You're offline — showing saved data · {count} changes waiting to sync}}",
+  "@shellOfflinePending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shellImageChooseFromGallery": "Choose from gallery",
+  "shellImageTakePhoto": "Take a photo",
+  "shellImageUploadFailed": "Upload failed: {error}",
+  "@shellImageUploadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "shellImageUploading": "Uploading photo",
+  "shellAvatarAdd": "Add profile photo",
+  "shellAvatarChange": "Change profile photo",
+  "shellImageAddPhoto": "Add photo",
+  "shellImageChange": "Change photo",
+  "shellGoogleNotSupported": "Google sign-in is not supported on this device",
+  "shellGoogleFailed": "Google sign-in failed",
+  "shellGoogleNoIdToken": "Google did not return an ID token",
+  "shellOr": "or",
+  "shellContinueWithGoogle": "Continue with Google",
+  "shellUserSearchHint": "Search by name or username",
+  "shellNoUsersFound": "No users found",
+  "shellShowMore": "Show more",
+  "shellUserSearchAdd": "Add",
+  "shellUserSearchAddLabel": "Add {name}",
+  "@shellUserSearchAddLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellUserSearchAdding": "Adding",
+  "shellRoleEmployeeTrainerShort": "Emp. trainer",
+  "shellRoleGymOwner": "Gym owner",
+  "shellRoleShopOwner": "Shop owner",
+  "shellRoleVendor": "Vendor",
+  "shellImpersonateTitle": "Sign in as {name}?",
+  "@shellImpersonateTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellImpersonateBody": "You'll see the app exactly as {email} does and can act on their behalf. This is recorded in the audit log. Use \"Return to admin\" (or log out) to get back to your account.",
+  "@shellImpersonateBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "shellImpersonateConfirm": "Sign in as user",
+  "shellEditUserTitle": "Edit user",
+  "shellNewUserTitle": "New user",
+  "shellSignInAsThisUser": "Sign in as this user",
+  "shellRole": "Role",
+  "shellCreateUser": "Create user",
+  "shellInviteOrganisationFallback": "the organisation",
+  "shellInvitationTitle": "Invitation",
+  "shellInviteBody": "You have been invited to work at {entity} as {role}.",
+  "@shellInviteBody": {
+    "placeholders": {
+      "entity": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "shellInviteAccept": "Accept — join {entity}",
+  "@shellInviteAccept": {
+    "placeholders": {
+      "entity": {
+        "type": "String"
+      }
+    }
+  },
+  "shellInviteDecline": "Decline",
+  "shellInviteJoined": "You joined {entity} as {role}",
+  "@shellInviteJoined": {
+    "placeholders": {
+      "entity": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "shellInviteDeclined": "You declined this invitation",
+  "shellHubCommunityOpenFailed": "Couldn't open community: {error}",
+  "@shellHubCommunityOpenFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "shellHubNotLinked": "You're not linked to a gym or shop yet",
+  "shellHubCheckIn": "Check in",
+  "shellHubCheckInSubtitle": "Show your code at the front desk",
+  "shellHubClassesSubtitle": "Browse and book group classes",
+  "shellHubExercises": "Exercises",
+  "shellHubExercisesSubtitle": "Browse and manage exercises",
+  "shellHubWorkouts": "Workouts",
+  "shellHubWorkoutsSubtitle": "Trainings and routines",
+  "shellHubSessions": "Sessions",
+  "shellHubSessionsSubtitle": "Log and review your sessions",
+  "shellHubProgress": "Progress",
+  "shellHubFoodDiary": "Food diary",
+  "shellHubFoodDiarySubtitle": "Log meals and track macros",
+  "shellHubMealPlans": "Meal plans",
+  "shellHubMealPlansSubtitle": "Food, recipes and nutrition",
+  "shellHubStore": "Store",
+  "shellHubStoreSubtitle": "Supplements, gear and your orders",
+  "shellHubCommunity": "Community",
+  "shellHubCommunitySubtitle": "Posts and announcements from your gym",
+  "shellMuteClasses": "Classes",
+  "shellMuteClassesDescription": "Class reminders, changes and cancellations",
+  "shellMuteBilling": "Billing",
+  "shellMuteBillingDescription": "Invoices, payments and expiring memberships",
+  "shellMuteShop": "Shop",
+  "shellMuteShopDescription": "Order updates, new orders and restocks",
+  "shellMuteCommunity": "Community",
+  "shellMuteCommunityDescription": "Gym news and comments on your posts",
+  "shellMuteCoaching": "Coaching",
+  "shellMuteCoachingDescription": "Assigned routines and plans, session feedback",
+  "shellMuteStaff": "Staff",
+  "shellMuteStaffDescription": "Shifts and people joining your business",
+  "shellSettingsSaveFailed": "Couldn't save: {error}",
+  "@shellSettingsSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "shellConfirmNewEmailTitle": "Confirm your new email",
+  "shellPasswordChanged": "Password changed",
+  "shellDeleteUserTitle": "Delete {name}?",
+  "@shellDeleteUserTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellDeleteAccountTitle": "Delete account?",
+  "shellDeleteUserMessage": "This permanently deletes {name}'s account, memberships and billing history. This cannot be undone.",
+  "@shellDeleteUserMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellDeleteAccountMessage": "This permanently deletes your account, memberships and billing history. This cannot be undone.",
+  "shellDeleteConfirmWord": "DELETE",
+  "shellDeleteAccount": "Delete account",
+  "shellDeleteAccountFailed": "Couldn't delete account",
+  "shellDeleteAccountSubtitle": "Permanently remove your account",
+  "shellSettingsAppearance": "Appearance",
+  "shellSettingsTheme": "Theme",
+  "shellThemeSystem": "System",
+  "shellThemeLight": "Light",
+  "shellThemeDark": "Dark",
+  "shellSettingsUnits": "Units",
+  "shellSettingsWeight": "Weight",
+  "shellUnitPounds": "Pounds",
+  "shellUnitKilograms": "Kilograms",
+  "shellPushUnavailable": "Push notifications aren't available in this build. You'll still find everything under the bell icon; these choices apply on devices that support push.",
+  "shellPushNotifications": "Push notifications",
+  "shellPushNotificationsSubtitle": "Alerts on this phone",
+  "shellSendMePushesAbout": "Send me pushes about",
+  "shellMuteFootnote": "Invites always come through. Muted notifications still appear in the app.",
+  "shellSettingsAccount": "Account",
+  "shellChangeEmail": "Change email",
+  "shellChangePassword": "Change password",
+  "shellChangeEmailIntro": "We'll send a confirmation link to the new address. Your email changes once you open it.",
+  "shellNewEmail": "New email",
+  "shellAlreadyYourEmail": "That's already your email",
+  "shellCurrentPassword": "Current password",
+  "shellSendLink": "Send link",
+  "shellShowPasswords": "Show passwords",
+  "shellHidePasswords": "Hide passwords",
+  "shellConfirmNewPassword": "Confirm new password",
+  "shellChange": "Change",
+  "shellPushChannelDescription": "Class reminders, orders, memberships and messages",
+  "shellMarkAllRead": "Mark all read",
+  "shellNoNotifications": "No notifications yet",
+  "shellLoadMore": "Load more",
+  "shellInvitePending": "Pending response",
+  "shellInviteAccepted": "Accepted",
+  "shellInviteDeclinedChip": "Declined",
+  "shellNotificationUnread": "Unread",
+  "shellTimeNow": "now",
+  "shellTimeMinutesShort": "{count}m",
+  "@shellTimeMinutesShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shellTimeHoursShort": "{count}h",
+  "@shellTimeHoursShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shellTimeDaysShort": "{count}d",
+  "@shellTimeDaysShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shellTimeMinutesAgo": "{count, plural, =1{1 minute ago} other{{count} minutes ago}}",
+  "@shellTimeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shellTimeHoursAgo": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
+  "@shellTimeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shellTimeDaysAgo": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "@shellTimeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

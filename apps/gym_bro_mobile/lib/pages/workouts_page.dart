@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
+import '../models/coaching.dart';
 import '../models/training.dart';
 import '../models/routine.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/routine_assign.dart';
 import 'training_detail_page.dart';
 import 'training_form_page.dart';
 import 'routine_detail_page.dart';
 import 'routine_form_page.dart';
 
-/// Public workouts hub — tabs for Trainings, Routines, and My Library.
+/// Public workouts hub — tabs for Trainings, Routines, Assigned routines and
+/// My Library.
 class WorkoutsPage extends StatefulWidget {
   const WorkoutsPage({super.key});
 
@@ -23,7 +27,7 @@ class _WorkoutsPageState extends State<WorkoutsPage>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 3, vsync: this);
+    _tabs = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -34,19 +38,24 @@ class _WorkoutsPageState extends State<WorkoutsPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Workouts'),
+        title: Text(l10n.trainingWorkoutsTitle),
         bottom: TabBar(
           controller: _tabs,
-          tabs: const [
-            Tab(text: 'Trainings'),
-            Tab(text: 'Routines'),
-            Tab(text: 'My Library'),
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          tabs: [
+            Tab(text: l10n.trainingWorkoutsTabTrainings),
+            Tab(text: l10n.trainingWorkoutsTabRoutines),
+            Tab(text: l10n.trainingWorkoutsTabAssigned),
+            Tab(text: l10n.trainingWorkoutsTabLibrary),
           ],
         ),
         actions: [
           PopupMenuButton<String>(
+            tooltip: l10n.trainingWorkoutsCreate,
             icon: const Icon(Icons.add),
             onSelected: (v) async {
               if (v == 'training') {
@@ -61,9 +70,9 @@ class _WorkoutsPageState extends State<WorkoutsPage>
                 );
               }
             },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'training', child: Text('New Training')),
-              PopupMenuItem(value: 'routine', child: Text('New Routine')),
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'training', child: Text(l10n.trainingWorkoutsNewTraining)),
+              PopupMenuItem(value: 'routine', child: Text(l10n.trainingWorkoutsNewRoutine)),
             ],
           ),
         ],
@@ -73,6 +82,7 @@ class _WorkoutsPageState extends State<WorkoutsPage>
         children: const [
           _TrainingsTab(mine: false),
           _RoutinesTab(mine: false),
+          _AssignedTab(),
           _MyLibraryTab(),
         ],
       ),
@@ -166,7 +176,7 @@ class _TrainingsTabState extends State<_TrainingsTab>
   Widget _buildList() {
     if (_loading && _items.isEmpty) return const Center(child: CircularProgressIndicator());
     if (_error != null && _items.isEmpty) return _ErrorRetry(error: _error!, onRetry: () => _load(reset: true));
-    if (_items.isEmpty) return const Center(child: Text('No trainings found'));
+    if (_items.isEmpty) return Center(child: Text(context.l10n.trainingWorkoutsNoTrainings));
     return NotificationListener<ScrollNotification>(
       onNotification: (n) {
         if (!_loading && _hasMore && n.metrics.extentAfter < 200) _load();
@@ -280,7 +290,7 @@ class _RoutinesTabState extends State<_RoutinesTab>
   Widget _buildList() {
     if (_loading && _items.isEmpty) return const Center(child: CircularProgressIndicator());
     if (_error != null && _items.isEmpty) return _ErrorRetry(error: _error!, onRetry: () => _load(reset: true));
-    if (_items.isEmpty) return const Center(child: Text('No routines found'));
+    if (_items.isEmpty) return Center(child: Text(context.l10n.trainingAssignNoRoutines));
     return NotificationListener<ScrollNotification>(
       onNotification: (n) {
         if (!_loading && _hasMore && n.metrics.extentAfter < 200) _load();
@@ -308,6 +318,150 @@ class _RoutinesTabState extends State<_RoutinesTab>
   }
 }
 
+// ── Assigned routines tab (to me / by me) ─────────────────────────────────────
+
+class _AssignedTab extends StatefulWidget {
+  const _AssignedTab();
+
+  @override
+  State<_AssignedTab> createState() => _AssignedTabState();
+}
+
+class _AssignedTabState extends State<_AssignedTab> with AutomaticKeepAliveClientMixin {
+  final _api = ApiService();
+  List<RoutineAssignment> _toMe = [];
+  List<RoutineAssignment> _byMe = [];
+  bool _loading = true;
+  String? _error;
+  bool _showByMe = false;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final l10n = context.l10n;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      await AuthManager.instance.ensureProfile();
+      final me = AuthManager.instance.profile;
+      if (me == null) throw Exception(l10n.trainingCoachNotSignedIn);
+      final results = await Future.wait([
+        _api.getRoutineAssignments(token, userId: me.id),
+        _api.getRoutineAssignments(token, assignedById: me.id),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _toMe = results[0];
+        // Self-assignments already appear under "To me".
+        _byMe = results[1].where((a) => a.userId != me.id).toList();
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString().replaceFirst('Exception: ', '');
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _remove(RoutineAssignment a) async {
+    if (await confirmRemoveRoutineAssignment(context, a)) _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    final items = _showByMe ? _byMe : _toMe;
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+          child: SegmentedButton<bool>(
+            showSelectedIcon: false,
+            segments: [
+              ButtonSegment(
+                  value: false, label: Text(l10n.trainingWorkoutsAssignedToMe(_toMe.length))),
+              ButtonSegment(value: true, label: Text(l10n.trainingWorkoutsAssignedByMe(_byMe.length))),
+            ],
+            selected: {_showByMe},
+            onSelectionChanged: (s) => setState(() => _showByMe = s.first),
+          ),
+        ),
+        Expanded(
+          child: Builder(builder: (context) {
+            if (_loading && _toMe.isEmpty && _byMe.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (_error != null && _toMe.isEmpty && _byMe.isEmpty) {
+              return _ErrorRetry(error: _error!, onRetry: _load);
+            }
+            return RefreshIndicator(
+              onRefresh: _load,
+              child: items.isEmpty
+                  ? ListView(
+                      children: [
+                        const SizedBox(height: 64),
+                        Icon(Icons.assignment_outlined, size: 48, color: cs.outline),
+                        const SizedBox(height: 12),
+                        Text(
+                          _showByMe
+                              ? l10n.trainingWorkoutsByMeEmpty
+                              : l10n.trainingWorkoutsToMeEmpty,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: cs.onSurfaceVariant),
+                        ),
+                      ],
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                      itemCount: items.length,
+                      itemBuilder: (context, i) {
+                        final a = items[i];
+                        final subtitle = _showByMe
+                            ? (a.userName != null
+                                ? l10n.trainingWorkoutsAssignedFor(a.userName!)
+                                : l10n.trainingWorkoutsAssignedForMember)
+                            : a.isSelfAssigned
+                                ? l10n.trainingWorkoutsSelfAssigned
+                                : (a.assignedByName != null
+                                    ? l10n.trainingWorkoutsAssignedFrom(a.assignedByName!)
+                                    : l10n.trainingWorkoutsAssignedFromCoach);
+                        return RoutineAssignmentCard(
+                          assignment: a,
+                          subtitle: subtitle,
+                          onTap: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => RoutineDetailPage(routineId: a.routineId),
+                              ),
+                            );
+                          },
+                          onRemove: () => _remove(a),
+                        );
+                      },
+                    ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+}
+
 // ── My Library tab (private trainings + routines) ─────────────────────────────
 
 class _MyLibraryTab extends StatelessWidget {
@@ -315,12 +469,16 @@ class _MyLibraryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return DefaultTabController(
       length: 2,
       child: Column(
         children: [
-          const TabBar(
-            tabs: [Tab(text: 'My Trainings'), Tab(text: 'My Routines')],
+          TabBar(
+            tabs: [
+              Tab(text: l10n.trainingWorkoutsMyTrainings),
+              Tab(text: l10n.trainingWorkoutsMyRoutines),
+            ],
           ),
           const Expanded(
             child: TabBarView(
@@ -346,6 +504,8 @@ class TrainingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       clipBehavior: Clip.antiAlias,
@@ -361,6 +521,7 @@ class TrainingCard extends StatelessWidget {
                 height: 140,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                excludeFromSemantics: true,
                 errorBuilder: (context, error, stack) => const SizedBox.shrink(),
               ),
             Padding(
@@ -377,7 +538,10 @@ class TrainingCard extends StatelessWidget {
                         ),
                       ),
                       if (!training.isPublic)
-                        const Icon(Icons.lock_outline, size: 16, color: Colors.grey),
+                        Icon(Icons.lock_outline,
+                            size: 16,
+                            color: cs.onSurfaceVariant,
+                            semanticLabel: l10n.trainingRoutinePrivate),
                     ],
                   ),
                   if (training.description != null && training.description!.isNotEmpty) ...[
@@ -386,14 +550,14 @@ class TrainingCard extends StatelessWidget {
                       training.description!,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                      style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
                     ),
                   ],
                   if (training.sets.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text(
-                      '${training.sets.length} sets',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      l10n.trainingWorkoutsSetCount(training.sets.length),
+                      style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                     ),
                   ],
                 ],
@@ -414,6 +578,8 @@ class RoutineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       clipBehavior: Clip.antiAlias,
@@ -429,6 +595,7 @@ class RoutineCard extends StatelessWidget {
                 height: 140,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                excludeFromSemantics: true,
                 errorBuilder: (context, error, stack) => const SizedBox.shrink(),
               ),
             Padding(
@@ -445,7 +612,10 @@ class RoutineCard extends StatelessWidget {
                         ),
                       ),
                       if (!routine.isPublic)
-                        const Icon(Icons.lock_outline, size: 16, color: Colors.grey),
+                        Icon(Icons.lock_outline,
+                            size: 16,
+                            color: cs.onSurfaceVariant,
+                            semanticLabel: l10n.trainingRoutinePrivate),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -454,18 +624,18 @@ class RoutineCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
+                          color: cs.secondaryContainer,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          routine.scheduleLabel,
-                          style: TextStyle(fontSize: 11, color: Colors.blue.shade700),
+                          routine.scheduleLabel(l10n),
+                          style: TextStyle(fontSize: 11, color: cs.onSecondaryContainer),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '${routine.trainings.length} training${routine.trainings.length == 1 ? '' : 's'}',
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        l10n.trainingRoutineTrainingCount(routine.trainings.length),
+                        style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -475,7 +645,7 @@ class RoutineCard extends StatelessWidget {
                       routine.description!,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                      style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
                     ),
                   ],
                 ],
@@ -503,10 +673,11 @@ class _SearchBar extends StatelessWidget {
       child: TextField(
         controller: controller,
         decoration: InputDecoration(
-          hintText: 'Search…',
+          hintText: context.l10n.commonSearch,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: controller.text.isNotEmpty
               ? IconButton(
+                  tooltip: context.l10n.trainingWorkoutsClearSearch,
                   icon: const Icon(Icons.clear),
                   onPressed: () {
                     controller.clear();
@@ -535,9 +706,11 @@ class _ErrorRetry extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(error, style: const TextStyle(color: Colors.red), textAlign: TextAlign.center),
+          Text(error,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+              textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+          ElevatedButton(onPressed: onRetry, child: Text(context.l10n.commonRetry)),
         ],
       ),
     );

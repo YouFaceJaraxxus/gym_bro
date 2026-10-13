@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
 import '../models/meal_plan.dart';
-import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/meal_plan_assign.dart';
@@ -12,6 +13,9 @@ import 'daily_meal_plan_detail_page.dart';
 import 'daily_meal_plan_form_page.dart';
 import 'meal_plan_detail_page.dart';
 import 'meal_plan_form_page.dart';
+import 'nutrition/barcode_scan_page.dart';
+import 'nutrition/food_diary_page.dart';
+import 'nutrition/nutrition_widgets.dart';
 
 class MealPlansPage extends StatefulWidget {
   const MealPlansPage({super.key});
@@ -45,24 +49,34 @@ class _MealPlansPageState extends State<MealPlansPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Meal Plans'),
+        title: Text(l10n.nutritionMealPlansTitle),
         bottom: TabBar(
           controller: _tabs,
           isScrollable: true,
           tabAlignment: TabAlignment.start,
-          tabs: const [
-            Tab(text: 'Plans'),
-            Tab(text: 'Assigned'),
-            Tab(text: 'Food'),
-            Tab(text: 'Recipes'),
-            Tab(text: 'Daily Plans'),
-            Tab(text: 'My Library'),
+          tabs: [
+            Tab(text: l10n.nutritionTabPlans),
+            Tab(text: l10n.nutritionTabAssigned),
+            Tab(text: l10n.nutritionTabFood),
+            Tab(text: l10n.nutritionRecipes),
+            Tab(text: l10n.nutritionTabDailyPlans),
+            Tab(text: l10n.nutritionTabMyLibrary),
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: l10n.nutritionFoodDiary,
+            icon: const Icon(Icons.menu_book_outlined),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const FoodDiaryPage()),
+            ),
+          ),
           PopupMenuButton<String>(
+            tooltip: l10n.nutritionCreate,
             icon: const Icon(Icons.add),
             onSelected: (v) async {
               switch (v) {
@@ -93,11 +107,11 @@ class _MealPlansPageState extends State<MealPlansPage>
                   if (created != null && mounted) setState(() => _planV++);
               }
             },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'food', child: Text('New Food Item')),
-              PopupMenuItem(value: 'recipe', child: Text('New Recipe')),
-              PopupMenuItem(value: 'daily', child: Text('New Daily Plan')),
-              PopupMenuItem(value: 'plan', child: Text('New Meal Plan')),
+            itemBuilder: (_) => [
+              PopupMenuItem(value: 'food', child: Text(l10n.nutritionNewFoodItemTitle)),
+              PopupMenuItem(value: 'recipe', child: Text(l10n.nutritionNewRecipeTitle)),
+              PopupMenuItem(value: 'daily', child: Text(l10n.nutritionNewDailyPlanMenu)),
+              PopupMenuItem(value: 'plan', child: Text(l10n.nutritionNewMealPlanTitle)),
             ],
           ),
         ],
@@ -200,7 +214,21 @@ class _FoodTabState extends State<_FoodTab> with AutomaticKeepAliveClientMixin {
     super.build(context);
     return Column(
       children: [
-        _SearchBar(controller: _search, onSearch: () => _load(reset: true)),
+        Row(
+          children: [
+            Expanded(
+              child: _SearchBar(controller: _search, onSearch: () => _load(reset: true)),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8, top: 4),
+              child: IconButton(
+                tooltip: context.l10n.nutritionScanBarcode,
+                icon: const Icon(Icons.qr_code_scanner),
+                onPressed: _scan,
+              ),
+            ),
+          ],
+        ),
         _TypeFilterRow(
           selected: _typeFilter,
           onChanged: (t) {
@@ -213,6 +241,17 @@ class _FoodTabState extends State<_FoodTab> with AutomaticKeepAliveClientMixin {
     );
   }
 
+  /// Scans a barcode and opens the found (or freshly imported) item.
+  Future<void> _scan() async {
+    final item = await scanFoodItem(context);
+    if (item == null || !mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => FoodItemDetailPage(foodItemId: item.id)),
+    );
+    if (mounted) _load(reset: true);
+  }
+
   Widget _buildList() {
     if (_loading && _items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -221,7 +260,7 @@ class _FoodTabState extends State<_FoodTab> with AutomaticKeepAliveClientMixin {
       return _ErrorRetry(error: _error!, onRetry: () => _load(reset: true));
     }
     if (_items.isEmpty) {
-      return const Center(child: Text('No food items found'));
+      return Center(child: Text(context.l10n.nutritionNoFoodItemsFound));
     }
     return NotificationListener<ScrollNotification>(
       onNotification: (n) {
@@ -350,7 +389,7 @@ class _RecipesTabState extends State<_RecipesTab>
       return _ErrorRetry(error: _error!, onRetry: () => _load(reset: true));
     }
     if (_items.isEmpty) {
-      return const Center(child: Text('No recipes found'));
+      return Center(child: Text(context.l10n.nutritionNoRecipesFound));
     }
     return NotificationListener<ScrollNotification>(
       onNotification: (n) {
@@ -479,7 +518,7 @@ class _DailyPlansTabState extends State<_DailyPlansTab>
       return _ErrorRetry(error: _error!, onRetry: () => _load(reset: true));
     }
     if (_items.isEmpty) {
-      return const Center(child: Text('No daily plans found'));
+      return Center(child: Text(context.l10n.nutritionNoDailyPlansFound));
     }
     return NotificationListener<ScrollNotification>(
       onNotification: (n) {
@@ -613,8 +652,8 @@ class _MealPlansTabState extends State<_MealPlansTab>
     if (_items.isEmpty) {
       return Center(
         child: Text(widget.mine
-            ? 'You haven\'t created any meal plans yet'
-            : 'No meal plans found'),
+            ? context.l10n.nutritionNoOwnMealPlans
+            : context.l10n.nutritionNoMealPlansFound),
       );
     }
     return RefreshIndicator(
@@ -670,7 +709,6 @@ class _AssignedTabState extends State<_AssignedTab>
   final _api = ApiService();
   bool _byMe = false;
   List<MealPlanAssignment> _items = [];
-  Map<String, String> _userNames = {};
   bool _loading = true;
   String? _error;
 
@@ -694,26 +732,16 @@ class _AssignedTabState extends State<_AssignedTab>
       final me = AuthManager.instance.profile;
       if (me == null) throw Exception('Not signed in');
       List<MealPlanAssignment> items;
-      var names = _userNames;
       if (_byMe) {
-        final results = await Future.wait([
-          _api.getMealPlanAssignments(token),
-          _api.getUsers(token),
-        ]);
-        items = (results[0] as List<MealPlanAssignment>)
+        items = (await _api.getMealPlanAssignments(token))
             .where((a) => a.assignedById == me.id && a.userId != me.id)
             .toList();
-        names = {
-          for (final u in results[1] as List<UserProfile>)
-            u.id: u.fullName.isEmpty ? u.username : u.fullName,
-        };
       } else {
         items = await _api.getMealPlanAssignments(token, userId: me.id);
       }
       if (!mounted) return;
       setState(() {
         _items = items;
-        _userNames = names;
         _loading = false;
       });
     } catch (e) {
@@ -729,17 +757,17 @@ class _AssignedTabState extends State<_AssignedTab>
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove assignment?'),
-        content: Text('"${a.planName}" will no longer be assigned.'),
+        title: Text(ctx.l10n.nutritionRemoveAssignmentTitle),
+        content: Text(ctx.l10n.nutritionRemoveAssignmentMessage(a.localizedPlanName(ctx.l10n))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(ctx.l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Remove'),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(ctx).colorScheme.error),
+            child: Text(ctx.l10n.nutritionRemove),
           ),
         ],
       ),
@@ -751,10 +779,11 @@ class _AssignedTabState extends State<_AssignedTab>
       _load();
     } catch (e) {
       if (mounted) {
+        final cs = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceFirst('Exception: ', '')),
-            backgroundColor: Colors.red,
+            content: Text(e.toString().replaceFirst('Exception: ', ''), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
           ),
         );
       }
@@ -771,9 +800,9 @@ class _AssignedTabState extends State<_AssignedTab>
           child: SizedBox(
             width: double.infinity,
             child: SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: false, label: Text('Assigned to me')),
-                ButtonSegment(value: true, label: Text('Assigned by me')),
+              segments: [
+                ButtonSegment(value: false, label: Text(context.l10n.nutritionAssignedToMe)),
+                ButtonSegment(value: true, label: Text(context.l10n.nutritionAssignedByMe)),
               ],
               selected: {_byMe},
               onSelectionChanged: (s) {
@@ -811,9 +840,10 @@ class _AssignedTabState extends State<_AssignedTab>
             Center(
               child: Text(
                 _byMe
-                    ? 'You haven\'t assigned meal plans to anyone'
-                    : 'No meal plans assigned to you yet',
-                style: const TextStyle(color: Colors.grey),
+                    ? context.l10n.nutritionNoAssignmentsByMe
+                    : context.l10n.nutritionNoAssignmentsToMe,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
           ],
@@ -821,6 +851,7 @@ class _AssignedTabState extends State<_AssignedTab>
       );
     }
     final myId = AuthManager.instance.profile?.id;
+    final l10n = context.l10n;
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView.builder(
@@ -830,11 +861,11 @@ class _AssignedTabState extends State<_AssignedTab>
           final a = _items[i];
           final String who;
           if (_byMe) {
-            who = 'For ${_userNames[a.userId] ?? 'member'}';
+            who = l10n.nutritionAssignmentFor(a.userName ?? l10n.nutritionMemberFallback);
           } else if (a.assignedById == null || a.assignedById == myId) {
-            who = 'Self-assigned';
+            who = l10n.nutritionSelfAssigned;
           } else {
-            who = 'Assigned by ${a.assignedByName ?? 'your coach'}';
+            who = l10n.nutritionAssignedBy(a.assignedByName ?? l10n.nutritionYourCoachFallback);
           }
           return AssignmentCard(
             assignment: a,
@@ -875,11 +906,14 @@ class AssignmentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final a = assignment;
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final locale = Localizations.localeOf(context).toString();
     final dates = [
-      if (a.startDate != null) 'Starts ${formatPlanDate(a.startDate!)}',
-      if (a.endDate != null) 'Ends ${formatPlanDate(a.endDate!)}',
+      if (a.startDate != null) l10n.nutritionStartsOn(formatPlanDate(a.startDate!, locale)),
+      if (a.endDate != null) l10n.nutritionEndsOn(formatPlanDate(a.endDate!, locale)),
     ];
-    if (dates.isEmpty) dates.add('Assigned ${formatPlanDate(a.createdAt.toLocal())}');
+    if (dates.isEmpty) dates.add(l10n.nutritionAssignedOn(formatPlanDate(a.createdAt.toLocal(), locale)));
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -889,12 +923,12 @@ class AssignmentCard extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: Colors.teal.withValues(alpha: 0.12),
+            color: cs.tertiaryContainer,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Icon(Icons.restaurant_menu, color: Colors.teal),
+          child: Icon(Icons.restaurant_menu, color: cs.onTertiaryContainer),
         ),
-        title: Text(a.planName,
+        title: Text(a.localizedPlanName(l10n),
             style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(
           '$subtitle\n${dates.join(' · ')}'
@@ -905,8 +939,8 @@ class AssignmentCard extends StatelessWidget {
         trailing: onRemove == null
             ? const Icon(Icons.chevron_right)
             : IconButton(
-                tooltip: 'Remove',
-                icon: const Icon(Icons.close, color: Colors.red),
+                tooltip: l10n.nutritionRemove,
+                icon: Icon(Icons.close, color: cs.error),
                 onPressed: onRemove,
               ),
         onTap: onTap,
@@ -932,18 +966,19 @@ class _MyLibraryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return DefaultTabController(
       length: 4,
       child: Column(
         children: [
-          const TabBar(
+          TabBar(
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             tabs: [
-              Tab(text: 'My Food'),
-              Tab(text: 'My Recipes'),
-              Tab(text: 'My Daily Plans'),
-              Tab(text: 'My Meal Plans'),
+              Tab(text: l10n.nutritionTabMyFood),
+              Tab(text: l10n.nutritionTabMyRecipes),
+              Tab(text: l10n.nutritionTabMyDailyPlans),
+              Tab(text: l10n.nutritionTabMyMealPlans),
             ],
           ),
           Expanded(
@@ -970,20 +1005,12 @@ class FoodItemCard extends StatelessWidget {
 
   const FoodItemCard({super.key, required this.item, required this.onTap});
 
-  Color _typeColor(FoodItemType t) {
-    switch (t) {
-      case FoodItemType.food:
-        return Colors.green;
-      case FoodItemType.drink:
-        return Colors.blue;
-      case FoodItemType.spice:
-        return Colors.orange;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final color = _typeColor(item.type);
+    final colors = foodTypeColors(context, item.type);
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final dec = NumberFormat('0.0', Localizations.localeOf(context).toString());
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -998,10 +1025,10 @@ class FoodItemCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
+                  color: colors.container,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.food_bank_outlined, color: color, size: 22),
+                child: Icon(Icons.food_bank_outlined, color: colors.onContainer, size: 22),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -1018,37 +1045,41 @@ class FoodItemCard extends StatelessWidget {
                           ),
                         ),
                         if (!item.isPublic)
-                          const Icon(Icons.lock_outline,
-                              size: 14, color: Colors.grey),
+                          Icon(Icons.lock_outline,
+                              size: 14, color: cs.onSurfaceVariant, semanticLabel: l10n.nutritionPrivate),
                       ],
                     ),
                     if (item.brand != null) ...[
                       const SizedBox(height: 2),
                       Text(item.brand!,
-                          style: const TextStyle(
-                              fontSize: 12, color: Colors.grey)),
+                          style: TextStyle(
+                              fontSize: 12, color: cs.onSurfaceVariant)),
                     ],
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        _TypeChip(label: item.subtypeLabel, color: color),
+                        _TypeChip(label: item.subtypeLabel(l10n), background: colors.container, foreground: colors.onContainer),
                         const Spacer(),
                         _MacroMini(
-                            label: 'kcal',
+                            label: l10n.nutritionKcal,
+                            semanticsLabel: l10n.nutritionKcal,
                             value: item.kcalPer100.round().toString()),
                         const SizedBox(width: 8),
                         _MacroMini(
-                            label: 'P',
+                            label: l10n.nutritionProteinLetter,
+                            semanticsLabel: l10n.nutritionProtein,
                             value:
-                                '${item.proteinPer100.toStringAsFixed(1)}g'),
+                                '${dec.format(item.proteinPer100)}g'),
                         const SizedBox(width: 8),
                         _MacroMini(
-                            label: 'C',
-                            value: '${item.carbPer100.toStringAsFixed(1)}g'),
+                            label: l10n.nutritionCarbsLetter,
+                            semanticsLabel: l10n.nutritionCarbs,
+                            value: '${dec.format(item.carbPer100)}g'),
                         const SizedBox(width: 8),
                         _MacroMini(
-                            label: 'F',
-                            value: '${item.fatPer100.toStringAsFixed(1)}g'),
+                            label: l10n.nutritionFatLetter,
+                            semanticsLabel: l10n.nutritionFat,
+                            value: '${dec.format(item.fatPer100)}g'),
                       ],
                     ),
                   ],
@@ -1070,6 +1101,9 @@ class RecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final timeLabel = recipe.timeLabel(l10n);
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       clipBehavior: Clip.antiAlias,
@@ -1082,6 +1116,7 @@ class RecipeCard extends StatelessWidget {
             if (recipe.thumbnailUrlOrNull != null)
               Image.network(
                 recipe.thumbnailUrlOrNull!,
+                excludeFromSemantics: true,
                 height: 160,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -1102,8 +1137,8 @@ class RecipeCard extends StatelessWidget {
                         ),
                       ),
                       if (!recipe.isPublic)
-                        const Icon(Icons.lock_outline,
-                            size: 14, color: Colors.grey),
+                        Icon(Icons.lock_outline,
+                            size: 14, color: cs.onSurfaceVariant, semanticLabel: l10n.nutritionPrivate),
                     ],
                   ),
                   if (recipe.description != null &&
@@ -1114,24 +1149,29 @@ class RecipeCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style:
-                          const TextStyle(fontSize: 13, color: Colors.grey),
+                          TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
                     ),
                   ],
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       _TypeChip(
-                          label: '${recipe.servings} serving${recipe.servings == 1 ? '' : 's'}',
-                          color: Colors.purple),
-                      if (recipe.timeLabel.isNotEmpty) ...[
+                          label: l10n.nutritionServingsAmount(recipe.servings, '${recipe.servings}'),
+                          background: cs.secondaryContainer,
+                          foreground: cs.onSecondaryContainer),
+                      if (timeLabel.isNotEmpty) ...[
                         const SizedBox(width: 8),
-                        Text(recipe.timeLabel,
-                            style: const TextStyle(
-                                fontSize: 11, color: Colors.grey)),
+                        Flexible(
+                          child: Text(timeLabel,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 11, color: cs.onSurfaceVariant)),
+                        ),
                       ],
                       const Spacer(),
                       _MacroMini(
-                          label: 'kcal',
+                          label: l10n.nutritionKcal,
+                          semanticsLabel: l10n.nutritionKcalPerServingLabel,
                           value: recipe.kcalPerServing.round().toString()),
                     ],
                   ),
@@ -1154,6 +1194,9 @@ class DailyMealPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final dec = NumberFormat('0.0', Localizations.localeOf(context).toString());
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -1175,8 +1218,8 @@ class DailyMealPlanCard extends StatelessWidget {
                     ),
                   ),
                   if (!plan.isPublic)
-                    const Icon(Icons.lock_outline,
-                        size: 14, color: Colors.grey),
+                    Icon(Icons.lock_outline,
+                        size: 14, color: cs.onSurfaceVariant, semanticLabel: l10n.nutritionPrivate),
                 ],
               ),
               if (plan.description != null &&
@@ -1186,31 +1229,35 @@ class DailyMealPlanCard extends StatelessWidget {
                   plan.description!,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
                 ),
               ],
               const SizedBox(height: 8),
               Row(
                 children: [
                   _MacroMini(
-                      label: 'kcal',
+                      label: l10n.nutritionKcal,
+                      semanticsLabel: l10n.nutritionKcal,
                       value: plan.kcalTotal.round().toString()),
                   const SizedBox(width: 10),
                   _MacroMini(
-                      label: 'P',
-                      value: '${plan.proteinTotal.toStringAsFixed(1)}g'),
+                      label: l10n.nutritionProteinLetter,
+                      semanticsLabel: l10n.nutritionProtein,
+                      value: '${dec.format(plan.proteinTotal)}g'),
                   const SizedBox(width: 10),
                   _MacroMini(
-                      label: 'C',
-                      value: '${plan.carbTotal.toStringAsFixed(1)}g'),
+                      label: l10n.nutritionCarbsLetter,
+                      semanticsLabel: l10n.nutritionCarbs,
+                      value: '${dec.format(plan.carbTotal)}g'),
                   const SizedBox(width: 10),
                   _MacroMini(
-                      label: 'F',
-                      value: '${plan.fatTotal.toStringAsFixed(1)}g'),
+                      label: l10n.nutritionFatLetter,
+                      semanticsLabel: l10n.nutritionFat,
+                      value: '${dec.format(plan.fatTotal)}g'),
                   const Spacer(),
                   Text(
-                    '${plan.displayMealCount} meal${plan.displayMealCount == 1 ? '' : 's'}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    l10n.nutritionMealCount(plan.displayMealCount),
+                    style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -1230,6 +1277,8 @@ class MealPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       clipBehavior: Clip.antiAlias,
@@ -1242,6 +1291,7 @@ class MealPlanCard extends StatelessWidget {
             if (plan.thumbnailUrlOrNull != null)
               Image.network(
                 plan.thumbnailUrlOrNull!,
+                excludeFromSemantics: true,
                 height: 140,
                 width: double.infinity,
                 fit: BoxFit.cover,
@@ -1262,15 +1312,17 @@ class MealPlanCard extends StatelessWidget {
                         ),
                       ),
                       if (!plan.isPublic)
-                        const Icon(Icons.lock_outline,
-                            size: 14, color: Colors.grey),
+                        Icon(Icons.lock_outline,
+                            size: 14, color: cs.onSurfaceVariant, semanticLabel: l10n.nutritionPrivate),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
                       _TypeChip(
-                          label: plan.weeksLabel, color: Colors.teal),
+                          label: plan.weeksLabel(l10n),
+                          background: cs.tertiaryContainer,
+                          foreground: cs.onTertiaryContainer),
                       if (plan.description != null &&
                           plan.description!.isNotEmpty) ...[
                         const SizedBox(width: 8),
@@ -1279,8 +1331,8 @@ class MealPlanCard extends StatelessWidget {
                             plan.description!,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontSize: 13, color: Colors.grey),
+                            style: TextStyle(
+                                fontSize: 13, color: cs.onSurfaceVariant),
                           ),
                         ),
                       ],
@@ -1308,11 +1360,11 @@ class _TypeFilterRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
       child: Row(
         children: [
           _FilterChip(
-            label: 'All',
+            label: context.l10n.nutritionFilterAll,
             selected: selected == null,
             onTap: () => onChanged(null),
           ),
@@ -1320,7 +1372,7 @@ class _TypeFilterRow extends StatelessWidget {
           ...FoodItemType.values.map((t) => Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: _FilterChip(
-                  label: t.displayName,
+                  label: t.label(context.l10n),
                   selected: selected == t,
                   onTap: () => onChanged(selected == t ? null : t),
                 ),
@@ -1342,8 +1394,19 @@ class _FilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      selected: selected,
+      excludeSemantics: true,
+      label: label,
       onTap: onTap,
+      child: GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      // 48 dp tall hit area around the compact chip.
+      child: SizedBox(
+      height: 48,
+      child: Center(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -1360,6 +1423,9 @@ class _FilterChip extends StatelessWidget {
           ),
         ),
       ),
+      ),
+      ),
+      ),
     );
   }
 }
@@ -1368,22 +1434,23 @@ class _FilterChip extends StatelessWidget {
 
 class _TypeChip extends StatelessWidget {
   final String label;
-  final Color color;
+  final Color background;
+  final Color foreground;
 
-  const _TypeChip({required this.label, required this.color});
+  const _TypeChip({required this.label, required this.background, required this.foreground});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: background,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,
         style: TextStyle(
-            fontSize: 11, fontWeight: FontWeight.w600, color: color.withValues(alpha: 0.85)),
+            fontSize: 11, fontWeight: FontWeight.w600, color: foreground),
       ),
     );
   }
@@ -1393,19 +1460,26 @@ class _MacroMini extends StatelessWidget {
   final String label;
   final String value;
 
-  const _MacroMini({required this.label, required this.value});
+  /// Spoken instead of the abbreviated [label] ("Protein" for "P").
+  final String semanticsLabel;
+
+  const _MacroMini({required this.label, required this.value, required this.semanticsLabel});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Semantics(
+      label: '$semanticsLabel $value',
+      excludeSemantics: true,
+      child: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(value,
             style:
                 const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         Text(label,
-            style: const TextStyle(fontSize: 10, color: Colors.grey)),
+            style: TextStyle(fontSize: 10, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ],
+      ),
     );
   }
 }
@@ -1423,10 +1497,11 @@ class _SearchBar extends StatelessWidget {
       child: TextField(
         controller: controller,
         decoration: InputDecoration(
-          hintText: 'Search…',
+          hintText: context.l10n.nutritionSearchHint,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: controller.text.isNotEmpty
               ? IconButton(
+                  tooltip: context.l10n.nutritionClearSearch,
                   icon: const Icon(Icons.clear),
                   onPressed: () {
                     controller.clear();
@@ -1458,10 +1533,10 @@ class _ErrorRetry extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(error,
-              style: const TextStyle(color: Colors.red),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
               textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+          ElevatedButton(onPressed: onRetry, child: Text(context.l10n.commonRetry)),
         ],
       ),
     );

@@ -77,7 +77,7 @@ async function hasRow(
 /** Owner of the gym, or super user. Can manage staff, pricing and the business itself. */
 export async function canManageGym(caller: Caller, gymId: string): Promise<boolean> {
   if (isSuperUser(caller)) return true;
-  return hasRow("gym_owner", caller.id, gymId);
+  return await hasRow("gym_owner", caller.id, gymId);
 }
 
 /** Owner, employee or employee-trainer at the gym. Front-desk work: members, memberships, invoices. */
@@ -164,4 +164,49 @@ export async function coachesUser(caller: Caller, userId: string): Promise<boole
 export function canEditAuthored(caller: Caller, authorId: string | null): boolean {
   if (isSuperUser(caller)) return true;
   return authorId !== null && authorId === caller.id;
+}
+
+/**
+ * True when the caller owns or staffs at least one gym or shop (or is a super
+ * user). Gates user lookup endpoints that expose emails.
+ */
+export async function staffsAnyBusiness(caller: Caller): Promise<boolean> {
+  if (isSuperUser(caller)) return true;
+  for (
+    const table of ["gym_owner", "employee", "employee_trainer", "trainer", "shop_owner", "shop_vendor"] as const
+  ) {
+    const row = await db.selectFrom(table).select("id").where("user_id", "=", caller.id).executeTakeFirst();
+    if (row) return true;
+  }
+  return false;
+}
+
+/**
+ * Drops `email` from user-joined role rows unless the row is the caller's own
+ * or `canSee(caller, businessId)` passes for the row's gym/shop. The check is
+ * memoized per business.
+ */
+export async function redactEmails<T extends { user_id: string; email?: string }>(
+  caller: Caller,
+  rows: T[],
+  businessIdOf: (row: T) => string,
+  canSee: (caller: Caller, businessId: string) => Promise<boolean>,
+): Promise<Array<T | Omit<T, "email">>> {
+  const allowed = new Map<string, boolean>();
+  const out: Array<T | Omit<T, "email">> = [];
+  for (const row of rows) {
+    if (row.user_id === caller.id) {
+      out.push(row);
+      continue;
+    }
+    const businessId = businessIdOf(row);
+    if (!allowed.has(businessId)) allowed.set(businessId, await canSee(caller, businessId));
+    if (allowed.get(businessId)) {
+      out.push(row);
+    } else {
+      const { email: _email, ...rest } = row;
+      out.push(rest);
+    }
+  }
+  return out;
 }

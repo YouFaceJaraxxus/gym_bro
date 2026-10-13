@@ -1,5 +1,5 @@
 import { db, supabaseAdmin } from "../_shared/config.ts";
-import { canManageShop, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
+import { canManageShop, canStaffShop, forbidden, json, jsonError, redactEmails, requireCaller } from "../_shared/auth.ts";
 import type { UserInsert } from "../../types/schema/public.ts";
 import { pgCode, reconcileRoles } from "../_shared/roles.ts";
 
@@ -21,6 +21,7 @@ const SELECT_COLS = [
   "users.last_name",
   "users.username",
   "users.role",
+  "users.avatar_url",
 ] as const;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -156,6 +157,7 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── GET /shop-vendors — optional ?user_id= and/or ?shop_id= filters ──────────
+  // email only for the vendor themself and the shop's owners/vendors.
   if (req.method === "GET" && !id) {
     const userId = url.searchParams.get("user_id");
     const shopId = url.searchParams.get("shop_id");
@@ -165,7 +167,7 @@ Deno.serve(async (req: Request) => {
       .select(SELECT_COLS);
     if (userId) query = query.where("shop_vendor.user_id", "=", userId);
     if (shopId) query = query.where("shop_vendor.shop_id", "=", shopId);
-    return json(await query.execute());
+    return json(await redactEmails(caller, await query.execute(), (r) => r.shop_id, canStaffShop));
   }
 
   // ── GET /shop-vendors/:id ─────────────────────────────────────────────────────
@@ -177,7 +179,7 @@ Deno.serve(async (req: Request) => {
       .where("shop_vendor.id", "=", id)
       .executeTakeFirst();
     if (!row) return jsonError("Vendor not found", 404);
-    return json(row);
+    return json((await redactEmails(caller, [row], (r) => r.shop_id, canStaffShop))[0]);
   }
 
   // ── DELETE /shop-vendors/:id ──────────────────────────────────────────────────

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../services/auth_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/google_sign_in_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -52,8 +54,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Log In')),
+      appBar: AppBar(title: Text(l10n.shellLogIn)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -63,16 +66,21 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               TextFormField(
                 controller: _emailCtrl,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(labelText: l10n.shellAuthEmail),
+                autofillHints: const [AutofillHints.email],
                 keyboardType: TextInputType.emailAddress,
-                validator: (v) => (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+                validator: (v) => (v == null || !v.contains('@'))
+                    ? l10n.shellAuthInvalidEmail
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _passwordCtrl,
-                decoration: const InputDecoration(labelText: 'Password'),
+                decoration: InputDecoration(labelText: l10n.shellAuthPassword),
+                autofillHints: const [AutofillHints.password],
                 obscureText: true,
-                validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? l10n.commonRequired : null,
               ),
               const SizedBox(height: 24),
               if (_error != null)
@@ -80,31 +88,39 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
                     _error!,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                 ),
               FilledButton(
                 onPressed: _loading ? null : _submit,
                 child: _loading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          semanticsLabel: l10n.commonLoading,
+                        ),
                       )
-                    : const Text('Log In'),
+                    : Text(l10n.shellLogIn),
               ),
+              GoogleSignInButton(enabled: !_loading),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/forgot-password'),
-                child: const Text('Forgot password?'),
+                onPressed: () =>
+                    Navigator.pushNamed(context, '/forgot-password'),
+                child: Text(l10n.shellForgotPasswordLink),
               ),
               TextButton(
-                onPressed: () => Navigator.pushReplacementNamed(context, '/signup'),
-                child: const Text("Don't have an account? Sign up"),
+                onPressed: () =>
+                    Navigator.pushReplacementNamed(context, '/signup'),
+                child: Text(l10n.shellNoAccountSignUp),
               ),
               TextButton(
                 onPressed: () => Navigator.pushNamed(context, '/verify-invite'),
-                child: const Text('Have an invite code?'),
+                child: Text(l10n.shellHaveInviteCode),
               ),
             ],
           ),

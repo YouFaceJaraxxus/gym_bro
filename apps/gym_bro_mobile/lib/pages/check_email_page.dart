@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 
 class CheckEmailPage extends StatelessWidget {
   const CheckEmailPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       body: Center(
         child: Padding(
@@ -19,19 +21,20 @@ class CheckEmailPage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'Check your email',
+                l10n.shellCheckEmailTitle,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 12),
               Text(
-                'We sent you a confirmation link. Please verify your email before logging in.',
+                l10n.shellCheckEmailBody,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 32),
               FilledButton(
-                onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-                child: const Text('Go to Login'),
+                onPressed: () =>
+                    Navigator.pushReplacementNamed(context, '/login'),
+                child: Text(l10n.shellGoToLogin),
               ),
             ],
           ),

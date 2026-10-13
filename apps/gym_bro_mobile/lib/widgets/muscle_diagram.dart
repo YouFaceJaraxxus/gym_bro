@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/exercise.dart';
+import '../theme.dart';
 
 /// Renders a front/back body silhouette with highlighted muscle regions.
-/// [primaryMuscles] are shown in red, [secondaryMuscles] in amber.
+/// [primaryMuscles] use the theme's error color, [secondaryMuscles] the
+/// warning color.
 class MuscleDiagram extends StatelessWidget {
   final Set<MuscleGroup> primaryMuscles;
   final Set<MuscleGroup> secondaryMuscles;
@@ -17,50 +21,105 @@ class MuscleDiagram extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final colors = _BodyColors(
+      primary: cs.error,
+      secondary: context.appColors.warning,
+      idle: cs.surfaceContainerHighest,
+      head: cs.surfaceContainerHigh,
+      outline: cs.outline.withValues(alpha: 0.5),
+    );
     final primary = primaryMuscles.map((m) => m.region).toSet();
     final secondary = secondaryMuscles.map((m) => m.region).toSet();
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _BodyView(
-          face: _BodyFace.front,
-          primary: primary,
-          secondary: secondary,
-          size: size,
-        ),
-        SizedBox(width: size * 0.08),
-        _BodyView(
-          face: _BodyFace.back,
-          primary: primary,
-          secondary: secondary,
-          size: size,
-        ),
-      ],
+    final parts = <String>[l10n.trainingMuscleMapLabel];
+    if (primaryMuscles.isNotEmpty) {
+      parts.add(l10n.trainingMuscleMapPrimary(
+          primaryMuscles.map((m) => m.label(l10n)).join(', ')));
+    }
+    if (secondaryMuscles.isNotEmpty) {
+      parts.add(l10n.trainingMuscleMapSecondary(
+          secondaryMuscles.map((m) => m.label(l10n)).join(', ')));
+    }
+    if (primaryMuscles.isEmpty && secondaryMuscles.isEmpty) {
+      parts.add(l10n.trainingMuscleMapNone);
+    }
+
+    return Semantics(
+      container: true,
+      image: true,
+      label: parts.join('. '),
+      excludeSemantics: true,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _BodyView(
+            face: _BodyFace.front,
+            primary: primary,
+            secondary: secondary,
+            colors: colors,
+            size: size,
+          ),
+          SizedBox(width: size * 0.08),
+          _BodyView(
+            face: _BodyFace.back,
+            primary: primary,
+            secondary: secondary,
+            colors: colors,
+            size: size,
+          ),
+        ],
+      ),
     );
   }
 }
 
 enum _BodyFace { front, back }
 
+@immutable
+class _BodyColors {
+  final Color primary;
+  final Color secondary;
+  final Color idle;
+  final Color head;
+  final Color outline;
+
+  const _BodyColors({
+    required this.primary,
+    required this.secondary,
+    required this.idle,
+    required this.head,
+    required this.outline,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      other is _BodyColors &&
+      other.primary == primary &&
+      other.secondary == secondary &&
+      other.idle == idle &&
+      other.head == head &&
+      other.outline == outline;
+
+  @override
+  int get hashCode => Object.hash(primary, secondary, idle, head, outline);
+}
+
 class _BodyView extends StatelessWidget {
   final _BodyFace face;
   final Set<BodyRegion> primary;
   final Set<BodyRegion> secondary;
+  final _BodyColors colors;
   final double size;
 
   const _BodyView({
     required this.face,
     required this.primary,
     required this.secondary,
+    required this.colors,
     required this.size,
   });
-
-  Color _colorFor(BodyRegion region) {
-    if (primary.contains(region)) return const Color(0xFFE53935);
-    if (secondary.contains(region)) return const Color(0xFFFFA000);
-    return const Color(0xFFBDBDBD);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +131,9 @@ class _BodyView extends StatelessWidget {
       child: CustomPaint(
         painter: _BodyPainter(
           face: face,
-          colorFor: _colorFor,
+          primary: primary,
+          secondary: secondary,
+          colors: colors,
         ),
       ),
     );
@@ -81,9 +142,22 @@ class _BodyView extends StatelessWidget {
 
 class _BodyPainter extends CustomPainter {
   final _BodyFace face;
-  final Color Function(BodyRegion) colorFor;
+  final Set<BodyRegion> primary;
+  final Set<BodyRegion> secondary;
+  final _BodyColors colors;
 
-  const _BodyPainter({required this.face, required this.colorFor});
+  const _BodyPainter({
+    required this.face,
+    required this.primary,
+    required this.secondary,
+    required this.colors,
+  });
+
+  Color colorFor(BodyRegion region) {
+    if (primary.contains(region)) return colors.primary;
+    if (secondary.contains(region)) return colors.secondary;
+    return colors.idle;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -100,7 +174,7 @@ class _BodyPainter extends CustomPainter {
       canvas.drawPath(
         path,
         Paint()
-          ..color = Colors.black26
+          ..color = colors.outline
           ..style = PaintingStyle.stroke
           ..strokeWidth = 0.5,
       );
@@ -123,7 +197,7 @@ class _BodyPainter extends CustomPainter {
     canvas.drawOval(
       Rect.fromCenter(center: Offset(w * 0.5, h * 0.05), width: w * 0.28, height: h * 0.08),
       Paint()
-        ..color = const Color(0xFFE0E0E0)
+        ..color = colors.head
         ..style = PaintingStyle.fill,
     );
 
@@ -291,7 +365,7 @@ class _BodyPainter extends CustomPainter {
     canvas.drawOval(
       Rect.fromCenter(center: Offset(w * 0.5, h * 0.05), width: w * 0.28, height: h * 0.08),
       Paint()
-        ..color = const Color(0xFFE0E0E0)
+        ..color = colors.head
         ..style = PaintingStyle.fill,
     );
 
@@ -459,7 +533,10 @@ class _BodyPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_BodyPainter old) =>
-      old.face != face || old.colorFor != colorFor;
+      old.face != face ||
+      old.colors != colors ||
+      !setEquals(old.primary, primary) ||
+      !setEquals(old.secondary, secondary);
 }
 
 /// Compact chip row listing targeted muscles.
@@ -471,14 +548,29 @@ class MuscleChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final app = context.appColors;
     return Wrap(
       spacing: 6,
       runSpacing: 4,
       children: [
         for (final m in primary)
-          _MuscleChip(label: m.displayName, color: const Color(0xFFE53935)),
+          _MuscleChip(
+            label: m.label(l10n),
+            semanticsLabel: l10n.trainingMuscleMapPrimary(m.label(l10n)),
+            background: cs.errorContainer,
+            foreground: cs.onErrorContainer,
+            border: cs.error,
+          ),
         for (final m in secondary)
-          _MuscleChip(label: m.displayName, color: const Color(0xFFFFA000)),
+          _MuscleChip(
+            label: m.label(l10n),
+            semanticsLabel: l10n.trainingMuscleMapSecondary(m.label(l10n)),
+            background: app.warningContainer,
+            foreground: app.onWarningContainer,
+            border: app.warning,
+          ),
       ],
     );
   }
@@ -486,22 +578,32 @@ class MuscleChips extends StatelessWidget {
 
 class _MuscleChip extends StatelessWidget {
   final String label;
-  final Color color;
+  final String semanticsLabel;
+  final Color background;
+  final Color foreground;
+  final Color border;
 
-  const _MuscleChip({required this.label, required this.color});
+  const _MuscleChip({
+    required this.label,
+    required this.semanticsLabel,
+    required this.background,
+    required this.foreground,
+    required this.border,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: background,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.6)),
+        border: Border.all(color: border.withValues(alpha: 0.6)),
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600),
+        semanticsLabel: semanticsLabel,
+        style: TextStyle(fontSize: 11, color: foreground, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -513,16 +615,17 @@ class MuscleDiagramLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _dot(const Color(0xFFE53935)),
+        _dot(Theme.of(context).colorScheme.error),
         const SizedBox(width: 4),
-        const Text('Target', style: TextStyle(fontSize: 11)),
+        Text(l10n.trainingMuscleMapLegendTarget, style: const TextStyle(fontSize: 11)),
         const SizedBox(width: 12),
-        _dot(const Color(0xFFFFA000)),
+        _dot(context.appColors.warning),
         const SizedBox(width: 4),
-        const Text('Secondary', style: TextStyle(fontSize: 11)),
+        Text(l10n.trainingMuscleMapLegendSecondary, style: const TextStyle(fontSize: 11)),
       ],
     );
   }

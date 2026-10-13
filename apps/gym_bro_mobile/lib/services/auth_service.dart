@@ -1,14 +1,9 @@
 import 'dart:convert';
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
+import '../config.dart';
 
-// Web            → dart:io Platform is unavailable, always use localhost
-// Android emulator → host machine is 10.0.2.2
-// iOS simulator   → localhost works fine
-// Physical device → use your machine's LAN IP (e.g. 192.168.x.x)
-final _baseUrl =
-    'http://${!kIsWeb && Platform.isAndroid ? '10.0.2.2' : 'localhost'}:54321/functions/v1/users';
+// Set with --dart-define=API_BASE_URL=... (see lib/config.dart / README.md).
+final _baseUrl = '${AppConfig.apiBaseUrl}/users';
 
 class AuthService {
   final _client = http.Client();
@@ -140,6 +135,27 @@ class AuthService {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       throw Exception(data['error'] ?? 'Password reset failed');
     }
+  }
+
+  /// Exchanges a Google ID token for a session (POST /users/google). Creates
+  /// the profile on first sign-in. Returns a session + profile map like
+  /// [signin].
+  Future<Map<String, dynamic>> signInWithGoogle(String idToken) async {
+    final response = await _client.post(
+      Uri.parse('$_baseUrl/google'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'id_token': idToken}),
+    );
+    Map<String, dynamic> data;
+    try {
+      data = jsonDecode(response.body) as Map<String, dynamic>;
+    } on FormatException {
+      data = {};
+    }
+    if (response.statusCode >= 400) {
+      throw Exception(data['error'] ?? 'Google sign-in failed (${response.statusCode})');
+    }
+    return data;
   }
 
   Future<Map<String, dynamic>> testEndpoint(String accessToken) async {

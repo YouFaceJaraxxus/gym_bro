@@ -1,0 +1,914 @@
+{
+  "nutritionTypeFood": "Food",
+  "nutritionTypeSpice": "Spice",
+  "nutritionTypeDrink": "Drink",
+  "nutritionFoodVegetable": "Vegetable",
+  "nutritionFoodFruit": "Fruit",
+  "nutritionFoodMushroom": "Mushroom",
+  "nutritionFoodHerbFresh": "Fresh Herb",
+  "nutritionFoodBeef": "Beef",
+  "nutritionFoodPork": "Pork",
+  "nutritionFoodLamb": "Lamb",
+  "nutritionFoodGameMeat": "Game Meat",
+  "nutritionFoodPoultry": "Poultry",
+  "nutritionFoodFish": "Fish",
+  "nutritionFoodSeafood": "Seafood",
+  "nutritionFoodEgg": "Egg",
+  "nutritionFoodMilk": "Milk",
+  "nutritionFoodCheese": "Cheese",
+  "nutritionFoodYogurt": "Yogurt",
+  "nutritionFoodCream": "Cream",
+  "nutritionFoodButter": "Butter",
+  "nutritionFoodPlantMilk": "Plant Milk",
+  "nutritionFoodGrainCereal": "Grain / Cereal",
+  "nutritionFoodPastaNoodle": "Pasta / Noodle",
+  "nutritionFoodRice": "Rice",
+  "nutritionFoodBreadBakery": "Bread / Bakery",
+  "nutritionFoodPotatoTuber": "Potato / Tuber",
+  "nutritionFoodCorn": "Corn / Maize",
+  "nutritionFoodBeans": "Beans",
+  "nutritionFoodLentils": "Lentils",
+  "nutritionFoodNuts": "Nuts",
+  "nutritionFoodSeeds": "Seeds",
+  "nutritionFoodOilFat": "Oil / Fat",
+  "nutritionFoodCanned": "Canned Food",
+  "nutritionFoodFrozen": "Frozen Food",
+  "nutritionFoodProcessedMeat": "Processed Meat",
+  "nutritionFoodReadyMeal": "Ready Meal",
+  "nutritionFoodChips": "Chips / Crisps",
+  "nutritionFoodSnackBar": "Snack Bar",
+  "nutritionFoodCerealBar": "Cereal Bar",
+  "nutritionFoodChocolateCandy": "Chocolate / Candy",
+  "nutritionFoodBiscuitCookie": "Biscuit / Cookie",
+  "nutritionFoodSweetener": "Sweetener",
+  "nutritionFoodJamSpread": "Jam / Spread",
+  "nutritionFoodBaking": "Baking",
+  "nutritionFoodSauceCondiment": "Sauce / Condiment",
+  "nutritionFoodDressing": "Dressing",
+  "nutritionFoodBabyFood": "Baby Food",
+  "nutritionFoodSupplementPowder": "Supplement Powder",
+  "nutritionSubtypeOther": "Other",
+  "nutritionDrinkStillWater": "Still Water",
+  "nutritionDrinkSparklingWater": "Sparkling Water",
+  "nutritionDrinkFlavouredWater": "Flavoured Water",
+  "nutritionDrinkFruitJuice": "Fruit Juice",
+  "nutritionDrinkVegetableJuice": "Vegetable Juice",
+  "nutritionDrinkSmoothie": "Smoothie",
+  "nutritionDrinkShake": "Shake",
+  "nutritionDrinkDairyMilk": "Dairy Milk",
+  "nutritionDrinkPlantMilk": "Plant Milk",
+  "nutritionDrinkCoffee": "Coffee",
+  "nutritionDrinkEspresso": "Espresso",
+  "nutritionDrinkBlackTea": "Black Tea",
+  "nutritionDrinkGreenTea": "Green Tea",
+  "nutritionDrinkHerbalTea": "Herbal Tea",
+  "nutritionDrinkSoda": "Soda",
+  "nutritionDrinkEnergy": "Energy Drink",
+  "nutritionDrinkSports": "Sports Drink",
+  "nutritionDrinkIsotonic": "Isotonic",
+  "nutritionDrinkBeer": "Beer",
+  "nutritionDrinkCider": "Cider",
+  "nutritionDrinkWine": "Wine",
+  "nutritionDrinkSpirit": "Spirit",
+  "nutritionDrinkCocktail": "Cocktail",
+  "nutritionDrinkProteinShake": "Protein Shake",
+  "nutritionDrinkMealReplacement": "Meal Replacement",
+  "nutritionDrinkKombucha": "Kombucha",
+  "nutritionDrinkKefir": "Kefir Drink",
+  "nutritionSpiceDriedHerb": "Dried Herb",
+  "nutritionSpiceGround": "Ground Spice",
+  "nutritionSpiceWhole": "Whole Spice",
+  "nutritionSpiceSeed": "Spice Seed",
+  "nutritionSpiceBlend": "Seasoning Blend",
+  "nutritionSpiceRub": "Rub",
+  "nutritionSpiceDryMarinade": "Dry Marinade",
+  "nutritionSpiceSalt": "Salt",
+  "nutritionSpicePepper": "Pepper",
+  "nutritionSpiceExtract": "Extract / Essence",
+  "nutritionSlotBreakfast": "Breakfast",
+  "nutritionSlotMorningSnack": "Morning Snack",
+  "nutritionSlotLunch": "Lunch",
+  "nutritionSlotAfternoonSnack": "Afternoon Snack",
+  "nutritionSlotDinner": "Dinner",
+  "nutritionSlotEveningSnack": "Evening Snack",
+  "nutritionSlotPreWorkout": "Pre-Workout",
+  "nutritionSlotPostWorkout": "Post-Workout",
+  "nutritionPer100Unit": "per 100{unit}",
+  "@nutritionPer100Unit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionRecipePrepTime": "Prep {minutes} min",
+  "@nutritionRecipePrepTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionRecipeCookTime": "Cook {minutes} min",
+  "@nutritionRecipeCookTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionItemFallback": "Item",
+  "nutritionServingsAmount": "{count, plural, =1{{amount} serving} other{{amount} servings}}",
+  "@nutritionServingsAmount": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionUnitServings": "servings",
+  "nutritionWeeksCount": "{count, plural, =1{1 week} other{{count} weeks}}",
+  "@nutritionWeeksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionMealPlanFallback": "Meal plan",
+  "nutritionPcfShort": "P {protein} · C {carbs} · F {fat}",
+  "@nutritionPcfShort": {
+    "placeholders": {
+      "protein": {
+        "type": "int"
+      },
+      "carbs": {
+        "type": "int"
+      },
+      "fat": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionWeekDay": "Week {week} · Day {day}",
+  "@nutritionWeekDay": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionBarcodeNotFound": "No product found for barcode {code}",
+  "@nutritionBarcodeNotFound": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionDeletedUser": "Deleted user",
+  "nutritionJustNow": "Just now",
+  "nutritionMinutesAgo": "{count}m ago",
+  "@nutritionMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionHoursAgo": "{count}h ago",
+  "@nutritionHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionDaysAgo": "{count}d ago",
+  "@nutritionDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionKcal": "kcal",
+  "nutritionOfTargetKcal": "of {target} kcal",
+  "@nutritionOfTargetKcal": {
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionKcalLeft": "{count} left",
+  "@nutritionKcalLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionKcalOver": "{count} over",
+  "@nutritionKcalOver": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionKcalRingSemantics": "Calories: {eaten} of {target} kcal",
+  "@nutritionKcalRingSemantics": {
+    "placeholders": {
+      "eaten": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionKcalEatenSemantics": "Calories eaten: {eaten} kcal",
+  "@nutritionKcalEatenSemantics": {
+    "placeholders": {
+      "eaten": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionLogAction": "Log",
+  "nutritionAmount": "Amount",
+  "nutritionEnterPositiveNumber": "Enter a positive number",
+  "nutritionMeal": "Meal",
+  "nutritionProtein": "Protein",
+  "nutritionCarbs": "Carbs",
+  "nutritionCarbsShort": "Carbs",
+  "nutritionFat": "Fat",
+  "nutritionFiber": "Fiber",
+  "nutritionKcalPer100": "{kcal} kcal {per100}",
+  "@nutritionKcalPer100": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      },
+      "per100": {
+        "type": "String",
+        "example": "per 100g"
+      }
+    }
+  },
+  "nutritionKcalPerServing": "{kcal} kcal per serving",
+  "@nutritionKcalPerServing": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionLoggedItemToSlot": "Logged {name} to {slot}",
+  "@nutritionLoggedItemToSlot": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAddFoodTitle": "Add food",
+  "nutritionScanBarcode": "Scan barcode",
+  "nutritionSearchFoodsAndRecipes": "Search foods and recipes",
+  "nutritionClearSearch": "Clear search",
+  "nutritionFoods": "Foods",
+  "nutritionRecipes": "Recipes",
+  "nutritionNoFoodsFound": "No foods found",
+  "nutritionNoFoodsFoundHint": "Try another search, or scan the product barcode.",
+  "nutritionMine": "Mine",
+  "nutritionNoRecipesFound": "No recipes found",
+  "nutritionTryAnotherSearch": "Try another search term.",
+  "nutritionTorchOff": "Turn torch off",
+  "nutritionTorchOn": "Turn torch on",
+  "nutritionEnterCodeManually": "Enter code manually",
+  "nutritionPointCameraAtBarcode": "Point the camera at the product barcode",
+  "nutritionCameraAccessOff": "Camera access is off",
+  "nutritionCameraUnavailable": "Camera unavailable",
+  "nutritionCameraAccessOffHint": "Allow camera access for Gym Bro in your device settings to scan barcodes, or type the code instead.",
+  "nutritionCameraUnavailableHint": "The camera could not be started. You can type the barcode number instead.",
+  "nutritionEnterBarcode": "Enter barcode",
+  "nutritionBarcodeExample": "e.g. {example}",
+  "@nutritionBarcodeExample": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionLookUp": "Look up",
+  "nutritionLookingUpProduct": "Looking up product…",
+  "nutritionImportedFromOff": "Imported \"{name}\" from Open Food Facts. Check the values before relying on them.",
+  "@nutritionImportedFromOff": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionProductNotFound": "Product not found",
+  "nutritionProductNotFoundMessage": "Nothing is known for barcode {code}. Create the food item yourself?",
+  "@nutritionProductNotFoundMessage": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionCreateItem": "Create item",
+  "nutritionYesterday": "Yesterday",
+  "nutritionTomorrow": "Tomorrow",
+  "nutritionMoveToMeal": "Move to meal",
+  "nutritionEditAmountOrMeal": "Edit amount or meal",
+  "nutritionRemovedItem": "Removed {name}",
+  "@nutritionRemovedItem": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionLogPlannedMealsQuestion": "Log planned meals?",
+  "nutritionLogPlannedAllDuplicateWarning": "Some meals already have entries today. The planned items will be added on top of them.",
+  "nutritionLogPlannedSlotDuplicateWarning": "{slot} already has entries. The planned items will be added on top of them.",
+  "@nutritionLogPlannedSlotDuplicateWarning": {
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionLogAnyway": "Log anyway",
+  "nutritionLoggedPlannedItems": "{count, plural, =1{Logged 1 planned item} other{Logged {count} planned items}}",
+  "@nutritionLoggedPlannedItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionUsersDiary": "{name}'s diary",
+  "@nutritionUsersDiary": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionFoodDiary": "Food diary",
+  "nutritionPickDate": "Pick a date",
+  "nutritionNothingLogged": "Nothing logged",
+  "nutritionNothingLoggedThisDay": "No food was logged on this day.",
+  "nutritionPreviousDay": "Previous day",
+  "nutritionNextDay": "Next day",
+  "nutritionFiberNoTargets": "Fiber {fiber} g · No meal plan targets for this day",
+  "@nutritionFiberNoTargets": {
+    "placeholders": {
+      "fiber": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionFiberWithTargets": "Fiber {fiber} / {target} g · Targets from your meal plan",
+  "@nutritionFiberWithTargets": {
+    "placeholders": {
+      "fiber": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionNothingPlanned": "Nothing planned",
+  "nutritionLogPlannedMeals": "Log planned meals",
+  "nutritionKcalValue": "{kcal} kcal",
+  "@nutritionKcalValue": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionAddToSlot": "Add to {slot}",
+  "@nutritionAddToSlot": {
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionPlannedSummary": "Planned: {items} · {kcal} kcal",
+  "@nutritionPlannedSummary": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      },
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionDeleteFoodItemTitle": "Delete food item?",
+  "nutritionRemovePermanently": "Remove \"{name}\" permanently?",
+  "@nutritionRemovePermanently": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionLogToToday": "Log to today",
+  "nutritionLoggedToSlot": "Logged to {slot}",
+  "@nutritionLoggedToSlot": {
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionLogToDiary": "Log to diary",
+  "nutritionPrivate": "Private",
+  "nutritionCalories": "Calories",
+  "nutritionValuesPer": "Values {per100}",
+  "@nutritionValuesPer": {
+    "placeholders": {
+      "per100": {
+        "type": "String",
+        "example": "per 100g"
+      }
+    }
+  },
+  "nutritionBarcodeValue": "Barcode {code}",
+  "@nutritionBarcodeValue": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionMicronutrients": "Micronutrients",
+  "nutritionEditMicronutrients": "Edit micronutrients",
+  "nutritionNoMicronutrients": "No vitamins or minerals recorded for this item.",
+  "nutritionVitamins": "Vitamins",
+  "nutritionMinerals": "Minerals",
+  "nutritionVitamin": "Vitamin",
+  "nutritionMineral": "Mineral",
+  "nutritionAllVitaminsAdded": "All vitamins are already added",
+  "nutritionAllMineralsAdded": "All minerals are already added",
+  "nutritionAddVitamin": "Add vitamin",
+  "nutritionAddMineral": "Add mineral",
+  "nutritionSubtypeRequiredLabel": "Subtype *",
+  "nutritionRemove": "Remove",
+  "nutritionMicronutrientsOptionalHint": "Optional. Amounts {per100}.",
+  "@nutritionMicronutrientsOptionalHint": {
+    "placeholders": {
+      "per100": {
+        "type": "String",
+        "example": "per 100g"
+      }
+    }
+  },
+  "nutritionNoMicronutrientsAdded": "No vitamins or minerals added",
+  "nutritionNutrientListLoadFailed": "Couldn't load the nutrient list: {error}",
+  "@nutritionNutrientListLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionEditFoodItemTitle": "Edit Food Item",
+  "nutritionNewFoodItemTitle": "New Food Item",
+  "nutritionNameRequiredLabel": "Name *",
+  "nutritionBrandOptional": "Brand (optional)",
+  "nutritionBarcodeOptional": "Barcode (optional)",
+  "nutritionType": "Type",
+  "nutritionServingUnit": "Serving unit",
+  "nutritionMacronutrients": "Macronutrients",
+  "nutritionLabelWithUnit": "{label} ({unit})",
+  "@nutritionLabelWithUnit": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionPublic": "Public",
+  "nutritionVisibleToAllUsers": "Visible to all users",
+  "nutritionEnterValidNumber": "Enter a valid number",
+  "nutritionNutrient": "Nutrient",
+  "nutritionUnit": "Unit",
+  "nutritionAdd": "Add",
+  "nutritionDeleteRecipeTitle": "Delete recipe?",
+  "nutritionPhotoOf": "Photo of {name}",
+  "@nutritionPhotoOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionPerServing": "per serving",
+  "nutritionIngredients": "Ingredients",
+  "nutritionSteps": "Steps",
+  "nutritionStepPhoto": "Photo for step {number}",
+  "@nutritionStepPhoto": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionVideos": "Videos",
+  "nutritionVideoNumber": "Video {number}",
+  "@nutritionVideoNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionAddNamed": "Add {name}",
+  "@nutritionAddNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionQuantity": "Quantity",
+  "nutritionQtyShort": "Qty",
+  "nutritionEditRecipeTitle": "Edit Recipe",
+  "nutritionNewRecipeTitle": "New Recipe",
+  "nutritionBasicInfo": "Basic Info",
+  "nutritionRecipeNameRequiredLabel": "Recipe name *",
+  "nutritionDescription": "Description",
+  "nutritionServingsRequiredLabel": "Servings *",
+  "nutritionPrepMinLabel": "Prep (min)",
+  "nutritionCookMinLabel": "Cook (min)",
+  "nutritionImages": "Images",
+  "nutritionImageUrl": "Image URL",
+  "nutritionUploadPhoto": "Upload photo",
+  "nutritionThumbnail": "Thumbnail",
+  "nutritionSetAsThumbnail": "Set as thumbnail",
+  "nutritionRemoveImage": "Remove image",
+  "nutritionAddImage": "Add image",
+  "nutritionNoIngredientsYet": "No ingredients added yet",
+  "nutritionAddIngredient": "Add ingredient",
+  "nutritionNoStepsYet": "No steps added yet",
+  "nutritionAddStep": "Add step",
+  "nutritionVideoUrl": "Video URL",
+  "nutritionTitleOptional": "Title (optional)",
+  "nutritionRemoveVideo": "Remove video",
+  "nutritionAddVideo": "Add video",
+  "nutritionComputedPerServing": "Computed per serving",
+  "nutritionDragToReorder": "Drag to reorder",
+  "nutritionNoteOptional": "Note (optional)",
+  "nutritionRemoveIngredient": "Remove ingredient",
+  "nutritionStepNumber": "Step {number}",
+  "@nutritionStepNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionInstructionHint": "Instruction…",
+  "nutritionStepImageUrlOptional": "Step image URL (optional)",
+  "nutritionRemoveStep": "Remove step",
+  "nutritionSearchFoodItemsHint": "Search food items…",
+  "nutritionNoResults": "No results",
+  "nutritionDeleteMealPlanTitle": "Delete meal plan?",
+  "nutritionNoMealsYet": "No meals added yet",
+  "nutritionNoEntries": "No entries",
+  "nutritionRecipeFallback": "Recipe",
+  "nutritionAllSlotsAdded": "All meal slots have been added",
+  "nutritionEditDailyPlanTitle": "Edit Meal Plan",
+  "nutritionNewDailyPlanTitle": "New Meal Plan",
+  "nutritionPlanNameRequiredLabel": "Plan name *",
+  "nutritionMealSlots": "Meal Slots",
+  "nutritionAddSlot": "Add Slot",
+  "nutritionTotals": "Totals",
+  "nutritionRemoveSlot": "Remove slot",
+  "nutritionNoEntriesYet": "No entries yet",
+  "nutritionRemoveNamed": "Remove {name}",
+  "@nutritionRemoveNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAddFoodItem": "Add food item",
+  "nutritionAddRecipe": "Add recipe",
+  "nutritionSelectMealSlot": "Select Meal Slot",
+  "nutritionSearchRecipesHint": "Search recipes…",
+  "nutritionServings": "Servings",
+  "nutritionDeleteMealPlanMessage": "Remove \"{name}\" permanently? Any assignments of this plan are removed too.",
+  "@nutritionDeleteMealPlanMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAssign": "Assign",
+  "nutritionSystem": "System",
+  "nutritionYours": "Yours",
+  "nutritionDailyAveragePlannedDays": "{count, plural, =1{Daily average · 1 planned day} other{Daily average · {count} planned days}}",
+  "@nutritionDailyAveragePlannedDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionSchedule": "Schedule",
+  "nutritionWeekNumber": "Week {number}",
+  "@nutritionWeekNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionDaysPlannedOfSeven": "{count} of 7 days planned",
+  "@nutritionDaysPlannedOfSeven": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionRestFree": "Rest / Free",
+  "nutritionPcfGrams": "P {protein}g · C {carbs}g · F {fat}g",
+  "@nutritionPcfGrams": {
+    "placeholders": {
+      "protein": {
+        "type": "int"
+      },
+      "carbs": {
+        "type": "int"
+      },
+      "fat": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionEditMealPlanTitle": "Edit Meal Plan",
+  "nutritionNewMealPlanTitle": "New Meal Plan",
+  "nutritionDuration": "Duration",
+  "nutritionWeeksShort": "{count, plural, =1{1 wk} other{{count} wks}}",
+  "@nutritionWeeksShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionUnassigned": "Unassigned",
+  "nutritionChooseDailyPlanFor": "Choose daily plan for {week}, {day}",
+  "@nutritionChooseDailyPlanFor": {
+    "placeholders": {
+      "week": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionSearchDailyPlansHint": "Search daily plans…",
+  "nutritionClearUnassign": "Clear / Unassign",
+  "nutritionMealPlansTitle": "Meal Plans",
+  "nutritionTabPlans": "Plans",
+  "nutritionTabAssigned": "Assigned",
+  "nutritionTabFood": "Food",
+  "nutritionTabDailyPlans": "Daily Plans",
+  "nutritionTabMyLibrary": "My Library",
+  "nutritionCreate": "Create",
+  "nutritionNewDailyPlanMenu": "New Daily Plan",
+  "nutritionNoFoodItemsFound": "No food items found",
+  "nutritionNoDailyPlansFound": "No daily plans found",
+  "nutritionNoOwnMealPlans": "You haven't created any meal plans yet",
+  "nutritionNoMealPlansFound": "No meal plans found",
+  "nutritionRemoveAssignmentTitle": "Remove assignment?",
+  "nutritionRemoveAssignmentMessage": "\"{name}\" will no longer be assigned.",
+  "@nutritionRemoveAssignmentMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAssignedToMe": "Assigned to me",
+  "nutritionAssignedByMe": "Assigned by me",
+  "nutritionNoAssignmentsByMe": "You haven't assigned meal plans to anyone",
+  "nutritionNoAssignmentsToMe": "No meal plans assigned to you yet",
+  "nutritionAssignmentFor": "For {name}",
+  "@nutritionAssignmentFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionMemberFallback": "member",
+  "nutritionSelfAssigned": "Self-assigned",
+  "nutritionAssignedBy": "Assigned by {name}",
+  "@nutritionAssignedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionYourCoachFallback": "your coach",
+  "nutritionStartsOn": "Starts {date}",
+  "@nutritionStartsOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionEndsOn": "Ends {date}",
+  "@nutritionEndsOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAssignedOn": "Assigned {date}",
+  "@nutritionAssignedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionTabMyFood": "My Food",
+  "nutritionTabMyRecipes": "My Recipes",
+  "nutritionTabMyDailyPlans": "My Daily Plans",
+  "nutritionTabMyMealPlans": "My Meal Plans",
+  "nutritionProteinLetter": "P",
+  "nutritionCarbsLetter": "C",
+  "nutritionFatLetter": "F",
+  "nutritionKcalPerServingLabel": "kcal per serving",
+  "nutritionMealCount": "{count, plural, =1{1 meal} other{{count} meals}}",
+  "@nutritionMealCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionFilterAll": "All",
+  "nutritionSearchHint": "Search…",
+  "nutritionPlanAssignedToSelf": "\"{plan}\" assigned to you",
+  "@nutritionPlanAssignedToSelf": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionPlanAssignedTo": "\"{plan}\" assigned to {name}",
+  "@nutritionPlanAssignedTo": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionNoMembersToCoach": "No members to coach. Members of gyms where you work or train appear here.",
+  "nutritionNoMembersMatch": "No members match your search",
+  "nutritionAssignTo": "Assign to",
+  "nutritionMyself": "Myself",
+  "nutritionSearchMembersHint": "Search members…",
+  "nutritionAssignMealPlanTitle": "Assign meal plan",
+  "nutritionAssignPlanToSelfQuestion": "Assign \"{plan}\" to you?",
+  "@nutritionAssignPlanToSelfQuestion": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionAssignPlanToQuestion": "Assign \"{plan}\" to {name}?",
+  "@nutritionAssignPlanToQuestion": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionStartDateOptional": "Start date (optional)",
+  "nutritionClearStartDate": "Clear start date",
+  "nutritionSearchMealPlansHint": "Search meal plans…",
+  "nutritionDeletePostTitle": "Delete post?",
+  "nutritionCommunityTitle": "{business} · Community",
+  "@nutritionCommunityTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "nutritionNewPost": "New Post",
+  "nutritionNoPostsYet": "No posts yet",
+  "nutritionPostPhoto": "Post photo",
+  "nutritionPostPhotoOf": "Photo {index} of {count}",
+  "@nutritionPostPhotoOf": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionPhotoCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "@nutritionPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionEditPost": "Edit post",
+  "nutritionDeletePost": "Delete post",
+  "nutritionEdited": "Edited",
+  "nutritionEditedLower": "edited",
+  "nutritionUnlike": "Unlike",
+  "nutritionLike": "Like",
+  "nutritionLikeCount": "{count, plural, =0{No likes} =1{1 like} other{{count} likes}}",
+  "@nutritionLikeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionComments": "Comments",
+  "nutritionComment": "Comment",
+  "nutritionCommentCount": "{count, plural, =1{1 comment} other{{count} comments}}",
+  "@nutritionCommentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionDeleteCommentTitle": "Delete comment?",
+  "nutritionCannotBeUndone": "This cannot be undone.",
+  "nutritionCommentsWithCount": "Comments ({count})",
+  "@nutritionCommentsWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nutritionNoCommentsYet": "No comments yet",
+  "nutritionStartConversation": "Start the conversation below.",
+  "nutritionLoadMore": "Load more",
+  "nutritionCommentOptions": "Comment options",
+  "nutritionEditingComment": "Editing comment",
+  "nutritionCancelEditing": "Cancel editing",
+  "nutritionWriteCommentHint": "Write a comment…",
+  "nutritionSaveComment": "Save comment",
+  "nutritionSendComment": "Send comment",
+  "nutritionWriteSomethingFirst": "Write something first",
+  "nutritionEditPostTitle": "Edit Post",
+  "nutritionRemovePhoto": "Remove photo",
+  "nutritionAddPhoto": "Add photo",
+  "nutritionShareHint": "What do you want to share?",
+  "nutritionPostAction": "Post"
+}

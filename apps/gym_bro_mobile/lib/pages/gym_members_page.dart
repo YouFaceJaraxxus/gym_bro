@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -37,24 +38,14 @@ class _GymMembersPageState extends State<GymMembersPage> {
     });
     try {
       final token = await AuthManager.instance.getValidToken();
-      final results = await Future.wait([
-        _api.getMembers(token, gymId: widget.gymId),
-        _api.getUsers(token),
-      ]);
-      final memberRows = results[0] as List<Map<String, dynamic>>;
-      final allUsers = results[1] as List<UserProfile>;
-      final userMap = {for (final u in allUsers) u.id: u};
+      final memberRows = await _api.getMembers(token, gymId: widget.gymId);
 
       if (mounted) {
         setState(() {
-          _members = memberRows
-              .map((r) {
-                final u = userMap[r['user_id'] as String];
-                if (u == null) return null;
-                return (memberId: r['id'] as String, user: u);
-              })
-              .whereType<({String memberId, UserProfile user})>()
-              .toList();
+          _members = [
+            for (final r in memberRows)
+              (memberId: r['id'] as String, user: UserProfile.fromRoleRow(r)),
+          ];
           _loading = false;
         });
       }
@@ -74,7 +65,7 @@ class _GymMembersPageState extends State<GymMembersPage> {
       await _api.resendInvite(token, entry.user.email);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invite resent')),
+          SnackBar(content: Text(context.l10n.businessGymInviteResent)),
         );
       }
     } catch (e) {
@@ -88,18 +79,19 @@ class _GymMembersPageState extends State<GymMembersPage> {
   }
 
   Future<void> _removeMember(String memberId) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Remove member?'),
-        content: const Text('This will remove the member from this gym.'),
+        title: Text(l10n.businessGymRemoveMemberTitle),
+        content: Text(l10n.businessGymRemoveMemberMessage),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+              child: Text(l10n.commonCancel)),
           FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Remove')),
+              child: Text(l10n.businessGymRemove)),
         ],
       ),
     );
@@ -135,6 +127,7 @@ class _GymMembersPageState extends State<GymMembersPage> {
   }
 
   void _showAddOptions() {
+    final l10n = context.l10n;
     showModalBottomSheet(
       context: context,
       builder: (_) => SafeArea(
@@ -143,8 +136,8 @@ class _GymMembersPageState extends State<GymMembersPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.search),
-              title: const Text('Add existing user'),
-              subtitle: const Text('Search users already in the system'),
+              title: Text(l10n.businessGymAddExistingUser),
+              subtitle: Text(l10n.businessGymAddExistingUserHint),
               onTap: () async {
                 Navigator.pop(context);
                 final added = await Navigator.push<bool>(
@@ -158,8 +151,8 @@ class _GymMembersPageState extends State<GymMembersPage> {
             ),
             ListTile(
               leading: const Icon(Icons.mark_email_unread_outlined),
-              title: const Text('Invite new member'),
-              subtitle: const Text('Send an invite link by email'),
+              title: Text(l10n.businessGymInviteNewMember),
+              subtitle: Text(l10n.businessGymInviteNewMemberHint),
               onTap: () async {
                 Navigator.pop(context);
                 final added = await Navigator.push<bool>(
@@ -182,7 +175,8 @@ class _GymMembersPageState extends State<GymMembersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.gymName} — Members')),
+      appBar: AppBar(
+          title: Text(context.l10n.businessGymMembersTitle(widget.gymName))),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -191,7 +185,7 @@ class _GymMembersPageState extends State<GymMembersPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddOptions,
         icon: const Icon(Icons.person_add_outlined),
-        label: const Text('Add Member'),
+        label: Text(context.l10n.businessGymAddMember),
       ),
     );
   }
@@ -206,13 +200,15 @@ class _GymMembersPageState extends State<GymMembersPage> {
           const SizedBox(height: 16),
           Text(_error!),
           const SizedBox(height: 16),
-          FilledButton(onPressed: _load, child: const Text('Retry')),
+          FilledButton(
+              onPressed: _load, child: Text(context.l10n.commonRetry)),
         ],
       ),
     );
   }
 
   Widget _buildList() {
+    final l10n = context.l10n;
     if (_members.isEmpty) {
       return RefreshIndicator(
         onRefresh: _load,
@@ -230,7 +226,7 @@ class _GymMembersPageState extends State<GymMembersPage> {
                           size: 48,
                           color: Theme.of(context).colorScheme.outline),
                       const SizedBox(height: 16),
-                      const Text('No members yet'),
+                      Text(context.l10n.businessGymNoMembersYet),
                     ],
                   ),
                 ),
@@ -262,6 +258,7 @@ class _GymMembersPageState extends State<GymMembersPage> {
               subtitle: Text(entry.user.email),
               trailing: PopupMenuButton<_MemberAction>(
                 icon: const Icon(Icons.more_vert),
+                tooltip: l10n.businessGymMemberActions,
                 onSelected: (action) {
                   switch (action) {
                     case _MemberAction.edit:
@@ -272,28 +269,28 @@ class _GymMembersPageState extends State<GymMembersPage> {
                       _removeMember(entry.memberId);
                   }
                 },
-                itemBuilder: (_) => const [
+                itemBuilder: (_) => [
                   PopupMenuItem(
                     value: _MemberAction.edit,
                     child: ListTile(
-                      leading: Icon(Icons.edit_outlined),
-                      title: Text('Edit Member'),
+                      leading: const Icon(Icons.edit_outlined),
+                      title: Text(l10n.businessGymEditMember),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                   PopupMenuItem(
                     value: _MemberAction.resendInvite,
                     child: ListTile(
-                      leading: Icon(Icons.mark_email_unread_outlined),
-                      title: Text('Resend Invite'),
+                      leading: const Icon(Icons.mark_email_unread_outlined),
+                      title: Text(l10n.businessGymResendInvite),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                   PopupMenuItem(
                     value: _MemberAction.remove,
                     child: ListTile(
-                      leading: Icon(Icons.person_remove_outlined),
-                      title: Text('Remove'),
+                      leading: const Icon(Icons.person_remove_outlined),
+                      title: Text(l10n.businessGymRemove),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),

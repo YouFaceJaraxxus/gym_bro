@@ -9,6 +9,18 @@ function parseId(pathname: string): string | null {
   return match ? match[1] : null;
 }
 
+// ── Columns returned alongside trainer rows (user display fields) ──────────
+
+const SELECT_COLS = [
+  "trainer.id",
+  "trainer.user_id",
+  "trainer.gym_id",
+  "users.name",
+  "users.last_name",
+  "users.username",
+  "users.avatar_url",
+] as const;
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -54,15 +66,23 @@ Deno.serve(async (req: Request) => {
   if (req.method === "GET" && !id) {
     const userId = url.searchParams.get("user_id");
     const gymId = url.searchParams.get("gym_id");
-    let query = db.selectFrom("trainer").selectAll();
-    if (userId) query = query.where("user_id", "=", userId);
-    if (gymId) query = query.where("gym_id", "=", gymId);
+    let query = db
+      .selectFrom("trainer")
+      .innerJoin("users", "users.id", "trainer.user_id")
+      .select(SELECT_COLS);
+    if (userId) query = query.where("trainer.user_id", "=", userId);
+    if (gymId) query = query.where("trainer.gym_id", "=", gymId);
     return json(await query.execute());
   }
 
   // ── GET /trainers/:id ─────────────────────────────────────────────────────────
   if (req.method === "GET" && id) {
-    const row = await db.selectFrom("trainer").selectAll().where("id", "=", id).executeTakeFirst();
+    const row = await db
+      .selectFrom("trainer")
+      .innerJoin("users", "users.id", "trainer.user_id")
+      .select(SELECT_COLS)
+      .where("trainer.id", "=", id)
+      .executeTakeFirst();
     if (!row) return jsonError("Trainer not found", 404);
     return json(row);
   }

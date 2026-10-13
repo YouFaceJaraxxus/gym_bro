@@ -1,0 +1,23 @@
+{
+  "appTitle": "Gym Bro",
+  "commonOk": "OK",
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonDelete": "Delete",
+  "commonEdit": "Edit",
+  "commonRetry": "Retry",
+  "commonClose": "Close",
+  "commonConfirm": "Confirm",
+  "commonBack": "Back",
+  "commonSearch": "Search",
+  "commonLoading": "Loading…",
+  "commonSomethingWentWrong": "Something went wrong",
+  "commonRequired": "Required",
+  "commonYes": "Yes",
+  "commonNo": "No",
+  "commonToday": "Today",
+  "settingsLanguage": "Language",
+  "settingsLanguageSystem": "System default",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageSerbian": "Srpski"
+}

@@ -9,6 +9,8 @@ import {
   jsonError,
   requireCaller,
 } from "../_shared/auth.ts";
+import { notify } from "../_shared/notify.ts";
+import { userDropRows } from "../_shared/progress.ts";
 import type {
   BodySide,
   Database,
@@ -23,6 +25,16 @@ const SESSION_COLS = [
   "id", "user_id", "trainer_id", "training_id",
   "started_at", "ended_at", "notes", "created_at", "updated_at",
 ] as const;
+
+/** Number of comments on the session; select alongside SESSION_COLS. */
+const COMMENT_COUNT = sql<number>`(
+  SELECT COUNT(*)::int FROM session_comment sc WHERE sc.session_id = training_session.id
+)`.as("comment_count");
+
+/** The trainer's display name ("Elena Vasquez"); null when there's no trainer. */
+const TRAINER_NAME = sql<string | null>`(
+  SELECT NULLIF(TRIM(u.name || ' ' || u.last_name), '') FROM users u WHERE u.id = training_session.trainer_id
+)`.as("trainer_name");
 
 const SET_LOG_COLS = [
   "id", "session_id", "training_set_id", "exercise_id", "position", "note",
@@ -69,18 +81,23 @@ function toDropInserts(setLogId: string, drops: DropPayload[]): SessionDropLogIn
 // /training-sessions/:id                    → { id, action: null }
 // /training-sessions/:id/sets               → { id, action: 'sets' }
 // /training-sessions/:id/end                → { id, action: 'end' }
+// /training-sessions/:id/comments           → { id, action: 'comments' }
+// /training-sessions/comments/:commentId    → { id: commentId, action: 'comment' }
 
-type Action = "set_log" | "drops" | "sets" | "end" | null;
+type Action = "set_log" | "drops" | "sets" | "end" | "comments" | "comment" | null;
 
 function parsePath(pathname: string): { id: string | null; action: Action } {
+  const comment = pathname.match(/^\/training-sessions\/comments\/([^/]+)$/);
+  if (comment) return { id: comment[1], action: "comment" };
+
   const setLog = pathname.match(/^\/training-sessions\/sets\/([^/]+)$/);
   if (setLog) return { id: setLog[1], action: "set_log" };
 
   const setsDrops = pathname.match(/^\/training-sessions\/sets\/([^/]+)\/drops$/);
   if (setsDrops) return { id: setsDrops[1], action: "drops" };
 
-  const withAction = pathname.match(/^\/training-sessions\/([^/]+)\/(sets|end)$/);
-  if (withAction) return { id: withAction[1], action: withAction[2] as "sets" | "end" };
+  const withAction = pathname.match(/^\/training-sessions\/([^/]+)\/(sets|end|comments)$/);
+  if (withAction) return { id: withAction[1], action: withAction[2] as "sets" | "end" | "comments" };
 
   const withId = pathname.match(/^\/training-sessions\/([^/]+)$/);
   if (withId) return { id: withId[1], action: null };
@@ -134,7 +151,7 @@ async function fetchSetLogWithDrops(setLogId: string, executor: Kysely<Database>
 async function fetchSessionDetail(sessionId: string) {
   const session = await db
     .selectFrom("training_session")
-    .select(SESSION_COLS)
+    .select([...SESSION_COLS, COMMENT_COUNT, TRAINER_NAME])
     .where("id", "=", sessionId)
     .executeTakeFirst();
 
@@ -174,6 +191,78 @@ async function fetchSessionDetail(sessionId: string) {
   };
 }
 
+// ── Personal records ──────────────────────────────────────────────────────────
+
+type PrHit = { exercise_id: string; e1rm: number; previous_e1rm: number };
+
+/**
+ * Compares the just-logged set's best e1RM per exercise with the user's best
+ * from every other logged set. A first-ever log of an exercise is not a PR.
+ * Returns { is_pr, pr_e1rm, pr_exercise_id, previous_e1rm, prs[] }.
+ */
+async function detectPrs(userId: string, setLogId: string) {
+  const res = await sql<PrHit>`
+    WITH d AS (${userDropRows(userId)}),
+    cur AS (
+      SELECT exercise_id, MAX(e1rm) AS e1rm
+        FROM d
+       WHERE set_log_id = ${setLogId} AND exercise_id IS NOT NULL AND e1rm IS NOT NULL
+       GROUP BY exercise_id
+    ),
+    prev AS (
+      SELECT d.exercise_id, MAX(d.e1rm) AS e1rm
+        FROM d JOIN cur ON cur.exercise_id = d.exercise_id
+       WHERE d.set_log_id <> ${setLogId}
+       GROUP BY d.exercise_id
+    )
+    SELECT cur.exercise_id,
+           ROUND(cur.e1rm, 2)::float8  AS e1rm,
+           ROUND(prev.e1rm, 2)::float8 AS previous_e1rm
+      FROM cur JOIN prev ON prev.exercise_id = cur.exercise_id
+     WHERE cur.e1rm > prev.e1rm
+     ORDER BY cur.e1rm DESC
+  `.execute(db);
+  const top = res.rows[0];
+  return {
+    is_pr: !!top,
+    pr_e1rm: top?.e1rm ?? null,
+    pr_exercise_id: top?.exercise_id ?? null,
+    previous_e1rm: top?.previous_e1rm ?? null,
+    prs: res.rows,
+  };
+}
+
+// ── Comments ──────────────────────────────────────────────────────────────────
+// Row: { id, session_id, author_id, author_name, author_avatar_url, body,
+//        created_at, updated_at }
+
+async function fetchComments(where: { sessionId?: string; commentId?: string }) {
+  let query = db
+    .selectFrom("session_comment")
+    .leftJoin("users", "users.id", "session_comment.author_id")
+    .select([
+      "session_comment.id",
+      "session_comment.session_id",
+      "session_comment.author_id",
+      sql<string | null>`NULLIF(TRIM(COALESCE(users.name, '') || ' ' || COALESCE(users.last_name, '')), '')`
+        .as("author_name"),
+      "users.avatar_url as author_avatar_url",
+      "session_comment.body",
+      "session_comment.created_at",
+      "session_comment.updated_at",
+    ]);
+  if (where.sessionId) query = query.where("session_comment.session_id", "=", where.sessionId);
+  if (where.commentId) query = query.where("session_comment.id", "=", where.commentId);
+  return await query.orderBy("session_comment.created_at", "asc").execute();
+}
+
+function readCommentBody(body: unknown): string | null {
+  const text = (body as { body?: unknown } | null)?.body;
+  if (typeof text !== "string") return null;
+  const trimmed = text.trim();
+  return trimmed && trimmed.length <= 4000 ? trimmed : null;
+}
+
 // ── Postgres error mapping ────────────────────────────────────────────────────
 
 function pgErrorResponse(e: unknown): Response {
@@ -209,7 +298,7 @@ async function handler(req: Request): Promise<Response> {
     const page = parseInt(url.searchParams.get("page") ?? "0");
     const pageSize = Math.min(parseInt(url.searchParams.get("page_size") ?? "20"), 100);
 
-    let query = db.selectFrom("training_session").select(SESSION_COLS);
+    let query = db.selectFrom("training_session").select([...SESSION_COLS, COMMENT_COUNT, TRAINER_NAME]);
 
     if (trainerId) {
       // "Classes I'm running" view — only the trainer themself or super_user may read it.
@@ -271,7 +360,7 @@ async function handler(req: Request): Promise<Response> {
       .returning(SESSION_COLS)
       .executeTakeFirstOrThrow();
 
-    return json(session, 201);
+    return json({ ...session, comment_count: 0 }, 201);
   }
 
   // ── PUT /training-sessions/:id — update session (end time, notes) ─────────────
@@ -295,7 +384,7 @@ async function handler(req: Request): Promise<Response> {
       .updateTable("training_session")
       .set(update)
       .where("id", "=", id)
-      .returning(SESSION_COLS)
+      .returning([...SESSION_COLS, COMMENT_COUNT, TRAINER_NAME])
       .executeTakeFirst();
 
     return json(updated);
@@ -357,7 +446,7 @@ async function handler(req: Request): Promise<Response> {
       return await fetchSetLogWithDrops(setLog.id, trx);
     });
 
-    return json(result, 201);
+    return json({ ...result, ...(await detectPrs(session.user_id, result.id)) }, 201);
   }
 
   // ── PUT /training-sessions/sets/:setLogId — edit a logged set ─────────────────
@@ -431,6 +520,106 @@ async function handler(req: Request): Promise<Response> {
       .execute();
 
     return json(inserted, 201);
+  }
+
+  // ── GET /training-sessions/:id/comments ──────────────────────────────────────
+  if (req.method === "GET" && id && action === "comments") {
+    const session = await db
+      .selectFrom("training_session")
+      .select(["id", "user_id", "trainer_id"])
+      .where("id", "=", id)
+      .executeTakeFirst();
+    if (!session) return jsonError("Session not found", 404);
+    if (!(await canReadSession(caller, session))) return forbidden();
+    return json(await fetchComments({ sessionId: id }));
+  }
+
+  // ── POST /training-sessions/:id/comments — owner, trainer or coach ───────────
+  // Notifies the owner when someone else comments, and earlier non-owner
+  // commenters when the owner replies.
+  if (req.method === "POST" && id && action === "comments") {
+    const session = await db
+      .selectFrom("training_session")
+      .select(["id", "user_id", "trainer_id"])
+      .where("id", "=", id)
+      .executeTakeFirst();
+    if (!session) return jsonError("Session not found", 404);
+    if (!(await canReadSession(caller, session))) return forbidden();
+
+    const text = readCommentBody(await req.json().catch(() => null));
+    if (!text) return jsonError("body is required (max 4000 characters)", 400);
+
+    const inserted = await db
+      .insertInto("session_comment")
+      .values({ session_id: id, author_id: caller.id, body: text })
+      .returning(["id"])
+      .executeTakeFirstOrThrow();
+
+    const author = `${caller.name ?? ""} ${caller.last_name ?? ""}`.trim() || "Someone";
+    const preview = text.length > 120 ? `${text.slice(0, 117)}…` : text;
+    const metadata = { session_id: id, comment_id: inserted.id };
+    if (caller.id !== session.user_id) {
+      await notify([session.user_id], {
+        type: "session_comment",
+        title: `${author} commented on your session`,
+        body: preview,
+        metadata,
+      });
+    } else {
+      const previous = await db
+        .selectFrom("session_comment")
+        .select("author_id")
+        .distinct()
+        .where("session_id", "=", id)
+        .where("author_id", "is not", null)
+        .where("author_id", "<>", session.user_id)
+        .execute();
+      await notify(previous.map((r) => r.author_id!), {
+        type: "session_comment",
+        title: `${author} replied on their session`,
+        body: preview,
+        metadata,
+      });
+    }
+
+    const [comment] = await fetchComments({ commentId: inserted.id });
+    return json(comment, 201);
+  }
+
+  // ── PUT /training-sessions/comments/:commentId — author or super ─────────────
+  if (req.method === "PUT" && id && action === "comment") {
+    const existing = await db
+      .selectFrom("session_comment")
+      .select(["author_id"])
+      .where("id", "=", id)
+      .executeTakeFirst();
+    if (!existing) return jsonError("Comment not found", 404);
+    if (existing.author_id !== caller.id && !isSuperUser(caller)) return forbidden();
+
+    const text = readCommentBody(await req.json().catch(() => null));
+    if (!text) return jsonError("body is required (max 4000 characters)", 400);
+
+    await db
+      .updateTable("session_comment")
+      .set({ body: text, updated_at: sql<string>`now()` })
+      .where("id", "=", id)
+      .execute();
+    const [comment] = await fetchComments({ commentId: id });
+    return json(comment);
+  }
+
+  // ── DELETE /training-sessions/comments/:commentId — author or super ──────────
+  if (req.method === "DELETE" && id && action === "comment") {
+    const existing = await db
+      .selectFrom("session_comment")
+      .select(["author_id"])
+      .where("id", "=", id)
+      .executeTakeFirst();
+    if (!existing) return jsonError("Comment not found", 404);
+    if (existing.author_id !== caller.id && !isSuperUser(caller)) return forbidden();
+
+    await db.deleteFrom("session_comment").where("id", "=", id).execute();
+    return new Response(null, { status: 204 });
   }
 
   // ── DELETE /training-sessions/:id ────────────────────────────────────────────

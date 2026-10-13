@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../models/business.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
@@ -54,8 +55,7 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
   Future<void> _openEditForm(Business business) async {
     final saved = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-          builder: (_) => BusinessFormPage(business: business)),
+      MaterialPageRoute(builder: (_) => BusinessFormPage(business: business)),
     );
     if (saved == true) _load();
   }
@@ -73,15 +73,15 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
       await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_) =>
-                GymDetailPage(gymId: b.id, gymName: b.name)),
+          builder: (_) => GymDetailPage(gymId: b.id, gymName: b.name),
+        ),
       );
     } else {
       await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (_) =>
-                ShopDetailPage(shopId: b.id, shopName: b.name)),
+          builder: (_) => ShopDetailPage(shopId: b.id, shopName: b.name),
+        ),
       );
     }
     _load();
@@ -96,12 +96,18 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline,
-                size: 48, color: Theme.of(context).colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(_error!),
             const SizedBox(height: 16),
-            FilledButton(onPressed: _load, child: const Text('Retry')),
+            FilledButton(
+              onPressed: _load,
+              child: Text(context.l10n.commonRetry),
+            ),
           ],
         ),
       );
@@ -117,7 +123,11 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.only(
-                left: 16, right: 16, top: 16, bottom: 88),
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: 88,
+            ),
             children: [
               // ── Quick-access row ──────────────────────────────────────
               Row(
@@ -125,12 +135,12 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
                   Expanded(
                     child: _QuickAccessCard(
                       icon: Icons.people_outline,
-                      label: 'Members',
+                      label: context.l10n.shellTabMembers,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) =>
-                                const OwnerAllMembersPage()),
+                          builder: (_) => const OwnerAllMembersPage(),
+                        ),
                       ),
                     ),
                   ),
@@ -138,12 +148,12 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
                   Expanded(
                     child: _QuickAccessCard(
                       icon: Icons.badge_outlined,
-                      label: 'Staff',
+                      label: context.l10n.shellStatsStaff,
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) =>
-                                const OwnerAllStaffPage()),
+                          builder: (_) => const OwnerAllStaffPage(),
+                        ),
                       ),
                     ),
                   ),
@@ -159,12 +169,13 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.business_outlined,
-                            size: 48,
-                            color:
-                                Theme.of(context).colorScheme.outline),
+                        Icon(
+                          Icons.business_outlined,
+                          size: 48,
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                         const SizedBox(height: 16),
-                        const Text('No businesses yet'),
+                        Text(context.l10n.shellNoBusinesses),
                       ],
                     ),
                   ),
@@ -172,7 +183,9 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
               else ...[
                 if (gyms.isNotEmpty) ...[
                   _SectionHeader(
-                      icon: Icons.fitness_center, label: 'Gyms'),
+                    icon: Icons.fitness_center,
+                    label: context.l10n.shellGyms,
+                  ),
                   for (final b in gyms)
                     _BusinessTile(
                       business: b,
@@ -183,7 +196,9 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
                 ],
                 if (shops.isNotEmpty) ...[
                   _SectionHeader(
-                      icon: Icons.store_outlined, label: 'Shops'),
+                    icon: Icons.store_outlined,
+                    label: context.l10n.shellShops,
+                  ),
                   for (final b in shops)
                     _BusinessTile(
                       business: b,
@@ -201,7 +216,7 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
           child: FloatingActionButton.extended(
             onPressed: _openCreateForm,
             icon: const Icon(Icons.add),
-            label: const Text('Add Business'),
+            label: Text(context.l10n.shellAddBusiness),
           ),
         ),
       ],
@@ -222,13 +237,13 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Icon(icon,
-              size: 18, color: Theme.of(context).colorScheme.primary),
+          Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 8),
           Text(
             label,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: Theme.of(context).colorScheme.primary),
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
         ],
       ),
@@ -250,25 +265,30 @@ class _QuickAccessCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Card(
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: cs.primary),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                    fontWeight: FontWeight.w600, color: cs.primary),
-              ),
-            ],
+    return Semantics(
+      button: true,
+      child: Card(
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: cs.primary),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: cs.primary,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -277,10 +297,11 @@ class _QuickAccessCard extends StatelessWidget {
 }
 
 class _BusinessTile extends StatelessWidget {
-  const _BusinessTile(
-      {required this.business,
-      required this.onTap,
-      required this.onEdit});
+  const _BusinessTile({
+    required this.business,
+    required this.onTap,
+    required this.onEdit,
+  });
 
   final Business business;
   final VoidCallback onTap;
@@ -299,38 +320,46 @@ class _BusinessTile extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              business.logo != null
-                  ? CircleAvatar(backgroundImage: NetworkImage(business.logo!))
-                  : CircleAvatar(
-                      backgroundColor:
-                          isGym ? cs.primaryContainer : cs.secondaryContainer,
-                      child: Icon(
-                        isGym ? Icons.fitness_center : Icons.store,
-                        color: isGym
-                            ? cs.onPrimaryContainer
-                            : cs.onSecondaryContainer,
+              // Decorative: the business name is shown right next to it.
+              ExcludeSemantics(
+                child: business.logo != null
+                    ? CircleAvatar(
+                        backgroundImage: NetworkImage(business.logo!),
+                      )
+                    : CircleAvatar(
+                        backgroundColor: isGym
+                            ? cs.primaryContainer
+                            : cs.secondaryContainer,
+                        child: Icon(
+                          isGym ? Icons.fitness_center : Icons.store,
+                          color: isGym
+                              ? cs.onPrimaryContainer
+                              : cs.onSecondaryContainer,
+                        ),
                       ),
-                    ),
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(business.name,
-                        style: Theme.of(context).textTheme.bodyLarge),
-                    Text(business.location,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(
-                                color: cs.onSurfaceVariant)),
+                    Text(
+                      business.name,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    Text(
+                      business.location,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
                   ],
                 ),
               ),
               IconButton(
                 icon: const Icon(Icons.edit_outlined),
                 onPressed: onEdit,
-                tooltip: 'Edit',
+                tooltip: context.l10n.shellEditBusiness(business.name),
               ),
               const Icon(Icons.chevron_right),
             ],

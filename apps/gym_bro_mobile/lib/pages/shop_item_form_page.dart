@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
 import '../models/shop_item.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/image_upload_field.dart';
 import '../widgets/quantity_input.dart';
+import 'shop/order_widgets.dart' show PaymentsConfigCache;
 
 class ShopItemFormPage extends StatefulWidget {
   const ShopItemFormPage(
@@ -60,6 +63,19 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
     super.dispose();
   }
 
+  /// Accepts both `12.50` and the Serbian-style `12,50`.
+  double? _parsePrice(String v) => double.tryParse(v.trim().replaceAll(',', '.'));
+
+  String _currencySymbol(String locale) {
+    final currency = PaymentsConfigCache.current.currency.toUpperCase();
+    try {
+      return NumberFormat.simpleCurrency(locale: locale, name: currency)
+          .currencySymbol;
+    } catch (_) {
+      return currency;
+    }
+  }
+
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -88,7 +104,7 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
         'description': _descCtrl.text.trim().isEmpty
             ? null
             : _descCtrl.text.trim(),
-        'price': double.parse(_priceCtrl.text.trim()),
+        'price': _parsePrice(_priceCtrl.text)!,
         'quantity': _quantity,
         'is_active': _isActive,
         'active_until': _activeUntil?.toIso8601String(),
@@ -114,9 +130,12 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     return Scaffold(
       appBar: AppBar(
-          title: Text(_isEditing ? 'Edit Item' : 'New Item')),
+          title: Text(
+              _isEditing ? l10n.businessMgmtEditItem : l10n.businessMgmtNewItem)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -127,34 +146,35 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
               ImagePickerField(
                 imageUrl: _imageUrl,
                 folder: 'shop-items',
-                label: 'Add product photo',
+                label: l10n.businessMgmtAddProductPhoto,
                 onUploaded: (url) => setState(() => _imageUrl = url),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameCtrl,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(labelText: l10n.businessMgmtName),
                 validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Required' : null,
+                    (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _descCtrl,
-                decoration: const InputDecoration(
-                    labelText: 'Description (optional)'),
+                decoration: InputDecoration(
+                    labelText: l10n.businessMgmtDescriptionOptional),
                 maxLines: 2,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _priceCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Price', prefixText: '\$'),
+                decoration: InputDecoration(
+                    labelText: l10n.businessMgmtPrice,
+                    prefixText: '${_currencySymbol(locale)} '),
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Required';
-                  if (double.tryParse(v.trim()) == null) {
-                    return 'Enter a valid number';
+                  if (v == null || v.trim().isEmpty) return l10n.commonRequired;
+                  if (_parsePrice(v) == null) {
+                    return l10n.businessMgmtInvalidNumber;
                   }
                   return null;
                 },
@@ -162,10 +182,12 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  const Text('Quantity'),
+                  Text(l10n.businessMgmtInStock),
                   const SizedBox(width: 16),
+                  // 0 = out of stock; orders reserve stock automatically.
                   QuantityInput(
                     value: _quantity,
+                    min: 0,
                     onChanged: (v) => setState(() => _quantity = v),
                   ),
                 ],
@@ -174,11 +196,11 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
               DropdownButtonFormField<ShopItemType>(
                 key: ValueKey(_type),
                 initialValue: _type,
-                decoration: const InputDecoration(labelText: 'Type'),
+                decoration: InputDecoration(labelText: l10n.businessMgmtType),
                 items: [
                   for (final t in ShopItemType.values)
                     DropdownMenuItem(
-                        value: t, child: Text(t.displayName)),
+                        value: t, child: Text(t.label(l10n))),
                 ],
                 onChanged: (v) {
                   if (v != null) setState(() => _type = v);
@@ -187,29 +209,29 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
               const SizedBox(height: 16),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Active'),
+                title: Text(l10n.businessMgmtItemActive),
                 value: _isActive,
                 onChanged: (v) => setState(() => _isActive = v),
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Active until'),
+                title: Text(l10n.businessMgmtActiveUntil),
                 subtitle: Text(_activeUntil == null
-                    ? 'No expiry'
-                    : '${_activeUntil!.year}-'
-                        '${_activeUntil!.month.toString().padLeft(2, '0')}-'
-                        '${_activeUntil!.day.toString().padLeft(2, '0')}'),
+                    ? l10n.businessMgmtNoExpiry
+                    : DateFormat.yMMMd(locale).format(_activeUntil!)),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (_activeUntil != null)
                       IconButton(
                         icon: const Icon(Icons.clear),
+                        tooltip: l10n.businessMgmtClearDate,
                         onPressed: () =>
                             setState(() => _activeUntil = null),
                       ),
                     IconButton(
                       icon: const Icon(Icons.calendar_today_outlined),
+                      tooltip: l10n.businessMgmtPickDate,
                       onPressed: _pickDate,
                     ),
                   ],
@@ -228,13 +250,16 @@ class _ShopItemFormPageState extends State<ShopItemFormPage> {
               FilledButton(
                 onPressed: _loading ? null : _submit,
                 child: _loading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                            strokeWidth: 2,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
                       )
-                    : Text(_isEditing ? 'Save Changes' : 'Add Item'),
+                    : Text(_isEditing
+                        ? l10n.businessMgmtSaveChanges
+                        : l10n.businessMgmtAddItem),
               ),
             ],
           ),

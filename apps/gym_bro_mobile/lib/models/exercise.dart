@@ -1,3 +1,5 @@
+import '../l10n/app_localizations.dart';
+
 enum MuscleGroup {
   // Chest
   chestAll,
@@ -80,46 +82,46 @@ enum MuscleGroup {
     MuscleGroup.neck: 'neck',
   };
 
-  static const _displayNames = {
-    MuscleGroup.chestAll: 'Chest',
-    MuscleGroup.chestUpper: 'Upper Chest',
-    MuscleGroup.chestLower: 'Lower Chest',
-    MuscleGroup.backAll: 'Back',
-    MuscleGroup.backUpper: 'Upper Back',
-    MuscleGroup.backMid: 'Mid Back',
-    MuscleGroup.backLower: 'Lower Back',
-    MuscleGroup.backRhomboids: 'Rhomboids',
-    MuscleGroup.backTraps: 'Traps',
-    MuscleGroup.backLats: 'Lats',
-    MuscleGroup.deltsAll: 'Deltoids',
-    MuscleGroup.deltsFront: 'Front Delt',
-    MuscleGroup.deltsMedial: 'Side Delt',
-    MuscleGroup.deltsRear: 'Rear Delt',
-    MuscleGroup.biceps: 'Biceps',
-    MuscleGroup.tricepsAll: 'Triceps',
-    MuscleGroup.tricepsLong: 'Triceps Long Head',
-    MuscleGroup.tricepsLateral: 'Triceps Lateral',
-    MuscleGroup.tricepsMedial: 'Triceps Medial',
-    MuscleGroup.forearmsAll: 'Forearms',
-    MuscleGroup.forearmsTop: 'Forearms (Top)',
-    MuscleGroup.forearmsBottom: 'Forearms (Bottom)',
-    MuscleGroup.absUpper: 'Upper Abs',
-    MuscleGroup.absLower: 'Lower Abs',
-    MuscleGroup.absObliques: 'Obliques',
-    MuscleGroup.quadsAll: 'Quads',
-    MuscleGroup.quadsMedial: 'Medial Quad',
-    MuscleGroup.quadsLateral: 'Lateral Quad',
-    MuscleGroup.hamstrings: 'Hamstrings',
-    MuscleGroup.glutesAll: 'Glutes',
-    MuscleGroup.glutesMedius: 'Glute Medius',
-    MuscleGroup.glutesMinimus: 'Glute Minimus',
-    MuscleGroup.glutesMaximus: 'Glute Maximus',
-    MuscleGroup.calves: 'Calves',
-    MuscleGroup.neck: 'Neck',
+  /// Localized display name, e.g. "Upper Chest" / "Gornje grudi".
+  String label(AppLocalizations l10n) => switch (this) {
+    MuscleGroup.chestAll => l10n.trainingMuscleChestAll,
+    MuscleGroup.chestUpper => l10n.trainingMuscleChestUpper,
+    MuscleGroup.chestLower => l10n.trainingMuscleChestLower,
+    MuscleGroup.backAll => l10n.trainingMuscleBackAll,
+    MuscleGroup.backUpper => l10n.trainingMuscleBackUpper,
+    MuscleGroup.backMid => l10n.trainingMuscleBackMid,
+    MuscleGroup.backLower => l10n.trainingMuscleBackLower,
+    MuscleGroup.backRhomboids => l10n.trainingMuscleBackRhomboids,
+    MuscleGroup.backTraps => l10n.trainingMuscleBackTraps,
+    MuscleGroup.backLats => l10n.trainingMuscleBackLats,
+    MuscleGroup.deltsAll => l10n.trainingMuscleDeltsAll,
+    MuscleGroup.deltsFront => l10n.trainingMuscleDeltsFront,
+    MuscleGroup.deltsMedial => l10n.trainingMuscleDeltsMedial,
+    MuscleGroup.deltsRear => l10n.trainingMuscleDeltsRear,
+    MuscleGroup.biceps => l10n.trainingMuscleBiceps,
+    MuscleGroup.tricepsAll => l10n.trainingMuscleTricepsAll,
+    MuscleGroup.tricepsLong => l10n.trainingMuscleTricepsLong,
+    MuscleGroup.tricepsLateral => l10n.trainingMuscleTricepsLateral,
+    MuscleGroup.tricepsMedial => l10n.trainingMuscleTricepsMedial,
+    MuscleGroup.forearmsAll => l10n.trainingMuscleForearmsAll,
+    MuscleGroup.forearmsTop => l10n.trainingMuscleForearmsTop,
+    MuscleGroup.forearmsBottom => l10n.trainingMuscleForearmsBottom,
+    MuscleGroup.absUpper => l10n.trainingMuscleAbsUpper,
+    MuscleGroup.absLower => l10n.trainingMuscleAbsLower,
+    MuscleGroup.absObliques => l10n.trainingMuscleAbsObliques,
+    MuscleGroup.quadsAll => l10n.trainingMuscleQuadsAll,
+    MuscleGroup.quadsMedial => l10n.trainingMuscleQuadsMedial,
+    MuscleGroup.quadsLateral => l10n.trainingMuscleQuadsLateral,
+    MuscleGroup.hamstrings => l10n.trainingMuscleHamstrings,
+    MuscleGroup.glutesAll => l10n.trainingMuscleGlutesAll,
+    MuscleGroup.glutesMedius => l10n.trainingMuscleGlutesMedius,
+    MuscleGroup.glutesMinimus => l10n.trainingMuscleGlutesMinimus,
+    MuscleGroup.glutesMaximus => l10n.trainingMuscleGlutesMaximus,
+    MuscleGroup.calves => l10n.trainingMuscleCalves,
+    MuscleGroup.neck => l10n.trainingMuscleNeck,
   };
 
   String get apiValue => _apiValues[this]!;
-  String get displayName => _displayNames[this]!;
 
   static MuscleGroup? fromApiValue(String value) {
     return _apiValues.entries
@@ -261,15 +263,15 @@ class Exercise {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'description': description,
-        'note': note,
-        'image_url': imageUrl,
-        'video_url': videoUrl,
-        'author_id': authorId,
-        'primary_muscles': primaryMuscles.map((m) => m.apiValue).toList(),
-        'secondary_muscles': secondaryMuscles.map((m) => m.apiValue).toList(),
-        'is_public': isPublic,
-      };
+    'id': id,
+    'name': name,
+    'description': description,
+    'note': note,
+    'image_url': imageUrl,
+    'video_url': videoUrl,
+    'author_id': authorId,
+    'primary_muscles': primaryMuscles.map((m) => m.apiValue).toList(),
+    'secondary_muscles': secondaryMuscles.map((m) => m.apiValue).toList(),
+    'is_public': isPublic,
+  };
 }

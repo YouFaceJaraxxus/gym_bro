@@ -1,6 +1,7 @@
 class UserRoleEntry {
   final String id;
-  final String type; // 'member' | 'employee' | 'employee_trainer' | 'trainer' | 'gym_owner' | 'shop_owner' | 'shop_vendor'
+  final String
+  type; // 'member' | 'employee' | 'employee_trainer' | 'trainer' | 'gym_owner' | 'shop_owner' | 'shop_vendor'
   final String? gymId;
   final String? shopId;
 
@@ -47,7 +48,9 @@ class UserSearchResult {
     void add(String type, Object? raw) {
       if (raw is List) {
         for (final e in raw) {
-          if (e is Map<String, dynamic>) entries.add(UserRoleEntry.fromJson(e, type));
+          if (e is Map<String, dynamic>) {
+            entries.add(UserRoleEntry.fromJson(e, type));
+          }
         }
       }
     }

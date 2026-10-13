@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -15,79 +16,100 @@ import 'home/owner_users_page.dart';
 import 'home/trainer_members_page.dart';
 import 'home/vendor_home_page.dart';
 import 'home/vendor_shop_page.dart';
+import '../widgets/offline_banner.dart';
+import 'classes/class_schedule_page.dart';
+import 'classes/trainer_classes_page.dart';
 import 'notifications_page.dart';
 import 'gym_hub_page.dart';
 import 'profile_page.dart';
-import 'sessions_page.dart';
 import 'membership_page.dart';
 
 // ── Per-role nav tab definitions ──────────────────────────────────────────────
 
-typedef _Tab = ({String label, IconData icon});
+/// One bottom-nav destination. Labels are resolved at build time so they
+/// follow the app language.
+enum _Tab {
+  home(Icons.home_outlined),
+  businesses(Icons.business_outlined),
+  membership(Icons.card_membership_outlined),
+  schedule(Icons.calendar_today_outlined),
+  classes(Icons.sports_gymnastics_outlined),
+  members(Icons.people_outline),
+  myShop(Icons.storefront_outlined),
+  users(Icons.manage_accounts_outlined),
+  gym(Icons.fitness_center),
+  profile(Icons.person_outline);
+
+  const _Tab(this.icon);
+
+  final IconData icon;
+
+  String label(AppLocalizations l10n) => switch (this) {
+    _Tab.home => l10n.shellTabHome,
+    _Tab.businesses => l10n.shellTabBusinesses,
+    _Tab.membership => l10n.shellTabMembership,
+    _Tab.schedule => l10n.shellTabSchedule,
+    _Tab.classes => l10n.shellTabClasses,
+    _Tab.members => l10n.shellTabMembers,
+    _Tab.myShop => l10n.shellTabMyShop,
+    _Tab.users => l10n.shellTabUsers,
+    _Tab.gym => l10n.shellTabGym,
+    _Tab.profile => l10n.shellTabProfile,
+  };
+}
 
 // Shared tabs appended to every role's list.
-const _sharedTabs = <_Tab>[
-  (label: 'Gym', icon: Icons.fitness_center),
-  (label: 'Profile', icon: Icons.person_outline),
-];
+const _sharedTabs = <_Tab>[_Tab.gym, _Tab.profile];
 
-const _ownerTabs = <_Tab>[
-  (label: 'Home', icon: Icons.home_outlined),
-  (label: 'Businesses', icon: Icons.business_outlined),
-  ..._sharedTabs,
-];
+const _ownerTabs = <_Tab>[_Tab.home, _Tab.businesses, ..._sharedTabs];
 
 const _memberTabs = <_Tab>[
-  (label: 'Home', icon: Icons.home_outlined),
-  (label: 'Membership', icon: Icons.card_membership_outlined),
-  (label: 'Schedule', icon: Icons.calendar_today_outlined),
+  _Tab.home,
+  _Tab.membership,
+  _Tab.schedule,
   ..._sharedTabs,
 ];
 
 const _trainerTabs = <_Tab>[
-  (label: 'Home', icon: Icons.home_outlined),
-  (label: 'Classes', icon: Icons.fitness_center_outlined),
-  (label: 'Members', icon: Icons.people_outline),
+  _Tab.home,
+  _Tab.classes,
+  _Tab.members,
   ..._sharedTabs,
 ];
 
 const _employeeTabs = <_Tab>[
-  (label: 'Home', icon: Icons.home_outlined),
-  (label: 'Members', icon: Icons.people_outline),
-  (label: 'Schedule', icon: Icons.schedule_outlined),
+  _Tab.home,
+  _Tab.members,
+  _Tab.schedule,
   ..._sharedTabs,
 ];
 
 const _employeeTrainerTabs = <_Tab>[
-  (label: 'Home', icon: Icons.home_outlined),
-  (label: 'Members', icon: Icons.people_outline),
-  (label: 'Classes', icon: Icons.sports_gymnastics_outlined),
-  (label: 'Schedule', icon: Icons.schedule_outlined),
+  _Tab.home,
+  _Tab.members,
+  _Tab.classes,
+  _Tab.schedule,
   ..._sharedTabs,
 ];
 
-const _vendorTabs = <_Tab>[
-  (label: 'Home', icon: Icons.home_outlined),
-  (label: 'My Shop', icon: Icons.storefront_outlined),
-  ..._sharedTabs,
-];
+const _vendorTabs = <_Tab>[_Tab.home, _Tab.myShop, ..._sharedTabs];
 
 const _superUserTabs = <_Tab>[
-  (label: 'Home', icon: Icons.home_outlined),
-  (label: 'Businesses', icon: Icons.business_outlined),
-  (label: 'Users', icon: Icons.manage_accounts_outlined),
+  _Tab.home,
+  _Tab.businesses,
+  _Tab.users,
   ..._sharedTabs,
 ];
 
 List<_Tab> _tabsForRole(UserRole role) => switch (role) {
-      UserRole.owner => _ownerTabs,
-      UserRole.member => _memberTabs,
-      UserRole.trainer => _trainerTabs,
-      UserRole.employee => _employeeTabs,
-      UserRole.employeeTrainer => _employeeTrainerTabs,
-      UserRole.shopVendor => _vendorTabs,
-      UserRole.superUser => _superUserTabs,
-    };
+  UserRole.owner => _ownerTabs,
+  UserRole.member => _memberTabs,
+  UserRole.trainer => _trainerTabs,
+  UserRole.employee => _employeeTabs,
+  UserRole.employeeTrainer => _employeeTrainerTabs,
+  UserRole.shopVendor => _vendorTabs,
+  UserRole.superUser => _superUserTabs,
+};
 
 // ── HomePage shell ────────────────────────────────────────────────────────────
 
@@ -129,7 +151,10 @@ class _HomePageState extends State<HomePage> {
       final token = await AuthManager.instance.getValidToken();
       final data = await _authService.testEndpoint(token);
       final profileData = data['profile'] as Map<String, dynamic>?;
-      if (profileData == null) throw Exception('No profile returned');
+      if (profileData == null) {
+        if (!mounted) return;
+        throw Exception(context.l10n.shellHomeProfileLoadFailed);
+      }
       final fresh = UserProfile.fromJson(profileData);
       await AuthManager.instance.updateProfile(fresh);
       if (mounted) {
@@ -173,15 +198,26 @@ class _HomePageState extends State<HomePage> {
     if (profile != null && mounted) _refreshUnreadCount(profile.id);
   }
 
+  /// Logs out, or (while impersonating) returns to the admin's account.
   Future<void> _logout() async {
-    await AuthManager.instance.logout();
-    if (mounted) Navigator.pushReplacementNamed(context, '/signup');
+    final stillSignedIn = await AuthManager.instance.logout();
+    if (!mounted) return;
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      stillSignedIn ? '/home' : '/signup',
+      (_) => false,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(
+            semanticsLabel: context.l10n.commonLoading,
+          ),
+        ),
+      );
     }
 
     if (_error != null || _profile == null) {
@@ -192,12 +228,18 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.error_outline,
-                    size: 48, color: Theme.of(context).colorScheme.error),
+                Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: Theme.of(context).colorScheme.error,
+                ),
                 const SizedBox(height: 16),
-                Text(_error ?? 'Could not load profile'),
+                Text(_error ?? context.l10n.shellHomeProfileLoadFailed),
                 const SizedBox(height: 24),
-                FilledButton(onPressed: _logout, child: const Text('Back to Login')),
+                FilledButton(
+                  onPressed: _logout,
+                  child: Text(context.l10n.shellHomeBackToLogin),
+                ),
               ],
             ),
           ),
@@ -205,6 +247,7 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
+    final l10n = context.l10n;
     final profile = _profile!;
     final tabs = _tabsForRole(profile.role);
     // The role (and so the tab count) can change after a profile refresh.
@@ -212,39 +255,46 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(tabs[_tabIndex].label),
+        title: Text(tabs[_tabIndex].label(l10n)),
         actions: [
           Stack(
             alignment: Alignment.center,
             children: [
               IconButton(
                 icon: const Icon(Icons.notifications_outlined),
-                tooltip: 'Notifications',
+                tooltip: _unreadNotifications > 0
+                    ? l10n.shellHomeNotificationsUnread(_unreadNotifications)
+                    : l10n.shellHomeNotifications,
                 onPressed: _openNotifications,
               ),
               if (_unreadNotifications > 0)
                 Positioned(
                   top: 8,
                   right: 8,
+                  // The count is already in the button's tooltip.
                   child: IgnorePointer(
-                    child: Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.error,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints:
-                          const BoxConstraints(minWidth: 16, minHeight: 16),
-                      child: Text(
-                        _unreadNotifications > 99
-                            ? '99+'
-                            : '$_unreadNotifications',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onError,
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
+                    child: ExcludeSemantics(
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.error,
+                          shape: BoxShape.circle,
                         ),
-                        textAlign: TextAlign.center,
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          _unreadNotifications > 99
+                              ? '99+'
+                              : '$_unreadNotifications',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onError,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
                   ),
@@ -253,12 +303,21 @@ class _HomePageState extends State<HomePage> {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            tooltip: 'Log out',
+            tooltip: AuthManager.instance.isImpersonating
+                ? l10n.shellHomeReturnToAdmin
+                : l10n.shellHomeLogOut,
             onPressed: _logout,
           ),
         ],
       ),
-      body: _buildBody(profile, _tabIndex),
+      body: Column(
+        children: [
+          if (AuthManager.instance.isImpersonating)
+            _ImpersonationBanner(name: profile.fullName, onReturn: _logout),
+          const OfflineBanner(),
+          Expanded(child: _buildBody(profile, _tabIndex)),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tabIndex,
         onDestinationSelected: (i) => setState(() => _tabIndex = i),
@@ -268,8 +327,8 @@ class _HomePageState extends State<HomePage> {
           for (final tab in tabs)
             NavigationDestination(
               icon: Icon(tab.icon),
-              label: tab.label,
-              tooltip: tab.label,
+              label: tab.label(l10n),
+              tooltip: tab.label(l10n),
             ),
         ],
       ),
@@ -311,27 +370,27 @@ class _HomePageState extends State<HomePage> {
       if (index == 1) return EmployeeMembersPage(profile: profile);
     }
 
-    // Member Membership + Schedule (their own sessions).
+    // Member Membership + Schedule (bookable classes at their gyms).
     if (profile.role == UserRole.member) {
       if (index == 1) return MembershipPage(profile: profile);
-      if (index == 2) return const SessionsPage();
+      if (index == 2) return const ClassSchedulePage();
     }
 
-    // Employee Schedule (their own logged sessions, if any).
+    // Employee Schedule.
     if (profile.role == UserRole.employee) {
-      if (index == 2) return const SessionsPage();
+      if (index == 2) return const ClassSchedulePage();
     }
 
-    // Trainer Classes (sessions they run for members) + Members they coach.
+    // Trainer Classes they teach + Members they coach.
     if (profile.role == UserRole.trainer) {
-      if (index == 1) return SessionsPage(asTrainerId: profile.id);
+      if (index == 1) return const TrainerClassesPage();
       if (index == 2) return TrainerMembersPage(profile: profile);
     }
 
-    // Employee-trainer Classes + Schedule.
+    // Employee-trainer Classes they teach + the gym Schedule.
     if (profile.role == UserRole.employeeTrainer) {
-      if (index == 2) return SessionsPage(asTrainerId: profile.id);
-      if (index == 3) return const SessionsPage();
+      if (index == 2) return const TrainerClassesPage();
+      if (index == 3) return const ClassSchedulePage();
     }
 
     // Shared gym tab — always the second-to-last entry in every role's list.
@@ -349,5 +408,55 @@ class _HomePageState extends State<HomePage> {
 
     // Every role's tabs are handled above.
     return const SizedBox.shrink();
+  }
+}
+
+/// Persistent strip shown while a super user is signed in as someone else.
+class _ImpersonationBanner extends StatelessWidget {
+  const _ImpersonationBanner({required this.name, required this.onReturn});
+
+  final String name;
+  final VoidCallback onReturn;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Material(
+      color: cs.tertiaryContainer,
+      child: SafeArea(
+        top: false,
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 6, 8, 6),
+          child: Row(
+            children: [
+              Icon(
+                Icons.admin_panel_settings_outlined,
+                size: 20,
+                color: cs.onTertiaryContainer,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  context.l10n.shellHomeViewingAs(name),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: cs.onTertiaryContainer,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: onReturn,
+                style: TextButton.styleFrom(
+                  foregroundColor: cs.onTertiaryContainer,
+                ),
+                child: Text(context.l10n.shellHomeReturnToAdmin),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
 import '../models/business.dart';
 import '../models/meal_plan.dart';
 import '../models/user_profile.dart';
@@ -24,8 +26,8 @@ class CoachableMember {
   });
 }
 
-/// Formats a date-only value as d/m/yyyy.
-String formatPlanDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
+/// Formats a date-only value for [locale] ("Oct 13, 2026" / "13. okt 2026.").
+String formatPlanDate(DateTime d, String locale) => DateFormat.yMMMd(locale).format(d);
 
 /// Members of every gym where [me] is a gym owner, employee,
 /// employee-trainer or trainer (super users: every gym). Excludes [me].
@@ -37,7 +39,6 @@ Future<List<CoachableMember>> loadCoachableMembers(
   final isSuper = me.role == UserRole.superUser;
   final results = await Future.wait([
     api.getBusinesses(token),
-    api.getUsers(token),
     if (!isSuper) ...[
       api.getGymOwners(token, userId: me.id),
       api.getEmployees(token, userId: me.id),
@@ -46,7 +47,6 @@ Future<List<CoachableMember>> loadCoachableMembers(
     ],
   ]);
   final businesses = results[0] as List<Business>;
-  final users = results[1] as List<UserProfile>;
   final gyms = {
     for (final b in businesses)
       if (b.type == 'gym') b.id: b.name,
@@ -57,7 +57,7 @@ Future<List<CoachableMember>> loadCoachableMembers(
     gymIds = gyms.keys.toSet();
   } else {
     gymIds = <String>{};
-    for (final rows in results.skip(2)) {
+    for (final rows in results.skip(1)) {
       for (final r in rows as List<Map<String, dynamic>>) {
         final gymId = r['gym_id'] as String?;
         if (gymId != null && gyms.containsKey(gymId)) gymIds.add(gymId);
@@ -69,7 +69,6 @@ Future<List<CoachableMember>> loadCoachableMembers(
   final ids = gymIds.toList();
   final memberLists =
       await Future.wait(ids.map((g) => api.getMembers(token, gymId: g)));
-  final userMap = {for (final u in users) u.id: u};
 
   final byUser = <String, CoachableMember>{};
   for (var i = 0; i < ids.length; i++) {
@@ -77,8 +76,7 @@ Future<List<CoachableMember>> loadCoachableMembers(
     for (final row in memberLists[i]) {
       final uid = row['user_id'] as String?;
       if (uid == null || uid == me.id) continue;
-      final u = userMap[uid];
-      if (u == null) continue;
+      final u = UserProfile.fromRoleRow(row);
       final existing = byUser[uid];
       if (existing != null) {
         if (!existing.gymNames.contains(gymName)) {
@@ -142,12 +140,13 @@ Future<bool> showAssignPlanToMemberFlow(
   );
 }
 
+/// [targetName] null means the current user assigns the plan to themself.
 Future<bool> _confirmAndAssign(
   BuildContext context, {
   required String planId,
   required String planName,
   required String userId,
-  required String targetName,
+  required String? targetName,
 }) async {
   final result = await showDialog<_AssignConfirmResult>(
     context: context,
@@ -156,6 +155,8 @@ Future<bool> _confirmAndAssign(
   );
   if (result == null || !context.mounted) return false;
   final messenger = ScaffoldMessenger.of(context);
+  final l10n = context.l10n;
+  final cs = Theme.of(context).colorScheme;
   try {
     final token = await AuthManager.instance.getValidToken();
     await ApiService().createMealPlanAssignment(token, {
@@ -165,14 +166,18 @@ Future<bool> _confirmAndAssign(
         'start_date': _dateOnly(result.startDate!),
     });
     messenger.showSnackBar(
-      SnackBar(content: Text('"$planName" assigned to $targetName')),
+      SnackBar(
+        content: Text(targetName == null
+            ? l10n.nutritionPlanAssignedToSelf(planName)
+            : l10n.nutritionPlanAssignedTo(planName, targetName)),
+      ),
     );
     return true;
   } catch (e) {
     messenger.showSnackBar(
       SnackBar(
-        content: Text(e.toString().replaceFirst('Exception: ', '')),
-        backgroundColor: Colors.red,
+        content: Text(e.toString().replaceFirst('Exception: ', ''), style: TextStyle(color: cs.onError)),
+        backgroundColor: cs.error,
       ),
     );
     return false;
@@ -186,7 +191,9 @@ String _dateOnly(DateTime d) =>
 
 class _AssignTarget {
   final String userId;
-  final String name;
+
+  /// Null when assigning to oneself.
+  final String? name;
   const _AssignTarget(this.userId, this.name);
 }
 
@@ -253,6 +260,8 @@ class _AssignTargetSheetState extends State<_AssignTargetSheet> {
   }
 
   Widget _buildMembers(ScrollController scroll) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_error != null) {
       return Center(
@@ -260,10 +269,10 @@ class _AssignTargetSheetState extends State<_AssignTargetSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(_error!,
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: cs.error),
                 textAlign: TextAlign.center),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: _load, child: const Text('Retry')),
+            ElevatedButton(onPressed: _load, child: Text(l10n.commonRetry)),
           ],
         ),
       );
@@ -275,10 +284,10 @@ class _AssignTargetSheetState extends State<_AssignTargetSheet> {
           padding: const EdgeInsets.all(24),
           child: Text(
             _members.isEmpty
-                ? 'No members to coach. Members of gyms where you work or train appear here.'
-                : 'No members match your search',
+                ? l10n.nutritionNoMembersToCoach
+                : l10n.nutritionNoMembersMatch,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.grey),
+            style: TextStyle(color: cs.onSurfaceVariant),
           ),
         ),
       );
@@ -289,8 +298,10 @@ class _AssignTargetSheetState extends State<_AssignTargetSheet> {
       itemBuilder: (context, i) {
         final m = items[i];
         return ListTile(
-          leading: CircleAvatar(
-            child: Text(m.name.isEmpty ? '?' : m.name[0].toUpperCase()),
+          leading: ExcludeSemantics(
+            child: CircleAvatar(
+              child: Text(m.name.isEmpty ? '?' : m.name[0].toUpperCase()),
+            ),
           ),
           title: Text(m.name),
           subtitle: Text(
@@ -307,6 +318,7 @@ class _AssignTargetSheetState extends State<_AssignTargetSheet> {
   @override
   Widget build(BuildContext context) {
     final me = AuthManager.instance.profile;
+    final l10n = context.l10n;
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.75,
@@ -318,22 +330,22 @@ class _AssignTargetSheetState extends State<_AssignTargetSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: Theme.of(context).colorScheme.outlineVariant,
                 borderRadius: BorderRadius.circular(2)),
           ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 12, 16, 4),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text('Assign to',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text(l10n.nutritionAssignTo,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
           ),
           if (me != null)
             ListTile(
-              leading: const CircleAvatar(child: Icon(Icons.person)),
-              title: const Text('Myself'),
-              onTap: () => Navigator.pop(context, _AssignTarget(me.id, 'you')),
+              leading: const ExcludeSemantics(child: CircleAvatar(child: Icon(Icons.person))),
+              title: Text(l10n.nutritionMyself),
+              onTap: () => Navigator.pop(context, _AssignTarget(me.id, null)),
             ),
           const Divider(height: 1),
           Padding(
@@ -341,7 +353,7 @@ class _AssignTargetSheetState extends State<_AssignTargetSheet> {
             child: TextField(
               controller: _search,
               decoration: InputDecoration(
-                hintText: 'Search members…',
+                hintText: l10n.nutritionSearchMembersHint,
                 prefixIcon: const Icon(Icons.search),
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
@@ -367,7 +379,9 @@ class _AssignConfirmResult {
 
 class _AssignConfirmDialog extends StatefulWidget {
   final String planName;
-  final String targetName;
+
+  /// Null when assigning to oneself.
+  final String? targetName;
 
   const _AssignConfirmDialog(
       {required this.planName, required this.targetName});
@@ -392,37 +406,41 @@ class _AssignConfirmDialogState extends State<_AssignConfirmDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     return AlertDialog(
-      title: const Text('Assign meal plan'),
+      title: Text(l10n.nutritionAssignMealPlanTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Assign "${widget.planName}" to ${widget.targetName}?'),
+          Text(widget.targetName == null
+              ? l10n.nutritionAssignPlanToSelfQuestion(widget.planName)
+              : l10n.nutritionAssignPlanToQuestion(widget.planName, widget.targetName!)),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: _pickDate,
             icon: const Icon(Icons.event_outlined, size: 18),
             label: Text(_startDate == null
-                ? 'Start date (optional)'
-                : 'Starts ${formatPlanDate(_startDate!)}'),
+                ? l10n.nutritionStartDateOptional
+                : l10n.nutritionStartsOn(formatPlanDate(_startDate!, locale))),
           ),
           if (_startDate != null)
             TextButton(
               onPressed: () => setState(() => _startDate = null),
-              child: const Text('Clear start date'),
+              child: Text(l10n.nutritionClearStartDate),
             ),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l10n.commonCancel),
         ),
         FilledButton(
           onPressed: () =>
               Navigator.pop(context, _AssignConfirmResult(_startDate)),
-          child: const Text('Assign'),
+          child: Text(l10n.nutritionAssign),
         ),
       ],
     );
@@ -489,6 +507,8 @@ class _MealPlanPickerSheetState extends State<MealPlanPickerSheet> {
   }
 
   Widget _buildList(ScrollController scroll) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_error != null) {
       return Center(
@@ -496,17 +516,17 @@ class _MealPlanPickerSheetState extends State<MealPlanPickerSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(_error!,
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: cs.error),
                 textAlign: TextAlign.center),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: _load, child: const Text('Retry')),
+            ElevatedButton(onPressed: _load, child: Text(l10n.commonRetry)),
           ],
         ),
       );
     }
     if (_plans.isEmpty) {
-      return const Center(
-        child: Text('No meal plans found', style: TextStyle(color: Colors.grey)),
+      return Center(
+        child: Text(l10n.nutritionNoMealPlansFound, style: TextStyle(color: cs.onSurfaceVariant)),
       );
     }
     final myId = AuthManager.instance.profile?.id;
@@ -522,6 +542,7 @@ class _MealPlanPickerSheetState extends State<MealPlanPickerSheet> {
                   borderRadius: BorderRadius.circular(6),
                   child: Image.network(
                     p.thumbnailUrlOrNull!,
+                    excludeFromSemantics: true,
                     width: 40,
                     height: 40,
                     fit: BoxFit.cover,
@@ -532,7 +553,7 @@ class _MealPlanPickerSheetState extends State<MealPlanPickerSheet> {
               : const Icon(Icons.restaurant_menu_outlined),
           title: Text(p.name),
           subtitle: Text(
-            [p.weeksLabel, if (mine) 'Mine', if (!p.isPublic) 'Private']
+            [p.weeksLabel(l10n), if (mine) l10n.nutritionMine, if (!p.isPublic) l10n.nutritionPrivate]
                 .join(' · '),
             style: const TextStyle(fontSize: 12),
           ),
@@ -555,7 +576,7 @@ class _MealPlanPickerSheetState extends State<MealPlanPickerSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: Theme.of(context).colorScheme.outlineVariant,
                 borderRadius: BorderRadius.circular(2)),
           ),
           Padding(
@@ -564,7 +585,7 @@ class _MealPlanPickerSheetState extends State<MealPlanPickerSheet> {
               controller: _search,
               textInputAction: TextInputAction.search,
               decoration: InputDecoration(
-                hintText: 'Search meal plans…',
+                hintText: context.l10n.nutritionSearchMealPlansHint,
                 prefixIcon: const Icon(Icons.search),
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

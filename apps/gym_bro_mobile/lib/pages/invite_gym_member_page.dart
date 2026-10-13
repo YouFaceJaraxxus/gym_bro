@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 
@@ -42,13 +43,11 @@ class _InviteGymMemberPageState extends State<InviteGymMemberPage> {
   Future<void> _loadExistingEmails() async {
     try {
       final token = await AuthManager.instance.getValidToken();
+      // Member rows embed email for gym staff.
       final memberRows = await _api.getMembers(token, gymId: widget.gymId);
-      // member rows don't embed email; fetch users to cross-reference
-      final allUsers = await _api.getUsers(token);
-      final memberUserIds = memberRows.map((r) => r['user_id'] as String).toSet();
-      final emails = allUsers
-          .where((u) => memberUserIds.contains(u.id))
-          .map((u) => u.email.toLowerCase())
+      final emails = memberRows
+          .map((r) => (r['email'] as String?)?.toLowerCase())
+          .whereType<String>()
           .toSet();
       if (mounted) setState(() { _existingEmails = emails; _loadingEmails = false; });
     } catch (_) {
@@ -94,10 +93,11 @@ class _InviteGymMemberPageState extends State<InviteGymMemberPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final isDuplicate = _emailDuplicate;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Invite Member')),
+      appBar: AppBar(title: Text(l10n.businessGymInviteMemberTitle)),
       body: _loadingEmails
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -109,35 +109,36 @@ class _InviteGymMemberPageState extends State<InviteGymMemberPage> {
                     controller: _emailCtrl,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      labelText: 'Email',
+                      labelText: l10n.businessGymEmail,
                       border: const OutlineInputBorder(),
-                      errorText: isDuplicate ? 'Already a member' : null,
+                      errorText:
+                          isDuplicate ? l10n.businessGymAlreadyMember : null,
                     ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _nameCtrl,
                     textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(
-                      labelText: 'First name',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.businessGymFirstName,
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _lastNameCtrl,
                     textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(
-                      labelText: 'Last name',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.businessGymLastName,
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _usernameCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Username',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.businessGymUsername,
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -153,10 +154,11 @@ class _InviteGymMemberPageState extends State<InviteGymMemberPage> {
                         ? const SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white),
+                            // Button is disabled while sending; default
+                            // (primary) color stays visible in both themes.
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Send Invite'),
+                        : Text(l10n.businessGymSendInvite),
                   ),
                 ],
               ),

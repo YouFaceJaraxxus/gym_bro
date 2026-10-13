@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../services/auth_service.dart';
 import '../services/auth_manager.dart';
 
@@ -49,8 +50,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Reset Password')),
+      appBar: AppBar(title: Text(l10n.shellResetPasswordTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -59,28 +61,32 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Enter a new password for your account.',
+                l10n.shellResetPasswordIntro,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 24),
               TextFormField(
                 controller: _passwordCtrl,
-                decoration: const InputDecoration(labelText: 'New Password'),
+                decoration: InputDecoration(labelText: l10n.shellNewPassword),
                 obscureText: true,
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Required';
-                  if (v.length < 6) return 'Password must be at least 6 characters';
+                  if (v == null || v.isEmpty) return l10n.commonRequired;
+                  if (v.length < 6) return l10n.shellAuthPasswordMin(6);
                   return null;
                 },
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _confirmCtrl,
-                decoration: const InputDecoration(labelText: 'Confirm Password'),
+                decoration: InputDecoration(
+                  labelText: l10n.shellConfirmPassword,
+                ),
                 obscureText: true,
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Required';
-                  if (v != _passwordCtrl.text) return 'Passwords do not match';
+                  if (v == null || v.isEmpty) return l10n.commonRequired;
+                  if (v != _passwordCtrl.text) {
+                    return l10n.shellPasswordsDontMatch;
+                  }
                   return null;
                 },
               ),
@@ -90,18 +96,23 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
                     _error!,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                 ),
               FilledButton(
                 onPressed: _loading ? null : _submit,
                 child: _loading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          semanticsLabel: l10n.commonLoading,
+                        ),
                       )
-                    : const Text('Set New Password'),
+                    : Text(l10n.shellSetNewPassword),
               ),
             ],
           ),

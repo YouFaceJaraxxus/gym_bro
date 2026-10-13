@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/user_search_result.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -136,30 +137,33 @@ class _AddGymEmployeePageState extends State<AddGymEmployeePage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final isDuplicate = _emailDuplicate;
     final busy = _addingUserId != null || _inviting;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Employee')),
+      appBar: AppBar(title: Text(l10n.businessGymAddEmployee)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // ── Role selector (applies to both search and invite paths) ───
-            Text('Role', style: Theme.of(context).textTheme.labelLarge),
+            Text(l10n.businessGymRole,
+                style: Theme.of(context).textTheme.labelLarge),
             const SizedBox(height: 8),
             SegmentedButton<String>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: 'employee',
-                  label: Text('Employee'),
-                  icon: Icon(Icons.badge_outlined),
+                  label: Text(l10n.businessGymRoleEmployee),
+                  icon: const Icon(Icons.badge_outlined),
                 ),
                 ButtonSegment(
                   value: 'employee_trainer',
-                  label: Text('Emp. Trainer'),
-                  icon: Icon(Icons.fitness_center),
+                  label: Text(l10n.businessGymRoleEmployeeTrainerShort),
+                  tooltip: l10n.businessGymRoleEmployeeTrainer,
+                  icon: const Icon(Icons.fitness_center),
                 ),
               ],
               selected: {_employeeType},
@@ -179,7 +183,7 @@ class _AddGymEmployeePageState extends State<AddGymEmployeePage> {
 
             // ── Invite new user ───────────────────────────────────────────
             ExpansionTile(
-              title: const Text("Can't find them? Invite a new user"),
+              title: Text(l10n.businessGymInviteNewUserPrompt),
               tilePadding: EdgeInsets.zero,
               childrenPadding: EdgeInsets.zero,
               children: [
@@ -189,9 +193,10 @@ class _AddGymEmployeePageState extends State<AddGymEmployeePage> {
                   enabled: !busy,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: l10n.businessGymEmail,
                     border: const OutlineInputBorder(),
-                    errorText: isDuplicate ? 'Already an employee at this gym' : null,
+                    errorText:
+                        isDuplicate ? l10n.businessGymAlreadyEmployee : null,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -199,9 +204,9 @@ class _AddGymEmployeePageState extends State<AddGymEmployeePage> {
                   controller: _nameCtrl,
                   enabled: !busy,
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'First name',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.businessGymFirstName,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -209,18 +214,18 @@ class _AddGymEmployeePageState extends State<AddGymEmployeePage> {
                   controller: _lastNameCtrl,
                   enabled: !busy,
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
-                    labelText: 'Last name',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.businessGymLastName,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _usernameCtrl,
                   enabled: !busy,
-                  decoration: const InputDecoration(
-                    labelText: 'Username',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.businessGymUsername,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -230,15 +235,16 @@ class _AddGymEmployeePageState extends State<AddGymEmployeePage> {
                       ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                          // Button is disabled while inviting; default
+                          // (primary) color stays visible in both themes.
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Invite & Add'),
+                      : Text(l10n.businessGymInviteAndAdd),
                 ),
                 if (isDuplicate) ...[
                   const SizedBox(height: 8),
                   Text(
-                    'This email is already employed at this gym',
+                    l10n.businessGymEmailAlreadyEmployed,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: cs.error, fontSize: 13),
                   ),

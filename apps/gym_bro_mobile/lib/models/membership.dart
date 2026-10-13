@@ -1,3 +1,5 @@
+import '../l10n/app_localizations.dart';
+
 class GymMembershipType {
   final String id;
   final String name;
@@ -13,7 +15,8 @@ class GymMembershipType {
     required this.isActive,
   });
 
-  factory GymMembershipType.fromJson(Map<String, dynamic> json) => GymMembershipType(
+  factory GymMembershipType.fromJson(Map<String, dynamic> json) =>
+      GymMembershipType(
         id: json['id'] as String,
         name: json['name'] as String,
         monthlyCost: double.parse(json['monthly_cost'].toString()),
@@ -22,11 +25,11 @@ class GymMembershipType {
       );
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'monthly_cost': monthlyCost,
-        'gym_id': gymId,
-        'is_active': isActive,
-      };
+    'name': name,
+    'monthly_cost': monthlyCost,
+    'gym_id': gymId,
+    'is_active': isActive,
+  };
 }
 
 class Membership {
@@ -37,6 +40,9 @@ class Membership {
   final DateTime toDate;
   final DateTime lastUpdatedDate;
   final bool isActive;
+
+  /// Renews monthly through a Stripe subscription.
+  final bool autoRenew;
   final GymMembershipType? membershipType;
 
   const Membership({
@@ -47,20 +53,24 @@ class Membership {
     required this.toDate,
     required this.lastUpdatedDate,
     required this.isActive,
+    this.autoRenew = false,
     this.membershipType,
   });
 
-  factory Membership.fromJson(Map<String, dynamic> json, {GymMembershipType? membershipType}) =>
-      Membership(
-        id: json['id'] as String,
-        userId: json['user_id'] as String,
-        currentMembershipTypeId: json['current_membership_type_id'] as String,
-        fromDate: DateTime.parse(json['from_date'] as String),
-        toDate: DateTime.parse(json['to_date'] as String),
-        lastUpdatedDate: DateTime.parse(json['last_updated_date'] as String),
-        isActive: json['is_active'] as bool? ?? true,
-        membershipType: membershipType,
-      );
+  factory Membership.fromJson(
+    Map<String, dynamic> json, {
+    GymMembershipType? membershipType,
+  }) => Membership(
+    id: json['id'] as String,
+    userId: json['user_id'] as String,
+    currentMembershipTypeId: json['current_membership_type_id'] as String,
+    fromDate: DateTime.parse(json['from_date'] as String),
+    toDate: DateTime.parse(json['to_date'] as String),
+    lastUpdatedDate: DateTime.parse(json['last_updated_date'] as String),
+    isActive: json['is_active'] as bool? ?? true,
+    autoRenew: json['auto_renew'] as bool? ?? false,
+    membershipType: membershipType,
+  );
 
   bool get isExpired => DateTime.now().isAfter(toDate);
 }
@@ -71,22 +81,22 @@ enum InvoiceStatus {
   voided;
 
   static InvoiceStatus fromString(String? s) => switch (s) {
-        'paid' => InvoiceStatus.paid,
-        'void' => InvoiceStatus.voided,
-        _ => InvoiceStatus.unpaid,
-      };
+    'paid' => InvoiceStatus.paid,
+    'void' => InvoiceStatus.voided,
+    _ => InvoiceStatus.unpaid,
+  };
 
   String get apiValue => switch (this) {
-        InvoiceStatus.unpaid => 'unpaid',
-        InvoiceStatus.paid => 'paid',
-        InvoiceStatus.voided => 'void',
-      };
+    InvoiceStatus.unpaid => 'unpaid',
+    InvoiceStatus.paid => 'paid',
+    InvoiceStatus.voided => 'void',
+  };
 
-  String get displayName => switch (this) {
-        InvoiceStatus.unpaid => 'Unpaid',
-        InvoiceStatus.paid => 'Paid',
-        InvoiceStatus.voided => 'Void',
-      };
+  String label(AppLocalizations l10n) => switch (this) {
+    InvoiceStatus.unpaid => l10n.businessInvoiceStatusUnpaid,
+    InvoiceStatus.paid => l10n.businessInvoiceStatusPaid,
+    InvoiceStatus.voided => l10n.businessInvoiceStatusVoid,
+  };
 }
 
 class MembershipInvoice {
@@ -125,7 +135,8 @@ class MembershipInvoice {
   String get memberFullName =>
       '${memberName ?? ''} ${memberLastName ?? ''}'.trim();
 
-  factory MembershipInvoice.fromJson(Map<String, dynamic> json) => MembershipInvoice(
+  factory MembershipInvoice.fromJson(Map<String, dynamic> json) =>
+      MembershipInvoice(
         id: json['id'] as String,
         membershipId: json['membership_id'] as String,
         membershipTypeId: json['membership_type_id'] as String,

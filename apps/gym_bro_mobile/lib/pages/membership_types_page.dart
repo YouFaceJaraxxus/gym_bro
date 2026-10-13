@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
+import '../models/payment.dart';
 import '../models/membership.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'shop/order_widgets.dart' show PaymentsConfigCache;
 
 /// Owner-facing CRUD for a gym's membership plans (e.g. "Basic", "Premium").
 class MembershipTypesPage extends StatefulWidget {
@@ -45,7 +49,23 @@ class _MembershipTypesPageState extends State<MembershipTypesPage> {
     }
   }
 
+  /// Accepts both `12.50` and the Serbian-style `12,50`.
+  double? _parseCost(String v) => double.tryParse(v.trim().replaceAll(',', '.'));
+
+  String get _locale => Localizations.localeOf(context).toString();
+
+  String _currencySymbol() {
+    final currency = PaymentsConfigCache.current.currency.toUpperCase();
+    try {
+      return NumberFormat.simpleCurrency(locale: _locale, name: currency)
+          .currencySymbol;
+    } catch (_) {
+      return currency;
+    }
+  }
+
   Future<void> _openForm({GymMembershipType? type}) async {
+    final l10n = context.l10n;
     final nameCtrl = TextEditingController(text: type?.name ?? '');
     final costCtrl = TextEditingController(
         text: type != null ? type.monthlyCost.toStringAsFixed(2) : '');
@@ -56,7 +76,9 @@ class _MembershipTypesPageState extends State<MembershipTypesPage> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: Text(type == null ? 'New Membership Type' : 'Edit Membership Type'),
+          title: Text(type == null
+              ? l10n.businessMgmtNewMembershipType
+              : l10n.businessMgmtEditMembershipType),
           content: Form(
             key: formKey,
             child: Column(
@@ -64,24 +86,27 @@ class _MembershipTypesPageState extends State<MembershipTypesPage> {
               children: [
                 TextFormField(
                   controller: nameCtrl,
-                  decoration: const InputDecoration(labelText: 'Name'),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                  decoration: InputDecoration(labelText: l10n.businessMgmtName),
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: costCtrl,
-                  decoration: const InputDecoration(labelText: 'Monthly cost', prefixText: '\$'),
+                  decoration: InputDecoration(
+                      labelText: l10n.businessMgmtMonthlyCost,
+                      prefixText: '${_currencySymbol()} '),
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Required';
-                    if (double.tryParse(v) == null) return 'Enter a valid number';
+                    if (v == null || v.trim().isEmpty) return l10n.commonRequired;
+                    if (_parseCost(v) == null) return l10n.businessMgmtInvalidNumber;
                     return null;
                   },
                 ),
                 const SizedBox(height: 8),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Active'),
+                  title: Text(l10n.businessMgmtTypeActive),
                   value: isActive,
                   onChanged: (v) => setDialogState(() => isActive = v),
                 ),
@@ -89,12 +114,14 @@ class _MembershipTypesPageState extends State<MembershipTypesPage> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(l10n.commonCancel)),
             FilledButton(
               onPressed: () {
                 if (formKey.currentState!.validate()) Navigator.pop(ctx, true);
               },
-              child: const Text('Save'),
+              child: Text(l10n.commonSave),
             ),
           ],
         ),
@@ -107,7 +134,7 @@ class _MembershipTypesPageState extends State<MembershipTypesPage> {
       final token = await AuthManager.instance.getValidToken();
       final data = {
         'name': nameCtrl.text.trim(),
-        'monthly_cost': double.parse(costCtrl.text.trim()),
+        'monthly_cost': _parseCost(costCtrl.text)!,
         'is_active': isActive,
       };
       if (type == null) {
@@ -126,14 +153,19 @@ class _MembershipTypesPageState extends State<MembershipTypesPage> {
   }
 
   Future<void> _delete(GymMembershipType type) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete membership type?'),
-        content: Text('This will delete "${type.name}". Existing memberships referencing it will be kept.'),
+        title: Text(l10n.businessMgmtDeleteMembershipTypeTitle),
+        content: Text(l10n.businessMgmtDeleteMembershipTypeMessage(type.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l10n.commonCancel)),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l10n.commonDelete)),
         ],
       ),
     );
@@ -153,12 +185,14 @@ class _MembershipTypesPageState extends State<MembershipTypesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.gymName} · Membership Types')),
+      appBar: AppBar(
+          title: Text(l10n.businessMgmtMembershipTypesTitle(widget.gymName))),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openForm(),
         icon: const Icon(Icons.add),
-        label: const Text('Add Type'),
+        label: Text(l10n.businessMgmtAddType),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -169,7 +203,8 @@ class _MembershipTypesPageState extends State<MembershipTypesPage> {
                     children: [
                       Text(_error!),
                       const SizedBox(height: 12),
-                      FilledButton(onPressed: _load, child: const Text('Retry')),
+                      FilledButton(
+                          onPressed: _load, child: Text(l10n.commonRetry)),
                     ],
                   ),
                 )
@@ -181,7 +216,7 @@ class _MembershipTypesPageState extends State<MembershipTypesPage> {
                           Icon(Icons.card_membership_outlined,
                               size: 48, color: Theme.of(context).colorScheme.outline),
                           const SizedBox(height: 16),
-                          const Text('No membership types yet'),
+                          Text(l10n.businessMgmtNoMembershipTypesYet),
                         ],
                       ),
                     )
@@ -195,18 +230,21 @@ class _MembershipTypesPageState extends State<MembershipTypesPage> {
                           child: ListTile(
                             title: Text(t.name),
                             subtitle: Text(
-                              '\$${t.monthlyCost.toStringAsFixed(2)}/mo · ${t.isActive ? 'Active' : 'Inactive'}',
+                              '${l10n.businessMgmtPerMonthShort(formatMoney(t.monthlyCost, PaymentsConfigCache.current.currency, _locale))}'
+                              ' · ${t.isActive ? l10n.businessMgmtTypeActive : l10n.businessMgmtTypeInactive}',
                             ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
                                   icon: const Icon(Icons.edit_outlined),
+                                  tooltip: l10n.businessMgmtEditNamed(t.name),
                                   onPressed: () => _openForm(type: t),
                                 ),
                                 IconButton(
                                   icon: Icon(Icons.delete_outline,
                                       color: Theme.of(context).colorScheme.error),
+                                  tooltip: l10n.businessMgmtDeleteNamed(t.name),
                                   onPressed: () => _delete(t),
                                 ),
                               ],

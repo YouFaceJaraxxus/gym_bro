@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
+import '../models/payment.dart';
 import '../models/shop_item.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'posts_page.dart';
+import 'shop/order_widgets.dart' show PaymentsConfigCache;
+import 'shop/shop_orders_page.dart';
 import 'shop_item_form_page.dart';
 import 'shop_vendors_page.dart';
 
@@ -34,6 +38,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
   final _api = ApiService();
   List<ShopItem> _items = [];
   List<UserProfile> _vendors = [];
+  String _currency = PaymentsConfigCache.current.currency;
   bool _loading = true;
   String? _error;
 
@@ -53,9 +58,11 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
       final results = await Future.wait([
         _api.getShopItems(token, shopId: widget.shopId),
         _api.getShopVendors(token, shopId: widget.shopId),
+        PaymentsConfigCache.get(_api, token),
       ]);
       if (mounted) {
         setState(() {
+          _currency = (results[2] as PaymentsConfig).currency;
           _items = results[0] as List<ShopItem>;
           _vendors = (results[1] as List<Map<String, dynamic>>)
               .map((r) => UserProfile.fromJson(r))
@@ -87,16 +94,16 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Delete item?'),
-        content: Text('Remove "${item.name}" from this shop?'),
+        title: Text(context.l10n.businessMgmtDeleteItemTitle),
+        content: Text(context.l10n.businessMgmtDeleteItemMessage(item.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(context.l10n.commonDelete),
           ),
         ],
       ),
@@ -115,6 +122,14 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
     }
   }
 
+  void _openOrders() => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) =>
+          ShopOrdersPage(shopId: widget.shopId, shopName: widget.shopName),
+    ),
+  );
+
   void _openPosts() => Navigator.push(
     context,
     MaterialPageRoute(
@@ -128,6 +143,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: widget.embedded
           ? null
@@ -135,8 +151,13 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
               title: Text(widget.shopName),
               actions: [
                 IconButton(
+                  icon: const Icon(Icons.receipt_long_outlined),
+                  tooltip: l10n.businessMgmtOrders,
+                  onPressed: _openOrders,
+                ),
+                IconButton(
                   icon: const Icon(Icons.forum_outlined),
-                  tooltip: 'Posts',
+                  tooltip: l10n.businessMgmtPosts,
                   onPressed: _openPosts,
                 ),
               ],
@@ -149,7 +170,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openForm(),
         icon: const Icon(Icons.add),
-        label: const Text('Add Item'),
+        label: Text(l10n.businessMgmtAddItem),
       ),
     );
   }
@@ -167,13 +188,14 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
           const SizedBox(height: 16),
           Text(_error!),
           const SizedBox(height: 16),
-          FilledButton(onPressed: _load, child: const Text('Retry')),
+          FilledButton(onPressed: _load, child: Text(context.l10n.commonRetry)),
         ],
       ),
     );
   }
 
   Widget _buildContent() {
+    final l10n = context.l10n;
     return RefreshIndicator(
       onRefresh: _load,
       child: SingleChildScrollView(
@@ -199,18 +221,37 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
                   OutlinedButton.icon(
                     onPressed: _openPosts,
                     icon: const Icon(Icons.forum_outlined, size: 18),
-                    label: const Text('Posts'),
+                    label: Text(l10n.businessMgmtPosts),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
             ],
+            // ── Orders ────────────────────────────────────────────────────
+            Card(
+              margin: const EdgeInsets.only(bottom: 20),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.tertiaryContainer,
+                  child: Icon(
+                    Icons.receipt_long_outlined,
+                    color: Theme.of(context).colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                title: Text(l10n.businessMgmtOrders),
+                subtitle: Text(l10n.businessMgmtOrdersSubtitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _openOrders,
+              ),
+            ),
             // ── Staff / Vendors section ───────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Staff / Vendors',
+                  l10n.businessMgmtStaffVendors,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 if (!widget.vendorMode)
@@ -228,7 +269,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
                       _load();
                     },
                     icon: const Icon(Icons.open_in_new, size: 16),
-                    label: const Text('Manage'),
+                    label: Text(l10n.businessMgmtManage),
                   ),
               ],
             ),
@@ -245,7 +286,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'No vendors yet',
+                      l10n.businessMgmtNoVendorsYet,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.outline,
                       ),
@@ -257,9 +298,11 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
               for (final v in _vendors.take(5))
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: CircleAvatar(
-                    child: Text(
-                      v.name.isNotEmpty ? v.name[0].toUpperCase() : '?',
+                  leading: ExcludeSemantics(
+                    child: CircleAvatar(
+                      child: Text(
+                        v.name.isNotEmpty ? v.name[0].toUpperCase() : '?',
+                      ),
                     ),
                   ),
                   title: Text(v.fullName),
@@ -269,7 +312,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
-                  '+ ${_vendors.length - 5} more',
+                  l10n.businessMgmtMoreCount(_vendors.length - 5),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                   ),
@@ -279,7 +322,10 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
             const SizedBox(height: 24),
 
             // ── Items section ─────────────────────────────────────────────
-            Text('Items', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.businessMgmtItems,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
             if (_items.isEmpty)
               Padding(
@@ -293,7 +339,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'No items yet',
+                      l10n.businessMgmtNoItemsYet,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.outline,
                       ),
@@ -307,6 +353,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
                   padding: const EdgeInsets.only(bottom: 10),
                   child: _ShopItemTile(
                     item: item,
+                    currency: _currency,
                     onEdit: () => _openForm(item: item),
                     onDelete: () => _delete(item),
                   ),
@@ -323,11 +370,13 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
 class _ShopItemTile extends StatelessWidget {
   const _ShopItemTile({
     required this.item,
+    required this.currency,
     required this.onEdit,
     required this.onDelete,
   });
 
   final ShopItem item;
+  final String currency;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
@@ -340,11 +389,18 @@ class _ShopItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
         leading: item.imageUrl != null
-            ? CircleAvatar(backgroundImage: NetworkImage(item.imageUrl!))
+            // Decorative: the item name is in the title.
+            ? ExcludeSemantics(
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(item.imageUrl!),
+                ),
+              )
             : CircleAvatar(
                 backgroundColor: item.isActive
                     ? cs.primaryContainer
@@ -361,7 +417,7 @@ class _ShopItemTile extends StatelessWidget {
             Expanded(child: Text(item.name)),
             if (!item.isActive)
               Chip(
-                label: const Text('Inactive'),
+                label: Text(l10n.businessMgmtItemInactive),
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
                 backgroundColor: cs.errorContainer,
@@ -373,21 +429,25 @@ class _ShopItemTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              item.type.displayName,
+              item.type.label(l10n),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             Row(
               children: [
                 Text(
-                  '\$${item.price.toStringAsFixed(2)}',
+                  formatMoney(item.price, currency, locale),
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: cs.primary),
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Qty: ${item.quantity}',
-                  style: Theme.of(context).textTheme.bodySmall,
+                  item.quantity <= 0
+                      ? l10n.businessMgmtOutOfStock
+                      : l10n.businessMgmtQuantity(item.quantity),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: item.quantity <= 0 ? cs.error : null,
+                  ),
                 ),
               ],
             ),
@@ -400,13 +460,13 @@ class _ShopItemTile extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.edit_outlined),
               onPressed: onEdit,
-              tooltip: 'Edit',
+              tooltip: l10n.businessMgmtEditNamed(item.name),
             ),
             IconButton(
               icon: const Icon(Icons.delete_outline),
               color: cs.error,
               onPressed: onDelete,
-              tooltip: 'Delete',
+              tooltip: l10n.businessMgmtDeleteNamed(item.name),
             ),
           ],
         ),

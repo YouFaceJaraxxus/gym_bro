@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/business.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
@@ -57,8 +58,6 @@ class _OwnerAllMembersPageState extends State<OwnerAllMembersPage> {
           .where((b) => gymIds.contains(b.id) && b.type == 'gym')
           .toList();
 
-      final allUsers = await _api.getUsers(token);
-      final userMap = {for (final u in allUsers) u.id: u};
       final memberLists = await Future.wait(
           gyms.map((g) => _api.getMembers(token, gymId: g.id)));
 
@@ -66,11 +65,10 @@ class _OwnerAllMembersPageState extends State<OwnerAllMembersPage> {
         setState(() {
           _gymData = List.generate(gyms.length, (i) {
             final rows = memberLists[i];
-            final members = rows.map((r) {
-              final u = userMap[r['user_id'] as String];
-              if (u == null) return null;
-              return (memberId: r['id'] as String, user: u);
-            }).whereType<({String memberId, UserProfile user})>().toList();
+            final members = [
+              for (final r in rows)
+                (memberId: r['id'] as String, user: UserProfile.fromRoleRow(r)),
+            ];
             return (gym: gyms[i], members: members);
           });
           _loading = false;
@@ -105,7 +103,7 @@ class _OwnerAllMembersPageState extends State<OwnerAllMembersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('All Members')),
+      appBar: AppBar(title: Text(context.l10n.businessGymAllMembersTitle)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -124,7 +122,8 @@ class _OwnerAllMembersPageState extends State<OwnerAllMembersPage> {
           const SizedBox(height: 16),
           Text(_error!),
           const SizedBox(height: 16),
-          FilledButton(onPressed: _load, child: const Text('Retry')),
+          FilledButton(
+              onPressed: _load, child: Text(context.l10n.commonRetry)),
         ],
       ),
     );
@@ -132,6 +131,7 @@ class _OwnerAllMembersPageState extends State<OwnerAllMembersPage> {
 
   Widget _buildContent() {
     final items = _filtered;
+    final l10n = context.l10n;
     return RefreshIndicator(
       onRefresh: _load,
       child: Column(
@@ -141,7 +141,7 @@ class _OwnerAllMembersPageState extends State<OwnerAllMembersPage> {
             child: TextField(
               controller: _search,
               decoration: InputDecoration(
-                hintText: 'Search members…',
+                hintText: l10n.businessGymSearchMembersHint,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12)),
@@ -150,6 +150,7 @@ class _OwnerAllMembersPageState extends State<OwnerAllMembersPage> {
                 suffixIcon: _search.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
+                        tooltip: l10n.businessGymClearSearch,
                         onPressed: () {
                           _search.clear();
                           setState(() {});
@@ -168,7 +169,7 @@ class _OwnerAllMembersPageState extends State<OwnerAllMembersPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
                   FilterChip(
-                    label: const Text('All gyms'),
+                    label: Text(l10n.businessGymAllGyms),
                     selected: _filterGymId == null,
                     onSelected: (_) => setState(() => _filterGymId = null),
                   ),
@@ -188,7 +189,7 @@ class _OwnerAllMembersPageState extends State<OwnerAllMembersPage> {
           const SizedBox(height: 8),
           Expanded(
             child: items.isEmpty
-                ? const Center(child: Text('No members found'))
+                ? Center(child: Text(l10n.businessGymNoMembersFound))
                 : ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

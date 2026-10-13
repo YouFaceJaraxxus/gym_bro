@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../services/auth_service.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
@@ -42,7 +43,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Forgot Password')),
+      appBar: AppBar(title: Text(context.l10n.shellForgotPasswordTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: _sent ? _buildSuccess(context) : _buildForm(context),
@@ -51,21 +52,25 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   Widget _buildForm(BuildContext context) {
+    final l10n = context.l10n;
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Enter your email and we\'ll send you a link to reset your password.',
+            l10n.shellForgotPasswordIntro,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 24),
           TextFormField(
             controller: _emailCtrl,
-            decoration: const InputDecoration(labelText: 'Email'),
+            decoration: InputDecoration(labelText: l10n.shellAuthEmail),
+            autofillHints: const [AutofillHints.email],
             keyboardType: TextInputType.emailAddress,
-            validator: (v) => (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+            validator: (v) => (v == null || !v.contains('@'))
+                ? l10n.shellAuthInvalidEmail
+                : null,
           ),
           const SizedBox(height: 24),
           if (_error != null)
@@ -79,12 +84,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           FilledButton(
             onPressed: _loading ? null : _submit,
             child: _loading
-                ? const SizedBox(
+                ? SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      semanticsLabel: l10n.commonLoading,
+                    ),
                   )
-                : const Text('Send Reset Link'),
+                : Text(l10n.shellSendResetLink),
           ),
         ],
       ),
@@ -92,6 +100,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   Widget _buildSuccess(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -102,19 +111,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         ),
         const SizedBox(height: 24),
         Text(
-          'Check your email',
+          l10n.shellCheckEmailTitle,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const SizedBox(height: 12),
         Text(
-          'We sent a password reset link to ${_emailCtrl.text.trim()}.',
+          l10n.shellResetLinkSent(_emailCtrl.text.trim()),
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 32),
         FilledButton(
           onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-          child: const Text('Back to Login'),
+          child: Text(l10n.shellHomeBackToLogin),
         ),
       ],
     );

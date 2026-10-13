@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/training.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../theme.dart';
 import '../widgets/muscle_diagram.dart';
 import 'training_form_page.dart';
 import 'session_log_page.dart';
@@ -48,17 +50,19 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
   }
 
   Future<void> _delete() async {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete training?'),
-        content: Text('Remove "${_training!.name}" permanently?'),
+        title: Text(l10n.trainingPlanDeleteTitle),
+        content: Text(l10n.trainingPlanDeleteBody(_training!.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.commonCancel)),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            style: TextButton.styleFrom(foregroundColor: cs.error),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -71,7 +75,10 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e.toString(), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
+          ),
         );
       }
     }
@@ -79,6 +86,9 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final app = context.appColors;
     if (_loading) {
       return Scaffold(appBar: AppBar(), body: const Center(child: CircularProgressIndicator()));
     }
@@ -87,9 +97,9 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
         appBar: AppBar(),
         body: Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(_error ?? 'Unknown error', style: const TextStyle(color: Colors.red)),
+            Text(_error ?? l10n.commonSomethingWentWrong, style: TextStyle(color: cs.error)),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: _load, child: const Text('Retry')),
+            ElevatedButton(onPressed: _load, child: Text(l10n.commonRetry)),
           ]),
         ),
       );
@@ -106,6 +116,7 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
         actions: [
           if (isOwner) ...[
             IconButton(
+              tooltip: l10n.commonEdit,
               icon: const Icon(Icons.edit),
               onPressed: () async {
                 final updated = await Navigator.push<Training>(
@@ -115,7 +126,11 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
                 if (updated != null) setState(() => _training = updated);
               },
             ),
-            IconButton(icon: const Icon(Icons.delete_outline), onPressed: _delete),
+            IconButton(
+              tooltip: l10n.commonDelete,
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _delete,
+            ),
           ],
         ],
       ),
@@ -129,7 +144,7 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
           );
         },
         icon: const Icon(Icons.play_arrow),
-        label: const Text('Start Session'),
+        label: Text(l10n.trainingPlanStartSession),
       ),
       body: RefreshIndicator(
         onRefresh: _load,
@@ -145,6 +160,7 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
+                  excludeFromSemantics: true,
                   errorBuilder: (context, error, stack) => const SizedBox.shrink(),
                 ),
               ),
@@ -158,23 +174,24 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
+                      color: cs.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.lock_outline, size: 12, color: Colors.grey),
-                        SizedBox(width: 4),
-                        Text('Private', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        Icon(Icons.lock_outline, size: 12, color: cs.onSurfaceVariant),
+                        const SizedBox(width: 4),
+                        Text(l10n.trainingRoutinePrivate,
+                            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                       ],
                     ),
                   ),
                   const SizedBox(width: 8),
                 ],
                 Text(
-                  '${training.sets.length} set${training.sets.length == 1 ? '' : 's'}',
-                  style: const TextStyle(color: Colors.grey, fontSize: 13),
+                  l10n.trainingWorkoutsSetCount(training.sets.length),
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
                 ),
               ],
             ),
@@ -189,16 +206,22 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
+                  color: app.warningContainer,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.amber.shade200),
+                  border: Border.all(color: app.warning.withValues(alpha: 0.4)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.sticky_note_2_outlined, size: 16, color: Colors.amber.shade700),
+                    Icon(Icons.sticky_note_2_outlined,
+                        size: 16,
+                        color: app.onWarningContainer,
+                        semanticLabel: l10n.trainingPlanNotes),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(training.notes!)),
+                    Expanded(
+                      child: Text(training.notes!,
+                          style: TextStyle(color: app.onWarningContainer)),
+                    ),
                   ],
                 ),
               ),
@@ -207,7 +230,8 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
             // Muscle diagram
             if (allPrimary.isNotEmpty) ...[
               const SizedBox(height: 24),
-              const Text('Muscles Trained', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(l10n.trainingPlanMusclesTrained,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 12),
               Center(
                 child: MuscleDiagram(primaryMuscles: allPrimary, size: 200),
@@ -219,7 +243,8 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
             // Sets
             if (training.sets.isNotEmpty) ...[
               const SizedBox(height: 24),
-              const Text('Programme', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(l10n.trainingPlanProgramme,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 12),
               ...training.sets.map((s) => _SetCard(set: s)),
             ],
@@ -237,6 +262,8 @@ class _SetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -251,14 +278,14 @@ class _SetCard extends StatelessWidget {
                 const Spacer(),
                 if (set.restSeconds != null)
                   Text(
-                    'Rest ${set.restSeconds}s',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    l10n.trainingPlanRestSeconds(set.restSeconds!),
+                    style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                   ),
               ],
             ),
             if (set.note != null && set.note!.isNotEmpty) ...[
               const SizedBox(height: 6),
-              Text(set.note!, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Text(set.note!, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
             ],
             const SizedBox(height: 10),
             ...set.exercises.map((e) => _ExerciseRow(ex: e)),
@@ -274,31 +301,31 @@ class _SetTypeBadge extends StatelessWidget {
 
   const _SetTypeBadge({required this.type});
 
-  Color get _color {
-    switch (type) {
-      case WorkoutSetType.standard:
-        return Colors.blue;
-      case WorkoutSetType.superset:
-        return Colors.purple;
-      case WorkoutSetType.dropset:
-        return Colors.orange;
-      case WorkoutSetType.circuit:
-        return Colors.green;
-    }
+  /// (background, foreground) per set type, from theme roles.
+  (Color, Color) _colors(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final app = context.appColors;
+    return switch (type) {
+      WorkoutSetType.standard => (cs.secondaryContainer, cs.onSecondaryContainer),
+      WorkoutSetType.superset => (cs.primaryContainer, cs.onPrimaryContainer),
+      WorkoutSetType.dropset => (cs.tertiaryContainer, cs.onTertiaryContainer),
+      WorkoutSetType.circuit => (app.successContainer, app.onSuccessContainer),
+    };
   }
 
   @override
   Widget build(BuildContext context) {
+    final (bg, fg) = _colors(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.12),
+        color: bg,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _color.withValues(alpha: 0.4)),
+        border: Border.all(color: fg.withValues(alpha: 0.3)),
       ),
       child: Text(
-        type.displayName,
-        style: TextStyle(fontSize: 11, color: _color, fontWeight: FontWeight.w600),
+        type.label(context.l10n),
+        style: TextStyle(fontSize: 11, color: fg, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -311,7 +338,9 @@ class _ExerciseRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = ex.exercise?.name ?? 'Exercise';
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final name = ex.exercise?.name ?? l10n.trainingExerciseFallbackName;
     final drops = ex.drops;
 
     return Padding(
@@ -321,12 +350,11 @@ class _ExerciseRow extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.fitness_center, size: 14, color: Colors.grey),
+              Icon(Icons.fitness_center, size: 14, color: cs.onSurfaceVariant),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  name +
-                      (ex.isAlternating ? ' (alternating)' : ''),
+                  ex.isAlternating ? l10n.trainingExerciseAlternating(name) : name,
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
@@ -342,9 +370,9 @@ class _ExerciseRow extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 2),
                   child: Text(
                     drops.length > 1
-                        ? 'Drop ${d.dropNumber + 1}: ${d.label}'
-                        : d.label,
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        ? l10n.trainingPlanDropLine(d.dropNumber + 1, d.label(l10n))
+                        : d.label(l10n),
+                    style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
                   ),
                 )).toList(),
               ),

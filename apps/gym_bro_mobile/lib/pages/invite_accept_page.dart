@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/app_notification.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -18,18 +19,18 @@ class _InviteAcceptPageState extends State<InviteAcceptPage> {
 
   AppNotification get _n => widget.notification;
 
-  String get _entityName => _n.entityName ?? 'the organisation';
+  String _entityName(AppLocalizations l10n) =>
+      _n.entityName ?? l10n.shellInviteOrganisationFallback;
 
-  String get _roleLabel {
-    if (_n.type == NotificationType.vendorShopInvite) return 'Vendor';
+  String _roleLabel(AppLocalizations l10n) {
+    if (_n.type == NotificationType.vendorShopInvite) {
+      return l10n.shellRoleVendor;
+    }
     return switch (_n.employeeType) {
-      'employee_trainer' => 'Employee Trainer',
-      _ => 'Employee',
+      'employee_trainer' => l10n.shellRoleEmployeeTrainer,
+      _ => l10n.shellRoleEmployee,
     };
   }
-
-  String get _locationLabel =>
-      _n.type == NotificationType.vendorShopInvite ? 'shop' : 'gym';
 
   Future<void> _respond(bool accept) async {
     setState(() => _loading = true);
@@ -44,8 +45,7 @@ class _InviteAcceptPageState extends State<InviteAcceptPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(e.toString().replaceFirst('Exception: ', ''))),
+          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
         );
         setState(() => _loading = false);
       }
@@ -55,13 +55,16 @@ class _InviteAcceptPageState extends State<InviteAcceptPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final status = _n.inviteStatus;
+    final entityName = _entityName(l10n);
+    final roleLabel = _roleLabel(l10n);
 
-    final alreadyActed = status == InviteStatus.accepted ||
-        status == InviteStatus.declined;
+    final alreadyActed =
+        status == InviteStatus.accepted || status == InviteStatus.declined;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Invitation')),
+      appBar: AppBar(title: Text(l10n.shellInvitationTitle)),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -83,7 +86,7 @@ class _InviteAcceptPageState extends State<InviteAcceptPage> {
             ),
             const SizedBox(height: 12),
             Text(
-              'You have been invited to work at $_entityName as $_roleLabel.',
+              l10n.shellInviteBody(entityName, roleLabel),
               style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
@@ -91,10 +94,9 @@ class _InviteAcceptPageState extends State<InviteAcceptPage> {
               const SizedBox(height: 8),
               Text(
                 _n.body!,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: cs.outline),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: cs.outline),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -102,23 +104,26 @@ class _InviteAcceptPageState extends State<InviteAcceptPage> {
             if (alreadyActed) ...[
               _StatusBadge(
                 accepted: status == InviteStatus.accepted,
-                entityName: _entityName,
-                roleLabel: _roleLabel,
-                locationLabel: _locationLabel,
+                entityName: entityName,
+                roleLabel: roleLabel,
               ),
             ] else if (_loading) ...[
-              const Center(child: CircularProgressIndicator()),
+              Center(
+                child: CircularProgressIndicator(
+                  semanticsLabel: l10n.commonLoading,
+                ),
+              ),
             ] else ...[
               FilledButton.icon(
                 onPressed: () => _respond(true),
                 icon: const Icon(Icons.check),
-                label: Text('Accept — join $_entityName'),
+                label: Text(l10n.shellInviteAccept(entityName)),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
                 onPressed: () => _respond(false),
                 icon: const Icon(Icons.close),
-                label: const Text('Decline'),
+                label: Text(l10n.shellInviteDecline),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: cs.error,
                   side: BorderSide(color: cs.error),
@@ -136,13 +141,11 @@ class _StatusBadge extends StatelessWidget {
   final bool accepted;
   final String entityName;
   final String roleLabel;
-  final String locationLabel;
 
   const _StatusBadge({
     required this.accepted,
     required this.entityName,
     required this.roleLabel,
-    required this.locationLabel,
   });
 
   @override
@@ -151,9 +154,7 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       decoration: BoxDecoration(
-        color: accepted
-            ? cs.primaryContainer
-            : cs.errorContainer,
+        color: accepted ? cs.primaryContainer : cs.errorContainer,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -167,13 +168,11 @@ class _StatusBadge extends StatelessWidget {
           Flexible(
             child: Text(
               accepted
-                  ? 'You joined $entityName as $roleLabel'
-                  : 'You declined this invitation',
+                  ? context.l10n.shellInviteJoined(entityName, roleLabel)
+                  : context.l10n.shellInviteDeclined,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: accepted
-                        ? cs.onPrimaryContainer
-                        : cs.onErrorContainer,
-                  ),
+                color: accepted ? cs.onPrimaryContainer : cs.onErrorContainer,
+              ),
             ),
           ),
         ],

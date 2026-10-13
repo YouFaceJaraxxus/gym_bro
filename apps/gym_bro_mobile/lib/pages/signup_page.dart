@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../services/auth_service.dart';
+import '../widgets/google_sign_in_button.dart';
 import 'verify_invite_page.dart';
 
 class SignupPage extends StatefulWidget {
@@ -58,7 +60,7 @@ class _SignupPageState extends State<SignupPage> {
         case 'email_taken':
           setState(() {
             _emailTaken = true;
-            _error = 'An account with this email already exists.';
+            _error = context.l10n.shellSignupEmailTaken;
           });
         default:
           setState(() => _error = e.message);
@@ -78,16 +80,12 @@ class _SignupPageState extends State<SignupPage> {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('You have a pending invite'),
-        content: Text(
-          'An account for $email was already created by an invite. '
-          "We've re-sent the invite email — enter the 6-digit code from it "
-          'to activate your account.',
-        ),
+        title: Text(ctx.l10n.shellSignupPendingInviteTitle),
+        content: Text(ctx.l10n.shellSignupPendingInviteBody(email)),
         actions: [
           FilledButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Enter code'),
+            child: Text(ctx.l10n.shellSignupEnterCode),
           ),
         ],
       ),
@@ -101,8 +99,9 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Account')),
+      appBar: AppBar(title: Text(l10n.shellCreateAccount)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -112,36 +111,46 @@ class _SignupPageState extends State<SignupPage> {
             children: [
               TextFormField(
                 controller: _nameCtrl,
-                decoration: const InputDecoration(labelText: 'First Name'),
+                decoration: InputDecoration(labelText: l10n.shellAuthFirstName),
                 textCapitalization: TextCapitalization.words,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? l10n.commonRequired
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _lastNameCtrl,
-                decoration: const InputDecoration(labelText: 'Last Name'),
+                decoration: InputDecoration(labelText: l10n.shellAuthLastName),
                 textCapitalization: TextCapitalization.words,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? l10n.commonRequired
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _usernameCtrl,
-                decoration: const InputDecoration(labelText: 'Username'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                decoration: InputDecoration(labelText: l10n.shellAuthUsername),
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? l10n.commonRequired
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _emailCtrl,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(labelText: l10n.shellAuthEmail),
                 keyboardType: TextInputType.emailAddress,
-                validator: (v) => (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+                validator: (v) => (v == null || !v.contains('@'))
+                    ? l10n.shellAuthInvalidEmail
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _passwordCtrl,
-                decoration: const InputDecoration(labelText: 'Password'),
+                decoration: InputDecoration(labelText: l10n.shellAuthPassword),
                 obscureText: true,
-                validator: (v) => (v == null || v.length < 6) ? 'Minimum 6 characters' : null,
+                validator: (v) => (v == null || v.length < 6)
+                    ? l10n.shellAuthPasswordMin(6)
+                    : null,
               ),
               const SizedBox(height: 24),
               if (_error != null)
@@ -152,14 +161,16 @@ class _SignupPageState extends State<SignupPage> {
                     children: [
                       Text(
                         _error!,
-                        style: TextStyle(color: Theme.of(context).colorScheme.error),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                       ),
                       if (_emailTaken)
                         TextButton(
                           style: TextButton.styleFrom(padding: EdgeInsets.zero),
                           onPressed: () =>
                               Navigator.pushReplacementNamed(context, '/login'),
-                          child: const Text('Log in instead'),
+                          child: Text(l10n.shellLogInInstead),
                         ),
                     ],
                   ),
@@ -167,17 +178,22 @@ class _SignupPageState extends State<SignupPage> {
               FilledButton(
                 onPressed: _loading ? null : _submit,
                 child: _loading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          semanticsLabel: l10n.commonLoading,
+                        ),
                       )
-                    : const Text('Sign Up'),
+                    : Text(l10n.shellSignUp),
               ),
+              GoogleSignInButton(enabled: !_loading),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-                child: const Text('Already have an account? Log in'),
+                onPressed: () =>
+                    Navigator.pushReplacementNamed(context, '/login'),
+                child: Text(l10n.shellHaveAccountLogIn),
               ),
             ],
           ),

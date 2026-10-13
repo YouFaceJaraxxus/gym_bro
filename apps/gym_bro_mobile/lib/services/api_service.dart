@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import '../models/app_notification.dart';
@@ -15,20 +13,79 @@ import '../models/training.dart';
 import '../models/training_session.dart';
 import '../models/user_profile.dart';
 import '../models/user_search_result.dart';
+import '../models/user_settings.dart';
+import '../models/payment.dart';
+import '../models/order.dart';
+import '../models/gym_class.dart';
+import '../models/staff_shift.dart';
+import '../models/progress.dart';
+import '../models/coaching.dart';
+import '../models/social.dart';
+import '../models/check_in.dart';
+import '../models/food_log.dart';
+import '../config.dart';
+import 'auth_manager.dart';
+import 'offline/offline_support.dart';
 
-// Web            → dart:io Platform is unavailable, always use localhost
-// Android emulator → host machine is 10.0.2.2
-// iOS simulator   → localhost works fine
-// Physical device → use your machine's LAN IP (e.g. 192.168.x.x)
-final _base = 'http://${!kIsWeb && Platform.isAndroid ? '10.0.2.2' : 'localhost'}:54321/functions/v1';
+part 'api/account_api.dart';
+part 'api/payments_api.dart';
+part 'api/orders_api.dart';
+part 'api/classes_api.dart';
+part 'api/shifts_api.dart';
+part 'api/progress_api.dart';
+part 'api/coaching_api.dart';
+part 'api/social_api.dart';
+part 'api/checkins_api.dart';
+part 'api/food_logs_api.dart';
+
+// Set with --dart-define=API_BASE_URL=... (see lib/config.dart / README.md).
+final _base = AppConfig.apiBaseUrl;
 
 class ApiService {
-  final _client = http.Client();
+  ApiService() {
+    OfflineSupport.ensureStarted(tokenProvider: _sessionToken);
+  }
+
+  /// Token for replaying queued offline writes; null when signed out.
+  static Future<String?> _sessionToken() async =>
+      AuthManager.instance.hasSession ? AuthManager.instance.getValidToken() : null;
+
+  /// Shared by every ApiService: 20 s timeouts, on-disk GET cache used as an
+  /// offline fallback (responses carry `x-gymbro-offline: 1`), connectivity
+  /// reporting. See lib/services/offline/caching_client.dart.
+  final http.Client _client = CachingClient.shared;
 
   Map<String, String> _headers(String token) => {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       };
+
+  /// Sends a JSON write; if the device is offline (network error), queues it
+  /// in the outbox for replay and throws [QueuedOfflineException]. Use for
+  /// writes that are safe to apply later, in order.
+  Future<http.Response> _sendOrQueue(
+    String method,
+    Uri url,
+    String token,
+    Map<String, dynamic> data,
+  ) async {
+    final body = jsonEncode(data);
+    final req = http.Request(method, url)
+      ..headers.addAll(_headers(token))
+      ..body = body;
+    try {
+      return await http.Response.fromStream(await _client.send(req));
+    } catch (e) {
+      if (!isNetworkError(e)) rethrow;
+      await OfflineSupport.outbox.enqueue(
+        method: method,
+        url: url,
+        headers: const {'Content-Type': 'application/json'},
+        body: body,
+      );
+      throw const QueuedOfflineException();
+    }
+  }
 
   void _check(http.Response r) {
     if (r.statusCode >= 400) {
@@ -829,10 +886,12 @@ class ApiService {
     String sessionId,
     Map<String, dynamic> data,
   ) async {
-    final r = await _client.post(
+    // Queued offline (throws QueuedOfflineException) when there's no network.
+    final r = await _sendOrQueue(
+      'POST',
       Uri.parse('$_base/training-sessions/$sessionId/sets'),
-      headers: _headers(token),
-      body: jsonEncode(data),
+      token,
+      data,
     );
     _check(r);
     return SessionSetLog.fromJson(jsonDecode(r.body) as Map<String, dynamic>);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -92,11 +93,16 @@ class _ExercisesPageState extends State<ExercisesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Exercises'),
+        title: Text(l10n.trainingExerciseTitle),
         actions: [
           IconButton(
+            tooltip: _filterMuscle == null
+                ? l10n.trainingExerciseFilterTooltip
+                : l10n.trainingExerciseFilterActiveTooltip(_filterMuscle!.label(l10n)),
             icon: Badge(
               isLabelVisible: _filterMuscle != null,
               child: const Icon(Icons.filter_list),
@@ -104,6 +110,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
             onPressed: _openFilter,
           ),
           IconButton(
+            tooltip: l10n.trainingExerciseNewTitle,
             icon: const Icon(Icons.add),
             onPressed: () async {
               final created = await Navigator.push<Exercise>(
@@ -122,10 +129,11 @@ class _ExercisesPageState extends State<ExercisesPage> {
             child: TextField(
               controller: _search,
               decoration: InputDecoration(
-                hintText: 'Search exercises…',
+                hintText: l10n.trainingExerciseSearchHint,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _search.text.isNotEmpty
                     ? IconButton(
+                        tooltip: l10n.trainingWorkoutsClearSearch,
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _search.clear();
@@ -144,7 +152,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
             child: Row(
               children: [
                 ChoiceChip(
-                  label: const Text('Public'),
+                  label: Text(l10n.trainingPlanPublic),
                   selected: !_privateOnly,
                   onSelected: (_) {
                     if (!_privateOnly) return;
@@ -155,7 +163,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
                 const SizedBox(width: 8),
                 ChoiceChip(
                   avatar: const Icon(Icons.lock_outline, size: 16),
-                  label: const Text('My private'),
+                  label: Text(l10n.trainingExerciseMyPrivate),
                   selected: _privateOnly,
                   onSelected: (_) {
                     if (_privateOnly) return;
@@ -172,14 +180,15 @@ class _ExercisesPageState extends State<ExercisesPage> {
               child: Row(
                 children: [
                   Chip(
-                    label: Text(_filterMuscle!.displayName),
-                    deleteIcon: const Icon(Icons.close, size: 16),
+                    label: Text(_filterMuscle!.label(l10n),
+                        style: TextStyle(color: cs.onErrorContainer)),
+                    deleteIcon: Icon(Icons.close, size: 16, color: cs.onErrorContainer),
+                    deleteButtonTooltipMessage: l10n.trainingExerciseClearFilter,
                     onDeleted: () {
                       setState(() => _filterMuscle = null);
                       _load(reset: true);
                     },
-                    backgroundColor:
-                        const Color(0xFFE53935).withValues(alpha: 0.12),
+                    backgroundColor: cs.errorContainer,
                   ),
                 ],
               ),
@@ -191,6 +200,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
   }
 
   Widget _buildList() {
+    final l10n = context.l10n;
     if (_loading && _exercises.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -199,9 +209,9 @@ class _ExercisesPageState extends State<ExercisesPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_error!, style: const TextStyle(color: Colors.red)),
+            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: () => _load(reset: true), child: const Text('Retry')),
+            ElevatedButton(onPressed: () => _load(reset: true), child: Text(l10n.commonRetry)),
           ],
         ),
       );
@@ -209,8 +219,8 @@ class _ExercisesPageState extends State<ExercisesPage> {
     if (_exercises.isEmpty) {
       return Center(
         child: Text(_privateOnly
-            ? 'You have no private exercises'
-            : 'No exercises found'),
+            ? l10n.trainingExerciseNoPrivate
+            : l10n.trainingExerciseNoneFound),
       );
     }
     return NotificationListener<ScrollNotification>(
@@ -256,6 +266,8 @@ class _ExerciseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Card(
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -269,15 +281,16 @@ class _ExerciseCard extends StatelessWidget {
                   width: 52,
                   height: 52,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stack) => _placeholder(),
+                  excludeFromSemantics: true,
+                  errorBuilder: (context, error, stack) => _placeholder(cs),
                 ),
               )
-            : _placeholder(),
+            : _placeholder(cs),
         title: Text(exercise.name, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: exercise.primaryMuscles.isEmpty
             ? null
             : Text(
-                exercise.primaryMuscles.map((m) => m.displayName).join(', '),
+                exercise.primaryMuscles.map((m) => m.label(l10n)).join(', '),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 12),
@@ -288,14 +301,14 @@ class _ExerciseCard extends StatelessWidget {
     );
   }
 
-  Widget _placeholder() => Container(
+  Widget _placeholder(ColorScheme cs) => Container(
         width: 52,
         height: 52,
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: cs.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Icon(Icons.fitness_center, color: Colors.grey),
+        child: Icon(Icons.fitness_center, color: cs.onSurfaceVariant),
       );
 }
 
@@ -308,6 +321,8 @@ class _MuscleFilterSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.6,
@@ -319,19 +334,21 @@ class _MuscleFilterSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: cs.outlineVariant,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
           const SizedBox(height: 12),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('Filter by Muscle', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(l10n.trainingExerciseFilterTitle,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 8),
           ListTile(
-            title: const Text('All muscles'),
-            trailing: current == null ? const Icon(Icons.check, color: Color(0xFFE53935)) : null,
+            title: Text(l10n.trainingExerciseAllMuscles),
+            selected: current == null,
+            trailing: current == null ? Icon(Icons.check, color: cs.primary) : null,
             onTap: () => Navigator.pop(context, null),
           ),
           const Divider(),
@@ -339,8 +356,9 @@ class _MuscleFilterSheet extends StatelessWidget {
             child: ListView(
               controller: scroll,
               children: MuscleGroup.values.map((m) => ListTile(
-                title: Text(m.displayName),
-                trailing: current == m ? const Icon(Icons.check, color: Color(0xFFE53935)) : null,
+                title: Text(m.label(l10n)),
+                selected: current == m,
+                trailing: current == m ? Icon(Icons.check, color: cs.primary) : null,
                 onTap: () => Navigator.pop(context, m),
               )).toList(),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -87,7 +88,7 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
       await _api.resendInvite(token, entry.user.email);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invite resent')),
+          SnackBar(content: Text(context.l10n.businessGymInviteResent)),
         );
       }
     } catch (e) {
@@ -101,18 +102,19 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
   }
 
   Future<void> _removeStaff(_StaffEntry entry) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Remove staff member?'),
-        content: const Text('This will remove them from this gym.'),
+        title: Text(l10n.businessGymRemoveStaffTitle),
+        content: Text(l10n.businessGymRemoveStaffMessage),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+              child: Text(l10n.commonCancel)),
           FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Remove')),
+              child: Text(l10n.businessGymRemove)),
         ],
       ),
     );
@@ -157,7 +159,8 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.gymName} — Staff')),
+      appBar: AppBar(
+          title: Text(context.l10n.businessGymStaffTitle(widget.gymName))),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -175,7 +178,7 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
           if (added == true) _load();
         },
         icon: const Icon(Icons.person_add_outlined),
-        label: const Text('Add Employee'),
+        label: Text(context.l10n.businessGymAddEmployee),
       ),
     );
   }
@@ -190,13 +193,15 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
           const SizedBox(height: 16),
           Text(_error!),
           const SizedBox(height: 16),
-          FilledButton(onPressed: _load, child: const Text('Retry')),
+          FilledButton(
+              onPressed: _load, child: Text(context.l10n.commonRetry)),
         ],
       ),
     );
   }
 
   Widget _buildList() {
+    final l10n = context.l10n;
     if (_staff.isEmpty) {
       return RefreshIndicator(
         onRefresh: _load,
@@ -214,7 +219,7 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
                           size: 48,
                           color: Theme.of(context).colorScheme.outline),
                       const SizedBox(height: 16),
-                      const Text('No staff yet'),
+                      Text(context.l10n.businessGymNoStaffYet),
                     ],
                   ),
                 ),
@@ -244,10 +249,11 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
               ),
               title: Text(entry.user.fullName),
               subtitle: Text(
-                '${entry.user.email}  ·  ${entry.type == _StaffType.employeeTrainer ? 'Emp. Trainer' : 'Employee'}',
+                '${entry.user.email}  ·  ${entry.type == _StaffType.employeeTrainer ? l10n.businessGymRoleEmployeeTrainerShort : l10n.businessGymRoleEmployee}',
               ),
               trailing: PopupMenuButton<_EmployeeAction>(
                 icon: const Icon(Icons.more_vert),
+                tooltip: l10n.businessGymEmployeeActions,
                 onSelected: (action) {
                   switch (action) {
                     case _EmployeeAction.edit:
@@ -258,28 +264,28 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
                       _removeStaff(entry);
                   }
                 },
-                itemBuilder: (_) => const [
+                itemBuilder: (_) => [
                   PopupMenuItem(
                     value: _EmployeeAction.edit,
                     child: ListTile(
-                      leading: Icon(Icons.edit_outlined),
-                      title: Text('Edit Employee'),
+                      leading: const Icon(Icons.edit_outlined),
+                      title: Text(l10n.businessGymEditEmployee),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                   PopupMenuItem(
                     value: _EmployeeAction.resendInvite,
                     child: ListTile(
-                      leading: Icon(Icons.mark_email_unread_outlined),
-                      title: Text('Resend Invite'),
+                      leading: const Icon(Icons.mark_email_unread_outlined),
+                      title: Text(l10n.businessGymResendInvite),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                   PopupMenuItem(
                     value: _EmployeeAction.remove,
                     child: ListTile(
-                      leading: Icon(Icons.person_remove_outlined),
-                      title: Text('Remove'),
+                      leading: const Icon(Icons.person_remove_outlined),
+                      title: Text(l10n.businessGymRemove),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),

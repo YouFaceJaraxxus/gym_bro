@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -13,14 +14,13 @@ Future<void> pickAndUploadImage({
   String? folder,
   required void Function(String url) onUploaded,
   required void Function(bool uploading) onUploadingChanged,
-}) =>
-    _ImagePickerButton.pick(
-      context: context,
-      bucket: bucket,
-      folder: folder,
-      onUploaded: onUploaded,
-      onUploadingChanged: onUploadingChanged,
-    );
+}) => _ImagePickerButton.pick(
+  context: context,
+  bucket: bucket,
+  folder: folder,
+  onUploaded: onUploaded,
+  onUploadingChanged: onUploadingChanged,
+);
 
 /// Shared picker for uploading an image via the `uploads` edge function.
 /// Handles picking (camera/gallery), uploading, loading state, and errors.
@@ -40,12 +40,12 @@ class _ImagePickerButton {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Choose from gallery'),
+              title: Text(ctx.l10n.shellImageChooseFromGallery),
               onTap: () => Navigator.pop(ctx, ImageSource.gallery),
             ),
             ListTile(
               leading: const Icon(Icons.photo_camera_outlined),
-              title: const Text('Take a photo'),
+              title: Text(ctx.l10n.shellImageTakePhoto),
               onTap: () => Navigator.pop(ctx, ImageSource.camera),
             ),
           ],
@@ -77,7 +77,13 @@ class _ImagePickerButton {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Upload failed: ${e.toString().replaceFirst('Exception: ', '')}')),
+          SnackBar(
+            content: Text(
+              context.l10n.shellImageUploadFailed(
+                e.toString().replaceFirst('Exception: ', ''),
+              ),
+            ),
+          ),
         );
       }
     } finally {
@@ -111,50 +117,66 @@ class _AvatarPickerState extends State<AvatarPicker> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: _uploading
-          ? null
-          : () => _ImagePickerButton.pick(
+    final l10n = context.l10n;
+    return Semantics(
+      button: true,
+      enabled: !_uploading,
+      label: _uploading
+          ? l10n.shellImageUploading
+          : widget.imageUrl == null
+          ? l10n.shellAvatarAdd
+          : l10n.shellAvatarChange,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: _uploading
+            ? null
+            : () => _ImagePickerButton.pick(
                 context: context,
                 bucket: 'avatars',
                 folder: widget.folder,
                 onUploaded: widget.onUploaded,
                 onUploadingChanged: (v) => setState(() => _uploading = v),
               ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          CircleAvatar(
-            radius: widget.radius,
-            backgroundColor: cs.primaryContainer,
-            backgroundImage: widget.imageUrl != null
-                ? NetworkImage(widget.imageUrl!)
-                : null,
-            child: widget.imageUrl == null
-                ? Icon(Icons.person, size: widget.radius, color: cs.onPrimaryContainer)
-                : null,
-          ),
-          if (_uploading)
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
             CircleAvatar(
               radius: widget.radius,
-              backgroundColor: Colors.black.withValues(alpha: 0.4),
-              child: const CircularProgressIndicator(color: Colors.white),
-            )
-          else
-            Positioned(
-              bottom: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: cs.primary,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: cs.surface, width: 2),
-                ),
-                child: Icon(Icons.camera_alt, size: 16, color: cs.onPrimary),
-              ),
+              backgroundColor: cs.primaryContainer,
+              backgroundImage: widget.imageUrl != null
+                  ? NetworkImage(widget.imageUrl!)
+                  : null,
+              child: widget.imageUrl == null
+                  ? Icon(
+                      Icons.person,
+                      size: widget.radius,
+                      color: cs.onPrimaryContainer,
+                    )
+                  : null,
             ),
-        ],
+            if (_uploading)
+              // Dark scrim over the photo; white reads on it in both themes.
+              CircleAvatar(
+                radius: widget.radius,
+                backgroundColor: Colors.black.withValues(alpha: 0.4),
+                child: const CircularProgressIndicator(color: Colors.white),
+              )
+            else
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: cs.primary,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: cs.surface, width: 2),
+                  ),
+                  child: Icon(Icons.camera_alt, size: 16, color: cs.onPrimary),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -169,13 +191,15 @@ class ImagePickerField extends StatefulWidget {
     required this.onUploaded,
     this.folder,
     this.height = 160,
-    this.label = 'Add photo',
+    this.label,
   });
 
   final String? imageUrl;
   final String? folder;
   final double height;
-  final String label;
+
+  /// Placeholder text when there's no image; defaults to "Add photo".
+  final String? label;
   final void Function(String url) onUploaded;
 
   @override
@@ -188,56 +212,77 @@ class _ImagePickerFieldState extends State<ImagePickerField> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: _uploading
-          ? null
-          : () => _ImagePickerButton.pick(
+    final l10n = context.l10n;
+    final label = widget.label ?? l10n.shellImageAddPhoto;
+    return Semantics(
+      button: true,
+      enabled: !_uploading,
+      label: _uploading
+          ? l10n.shellImageUploading
+          : widget.imageUrl == null
+          ? label
+          : l10n.shellImageChange,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: _uploading
+            ? null
+            : () => _ImagePickerButton.pick(
                 context: context,
                 bucket: 'media',
                 folder: widget.folder,
                 onUploaded: widget.onUploaded,
                 onUploadingChanged: (v) => setState(() => _uploading = v),
               ),
-      child: Container(
-        height: widget.height,
-        width: double.infinity,
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: cs.outlineVariant),
-        ),
-        child: _uploading
-            ? const Center(child: CircularProgressIndicator())
-            : widget.imageUrl != null
-                ? Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.network(widget.imageUrl!, fit: BoxFit.cover),
-                      Positioned(
-                        bottom: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.55),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.edit, size: 16, color: Colors.white),
+        child: Container(
+          height: widget.height,
+          width: double.infinity,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: cs.outlineVariant),
+          ),
+          child: _uploading
+              ? const Center(child: CircularProgressIndicator())
+              : widget.imageUrl != null
+              ? Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.network(widget.imageUrl!, fit: BoxFit.cover),
+                    // Dark scrim badge over the photo; white icon on top.
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.55),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.edit,
+                          size: 16,
+                          color: Colors.white,
                         ),
                       ),
-                    ],
-                  )
-                : Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.add_photo_alternate_outlined, size: 32, color: cs.onSurfaceVariant),
-                        const SizedBox(height: 8),
-                        Text(widget.label, style: TextStyle(color: cs.onSurfaceVariant)),
-                      ],
                     ),
+                  ],
+                )
+              : Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.add_photo_alternate_outlined,
+                        size: 32,
+                        color: cs.onSurfaceVariant,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(label, style: TextStyle(color: cs.onSurfaceVariant)),
+                    ],
                   ),
+                ),
+        ),
       ),
     );
   }

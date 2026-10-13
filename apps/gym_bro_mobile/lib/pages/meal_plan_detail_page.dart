@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/meal_plan.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
@@ -70,18 +71,17 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete meal plan?'),
-        content: Text(
-            'Remove "${_plan!.name}" permanently? Any assignments of this plan are removed too.'),
+        title: Text(ctx.l10n.nutritionDeleteMealPlanTitle),
+        content: Text(ctx.l10n.nutritionDeleteMealPlanMessage(_plan!.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(ctx.l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(ctx).colorScheme.error),
+            child: Text(ctx.l10n.commonDelete),
           ),
         ],
       ),
@@ -93,10 +93,11 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {
+        final cs = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceFirst('Exception: ', '')),
-            backgroundColor: Colors.red,
+            content: Text(e.toString().replaceFirst('Exception: ', ''), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
           ),
         );
       }
@@ -132,6 +133,8 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
   }
 
   Widget _buildScaffold() {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     if (_loading && _plan == null) {
       return Scaffold(
         appBar: AppBar(),
@@ -147,11 +150,11 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(_error ?? 'Unknown error',
-                    style: const TextStyle(color: Colors.red),
+                Text(_error ?? l10n.commonSomethingWentWrong,
+                    style: TextStyle(color: cs.error),
                     textAlign: TextAlign.center),
                 const SizedBox(height: 12),
-                ElevatedButton(onPressed: _load, child: const Text('Retry')),
+                ElevatedButton(onPressed: _load, child: Text(l10n.commonRetry)),
               ],
             ),
           ),
@@ -177,18 +180,18 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
         title: Text(plan.name),
         actions: [
           IconButton(
-            tooltip: 'Assign',
+            tooltip: l10n.nutritionAssign,
             icon: const Icon(Icons.person_add_alt_1_outlined),
             onPressed: _assign,
           ),
           if (canEdit) ...[
             IconButton(
-              tooltip: 'Edit',
+              tooltip: l10n.commonEdit,
               icon: const Icon(Icons.edit),
               onPressed: _edit,
             ),
             IconButton(
-              tooltip: 'Delete',
+              tooltip: l10n.commonDelete,
               icon: const Icon(Icons.delete_outline),
               onPressed: _delete,
             ),
@@ -198,7 +201,7 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _assign,
         icon: const Icon(Icons.assignment_ind_outlined),
-        label: const Text('Assign'),
+        label: Text(l10n.nutritionAssign),
       ),
       body: RefreshIndicator(
         onRefresh: _load,
@@ -211,6 +214,7 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
                 borderRadius: BorderRadius.circular(16),
                 child: Image.network(
                   plan.images.first.url,
+                  semanticLabel: l10n.nutritionPhotoOf(plan.name),
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -231,6 +235,7 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
                               borderRadius: BorderRadius.circular(16),
                               child: Image.network(
                                 img.url,
+                                semanticLabel: l10n.nutritionPhotoOf(plan.name),
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stack) =>
                                     const SizedBox.shrink(),
@@ -250,20 +255,21 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
               children: [
                 Chip(
                   label: Text(
-                    plan.weeksLabel,
-                    style: const TextStyle(
+                    plan.weeksLabel(l10n),
+                    style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white,
+                        color: cs.onPrimary,
                         fontWeight: FontWeight.w600),
                   ),
-                  backgroundColor: Colors.blue,
+                  backgroundColor: cs.primary,
+                  side: BorderSide.none,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                if (!plan.isPublic) const _Badge(icon: Icons.lock_outline, label: 'Private'),
-                if (plan.isSystem) const _Badge(icon: Icons.verified_outlined, label: 'System'),
-                if (isAuthor) const _Badge(icon: Icons.person_outline, label: 'Yours'),
+                if (!plan.isPublic) _Badge(icon: Icons.lock_outline, label: l10n.nutritionPrivate),
+                if (plan.isSystem) _Badge(icon: Icons.verified_outlined, label: l10n.nutritionSystem),
+                if (isAuthor) _Badge(icon: Icons.person_outline, label: l10n.nutritionYours),
               ],
             ),
 
@@ -285,27 +291,27 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Daily average · ${plannedDays.length} planned day${plannedDays.length == 1 ? '' : 's'}',
-                        style: const TextStyle(
-                            fontSize: 12, color: Colors.grey),
+                        l10n.nutritionDailyAveragePlannedDays(plannedDays.length),
+                        style: TextStyle(
+                            fontSize: 12, color: cs.onSurfaceVariant),
                       ),
                       const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           _Macro(
-                              label: 'kcal',
+                              label: l10n.nutritionKcal,
                               value: avg((d) => d.kcalTotal).round().toString()),
                           _Macro(
-                              label: 'Protein',
+                              label: l10n.nutritionProtein,
                               value:
                                   '${avg((d) => d.proteinTotal).toStringAsFixed(0)}g'),
                           _Macro(
-                              label: 'Carbs',
+                              label: l10n.nutritionCarbsShort,
                               value:
                                   '${avg((d) => d.carbTotal).toStringAsFixed(0)}g'),
                           _Macro(
-                              label: 'Fat',
+                              label: l10n.nutritionFat,
                               value:
                                   '${avg((d) => d.fatTotal).toStringAsFixed(0)}g'),
                         ],
@@ -318,9 +324,9 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
 
             // Week schedule
             const SizedBox(height: 24),
-            const Text(
-              'Schedule',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              l10n.nutritionSchedule,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             ...List.generate(plan.numWeeks, (wi) {
@@ -375,13 +381,15 @@ class _Macro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return MergeSemantics(
+      child: Column(
       children: [
         Text(value,
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 2),
-        Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+        Text(label, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
       ],
+      ),
     );
   }
 }
@@ -399,12 +407,10 @@ class _WeekTile extends StatelessWidget {
     required this.onDayTap,
   });
 
-  static const _dayLabels = [
-    'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun',
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     final weekDays = days.where((d) => d.weekNumber == weekNumber).toList();
     final planned = weekDays.where((d) => d.dailyMealPlan != null).length;
     return Card(
@@ -414,14 +420,14 @@ class _WeekTile extends StatelessWidget {
       child: ExpansionTile(
         initiallyExpanded: initiallyExpanded,
         title: Text(
-          'Week $weekNumber',
+          l10n.nutritionWeekNumber(weekNumber),
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
-        subtitle: Text('$planned of 7 days planned',
+        subtitle: Text(l10n.nutritionDaysPlannedOfSeven(planned),
             style: const TextStyle(fontSize: 12)),
         children: List.generate(7, (di) {
           final dayOfWeek = di + 1;
-          final label = _dayLabels[di];
+          final label = shortWeekdayName(dayOfWeek, locale);
           final assigned =
               weekDays.where((d) => d.dayOfWeek == dayOfWeek).firstOrNull;
           final dmp = assigned?.dailyMealPlan;
@@ -438,17 +444,15 @@ class _WeekTile extends StatelessWidget {
             ),
             title: dmp != null
                 ? Text(dmp.name)
-                : const Text(
-                    'Rest / Free',
+                : Text(
+                    l10n.nutritionRestFree,
                     style: TextStyle(
-                        color: Colors.grey, fontStyle: FontStyle.italic),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant, fontStyle: FontStyle.italic),
                   ),
             subtitle: dmp != null
                 ? Text(
-                    '${dmp.kcalTotal.round()} kcal · '
-                    'P ${dmp.proteinTotal.round()}g · '
-                    'C ${dmp.carbTotal.round()}g · '
-                    'F ${dmp.fatTotal.round()}g'
+                    '${l10n.nutritionKcalValue(dmp.kcalTotal.round())} · '
+                    '${l10n.nutritionPcfGrams(dmp.proteinTotal.round(), dmp.carbTotal.round(), dmp.fatTotal.round())}'
                     '${assigned?.note != null && assigned!.note!.isNotEmpty ? '\n${assigned.note}' : ''}',
                     style: const TextStyle(fontSize: 11),
                   )

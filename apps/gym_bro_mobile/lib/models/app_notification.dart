@@ -1,40 +1,41 @@
 enum NotificationType {
-  employeeGymInvite,
-  vendorShopInvite,
-  memberInvite,
-  news,
-  events,
-  training,
-  trainingUpdate,
-  classReminder,
-  shopItemUpdate,
-  purchaseMade,
-  membershipExpiring,
-  invoiceIssued,
-  memberSubscriptionExtended,
-  memberJoin,
-  employeeJoin,
-  vendorJoin;
+  employeeGymInvite('employee_gym_invite'),
+  vendorShopInvite('vendor_shop_invite'),
+  memberInvite('member_invite'),
+  news('news'),
+  events('events'),
+  training('training'),
+  trainingUpdate('training_update'),
+  classReminder('class_reminder'),
+  shopItemUpdate('shop_item_update'),
+  purchaseMade('purchase_made'),
+  membershipExpiring('membership_expiring'),
+  invoiceIssued('invoice_issued'),
+  memberSubscriptionExtended('member_subscription_extended'),
+  memberJoin('member_join'),
+  employeeJoin('employee_join'),
+  vendorJoin('vendor_join'),
+  postComment('post_comment'),
+  shiftAssigned('shift_assigned'),
+  orderUpdate('order_update'),
+  paymentReceived('payment_received'),
+  sessionComment('session_comment');
 
-  static NotificationType fromString(String s) => switch (s) {
-        'employee_gym_invite' => employeeGymInvite,
-        'vendor_shop_invite' => vendorShopInvite,
-        'member_invite' => memberInvite,
-        'news' => news,
-        'events' => events,
-        'training' => training,
-        'training_update' => trainingUpdate,
-        'class_reminder' => classReminder,
-        'shop_item_update' => shopItemUpdate,
-        'purchase_made' => purchaseMade,
-        'membership_expiring' => membershipExpiring,
-        'invoice_issued' => invoiceIssued,
-        'member_subscription_extended' => memberSubscriptionExtended,
-        'member_join' => memberJoin,
-        'employee_join' => employeeJoin,
-        'vendor_join' => vendorJoin,
-        _ => news,
-      };
+  const NotificationType(this.apiValue);
+
+  /// The `notification_type` enum value on the API side.
+  final String apiValue;
+
+  /// Unknown values (from a newer API) fall back to [news].
+  static NotificationType fromString(String s) =>
+      tryParse(s) ?? NotificationType.news;
+
+  static NotificationType? tryParse(String s) {
+    for (final t in values) {
+      if (t.apiValue == s) return t;
+    }
+    return null;
+  }
 
   bool get isInvite =>
       this == employeeGymInvite ||

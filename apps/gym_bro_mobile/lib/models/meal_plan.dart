@@ -1,35 +1,84 @@
+import 'package:intl/intl.dart';
+
+import '../l10n/app_localizations.dart';
+import 'food_log.dart' show fmtAmount;
+
 // Postgres numeric columns are serialized as JSON strings by the API, so these
 // fields can arrive as either a String or a num depending on the endpoint.
 double? _toDouble(dynamic v) => v == null ? null : double.parse(v.toString());
 
+/// Short weekday name for ISO [dayOfWeek] (1 = Monday) in [locale].
+String shortWeekdayName(int dayOfWeek, String locale) =>
+    // 2024-01-01 was a Monday.
+    DateFormat.E(locale).format(DateTime(2024, 1, dayOfWeek));
+
 // ── Enums ──────────────────────────────────────────────────────────────────────
 
 enum FoodItemType {
-  food, spice, drink;
+  food,
+  spice,
+  drink;
 
   static const _api = {food: 'food', spice: 'spice', drink: 'drink'};
-  static const _display = {food: 'Food', spice: 'Spice', drink: 'Drink'};
 
   String get apiValue => _api[this]!;
-  String get displayName => _display[this]!;
+  String label(AppLocalizations l10n) => switch (this) {
+    FoodItemType.food => l10n.nutritionTypeFood,
+    FoodItemType.spice => l10n.nutritionTypeSpice,
+    FoodItemType.drink => l10n.nutritionTypeDrink,
+  };
 
   static FoodItemType? fromApiValue(String v) =>
       _api.entries.where((e) => e.value == v).map((e) => e.key).firstOrNull;
 }
 
 enum FoodSubtype {
-  vegetable, fruit, mushroom, herbFresh,
-  meatBeef, meatPork, meatLamb, meatGame, poultry,
-  fish, seafood, egg,
-  dairyMilk, dairyCheese, dairyYogurt, dairyCream, dairyButter, plantMilk,
-  grainCereal, pastaNoodle, rice, breadBakery, potatoTuber, cornMaize,
-  legumeBean, legumeLentil, nut, seed,
+  vegetable,
+  fruit,
+  mushroom,
+  herbFresh,
+  meatBeef,
+  meatPork,
+  meatLamb,
+  meatGame,
+  poultry,
+  fish,
+  seafood,
+  egg,
+  dairyMilk,
+  dairyCheese,
+  dairyYogurt,
+  dairyCream,
+  dairyButter,
+  plantMilk,
+  grainCereal,
+  pastaNoodle,
+  rice,
+  breadBakery,
+  potatoTuber,
+  cornMaize,
+  legumeBean,
+  legumeLentil,
+  nut,
+  seed,
   oilFat,
-  cannedFood, frozenFood, processedMeat, readyMeal,
-  snackChips, snackBar, cerealBar,
-  chocolateCandy, biscuitCookie, sweetener, jamSpread, bakingIngredient,
-  sauceCondiment, dressing,
-  babyFood, supplementPowder, otherFood;
+  cannedFood,
+  frozenFood,
+  processedMeat,
+  readyMeal,
+  snackChips,
+  snackBar,
+  cerealBar,
+  chocolateCandy,
+  biscuitCookie,
+  sweetener,
+  jamSpread,
+  bakingIngredient,
+  sauceCondiment,
+  dressing,
+  babyFood,
+  supplementPowder,
+  otherFood;
 
   static const _api = {
     FoodSubtype.vegetable: 'vegetable',
@@ -80,72 +129,89 @@ enum FoodSubtype {
     FoodSubtype.otherFood: 'other_food',
   };
 
-  static const _display = {
-    FoodSubtype.vegetable: 'Vegetable',
-    FoodSubtype.fruit: 'Fruit',
-    FoodSubtype.mushroom: 'Mushroom',
-    FoodSubtype.herbFresh: 'Fresh Herb',
-    FoodSubtype.meatBeef: 'Beef',
-    FoodSubtype.meatPork: 'Pork',
-    FoodSubtype.meatLamb: 'Lamb',
-    FoodSubtype.meatGame: 'Game Meat',
-    FoodSubtype.poultry: 'Poultry',
-    FoodSubtype.fish: 'Fish',
-    FoodSubtype.seafood: 'Seafood',
-    FoodSubtype.egg: 'Egg',
-    FoodSubtype.dairyMilk: 'Milk',
-    FoodSubtype.dairyCheese: 'Cheese',
-    FoodSubtype.dairyYogurt: 'Yogurt',
-    FoodSubtype.dairyCream: 'Cream',
-    FoodSubtype.dairyButter: 'Butter',
-    FoodSubtype.plantMilk: 'Plant Milk',
-    FoodSubtype.grainCereal: 'Grain / Cereal',
-    FoodSubtype.pastaNoodle: 'Pasta / Noodle',
-    FoodSubtype.rice: 'Rice',
-    FoodSubtype.breadBakery: 'Bread / Bakery',
-    FoodSubtype.potatoTuber: 'Potato / Tuber',
-    FoodSubtype.cornMaize: 'Corn / Maize',
-    FoodSubtype.legumeBean: 'Beans',
-    FoodSubtype.legumeLentil: 'Lentils',
-    FoodSubtype.nut: 'Nuts',
-    FoodSubtype.seed: 'Seeds',
-    FoodSubtype.oilFat: 'Oil / Fat',
-    FoodSubtype.cannedFood: 'Canned Food',
-    FoodSubtype.frozenFood: 'Frozen Food',
-    FoodSubtype.processedMeat: 'Processed Meat',
-    FoodSubtype.readyMeal: 'Ready Meal',
-    FoodSubtype.snackChips: 'Chips / Crisps',
-    FoodSubtype.snackBar: 'Snack Bar',
-    FoodSubtype.cerealBar: 'Cereal Bar',
-    FoodSubtype.chocolateCandy: 'Chocolate / Candy',
-    FoodSubtype.biscuitCookie: 'Biscuit / Cookie',
-    FoodSubtype.sweetener: 'Sweetener',
-    FoodSubtype.jamSpread: 'Jam / Spread',
-    FoodSubtype.bakingIngredient: 'Baking',
-    FoodSubtype.sauceCondiment: 'Sauce / Condiment',
-    FoodSubtype.dressing: 'Dressing',
-    FoodSubtype.babyFood: 'Baby Food',
-    FoodSubtype.supplementPowder: 'Supplement Powder',
-    FoodSubtype.otherFood: 'Other',
-  };
-
   String get apiValue => _api[this]!;
-  String get displayName => _display[this]!;
+  String label(AppLocalizations l10n) => switch (this) {
+    FoodSubtype.vegetable => l10n.nutritionFoodVegetable,
+    FoodSubtype.fruit => l10n.nutritionFoodFruit,
+    FoodSubtype.mushroom => l10n.nutritionFoodMushroom,
+    FoodSubtype.herbFresh => l10n.nutritionFoodHerbFresh,
+    FoodSubtype.meatBeef => l10n.nutritionFoodBeef,
+    FoodSubtype.meatPork => l10n.nutritionFoodPork,
+    FoodSubtype.meatLamb => l10n.nutritionFoodLamb,
+    FoodSubtype.meatGame => l10n.nutritionFoodGameMeat,
+    FoodSubtype.poultry => l10n.nutritionFoodPoultry,
+    FoodSubtype.fish => l10n.nutritionFoodFish,
+    FoodSubtype.seafood => l10n.nutritionFoodSeafood,
+    FoodSubtype.egg => l10n.nutritionFoodEgg,
+    FoodSubtype.dairyMilk => l10n.nutritionFoodMilk,
+    FoodSubtype.dairyCheese => l10n.nutritionFoodCheese,
+    FoodSubtype.dairyYogurt => l10n.nutritionFoodYogurt,
+    FoodSubtype.dairyCream => l10n.nutritionFoodCream,
+    FoodSubtype.dairyButter => l10n.nutritionFoodButter,
+    FoodSubtype.plantMilk => l10n.nutritionFoodPlantMilk,
+    FoodSubtype.grainCereal => l10n.nutritionFoodGrainCereal,
+    FoodSubtype.pastaNoodle => l10n.nutritionFoodPastaNoodle,
+    FoodSubtype.rice => l10n.nutritionFoodRice,
+    FoodSubtype.breadBakery => l10n.nutritionFoodBreadBakery,
+    FoodSubtype.potatoTuber => l10n.nutritionFoodPotatoTuber,
+    FoodSubtype.cornMaize => l10n.nutritionFoodCorn,
+    FoodSubtype.legumeBean => l10n.nutritionFoodBeans,
+    FoodSubtype.legumeLentil => l10n.nutritionFoodLentils,
+    FoodSubtype.nut => l10n.nutritionFoodNuts,
+    FoodSubtype.seed => l10n.nutritionFoodSeeds,
+    FoodSubtype.oilFat => l10n.nutritionFoodOilFat,
+    FoodSubtype.cannedFood => l10n.nutritionFoodCanned,
+    FoodSubtype.frozenFood => l10n.nutritionFoodFrozen,
+    FoodSubtype.processedMeat => l10n.nutritionFoodProcessedMeat,
+    FoodSubtype.readyMeal => l10n.nutritionFoodReadyMeal,
+    FoodSubtype.snackChips => l10n.nutritionFoodChips,
+    FoodSubtype.snackBar => l10n.nutritionFoodSnackBar,
+    FoodSubtype.cerealBar => l10n.nutritionFoodCerealBar,
+    FoodSubtype.chocolateCandy => l10n.nutritionFoodChocolateCandy,
+    FoodSubtype.biscuitCookie => l10n.nutritionFoodBiscuitCookie,
+    FoodSubtype.sweetener => l10n.nutritionFoodSweetener,
+    FoodSubtype.jamSpread => l10n.nutritionFoodJamSpread,
+    FoodSubtype.bakingIngredient => l10n.nutritionFoodBaking,
+    FoodSubtype.sauceCondiment => l10n.nutritionFoodSauceCondiment,
+    FoodSubtype.dressing => l10n.nutritionFoodDressing,
+    FoodSubtype.babyFood => l10n.nutritionFoodBabyFood,
+    FoodSubtype.supplementPowder => l10n.nutritionFoodSupplementPowder,
+    FoodSubtype.otherFood => l10n.nutritionSubtypeOther,
+  };
 
   static FoodSubtype? fromApiValue(String v) =>
       _api.entries.where((e) => e.value == v).map((e) => e.key).firstOrNull;
 }
 
 enum DrinkSubtype {
-  waterStill, waterSparkling, waterFlavoured,
-  juiceFruit, juiceVegetable,
-  smoothie, shake,
-  milkDairy, milkPlant,
-  coffee, espresso, teaBlack, teaGreen, teaHerbal,
-  soda, energyDrink, sportsDrink, isotonic,
-  alcoholBeer, alcoholCider, alcoholWine, alcoholSpirit, alcoholCocktail,
-  proteinShake, mealReplacement,
-  kombucha, kefirDrink, otherDrink;
+  waterStill,
+  waterSparkling,
+  waterFlavoured,
+  juiceFruit,
+  juiceVegetable,
+  smoothie,
+  shake,
+  milkDairy,
+  milkPlant,
+  coffee,
+  espresso,
+  teaBlack,
+  teaGreen,
+  teaHerbal,
+  soda,
+  energyDrink,
+  sportsDrink,
+  isotonic,
+  alcoholBeer,
+  alcoholCider,
+  alcoholWine,
+  alcoholSpirit,
+  alcoholCocktail,
+  proteinShake,
+  mealReplacement,
+  kombucha,
+  kefirDrink,
+  otherDrink;
 
   static const _api = {
     DrinkSubtype.waterStill: 'water_still',
@@ -178,49 +244,54 @@ enum DrinkSubtype {
     DrinkSubtype.otherDrink: 'other_drink',
   };
 
-  static const _display = {
-    DrinkSubtype.waterStill: 'Still Water',
-    DrinkSubtype.waterSparkling: 'Sparkling Water',
-    DrinkSubtype.waterFlavoured: 'Flavoured Water',
-    DrinkSubtype.juiceFruit: 'Fruit Juice',
-    DrinkSubtype.juiceVegetable: 'Vegetable Juice',
-    DrinkSubtype.smoothie: 'Smoothie',
-    DrinkSubtype.shake: 'Shake',
-    DrinkSubtype.milkDairy: 'Dairy Milk',
-    DrinkSubtype.milkPlant: 'Plant Milk',
-    DrinkSubtype.coffee: 'Coffee',
-    DrinkSubtype.espresso: 'Espresso',
-    DrinkSubtype.teaBlack: 'Black Tea',
-    DrinkSubtype.teaGreen: 'Green Tea',
-    DrinkSubtype.teaHerbal: 'Herbal Tea',
-    DrinkSubtype.soda: 'Soda',
-    DrinkSubtype.energyDrink: 'Energy Drink',
-    DrinkSubtype.sportsDrink: 'Sports Drink',
-    DrinkSubtype.isotonic: 'Isotonic',
-    DrinkSubtype.alcoholBeer: 'Beer',
-    DrinkSubtype.alcoholCider: 'Cider',
-    DrinkSubtype.alcoholWine: 'Wine',
-    DrinkSubtype.alcoholSpirit: 'Spirit',
-    DrinkSubtype.alcoholCocktail: 'Cocktail',
-    DrinkSubtype.proteinShake: 'Protein Shake',
-    DrinkSubtype.mealReplacement: 'Meal Replacement',
-    DrinkSubtype.kombucha: 'Kombucha',
-    DrinkSubtype.kefirDrink: 'Kefir Drink',
-    DrinkSubtype.otherDrink: 'Other',
-  };
-
   String get apiValue => _api[this]!;
-  String get displayName => _display[this]!;
+  String label(AppLocalizations l10n) => switch (this) {
+    DrinkSubtype.waterStill => l10n.nutritionDrinkStillWater,
+    DrinkSubtype.waterSparkling => l10n.nutritionDrinkSparklingWater,
+    DrinkSubtype.waterFlavoured => l10n.nutritionDrinkFlavouredWater,
+    DrinkSubtype.juiceFruit => l10n.nutritionDrinkFruitJuice,
+    DrinkSubtype.juiceVegetable => l10n.nutritionDrinkVegetableJuice,
+    DrinkSubtype.smoothie => l10n.nutritionDrinkSmoothie,
+    DrinkSubtype.shake => l10n.nutritionDrinkShake,
+    DrinkSubtype.milkDairy => l10n.nutritionDrinkDairyMilk,
+    DrinkSubtype.milkPlant => l10n.nutritionDrinkPlantMilk,
+    DrinkSubtype.coffee => l10n.nutritionDrinkCoffee,
+    DrinkSubtype.espresso => l10n.nutritionDrinkEspresso,
+    DrinkSubtype.teaBlack => l10n.nutritionDrinkBlackTea,
+    DrinkSubtype.teaGreen => l10n.nutritionDrinkGreenTea,
+    DrinkSubtype.teaHerbal => l10n.nutritionDrinkHerbalTea,
+    DrinkSubtype.soda => l10n.nutritionDrinkSoda,
+    DrinkSubtype.energyDrink => l10n.nutritionDrinkEnergy,
+    DrinkSubtype.sportsDrink => l10n.nutritionDrinkSports,
+    DrinkSubtype.isotonic => l10n.nutritionDrinkIsotonic,
+    DrinkSubtype.alcoholBeer => l10n.nutritionDrinkBeer,
+    DrinkSubtype.alcoholCider => l10n.nutritionDrinkCider,
+    DrinkSubtype.alcoholWine => l10n.nutritionDrinkWine,
+    DrinkSubtype.alcoholSpirit => l10n.nutritionDrinkSpirit,
+    DrinkSubtype.alcoholCocktail => l10n.nutritionDrinkCocktail,
+    DrinkSubtype.proteinShake => l10n.nutritionDrinkProteinShake,
+    DrinkSubtype.mealReplacement => l10n.nutritionDrinkMealReplacement,
+    DrinkSubtype.kombucha => l10n.nutritionDrinkKombucha,
+    DrinkSubtype.kefirDrink => l10n.nutritionDrinkKefir,
+    DrinkSubtype.otherDrink => l10n.nutritionSubtypeOther,
+  };
 
   static DrinkSubtype? fromApiValue(String v) =>
       _api.entries.where((e) => e.value == v).map((e) => e.key).firstOrNull;
 }
 
 enum SpiceSubtype {
-  herbDried, spiceGround, spiceWhole, spiceSeed,
-  seasoningBlend, rub, marinadeDry,
-  salt, pepper,
-  extractEssence, otherSpice;
+  herbDried,
+  spiceGround,
+  spiceWhole,
+  spiceSeed,
+  seasoningBlend,
+  rub,
+  marinadeDry,
+  salt,
+  pepper,
+  extractEssence,
+  otherSpice;
 
   static const _api = {
     SpiceSubtype.herbDried: 'herb_dried',
@@ -236,29 +307,28 @@ enum SpiceSubtype {
     SpiceSubtype.otherSpice: 'other_spice',
   };
 
-  static const _display = {
-    SpiceSubtype.herbDried: 'Dried Herb',
-    SpiceSubtype.spiceGround: 'Ground Spice',
-    SpiceSubtype.spiceWhole: 'Whole Spice',
-    SpiceSubtype.spiceSeed: 'Spice Seed',
-    SpiceSubtype.seasoningBlend: 'Seasoning Blend',
-    SpiceSubtype.rub: 'Rub',
-    SpiceSubtype.marinadeDry: 'Dry Marinade',
-    SpiceSubtype.salt: 'Salt',
-    SpiceSubtype.pepper: 'Pepper',
-    SpiceSubtype.extractEssence: 'Extract / Essence',
-    SpiceSubtype.otherSpice: 'Other',
-  };
-
   String get apiValue => _api[this]!;
-  String get displayName => _display[this]!;
+  String label(AppLocalizations l10n) => switch (this) {
+    SpiceSubtype.herbDried => l10n.nutritionSpiceDriedHerb,
+    SpiceSubtype.spiceGround => l10n.nutritionSpiceGround,
+    SpiceSubtype.spiceWhole => l10n.nutritionSpiceWhole,
+    SpiceSubtype.spiceSeed => l10n.nutritionSpiceSeed,
+    SpiceSubtype.seasoningBlend => l10n.nutritionSpiceBlend,
+    SpiceSubtype.rub => l10n.nutritionSpiceRub,
+    SpiceSubtype.marinadeDry => l10n.nutritionSpiceDryMarinade,
+    SpiceSubtype.salt => l10n.nutritionSpiceSalt,
+    SpiceSubtype.pepper => l10n.nutritionSpicePepper,
+    SpiceSubtype.extractEssence => l10n.nutritionSpiceExtract,
+    SpiceSubtype.otherSpice => l10n.nutritionSubtypeOther,
+  };
 
   static SpiceSubtype? fromApiValue(String v) =>
       _api.entries.where((e) => e.value == v).map((e) => e.key).firstOrNull;
 }
 
 enum ServingUnit {
-  g, ml;
+  g,
+  ml;
 
   static ServingUnit fromApiValue(String v) => v == 'ml' ? ml : g;
   String get apiValue => name;
@@ -266,8 +336,14 @@ enum ServingUnit {
 }
 
 enum MealSlotType {
-  breakfast, morningSnack, lunch, afternoonSnack, dinner, eveningSnack,
-  preWorkout, postWorkout;
+  breakfast,
+  morningSnack,
+  lunch,
+  afternoonSnack,
+  dinner,
+  eveningSnack,
+  preWorkout,
+  postWorkout;
 
   static const _api = {
     MealSlotType.breakfast: 'breakfast',
@@ -280,19 +356,17 @@ enum MealSlotType {
     MealSlotType.postWorkout: 'post_workout',
   };
 
-  static const _display = {
-    MealSlotType.breakfast: 'Breakfast',
-    MealSlotType.morningSnack: 'Morning Snack',
-    MealSlotType.lunch: 'Lunch',
-    MealSlotType.afternoonSnack: 'Afternoon Snack',
-    MealSlotType.dinner: 'Dinner',
-    MealSlotType.eveningSnack: 'Evening Snack',
-    MealSlotType.preWorkout: 'Pre-Workout',
-    MealSlotType.postWorkout: 'Post-Workout',
-  };
-
   String get apiValue => _api[this]!;
-  String get displayName => _display[this]!;
+  String label(AppLocalizations l10n) => switch (this) {
+    MealSlotType.breakfast => l10n.nutritionSlotBreakfast,
+    MealSlotType.morningSnack => l10n.nutritionSlotMorningSnack,
+    MealSlotType.lunch => l10n.nutritionSlotLunch,
+    MealSlotType.afternoonSnack => l10n.nutritionSlotAfternoonSnack,
+    MealSlotType.dinner => l10n.nutritionSlotDinner,
+    MealSlotType.eveningSnack => l10n.nutritionSlotEveningSnack,
+    MealSlotType.preWorkout => l10n.nutritionSlotPreWorkout,
+    MealSlotType.postWorkout => l10n.nutritionSlotPostWorkout,
+  };
 
   static MealSlotType? fromApiValue(String v) =>
       _api.entries.where((e) => e.value == v).map((e) => e.key).firstOrNull;
@@ -314,13 +388,18 @@ class Vitamin {
   });
 
   factory Vitamin.fromJson(Map<String, dynamic> json) => Vitamin(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        symbol: json['symbol'] as String?,
-        defaultUnit: json['default_unit'] as String? ?? 'mg',
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    symbol: json['symbol'] as String?,
+    defaultUnit: json['default_unit'] as String? ?? 'mg',
+  );
 
-  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'symbol': symbol, 'default_unit': defaultUnit};
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'symbol': symbol,
+    'default_unit': defaultUnit,
+  };
 }
 
 class Mineral {
@@ -337,13 +416,18 @@ class Mineral {
   });
 
   factory Mineral.fromJson(Map<String, dynamic> json) => Mineral(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        symbol: json['symbol'] as String?,
-        defaultUnit: json['default_unit'] as String? ?? 'mg',
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    symbol: json['symbol'] as String?,
+    defaultUnit: json['default_unit'] as String? ?? 'mg',
+  );
 
-  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'symbol': symbol, 'default_unit': defaultUnit};
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'symbol': symbol,
+    'default_unit': defaultUnit,
+  };
 }
 
 class FoodItemVitamin {
@@ -359,7 +443,8 @@ class FoodItemVitamin {
     this.unit,
   });
 
-  factory FoodItemVitamin.fromJson(Map<String, dynamic> json) => FoodItemVitamin(
+  factory FoodItemVitamin.fromJson(Map<String, dynamic> json) =>
+      FoodItemVitamin(
         vitaminId: json['vitamin_id'] as String,
         vitamin: json['vitamin'] != null
             ? Vitamin.fromJson(json['vitamin'] as Map<String, dynamic>)
@@ -369,10 +454,10 @@ class FoodItemVitamin {
       );
 
   Map<String, dynamic> toJson() => {
-        'vitamin_id': vitaminId,
-        'amount_per_100': amountPer100,
-        'unit': unit,
-      };
+    'vitamin_id': vitaminId,
+    'amount_per_100': amountPer100,
+    'unit': unit,
+  };
 
   String get displayUnit => unit ?? vitamin?.defaultUnit ?? 'mg';
 }
@@ -390,7 +475,8 @@ class FoodItemMineral {
     this.unit,
   });
 
-  factory FoodItemMineral.fromJson(Map<String, dynamic> json) => FoodItemMineral(
+  factory FoodItemMineral.fromJson(Map<String, dynamic> json) =>
+      FoodItemMineral(
         mineralId: json['mineral_id'] as String,
         mineral: json['mineral'] != null
             ? Mineral.fromJson(json['mineral'] as Map<String, dynamic>)
@@ -400,10 +486,10 @@ class FoodItemMineral {
       );
 
   Map<String, dynamic> toJson() => {
-        'mineral_id': mineralId,
-        'amount_per_100': amountPer100,
-        'unit': unit,
-      };
+    'mineral_id': mineralId,
+    'amount_per_100': amountPer100,
+    'unit': unit,
+  };
 
   String get displayUnit => unit ?? mineral?.defaultUnit ?? 'mg';
 }
@@ -458,66 +544,71 @@ class FoodItem {
   });
 
   factory FoodItem.fromJson(Map<String, dynamic> json) => FoodItem(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        brand: json['brand'] as String?,
-        barcode: json['barcode'] as String?,
-        type: FoodItemType.fromApiValue(json['type'] as String) ?? FoodItemType.food,
-        foodSubtype: json['food_subtype'] != null
-            ? FoodSubtype.fromApiValue(json['food_subtype'] as String)
-            : null,
-        drinkSubtype: json['drink_subtype'] != null
-            ? DrinkSubtype.fromApiValue(json['drink_subtype'] as String)
-            : null,
-        spiceSubtype: json['spice_subtype'] != null
-            ? SpiceSubtype.fromApiValue(json['spice_subtype'] as String)
-            : null,
-        servingUnit: ServingUnit.fromApiValue(json['serving_unit'] as String? ?? 'g'),
-        kcalPer100: _toDouble(json['kcal_per_100']) ?? 0,
-        proteinPer100: _toDouble(json['protein_per_100']) ?? 0,
-        carbPer100: _toDouble(json['carb_per_100']) ?? 0,
-        fatPer100: _toDouble(json['fat_per_100']) ?? 0,
-        fiberPer100: _toDouble(json['fiber_per_100']) ?? 0,
-        authorId: json['author_id'] as String?,
-        isPublic: json['is_public'] as bool? ?? true,
-        isSystem: json['is_system'] as bool? ?? false,
-        vitamins: (json['vitamins'] as List<dynamic>? ?? [])
-            .map((v) => FoodItemVitamin.fromJson(v as Map<String, dynamic>))
-            .toList(),
-        minerals: (json['minerals'] as List<dynamic>? ?? [])
-            .map((m) => FoodItemMineral.fromJson(m as Map<String, dynamic>))
-            .toList(),
-        createdAt: DateTime.parse(json['created_at'] as String),
-        updatedAt: DateTime.parse(json['updated_at'] as String),
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    brand: json['brand'] as String?,
+    barcode: json['barcode'] as String?,
+    type:
+        FoodItemType.fromApiValue(json['type'] as String) ?? FoodItemType.food,
+    foodSubtype: json['food_subtype'] != null
+        ? FoodSubtype.fromApiValue(json['food_subtype'] as String)
+        : null,
+    drinkSubtype: json['drink_subtype'] != null
+        ? DrinkSubtype.fromApiValue(json['drink_subtype'] as String)
+        : null,
+    spiceSubtype: json['spice_subtype'] != null
+        ? SpiceSubtype.fromApiValue(json['spice_subtype'] as String)
+        : null,
+    servingUnit: ServingUnit.fromApiValue(
+      json['serving_unit'] as String? ?? 'g',
+    ),
+    kcalPer100: _toDouble(json['kcal_per_100']) ?? 0,
+    proteinPer100: _toDouble(json['protein_per_100']) ?? 0,
+    carbPer100: _toDouble(json['carb_per_100']) ?? 0,
+    fatPer100: _toDouble(json['fat_per_100']) ?? 0,
+    fiberPer100: _toDouble(json['fiber_per_100']) ?? 0,
+    authorId: json['author_id'] as String?,
+    isPublic: json['is_public'] as bool? ?? true,
+    isSystem: json['is_system'] as bool? ?? false,
+    vitamins: (json['vitamins'] as List<dynamic>? ?? [])
+        .map((v) => FoodItemVitamin.fromJson(v as Map<String, dynamic>))
+        .toList(),
+    minerals: (json['minerals'] as List<dynamic>? ?? [])
+        .map((m) => FoodItemMineral.fromJson(m as Map<String, dynamic>))
+        .toList(),
+    createdAt: DateTime.parse(json['created_at'] as String),
+    updatedAt: DateTime.parse(json['updated_at'] as String),
+  );
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'brand': brand,
-        'barcode': barcode,
-        'type': type.apiValue,
-        'food_subtype': foodSubtype?.apiValue,
-        'drink_subtype': drinkSubtype?.apiValue,
-        'spice_subtype': spiceSubtype?.apiValue,
-        'serving_unit': servingUnit.apiValue,
-        'kcal_per_100': kcalPer100,
-        'protein_per_100': proteinPer100,
-        'carb_per_100': carbPer100,
-        'fat_per_100': fatPer100,
-        'fiber_per_100': fiberPer100,
-        'is_public': isPublic,
-        'vitamins': vitamins.map((v) => v.toJson()).toList(),
-        'minerals': minerals.map((m) => m.toJson()).toList(),
-      };
+    'name': name,
+    'brand': brand,
+    'barcode': barcode,
+    'type': type.apiValue,
+    'food_subtype': foodSubtype?.apiValue,
+    'drink_subtype': drinkSubtype?.apiValue,
+    'spice_subtype': spiceSubtype?.apiValue,
+    'serving_unit': servingUnit.apiValue,
+    'kcal_per_100': kcalPer100,
+    'protein_per_100': proteinPer100,
+    'carb_per_100': carbPer100,
+    'fat_per_100': fatPer100,
+    'fiber_per_100': fiberPer100,
+    'is_public': isPublic,
+    'vitamins': vitamins.map((v) => v.toJson()).toList(),
+    'minerals': minerals.map((m) => m.toJson()).toList(),
+  };
 
-  String get subtypeLabel {
-    if (foodSubtype != null) return foodSubtype!.displayName;
-    if (drinkSubtype != null) return drinkSubtype!.displayName;
-    if (spiceSubtype != null) return spiceSubtype!.displayName;
-    return type.displayName;
+  String subtypeLabel(AppLocalizations l10n) {
+    if (foodSubtype != null) return foodSubtype!.label(l10n);
+    if (drinkSubtype != null) return drinkSubtype!.label(l10n);
+    if (spiceSubtype != null) return spiceSubtype!.label(l10n);
+    return type.label(l10n);
   }
 
-  String get servingUnitLabel => servingUnit == ServingUnit.ml ? 'per 100ml' : 'per 100g';
+  /// "per 100g" / "na 100g".
+  String servingUnitLabel(AppLocalizations l10n) =>
+      l10n.nutritionPer100Unit(servingUnit.displayName);
 }
 
 // ── Recipe ────────────────────────────────────────────────────────────────────
@@ -541,7 +632,8 @@ class RecipeIngredient {
     required this.position,
   });
 
-  factory RecipeIngredient.fromJson(Map<String, dynamic> json) => RecipeIngredient(
+  factory RecipeIngredient.fromJson(Map<String, dynamic> json) =>
+      RecipeIngredient(
         id: json['id'] as String,
         recipeId: json['recipe_id'] as String,
         foodItemId: json['food_item_id'] as String,
@@ -554,16 +646,15 @@ class RecipeIngredient {
       );
 
   Map<String, dynamic> toJson() => {
-        'food_item_id': foodItemId,
-        'quantity': quantity,
-        'note': note,
-        'position': position,
-      };
+    'food_item_id': foodItemId,
+    'quantity': quantity,
+    'note': note,
+    'position': position,
+  };
 
-  String get quantityLabel {
+  String quantityLabel(AppLocalizations l10n) {
     final unit = foodItem?.servingUnit.displayName ?? 'g';
-    final q = quantity == quantity.truncateToDouble() ? quantity.toInt().toString() : quantity.toStringAsFixed(1);
-    return '$q$unit';
+    return '${fmtAmount(double.parse(quantity.toStringAsFixed(1)), l10n.localeName)}$unit';
   }
 }
 
@@ -583,18 +674,18 @@ class RecipeStep {
   });
 
   factory RecipeStep.fromJson(Map<String, dynamic> json) => RecipeStep(
-        id: json['id'] as String,
-        recipeId: json['recipe_id'] as String,
-        position: json['position'] as int? ?? 0,
-        instruction: json['instruction'] as String,
-        imageUrl: json['image_url'] as String?,
-      );
+    id: json['id'] as String,
+    recipeId: json['recipe_id'] as String,
+    position: json['position'] as int? ?? 0,
+    instruction: json['instruction'] as String,
+    imageUrl: json['image_url'] as String?,
+  );
 
   Map<String, dynamic> toJson() => {
-        'position': position,
-        'instruction': instruction,
-        'image_url': imageUrl,
-      };
+    'position': position,
+    'instruction': instruction,
+    'image_url': imageUrl,
+  };
 }
 
 class RecipeImage {
@@ -613,18 +704,18 @@ class RecipeImage {
   });
 
   factory RecipeImage.fromJson(Map<String, dynamic> json) => RecipeImage(
-        id: json['id'] as String,
-        recipeId: json['recipe_id'] as String,
-        url: json['url'] as String,
-        isThumbnail: json['is_thumbnail'] as bool? ?? false,
-        position: json['position'] as int? ?? 0,
-      );
+    id: json['id'] as String,
+    recipeId: json['recipe_id'] as String,
+    url: json['url'] as String,
+    isThumbnail: json['is_thumbnail'] as bool? ?? false,
+    position: json['position'] as int? ?? 0,
+  );
 
   Map<String, dynamic> toJson() => {
-        'url': url,
-        'is_thumbnail': isThumbnail,
-        'position': position,
-      };
+    'url': url,
+    'is_thumbnail': isThumbnail,
+    'position': position,
+  };
 }
 
 class RecipeVideo {
@@ -643,14 +734,18 @@ class RecipeVideo {
   });
 
   factory RecipeVideo.fromJson(Map<String, dynamic> json) => RecipeVideo(
-        id: json['id'] as String,
-        recipeId: json['recipe_id'] as String,
-        url: json['url'] as String,
-        title: json['title'] as String?,
-        position: json['position'] as int? ?? 0,
-      );
+    id: json['id'] as String,
+    recipeId: json['recipe_id'] as String,
+    url: json['url'] as String,
+    title: json['title'] as String?,
+    position: json['position'] as int? ?? 0,
+  );
 
-  Map<String, dynamic> toJson() => {'url': url, 'title': title, 'position': position};
+  Map<String, dynamic> toJson() => {
+    'url': url,
+    'title': title,
+    'position': position,
+  };
 }
 
 class Recipe {
@@ -699,62 +794,79 @@ class Recipe {
   });
 
   factory Recipe.fromJson(Map<String, dynamic> json) => Recipe(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        description: json['description'] as String?,
-        authorId: json['author_id'] as String?,
-        servings: json['servings'] as int? ?? 1,
-        prepTimeMinutes: json['prep_time_minutes'] as int?,
-        cookTimeMinutes: json['cook_time_minutes'] as int?,
-        kcalPerServing: _toDouble(json['kcal_per_serving']) ?? 0,
-        proteinPerServing: _toDouble(json['protein_per_serving']) ?? 0,
-        carbPerServing: _toDouble(json['carb_per_serving']) ?? 0,
-        fatPerServing: _toDouble(json['fat_per_serving']) ?? 0,
-        fiberPerServing: _toDouble(json['fiber_per_serving']) ?? 0,
-        isPublic: json['is_public'] as bool? ?? false,
-        isSystem: json['is_system'] as bool? ?? false,
-        ingredients: (json['ingredients'] as List<dynamic>? ?? [])
-            .map((i) => RecipeIngredient.fromJson(i as Map<String, dynamic>))
-            .toList(),
-        steps: (json['steps'] as List<dynamic>? ?? [])
-            .map((s) => RecipeStep.fromJson(s as Map<String, dynamic>))
-            .toList(),
-        images: (json['images'] as List<dynamic>? ?? [])
-            .map((i) => RecipeImage.fromJson(i as Map<String, dynamic>))
-            .toList(),
-        videos: (json['videos'] as List<dynamic>? ?? [])
-            .map((v) => RecipeVideo.fromJson(v as Map<String, dynamic>))
-            .toList(),
-        createdAt: DateTime.parse(json['created_at'] as String),
-        updatedAt: DateTime.parse(json['updated_at'] as String),
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    description: json['description'] as String?,
+    authorId: json['author_id'] as String?,
+    servings: json['servings'] as int? ?? 1,
+    prepTimeMinutes: json['prep_time_minutes'] as int?,
+    cookTimeMinutes: json['cook_time_minutes'] as int?,
+    kcalPerServing: _toDouble(json['kcal_per_serving']) ?? 0,
+    proteinPerServing: _toDouble(json['protein_per_serving']) ?? 0,
+    carbPerServing: _toDouble(json['carb_per_serving']) ?? 0,
+    fatPerServing: _toDouble(json['fat_per_serving']) ?? 0,
+    fiberPerServing: _toDouble(json['fiber_per_serving']) ?? 0,
+    isPublic: json['is_public'] as bool? ?? false,
+    isSystem: json['is_system'] as bool? ?? false,
+    ingredients: (json['ingredients'] as List<dynamic>? ?? [])
+        .map((i) => RecipeIngredient.fromJson(i as Map<String, dynamic>))
+        .toList(),
+    steps: (json['steps'] as List<dynamic>? ?? [])
+        .map((s) => RecipeStep.fromJson(s as Map<String, dynamic>))
+        .toList(),
+    images: (json['images'] as List<dynamic>? ?? [])
+        .map((i) => RecipeImage.fromJson(i as Map<String, dynamic>))
+        .toList(),
+    videos: (json['videos'] as List<dynamic>? ?? [])
+        .map((v) => RecipeVideo.fromJson(v as Map<String, dynamic>))
+        .toList(),
+    createdAt: DateTime.parse(json['created_at'] as String),
+    updatedAt: DateTime.parse(json['updated_at'] as String),
+  );
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
-        'servings': servings,
-        'prep_time_minutes': prepTimeMinutes,
-        'cook_time_minutes': cookTimeMinutes,
-        'kcal_per_serving': kcalPerServing,
-        'protein_per_serving': proteinPerServing,
-        'carb_per_serving': carbPerServing,
-        'fat_per_serving': fatPerServing,
-        'fiber_per_serving': fiberPerServing,
-        'is_public': isPublic,
-        'ingredients': ingredients.map((i) => i.toJson()).toList(),
-        'steps': steps.map((s) => s.toJson()).toList(),
-        'images': images.map((i) => i.toJson()).toList(),
-        'videos': videos.map((v) => v.toJson()).toList(),
-      };
+    'name': name,
+    'description': description,
+    'servings': servings,
+    'prep_time_minutes': prepTimeMinutes,
+    'cook_time_minutes': cookTimeMinutes,
+    'kcal_per_serving': kcalPerServing,
+    'protein_per_serving': proteinPerServing,
+    'carb_per_serving': carbPerServing,
+    'fat_per_serving': fatPerServing,
+    'fiber_per_serving': fiberPerServing,
+    'is_public': isPublic,
+    'ingredients': ingredients.map((i) => i.toJson()).toList(),
+    'steps': steps.map((s) => s.toJson()).toList(),
+    'images': images.map((i) => i.toJson()).toList(),
+    'videos': videos.map((v) => v.toJson()).toList(),
+  };
 
-  String get thumbnailUrl => images.firstWhere((i) => i.isThumbnail, orElse: () => images.firstOrNull ?? const RecipeImage(id: '', recipeId: '', url: '', isThumbnail: false, position: 0)).url;
+  String get thumbnailUrl => images
+      .firstWhere(
+        (i) => i.isThumbnail,
+        orElse: () =>
+            images.firstOrNull ??
+            const RecipeImage(
+              id: '',
+              recipeId: '',
+              url: '',
+              isThumbnail: false,
+              position: 0,
+            ),
+      )
+      .url;
 
   String? get thumbnailUrlOrNull => images.isEmpty ? null : thumbnailUrl;
 
-  String get timeLabel {
+  String timeLabel(AppLocalizations l10n) {
     final parts = <String>[];
-    if (prepTimeMinutes != null) parts.add('Prep ${prepTimeMinutes}m');
-    if (cookTimeMinutes != null) parts.add('Cook ${cookTimeMinutes}m');
+    if (prepTimeMinutes != null) {
+      parts.add(l10n.nutritionRecipePrepTime(prepTimeMinutes!));
+    }
+    if (cookTimeMinutes != null) {
+      parts.add(l10n.nutritionRecipeCookTime(cookTimeMinutes!));
+    }
     return parts.join(' · ');
   }
 
@@ -788,7 +900,8 @@ class DailyMealPlanSlotEntry {
     this.note,
   });
 
-  factory DailyMealPlanSlotEntry.fromJson(Map<String, dynamic> json) => DailyMealPlanSlotEntry(
+  factory DailyMealPlanSlotEntry.fromJson(Map<String, dynamic> json) =>
+      DailyMealPlanSlotEntry(
         id: json['id'] as String,
         slotId: json['daily_meal_plan_slot_id'] as String,
         foodItemId: json['food_item_id'] as String?,
@@ -806,48 +919,59 @@ class DailyMealPlanSlotEntry {
       );
 
   Map<String, dynamic> toJson() => {
-        'food_item_id': foodItemId,
-        'recipe_id': recipeId,
-        'quantity': quantity,
-        'servings': servings,
-        'position': position,
-        'note': note,
-      };
+    'food_item_id': foodItemId,
+    'recipe_id': recipeId,
+    'quantity': quantity,
+    'servings': servings,
+    'position': position,
+    'note': note,
+  };
 
-  String get displayName => foodItem?.name ?? recipe?.name ?? 'Item';
+  String displayName(AppLocalizations l10n) =>
+      foodItem?.name ?? recipe?.name ?? l10n.nutritionItemFallback;
 
-  String get amountLabel {
+  String amountLabel(AppLocalizations l10n) {
     if (foodItem != null && quantity != null) {
       final unit = foodItem!.servingUnit.displayName;
-      final q = quantity! == quantity!.truncateToDouble() ? quantity!.toInt().toString() : quantity!.toStringAsFixed(1);
-      return '$q$unit';
+      return '${fmtAmount(double.parse(quantity!.toStringAsFixed(1)), l10n.localeName)}$unit';
     }
     if (recipe != null) {
-      return servings == 1.0 ? '1 serving' : '${servings.toStringAsFixed(1)} servings';
+      return l10n.nutritionServingsAmount(
+        servings,
+        fmtAmount(double.parse(servings.toStringAsFixed(1)), l10n.localeName),
+      );
     }
     return '';
   }
 
   double get kcal {
-    if (foodItem != null && quantity != null) return foodItem!.kcalPer100 * quantity! / 100;
+    if (foodItem != null && quantity != null) {
+      return foodItem!.kcalPer100 * quantity! / 100;
+    }
     if (recipe != null) return recipe!.kcalPerServing * servings;
     return 0;
   }
 
   double get protein {
-    if (foodItem != null && quantity != null) return foodItem!.proteinPer100 * quantity! / 100;
+    if (foodItem != null && quantity != null) {
+      return foodItem!.proteinPer100 * quantity! / 100;
+    }
     if (recipe != null) return recipe!.proteinPerServing * servings;
     return 0;
   }
 
   double get carb {
-    if (foodItem != null && quantity != null) return foodItem!.carbPer100 * quantity! / 100;
+    if (foodItem != null && quantity != null) {
+      return foodItem!.carbPer100 * quantity! / 100;
+    }
     if (recipe != null) return recipe!.carbPerServing * servings;
     return 0;
   }
 
   double get fat {
-    if (foodItem != null && quantity != null) return foodItem!.fatPer100 * quantity! / 100;
+    if (foodItem != null && quantity != null) {
+      return foodItem!.fatPer100 * quantity! / 100;
+    }
     if (recipe != null) return recipe!.fatPerServing * servings;
     return 0;
   }
@@ -870,23 +994,28 @@ class DailyMealPlanSlot {
     required this.entries,
   });
 
-  factory DailyMealPlanSlot.fromJson(Map<String, dynamic> json) => DailyMealPlanSlot(
+  factory DailyMealPlanSlot.fromJson(Map<String, dynamic> json) =>
+      DailyMealPlanSlot(
         id: json['id'] as String,
         dailyMealPlanId: json['daily_meal_plan_id'] as String,
-        slotType: MealSlotType.fromApiValue(json['slot_type'] as String) ?? MealSlotType.breakfast,
+        slotType:
+            MealSlotType.fromApiValue(json['slot_type'] as String) ??
+            MealSlotType.breakfast,
         position: json['position'] as int? ?? 0,
         note: json['note'] as String?,
         entries: (json['entries'] as List<dynamic>? ?? [])
-            .map((e) => DailyMealPlanSlotEntry.fromJson(e as Map<String, dynamic>))
+            .map(
+              (e) => DailyMealPlanSlotEntry.fromJson(e as Map<String, dynamic>),
+            )
             .toList(),
       );
 
   Map<String, dynamic> toJson() => {
-        'slot_type': slotType.apiValue,
-        'position': position,
-        'note': note,
-        'entries': entries.map((e) => e.toJson()).toList(),
-      };
+    'slot_type': slotType.apiValue,
+    'position': position,
+    'note': note,
+    'entries': entries.map((e) => e.toJson()).toList(),
+  };
 
   double get kcalTotal => entries.fold(0, (s, e) => s + e.kcal);
   double get proteinTotal => entries.fold(0, (s, e) => s + e.protein);
@@ -931,38 +1060,38 @@ class DailyMealPlan {
   });
 
   factory DailyMealPlan.fromJson(Map<String, dynamic> json) => DailyMealPlan(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        description: json['description'] as String?,
-        authorId: json['author_id'] as String?,
-        isPublic: json['is_public'] as bool? ?? false,
-        isSystem: json['is_system'] as bool? ?? false,
-        kcalTotal: _toDouble(json['kcal_total']) ?? 0,
-        proteinTotal: _toDouble(json['protein_total']) ?? 0,
-        carbTotal: _toDouble(json['carb_total']) ?? 0,
-        fatTotal: _toDouble(json['fat_total']) ?? 0,
-        fiberTotal: _toDouble(json['fiber_total']) ?? 0,
-        slots: (json['slots'] as List<dynamic>? ?? [])
-            .map((s) => DailyMealPlanSlot.fromJson(s as Map<String, dynamic>))
-            .toList(),
-        mealCount: json['meal_count'] as int?,
-        createdAt: DateTime.parse(json['created_at'] as String),
-        updatedAt: DateTime.parse(json['updated_at'] as String),
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    description: json['description'] as String?,
+    authorId: json['author_id'] as String?,
+    isPublic: json['is_public'] as bool? ?? false,
+    isSystem: json['is_system'] as bool? ?? false,
+    kcalTotal: _toDouble(json['kcal_total']) ?? 0,
+    proteinTotal: _toDouble(json['protein_total']) ?? 0,
+    carbTotal: _toDouble(json['carb_total']) ?? 0,
+    fatTotal: _toDouble(json['fat_total']) ?? 0,
+    fiberTotal: _toDouble(json['fiber_total']) ?? 0,
+    slots: (json['slots'] as List<dynamic>? ?? [])
+        .map((s) => DailyMealPlanSlot.fromJson(s as Map<String, dynamic>))
+        .toList(),
+    mealCount: json['meal_count'] as int?,
+    createdAt: DateTime.parse(json['created_at'] as String),
+    updatedAt: DateTime.parse(json['updated_at'] as String),
+  );
 
   int get displayMealCount => mealCount ?? slots.length;
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
-        'is_public': isPublic,
-        'kcal_total': kcalTotal,
-        'protein_total': proteinTotal,
-        'carb_total': carbTotal,
-        'fat_total': fatTotal,
-        'fiber_total': fiberTotal,
-        'slots': slots.map((s) => s.toJson()).toList(),
-      };
+    'name': name,
+    'description': description,
+    'is_public': isPublic,
+    'kcal_total': kcalTotal,
+    'protein_total': proteinTotal,
+    'carb_total': carbTotal,
+    'fat_total': fatTotal,
+    'fiber_total': fiberTotal,
+    'slots': slots.map((s) => s.toJson()).toList(),
+  };
 }
 
 // ── Meal Plan ─────────────────────────────────────────────────────────────────
@@ -983,14 +1112,18 @@ class MealPlanImage {
   });
 
   factory MealPlanImage.fromJson(Map<String, dynamic> json) => MealPlanImage(
-        id: json['id'] as String,
-        mealPlanId: json['meal_plan_id'] as String,
-        url: json['url'] as String,
-        isThumbnail: json['is_thumbnail'] as bool? ?? false,
-        position: json['position'] as int? ?? 0,
-      );
+    id: json['id'] as String,
+    mealPlanId: json['meal_plan_id'] as String,
+    url: json['url'] as String,
+    isThumbnail: json['is_thumbnail'] as bool? ?? false,
+    position: json['position'] as int? ?? 0,
+  );
 
-  Map<String, dynamic> toJson() => {'url': url, 'is_thumbnail': isThumbnail, 'position': position};
+  Map<String, dynamic> toJson() => {
+    'url': url,
+    'is_thumbnail': isThumbnail,
+    'position': position,
+  };
 }
 
 class MealPlanDay {
@@ -1013,26 +1146,28 @@ class MealPlanDay {
   });
 
   factory MealPlanDay.fromJson(Map<String, dynamic> json) => MealPlanDay(
-        id: json['id'] as String,
-        mealPlanId: json['meal_plan_id'] as String,
-        dailyMealPlanId: json['daily_meal_plan_id'] as String,
-        dailyMealPlan: json['daily_meal_plan'] != null
-            ? DailyMealPlan.fromJson(json['daily_meal_plan'] as Map<String, dynamic>)
-            : null,
-        weekNumber: json['week_number'] as int,
-        dayOfWeek: json['day_of_week'] as int,
-        note: json['note'] as String?,
-      );
+    id: json['id'] as String,
+    mealPlanId: json['meal_plan_id'] as String,
+    dailyMealPlanId: json['daily_meal_plan_id'] as String,
+    dailyMealPlan: json['daily_meal_plan'] != null
+        ? DailyMealPlan.fromJson(
+            json['daily_meal_plan'] as Map<String, dynamic>,
+          )
+        : null,
+    weekNumber: json['week_number'] as int,
+    dayOfWeek: json['day_of_week'] as int,
+    note: json['note'] as String?,
+  );
 
   Map<String, dynamic> toJson() => {
-        'daily_meal_plan_id': dailyMealPlanId,
-        'week_number': weekNumber,
-        'day_of_week': dayOfWeek,
-        'note': note,
-      };
+    'daily_meal_plan_id': dailyMealPlanId,
+    'week_number': weekNumber,
+    'day_of_week': dayOfWeek,
+    'note': note,
+  };
 
-  static const _dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  String get dayLabel => _dayNames[dayOfWeek - 1];
+  /// Short weekday name in [locale] ("Mon" / "pon").
+  String dayLabel(String locale) => shortWeekdayName(dayOfWeek, locale);
 }
 
 class MealPlan {
@@ -1063,40 +1198,52 @@ class MealPlan {
   });
 
   factory MealPlan.fromJson(Map<String, dynamic> json) => MealPlan(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        description: json['description'] as String?,
-        authorId: json['author_id'] as String?,
-        isPublic: json['is_public'] as bool? ?? false,
-        isSystem: json['is_system'] as bool? ?? false,
-        numWeeks: json['num_weeks'] as int? ?? 1,
-        days: (json['days'] as List<dynamic>? ?? [])
-            .map((d) => MealPlanDay.fromJson(d as Map<String, dynamic>))
-            .toList(),
-        images: (json['images'] as List<dynamic>? ?? [])
-            .map((i) => MealPlanImage.fromJson(i as Map<String, dynamic>))
-            .toList(),
-        createdAt: DateTime.parse(json['created_at'] as String),
-        updatedAt: DateTime.parse(json['updated_at'] as String),
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    description: json['description'] as String?,
+    authorId: json['author_id'] as String?,
+    isPublic: json['is_public'] as bool? ?? false,
+    isSystem: json['is_system'] as bool? ?? false,
+    numWeeks: json['num_weeks'] as int? ?? 1,
+    days: (json['days'] as List<dynamic>? ?? [])
+        .map((d) => MealPlanDay.fromJson(d as Map<String, dynamic>))
+        .toList(),
+    images: (json['images'] as List<dynamic>? ?? [])
+        .map((i) => MealPlanImage.fromJson(i as Map<String, dynamic>))
+        .toList(),
+    createdAt: DateTime.parse(json['created_at'] as String),
+    updatedAt: DateTime.parse(json['updated_at'] as String),
+  );
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
-        'is_public': isPublic,
-        'num_weeks': numWeeks,
-        'days': days.map((d) => d.toJson()).toList(),
-        'images': images.map((i) => i.toJson()).toList(),
-      };
+    'name': name,
+    'description': description,
+    'is_public': isPublic,
+    'num_weeks': numWeeks,
+    'days': days.map((d) => d.toJson()).toList(),
+    'images': images.map((i) => i.toJson()).toList(),
+  };
 
   String get thumbnailUrl {
-    final thumb = images.firstWhere((i) => i.isThumbnail, orElse: () => images.firstOrNull ?? const MealPlanImage(id: '', mealPlanId: '', url: '', isThumbnail: false, position: 0));
+    final thumb = images.firstWhere(
+      (i) => i.isThumbnail,
+      orElse: () =>
+          images.firstOrNull ??
+          const MealPlanImage(
+            id: '',
+            mealPlanId: '',
+            url: '',
+            isThumbnail: false,
+            position: 0,
+          ),
+    );
     return thumb.url;
   }
 
   String? get thumbnailUrlOrNull => images.isEmpty ? null : thumbnailUrl;
 
-  String get weeksLabel => numWeeks == 1 ? '1 Week' : '$numWeeks Weeks';
+  String weeksLabel(AppLocalizations l10n) =>
+      l10n.nutritionWeeksCount(numWeeks);
 }
 
 class MealPlanAssignment {
@@ -1112,6 +1259,7 @@ class MealPlanAssignment {
   // Joined by GET /meal-plan-assignments (may be absent on older responses).
   final String? mealPlanName;
   final String? assignedByName;
+  final String? userName;
 
   const MealPlanAssignment({
     required this.id,
@@ -1125,14 +1273,20 @@ class MealPlanAssignment {
     required this.createdAt,
     this.mealPlanName,
     this.assignedByName,
+    this.userName,
   });
 
   /// Best available plan name: joined field, embedded plan, or a fallback.
+  // Kept for callers outside the nutrition area; prefer [localizedPlanName].
   String get planName => mealPlanName ?? mealPlan?.name ?? 'Meal plan';
+
+  String localizedPlanName(AppLocalizations l10n) =>
+      mealPlanName ?? mealPlan?.name ?? l10n.nutritionMealPlanFallback;
 
   bool get isSelfAssigned => assignedById != null && assignedById == userId;
 
-  factory MealPlanAssignment.fromJson(Map<String, dynamic> json) => MealPlanAssignment(
+  factory MealPlanAssignment.fromJson(Map<String, dynamic> json) =>
+      MealPlanAssignment(
         id: json['id'] as String,
         mealPlanId: json['meal_plan_id'] as String,
         mealPlan: json['meal_plan'] != null
@@ -1140,19 +1294,24 @@ class MealPlanAssignment {
             : null,
         userId: json['user_id'] as String,
         assignedById: json['assigned_by_id'] as String?,
-        startDate: json['start_date'] != null ? DateTime.parse(json['start_date'] as String) : null,
-        endDate: json['end_date'] != null ? DateTime.parse(json['end_date'] as String) : null,
+        startDate: json['start_date'] != null
+            ? DateTime.parse(json['start_date'] as String)
+            : null,
+        endDate: json['end_date'] != null
+            ? DateTime.parse(json['end_date'] as String)
+            : null,
         note: json['note'] as String?,
         createdAt: DateTime.parse(json['created_at'] as String),
         mealPlanName: json['meal_plan_name'] as String?,
         assignedByName: json['assigned_by_name'] as String?,
+        userName: json['user_name'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
-        'meal_plan_id': mealPlanId,
-        'user_id': userId,
-        'start_date': startDate?.toIso8601String().substring(0, 10),
-        'end_date': endDate?.toIso8601String().substring(0, 10),
-        'note': note,
-      };
+    'meal_plan_id': mealPlanId,
+    'user_id': userId,
+    'start_date': startDate?.toIso8601String().substring(0, 10),
+    'end_date': endDate?.toIso8601String().substring(0, 10),
+    'note': note,
+  };
 }

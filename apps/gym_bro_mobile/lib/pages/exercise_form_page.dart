@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../theme.dart';
 import '../widgets/image_upload_field.dart';
 import '../widgets/muscle_diagram.dart';
 
@@ -59,15 +61,22 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+    final cs = Theme.of(context).colorScheme;
     setState(() => _saving = true);
     try {
       final token = await AuthManager.instance.getValidToken();
       final data = {
         'name': _name.text.trim(),
-        'description': _description.text.trim().isEmpty ? null : _description.text.trim(),
+        'description': _description.text.trim().isEmpty
+            ? null
+            : _description.text.trim(),
         'note': _note.text.trim().isEmpty ? null : _note.text.trim(),
-        'image_url': _imageUrl.text.trim().isEmpty ? null : _imageUrl.text.trim(),
-        'video_url': _videoUrl.text.trim().isEmpty ? null : _videoUrl.text.trim(),
+        'image_url': _imageUrl.text.trim().isEmpty
+            ? null
+            : _imageUrl.text.trim(),
+        'video_url': _videoUrl.text.trim().isEmpty
+            ? null
+            : _videoUrl.text.trim(),
         'primary_muscles': _primaryMuscles.map((m) => m.apiValue).toList(),
         'secondary_muscles': _secondaryMuscles.map((m) => m.apiValue).toList(),
         'is_public': _isPublic,
@@ -83,7 +92,10 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
       setState(() => _saving = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e.toString(), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
+          ),
         );
       }
     }
@@ -92,6 +104,7 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
   Future<void> _pickMuscles(bool isPrimary) async {
     final current = isPrimary ? _primaryMuscles : _secondaryMuscles;
     final other = isPrimary ? _secondaryMuscles : _primaryMuscles;
+    final l10n = context.l10n;
 
     final result = await showModalBottomSheet<Set<MuscleGroup>>(
       context: context,
@@ -99,7 +112,9 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
       builder: (_) => _MusclePickerSheet(
         selected: Set.from(current),
         excluded: other,
-        title: isPrimary ? 'Primary Muscles' : 'Secondary Muscles',
+        title: isPrimary
+            ? l10n.trainingExercisePrimaryMuscles
+            : l10n.trainingExerciseSecondaryMuscles,
       ),
     );
     if (result != null && mounted) {
@@ -119,17 +134,28 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final app = context.appColors;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Exercise' : 'New Exercise'),
+        title: Text(
+          _isEditing
+              ? l10n.trainingExerciseEditTitle
+              : l10n.trainingExerciseNewTitle,
+        ),
         actions: [
           if (_saving)
             const Padding(
               padding: EdgeInsets.all(16),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
             )
           else
-            TextButton(onPressed: _save, child: const Text('Save')),
+            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
         ],
       ),
       body: Form(
@@ -139,32 +165,41 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
           children: [
             TextFormField(
               controller: _name,
-              decoration: const InputDecoration(labelText: 'Exercise name *'),
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+              decoration: InputDecoration(
+                labelText: l10n.trainingExerciseNameLabel,
+              ),
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _description,
-              decoration: const InputDecoration(labelText: 'Description'),
+              decoration: InputDecoration(
+                labelText: l10n.trainingPlanDescriptionLabel,
+              ),
               maxLines: 3,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _note,
-              decoration: const InputDecoration(labelText: 'Note (optional)'),
+              decoration: InputDecoration(
+                labelText: l10n.trainingAssignNoteLabel,
+              ),
               maxLines: 2,
             ),
             const SizedBox(height: 16),
             ImagePickerField(
               imageUrl: _imageUrl.text.isEmpty ? null : _imageUrl.text,
               folder: 'exercises',
-              label: 'Add exercise photo',
+              label: l10n.trainingExerciseAddPhoto,
               onUploaded: (url) => setState(() => _imageUrl.text = url),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _videoUrl,
-              decoration: const InputDecoration(labelText: 'Video URL'),
+              decoration: InputDecoration(
+                labelText: l10n.trainingExerciseVideoUrl,
+              ),
               keyboardType: TextInputType.url,
             ),
             const SizedBox(height: 24),
@@ -184,23 +219,27 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
             ],
 
             _MusclePickerTile(
-              label: 'Primary Muscles',
+              label: l10n.trainingExercisePrimaryMuscles,
               muscles: _primaryMuscles,
-              color: const Color(0xFFE53935),
+              background: cs.errorContainer,
+              foreground: cs.onErrorContainer,
+              border: cs.error,
               onTap: () => _pickMuscles(true),
             ),
             const SizedBox(height: 8),
             _MusclePickerTile(
-              label: 'Secondary Muscles',
+              label: l10n.trainingExerciseSecondaryMuscles,
               muscles: _secondaryMuscles,
-              color: const Color(0xFFFFA000),
+              background: app.warningContainer,
+              foreground: app.onWarningContainer,
+              border: app.warning,
               onTap: () => _pickMuscles(false),
             ),
             const SizedBox(height: 16),
 
             SwitchListTile(
-              title: const Text('Public'),
-              subtitle: const Text('Visible to all users'),
+              title: Text(l10n.trainingPlanPublic),
+              subtitle: Text(l10n.trainingPlanPublicSubtitle),
               value: _isPublic,
               onChanged: (v) => setState(() => _isPublic = v),
               contentPadding: EdgeInsets.zero,
@@ -215,56 +254,94 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
 class _MusclePickerTile extends StatelessWidget {
   final String label;
   final Set<MuscleGroup> muscles;
-  final Color color;
+  final Color background;
+  final Color foreground;
+  final Color border;
   final VoidCallback onTap;
 
   const _MusclePickerTile({
     required this.label,
     required this.muscles,
-    required this.color,
+    required this.background,
+    required this.foreground,
+    required this.border,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                  const SizedBox(height: 6),
-                  if (muscles.isEmpty)
-                    Text('Tap to select', style: TextStyle(color: Colors.grey.shade500, fontSize: 12))
-                  else
-                    Wrap(
-                      spacing: 4,
-                      runSpacing: 4,
-                      children: muscles.map((m) => Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: color.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: color.withValues(alpha: 0.5)),
-                        ),
-                        child: Text(m.displayName, style: TextStyle(fontSize: 11, color: color)),
-                      )).toList(),
-                    ),
-                ],
-              ),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              border: Border.all(color: cs.outlineVariant),
+              borderRadius: BorderRadius.circular(12),
             ),
-            const Icon(Icons.chevron_right),
-          ],
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      if (muscles.isEmpty)
+                        Text(
+                          l10n.trainingExerciseTapToSelect,
+                          style: TextStyle(
+                            color: cs.onSurfaceVariant,
+                            fontSize: 12,
+                          ),
+                        )
+                      else
+                        Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: muscles
+                              .map(
+                                (m) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: background,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: border.withValues(alpha: 0.5),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    m.label(l10n),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: foreground,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -307,18 +384,28 @@ class _MusclePickerSheetState extends State<_MusclePickerSheet> {
         children: [
           const SizedBox(height: 12),
           Container(
-            width: 40, height: 4,
-            decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.outlineVariant,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(widget.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 TextButton(
                   onPressed: () => Navigator.pop(context, _selected),
-                  child: const Text('Done'),
+                  child: Text(context.l10n.trainingExerciseDone),
                 ),
               ],
             ),
@@ -331,13 +418,19 @@ class _MusclePickerSheetState extends State<_MusclePickerSheet> {
                 final excluded = widget.excluded.contains(m);
                 return CheckboxListTile(
                   title: Text(
-                    m.displayName,
-                    style: TextStyle(color: excluded ? Colors.grey : null),
+                    m.label(context.l10n),
+                    style: TextStyle(
+                      color: excluded
+                          ? Theme.of(context).colorScheme.onSurfaceVariant
+                          : null,
+                    ),
                   ),
                   value: _selected.contains(m),
                   onChanged: excluded
                       ? null
-                      : (v) => setState(() => v! ? _selected.add(m) : _selected.remove(m)),
+                      : (v) => setState(
+                          () => v! ? _selected.add(m) : _selected.remove(m),
+                        ),
                 );
               }).toList(),
             ),

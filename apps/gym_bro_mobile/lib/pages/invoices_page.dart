@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
 import '../models/business.dart';
 import '../models/membership.dart';
+import '../models/payment.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'shop/order_widgets.dart' show PaymentsConfigCache;
 
 /// Membership invoices for owners, super users and gym staff.
 ///
@@ -38,6 +42,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
   late InvoiceStatus? _status = widget.initialStatus;
 
   List<MembershipInvoice> _invoices = [];
+  String _currency = PaymentsConfigCache.current.currency;
   bool _loading = true;
   String? _error;
 
@@ -105,11 +110,12 @@ class _InvoicesPageState extends State<InvoicesPage> {
       // the request to it.
       final gymId =
           _selectedGymId ?? (_gyms.length == 1 ? _gyms.first.id : null);
-      var invoices = await _api.getMembershipInvoices(
-        token,
-        gymId: gymId,
-        status: _status,
-      );
+      final results = await Future.wait([
+        _api.getMembershipInvoices(token, gymId: gymId, status: _status),
+        PaymentsConfigCache.get(_api, token),
+      ]);
+      var invoices = results[0] as List<MembershipInvoice>;
+      _currency = (results[1] as PaymentsConfig).currency;
       // Without a gym filter the API also returns the caller's own invoices
       // as a member — keep only invoices of gyms the user manages/staffs.
       if (gymId == null && !_isSuper) {
@@ -133,7 +139,30 @@ class _InvoicesPageState extends State<InvoicesPage> {
     }
   }
 
+  String _money(double v) =>
+      formatMoney(v, _currency, Localizations.localeOf(context).toString());
+
+  String _markLabel(AppLocalizations l10n, InvoiceStatus s) => switch (s) {
+    InvoiceStatus.unpaid => l10n.businessMgmtMarkUnpaid,
+    InvoiceStatus.paid => l10n.businessMgmtMarkPaid,
+    InvoiceStatus.voided => l10n.businessMgmtMarkVoid,
+  };
+
+  String _markedMessage(AppLocalizations l10n, InvoiceStatus s) => switch (s) {
+    InvoiceStatus.unpaid => l10n.businessMgmtInvoiceMarkedUnpaid,
+    InvoiceStatus.paid => l10n.businessMgmtInvoiceMarkedPaid,
+    InvoiceStatus.voided => l10n.businessMgmtInvoiceMarkedVoid,
+  };
+
+  String _emptyLabel(AppLocalizations l10n) => switch (_status) {
+    null => l10n.businessMgmtNoInvoicesYet,
+    InvoiceStatus.unpaid => l10n.businessMgmtNoUnpaidInvoices,
+    InvoiceStatus.paid => l10n.businessMgmtNoPaidInvoices,
+    InvoiceStatus.voided => l10n.businessMgmtNoVoidInvoices,
+  };
+
   Future<void> _openActions(MembershipInvoice inv) async {
+    final l10n = context.l10n;
     final picked = await showModalBottomSheet<InvoiceStatus>(
       context: context,
       showDragHandle: true,
@@ -145,15 +174,15 @@ class _InvoicesPageState extends State<InvoicesPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
               child: Text(
-                '${inv.memberFullName.isEmpty ? 'Invoice' : inv.memberFullName}'
-                ' · \$${inv.amount.toStringAsFixed(2)}',
+                '${inv.memberFullName.isEmpty ? l10n.businessMgmtInvoice : inv.memberFullName}'
+                ' · ${_money(inv.amount)}',
                 style: Theme.of(ctx).textTheme.titleMedium,
               ),
             ),
             for (final s in InvoiceStatus.values)
               ListTile(
                 leading: Icon(_statusIcon(s)),
-                title: Text('Mark ${s.displayName.toLowerCase()}'),
+                title: Text(_markLabel(l10n, s)),
                 trailing: s == inv.status ? const Icon(Icons.check) : null,
                 enabled: s != inv.status,
                 onTap: () => Navigator.pop(ctx, s),
@@ -181,11 +210,9 @@ class _InvoicesPageState extends State<InvoicesPage> {
           _invoices = [for (final i in _invoices) i.id == inv.id ? updated : i];
         }
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Invoice marked ${picked.displayName.toLowerCase()}'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(_markedMessage(l10n, picked))));
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -206,7 +233,9 @@ class _InvoicesPageState extends State<InvoicesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.gymName != null ? '${widget.gymName} — Invoices' : 'Invoices',
+          widget.gymName != null
+              ? context.l10n.businessMgmtGymInvoicesTitle(widget.gymName!)
+              : context.l10n.businessMgmtInvoices,
         ),
       ),
       body: Column(
@@ -220,6 +249,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
 
   Widget _buildFilters() {
     final showGymFilter = widget.gymId == null && _gyms.length > 1;
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Column(
@@ -229,12 +259,15 @@ class _InvoicesPageState extends State<InvoicesPage> {
             DropdownButtonFormField<String?>(
               key: ValueKey(_selectedGymId),
               initialValue: _selectedGymId,
-              decoration: const InputDecoration(
-                labelText: 'Gym',
+              decoration: InputDecoration(
+                labelText: l10n.businessMgmtGym,
                 isDense: true,
               ),
               items: [
-                const DropdownMenuItem(value: null, child: Text('All gyms')),
+                DropdownMenuItem(
+                  value: null,
+                  child: Text(l10n.businessMgmtAllGyms),
+                ),
                 for (final g in _gyms)
                   DropdownMenuItem(value: g.id, child: Text(g.name)),
               ],
@@ -249,10 +282,10 @@ class _InvoicesPageState extends State<InvoicesPage> {
             child: Row(
               children: [
                 for (final (label, value) in <(String, InvoiceStatus?)>[
-                  ('Unpaid', InvoiceStatus.unpaid),
-                  ('Paid', InvoiceStatus.paid),
-                  ('Void', InvoiceStatus.voided),
-                  ('All', null),
+                  (InvoiceStatus.unpaid.label(l10n), InvoiceStatus.unpaid),
+                  (InvoiceStatus.paid.label(l10n), InvoiceStatus.paid),
+                  (InvoiceStatus.voided.label(l10n), InvoiceStatus.voided),
+                  (l10n.businessMgmtAll, null),
                 ])
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
@@ -276,6 +309,8 @@ class _InvoicesPageState extends State<InvoicesPage> {
 
   Widget _buildList() {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).toString();
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_error != null) {
       return Center(
@@ -292,7 +327,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
                 onPressed: _gyms.isEmpty && widget.gymId == null
                     ? _init
                     : _loadInvoices,
-                child: const Text('Retry'),
+                child: Text(l10n.commonRetry),
               ),
             ],
           ),
@@ -319,11 +354,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
                         color: cs.outline,
                       ),
                       const SizedBox(height: 16),
-                      Text(
-                        _status == null
-                            ? 'No invoices yet'
-                            : 'No ${_status!.displayName.toLowerCase()} invoices',
-                      ),
+                      Text(_emptyLabel(l10n)),
                     ],
                   ),
                 ),
@@ -346,38 +377,42 @@ class _InvoicesPageState extends State<InvoicesPage> {
           final details = [
             if (showGym && inv.gymName != null) inv.gymName!,
             if (inv.membershipTypeName != null) inv.membershipTypeName!,
-            'Issued ${formatDate(inv.issuedAt)}',
+            l10n.businessMgmtIssuedOn(
+              DateFormat.yMMMd(locale).format(inv.issuedAt.toLocal()),
+            ),
           ];
           return Card(
             margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
-              onTap: () => _openActions(inv),
-              title: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      inv.memberFullName.isEmpty
-                          ? 'Unknown member'
-                          : inv.memberFullName,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Text(
-                    '\$${inv.amount.toStringAsFixed(2)}',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.titleSmall?.copyWith(color: cs.primary),
-                  ),
-                ],
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Row(
+            child: MergeSemantics(
+              child: ListTile(
+                onTap: () => _openActions(inv),
+                title: Row(
                   children: [
-                    Expanded(child: Text(details.join(' · '))),
-                    const SizedBox(width: 8),
-                    InvoiceStatusChip(status: inv.status),
+                    Expanded(
+                      child: Text(
+                        inv.memberFullName.isEmpty
+                            ? l10n.businessMgmtUnknownMember
+                            : inv.memberFullName,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      _money(inv.amount),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.titleSmall?.copyWith(color: cs.primary),
+                    ),
                   ],
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(details.join(' · '))),
+                      const SizedBox(width: 8),
+                      InvoiceStatusChip(status: inv.status),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -387,8 +422,6 @@ class _InvoicesPageState extends State<InvoicesPage> {
     );
   }
 }
-
-String formatDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
 
 /// Small coloured chip showing an invoice's status.
 class InvoiceStatusChip extends StatelessWidget {
@@ -411,7 +444,7 @@ class InvoiceStatusChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        status.displayName,
+        status.label(context.l10n),
         style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: fg),
       ),
     );

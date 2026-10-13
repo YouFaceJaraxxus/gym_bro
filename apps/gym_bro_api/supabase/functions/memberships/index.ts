@@ -11,6 +11,7 @@ import {
 import { businessName, notify } from "../_shared/notify.ts";
 import type { MembershipInsert, MembershipUpdate } from "../../types/schema/public.ts";
 import { pgCode } from "../_shared/roles.ts";
+import { cancelSubscriptionAtPeriodEnd, StripeError, stripeEnabled } from "../_shared/stripe.ts";
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -172,7 +173,9 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── PUT /memberships/:id ──────────────────────────────────────────────────────
-  // Updatable: to_date, is_active, current_membership_type_id (same gym only).
+  // Updatable: to_date, is_active, current_membership_type_id (same gym only),
+  // auto_renew (staff can only turn it off; turning it on happens through a
+  // Stripe subscription purchase in the payments function).
   if (req.method === "PUT" && id) {
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== "object") return jsonError("Body must not be empty", 400);
@@ -183,6 +186,12 @@ Deno.serve(async (req: Request) => {
     if (body.current_membership_type_id !== undefined) {
       update.current_membership_type_id = body.current_membership_type_id;
     }
+    if (body.auto_renew !== undefined) {
+      if (body.auto_renew !== false) {
+        return jsonError("auto_renew can only be turned off here; members turn it on by paying in the app", 400);
+      }
+      update.auto_renew = false;
+    }
     if (Object.keys(update).length === 0) return jsonError("Body must not be empty", 400);
 
     const existing = await db
@@ -190,12 +199,26 @@ Deno.serve(async (req: Request) => {
       .innerJoin("gym_membership_type", "gym_membership_type.id", "membership.current_membership_type_id")
       .select([
         "gym_membership_type.gym_id",
+        "membership.auto_renew",
+        "membership.stripe_subscription_id",
         sql<string>`to_char(membership.to_date, 'YYYY-MM-DD')`.as("to_date_ymd"),
       ])
       .where("membership.id", "=", id)
       .executeTakeFirst();
     if (!existing) return jsonError("Membership not found", 404);
     if (!(await canStaffGym(caller, existing.gym_id))) return forbidden();
+
+    // Stop the Stripe subscription first so the member isn't charged again.
+    if (update.auto_renew === false && existing.auto_renew && existing.stripe_subscription_id && stripeEnabled()) {
+      try {
+        await cancelSubscriptionAtPeriodEnd(existing.stripe_subscription_id);
+      } catch (err) {
+        if (!(err instanceof StripeError && err.code === "resource_missing")) {
+          console.error("cancel subscription failed", existing.stripe_subscription_id, err);
+          return jsonError(`Couldn't stop the card subscription: ${(err as Error).message}`, 502);
+        }
+      }
+    }
 
     if (update.current_membership_type_id) {
       const newGymId = await gymIdForMembershipType(update.current_membership_type_id);

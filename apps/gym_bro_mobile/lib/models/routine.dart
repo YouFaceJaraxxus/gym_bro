@@ -1,15 +1,21 @@
+import 'package:intl/intl.dart';
+
+import '../l10n/app_localizations.dart';
 import 'training.dart';
 
 enum RoutineScheduleType {
   fixedWeeks,
   wildcard;
 
-  String get apiValue => this == RoutineScheduleType.fixedWeeks ? 'fixed_weeks' : 'wildcard';
-  String get displayName =>
-      this == RoutineScheduleType.fixedWeeks ? 'Fixed Weeks' : 'Wildcard';
+  String get apiValue =>
+      this == RoutineScheduleType.fixedWeeks ? 'fixed_weeks' : 'wildcard';
+  String label(AppLocalizations l10n) => this == RoutineScheduleType.fixedWeeks
+      ? l10n.trainingScheduleFixedWeeks
+      : l10n.trainingScheduleWildcard;
 
-  static RoutineScheduleType fromApiValue(String v) =>
-      v == 'fixed_weeks' ? RoutineScheduleType.fixedWeeks : RoutineScheduleType.wildcard;
+  static RoutineScheduleType fromApiValue(String v) => v == 'fixed_weeks'
+      ? RoutineScheduleType.fixedWeeks
+      : RoutineScheduleType.wildcard;
 }
 
 class RoutineImage {
@@ -28,18 +34,18 @@ class RoutineImage {
   });
 
   factory RoutineImage.fromJson(Map<String, dynamic> json) => RoutineImage(
-        id: json['id'] as String,
-        routineId: json['routine_id'] as String,
-        url: json['url'] as String,
-        isThumbnail: json['is_thumbnail'] as bool? ?? false,
-        position: json['position'] as int? ?? 0,
-      );
+    id: json['id'] as String,
+    routineId: json['routine_id'] as String,
+    url: json['url'] as String,
+    isThumbnail: json['is_thumbnail'] as bool? ?? false,
+    position: json['position'] as int? ?? 0,
+  );
 
   Map<String, dynamic> toJson() => {
-        'url': url,
-        'is_thumbnail': isThumbnail,
-        'position': position,
-      };
+    'url': url,
+    'is_thumbnail': isThumbnail,
+    'position': position,
+  };
 }
 
 class RoutineTrainingEntry {
@@ -63,7 +69,8 @@ class RoutineTrainingEntry {
     this.note,
   });
 
-  factory RoutineTrainingEntry.fromJson(Map<String, dynamic> json) => RoutineTrainingEntry(
+  factory RoutineTrainingEntry.fromJson(Map<String, dynamic> json) =>
+      RoutineTrainingEntry(
         id: json['id'] as String,
         routineId: json['routine_id'] as String,
         trainingId: json['training_id'] as String,
@@ -77,15 +84,18 @@ class RoutineTrainingEntry {
       );
 
   Map<String, dynamic> toJson() => {
-        'training_id': trainingId,
-        'week_number': weekNumber,
-        'day_of_week': dayOfWeek,
-        'position': position,
-        'note': note,
-      };
+    'training_id': trainingId,
+    'week_number': weekNumber,
+    'day_of_week': dayOfWeek,
+    'position': position,
+    'note': note,
+  };
 
-  static const _dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  String get dayLabel => dayOfWeek != null ? _dayNames[dayOfWeek! - 1] : '';
+  /// Short weekday name in [locale] ("Mon" / "pon"); 1 = Monday.
+  String dayLabel(String locale) => dayOfWeek != null
+      // 2024-01-01 was a Monday.
+      ? DateFormat.E(locale).format(DateTime(2024, 1, dayOfWeek!))
+      : '';
 }
 
 class Routine {
@@ -131,10 +141,13 @@ class Routine {
       notes: json['notes'] as String?,
       authorId: json['author_id'] as String?,
       isPublic: json['is_public'] as bool? ?? false,
-      scheduleType:
-          RoutineScheduleType.fromApiValue(json['schedule_type'] as String? ?? 'wildcard'),
+      scheduleType: RoutineScheduleType.fromApiValue(
+        json['schedule_type'] as String? ?? 'wildcard',
+      ),
       numWeeks: json['num_weeks'] as int?,
-      images: rawImages.map((i) => RoutineImage.fromJson(i as Map<String, dynamic>)).toList(),
+      images: rawImages
+          .map((i) => RoutineImage.fromJson(i as Map<String, dynamic>))
+          .toList(),
       trainings: rawTrainings
           .map((t) => RoutineTrainingEntry.fromJson(t as Map<String, dynamic>))
           .toList(),
@@ -145,23 +158,22 @@ class Routine {
   }
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
-        'notes': notes,
-        'is_public': isPublic,
-        'schedule_type': scheduleType.apiValue,
-        'num_weeks': numWeeks,
-        'images': images.map((i) => i.toJson()).toList(),
-        'trainings': trainings.map((t) => t.toJson()).toList(),
-      };
+    'name': name,
+    'description': description,
+    'notes': notes,
+    'is_public': isPublic,
+    'schedule_type': scheduleType.apiValue,
+    'num_weeks': numWeeks,
+    'images': images.map((i) => i.toJson()).toList(),
+    'trainings': trainings.map((t) => t.toJson()).toList(),
+  };
 
-  String get thumbnailUrl =>
-      thumbnail?.url ?? images.firstOrNull?.url ?? '';
+  String get thumbnailUrl => thumbnail?.url ?? images.firstOrNull?.url ?? '';
 
-  String get scheduleLabel {
+  String scheduleLabel(AppLocalizations l10n) {
     if (scheduleType == RoutineScheduleType.fixedWeeks && numWeeks != null) {
-      return '$numWeeks-Week Program';
+      return l10n.trainingWeekProgram(numWeeks!);
     }
-    return 'Wildcard';
+    return l10n.trainingScheduleWildcard;
   }
 }

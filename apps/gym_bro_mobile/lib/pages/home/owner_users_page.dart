@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/l10n.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
@@ -64,12 +65,18 @@ class _OwnerUsersPageState extends State<OwnerUsersPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline,
-                size: 48, color: Theme.of(context).colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(_error!),
             const SizedBox(height: 16),
-            FilledButton(onPressed: _load, child: const Text('Retry')),
+            FilledButton(
+              onPressed: _load,
+              child: Text(context.l10n.commonRetry),
+            ),
           ],
         ),
       );
@@ -82,17 +89,23 @@ class _OwnerUsersPageState extends State<OwnerUsersPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.manage_accounts_outlined,
-                        size: 48,
-                        color: Theme.of(context).colorScheme.outline),
+                    Icon(
+                      Icons.manage_accounts_outlined,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
                     const SizedBox(height: 16),
-                    const Text('No users yet'),
+                    Text(context.l10n.shellNoUsers),
                   ],
                 ),
               )
             : ListView.builder(
                 padding: const EdgeInsets.only(
-                    left: 16, right: 16, top: 16, bottom: 88),
+                  left: 16,
+                  right: 16,
+                  top: 16,
+                  bottom: 88,
+                ),
                 itemCount: _users.length,
                 itemBuilder: (_, i) => _UserTile(
                   user: _users[i],
@@ -105,7 +118,7 @@ class _OwnerUsersPageState extends State<OwnerUsersPage> {
           child: FloatingActionButton.extended(
             onPressed: () => _openForm(),
             icon: const Icon(Icons.person_add_outlined),
-            label: const Text('Add User'),
+            label: Text(context.l10n.shellAddUser),
           ),
         ),
       ],
@@ -133,9 +146,12 @@ class _UserTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        leading: CircleAvatar(
-          child: Text(
-              user.name.isNotEmpty ? user.name[0].toUpperCase() : '?'),
+        leading: ExcludeSemantics(
+          child: CircleAvatar(
+            child: Text(
+              user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
+            ),
+          ),
         ),
         title: Text(user.fullName),
         subtitle: Text(user.email),
@@ -143,7 +159,7 @@ class _UserTile extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Chip(
-              label: Text(user.role.displayName),
+              label: Text(user.role.label(context.l10n)),
               backgroundColor: _roleColor(context, user.role),
               visualDensity: VisualDensity.compact,
               padding: EdgeInsets.zero,
@@ -152,7 +168,7 @@ class _UserTile extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.edit_outlined),
               onPressed: onEdit,
-              tooltip: 'Edit',
+              tooltip: context.l10n.shellEditUser(user.fullName),
             ),
           ],
         ),

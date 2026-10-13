@@ -1,3 +1,5 @@
+import '../l10n/app_localizations.dart';
+import '../services/settings_service.dart';
 import 'exercise.dart';
 
 enum WorkoutSetType {
@@ -7,21 +9,15 @@ enum WorkoutSetType {
   circuit;
 
   String get apiValue => name;
-  String get displayName {
-    switch (this) {
-      case WorkoutSetType.standard:
-        return 'Straight Set';
-      case WorkoutSetType.superset:
-        return 'Superset';
-      case WorkoutSetType.dropset:
-        return 'Drop Set';
-      case WorkoutSetType.circuit:
-        return 'Circuit';
-    }
-  }
+  String label(AppLocalizations l10n) => switch (this) {
+    WorkoutSetType.standard => l10n.trainingSetTypeStandard,
+    WorkoutSetType.superset => l10n.trainingSetTypeSuperset,
+    WorkoutSetType.dropset => l10n.trainingSetTypeDropset,
+    WorkoutSetType.circuit => l10n.trainingSetTypeCircuit,
+  };
 
-  static WorkoutSetType fromApiValue(String v) =>
-      WorkoutSetType.values.firstWhere((e) => e.name == v, orElse: () => WorkoutSetType.standard);
+  static WorkoutSetType fromApiValue(String v) => WorkoutSetType.values
+      .firstWhere((e) => e.name == v, orElse: () => WorkoutSetType.standard);
 }
 
 enum RepType {
@@ -30,19 +26,16 @@ enum RepType {
   unspecified;
 
   String get apiValue => name;
-  String get displayName {
-    switch (this) {
-      case RepType.count:
-        return 'Reps';
-      case RepType.failure:
-        return 'To Failure';
-      case RepType.unspecified:
-        return '—';
-    }
-  }
+  String label(AppLocalizations l10n) => switch (this) {
+    RepType.count => l10n.trainingRepTypeCount,
+    RepType.failure => l10n.trainingRepTypeFailure,
+    RepType.unspecified => '—',
+  };
 
-  static RepType fromApiValue(String v) =>
-      RepType.values.firstWhere((e) => e.name == v, orElse: () => RepType.count);
+  static RepType fromApiValue(String v) => RepType.values.firstWhere(
+    (e) => e.name == v,
+    orElse: () => RepType.count,
+  );
 }
 
 enum BodySide {
@@ -51,19 +44,16 @@ enum BodySide {
   right;
 
   String get apiValue => name;
-  String get displayName {
-    switch (this) {
-      case BodySide.both:
-        return 'Both';
-      case BodySide.left:
-        return 'Left';
-      case BodySide.right:
-        return 'Right';
-    }
-  }
+  String label(AppLocalizations l10n) => switch (this) {
+    BodySide.both => l10n.trainingSideBoth,
+    BodySide.left => l10n.trainingSideLeft,
+    BodySide.right => l10n.trainingSideRight,
+  };
 
-  static BodySide fromApiValue(String v) =>
-      BodySide.values.firstWhere((e) => e.name == v, orElse: () => BodySide.both);
+  static BodySide fromApiValue(String v) => BodySide.values.firstWhere(
+    (e) => e.name == v,
+    orElse: () => BodySide.both,
+  );
 }
 
 // ── Training set drop ─────────────────────────────────────────────────────────
@@ -97,31 +87,51 @@ class TrainingSetDrop {
       dropNumber: json['drop_number'] as int? ?? 0,
       repType: RepType.fromApiValue(json['rep_type'] as String? ?? 'count'),
       repCount: json['rep_count'] as int?,
-      weightKg: rawWeight == null ? null : double.tryParse(rawWeight.toString()),
+      weightKg: rawWeight == null
+          ? null
+          : double.tryParse(rawWeight.toString()),
       side: BodySide.fromApiValue(json['side'] as String? ?? 'both'),
       note: json['note'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'drop_number': dropNumber,
-        'rep_type': repType.apiValue,
-        'rep_count': repCount,
-        'weight_kg': weightKg,
-        'side': side.apiValue,
-        'note': note,
-      };
+    'drop_number': dropNumber,
+    'rep_type': repType.apiValue,
+    'rep_count': repCount,
+    'weight_kg': weightKg,
+    'side': side.apiValue,
+    'note': note,
+  };
 
-  String get label {
-    final reps = switch (repType) {
-      RepType.count => repCount != null ? '${repCount}x' : '',
-      RepType.failure => 'Failure',
-      RepType.unspecified => '—',
-    };
-    final weight = weightKg != null ? ' @ ${weightKg!.toStringAsFixed(1)} kg' : '';
-    final sideLabel = side != BodySide.both ? ' (${side.displayName})' : '';
-    return '$reps$weight$sideLabel'.trim();
-  }
+  /// e.g. "8x @ 60 kg (Left)" / "Failure".
+  String label(AppLocalizations l10n) => trainingDropLabel(
+    l10n,
+    repType: repType,
+    repCount: repCount,
+    weightKg: weightKg,
+    side: side,
+  );
+}
+
+/// Shared by planned drops and logged drops: "8x @ 60 kg (Left)".
+String trainingDropLabel(
+  AppLocalizations l10n, {
+  required RepType repType,
+  int? repCount,
+  double? weightKg,
+  required BodySide side,
+}) {
+  final reps = switch (repType) {
+    RepType.count => repCount != null ? l10n.trainingRepsTimes(repCount) : '',
+    RepType.failure => l10n.trainingRepFailureShort,
+    RepType.unspecified => '—',
+  };
+  final weight = weightKg != null
+      ? ' @ ${SettingsService.instance.formatWeight(weightKg)}'
+      : '';
+  final sideLabel = side != BodySide.both ? ' (${side.label(l10n)})' : '';
+  return '$reps$weight$sideLabel'.trim();
 }
 
 // ── Training set exercise ─────────────────────────────────────────────────────
@@ -162,18 +172,20 @@ class TrainingSetExercise {
       isAlternating: json['is_alternating'] as bool? ?? false,
       restBetweenDropsSeconds: json['rest_between_drops_seconds'] as int?,
       note: json['note'] as String?,
-      drops: rawDrops.map((d) => TrainingSetDrop.fromJson(d as Map<String, dynamic>)).toList(),
+      drops: rawDrops
+          .map((d) => TrainingSetDrop.fromJson(d as Map<String, dynamic>))
+          .toList(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'exercise_id': exerciseId,
-        'position': position,
-        'is_alternating': isAlternating,
-        'rest_between_drops_seconds': restBetweenDropsSeconds,
-        'note': note,
-        'drops': drops.map((d) => d.toJson()).toList(),
-      };
+    'exercise_id': exerciseId,
+    'position': position,
+    'is_alternating': isAlternating,
+    'rest_between_drops_seconds': restBetweenDropsSeconds,
+    'note': note,
+    'drops': drops.map((d) => d.toJson()).toList(),
+  };
 }
 
 // ── Training set ──────────────────────────────────────────────────────────────
@@ -213,21 +225,21 @@ class TrainingSet {
   }
 
   Map<String, dynamic> toJson() => {
-        'type': type.apiValue,
-        'position': position,
-        'rest_seconds': restSeconds,
-        'note': note,
-        'exercises': exercises.map((e) => e.toJson()).toList(),
-      };
+    'type': type.apiValue,
+    'position': position,
+    'rest_seconds': restSeconds,
+    'note': note,
+    'exercises': exercises.map((e) => e.toJson()).toList(),
+  };
 
-  String get setsLabel {
+  String setsLabel(AppLocalizations l10n) {
     if (exercises.isEmpty) return '';
     final first = exercises.first;
     if (first.drops.isEmpty) return '';
     if (first.drops.length == 1) {
-      return first.drops.first.label;
+      return first.drops.first.label(l10n);
     }
-    return '${first.drops.length} drops';
+    return l10n.trainingDropCount(first.drops.length);
   }
 }
 
@@ -249,18 +261,18 @@ class TrainingImage {
   });
 
   factory TrainingImage.fromJson(Map<String, dynamic> json) => TrainingImage(
-        id: json['id'] as String,
-        trainingId: json['training_id'] as String,
-        url: json['url'] as String,
-        isThumbnail: json['is_thumbnail'] as bool? ?? false,
-        position: json['position'] as int? ?? 0,
-      );
+    id: json['id'] as String,
+    trainingId: json['training_id'] as String,
+    url: json['url'] as String,
+    isThumbnail: json['is_thumbnail'] as bool? ?? false,
+    position: json['position'] as int? ?? 0,
+  );
 
   Map<String, dynamic> toJson() => {
-        'url': url,
-        'is_thumbnail': isThumbnail,
-        'position': position,
-      };
+    'url': url,
+    'is_thumbnail': isThumbnail,
+    'position': position,
+  };
 }
 
 // ── Training ──────────────────────────────────────────────────────────────────
@@ -304,8 +316,12 @@ class Training {
       notes: json['notes'] as String?,
       authorId: json['author_id'] as String?,
       isPublic: json['is_public'] as bool? ?? false,
-      images: rawImages.map((i) => TrainingImage.fromJson(i as Map<String, dynamic>)).toList(),
-      sets: rawSets.map((s) => TrainingSet.fromJson(s as Map<String, dynamic>)).toList(),
+      images: rawImages
+          .map((i) => TrainingImage.fromJson(i as Map<String, dynamic>))
+          .toList(),
+      sets: rawSets
+          .map((s) => TrainingSet.fromJson(s as Map<String, dynamic>))
+          .toList(),
       thumbnail: rawThumb != null ? TrainingImage.fromJson(rawThumb) : null,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
@@ -313,13 +329,13 @@ class Training {
   }
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'description': description,
-        'notes': notes,
-        'is_public': isPublic,
-        'images': images.map((i) => i.toJson()).toList(),
-        'sets': sets.map((s) => s.toJson()).toList(),
-      };
+    'name': name,
+    'description': description,
+    'notes': notes,
+    'is_public': isPublic,
+    'images': images.map((i) => i.toJson()).toList(),
+    'sets': sets.map((s) => s.toJson()).toList(),
+  };
 
   String get thumbnailUrl => thumbnail?.url ?? images.firstOrNull?.url ?? '';
 

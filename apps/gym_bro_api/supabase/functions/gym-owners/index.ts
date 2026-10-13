@@ -9,6 +9,18 @@ function parseId(pathname: string): string | null {
   return match ? match[1] : null;
 }
 
+// ── Columns returned alongside gym_owner rows (user display fields) ──────────
+
+const SELECT_COLS = [
+  "gym_owner.id",
+  "gym_owner.user_id",
+  "gym_owner.gym_id",
+  "users.name",
+  "users.last_name",
+  "users.username",
+  "users.avatar_url",
+] as const;
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -53,9 +65,12 @@ Deno.serve(async (req: Request) => {
   if (req.method === "GET" && !id) {
     const userId = url.searchParams.get("user_id");
     const gymId = url.searchParams.get("gym_id");
-    let query = db.selectFrom("gym_owner").selectAll();
-    if (userId) query = query.where("user_id", "=", userId);
-    if (gymId) query = query.where("gym_id", "=", gymId);
+    let query = db
+      .selectFrom("gym_owner")
+      .innerJoin("users", "users.id", "gym_owner.user_id")
+      .select(SELECT_COLS);
+    if (userId) query = query.where("gym_owner.user_id", "=", userId);
+    if (gymId) query = query.where("gym_owner.gym_id", "=", gymId);
     return json(await query.execute());
   }
 
@@ -63,8 +78,9 @@ Deno.serve(async (req: Request) => {
   if (req.method === "GET" && id) {
     const row = await db
       .selectFrom("gym_owner")
-      .selectAll()
-      .where("id", "=", id)
+      .innerJoin("users", "users.id", "gym_owner.user_id")
+      .select(SELECT_COLS)
+      .where("gym_owner.id", "=", id)
       .executeTakeFirst();
     if (!row) return jsonError("Gym owner not found", 404);
     return json(row);

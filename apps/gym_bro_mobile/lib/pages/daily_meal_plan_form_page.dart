@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
+import '../models/food_log.dart' show fmtAmount;
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'nutrition/nutrition_widgets.dart';
 
 class DailyMealPlanFormPage extends StatefulWidget {
   final DailyMealPlan? plan;
@@ -65,7 +68,7 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
             } else {
               return _EntryDraft.fromRecipe(
                 recipeId: e.recipeId!,
-                recipeName: e.recipe?.name ?? 'Recipe',
+                recipeName: e.recipe?.name,
                 recipeKcalPerServing: e.recipe?.kcalPerServing ?? 0,
                 recipeProteinPerServing: e.recipe?.proteinPerServing ?? 0,
                 recipeCarbPerServing: e.recipe?.carbPerServing ?? 0,
@@ -140,8 +143,12 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
     } catch (e) {
       setState(() => _saving = false);
       if (mounted) {
+        final cs = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(errorText(e), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
+          ),
         );
       }
     }
@@ -154,7 +161,7 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
     final available = MealSlotType.values.where((t) => !usedTypes.contains(t)).toList();
     if (available.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All meal slots have been added')),
+        SnackBar(content: Text(context.l10n.nutritionAllSlotsAdded)),
       );
       return;
     }
@@ -222,7 +229,7 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
       context: context,
       builder: (ctx) => _QuantityDialog(
         title: recipe.name,
-        unitLabel: 'servings',
+        unitLabel: context.l10n.nutritionUnitServings,
         isServings: true,
         defaultValue: 1.0,
       ),
@@ -248,9 +255,10 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Meal Plan' : 'New Meal Plan'),
+        title: Text(_isEditing ? l10n.nutritionEditDailyPlanTitle : l10n.nutritionNewDailyPlanTitle),
         actions: [
           if (_saving)
             const Padding(
@@ -258,7 +266,7 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
               child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
             )
           else
-            TextButton(onPressed: _save, child: const Text('Save')),
+            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
         ],
       ),
       body: Form(
@@ -269,19 +277,19 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
             // ── Basic fields ────────────────────────────────────────────────
             TextFormField(
               controller: _name,
-              decoration: const InputDecoration(labelText: 'Plan name *'),
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+              decoration: InputDecoration(labelText: l10n.nutritionPlanNameRequiredLabel),
+              validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
             ),
             const SizedBox(height: 14),
             TextFormField(
               controller: _description,
-              decoration: const InputDecoration(labelText: 'Description'),
+              decoration: InputDecoration(labelText: l10n.nutritionDescription),
               maxLines: 3,
             ),
             const SizedBox(height: 8),
             SwitchListTile(
-              title: const Text('Public'),
-              subtitle: const Text('Visible to all users'),
+              title: Text(l10n.nutritionPublic),
+              subtitle: Text(l10n.nutritionVisibleToAllUsers),
               value: _isPublic,
               onChanged: (v) => setState(() => _isPublic = v),
               contentPadding: EdgeInsets.zero,
@@ -289,7 +297,7 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
             const SizedBox(height: 20),
 
             // ── Slots ───────────────────────────────────────────────────────
-            const Text('Meal Slots', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(l10n.nutritionMealSlots, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
 
             ..._slots.asMap().entries.map((entry) {
@@ -310,12 +318,12 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
             OutlinedButton.icon(
               onPressed: _addSlot,
               icon: const Icon(Icons.add),
-              label: const Text('Add Slot'),
+              label: Text(l10n.nutritionAddSlot),
             ),
             const SizedBox(height: 28),
 
             // ── Macro totals ────────────────────────────────────────────────
-            const Text('Totals', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(l10n.nutritionTotals, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
             _TotalsCard(
               kcal: _totalKcal,
@@ -418,7 +426,7 @@ class _EntryDraft {
 
   factory _EntryDraft.fromRecipe({
     required String recipeId,
-    required String recipeName,
+    required String? recipeName,
     required double recipeKcalPerServing,
     required double recipeProteinPerServing,
     required double recipeCarbPerServing,
@@ -441,17 +449,15 @@ class _EntryDraft {
 
   bool get isFoodItem => foodItemId != null;
 
-  String get displayName => foodItemName ?? recipeName ?? 'Item';
+  String displayName(AppLocalizations l10n) =>
+      foodItemName ?? recipeName ?? (isFoodItem ? l10n.nutritionItemFallback : l10n.nutritionRecipeFallback);
 
-  String get amountLabel {
+  String amountLabel(AppLocalizations l10n) {
     if (isFoodItem && quantity != null) {
       final unit = foodItemUnit?.displayName ?? 'g';
-      final q = quantity! == quantity!.truncateToDouble()
-          ? quantity!.toInt().toString()
-          : quantity!.toStringAsFixed(1);
-      return '$q$unit';
+      return '${fmtAmount(double.parse(quantity!.toStringAsFixed(1)), l10n.localeName)}$unit';
     }
-    return servings == 1.0 ? '1 serving' : '${servings.toStringAsFixed(1)} servings';
+    return l10n.nutritionServingsAmount(servings, fmtAmount(double.parse(servings.toStringAsFixed(1)), l10n.localeName));
   }
 
   double get kcal {
@@ -517,6 +523,8 @@ class _SlotCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -528,28 +536,26 @@ class _SlotCard extends StatelessWidget {
             // Header row
             Row(
               children: [
-                Text(slot.slotType.displayName,
+                Text(slot.slotType.label(l10n),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
+                    color: cs.primaryContainer,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.orange.shade200),
+                    border: Border.all(color: cs.primary.withValues(alpha: 0.4)),
                   ),
                   child: Text(
-                    '${slot.kcalTotal.round()} kcal',
-                    style: TextStyle(fontSize: 11, color: Colors.orange.shade700),
+                    l10n.nutritionKcalValue(slot.kcalTotal.round()),
+                    style: TextStyle(fontSize: 11, color: cs.onPrimaryContainer),
                   ),
                 ),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                  icon: Icon(Icons.delete_outline, color: cs.error, size: 20),
                   onPressed: onRemove,
-                  tooltip: 'Remove slot',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
+                  tooltip: l10n.nutritionRemoveSlot,
                 ),
               ],
             ),
@@ -557,9 +563,9 @@ class _SlotCard extends StatelessWidget {
 
             // Entries
             if (slot.entries.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 4),
-                child: Text('No entries yet', style: TextStyle(color: Colors.grey, fontSize: 13)),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text(l10n.nutritionNoEntriesYet, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
               )
             else
               ...slot.entries.asMap().entries.map((e) {
@@ -568,22 +574,20 @@ class _SlotCard extends StatelessWidget {
                 return ListTile(
                   dense: true,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 0),
-                  title: Text(entry.displayName,
+                  title: Text(entry.displayName(l10n),
                       style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
                   subtitle: entry.note != null && entry.note!.isNotEmpty
-                      ? Text(entry.note!, style: const TextStyle(fontSize: 11, color: Colors.grey))
+                      ? Text(entry.note!, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant))
                       : null,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(entry.amountLabel,
-                          style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                      const SizedBox(width: 4),
+                      Text(entry.amountLabel(l10n),
+                          style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                       IconButton(
-                        icon: const Icon(Icons.close, size: 16, color: Colors.red),
+                        tooltip: l10n.nutritionRemoveNamed(entry.displayName(l10n)),
+                        icon: Icon(Icons.close, size: 16, color: cs.error),
                         onPressed: () => onRemoveEntry(ei),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
                       ),
                     ],
                   ),
@@ -596,20 +600,18 @@ class _SlotCard extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onAddFoodItem,
                   icon: const Icon(Icons.add, size: 14),
-                  label: const Text('Add food item', style: TextStyle(fontSize: 13)),
+                  label: Text(l10n.nutritionAddFoodItem, style: const TextStyle(fontSize: 13)),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
                 const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: onAddRecipe,
                   icon: const Icon(Icons.add, size: 14),
-                  label: const Text('Add recipe', style: TextStyle(fontSize: 13)),
+                  label: Text(l10n.nutritionAddRecipe, style: const TextStyle(fontSize: 13)),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
               ],
@@ -638,19 +640,21 @@ class _TotalsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = MacroColors.of(context);
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         child: Row(
           children: [
-            _TotalCell(label: 'kcal', value: kcal.round().toString(), color: Colors.orange.shade700),
+            _TotalCell(label: l10n.nutritionKcal, value: kcal.round().toString(), color: colors.kcal),
             _TotalDivider(),
-            _TotalCell(label: 'protein', value: '${protein.round()}g', color: Colors.red.shade400),
+            _TotalCell(label: l10n.nutritionProtein, value: '${protein.round()}g', color: colors.protein),
             _TotalDivider(),
-            _TotalCell(label: 'carbs', value: '${carb.round()}g', color: Colors.amber.shade700),
+            _TotalCell(label: l10n.nutritionCarbsShort, value: '${carb.round()}g', color: colors.carb),
             _TotalDivider(),
-            _TotalCell(label: 'fat', value: '${fat.round()}g', color: Colors.blue.shade400),
+            _TotalCell(label: l10n.nutritionFat, value: '${fat.round()}g', color: colors.fat),
           ],
         ),
       ),
@@ -668,13 +672,15 @@ class _TotalCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Column(
+      child: MergeSemantics(
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: color)),
           const SizedBox(height: 2),
-          Text(label, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+          Text(label, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
         ],
+        ),
       ),
     );
   }
@@ -684,7 +690,7 @@ class _TotalDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: 1, height: 32, color: Colors.grey.shade200, margin: const EdgeInsets.symmetric(horizontal: 4));
+        width: 1, height: 32, color: Theme.of(context).colorScheme.outlineVariant, margin: const EdgeInsets.symmetric(horizontal: 4));
   }
 }
 
@@ -707,14 +713,14 @@ class _SlotTypePicker extends StatelessWidget {
           Container(
             width: 40,
             height: 4,
-            decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.outlineVariant, borderRadius: BorderRadius.circular(2)),
           ),
           const SizedBox(height: 12),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text('Select Meal Slot', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              child: Text(context.l10n.nutritionSelectMealSlot, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             ),
           ),
           const SizedBox(height: 8),
@@ -725,7 +731,7 @@ class _SlotTypePicker extends StatelessWidget {
               itemBuilder: (context, i) {
                 final type = available[i];
                 return ListTile(
-                  title: Text(type.displayName),
+                  title: Text(type.label(context.l10n)),
                   onTap: () => Navigator.pop(context, type),
                 );
               },
@@ -788,7 +794,7 @@ class _FoodItemPickerSheetState extends State<_FoodItemPickerSheet> {
           Container(
             width: 40,
             height: 4,
-            decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.outlineVariant, borderRadius: BorderRadius.circular(2)),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
@@ -796,7 +802,7 @@ class _FoodItemPickerSheetState extends State<_FoodItemPickerSheet> {
               controller: _search,
               autofocus: true,
               decoration: InputDecoration(
-                hintText: 'Search food items…',
+                hintText: context.l10n.nutritionSearchFoodItemsHint,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
@@ -816,7 +822,7 @@ class _FoodItemPickerSheetState extends State<_FoodItemPickerSheet> {
                   return ListTile(
                     title: Text(item.name),
                     subtitle: Text(
-                      '${item.subtypeLabel} · ${item.kcalPer100.round()} kcal/100${item.servingUnit.displayName}',
+                      '${item.subtypeLabel(context.l10n)} · ${item.kcalPer100.round()} kcal/100${item.servingUnit.displayName}',
                       style: const TextStyle(fontSize: 12),
                     ),
                     onTap: () => Navigator.pop(context, item),
@@ -881,7 +887,7 @@ class _RecipePickerSheetState extends State<_RecipePickerSheet> {
           Container(
             width: 40,
             height: 4,
-            decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.outlineVariant, borderRadius: BorderRadius.circular(2)),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
@@ -889,7 +895,7 @@ class _RecipePickerSheetState extends State<_RecipePickerSheet> {
               controller: _search,
               autofocus: true,
               decoration: InputDecoration(
-                hintText: 'Search recipes…',
+                hintText: context.l10n.nutritionSearchRecipesHint,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
@@ -912,6 +918,7 @@ class _RecipePickerSheetState extends State<_RecipePickerSheet> {
                             borderRadius: BorderRadius.circular(6),
                             child: Image.network(
                               recipe.thumbnailUrlOrNull!,
+                              excludeFromSemantics: true,
                               width: 40,
                               height: 40,
                               fit: BoxFit.cover,
@@ -921,7 +928,7 @@ class _RecipePickerSheetState extends State<_RecipePickerSheet> {
                         : const Icon(Icons.restaurant),
                     title: Text(recipe.name),
                     subtitle: Text(
-                      '${recipe.kcalPerServing.round()} kcal/serving',
+                      context.l10n.nutritionKcalPerServing(recipe.kcalPerServing.round()),
                       style: const TextStyle(fontSize: 12),
                     ),
                     onTap: () => Navigator.pop(context, recipe),
@@ -975,7 +982,7 @@ class _QuantityDialogState extends State<_QuantityDialog> {
   }
 
   void _confirm() {
-    final raw = double.tryParse(_quantity.text.trim());
+    final raw = double.tryParse(_quantity.text.trim().replaceAll(',', '.'));
     final noteText = _note.text.trim().isEmpty ? null : _note.text.trim();
     if (widget.isServings) {
       Navigator.pop(context, {'servings': raw ?? 1.0, 'note': noteText});
@@ -986,6 +993,7 @@ class _QuantityDialogState extends State<_QuantityDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AlertDialog(
       title: Text(widget.title, maxLines: 2, overflow: TextOverflow.ellipsis),
       content: Column(
@@ -996,7 +1004,9 @@ class _QuantityDialogState extends State<_QuantityDialog> {
             autofocus: true,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
-              labelText: widget.isServings ? 'Servings' : 'Quantity (${widget.unitLabel})',
+              labelText: widget.isServings
+                  ? l10n.nutritionServings
+                  : l10n.nutritionLabelWithUnit(l10n.nutritionQuantity, widget.unitLabel),
               hintText: widget.isServings ? '1.0' : '100',
             ),
             onSubmitted: (_) => _confirm(),
@@ -1004,14 +1014,14 @@ class _QuantityDialogState extends State<_QuantityDialog> {
           const SizedBox(height: 12),
           TextField(
             controller: _note,
-            decoration: const InputDecoration(labelText: 'Note (optional)'),
+            decoration: InputDecoration(labelText: l10n.nutritionNoteOptional),
             maxLines: 2,
           ),
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-        TextButton(onPressed: _confirm, child: const Text('Add')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
+        TextButton(onPressed: _confirm, child: Text(l10n.nutritionAdd)),
       ],
     );
   }

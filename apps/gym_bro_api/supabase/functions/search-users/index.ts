@@ -1,14 +1,20 @@
 import { sql } from "npm:kysely@^0.27";
 import { db } from "../_shared/config.ts";
-import { json, jsonError, requireAuth } from "../_shared/auth.ts";
+import { json, jsonError, requireCaller, staffsAnyBusiness } from "../_shared/auth.ts";
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
-  const { user, error: authError } = await requireAuth(req);
-  if (!user) return jsonError(authError ?? "Unauthorized", 401);
+  const { caller, response } = await requireCaller(req);
+  if (!caller) return response;
 
   if (req.method !== "GET") return jsonError("Method not allowed", 405);
+
+  // Results carry emails: only for people who own or staff a gym or shop
+  // (to pick someone to add), and super users.
+  if (!(await staffsAnyBusiness(caller))) {
+    return jsonError("Only gym and shop staff can search users", 403);
+  }
 
   const url = new URL(req.url);
   const q = (url.searchParams.get("q") ?? "").trim();

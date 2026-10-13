@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../services/auth_manager.dart';
 import '../services/api_service.dart';
@@ -26,17 +27,19 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
   }
 
   Future<void> _delete() async {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete exercise?'),
-        content: Text('Remove "${_exercise.name}" permanently?'),
+        title: Text(l10n.trainingExerciseDeleteTitle),
+        content: Text(l10n.trainingPlanDeleteBody(_exercise.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.commonCancel)),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            style: TextButton.styleFrom(foregroundColor: cs.error),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -49,7 +52,10 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e.toString(), style: TextStyle(color: cs.onError)),
+            backgroundColor: cs.error,
+          ),
         );
       }
     }
@@ -59,6 +65,8 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
   Widget build(BuildContext context) {
     final profile = AuthManager.instance.profile;
     final isOwner = profile != null && profile.id == _exercise.authorId;
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -66,6 +74,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
         actions: [
           if (isOwner) ...[
             IconButton(
+              tooltip: l10n.commonEdit,
               icon: const Icon(Icons.edit),
               onPressed: () async {
                 final updated = await Navigator.push<Exercise>(
@@ -78,6 +87,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
               },
             ),
             IconButton(
+              tooltip: l10n.commonDelete,
               icon: const Icon(Icons.delete_outline),
               onPressed: _delete,
             ),
@@ -95,6 +105,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
                 height: 220,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                semanticLabel: l10n.trainingExercisePhoto(_exercise.name),
                 errorBuilder: (context, error, stack) => const SizedBox.shrink(),
               ),
             ),
@@ -117,7 +128,8 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
 
           // Muscle chips
           if (_exercise.primaryMuscles.isNotEmpty) ...[
-            const Text('Target Muscles', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(l10n.trainingExerciseTargetMuscles,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
             MuscleChips(
               primary: _exercise.primaryMuscles,
@@ -127,29 +139,33 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
           ],
 
           if (_exercise.description != null && _exercise.description!.isNotEmpty) ...[
-            const Text('Description', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(l10n.trainingPlanDescriptionLabel,
+                style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
             Text(_exercise.description!),
             const SizedBox(height: 20),
           ],
 
           if (_exercise.note != null && _exercise.note!.isNotEmpty) ...[
-            const Text('Notes', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(l10n.trainingPlanNotes, style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
             Text(_exercise.note!),
             const SizedBox(height: 20),
           ],
 
           if (_exercise.videoUrl != null && _exercise.videoUrl!.isNotEmpty) ...[
-            const Text('Video', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(l10n.trainingExerciseVideo, style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
-            InkWell(
-              onTap: () => openExternalUrl(context, _exercise.videoUrl!),
-              child: Text(
-                _exercise.videoUrl!,
-                style: const TextStyle(
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
+            Semantics(
+              link: true,
+              child: InkWell(
+                onTap: () => openExternalUrl(context, _exercise.videoUrl!),
+                child: Text(
+                  _exercise.videoUrl!,
+                  style: TextStyle(
+                    color: cs.primary,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
             ),

@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/gym_bro_api/**"
+      - "apps/gym_bro_mobile/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "apps/gym_bro_api/**"
+      - "apps/gym_bro_mobile/**"
+      - ".github/workflows/ci.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DENO_VERSION: v2.7.8
+  FLUTTER_VERSION: 3.41.6
+  SUPABASE_CLI_VERSION: 2.84.2
+
+jobs:
+  api:
+    name: API (check, lint, unit tests)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: apps/gym_bro_api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+      - run: deno task check
+      - run: deno task lint
+      - run: deno task test:unit
+
+  mobile:
+    name: Mobile (analyze, test)
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: apps/gym_bro_mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - run: dart analyze lib
+      - run: flutter test
+
+  integration:
+    name: API integration (local Supabase)
+    runs-on: ubuntu-24.04
+    needs: api
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: apps/gym_bro_api
+    env:
+      # The edge runtime reads POSTGRES_URL via env() in config.toml. The CLI
+      # maps host.docker.internal to the host on Linux too.
+      POSTGRES_URL: postgresql://postgres:postgres@host.docker.internal:54322/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+      - uses: supabase/setup-cli@v1
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+
+      - name: Start Supabase
+        run: supabase start -x studio,imgproxy,vector,logflare,supavisor
+
+      - name: Read local keys
+        run: |
+          supabase status -o env > /tmp/supabase.env
+          set -a; . /tmp/supabase.env; set +a
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          {
+            echo "API_URL=$API_URL"
+            echo "ANON_KEY=$ANON_KEY"
+            # Lets the integration tests clean up rows that have no DELETE endpoint.
+            echo "DB_URL=$DB_URL"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+          } >> "$GITHUB_ENV"
+
+      - name: Apply schema
+        run: ./scripts/migrate.sh && ./scripts/migrate.sh --status
+
+      - name: Seed demo data
+        run: deno run --allow-net --allow-env --allow-read --allow-sys scripts/seed.ts
+
+      - name: Serve edge functions
+        run: |
+          cat > /tmp/functions.env <<ENV
+          POSTGRES_URL=$POSTGRES_URL
+          CRON_SECRET=ci-cron-secret
+          ENV
+          nohup supabase functions serve --env-file /tmp/functions.env > /tmp/functions.log 2>&1 &
+          for i in $(seq 1 90); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$API_URL/functions/v1/users/signin" \
+              -H "apikey: $ANON_KEY" -H "Content-Type: application/json" -d '{}' || true)
+            if [ "$code" = "400" ] || [ "$code" = "401" ]; then
+              echo "Functions ready (HTTP $code after ${i}x2s)"; exit 0
+            fi
+            sleep 2
+          done
+          echo "Functions did not become ready"; tail -n 100 /tmp/functions.log; exit 1
+
+      - name: Integration tests
+        run: deno task test:integration
+
+      - name: Functions log
+        if: failure()
+        run: tail -n 200 /tmp/functions.log || true

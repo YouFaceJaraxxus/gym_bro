@@ -38,7 +38,6 @@ build/
 **/ios/Flutter/Generated.xcconfig
 **/ios/Flutter/ephemeral/
 **/ios/Runner/GeneratedPluginRegistrant.*
-**/ios/Runner/Info.plist
 **/macos/Flutter/GeneratedPluginRegistrant.swift
 **/macos/Flutter/ephemeral/
 **/linux/flutter/generated_plugin_registrant.cc

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../l10n/l10n.dart';
 import '../models/membership.dart';
+import '../models/payment.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../theme.dart';
 import 'member_progress_page.dart';
 
 /// Shown when tapping "Edit Member" from the members list.
@@ -99,15 +103,16 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
   /// Extends [m] by N months from its end date (or from today if it already
   /// ended), re-activates it, and issues an invoice for the extension.
   Future<void> _extend(Membership m) async {
+    final l10n = context.l10n;
     final type = _typesById[m.currentMembershipTypeId];
     if (type == null) {
-      _showError('Membership type not found for this gym');
+      _showError(l10n.businessGymMembershipTypeNotFound);
       return;
     }
     final months = await showDialog<int>(
       context: context,
       builder: (ctx) => SimpleDialog(
-        title: const Text('Extend membership'),
+        title: Text(l10n.businessGymExtendMembership),
         children: [
           for (final n in const [1, 3, 6, 12])
             SimpleDialogOption(
@@ -115,8 +120,8 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Text(
-                  '+$n month${n == 1 ? '' : 's'}  ·  '
-                  '\$${(type.monthlyCost * n).toStringAsFixed(2)}',
+                  '${l10n.businessGymPlusMonths(n)}  ·  '
+                  '${_money(type.monthlyCost * n)}',
                 ),
               ),
             ),
@@ -142,7 +147,11 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Extended until ${_fmt(to)}')));
+        ).showSnackBar(
+          SnackBar(
+            content: Text(context.l10n.businessGymExtendedUntil(_fmt(to))),
+          ),
+        );
       }
       _loadMembership();
     } catch (e) {
@@ -151,22 +160,25 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
   }
 
   Future<void> _cancelMembership(Membership m) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Cancel membership?'),
+        title: Text(l10n.businessGymCancelMembershipTitle),
         content: Text(
-          '${widget.user.fullName}\'s ${_typeName(m)} membership will be '
-          'marked inactive. Billing history is kept.',
+          l10n.businessGymCancelMembershipMessage(
+            widget.user.fullName,
+            _typeName(m),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Keep'),
+            child: Text(l10n.businessGymKeep),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Cancel membership'),
+            child: Text(l10n.businessGymCancelMembership),
           ),
         ],
       ),
@@ -183,18 +195,16 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
 
   Future<void> _deleteMembership(Membership m) async {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete membership?'),
-        content: Text(
-          'This permanently deletes the ${_typeName(m)} membership and its '
-          'invoices. Use Cancel instead to keep the history.',
-        ),
+        title: Text(l10n.businessGymDeleteMembershipTitle),
+        content: Text(l10n.businessGymDeleteMembershipMessage(_typeName(m))),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Back'),
+            child: Text(l10n.commonBack),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -202,7 +212,7 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
               foregroundColor: cs.onError,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -218,18 +228,21 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
   }
 
   String _typeName(Membership m) =>
-      _typesById[m.currentMembershipTypeId]?.name ?? 'Membership';
+      _typesById[m.currentMembershipTypeId]?.name ??
+      context.l10n.businessGymMembershipFallback;
 
-  String _fmt(DateTime d) => '${d.day}/${d.month}/${d.year}';
+  String get _locale => Localizations.localeOf(context).toString();
+
+  String _fmt(DateTime d) => DateFormat.yMMMd(_locale).format(d);
+
+  // Gym currency isn't loaded on this page; keeps the previous USD default.
+  String _money(double v) => formatMoney(v, 'usd', _locale);
 
   Future<void> _assignMembership() async {
+    final l10n = context.l10n;
     if (_types.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'This gym has no membership types yet — add one first.',
-          ),
-        ),
+        SnackBar(content: Text(l10n.businessGymNoMembershipTypes)),
       );
       return;
     }
@@ -239,20 +252,25 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('Assign Membership'),
+          title: Text(l10n.businessGymAssignMembership),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               DropdownButtonFormField<GymMembershipType>(
                 initialValue: selected,
-                decoration: const InputDecoration(labelText: 'Membership type'),
+                decoration: InputDecoration(
+                  labelText: l10n.businessGymMembershipType,
+                ),
                 items: [
                   for (final t in _types)
                     DropdownMenuItem(
                       value: t,
                       child: Text(
-                        '${t.name} (\$${t.monthlyCost.toStringAsFixed(2)}/mo)',
+                        l10n.businessGymTypePerMonth(
+                          t.name,
+                          _money(t.monthlyCost),
+                        ),
                       ),
                     ),
                 ],
@@ -262,12 +280,13 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
               const SizedBox(height: 12),
               DropdownButtonFormField<int>(
                 initialValue: months,
-                decoration: const InputDecoration(labelText: 'Duration'),
-                items: const [
-                  DropdownMenuItem(value: 1, child: Text('1 month')),
-                  DropdownMenuItem(value: 3, child: Text('3 months')),
-                  DropdownMenuItem(value: 6, child: Text('6 months')),
-                  DropdownMenuItem(value: 12, child: Text('12 months')),
+                decoration: InputDecoration(labelText: l10n.businessGymDuration),
+                items: [
+                  for (final n in const [1, 3, 6, 12])
+                    DropdownMenuItem(
+                      value: n,
+                      child: Text(l10n.businessGymMonths(n)),
+                    ),
                 ],
                 onChanged: (v) => setDialogState(() => months = v ?? months),
               ),
@@ -276,11 +295,11 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel'),
+              child: Text(l10n.commonCancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Assign'),
+              child: Text(l10n.businessGymAssign),
             ),
           ],
         ),
@@ -307,7 +326,9 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Membership assigned')));
+        ).showSnackBar(
+          SnackBar(content: Text(context.l10n.businessGymMembershipAssigned)),
+        );
       }
       _loadMembership();
     } catch (e) {
@@ -326,7 +347,9 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
       await _api.resendInvite(token, widget.user.email);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invite resent successfully')),
+          SnackBar(
+            content: Text(context.l10n.businessGymInviteResentSuccess),
+          ),
         );
       }
     } catch (e) {
@@ -341,21 +364,25 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
   }
 
   Future<void> _remove() async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Remove member?'),
+        title: Text(l10n.businessGymRemoveMemberTitle),
         content: Text(
-          'This will remove ${widget.user.fullName} from ${widget.gymName}.',
+          l10n.businessGymRemoveFromGymMessage(
+            widget.user.fullName,
+            widget.gymName,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Remove'),
+            child: Text(l10n.businessGymRemove),
           ),
         ],
       ),
@@ -378,22 +405,24 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
   }
 
   Widget _membershipTile(Membership m, ColorScheme cs) {
+    final l10n = context.l10n;
     final valid = m.isActive && !m.isExpired;
     final status = valid
-        ? 'Active'
+        ? l10n.businessGymStatusActive
         : m.isActive
-        ? 'Expired'
-        : 'Cancelled';
+        ? l10n.businessGymStatusExpired
+        : l10n.businessGymStatusCancelled;
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Icon(
         valid ? Icons.check_circle_outline : Icons.error_outline,
-        color: valid ? Colors.green : cs.error,
+        // Status is also spelled out in the subtitle (not color-only).
+        color: valid ? context.appColors.success : cs.error,
       ),
       title: Text(_typeName(m)),
       subtitle: Text('$status · ${_fmt(m.fromDate)} – ${_fmt(m.toDate)}'),
       trailing: PopupMenuButton<String>(
-        tooltip: 'Membership actions',
+        tooltip: l10n.businessGymMembershipActions,
         onSelected: (action) => switch (action) {
           'extend' => _extend(m),
           'cancel' => _cancelMembership(m),
@@ -401,20 +430,20 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
           _ => null,
         },
         itemBuilder: (_) => [
-          const PopupMenuItem(
+          PopupMenuItem(
             value: 'extend',
             child: ListTile(
-              leading: Icon(Icons.update),
-              title: Text('Extend'),
+              leading: const Icon(Icons.update),
+              title: Text(l10n.businessGymExtend),
               contentPadding: EdgeInsets.zero,
             ),
           ),
           if (m.isActive)
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'cancel',
               child: ListTile(
-                leading: Icon(Icons.cancel_outlined),
-                title: Text('Cancel'),
+                leading: const Icon(Icons.cancel_outlined),
+                title: Text(l10n.businessGymCancelMembership),
                 contentPadding: EdgeInsets.zero,
               ),
             ),
@@ -422,7 +451,10 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
             value: 'delete',
             child: ListTile(
               leading: Icon(Icons.delete_outline, color: cs.error),
-              title: Text('Delete', style: TextStyle(color: cs.error)),
+              title: Text(
+                l10n.commonDelete,
+                style: TextStyle(color: cs.error),
+              ),
               contentPadding: EdgeInsets.zero,
             ),
           ),
@@ -434,9 +466,10 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Member')),
+      appBar: AppBar(title: Text(l10n.businessGymEditMember)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -460,7 +493,7 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Member',
+                  l10n.businessGymRoleMember,
                   style: TextStyle(
                     color: cs.primary,
                     fontWeight: FontWeight.w500,
@@ -478,19 +511,19 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
               children: [
                 ListTile(
                   leading: const Icon(Icons.email_outlined),
-                  title: const Text('Email'),
+                  title: Text(l10n.businessGymEmail),
                   subtitle: Text(widget.user.email),
                 ),
                 const Divider(height: 1, indent: 16),
                 ListTile(
                   leading: const Icon(Icons.alternate_email),
-                  title: const Text('Username'),
+                  title: Text(l10n.businessGymUsername),
                   subtitle: Text(widget.user.username),
                 ),
                 const Divider(height: 1, indent: 16),
                 ListTile(
                   leading: const Icon(Icons.fitness_center_outlined),
-                  title: const Text('Gym'),
+                  title: Text(l10n.businessGymGym),
                   subtitle: Text(widget.gymName),
                 ),
               ],
@@ -510,7 +543,7 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Memberships',
+                        l10n.businessGymMemberships,
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                       TextButton.icon(
@@ -518,7 +551,7 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
                             ? null
                             : _assignMembership,
                         icon: const Icon(Icons.add, size: 18),
-                        label: const Text('Assign'),
+                        label: Text(l10n.businessGymAssign),
                       ),
                     ],
                   ),
@@ -538,7 +571,7 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
                         ),
                         TextButton(
                           onPressed: _loadMembership,
-                          child: const Text('Retry'),
+                          child: Text(l10n.commonRetry),
                         ),
                       ],
                     )
@@ -546,7 +579,7 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
-                        'No membership at ${widget.gymName}',
+                        l10n.businessGymNoMembershipAt(widget.gymName),
                         style: TextStyle(color: cs.onSurfaceVariant),
                       ),
                     )
@@ -572,7 +605,7 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
               ),
             ),
             icon: const Icon(Icons.insights_outlined),
-            label: const Text('View progress'),
+            label: Text(l10n.businessGymViewProgress),
           ),
 
           const SizedBox(height: 12),
@@ -587,7 +620,7 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.mark_email_unread_outlined),
-            label: const Text('Resend Invite'),
+            label: Text(l10n.businessGymResendInvite),
           ),
 
           const SizedBox(height: 12),
@@ -605,7 +638,10 @@ class _EditGymMemberPageState extends State<EditGymMemberPage> {
                     ),
                   )
                 : Icon(Icons.person_remove_outlined, color: cs.error),
-            label: Text('Remove from Gym', style: TextStyle(color: cs.error)),
+            label: Text(
+              l10n.businessGymRemoveFromGym,
+              style: TextStyle(color: cs.error),
+            ),
             style: OutlinedButton.styleFrom(side: BorderSide(color: cs.error)),
           ),
         ],

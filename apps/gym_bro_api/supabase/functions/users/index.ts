@@ -1,4 +1,5 @@
-import { db, supabaseAdmin, supabaseUrl, supabaseAnonKey, superAdminPass } from "../_shared/config.ts";
+import { sql } from "npm:kysely@^0.27";
+import { db, supabaseAdmin, supabaseUrl, supabaseAnonKey } from "../_shared/config.ts";
 import {
   canManageShop,
   canStaffGym,
@@ -7,9 +8,17 @@ import {
   jsonError,
   requireAuth,
   requireCaller,
+  staffsAnyBusiness,
   type Caller,
 } from "../_shared/auth.ts";
-import type { AuthSession, UserInsert, UserRole, UserUpdate } from "../../types/schema/public.ts";
+import { pgCode } from "../_shared/roles.ts";
+import type {
+  AuthSession,
+  NotificationType,
+  UserInsert,
+  UserRole,
+  UserUpdate,
+} from "../../types/schema/public.ts";
 
 const SAFE_COLUMNS = [
   "id",
@@ -24,6 +33,9 @@ const SAFE_COLUMNS = [
   "updated_at",
 ] as const;
 
+/** What any signed-in user may see about someone else. */
+const PUBLIC_COLUMNS = ["id", "username", "name", "last_name", "role", "avatar_url"] as const;
+
 const USER_ROLES: readonly UserRole[] = [
   "owner",
   "trainer",
@@ -33,6 +45,49 @@ const USER_ROLES: readonly UserRole[] = [
   "super_user",
   "shop_vendor",
 ];
+
+const NOTIFICATION_TYPES: readonly NotificationType[] = [
+  "employee_gym_invite",
+  "vendor_shop_invite",
+  "member_invite",
+  "news",
+  "events",
+  "training",
+  "training_update",
+  "class_reminder",
+  "shop_item_update",
+  "purchase_made",
+  "membership_expiring",
+  "invoice_issued",
+  "member_subscription_extended",
+  "member_join",
+  "employee_join",
+  "vendor_join",
+  "post_comment",
+  "shift_assigned",
+  "order_update",
+  "payment_received",
+  "session_comment",
+];
+
+const WEIGHT_UNITS = ["kg", "lb"] as const;
+const THEME_MODES = ["system", "light", "dark"] as const;
+
+type SettingsBody = {
+  push_enabled: boolean;
+  muted_types: NotificationType[];
+  weight_unit: (typeof WEIGHT_UNITS)[number];
+  theme_mode: (typeof THEME_MODES)[number];
+  locale: string | null;
+};
+
+const DEFAULT_SETTINGS: SettingsBody = {
+  push_enabled: true,
+  muted_types: [],
+  weight_unit: "kg",
+  theme_mode: "system",
+  locale: null,
+};
 
 // ── Auth helpers ──────────────────────────────────────────────────────────────
 
@@ -56,8 +111,9 @@ async function optionalSuperCaller(req: Request): Promise<Caller | null> {
 }
 
 /**
- * True when the caller may (re)send an invite to `userId`: they staff a gym where
- * that user is a member/employee/trainer, or manage a shop where they're a vendor.
+ * True when the caller may (re)send an invite to `userId` or see their email:
+ * they staff a gym where that user is a member/employee/trainer, or manage a
+ * shop where they're a vendor.
  */
 async function canInvite(caller: Caller, userId: string): Promise<boolean> {
   if (isSuperUser(caller)) return true;
@@ -78,6 +134,126 @@ function isUniqueViolation(err: unknown): boolean {
   return (err as { code?: string })?.code === "23505";
 }
 
+/** Name of the constraint a pg error tripped, e.g. "users_username_key". */
+function pgConstraint(err: unknown): string | undefined {
+  return (err as { constraint?: string })?.constraint;
+}
+
+/** The error message GoTrue put in a failed response body. */
+function authErrorMessage(raw: unknown, fallback: string): string {
+  const err = raw as { error_description?: string; msg?: string; message?: string } | null;
+  return err?.error_description ?? err?.msg ?? err?.message ?? fallback;
+}
+
+/**
+ * Mints a session for an existing auth user without their password: a
+ * magic-link token generated with the service role, verified straight away.
+ */
+async function mintSession(email: string): Promise<{ session: AuthSession } | { error: string; status: number }> {
+  const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
+    type: "magiclink",
+    email,
+  });
+  if (linkErr) return { error: linkErr.message, status: 500 };
+
+  const res = await authFetch("/verify", {
+    type: "magiclink",
+    token_hash: linkData.properties.hashed_token,
+  });
+  const raw = await res.json().catch(() => null);
+  if (!res.ok) return { error: authErrorMessage(raw, "Could not create a session"), status: res.status };
+  return { session: raw as AuthSession };
+}
+
+/**
+ * Copies a confirmed email change from Supabase Auth onto the public profile.
+ * GoTrue only switches auth.users.email once the new address is confirmed, so
+ * a mismatch means the change went through.
+ */
+async function syncConfirmedEmail(
+  profile: { id: string; email: string },
+  authEmail: string | undefined,
+): Promise<string> {
+  if (!authEmail || authEmail.toLowerCase() === profile.email.toLowerCase()) return profile.email;
+  try {
+    await db.updateTable("users").set({ email: authEmail }).where("id", "=", profile.id).execute();
+    return authEmail;
+  } catch (err) {
+    console.error("Could not sync confirmed email", profile.id, err);
+    return profile.email;
+  }
+}
+
+/** The caller's settings, or the defaults when they never saved any. */
+async function loadSettings(userId: string): Promise<SettingsBody & { updated_at: string | null }> {
+  const row = await db
+    .selectFrom("user_settings")
+    .select([
+      "push_enabled",
+      // pg can't parse arrays of a custom enum; text[] comes back as a JS array.
+      sql<string[]>`muted_types::text[]`.as("muted_types"),
+      "weight_unit",
+      "theme_mode",
+      "locale",
+      "updated_at",
+    ])
+    .where("user_id", "=", userId)
+    .executeTakeFirst();
+  if (!row) return { ...DEFAULT_SETTINGS, updated_at: null };
+  return { ...row, muted_types: row.muted_types as NotificationType[] };
+}
+
+/** Validates a partial settings body. Returns the fields to write, or an error message. */
+function parseSettings(body: Record<string, unknown>): Partial<SettingsBody> | string {
+  const out: Partial<SettingsBody> = {};
+  const known = ["push_enabled", "muted_types", "weight_unit", "theme_mode", "locale"];
+  const unknown = Object.keys(body).filter((k) => !known.includes(k) && k !== "updated_at" && k !== "user_id");
+  if (unknown.length > 0) return `Unknown settings: ${unknown.join(", ")}`;
+
+  if ("push_enabled" in body) {
+    if (typeof body.push_enabled !== "boolean") return "push_enabled must be a boolean";
+    out.push_enabled = body.push_enabled;
+  }
+  if ("muted_types" in body) {
+    const types = body.muted_types;
+    if (!Array.isArray(types)) return "muted_types must be an array";
+    const invalid = types.filter((t) => !NOTIFICATION_TYPES.includes(t as NotificationType));
+    if (invalid.length > 0) return `Invalid notification types: ${invalid.join(", ")}`;
+    out.muted_types = [...new Set(types as NotificationType[])];
+  }
+  if ("weight_unit" in body) {
+    if (!WEIGHT_UNITS.includes(body.weight_unit as SettingsBody["weight_unit"])) {
+      return `weight_unit must be one of: ${WEIGHT_UNITS.join(", ")}`;
+    }
+    out.weight_unit = body.weight_unit as SettingsBody["weight_unit"];
+  }
+  if ("theme_mode" in body) {
+    if (!THEME_MODES.includes(body.theme_mode as SettingsBody["theme_mode"])) {
+      return `theme_mode must be one of: ${THEME_MODES.join(", ")}`;
+    }
+    out.theme_mode = body.theme_mode as SettingsBody["theme_mode"];
+  }
+  if ("locale" in body) {
+    const locale = body.locale;
+    if (locale !== null && (typeof locale !== "string" || !/^[a-z]{2,3}([-_][A-Za-z0-9]{2,8})?$/.test(locale))) {
+      return "locale must be a language tag like 'en' or 'pt-BR', or null";
+    }
+    out.locale = locale as string | null;
+  }
+  return out;
+}
+
+/** A username derived from an email, made unique with a short random suffix on retries. */
+function usernameCandidate(email: string, attempt: number): string {
+  const base = (email.split("@")[0] ?? "user")
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "")
+    .slice(0, 40) || "user";
+  if (attempt === 0) return base;
+  const suffix = crypto.randomUUID().replace(/-/g, "").slice(0, 4 + attempt);
+  return `${base}_${suffix}`;
+}
+
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
 const STATIC_SEGMENTS = new Set([
@@ -92,6 +268,8 @@ const STATIC_SEGMENTS = new Set([
   "forgot-password",
   "reset-password",
   "change-password",
+  "change-email",
+  "impersonate",
   "logout",
 ]);
 
@@ -216,53 +394,19 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── POST /users/signin ────────────────────────────────────────────────────────
-  // Email + password sign in. Returns JWT access/refresh tokens.
-  // If the provided password matches the SUPER_ADMIN_PASS secret, the server
-  // generates a session for the requested account without checking that
-  // account's real password (super-user impersonation).
+  // Email + password sign in. Returns JWT access/refresh tokens + profile.
+  // (Support access to someone else's account goes through the logged
+  // POST /users/impersonate instead.)
   if (req.method === "POST" && segment === "signin") {
     const body = await req.json().catch(() => null);
     const { email, password } = body ?? {};
 
     if (!email || !password) return jsonError("email and password are required", 400);
 
-    let session: AuthSession;
-
-    if (superAdminPass && password === superAdminPass) {
-      // Super-admin path: look up the auth.users record and mint a session.
-      const { data: authList, error: listErr } = await supabaseAdmin.auth.admin.listUsers();
-      if (listErr) return jsonError(listErr.message, 500);
-
-      const authUser = authList.users.find((u) => u.email === email);
-      if (!authUser) return jsonError("User not found", 404);
-
-      const { data: linkData, error: linkErr } =
-        await supabaseAdmin.auth.admin.generateLink({
-          type: "magiclink",
-          email,
-        });
-      if (linkErr) return jsonError(linkErr.message, 500);
-
-      // Exchange the one-time token for a real session.
-      const res = await authFetch("/token?grant_type=otp", {
-        email,
-        token: linkData.properties.hashed_token,
-      });
-      const raw = await res.json();
-      if (!res.ok) {
-        const err = raw as { error_description?: string; msg?: string };
-        return jsonError(err.error_description ?? err.msg ?? "Super-admin sign in failed", res.status);
-      }
-      session = raw as AuthSession;
-    } else {
-      const res = await authFetch("/token?grant_type=password", { email, password });
-      const raw = await res.json();
-      if (!res.ok) {
-        const err = raw as { error_description?: string; msg?: string };
-        return jsonError(err.error_description ?? err.msg ?? "Sign in failed", res.status);
-      }
-      session = raw as AuthSession;
-    }
+    const res = await authFetch("/token?grant_type=password", { email, password });
+    const raw = await res.json().catch(() => null);
+    if (!res.ok) return jsonError(authErrorMessage(raw, "Sign in failed"), res.status);
+    const session = raw as AuthSession;
 
     const profile = await db
       .selectFrom("users")
@@ -301,19 +445,44 @@ Deno.serve(async (req: Request) => {
       .executeTakeFirst();
 
     if (!profile) {
-      const username = session.user.email.split("@")[0];
-      const insert: UserInsert = {
-        username,
-        email: session.user.email,
-        name: username,
-        last_name: "",
-        auth_id: session.user.id,
-      };
-      profile = await db
-        .insertInto("users")
-        .values(insert)
-        .returning(SAFE_COLUMNS)
-        .executeTakeFirstOrThrow();
+      const email = session.user.email;
+      const meta = (session.user as { user_metadata?: Record<string, unknown> }).user_metadata ?? {};
+      const fullName = typeof meta.full_name === "string" ? meta.full_name.trim() : "";
+      const givenName = typeof meta.given_name === "string" ? meta.given_name.trim() : "";
+      const familyName = typeof meta.family_name === "string" ? meta.family_name.trim() : "";
+      const [firstFromFull, ...restFromFull] = fullName.split(/\s+/);
+      const name = (givenName || firstFromFull || email.split("@")[0]).slice(0, 100);
+      const lastName = (familyName || restFromFull.join(" ")).slice(0, 100);
+
+      // The email's local part is often taken already; retry with a short
+      // random suffix until the username is free.
+      for (let attempt = 0; attempt < 5 && !profile; attempt++) {
+        const insert: UserInsert = {
+          username: usernameCandidate(email, attempt),
+          email,
+          name,
+          last_name: lastName,
+          auth_id: session.user.id,
+        };
+        try {
+          profile = await db
+            .insertInto("users")
+            .values(insert)
+            .returning(SAFE_COLUMNS)
+            .executeTakeFirstOrThrow();
+        } catch (err) {
+          if (!isUniqueViolation(err)) throw err;
+          if (pgConstraint(err) === "users_email_key") {
+            return jsonError(
+              "An account with this email already exists. Sign in with your password instead.",
+              409,
+              { code: "email_taken" },
+            );
+          }
+          if (pgConstraint(err) !== "users_username_key") throw err;
+        }
+      }
+      if (!profile) return jsonError("Couldn't pick a username, please try again", 409);
     }
 
     return json({ ...session, profile });
@@ -423,6 +592,7 @@ Deno.serve(async (req: Request) => {
       .select(SAFE_COLUMNS)
       .where("auth_id", "=", user.id)
       .executeTakeFirst();
+    if (profile) profile.email = await syncConfirmedEmail(profile, user.email);
 
     return json({ authenticated: true, profile });
   }
@@ -487,9 +657,131 @@ Deno.serve(async (req: Request) => {
     return json({ success: true });
   }
 
+  // ── POST /users/change-email ─────────────────────────────────────────────────
+  // {new_email, password}. Verifies the password, then asks GoTrue to start a
+  // secure email change: it emails a confirmation link to the new address and
+  // only switches the login email once that link is opened. GET /users/me
+  // (and /users/test) copy the confirmed address onto the profile.
+  if (req.method === "POST" && segment === "change-email") {
+    const body = await req.json().catch(() => null);
+    const newEmail = typeof body?.new_email === "string" ? body.new_email.trim().toLowerCase() : "";
+    const password = body?.password;
+    if (!newEmail || !password) return jsonError("new_email and password are required", 400);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) return jsonError("Enter a valid email address", 400);
+    if (!user.email) return jsonError("This account has no email to change", 400);
+    if (newEmail === user.email.toLowerCase()) return jsonError("That's already your email", 400);
+
+    const taken = await db.selectFrom("users").select("id").where("email", "=", newEmail).executeTakeFirst();
+    if (taken) return jsonError("An account with this email already exists", 409, { code: "email_taken" });
+
+    const check = await authFetch("/token?grant_type=password", { email: user.email, password });
+    if (!check.ok) return jsonError("Password is incorrect", 400, { code: "invalid_password" });
+
+    const token = req.headers.get("Authorization")!.replace(/^Bearer\s+/i, "");
+    const res = await fetch(
+      `${supabaseUrl}/auth/v1/user?redirect_to=${encodeURIComponent(inviteRedirect())}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ email: newEmail }),
+      },
+    );
+    const raw = await res.json().catch(() => null);
+    if (!res.ok) {
+      const message = authErrorMessage(raw, "Could not start the email change");
+      if (/already/i.test(message)) {
+        return jsonError("An account with this email already exists", 409, { code: "email_taken" });
+      }
+      return jsonError(message, res.status >= 500 ? 502 : 400);
+    }
+
+    return json({
+      success: true,
+      pending_email: newEmail,
+      message: `We sent a confirmation link to ${newEmail}. Your email changes once you open it.`,
+    });
+  }
+
   // Everything below needs the caller's public profile.
   const { caller, response } = await requireCaller(req);
   if (!caller) return response;
+
+  // ── GET /users/me/settings ───────────────────────────────────────────────────
+  // The caller's preferences; defaults when they never saved any.
+  if (req.method === "GET" && pathname === "/users/me/settings") {
+    return json(await loadSettings(caller.id));
+  }
+
+  // ── PUT /users/me/settings ───────────────────────────────────────────────────
+  // Partial update: {push_enabled?, muted_types?, weight_unit?, theme_mode?, locale?}.
+  // Returns the full settings after the write.
+  if (req.method === "PUT" && pathname === "/users/me/settings") {
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return jsonError("Request body must be a JSON object", 400);
+    }
+    const parsed = parseSettings(body as Record<string, unknown>);
+    if (typeof parsed === "string") return jsonError(parsed, 400);
+    if (Object.keys(parsed).length === 0) return jsonError("Nothing to update", 400);
+
+    const now = new Date().toISOString();
+    await db
+      .insertInto("user_settings")
+      .values({ user_id: caller.id, ...parsed, updated_at: now })
+      .onConflict((oc) => oc.column("user_id").doUpdateSet({ ...parsed, updated_at: now }))
+      .execute();
+
+    return json(await loadSettings(caller.id));
+  }
+
+  // ── POST /users/impersonate ──────────────────────────────────────────────────
+  // {user_id}. Super users only: returns a live session for another
+  // (non-super) user plus their profile, for support. Every use is written to
+  // admin_audit_log. The app keeps the admin's own session aside and restores
+  // it when they're done (and logs the impersonated session out).
+  if (req.method === "POST" && segment === "impersonate") {
+    if (!isSuperUser(caller)) return jsonError("Only a super user can sign in as someone else", 403);
+
+    const body = await req.json().catch(() => null);
+    const targetId = body?.user_id;
+    if (!targetId || typeof targetId !== "string") return jsonError("user_id is required", 400);
+
+    const target = await db
+      .selectFrom("users")
+      .select(SAFE_COLUMNS)
+      .where("id", "=", targetId)
+      .executeTakeFirst()
+      .catch((err) => {
+        if (pgCode(err) === "22P02") return undefined; // not a uuid
+        throw err;
+      });
+    if (!target) return jsonError("User not found", 404);
+    if (target.role === "super_user") return jsonError("You can't sign in as another super user", 403);
+    if (!target.auth_id) return jsonError("This user has no login account yet", 409);
+
+    const { data: authData, error: authErr } = await supabaseAdmin.auth.admin.getUserById(target.auth_id);
+    const authEmail = authData?.user?.email;
+    if (authErr || !authEmail) return jsonError("This user has no login account yet", 409);
+
+    const minted = await mintSession(authEmail);
+    if ("error" in minted) return jsonError(minted.error, minted.status);
+
+    await db
+      .insertInto("admin_audit_log")
+      .values({
+        actor_id: caller.id,
+        action: "impersonate",
+        target_user_id: target.id,
+        metadata: { target_email: target.email, actor_email: caller.email },
+      })
+      .execute();
+
+    return json({ ...minted.session, profile: target });
+  }
 
   // ── POST /users/resend-invite ─────────────────────────────────────────────────
   // Re-sends the Supabase invite email for a user who hasn't accepted yet.
@@ -518,6 +810,7 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── GET /users/me ─────────────────────────────────────────────────────────────
+  // Also picks up a confirmed email change (see POST /users/change-email).
   if (req.method === "GET" && segment === "me") {
     const profile = await db
       .selectFrom("users")
@@ -526,27 +819,52 @@ Deno.serve(async (req: Request) => {
       .executeTakeFirst();
 
     if (!profile) return jsonError("Profile not found", 404);
+    profile.email = await syncConfirmedEmail(profile, caller.authUser.email);
     return json(profile);
   }
 
   // ── GET /users — optional ?email= filter ─────────────────────────────────────
+  // The full list is super-user only (user admin). An exact ?email= lookup is
+  // also open to anyone who owns or staffs a gym or shop (to add or invite
+  // that person) and returns at most that one user.
   if (req.method === "GET" && !segment) {
-    const emailFilter = url.searchParams.get("email");
-    let query = db.selectFrom("users").select(SAFE_COLUMNS);
-    if (emailFilter) query = query.where("email", "=", emailFilter);
-    return json(await query.execute());
+    const emailFilter = url.searchParams.get("email")?.trim();
+    const isSuper = isSuperUser(caller);
+    if (!emailFilter) {
+      if (!isSuper) return jsonError("Only a super user can list users", 403);
+      return json(await db.selectFrom("users").select(SAFE_COLUMNS).execute());
+    }
+    if (!isSuper && !(await staffsAnyBusiness(caller))) {
+      return jsonError("Only gym and shop staff can look users up by email", 403);
+    }
+    const match = await db
+      .selectFrom("users")
+      .select(isSuper ? SAFE_COLUMNS : [...PUBLIC_COLUMNS, "email"])
+      .where(sql`lower(email)`, "=", emailFilter.toLowerCase())
+      .limit(1)
+      .executeTakeFirst();
+    return json(match ? [match] : []);
   }
 
   // ── GET /users/:id ────────────────────────────────────────────────────────────
+  // Any signed-in user gets the public profile. email and auth_id are only
+  // included for the user themself, super users, and staff of a gym/shop the
+  // user belongs to.
   if (req.method === "GET" && id) {
     const u = await db
       .selectFrom("users")
       .select(SAFE_COLUMNS)
       .where("id", "=", id)
-      .executeTakeFirst();
+      .executeTakeFirst()
+      .catch((err) => {
+        if (pgCode(err) === "22P02") return undefined; // not a uuid
+        throw err;
+      });
 
     if (!u) return jsonError("User not found", 404);
-    return json(u);
+    if (u.id === caller.id || (await canInvite(caller, u.id))) return json(u);
+    const { id: userId, username, name, last_name, role, avatar_url } = u;
+    return json({ id: userId, username, name, last_name, role, avatar_url });
   }
 
   // ── PUT /users/:id ────────────────────────────────────────────────────────────

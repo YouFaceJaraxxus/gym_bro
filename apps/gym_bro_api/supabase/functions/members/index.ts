@@ -1,5 +1,5 @@
 import { db, supabaseAdmin } from "../_shared/config.ts";
-import { canStaffGym, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
+import { canCoachAtGym, canStaffGym, forbidden, json, jsonError, redactEmails, requireCaller } from "../_shared/auth.ts";
 import { gymOwnerIds, notify } from "../_shared/notify.ts";
 import type { UserInsert } from "../../types/schema/public.ts";
 import { pgCode } from "../_shared/roles.ts";
@@ -144,13 +144,29 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── GET /members — optional ?user_id= and/or ?gym_id= filters ────────────────
+  // Rows embed the member's name/avatar; email only for the member themself
+  // and for people who coach or staff at that gym.
   if (req.method === "GET" && !id) {
     const userId = url.searchParams.get("user_id");
     const gymId = url.searchParams.get("gym_id");
-    let query = db.selectFrom("member").selectAll();
-    if (userId) query = query.where("user_id", "=", userId);
-    if (gymId) query = query.where("gym_id", "=", gymId);
-    return json(await query.execute());
+    let query = db
+      .selectFrom("member")
+      .innerJoin("users", "users.id", "member.user_id")
+      .select([
+        "member.id",
+        "member.user_id",
+        "member.gym_id",
+        "users.name",
+        "users.last_name",
+        "users.username",
+        "users.email",
+        "users.avatar_url",
+        "users.role",
+      ]);
+    if (userId) query = query.where("member.user_id", "=", userId);
+    if (gymId) query = query.where("member.gym_id", "=", gymId);
+    const rows = await query.execute();
+    return json(await redactEmails(caller, rows, (r) => r.gym_id, canCoachAtGym));
   }
 
   // ── GET /members/:id ──────────────────────────────────────────────────────────

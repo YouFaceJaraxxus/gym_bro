@@ -1,0 +1,3963 @@
+{
+  "@@locale": "en",
+  "@businessCheckInCameraStartFailed": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessCheckInCheckedInAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessCheckInCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessCheckInDailyChartSemantics": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "average": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessCheckInHourlyChartSemantics": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessCheckInLastDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessCheckInLastVisit": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessCheckInMembersInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessCheckInMembershipEnded": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessCheckInMembershipValidUntil": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessCheckInNewCodeIn": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessCheckInPeak": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessCheckInQrSemantics": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessCheckInRefreshFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessCheckInSessionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessCheckInTotalPerDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "average": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessCheckInVisitsUnit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessGymCancelMembershipMessage": {
+    "placeholders": {
+      "member": {
+        "type": "String"
+      },
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessGymChangeRoleMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      },
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessGymDeleteMembershipMessage": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessGymDetailMembersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessGymDetailMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessGymDetailStaffCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessGymExtendedUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessGymFormDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessGymFormDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessGymMembersTitle": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessGymMonths": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessGymNoMembershipAt": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessGymPlusMonths": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessGymRemoveFromGymMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessGymRoleChangedTo": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessGymStaffTitle": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessGymTypePerMonth": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtDeleteItemMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtDeleteMembershipTypeMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtDeleteNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtEditNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtGymInvoicesTitle": {
+    "placeholders": {
+      "gymName": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtIssuedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtMembershipTypesTitle": {
+    "placeholders": {
+      "gymName": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtMoreCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessMgmtPayNow": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtPerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtPerMonthShort": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtQuantity": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessMgmtRemoveVendorFromShopMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "shopName": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtShopVendorsTitle": {
+    "placeholders": {
+      "shopName": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtTurnOffAutoRenewMessage": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessMgmtUnpaidSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessQuantityValue": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessShopAddWithPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopAddedToCart": {
+    "placeholders": {
+      "quantity": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopAutoRenewExplanation": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopAvailableUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopBuyerPickedUp": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopCardOfAmountWillBeRefunded": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopCartTotal": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopConfirmBuyerPaid": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopConfirmCustomerPaid": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopConfirmPaidAtCounter": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopFromPricePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopInCartCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessShopInStock": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessShopInYourCart": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessShopItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessShopLeftCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessShopNoOrdersWithStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopOneTimeExplanation": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopOrderIdStatusChanged": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopOrderStatusChanged": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopOrderWithId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopPayAmount": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopPayNow": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopPlaceOrderAndPay": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopPlaceOrderTotal": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopPlanMonths": {
+    "placeholders": {
+      "months": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessShopPriceEachLineTotal": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopPricePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopProductCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessShopQuantityValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@businessShopRemovedFromCart": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "@businessShopSubscribePerMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionAddNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionAddToSlot": {
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionAssignPlanToQuestion": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionAssignPlanToSelfQuestion": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionAssignedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionAssignedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionAssignmentFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionBarcodeExample": {
+    "placeholders": {
+      "example": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionBarcodeNotFound": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionBarcodeValue": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionChooseDailyPlanFor": {
+    "placeholders": {
+      "week": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionCommentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionCommentsWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionCommunityTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionDailyAveragePlannedDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionDaysPlannedOfSeven": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionDeleteMealPlanMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionEndsOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionFiberNoTargets": {
+    "placeholders": {
+      "fiber": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionFiberWithTargets": {
+    "placeholders": {
+      "fiber": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionImportedFromOff": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionKcalEatenSemantics": {
+    "placeholders": {
+      "eaten": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionKcalLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionKcalOver": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionKcalPer100": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      },
+      "per100": {
+        "type": "String",
+        "example": "per 100g"
+      }
+    }
+  },
+  "@nutritionKcalPerServing": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionKcalRingSemantics": {
+    "placeholders": {
+      "eaten": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionKcalValue": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionLabelWithUnit": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionLikeCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionLogPlannedSlotDuplicateWarning": {
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionLoggedItemToSlot": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionLoggedPlannedItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionLoggedToSlot": {
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionMealCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionMicronutrientsOptionalHint": {
+    "placeholders": {
+      "per100": {
+        "type": "String",
+        "example": "per 100g"
+      }
+    }
+  },
+  "@nutritionMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionNutrientListLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionOfTargetKcal": {
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionPcfGrams": {
+    "placeholders": {
+      "protein": {
+        "type": "int"
+      },
+      "carbs": {
+        "type": "int"
+      },
+      "fat": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionPcfShort": {
+    "placeholders": {
+      "protein": {
+        "type": "int"
+      },
+      "carbs": {
+        "type": "int"
+      },
+      "fat": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionPer100Unit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionPhotoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionPhotoOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionPlanAssignedTo": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionPlanAssignedToSelf": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionPlannedSummary": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      },
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionPostPhotoOf": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionProductNotFoundMessage": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionRecipeCookTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionRecipePrepTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionRemoveAssignmentMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionRemoveNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionRemovePermanently": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionRemovedItem": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionServingsAmount": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionStartsOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionStepNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionStepPhoto": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionUsersDiary": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nutritionValuesPer": {
+    "placeholders": {
+      "per100": {
+        "type": "String",
+        "example": "per 100g"
+      }
+    }
+  },
+  "@nutritionVideoNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionWeekDay": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionWeekNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionWeeksCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nutritionWeeksShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellAuthPasswordMin": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellCouldNotOpenUrl": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellDeleteUserMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellDeleteUserTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellEditBusiness": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellEditUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellHello": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellHey": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellHomeNotificationsUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellHomeViewingAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellHubCommunityOpenFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellImageUploadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellImpersonateBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellImpersonateTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellInviteAccept": {
+    "placeholders": {
+      "entity": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellInviteBody": {
+    "placeholders": {
+      "entity": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellInviteJoined": {
+    "placeholders": {
+      "entity": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellMemberCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellMembershipValidUntil": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellNoLongerMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellNoMembersMatch": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellOfflinePending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellOrdersForShop": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellResetLinkSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellSessionStartedInProgress": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellSettingsSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellSignupPendingInviteBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellStatsEndsInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellStatsEndsOn": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellStatsGymCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellTimeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellTimeDaysShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellTimeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellTimeHoursShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellTimeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellTimeMinutesShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellTypeToConfirm": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellUserSearchAddLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@shellWelcomeBack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingAssignAssignedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingAssignConfirm": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingAssignConfirmSelf": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingAssignDone": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingAssignDoneSelf": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingAssignEnds": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingAssignPickerTitle": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingAssignRemoveBody": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingAssignRemoveBodyUser": {
+    "placeholders": {
+      "routine": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingAssignStarts": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingChartSummary": {
+    "placeholders": {
+      "series": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassAttendedOf": {
+    "placeholders": {
+      "attended": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassBookedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingClassBookedFor": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingClassBookedOf": {
+    "placeholders": {
+      "booked": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassCancelBookingMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingClassCancelNotifyPeople": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassCapacityBelowBooked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassEndsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingClassFullWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassLeaveWaitlistMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingClassMyBookingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassNameYou": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingClassNextClass": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingClassNoPastMessage": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassNothingOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingClassRemoveQuestion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingClassRepeatSummary": {
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassSpotsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassUpcomingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassWaitlistCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassWaitlistJoined": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassWaitlistJoinedNoPosition": {},
+  "@trainingClassWaitlistPosition": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassWaitlistedPosition": {
+    "placeholders": {
+      "position": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassWeeklyCreated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingClassWeeksValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingDropCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingExerciseAlternating": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingExerciseFilterActiveTooltip": {
+    "placeholders": {
+      "muscle": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingExercisePhoto": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingLogCouldNotLogSet": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingLogElapsed": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingLogEstimated1rm": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingLogNewPr": {
+    "placeholders": {
+      "exercise": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingLogNewPrWithE1rm": {
+    "placeholders": {
+      "exercise": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingLogSetHeader": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingLogSetHeaderWithRest": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "type": {
+        "type": "String"
+      },
+      "rest": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingMeasureBodyFatValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingMeasureChangeSince": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingMeasureDateLabel": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingMeasureDeleteMessage": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingMemberAssignedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingMemberRemoveAssignmentMessage": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "member": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingMuscleMapPrimary": {
+    "placeholders": {
+      "muscles": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingMuscleMapSecondary": {
+    "placeholders": {
+      "muscles": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingPlanDeleteBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingPlanDropLine": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingPlanDropNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingPlanRestSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingPlateAvailable": {
+    "placeholders": {
+      "plates": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingPlateNotExact": {
+    "placeholders": {
+      "target": {
+        "type": "String"
+      },
+      "closest": {
+        "type": "String"
+      },
+      "difference": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingPlatePerSide": {
+    "placeholders": {
+      "plates": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingPlateSuggestedRamp": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingPlateTotal": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingProgressChartE1rm": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingProgressChartVolume": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingProgressChartWeight": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingProgressE1rm": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingProgressLastSession": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingProgressRepsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingProgressSessionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingProgressSessionsInRange": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingProgressStreakWeeks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingProgressTopWeight": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingProgressTrendSemantics": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingRepsTimes": {
+    "description": "Planned/logged rep count, e.g. 8x",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingRestAddSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingRestAddSecondsTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingRestPresetTooltip": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingRestRemaining": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingRoutineTrainingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingRoutineWeek": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingRoutineWeekShort": {
+    "placeholders": {
+      "week": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingScheduleHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingScheduleHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingScheduleMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingScheduleNextDay": {
+    "description": "Time range that ends the next day",
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingSessionCommentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingSessionCommentEdited": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingSessionDropNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingSessionDurationSemantics": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingSessionEditSetTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingSessionSetTitle": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingSessionSetTitleWithExercise": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "exercise": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingSessionSetsLogged": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingSessionTodayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingSessionYesterdayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingShiftAddOn": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingShiftCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingShiftDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingShiftDeleteNotifyMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingShiftEnd": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingShiftEndsNextDay": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingShiftNextDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingShiftStart": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingWeekProgram": {
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingWorkoutsAssignedByMe": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingWorkoutsAssignedFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingWorkoutsAssignedFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingWorkoutsAssignedToMe": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@trainingWorkoutsSetCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "appTitle": "Gym Bro",
+  "businessCheckInAllTime": "All time",
+  "businessCheckInAttendanceTitle": "Attendance",
+  "businessCheckInBusiestHours": "Busiest hours",
+  "businessCheckInByStaff": "by staff",
+  "businessCheckInCameraDenied": "Camera access is off",
+  "businessCheckInCameraDeniedMessage": "Allow camera access for Gym Bro in your device settings to scan member codes. You can still check members in by name.",
+  "businessCheckInCameraStartFailed": "The camera couldn't start ({code}).",
+  "businessCheckInCameraUnavailable": "Camera unavailable",
+  "businessCheckInCameraUnsupportedMessage": "This device can't scan codes. Check members in by name instead.",
+  "businessCheckInCheckInAction": "Check in",
+  "businessCheckInCheckIns": "Check-ins",
+  "businessCheckInCheckedInAt": "Checked in at {time}",
+  "businessCheckInCheckingIn": "Checking in…",
+  "businessCheckInClearSearch": "Clear search",
+  "businessCheckInCount": "{count, plural, =1{1 check-in} other{{count} check-ins}}",
+  "businessCheckInDailyChartSemantics": "Check-ins per day chart, last {days} days: {total} in total, {average} per day on average.",
+  "businessCheckInDismissHint": "dismiss",
+  "businessCheckInGymFallback": "Gym",
+  "businessCheckInHourlyChartSemantics": "Check-ins by hour chart. Busiest: {hours}.",
+  "businessCheckInLastDays": "{days, plural, =1{Last day} other{Last {days} days}}",
+  "businessCheckInLastVisit": "Last visit {when}",
+  "businessCheckInManual": "Manual check-in",
+  "businessCheckInManualShort": "Manual",
+  "businessCheckInMemberFallback": "Member",
+  "businessCheckInMembersInDays": "Members ({days}d)",
+  "businessCheckInMembershipEnded": "{type} · ended {date}",
+  "businessCheckInMembershipValidUntil": "{type} · valid until {date}",
+  "businessCheckInNewCodeIn": "New code in {time}",
+  "businessCheckInNextDay": "Next day",
+  "businessCheckInNoCheckInsInPeriod": "No check-ins in this period yet.",
+  "businessCheckInNoGymMessage": "Once a gym adds you as a member, your check-in code shows up here.",
+  "businessCheckInNoGymTitle": "No gym to check in to",
+  "businessCheckInNoMatches": "No matching members",
+  "businessCheckInNoMatchesMessage": "Try a different name or email.",
+  "businessCheckInNoMembers": "No members yet",
+  "businessCheckInNoMembersMessage": "Members added to this gym show up here.",
+  "businessCheckInNoMembershipOnFile": "No membership on file",
+  "businessCheckInNoVisitsInPeriod": "No visits in this period.",
+  "businessCheckInNoVisitsMessage": "Your check-ins will be listed here.",
+  "businessCheckInNoVisitsTitle": "No visits yet",
+  "businessCheckInNoneOnDay": "No check-ins on this day",
+  "businessCheckInNoneToday": "No check-ins yet today",
+  "businessCheckInNotEnoughData": "Not enough data yet.",
+  "businessCheckInOpenScanner": "Open scanner",
+  "businessCheckInPeak": "Peak: {hours}",
+  "businessCheckInPickDayHelp": "Show check-ins for",
+  "businessCheckInPointCamera": "Point the camera at a member's code",
+  "businessCheckInPreviousDay": "Previous day",
+  "businessCheckInQrNotConfigured": "QR check-in isn't set up on this server yet. Ask the front desk to check you in by name.",
+  "businessCheckInQrScan": "QR scan",
+  "businessCheckInQrSemantics": "Check-in QR code for {gym}",
+  "businessCheckInRecentVisits": "Recent visits",
+  "businessCheckInRefreshCode": "Refresh code",
+  "businessCheckInRefreshFailed": "Couldn't refresh: {error}",
+  "businessCheckInRefreshingCode": "Refreshing code…",
+  "businessCheckInResultCheckedIn": "Checked in",
+  "businessCheckInResultDuplicate": "Already checked in",
+  "businessCheckInResultFailed": "Check-in failed",
+  "businessCheckInResultNoMembership": "No active membership",
+  "businessCheckInScanHint": "Scan a member's code to check them in.",
+  "businessCheckInScanTitle": "Scan check-in",
+  "businessCheckInScanTooltip": "Scan check-ins",
+  "businessCheckInSearchHint": "Search members by name or email",
+  "businessCheckInSessionCount": "{count, plural, =1{1 checked in this session} other{{count} checked in this session}}",
+  "businessCheckInShowAtDesk": "Show this code at the front desk",
+  "businessCheckInShowMore": "Show more",
+  "businessCheckInStaffNotice": "You are staff here, not a member. This code is for testing the scanner.",
+  "businessCheckInThisWeek": "This week",
+  "businessCheckInTitle": "Check in",
+  "businessCheckInTopMembers": "Top members",
+  "businessCheckInTorchOff": "Turn flashlight off",
+  "businessCheckInTorchOn": "Turn flashlight on",
+  "businessCheckInTotalPerDay": "{count, plural, =1{1 check-in} other{{count} check-ins}} · {average} per day",
+  "businessCheckInVisitsThisMonth": "Visits this month",
+  "businessCheckInVisitsUnit": "{count, plural, =1{visit} other{visits}}",
+  "businessCheckInYesterday": "Yesterday",
+  "businessGymAddEmployee": "Add employee",
+  "businessGymAddExistingUser": "Add existing user",
+  "businessGymAddExistingUserHint": "Search users already in the system",
+  "businessGymAddMember": "Add member",
+  "businessGymAllGyms": "All gyms",
+  "businessGymAllMembersTitle": "All members",
+  "businessGymAllStaffTitle": "All staff",
+  "businessGymAlreadyEmployee": "Already an employee at this gym",
+  "businessGymAlreadyMember": "Already a member",
+  "businessGymAssign": "Assign",
+  "businessGymAssignMembership": "Assign membership",
+  "businessGymCancelMembership": "Cancel membership",
+  "businessGymCancelMembershipMessage": "{member}'s {type} membership will be marked inactive. Billing history is kept.",
+  "businessGymCancelMembershipTitle": "Cancel membership?",
+  "businessGymChange": "Change",
+  "businessGymChangeRoleMessage": "Change {name}'s role to {role} at {gym}?",
+  "businessGymChangeRoleTitle": "Change role?",
+  "businessGymClearSearch": "Clear search",
+  "businessGymDeleteMembershipMessage": "This permanently deletes the {type} membership and its invoices. Use Cancel instead to keep the history.",
+  "businessGymDeleteMembershipTitle": "Delete membership?",
+  "businessGymDetailAttendance": "Attendance",
+  "businessGymDetailInvoices": "Invoices",
+  "businessGymDetailManage": "Manage",
+  "businessGymDetailManageMembers": "Manage members",
+  "businessGymDetailManageMembershipTypes": "Manage membership types",
+  "businessGymDetailManageStaff": "Manage staff",
+  "businessGymDetailMembers": "Members",
+  "businessGymDetailMembersCount": "{count, plural, =1{1 member} other{{count} members}}",
+  "businessGymDetailMembershipTypes": "Membership types",
+  "businessGymDetailMembershipTypesHint": "Set up pricing plans members can be enrolled in.",
+  "businessGymDetailMore": "+ {count} more",
+  "businessGymDetailPosts": "Posts",
+  "businessGymDetailScanCheckIns": "Scan check-ins",
+  "businessGymDetailSchedule": "Schedule",
+  "businessGymDetailStaff": "Staff",
+  "businessGymDetailStaffCount": "{count, plural, =1{1 staff member} other{{count} staff members}}",
+  "businessGymDuration": "Duration",
+  "businessGymEditEmployee": "Edit employee",
+  "businessGymEditMember": "Edit member",
+  "businessGymEmail": "Email",
+  "businessGymEmailAlreadyEmployed": "This email is already employed at this gym",
+  "businessGymEmployeeActions": "Employee actions",
+  "businessGymExtend": "Extend",
+  "businessGymExtendMembership": "Extend membership",
+  "businessGymExtendedUntil": "Extended until {date}",
+  "businessGymFilterAll": "All",
+  "businessGymFirstName": "First name",
+  "businessGymFormAddLogo": "Add logo",
+  "businessGymFormCreate": "Create business",
+  "businessGymFormDelete": "Delete business",
+  "businessGymFormDeleteGymAction": "Delete gym",
+  "businessGymFormDeleteGymMessage": "This permanently deletes the gym with all its members, staff, membership types, memberships, invoices and posts.",
+  "businessGymFormDeleteShopAction": "Delete shop",
+  "businessGymFormDeleteShopMessage": "This permanently deletes the shop with all its items, vendors and posts.",
+  "businessGymFormDeleteTitle": "Delete {name}?",
+  "businessGymFormDeleted": "{name} deleted",
+  "businessGymFormFrom": "From",
+  "businessGymFormLocation": "Location",
+  "businessGymFormName": "Name",
+  "businessGymFormSaveChanges": "Save changes",
+  "businessGymFormSelectWorkingDay": "Select at least one working day",
+  "businessGymFormTitleEdit": "Edit business",
+  "businessGymFormTitleNew": "New business",
+  "businessGymFormTo": "To",
+  "businessGymFormType": "Type",
+  "businessGymFormTypeGym": "Gym",
+  "businessGymFormTypeShop": "Shop",
+  "businessGymFormWorkingDays": "Working days",
+  "businessGymFormWorkingHours": "Working hours",
+  "businessGymGym": "Gym",
+  "businessGymInviteAndAdd": "Invite & add",
+  "businessGymInviteMemberTitle": "Invite member",
+  "businessGymInviteNewMember": "Invite new member",
+  "businessGymInviteNewMemberHint": "Send an invite link by email",
+  "businessGymInviteNewUserPrompt": "Can't find them? Invite a new user",
+  "businessGymInviteResent": "Invite resent",
+  "businessGymInviteResentSuccess": "Invite resent successfully",
+  "businessGymKeep": "Keep",
+  "businessGymLastName": "Last name",
+  "businessGymMemberActions": "Member actions",
+  "businessGymMembersTitle": "{gym} — Members",
+  "businessGymMembershipActions": "Membership actions",
+  "businessGymMembershipAssigned": "Membership assigned",
+  "businessGymMembershipFallback": "Membership",
+  "businessGymMembershipType": "Membership type",
+  "businessGymMembershipTypeNotFound": "Membership type not found for this gym",
+  "businessGymMemberships": "Memberships",
+  "businessGymMonths": "{months, plural, =1{1 month} other{{months} months}}",
+  "businessGymNoMembersFound": "No members found",
+  "businessGymNoMembersYet": "No members yet",
+  "businessGymNoMembershipAt": "No membership at {gym}",
+  "businessGymNoMembershipTypes": "This gym has no membership types yet — add one first.",
+  "businessGymNoStaffFound": "No staff found",
+  "businessGymNoStaffYet": "No staff yet",
+  "businessGymPlusMonths": "{months, plural, =1{+1 month} other{+{months} months}}",
+  "businessGymRemove": "Remove",
+  "businessGymRemoveFromGym": "Remove from gym",
+  "businessGymRemoveFromGymMessage": "This will remove {name} from {gym}.",
+  "businessGymRemoveMemberMessage": "This will remove the member from this gym.",
+  "businessGymRemoveMemberTitle": "Remove member?",
+  "businessGymRemoveStaffMessage": "This will remove them from this gym.",
+  "businessGymRemoveStaffTitle": "Remove staff member?",
+  "businessGymResendInvite": "Resend invite",
+  "businessGymRole": "Role",
+  "businessGymRoleChangedTo": "Role changed to {role}",
+  "businessGymRoleEmployee": "Employee",
+  "businessGymRoleEmployeeTrainer": "Employee trainer",
+  "businessGymRoleEmployeeTrainerShort": "Emp. trainer",
+  "businessGymRoleMember": "Member",
+  "businessGymRoleVendor": "Vendor",
+  "businessGymSearchMembersHint": "Search members…",
+  "businessGymSearchStaffHint": "Search staff…",
+  "businessGymSendInvite": "Send invite",
+  "businessGymStaffTitle": "{gym} — Staff",
+  "businessGymStatusActive": "Active",
+  "businessGymStatusCancelled": "Cancelled",
+  "businessGymStatusExpired": "Expired",
+  "businessGymTypePerMonth": "{name} ({price}/mo)",
+  "businessGymUsername": "Username",
+  "businessGymViewProgress": "View progress",
+  "businessInvoiceStatusPaid": "Paid",
+  "businessInvoiceStatusUnpaid": "Unpaid",
+  "businessInvoiceStatusVoid": "Void",
+  "businessItemTypeEquipment": "Equipment",
+  "businessItemTypeGiftCard": "Gift card",
+  "businessItemTypeSupplement": "Supplement",
+  "businessMgmtActiveMembership": "Active membership",
+  "businessMgmtActiveUntil": "Active until",
+  "businessMgmtAddItem": "Add item",
+  "businessMgmtAddProductPhoto": "Add product photo",
+  "businessMgmtAddType": "Add type",
+  "businessMgmtAddVendor": "Add vendor",
+  "businessMgmtAll": "All",
+  "businessMgmtAllGyms": "All gyms",
+  "businessMgmtAlreadyVendor": "Already a vendor for this shop",
+  "businessMgmtAutoRenewOn": "Auto-renew on",
+  "businessMgmtAutoRenewTurnedOff": "Auto-renew turned off",
+  "businessMgmtBillingHistory": "Billing history",
+  "businessMgmtBuyMembership": "Buy a membership",
+  "businessMgmtClearDate": "Clear date",
+  "businessMgmtDeleteItemMessage": "Remove “{name}” from this shop?",
+  "businessMgmtDeleteItemTitle": "Delete item?",
+  "businessMgmtDeleteMembershipTypeMessage": "This will delete “{name}”. Existing memberships referencing it will be kept.",
+  "businessMgmtDeleteMembershipTypeTitle": "Delete membership type?",
+  "businessMgmtDeleteNamed": "Delete {name}",
+  "businessMgmtDescriptionOptional": "Description (optional)",
+  "businessMgmtEditItem": "Edit item",
+  "businessMgmtEditMembershipType": "Edit membership type",
+  "businessMgmtEditNamed": "Edit {name}",
+  "businessMgmtEditVendor": "Edit vendor",
+  "businessMgmtEmail": "Email",
+  "businessMgmtEmailAlreadyVendor": "This email is already a vendor for this shop",
+  "businessMgmtExtendOrBuy": "Extend or buy a membership",
+  "businessMgmtFirstName": "First name",
+  "businessMgmtGym": "Gym",
+  "businessMgmtGymInvoicesTitle": "{gymName} — Invoices",
+  "businessMgmtInStock": "In stock",
+  "businessMgmtInvalidNumber": "Enter a valid number",
+  "businessMgmtInviteAndAddVendor": "Invite & add vendor",
+  "businessMgmtInviteNewUser": "Can't find them? Invite a new user",
+  "businessMgmtInviteResent": "Invite resent",
+  "businessMgmtInviteResentSuccess": "Invite resent successfully",
+  "businessMgmtInvoice": "Invoice",
+  "businessMgmtInvoiceMarkedPaid": "Invoice marked paid",
+  "businessMgmtInvoiceMarkedUnpaid": "Invoice marked unpaid",
+  "businessMgmtInvoiceMarkedVoid": "Invoice marked void",
+  "businessMgmtInvoicePaidThanks": "Invoice paid. Thank you!",
+  "businessMgmtInvoices": "Invoices",
+  "businessMgmtIssuedOn": "Issued {date}",
+  "businessMgmtItemActive": "Active",
+  "businessMgmtItemInactive": "Inactive",
+  "businessMgmtItems": "Items",
+  "businessMgmtLastName": "Last name",
+  "businessMgmtManage": "Manage",
+  "businessMgmtMarkPaid": "Mark paid",
+  "businessMgmtMarkUnpaid": "Mark unpaid",
+  "businessMgmtMarkVoid": "Mark void",
+  "businessMgmtMembership": "Membership",
+  "businessMgmtMembershipExpired": "Membership expired",
+  "businessMgmtMembershipHistory": "Membership history",
+  "businessMgmtMembershipTypesTitle": "{gymName} · Membership types",
+  "businessMgmtMonthlyCost": "Monthly cost",
+  "businessMgmtMoreCount": "+ {count} more",
+  "businessMgmtName": "Name",
+  "businessMgmtNewItem": "New item",
+  "businessMgmtNewMembershipType": "New membership type",
+  "businessMgmtNoActiveMembership": "No active membership",
+  "businessMgmtNoExpiry": "No expiry",
+  "businessMgmtNoInvoicesYet": "No invoices yet",
+  "businessMgmtNoItemsYet": "No items yet",
+  "businessMgmtNoMembershipBuyHint": "Buy a membership in the app, or ask your gym to set one up.",
+  "businessMgmtNoMembershipDeskHint": "Ask your gym to set up your membership plan. Payment happens at the front desk.",
+  "businessMgmtNoMembershipTypesYet": "No membership types yet",
+  "businessMgmtNoPaidInvoices": "No paid invoices",
+  "businessMgmtNoUnpaidInvoices": "No unpaid invoices",
+  "businessMgmtNoVendorsYet": "No vendors yet",
+  "businessMgmtNoVoidInvoices": "No void invoices",
+  "businessMgmtOrders": "Orders",
+  "businessMgmtOrdersSubtitle": "Customer orders, payments and pickups",
+  "businessMgmtOutOfStock": "Out of stock",
+  "businessMgmtPayNow": "Pay now · {amount}",
+  "businessMgmtPaymentsAtDesk": "Payments for memberships and invoices happen at your gym's front desk.",
+  "businessMgmtPerMonth": "{price}/month",
+  "businessMgmtPerMonthShort": "{price}/mo",
+  "businessMgmtPickDate": "Pick date",
+  "businessMgmtPosts": "Posts",
+  "businessMgmtPrice": "Price",
+  "businessMgmtQuantity": "Qty: {quantity}",
+  "businessMgmtRemove": "Remove",
+  "businessMgmtRemoveFromShop": "Remove from shop",
+  "businessMgmtRemoveVendorFromShopMessage": "This will remove {name} from {shopName}.",
+  "businessMgmtRemoveVendorMessage": "This will remove them from this shop.",
+  "businessMgmtRemoveVendorTitle": "Remove vendor?",
+  "businessMgmtRenewMembership": "Renew membership",
+  "businessMgmtRenewsMonthly": "Renews automatically every month",
+  "businessMgmtResendInvite": "Resend invite",
+  "businessMgmtSaveChanges": "Save changes",
+  "businessMgmtShop": "Shop",
+  "businessMgmtShopVendorsTitle": "{shopName} — Vendors",
+  "businessMgmtStaffVendors": "Staff / Vendors",
+  "businessMgmtTurnOff": "Turn off",
+  "businessMgmtTurnOffAutoRenew": "Turn off auto-renew",
+  "businessMgmtTurnOffAutoRenewMessage": "Your membership stays active until {date} and won't be charged again.",
+  "businessMgmtTurnOffAutoRenewTitle": "Turn off auto-renew?",
+  "businessMgmtType": "Type",
+  "businessMgmtTypeActive": "Active",
+  "businessMgmtTypeInactive": "Inactive",
+  "businessMgmtUnknownMember": "Unknown member",
+  "businessMgmtUnpaidSummary": "{count, plural, =1{1 unpaid invoice} other{{count} unpaid invoices}} · {amount} due",
+  "businessMgmtUsername": "Username",
+  "businessMgmtVendor": "Vendor",
+  "businessMgmtVendorActions": "Vendor actions",
+  "businessOrderStatusCancelled": "Cancelled",
+  "businessOrderStatusFulfilled": "Fulfilled",
+  "businessOrderStatusPaid": "Paid",
+  "businessOrderStatusPending": "Pending",
+  "businessPaymentMethodCard": "Card",
+  "businessPaymentMethodPayAtPickup": "Pay at pickup",
+  "businessPaymentStatusCancelled": "Cancelled",
+  "businessPaymentStatusFailed": "Failed",
+  "businessPaymentStatusPaid": "Paid",
+  "businessPaymentStatusPending": "Pending",
+  "businessPaymentStatusRefunded": "Refunded",
+  "businessQuantityDecrease": "Decrease quantity",
+  "businessQuantityIncrease": "Increase quantity",
+  "businessQuantityValue": "Quantity {value}",
+  "businessShopAddWithPrice": "Add · {price}",
+  "businessShopAddedToCart": "Added {quantity} × {name} to cart",
+  "businessShopAllStockInCart": "All available stock is in your cart",
+  "businessShopAutoRenewExplanation": "You're charged {price} now and every month after. Turn off auto-renew any time from your membership page.",
+  "businessShopAvailableUntil": "Available until {date}",
+  "businessShopAwaitingCardPayment": "Awaiting card payment",
+  "businessShopAwaitingYourCardPayment": "This order is waiting for your card payment.",
+  "businessShopBrowseShops": "Browse shops",
+  "businessShopBuyAtFrontDesk": "Buy or renew your membership at your gym's front desk.",
+  "businessShopBuyMembershipTitle": "Buy a membership",
+  "businessShopBuyerPickedUp": "{name} picked up the order.",
+  "businessShopCancelOrder": "Cancel order",
+  "businessShopCancelOrderTitle": "Cancel this order?",
+  "businessShopCardOfAmountWillBeRefunded": "The card payment of {total} will be refunded.",
+  "businessShopCardPaymentHint": "You'll pay securely with Stripe, then pick up your order.",
+  "businessShopCardUnavailableNow": "Card payments are unavailable right now. You can pay at pickup.",
+  "businessShopCardUnavailablePayAtPickup": "Card payments aren't available yet. Pay when you pick up your order.",
+  "businessShopCardWillBeRefunded": "The card payment will be refunded.",
+  "businessShopCart": "Cart",
+  "businessShopCartEmpty": "Your cart is empty",
+  "businessShopCartEmptyHint": "Tap a product to add it.",
+  "businessShopCartTotal": "Cart · {price}",
+  "businessShopChooseDifferentGym": "Choose a different gym",
+  "businessShopClearSearch": "Clear search",
+  "businessShopConfirmBuyerPaid": "Confirm {name} paid {total}.",
+  "businessShopConfirmCustomerPaid": "Confirm the customer paid {total}.",
+  "businessShopConfirmPaidAtCounter": "Confirm the customer paid {total} at the counter.",
+  "businessShopConfirmingPayment": "Confirming your payment…",
+  "businessShopCouldNotOpenPaymentPage": "Couldn't open the payment page",
+  "businessShopCustomer": "Customer",
+  "businessShopCustomerPickedUp": "The customer has picked up their order.",
+  "businessShopCustomerPickedUpOrder": "The customer picked up the order.",
+  "businessShopDecreaseQuantity": "Decrease quantity",
+  "businessShopEmptyCart": "Empty cart",
+  "businessShopFilterAll": "All",
+  "businessShopFromPricePerMonth": "From {price}/month",
+  "businessShopInCartCount": "{count, plural, =1{1 item in cart} other{{count} items in cart}}",
+  "businessShopInStock": "{count} in stock",
+  "businessShopInYourCart": "{count} in your cart",
+  "businessShopIncreaseQuantity": "Increase quantity",
+  "businessShopItemCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "businessShopItems": "Items",
+  "businessShopItemsBackInStock": "The items go back into stock.",
+  "businessShopLeftCount": "{count} left",
+  "businessShopLength": "Length",
+  "businessShopMarkAsFulfilledTitle": "Mark as fulfilled?",
+  "businessShopMarkAsPaidTitle": "Mark as paid?",
+  "businessShopMarkFulfilled": "Mark fulfilled",
+  "businessShopMarkPaid": "Mark paid",
+  "businessShopMembershipPaymentSuccess": "Payment successful. Your membership is active!",
+  "businessShopMembershipType": "Membership type",
+  "businessShopMyOrders": "My orders",
+  "businessShopNewOrdersHint": "New orders from customers will show up here.",
+  "businessShopNoGymSellsMemberships": "No gym sells memberships in the app yet.",
+  "businessShopNoGymsMatch": "No gyms match your search",
+  "businessShopNoMembershipsForSale": "No memberships for sale",
+  "businessShopNoOrdersWithStatus": "{status, select, pending{No pending orders} paid{No paid orders} fulfilled{No fulfilled orders} cancelled{No cancelled orders} other{No orders}}",
+  "businessShopNoOrdersYet": "No orders yet",
+  "businessShopNoOrdersYetMessage": "Products you order from a shop show up here.",
+  "businessShopNoProductsMatch": "No products match your search",
+  "businessShopNoProductsYet": "This shop has no products yet",
+  "businessShopNoShopsYet": "No shops yet",
+  "businessShopNoShopsYetMessage": "Shops will appear here once they open.",
+  "businessShopNotYet": "Not yet",
+  "businessShopNote": "Note",
+  "businessShopNoteForShop": "Note for the shop (optional)",
+  "businessShopOneTimeExplanation": "One payment of {price}. If you already have a membership at {gym}, it's extended.",
+  "businessShopOnlinePaymentsUnavailable": "Online payments are not available",
+  "businessShopOrder": "Order",
+  "businessShopOrderIdStatusChanged": "{status, select, paid{Order {id} marked as paid.} fulfilled{Order {id} marked as fulfilled.} cancelled{Order {id} cancelled.} other{Order {id} updated.}}",
+  "businessShopOrderPaymentSuccess": "Payment successful. Your order is paid!",
+  "businessShopOrderStatusChanged": "{status, select, paid{Order marked as paid.} fulfilled{Order marked as fulfilled.} cancelled{Order cancelled.} other{Order updated.}}",
+  "businessShopOrderWithId": "Order {id}",
+  "businessShopOrders": "Orders",
+  "businessShopOutOfStock": "Out of stock",
+  "businessShopPayAmount": "Pay {price}",
+  "businessShopPayByCard": "Pay by card",
+  "businessShopPayNow": "Pay now · {price}",
+  "businessShopPayment": "Payment",
+  "businessShopPaymentCancelled": "Payment cancelled",
+  "businessShopPaymentFailed": "Payment failed. You have not been charged.",
+  "businessShopPaymentNotConfirmedYet": "Couldn't confirm the payment yet. We'll notify you once it's done.",
+  "businessShopPaymentRefunded": "Payment refunded",
+  "businessShopPaymentStillProcessing": "Your payment is still processing. We'll notify you once it's confirmed.",
+  "businessShopPaymentSuccessful": "Payment successful",
+  "businessShopPickupPaymentHint": "Pay at the shop when you pick up your order.",
+  "businessShopPlaceOrderAndPay": "Place order & pay {price}",
+  "businessShopPlaceOrderTotal": "Place order · {price}",
+  "businessShopPlanMonthlyAutoRenew": "Monthly, auto-renew",
+  "businessShopPlanMonths": "{months, plural, =1{1 month} other{{months} months}}",
+  "businessShopPriceEachLineTotal": "{price} each · {total}",
+  "businessShopPricePerMonth": "{price} / month",
+  "businessShopProductCount": "{count, plural, =1{1 product} other{{count} products}}",
+  "businessShopQuantityValue": "Quantity: {count}",
+  "businessShopRefundDone": "The card payment was refunded.",
+  "businessShopRefundFailed": "The refund failed. Please refund it from Stripe.",
+  "businessShopRefundManual": "Refund the card payment manually.",
+  "businessShopRemove": "Remove",
+  "businessShopRemovedFromCart": "Removed from your cart (no longer available): {items}",
+  "businessShopSearchGyms": "Search gyms",
+  "businessShopSearchProducts": "Search products",
+  "businessShopShop": "Shop",
+  "businessShopSoldOut": "Sold out",
+  "businessShopStatus": "Status",
+  "businessShopSubscribePerMonth": "Subscribe · {price}/month",
+  "businessShopTimelinePlaced": "Order placed",
+  "businessShopTotal": "Total",
+  "businessShopYourCart": "Your cart",
+  "commonBack": "Back",
+  "commonCancel": "Cancel",
+  "commonClose": "Close",
+  "commonConfirm": "Confirm",
+  "commonDelete": "Delete",
+  "commonEdit": "Edit",
+  "commonLoading": "Loading…",
+  "commonNo": "No",
+  "commonOk": "OK",
+  "commonRequired": "Required",
+  "commonRetry": "Retry",
+  "commonSave": "Save",
+  "commonSearch": "Search",
+  "commonSomethingWentWrong": "Something went wrong",
+  "commonToday": "Today",
+  "commonYes": "Yes",
+  "nutritionAdd": "Add",
+  "nutritionAddFoodItem": "Add food item",
+  "nutritionAddFoodTitle": "Add food",
+  "nutritionAddImage": "Add image",
+  "nutritionAddIngredient": "Add ingredient",
+  "nutritionAddMineral": "Add mineral",
+  "nutritionAddNamed": "Add {name}",
+  "nutritionAddPhoto": "Add photo",
+  "nutritionAddRecipe": "Add recipe",
+  "nutritionAddSlot": "Add Slot",
+  "nutritionAddStep": "Add step",
+  "nutritionAddToSlot": "Add to {slot}",
+  "nutritionAddVideo": "Add video",
+  "nutritionAddVitamin": "Add vitamin",
+  "nutritionAllMineralsAdded": "All minerals are already added",
+  "nutritionAllSlotsAdded": "All meal slots have been added",
+  "nutritionAllVitaminsAdded": "All vitamins are already added",
+  "nutritionAmount": "Amount",
+  "nutritionAssign": "Assign",
+  "nutritionAssignMealPlanTitle": "Assign meal plan",
+  "nutritionAssignPlanToQuestion": "Assign \"{plan}\" to {name}?",
+  "nutritionAssignPlanToSelfQuestion": "Assign \"{plan}\" to you?",
+  "nutritionAssignTo": "Assign to",
+  "nutritionAssignedBy": "Assigned by {name}",
+  "nutritionAssignedByMe": "Assigned by me",
+  "nutritionAssignedOn": "Assigned {date}",
+  "nutritionAssignedToMe": "Assigned to me",
+  "nutritionAssignmentFor": "For {name}",
+  "nutritionBarcodeExample": "e.g. {example}",
+  "nutritionBarcodeNotFound": "No product found for barcode {code}",
+  "nutritionBarcodeOptional": "Barcode (optional)",
+  "nutritionBarcodeValue": "Barcode {code}",
+  "nutritionBasicInfo": "Basic Info",
+  "nutritionBrandOptional": "Brand (optional)",
+  "nutritionCalories": "Calories",
+  "nutritionCameraAccessOff": "Camera access is off",
+  "nutritionCameraAccessOffHint": "Allow camera access for Gym Bro in your device settings to scan barcodes, or type the code instead.",
+  "nutritionCameraUnavailable": "Camera unavailable",
+  "nutritionCameraUnavailableHint": "The camera could not be started. You can type the barcode number instead.",
+  "nutritionCancelEditing": "Cancel editing",
+  "nutritionCannotBeUndone": "This cannot be undone.",
+  "nutritionCarbs": "Carbs",
+  "nutritionCarbsLetter": "C",
+  "nutritionCarbsShort": "Carbs",
+  "nutritionChooseDailyPlanFor": "Choose daily plan for {week}, {day}",
+  "nutritionClearSearch": "Clear search",
+  "nutritionClearStartDate": "Clear start date",
+  "nutritionClearUnassign": "Clear / Unassign",
+  "nutritionComment": "Comment",
+  "nutritionCommentCount": "{count, plural, =1{1 comment} other{{count} comments}}",
+  "nutritionCommentOptions": "Comment options",
+  "nutritionComments": "Comments",
+  "nutritionCommentsWithCount": "Comments ({count})",
+  "nutritionCommunityTitle": "{business} · Community",
+  "nutritionComputedPerServing": "Computed per serving",
+  "nutritionCookMinLabel": "Cook (min)",
+  "nutritionCreate": "Create",
+  "nutritionCreateItem": "Create item",
+  "nutritionDailyAveragePlannedDays": "{count, plural, =1{Daily average · 1 planned day} other{Daily average · {count} planned days}}",
+  "nutritionDaysAgo": "{count}d ago",
+  "nutritionDaysPlannedOfSeven": "{count} of 7 days planned",
+  "nutritionDeleteCommentTitle": "Delete comment?",
+  "nutritionDeleteFoodItemTitle": "Delete food item?",
+  "nutritionDeleteMealPlanMessage": "Remove \"{name}\" permanently? Any assignments of this plan are removed too.",
+  "nutritionDeleteMealPlanTitle": "Delete meal plan?",
+  "nutritionDeletePost": "Delete post",
+  "nutritionDeletePostTitle": "Delete post?",
+  "nutritionDeleteRecipeTitle": "Delete recipe?",
+  "nutritionDeletedUser": "Deleted user",
+  "nutritionDescription": "Description",
+  "nutritionDragToReorder": "Drag to reorder",
+  "nutritionDrinkBeer": "Beer",
+  "nutritionDrinkBlackTea": "Black Tea",
+  "nutritionDrinkCider": "Cider",
+  "nutritionDrinkCocktail": "Cocktail",
+  "nutritionDrinkCoffee": "Coffee",
+  "nutritionDrinkDairyMilk": "Dairy Milk",
+  "nutritionDrinkEnergy": "Energy Drink",
+  "nutritionDrinkEspresso": "Espresso",
+  "nutritionDrinkFlavouredWater": "Flavoured Water",
+  "nutritionDrinkFruitJuice": "Fruit Juice",
+  "nutritionDrinkGreenTea": "Green Tea",
+  "nutritionDrinkHerbalTea": "Herbal Tea",
+  "nutritionDrinkIsotonic": "Isotonic",
+  "nutritionDrinkKefir": "Kefir Drink",
+  "nutritionDrinkKombucha": "Kombucha",
+  "nutritionDrinkMealReplacement": "Meal Replacement",
+  "nutritionDrinkPlantMilk": "Plant Milk",
+  "nutritionDrinkProteinShake": "Protein Shake",
+  "nutritionDrinkShake": "Shake",
+  "nutritionDrinkSmoothie": "Smoothie",
+  "nutritionDrinkSoda": "Soda",
+  "nutritionDrinkSparklingWater": "Sparkling Water",
+  "nutritionDrinkSpirit": "Spirit",
+  "nutritionDrinkSports": "Sports Drink",
+  "nutritionDrinkStillWater": "Still Water",
+  "nutritionDrinkVegetableJuice": "Vegetable Juice",
+  "nutritionDrinkWine": "Wine",
+  "nutritionDuration": "Duration",
+  "nutritionEditAmountOrMeal": "Edit amount or meal",
+  "nutritionEditDailyPlanTitle": "Edit Meal Plan",
+  "nutritionEditFoodItemTitle": "Edit Food Item",
+  "nutritionEditMealPlanTitle": "Edit Meal Plan",
+  "nutritionEditMicronutrients": "Edit micronutrients",
+  "nutritionEditPost": "Edit post",
+  "nutritionEditPostTitle": "Edit Post",
+  "nutritionEditRecipeTitle": "Edit Recipe",
+  "nutritionEdited": "Edited",
+  "nutritionEditedLower": "edited",
+  "nutritionEditingComment": "Editing comment",
+  "nutritionEndsOn": "Ends {date}",
+  "nutritionEnterBarcode": "Enter barcode",
+  "nutritionEnterCodeManually": "Enter code manually",
+  "nutritionEnterPositiveNumber": "Enter a positive number",
+  "nutritionEnterValidNumber": "Enter a valid number",
+  "nutritionFat": "Fat",
+  "nutritionFatLetter": "F",
+  "nutritionFiber": "Fiber",
+  "nutritionFiberNoTargets": "Fiber {fiber} g · No meal plan targets for this day",
+  "nutritionFiberWithTargets": "Fiber {fiber} / {target} g · Targets from your meal plan",
+  "nutritionFilterAll": "All",
+  "nutritionFoodBabyFood": "Baby Food",
+  "nutritionFoodBaking": "Baking",
+  "nutritionFoodBeans": "Beans",
+  "nutritionFoodBeef": "Beef",
+  "nutritionFoodBiscuitCookie": "Biscuit / Cookie",
+  "nutritionFoodBreadBakery": "Bread / Bakery",
+  "nutritionFoodButter": "Butter",
+  "nutritionFoodCanned": "Canned Food",
+  "nutritionFoodCerealBar": "Cereal Bar",
+  "nutritionFoodCheese": "Cheese",
+  "nutritionFoodChips": "Chips / Crisps",
+  "nutritionFoodChocolateCandy": "Chocolate / Candy",
+  "nutritionFoodCorn": "Corn / Maize",
+  "nutritionFoodCream": "Cream",
+  "nutritionFoodDiary": "Food diary",
+  "nutritionFoodDressing": "Dressing",
+  "nutritionFoodEgg": "Egg",
+  "nutritionFoodFish": "Fish",
+  "nutritionFoodFrozen": "Frozen Food",
+  "nutritionFoodFruit": "Fruit",
+  "nutritionFoodGameMeat": "Game Meat",
+  "nutritionFoodGrainCereal": "Grain / Cereal",
+  "nutritionFoodHerbFresh": "Fresh Herb",
+  "nutritionFoodJamSpread": "Jam / Spread",
+  "nutritionFoodLamb": "Lamb",
+  "nutritionFoodLentils": "Lentils",
+  "nutritionFoodMilk": "Milk",
+  "nutritionFoodMushroom": "Mushroom",
+  "nutritionFoodNuts": "Nuts",
+  "nutritionFoodOilFat": "Oil / Fat",
+  "nutritionFoodPastaNoodle": "Pasta / Noodle",
+  "nutritionFoodPlantMilk": "Plant Milk",
+  "nutritionFoodPork": "Pork",
+  "nutritionFoodPotatoTuber": "Potato / Tuber",
+  "nutritionFoodPoultry": "Poultry",
+  "nutritionFoodProcessedMeat": "Processed Meat",
+  "nutritionFoodReadyMeal": "Ready Meal",
+  "nutritionFoodRice": "Rice",
+  "nutritionFoodSauceCondiment": "Sauce / Condiment",
+  "nutritionFoodSeafood": "Seafood",
+  "nutritionFoodSeeds": "Seeds",
+  "nutritionFoodSnackBar": "Snack Bar",
+  "nutritionFoodSupplementPowder": "Supplement Powder",
+  "nutritionFoodSweetener": "Sweetener",
+  "nutritionFoodVegetable": "Vegetable",
+  "nutritionFoodYogurt": "Yogurt",
+  "nutritionFoods": "Foods",
+  "nutritionHoursAgo": "{count}h ago",
+  "nutritionImageUrl": "Image URL",
+  "nutritionImages": "Images",
+  "nutritionImportedFromOff": "Imported \"{name}\" from Open Food Facts. Check the values before relying on them.",
+  "nutritionIngredients": "Ingredients",
+  "nutritionInstructionHint": "Instruction…",
+  "nutritionItemFallback": "Item",
+  "nutritionJustNow": "Just now",
+  "nutritionKcal": "kcal",
+  "nutritionKcalEatenSemantics": "Calories eaten: {eaten} kcal",
+  "nutritionKcalLeft": "{count} left",
+  "nutritionKcalOver": "{count} over",
+  "nutritionKcalPer100": "{kcal} kcal {per100}",
+  "nutritionKcalPerServing": "{kcal} kcal per serving",
+  "nutritionKcalPerServingLabel": "kcal per serving",
+  "nutritionKcalRingSemantics": "Calories: {eaten} of {target} kcal",
+  "nutritionKcalValue": "{kcal} kcal",
+  "nutritionLabelWithUnit": "{label} ({unit})",
+  "nutritionLike": "Like",
+  "nutritionLikeCount": "{count, plural, =0{No likes} =1{1 like} other{{count} likes}}",
+  "nutritionLoadMore": "Load more",
+  "nutritionLogAction": "Log",
+  "nutritionLogAnyway": "Log anyway",
+  "nutritionLogPlannedAllDuplicateWarning": "Some meals already have entries today. The planned items will be added on top of them.",
+  "nutritionLogPlannedMeals": "Log planned meals",
+  "nutritionLogPlannedMealsQuestion": "Log planned meals?",
+  "nutritionLogPlannedSlotDuplicateWarning": "{slot} already has entries. The planned items will be added on top of them.",
+  "nutritionLogToDiary": "Log to diary",
+  "nutritionLogToToday": "Log to today",
+  "nutritionLoggedItemToSlot": "Logged {name} to {slot}",
+  "nutritionLoggedPlannedItems": "{count, plural, =1{Logged 1 planned item} other{Logged {count} planned items}}",
+  "nutritionLoggedToSlot": "Logged to {slot}",
+  "nutritionLookUp": "Look up",
+  "nutritionLookingUpProduct": "Looking up product…",
+  "nutritionMacronutrients": "Macronutrients",
+  "nutritionMeal": "Meal",
+  "nutritionMealCount": "{count, plural, =1{1 meal} other{{count} meals}}",
+  "nutritionMealPlanFallback": "Meal plan",
+  "nutritionMealPlansTitle": "Meal Plans",
+  "nutritionMealSlots": "Meal Slots",
+  "nutritionMemberFallback": "member",
+  "nutritionMicronutrients": "Micronutrients",
+  "nutritionMicronutrientsOptionalHint": "Optional. Amounts {per100}.",
+  "nutritionMine": "Mine",
+  "nutritionMineral": "Mineral",
+  "nutritionMinerals": "Minerals",
+  "nutritionMinutesAgo": "{count}m ago",
+  "nutritionMoveToMeal": "Move to meal",
+  "nutritionMyself": "Myself",
+  "nutritionNameRequiredLabel": "Name *",
+  "nutritionNewDailyPlanMenu": "New Daily Plan",
+  "nutritionNewDailyPlanTitle": "New Meal Plan",
+  "nutritionNewFoodItemTitle": "New Food Item",
+  "nutritionNewMealPlanTitle": "New Meal Plan",
+  "nutritionNewPost": "New Post",
+  "nutritionNewRecipeTitle": "New Recipe",
+  "nutritionNextDay": "Next day",
+  "nutritionNoAssignmentsByMe": "You haven't assigned meal plans to anyone",
+  "nutritionNoAssignmentsToMe": "No meal plans assigned to you yet",
+  "nutritionNoCommentsYet": "No comments yet",
+  "nutritionNoDailyPlansFound": "No daily plans found",
+  "nutritionNoEntries": "No entries",
+  "nutritionNoEntriesYet": "No entries yet",
+  "nutritionNoFoodItemsFound": "No food items found",
+  "nutritionNoFoodsFound": "No foods found",
+  "nutritionNoFoodsFoundHint": "Try another search, or scan the product barcode.",
+  "nutritionNoIngredientsYet": "No ingredients added yet",
+  "nutritionNoMealPlansFound": "No meal plans found",
+  "nutritionNoMealsYet": "No meals added yet",
+  "nutritionNoMembersMatch": "No members match your search",
+  "nutritionNoMembersToCoach": "No members to coach. Members of gyms where you work or train appear here.",
+  "nutritionNoMicronutrients": "No vitamins or minerals recorded for this item.",
+  "nutritionNoMicronutrientsAdded": "No vitamins or minerals added",
+  "nutritionNoOwnMealPlans": "You haven't created any meal plans yet",
+  "nutritionNoPostsYet": "No posts yet",
+  "nutritionNoRecipesFound": "No recipes found",
+  "nutritionNoResults": "No results",
+  "nutritionNoStepsYet": "No steps added yet",
+  "nutritionNoteOptional": "Note (optional)",
+  "nutritionNothingLogged": "Nothing logged",
+  "nutritionNothingLoggedThisDay": "No food was logged on this day.",
+  "nutritionNothingPlanned": "Nothing planned",
+  "nutritionNutrient": "Nutrient",
+  "nutritionNutrientListLoadFailed": "Couldn't load the nutrient list: {error}",
+  "nutritionOfTargetKcal": "of {target} kcal",
+  "nutritionPcfGrams": "P {protein}g · C {carbs}g · F {fat}g",
+  "nutritionPcfShort": "P {protein} · C {carbs} · F {fat}",
+  "nutritionPer100Unit": "per 100{unit}",
+  "nutritionPerServing": "per serving",
+  "nutritionPhotoCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "nutritionPhotoOf": "Photo of {name}",
+  "nutritionPickDate": "Pick a date",
+  "nutritionPlanAssignedTo": "\"{plan}\" assigned to {name}",
+  "nutritionPlanAssignedToSelf": "\"{plan}\" assigned to you",
+  "nutritionPlanNameRequiredLabel": "Plan name *",
+  "nutritionPlannedSummary": "Planned: {items} · {kcal} kcal",
+  "nutritionPointCameraAtBarcode": "Point the camera at the product barcode",
+  "nutritionPostAction": "Post",
+  "nutritionPostPhoto": "Post photo",
+  "nutritionPostPhotoOf": "Photo {index} of {count}",
+  "nutritionPrepMinLabel": "Prep (min)",
+  "nutritionPreviousDay": "Previous day",
+  "nutritionPrivate": "Private",
+  "nutritionProductNotFound": "Product not found",
+  "nutritionProductNotFoundMessage": "Nothing is known for barcode {code}. Create the food item yourself?",
+  "nutritionProtein": "Protein",
+  "nutritionProteinLetter": "P",
+  "nutritionPublic": "Public",
+  "nutritionQtyShort": "Qty",
+  "nutritionQuantity": "Quantity",
+  "nutritionRecipeCookTime": "Cook {minutes} min",
+  "nutritionRecipeFallback": "Recipe",
+  "nutritionRecipeNameRequiredLabel": "Recipe name *",
+  "nutritionRecipePrepTime": "Prep {minutes} min",
+  "nutritionRecipes": "Recipes",
+  "nutritionRemove": "Remove",
+  "nutritionRemoveAssignmentMessage": "\"{name}\" will no longer be assigned.",
+  "nutritionRemoveAssignmentTitle": "Remove assignment?",
+  "nutritionRemoveImage": "Remove image",
+  "nutritionRemoveIngredient": "Remove ingredient",
+  "nutritionRemoveNamed": "Remove {name}",
+  "nutritionRemovePermanently": "Remove \"{name}\" permanently?",
+  "nutritionRemovePhoto": "Remove photo",
+  "nutritionRemoveSlot": "Remove slot",
+  "nutritionRemoveStep": "Remove step",
+  "nutritionRemoveVideo": "Remove video",
+  "nutritionRemovedItem": "Removed {name}",
+  "nutritionRestFree": "Rest / Free",
+  "nutritionSaveComment": "Save comment",
+  "nutritionScanBarcode": "Scan barcode",
+  "nutritionSchedule": "Schedule",
+  "nutritionSearchDailyPlansHint": "Search daily plans…",
+  "nutritionSearchFoodItemsHint": "Search food items…",
+  "nutritionSearchFoodsAndRecipes": "Search foods and recipes",
+  "nutritionSearchHint": "Search…",
+  "nutritionSearchMealPlansHint": "Search meal plans…",
+  "nutritionSearchMembersHint": "Search members…",
+  "nutritionSearchRecipesHint": "Search recipes…",
+  "nutritionSelectMealSlot": "Select Meal Slot",
+  "nutritionSelfAssigned": "Self-assigned",
+  "nutritionSendComment": "Send comment",
+  "nutritionServingUnit": "Serving unit",
+  "nutritionServings": "Servings",
+  "nutritionServingsAmount": "{count, plural, =1{{amount} serving} other{{amount} servings}}",
+  "nutritionServingsRequiredLabel": "Servings *",
+  "nutritionSetAsThumbnail": "Set as thumbnail",
+  "nutritionShareHint": "What do you want to share?",
+  "nutritionSlotAfternoonSnack": "Afternoon Snack",
+  "nutritionSlotBreakfast": "Breakfast",
+  "nutritionSlotDinner": "Dinner",
+  "nutritionSlotEveningSnack": "Evening Snack",
+  "nutritionSlotLunch": "Lunch",
+  "nutritionSlotMorningSnack": "Morning Snack",
+  "nutritionSlotPostWorkout": "Post-Workout",
+  "nutritionSlotPreWorkout": "Pre-Workout",
+  "nutritionSpiceBlend": "Seasoning Blend",
+  "nutritionSpiceDriedHerb": "Dried Herb",
+  "nutritionSpiceDryMarinade": "Dry Marinade",
+  "nutritionSpiceExtract": "Extract / Essence",
+  "nutritionSpiceGround": "Ground Spice",
+  "nutritionSpicePepper": "Pepper",
+  "nutritionSpiceRub": "Rub",
+  "nutritionSpiceSalt": "Salt",
+  "nutritionSpiceSeed": "Spice Seed",
+  "nutritionSpiceWhole": "Whole Spice",
+  "nutritionStartConversation": "Start the conversation below.",
+  "nutritionStartDateOptional": "Start date (optional)",
+  "nutritionStartsOn": "Starts {date}",
+  "nutritionStepImageUrlOptional": "Step image URL (optional)",
+  "nutritionStepNumber": "Step {number}",
+  "nutritionStepPhoto": "Photo for step {number}",
+  "nutritionSteps": "Steps",
+  "nutritionSubtypeOther": "Other",
+  "nutritionSubtypeRequiredLabel": "Subtype *",
+  "nutritionSystem": "System",
+  "nutritionTabAssigned": "Assigned",
+  "nutritionTabDailyPlans": "Daily Plans",
+  "nutritionTabFood": "Food",
+  "nutritionTabMyDailyPlans": "My Daily Plans",
+  "nutritionTabMyFood": "My Food",
+  "nutritionTabMyLibrary": "My Library",
+  "nutritionTabMyMealPlans": "My Meal Plans",
+  "nutritionTabMyRecipes": "My Recipes",
+  "nutritionTabPlans": "Plans",
+  "nutritionThumbnail": "Thumbnail",
+  "nutritionTitleOptional": "Title (optional)",
+  "nutritionTomorrow": "Tomorrow",
+  "nutritionTorchOff": "Turn torch off",
+  "nutritionTorchOn": "Turn torch on",
+  "nutritionTotals": "Totals",
+  "nutritionTryAnotherSearch": "Try another search term.",
+  "nutritionType": "Type",
+  "nutritionTypeDrink": "Drink",
+  "nutritionTypeFood": "Food",
+  "nutritionTypeSpice": "Spice",
+  "nutritionUnassigned": "Unassigned",
+  "nutritionUnit": "Unit",
+  "nutritionUnitServings": "servings",
+  "nutritionUnlike": "Unlike",
+  "nutritionUploadPhoto": "Upload photo",
+  "nutritionUsersDiary": "{name}'s diary",
+  "nutritionValuesPer": "Values {per100}",
+  "nutritionVideoNumber": "Video {number}",
+  "nutritionVideoUrl": "Video URL",
+  "nutritionVideos": "Videos",
+  "nutritionVisibleToAllUsers": "Visible to all users",
+  "nutritionVitamin": "Vitamin",
+  "nutritionVitamins": "Vitamins",
+  "nutritionWeekDay": "Week {week} · Day {day}",
+  "nutritionWeekNumber": "Week {number}",
+  "nutritionWeeksCount": "{count, plural, =1{1 week} other{{count} weeks}}",
+  "nutritionWeeksShort": "{count, plural, =1{1 wk} other{{count} wks}}",
+  "nutritionWriteCommentHint": "Write a comment…",
+  "nutritionWriteSomethingFirst": "Write something first",
+  "nutritionYesterday": "Yesterday",
+  "nutritionYourCoachFallback": "your coach",
+  "nutritionYours": "Yours",
+  "settingsLanguage": "Language",
+  "settingsLanguageEnglish": "English",
+  "settingsLanguageSerbian": "Srpski",
+  "settingsLanguageSystem": "System default",
+  "shellActivateAccount": "Activate account",
+  "shellActivateInviteIntro": "Enter the 6-digit code from your invite email along with the email address and a password you'd like to use.",
+  "shellActivateInviteTitle": "Activate invite",
+  "shellAddBusiness": "Add business",
+  "shellAddUser": "Add user",
+  "shellAdminBusinessesSubtitle": "Manage gyms & shops",
+  "shellAdminInvoicesSubtitle": "View all membership invoices",
+  "shellAdminPanel": "Admin panel",
+  "shellAdminUsersSubtitle": "Manage all accounts",
+  "shellAlreadyYourEmail": "That's already your email",
+  "shellAuthEmail": "Email",
+  "shellAuthFirstName": "First name",
+  "shellAuthInvalidEmail": "Enter a valid email",
+  "shellAuthLastName": "Last name",
+  "shellAuthPassword": "Password",
+  "shellAuthPasswordMin": "Minimum {count} characters",
+  "shellAuthUsername": "Username",
+  "shellAvatarAdd": "Add profile photo",
+  "shellAvatarChange": "Change profile photo",
+  "shellChange": "Change",
+  "shellChangeEmail": "Change email",
+  "shellChangeEmailIntro": "We'll send a confirmation link to the new address. Your email changes once you open it.",
+  "shellChangePassword": "Change password",
+  "shellCheckEmailBody": "We sent you a confirmation link. Please verify your email before logging in.",
+  "shellCheckEmailTitle": "Check your email",
+  "shellChooseShop": "Choose a shop",
+  "shellClearSearch": "Clear search",
+  "shellConfirmNewEmailTitle": "Confirm your new email",
+  "shellConfirmNewPassword": "Confirm new password",
+  "shellConfirmPassword": "Confirm password",
+  "shellContinueWithGoogle": "Continue with Google",
+  "shellCouldNotOpenUrl": "Could not open {url}",
+  "shellCreateAccount": "Create account",
+  "shellCreateUser": "Create user",
+  "shellCurrentPassword": "Current password",
+  "shellDeleteAccount": "Delete account",
+  "shellDeleteAccountFailed": "Couldn't delete account",
+  "shellDeleteAccountMessage": "This permanently deletes your account, memberships and billing history. This cannot be undone.",
+  "shellDeleteAccountSubtitle": "Permanently remove your account",
+  "shellDeleteAccountTitle": "Delete account?",
+  "shellDeleteConfirmWord": "DELETE",
+  "shellDeleteUserMessage": "This permanently deletes {name}'s account, memberships and billing history. This cannot be undone.",
+  "shellDeleteUserTitle": "Delete {name}?",
+  "shellEditBusiness": "Edit {name}",
+  "shellEditUser": "Edit {name}",
+  "shellEditUserTitle": "Edit user",
+  "shellForgotPasswordIntro": "Enter your email and we'll send you a link to reset your password.",
+  "shellForgotPasswordLink": "Forgot password?",
+  "shellForgotPasswordTitle": "Forgot password",
+  "shellGoToLogin": "Go to login",
+  "shellGoogleFailed": "Google sign-in failed",
+  "shellGoogleNoIdToken": "Google did not return an ID token",
+  "shellGoogleNotSupported": "Google sign-in is not supported on this device",
+  "shellGyms": "Gyms",
+  "shellHaveAccountLogIn": "Already have an account? Log in",
+  "shellHaveInviteCode": "Have an invite code?",
+  "shellHello": "Hello, {name}",
+  "shellHey": "Hey, {name}!",
+  "shellHidePassword": "Hide password",
+  "shellHidePasswords": "Hide passwords",
+  "shellHomeBackToLogin": "Back to login",
+  "shellHomeLogOut": "Log out",
+  "shellHomeNotifications": "Notifications",
+  "shellHomeNotificationsUnread": "{count, plural, =1{Notifications, 1 unread} other{Notifications, {count} unread}}",
+  "shellHomeProfileLoadFailed": "Could not load profile",
+  "shellHomeReturnToAdmin": "Return to admin",
+  "shellHomeViewingAs": "Viewing as {name}",
+  "shellHubCheckIn": "Check in",
+  "shellHubCheckInSubtitle": "Show your code at the front desk",
+  "shellHubClassesSubtitle": "Browse and book group classes",
+  "shellHubCommunity": "Community",
+  "shellHubCommunityOpenFailed": "Couldn't open community: {error}",
+  "shellHubCommunitySubtitle": "Posts and announcements from your gym",
+  "shellHubExercises": "Exercises",
+  "shellHubExercisesSubtitle": "Browse and manage exercises",
+  "shellHubFoodDiary": "Food diary",
+  "shellHubFoodDiarySubtitle": "Log meals and track macros",
+  "shellHubMealPlans": "Meal plans",
+  "shellHubMealPlansSubtitle": "Food, recipes and nutrition",
+  "shellHubNotLinked": "You're not linked to a gym or shop yet",
+  "shellHubProgress": "Progress",
+  "shellHubSessions": "Sessions",
+  "shellHubSessionsSubtitle": "Log and review your sessions",
+  "shellHubStore": "Store",
+  "shellHubStoreSubtitle": "Supplements, gear and your orders",
+  "shellHubWorkouts": "Workouts",
+  "shellHubWorkoutsSubtitle": "Trainings and routines",
+  "shellImageAddPhoto": "Add photo",
+  "shellImageChange": "Change photo",
+  "shellImageChooseFromGallery": "Choose from gallery",
+  "shellImageTakePhoto": "Take a photo",
+  "shellImageUploadFailed": "Upload failed: {error}",
+  "shellImageUploading": "Uploading photo",
+  "shellImpersonateBody": "You'll see the app exactly as {email} does and can act on their behalf. This is recorded in the audit log. Use \"Return to admin\" (or log out) to get back to your account.",
+  "shellImpersonateConfirm": "Sign in as user",
+  "shellImpersonateTitle": "Sign in as {name}?",
+  "shellInvitationTitle": "Invitation",
+  "shellInviteAccept": "Accept — join {entity}",
+  "shellInviteAccepted": "Accepted",
+  "shellInviteBody": "You have been invited to work at {entity} as {role}.",
+  "shellInviteCode": "Invite code",
+  "shellInviteCodeHint": "6-digit code",
+  "shellInviteCodeInvalid": "Enter the 6-digit code",
+  "shellInviteDecline": "Decline",
+  "shellInviteDeclined": "You declined this invitation",
+  "shellInviteDeclinedChip": "Declined",
+  "shellInviteJoined": "You joined {entity} as {role}",
+  "shellInviteOrganisationFallback": "the organisation",
+  "shellInvitePending": "Pending response",
+  "shellInvoices": "Invoices",
+  "shellLoadMore": "Load more",
+  "shellLogIn": "Log in",
+  "shellLogInInstead": "Log in instead",
+  "shellMarkAllRead": "Mark all read",
+  "shellMemberCount": "{count, plural, =1{1 member} other{{count} members}}",
+  "shellMembersYouCoach": "Members you coach",
+  "shellMembershipActive": "Active",
+  "shellMembershipLoadFailed": "Couldn't load your membership",
+  "shellMembershipValidUntil": "{type} · valid until {date}",
+  "shellMuteBilling": "Billing",
+  "shellMuteBillingDescription": "Invoices, payments and expiring memberships",
+  "shellMuteClasses": "Classes",
+  "shellMuteClassesDescription": "Class reminders, changes and cancellations",
+  "shellMuteCoaching": "Coaching",
+  "shellMuteCoachingDescription": "Assigned routines and plans, session feedback",
+  "shellMuteCommunity": "Community",
+  "shellMuteCommunityDescription": "Gym news and comments on your posts",
+  "shellMuteFootnote": "Invites always come through. Muted notifications still appear in the app.",
+  "shellMuteShop": "Shop",
+  "shellMuteShopDescription": "Order updates, new orders and restocks",
+  "shellMuteStaff": "Staff",
+  "shellMuteStaffDescription": "Shifts and people joining your business",
+  "shellMyMembership": "My membership",
+  "shellMyOrders": "My orders",
+  "shellMyOrdersSubtitle": "Shop orders and pickups",
+  "shellMyProgress": "My progress",
+  "shellMyProgressSubtitle": "Lifts, body weight and streaks",
+  "shellNewEmail": "New email",
+  "shellNewPassword": "New password",
+  "shellNewUserTitle": "New user",
+  "shellNoAccountSignUp": "Don't have an account? Sign up",
+  "shellNoActiveMembership": "No active membership",
+  "shellNoBusinesses": "No businesses yet",
+  "shellNoCoachedMembers": "No members at the gyms you coach at yet",
+  "shellNoLongerMember": "{name} is no longer a member",
+  "shellNoMembersMatch": "No members match \"{query}\"",
+  "shellNoNotifications": "No notifications yet",
+  "shellNoSessionsToday": "No sessions with you today",
+  "shellNoUsers": "No users yet",
+  "shellNoUsersFound": "No users found",
+  "shellNoneScheduled": "None scheduled",
+  "shellNotAVendor": "You're not a vendor at any shop yet",
+  "shellNotAssignedToGym": "Not assigned to any gym yet",
+  "shellNotificationUnread": "Unread",
+  "shellOffline": "You're offline — showing saved data",
+  "shellOfflinePending": "{count, plural, =1{You're offline — showing saved data · 1 change waiting to sync} other{You're offline — showing saved data · {count} changes waiting to sync}}",
+  "shellOr": "or",
+  "shellOrdersForShop": "Orders · {shop}",
+  "shellOwnerAllInvoices": "All invoices",
+  "shellOwnerNoGyms": "You don't own any gyms yet — add one from the Businesses tab.",
+  "shellPasswordChanged": "Password changed",
+  "shellPasswordsDontMatch": "Passwords do not match",
+  "shellPlatformOverview": "Platform overview",
+  "shellProfileUpdated": "Profile updated",
+  "shellPushChannelDescription": "Class reminders, orders, memberships and messages",
+  "shellPushNotifications": "Push notifications",
+  "shellPushNotificationsSubtitle": "Alerts on this phone",
+  "shellPushUnavailable": "Push notifications aren't available in this build. You'll still find everything under the bell icon; these choices apply on devices that support push.",
+  "shellResetLinkSent": "We sent a password reset link to {email}.",
+  "shellResetPasswordIntro": "Enter a new password for your account.",
+  "shellResetPasswordTitle": "Reset password",
+  "shellRole": "Role",
+  "shellRoleEmployee": "Employee",
+  "shellRoleEmployeeTrainer": "Employee / Trainer",
+  "shellRoleEmployeeTrainerShort": "Emp. trainer",
+  "shellRoleGymOwner": "Gym owner",
+  "shellRoleMember": "Member",
+  "shellRoleOwner": "Owner",
+  "shellRoleShopOwner": "Shop owner",
+  "shellRoleShopVendor": "Shop vendor",
+  "shellRoleSuperUser": "Super user",
+  "shellRoleTrainer": "Trainer",
+  "shellRoleVendor": "Vendor",
+  "shellSaveChanges": "Save changes",
+  "shellScanCheckIns": "Scan check-ins",
+  "shellSearchMembers": "Search members",
+  "shellSendLink": "Send link",
+  "shellSendMePushesAbout": "Send me pushes about",
+  "shellSendResetLink": "Send reset link",
+  "shellSessionInProgress": "Session in progress",
+  "shellSessionStartedInProgress": "Started {time} · in progress",
+  "shellSetNewPassword": "Set new password",
+  "shellSettings": "Settings",
+  "shellSettingsAccount": "Account",
+  "shellSettingsAppearance": "Appearance",
+  "shellSettingsSaveFailed": "Couldn't save: {error}",
+  "shellSettingsSubtitle": "Theme, units, notifications, account",
+  "shellSettingsTheme": "Theme",
+  "shellSettingsUnits": "Units",
+  "shellSettingsWeight": "Weight",
+  "shellShops": "Shops",
+  "shellShowMore": "Show more",
+  "shellShowPassword": "Show password",
+  "shellShowPasswords": "Show passwords",
+  "shellSignInAsThisUser": "Sign in as this user",
+  "shellSignUp": "Sign up",
+  "shellSignupEmailTaken": "An account with this email already exists.",
+  "shellSignupEnterCode": "Enter code",
+  "shellSignupPendingInviteBody": "An account for {email} was already created by an invite. We've re-sent the invite email — enter the 6-digit code from it to activate your account.",
+  "shellSignupPendingInviteTitle": "You have a pending invite",
+  "shellStatsActiveMemberships": "Active memberships",
+  "shellStatsEndsInDays": "{days, plural, =1{in 1 day ({date})} other{in {days} days ({date})}}",
+  "shellStatsEndsOn": "{gym} · ends {when}",
+  "shellStatsEndsToday": "today",
+  "shellStatsEndsTomorrow": "tomorrow",
+  "shellStatsExpiringSoon": "Expiring soon",
+  "shellStatsGymCount": "{count, plural, =1{1 gym} other{{count} gyms}}",
+  "shellStatsInvoicesThisMonth": "Invoices this month",
+  "shellStatsMembers": "Members",
+  "shellStatsNext14Days": "next 14 days",
+  "shellStatsNoneExpiring": "No memberships expiring in the next two weeks",
+  "shellStatsStaff": "Staff",
+  "shellStatsUnpaidInvoices": "Unpaid invoices",
+  "shellTabBusinesses": "Businesses",
+  "shellTabClasses": "Classes",
+  "shellTabGym": "Gym",
+  "shellTabHome": "Home",
+  "shellTabMembers": "Members",
+  "shellTabMembership": "Membership",
+  "shellTabMyShop": "My Shop",
+  "shellTabProfile": "Profile",
+  "shellTabSchedule": "Schedule",
+  "shellTabUsers": "Users",
+  "shellThemeDark": "Dark",
+  "shellThemeLight": "Light",
+  "shellThemeSystem": "System",
+  "shellTimeDaysAgo": "{count, plural, =1{1 day ago} other{{count} days ago}}",
+  "shellTimeDaysShort": "{count}d",
+  "shellTimeHoursAgo": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
+  "shellTimeHoursShort": "{count}h",
+  "shellTimeMinutesAgo": "{count, plural, =1{1 minute ago} other{{count} minutes ago}}",
+  "shellTimeMinutesShort": "{count}m",
+  "shellTimeNow": "now",
+  "shellTodaysSessions": "Today's sessions",
+  "shellTypeToConfirm": "Type {text} to confirm.",
+  "shellUnavailable": "Unavailable",
+  "shellUnitKilograms": "Kilograms",
+  "shellUnitPounds": "Pounds",
+  "shellUpcomingClasses": "Upcoming classes",
+  "shellUserSearchAdd": "Add",
+  "shellUserSearchAddLabel": "Add {name}",
+  "shellUserSearchAdding": "Adding",
+  "shellUserSearchHint": "Search by name or username",
+  "shellWelcome": "Welcome, {name}",
+  "shellWelcomeBack": "Welcome back, {name}",
+  "shellYourGym": "Your gym",
+  "shellYourGyms": "Your gyms",
+  "shellYourShop": "Your shop",
+  "shellYourShops": "Your shops",
+  "trainingAssignAction": "Assign",
+  "trainingAssignAssignedOn": "Assigned {date}",
+  "trainingAssignClearDates": "Clear dates",
+  "trainingAssignConfirm": "Assign \"{routine}\" to {name}?",
+  "trainingAssignConfirmSelf": "Assign \"{routine}\" to yourself?",
+  "trainingAssignDialogTitle": "Assign routine",
+  "trainingAssignDone": "\"{routine}\" assigned to {name}",
+  "trainingAssignDoneSelf": "\"{routine}\" assigned to you",
+  "trainingAssignEnd": "End",
+  "trainingAssignEnds": "Ends {date}",
+  "trainingAssignNoRoutines": "No routines found",
+  "trainingAssignNoteHint": "e.g. Focus on form, 3 sessions a week",
+  "trainingAssignNoteLabel": "Note (optional)",
+  "trainingAssignPickerTitle": "Assign \"{routine}\" to…",
+  "trainingAssignRemoveAction": "Remove",
+  "trainingAssignRemoveBody": "\"{routine}\" will no longer be assigned.",
+  "trainingAssignRemoveBodyUser": "\"{routine}\" will no longer be assigned to {name}.",
+  "trainingAssignRemoveTitle": "Remove assignment?",
+  "trainingAssignRemoveTooltip": "Remove assignment",
+  "trainingAssignSearchRoutinesHint": "Search routines…",
+  "trainingAssignStart": "Start",
+  "trainingAssignStarts": "Starts {date}",
+  "trainingBookingAttended": "Attended",
+  "trainingBookingBooked": "Booked",
+  "trainingBookingCancelled": "Cancelled",
+  "trainingBookingNoShow": "No-show",
+  "trainingBookingWaitlisted": "Waitlisted",
+  "trainingChartDefaultSeries": "Progress",
+  "trainingChartNoData": "No data in this range",
+  "trainingChartSummary": "{series} chart, {count, plural, =1{1 data point} other{{count} data points}}, last value {value}",
+  "trainingClassAbout": "About",
+  "trainingClassApplyToSeries": "Apply to this and future classes",
+  "trainingClassApplyToSeriesOff": "Only this class changes",
+  "trainingClassApplyToSeriesOn": "Changes apply to every later class in this weekly series",
+  "trainingClassAttendedOf": "{attended}/{total} attended",
+  "trainingClassAttendedUndo": "Attended (tap to undo)",
+  "trainingClassBook": "Book",
+  "trainingClassBookedAt": "Booked {when}",
+  "trainingClassBookedFor": "You're booked for {title}",
+  "trainingClassBookedOf": "{booked}/{capacity} booked",
+  "trainingClassBookingCancelled": "Booking cancelled",
+  "trainingClassBrowse": "Browse classes",
+  "trainingClassCancelBooking": "Cancel booking",
+  "trainingClassCancelBookingMessage": "Your spot in {title} will be given to the next person on the waitlist.",
+  "trainingClassCancelBookingQuestion": "Cancel booking?",
+  "trainingClassCancelClass": "Cancel class",
+  "trainingClassCancelNotifyPeople": "{count, plural, =1{1 person booked or waitlisted will be notified.} other{{count} people booked or waitlisted will be notified.}}",
+  "trainingClassCancelQuestion": "Cancel class?",
+  "trainingClassCancelThisAndFuture": "Cancel this and future classes",
+  "trainingClassCancelThisOnly": "Cancel this class only",
+  "trainingClassCancelled": "Cancelled",
+  "trainingClassCapacity": "Capacity",
+  "trainingClassCapacityBelowBooked": "{count, plural, =1{1 person is already booked} other{{count} people are already booked}}",
+  "trainingClassCapacityHelper": "Extra people join a waitlist",
+  "trainingClassCapacityMax": "That's a lot of people — 500 max",
+  "trainingClassCapacityMin": "Enter at least 1",
+  "trainingClassClassCancelled": "Class cancelled",
+  "trainingClassClasses": "Classes",
+  "trainingClassClassesCancelled": "Classes cancelled",
+  "trainingClassCount": "{count, plural, =1{1 class} other{{count} classes}}",
+  "trainingClassCreate": "Create class",
+  "trainingClassCreateOne": "Create a class",
+  "trainingClassCreated": "Class created",
+  "trainingClassCurrentTrainer": "Current trainer",
+  "trainingClassDescriptionOptional": "Description (optional)",
+  "trainingClassDuration": "Duration",
+  "trainingClassEdit": "Edit class",
+  "trainingClassEnded": "This class has ended.",
+  "trainingClassEndsAt": "Ends at {time}",
+  "trainingClassFull": "Full",
+  "trainingClassFullWaiting": "Full · {count} waiting",
+  "trainingClassGym": "Gym",
+  "trainingClassInProgress": "This class is in progress.",
+  "trainingClassJoinWaitlist": "Join waitlist",
+  "trainingClassJumpToNext": "Jump to next class",
+  "trainingClassKeep": "Keep",
+  "trainingClassKeepClass": "Keep class",
+  "trainingClassLeaveWaitlist": "Leave waitlist",
+  "trainingClassLeaveWaitlistMessage": "You'll lose your place in line for {title}.",
+  "trainingClassLeaveWaitlistQuestion": "Leave waitlist?",
+  "trainingClassLocationHint": "e.g. Studio A",
+  "trainingClassLocationOptional": "Location (optional)",
+  "trainingClassMarkAttended": "Mark attended",
+  "trainingClassMarkNoShow": "Mark no-show",
+  "trainingClassMember": "Member",
+  "trainingClassMore": "More",
+  "trainingClassMyBookings": "My bookings",
+  "trainingClassMyBookingsCount": "My bookings ({count})",
+  "trainingClassMyClasses": "My classes",
+  "trainingClassNameYou": "{name} (you)",
+  "trainingClassNew": "New class",
+  "trainingClassNextClass": "Next class: {title}, {day} at {time}.",
+  "trainingClassNoBookings": "No bookings yet",
+  "trainingClassNoBookingsMessage": "Classes you book or join the waitlist for show up here.",
+  "trainingClassNoBookingsYet": "No one has booked yet",
+  "trainingClassNoGyms": "No gyms to schedule at",
+  "trainingClassNoGymsMessage": "You can create classes at gyms where you are a trainer, staff member or owner.",
+  "trainingClassNoPast": "No past classes",
+  "trainingClassNoPastMessage": "Classes you taught in the last {days} days show up here.",
+  "trainingClassNoShowUndo": "No-show (tap to undo)",
+  "trainingClassNoTrainer": "No trainer",
+  "trainingClassNoUpcoming": "No upcoming classes",
+  "trainingClassNoUpcomingMessage": "Schedule a one-off class or a weekly series and members can book it.",
+  "trainingClassNobodyBooked": "Nobody has booked yet.",
+  "trainingClassNoneScheduled": "No classes scheduled",
+  "trainingClassNoneScheduledMessage": "Your gyms haven't scheduled any classes for the next two weeks. Check back soon.",
+  "trainingClassNoneThisWeek": "No classes this week",
+  "trainingClassNoneThisWeekCreate": "Create a class or a weekly series for members to book.",
+  "trainingClassNoneThisWeekMessage": "Nothing has been scheduled for this week yet.",
+  "trainingClassNotSignedIn": "Not signed in",
+  "trainingClassNothingOn": "Nothing on {day}",
+  "trainingClassNotifyOnChange": "People who booked are notified if the time or location changes.",
+  "trainingClassOneOff": "One-off class",
+  "trainingClassPast": "Past",
+  "trainingClassRefresh": "Refresh",
+  "trainingClassRemove": "Remove",
+  "trainingClassRemoveBookedMessage": "Their spot will go to the next person on the waitlist.",
+  "trainingClassRemoveFromClass": "Remove from class",
+  "trainingClassRemoveQuestion": "Remove {name}?",
+  "trainingClassRemoveWaitlistMessage": "They'll be taken off the waitlist.",
+  "trainingClassRepeatSummary": "Every {weekday} for {weeks} weeks",
+  "trainingClassRepeatWeekly": "Repeat weekly",
+  "trainingClassRoster": "Roster",
+  "trainingClassSaveChanges": "Save changes",
+  "trainingClassSpots": "Spots",
+  "trainingClassSpotsLeft": "{count, plural, =1{1 spot left} other{{count} spots left}}",
+  "trainingClassStartInFuture": "Pick a start time in the future",
+  "trainingClassTitle": "Class",
+  "trainingClassTitleHint": "e.g. Morning HIIT",
+  "trainingClassTitleLabel": "Title",
+  "trainingClassTitleRequired": "Give the class a title",
+  "trainingClassUpcoming": "Upcoming",
+  "trainingClassUpcomingCount": "Upcoming ({count})",
+  "trainingClassUpdated": "Class updated",
+  "trainingClassWaitlistCount": "Waitlist ({count})",
+  "trainingClassWaitlistJoined": "Class is full. You're #{position} on the waitlist.",
+  "trainingClassWaitlistJoinedNoPosition": "Class is full. You're on the waitlist.",
+  "trainingClassWaitlistPosition": "#{position} on the waitlist",
+  "trainingClassWaitlistedPosition": "Waitlisted #{position}",
+  "trainingClassWasCancelled": "This class was cancelled",
+  "trainingClassWeekly": "Weekly class",
+  "trainingClassWeeklyCreated": "{count} weekly classes created",
+  "trainingClassWeeklySeries": "Part of a weekly series",
+  "trainingClassWeeks": "Weeks",
+  "trainingClassWeeksValue": "{count, plural, =1{1 week} other{{count} weeks}}",
+  "trainingClassWhen": "When",
+  "trainingClassYou": "You",
+  "trainingCoachChooseMember": "Choose a member",
+  "trainingCoachMyself": "Myself",
+  "trainingCoachNoMatches": "No members match your search",
+  "trainingCoachNoMembers": "No members to coach yet. Members of gyms where you work or train show up here.",
+  "trainingCoachNotSignedIn": "Not signed in",
+  "trainingCoachSearchHint": "Search members…",
+  "trainingCoachYou": "you",
+  "trainingDropCount": "{count, plural, =1{1 drop} other{{count} drops}}",
+  "trainingExerciseAddPhoto": "Add exercise photo",
+  "trainingExerciseAllMuscles": "All muscles",
+  "trainingExerciseAlternating": "{name} (alternating)",
+  "trainingExerciseClearFilter": "Clear filter",
+  "trainingExerciseDeleteTitle": "Delete exercise?",
+  "trainingExerciseDone": "Done",
+  "trainingExerciseEditTitle": "Edit Exercise",
+  "trainingExerciseFallbackName": "Exercise",
+  "trainingExerciseFilterActiveTooltip": "Filter by muscle (current: {muscle})",
+  "trainingExerciseFilterTitle": "Filter by Muscle",
+  "trainingExerciseFilterTooltip": "Filter by muscle",
+  "trainingExerciseMyPrivate": "My private",
+  "trainingExerciseNameLabel": "Exercise name *",
+  "trainingExerciseNewTitle": "New Exercise",
+  "trainingExerciseNoPrivate": "You have no private exercises",
+  "trainingExerciseNoneFound": "No exercises found",
+  "trainingExercisePhoto": "Photo of {name}",
+  "trainingExercisePrimaryMuscles": "Primary Muscles",
+  "trainingExerciseSearchHint": "Search exercises…",
+  "trainingExerciseSecondaryMuscles": "Secondary Muscles",
+  "trainingExerciseTapToSelect": "Tap to select",
+  "trainingExerciseTargetMuscles": "Target Muscles",
+  "trainingExerciseTitle": "Exercises",
+  "trainingExerciseVideo": "Video",
+  "trainingExerciseVideoUrl": "Video URL",
+  "trainingLogBodyweightHint": "Blank = bodyweight",
+  "trainingLogChooseExercise": "Tap to choose an exercise",
+  "trainingLogCouldNotLogSet": "Could not log set: {error}",
+  "trainingLogCouldNotStart": "Could not start",
+  "trainingLogElapsed": "Elapsed time {time}",
+  "trainingLogEnterReps": "Enter the number of reps",
+  "trainingLogEstimated1rm": "Estimated 1RM ≈ {weight}",
+  "trainingLogExercise": "Exercise",
+  "trainingLogFinish": "Finish",
+  "trainingLogFinishMessage": "This will record the end time of your workout.",
+  "trainingLogFinishMessageOffline": "This will record the end time of your workout. Sets saved offline will sync when you're back online.",
+  "trainingLogFinishTitle": "Finish session?",
+  "trainingLogFirstSetHint": "Tap below to log your first set",
+  "trainingLogKeepGoing": "Keep going",
+  "trainingLogLog": "Log",
+  "trainingLogLogASet": "Log a Set",
+  "trainingLogLogSet": "Log Set",
+  "trainingLogLogged": "Logged",
+  "trainingLogNewPr": "New PR! {exercise}",
+  "trainingLogNewPrShort": "New PR",
+  "trainingLogNewPrWithE1rm": "New PR! {exercise} — e1RM {weight}",
+  "trainingLogOfflineSaved": "Saved offline — will sync when you're back online",
+  "trainingLogPending": "Pending",
+  "trainingLogPendingSync": "Pending sync",
+  "trainingLogPickExercise": "Pick an exercise first",
+  "trainingLogPlateTooltip": "Plate calculator & warm-up",
+  "trainingLogRepType": "Rep type",
+  "trainingLogSavedOfflineTooltip": "Saved offline — will sync",
+  "trainingLogSetHeader": "Set {number} · {type}",
+  "trainingLogSetHeaderWithRest": "Set {number} · {type} · rest {rest}",
+  "trainingLogStartRest": "Start rest timer",
+  "trainingLogStarting": "Starting session…",
+  "trainingLogWeight": "Weight",
+  "trainingMeasureAdd": "Add",
+  "trainingMeasureBodyFatOptional": "Body fat (optional)",
+  "trainingMeasureBodyFatValue": "{value} % fat",
+  "trainingMeasureBodyWeight": "Body weight",
+  "trainingMeasureChangeSince": "{change} since {date}",
+  "trainingMeasureDateLabel": "Date: {date}",
+  "trainingMeasureDeleteMessage": "The entry from {date} will be removed.",
+  "trainingMeasureDeleteTitle": "Delete measurement?",
+  "trainingMeasureDeleteTooltip": "Delete measurement",
+  "trainingMeasureEditTitle": "Edit measurement",
+  "trainingMeasureEmptyMessageOther": "Nothing logged yet.",
+  "trainingMeasureEmptyMessageOwn": "Log your body weight regularly to see your trend here.",
+  "trainingMeasureEmptyTitle": "No measurements yet",
+  "trainingMeasureInvalidNumbers": "Enter valid numbers",
+  "trainingMeasureLogAction": "Log measurement",
+  "trainingMeasureLogHeading": "Log",
+  "trainingMeasureNeedValue": "Enter a weight or a body-fat value",
+  "trainingMeasureNoteOptional": "Note (optional)",
+  "trainingMemberAssign": "Assign",
+  "trainingMemberAssignMealPlan": "Assign meal plan",
+  "trainingMemberAssignRoutine": "Assign routine",
+  "trainingMemberAssignedBy": "Assigned by {name}",
+  "trainingMemberAssignedByAnotherCoach": "Assigned by another coach",
+  "trainingMemberAssignedByYou": "Assigned by you",
+  "trainingMemberFoodDiary": "Food diary",
+  "trainingMemberFoodDiarySubtitle": "Meals & macros",
+  "trainingMemberMealPlans": "Meal plans",
+  "trainingMemberNoMealPlans": "No meal plans assigned",
+  "trainingMemberNoRoutines": "No routines assigned",
+  "trainingMemberNoSessions": "No training sessions logged yet",
+  "trainingMemberProgramWorkout": "Program workout",
+  "trainingMemberProgressSubtitle": "PRs, volume, body weight",
+  "trainingMemberRecentSessions": "Recent sessions",
+  "trainingMemberRemove": "Remove",
+  "trainingMemberRemoveAssignmentMessage": "\"{plan}\" will no longer be assigned to {member}.",
+  "trainingMemberRemoveAssignmentTitle": "Remove assignment?",
+  "trainingMemberRoutines": "Routines",
+  "trainingMemberSelfAssigned": "Self-assigned",
+  "trainingMuscleAbsLower": "Lower Abs",
+  "trainingMuscleAbsObliques": "Obliques",
+  "trainingMuscleAbsUpper": "Upper Abs",
+  "trainingMuscleBackAll": "Back",
+  "trainingMuscleBackLats": "Lats",
+  "trainingMuscleBackLower": "Lower Back",
+  "trainingMuscleBackMid": "Mid Back",
+  "trainingMuscleBackRhomboids": "Rhomboids",
+  "trainingMuscleBackTraps": "Traps",
+  "trainingMuscleBackUpper": "Upper Back",
+  "trainingMuscleBiceps": "Biceps",
+  "trainingMuscleCalves": "Calves",
+  "trainingMuscleChestAll": "Chest",
+  "trainingMuscleChestLower": "Lower Chest",
+  "trainingMuscleChestUpper": "Upper Chest",
+  "trainingMuscleDeltsAll": "Deltoids",
+  "trainingMuscleDeltsFront": "Front Delt",
+  "trainingMuscleDeltsMedial": "Side Delt",
+  "trainingMuscleDeltsRear": "Rear Delt",
+  "trainingMuscleForearmsAll": "Forearms",
+  "trainingMuscleForearmsBottom": "Forearms (Bottom)",
+  "trainingMuscleForearmsTop": "Forearms (Top)",
+  "trainingMuscleGlutesAll": "Glutes",
+  "trainingMuscleGlutesMaximus": "Glute Maximus",
+  "trainingMuscleGlutesMedius": "Glute Medius",
+  "trainingMuscleGlutesMinimus": "Glute Minimus",
+  "trainingMuscleHamstrings": "Hamstrings",
+  "trainingMuscleMapLabel": "Muscle diagram",
+  "trainingMuscleMapLegendSecondary": "Secondary",
+  "trainingMuscleMapLegendTarget": "Target",
+  "trainingMuscleMapNone": "No muscles highlighted",
+  "trainingMuscleMapPrimary": "Primary: {muscles}",
+  "trainingMuscleMapSecondary": "Secondary: {muscles}",
+  "trainingMuscleNeck": "Neck",
+  "trainingMuscleQuadsAll": "Quads",
+  "trainingMuscleQuadsLateral": "Lateral Quad",
+  "trainingMuscleQuadsMedial": "Medial Quad",
+  "trainingMuscleTricepsAll": "Triceps",
+  "trainingMuscleTricepsLateral": "Triceps Lateral",
+  "trainingMuscleTricepsLong": "Triceps Long Head",
+  "trainingMuscleTricepsMedial": "Triceps Medial",
+  "trainingPlanAddCoverPhoto": "Add cover photo",
+  "trainingPlanAddDrop": "Add Drop",
+  "trainingPlanAddExerciseToSuperset": "Add Exercise to Superset",
+  "trainingPlanAddSet": "Add Set",
+  "trainingPlanAlternating": "Alternating",
+  "trainingPlanAlternatingShort": "Alt.",
+  "trainingPlanCollapse": "Collapse",
+  "trainingPlanDeleteBody": "Remove \"{name}\" permanently?",
+  "trainingPlanDeleteTitle": "Delete training?",
+  "trainingPlanDescriptionLabel": "Description",
+  "trainingPlanDropLine": "Drop {number}: {details}",
+  "trainingPlanDropNumber": "Drop {number}",
+  "trainingPlanEditTitle": "Edit Training",
+  "trainingPlanExpand": "Expand",
+  "trainingPlanMakeDropset": "Make Dropset",
+  "trainingPlanMusclesTrained": "Muscles Trained",
+  "trainingPlanNameLabel": "Training name *",
+  "trainingPlanNotes": "Notes",
+  "trainingPlanPickExercise": "Pick exercise",
+  "trainingPlanProgramme": "Programme",
+  "trainingPlanPublic": "Public",
+  "trainingPlanPublicSubtitle": "Visible to all users",
+  "trainingPlanRemoveDrop": "Remove drop",
+  "trainingPlanRemoveExercise": "Remove exercise",
+  "trainingPlanRemoveSet": "Remove set",
+  "trainingPlanReorderSet": "Drag to reorder",
+  "trainingPlanRestSeconds": "Rest {seconds}s",
+  "trainingPlanSelectExercise": "Select exercise…",
+  "trainingPlanSets": "Sets",
+  "trainingPlanStartSession": "Start Session",
+  "trainingPlateAvailable": "Plates: {plates}",
+  "trainingPlateBar": "Bar",
+  "trainingPlateEachSide": "Each side",
+  "trainingPlateEmptyBar": "Empty bar",
+  "trainingPlateEnterTarget": "Enter a target weight to see the plates for each side.",
+  "trainingPlateNoWarmup": "Target is at or below the bar — no warm-up plates needed.",
+  "trainingPlateNotExact": "{target} can't be loaded exactly. Closest: {closest} ({difference}).",
+  "trainingPlatePerSide": "Per side: {plates}",
+  "trainingPlateSuggestedRamp": "Suggested ramp to {weight}",
+  "trainingPlateTargetWeight": "Target weight",
+  "trainingPlateTitle": "Plate calculator",
+  "trainingPlateTotal": "Total {weight}",
+  "trainingPlateWarmup": "Warm-up",
+  "trainingProgressBestE1rm": "Best e1RM",
+  "trainingProgressBestVolume": "Best volume",
+  "trainingProgressChartE1rm": "Estimated 1-rep max ({unit})",
+  "trainingProgressChartVolume": "Session volume ({unit} × reps)",
+  "trainingProgressChartWeight": "Heaviest set ({unit})",
+  "trainingProgressE1rm": "e1RM {weight}",
+  "trainingProgressEmptyMessage": "Log a session and your volume, streak and personal records will show up here.",
+  "trainingProgressEmptyTitle": "No training logged yet",
+  "trainingProgressExercises": "Exercises",
+  "trainingProgressFilterExercises": "Filter exercises…",
+  "trainingProgressHeaviest": "Heaviest",
+  "trainingProgressLast30Days": "last 30 days",
+  "trainingProgressLastSession": "Last session: {when}",
+  "trainingProgressMetricE1rm": "e1RM",
+  "trainingProgressMetricVolume": "Volume",
+  "trainingProgressMetricWeight": "Best weight",
+  "trainingProgressNoData": "No data",
+  "trainingProgressNoExercises": "No exercises logged yet",
+  "trainingProgressNoExercisesMatch": "No exercises match",
+  "trainingProgressNoRecentPrs": "No new personal records in the last 30 days. Beat your best estimated 1RM on any lift to set one.",
+  "trainingProgressNoSessionsInRange": "No sessions in this range",
+  "trainingProgressPersonalRecords": "Personal records",
+  "trainingProgressRange1m": "1M",
+  "trainingProgressRange3m": "3M",
+  "trainingProgressRange6m": "6M",
+  "trainingProgressRangeAll": "All",
+  "trainingProgressRecentPrs": "Recent PRs",
+  "trainingProgressRepsCount": "{count, plural, =1{1 rep} other{{count} reps}}",
+  "trainingProgressSeriesE1rm": "Estimated 1RM",
+  "trainingProgressSeriesVolume": "Session volume",
+  "trainingProgressSeriesWeight": "Heaviest set",
+  "trainingProgressSessionCount": "{count, plural, =1{1 session} other{{count} sessions}}",
+  "trainingProgressSessionsHeading": "Sessions",
+  "trainingProgressSessionsInRange": "Sessions ({range})",
+  "trainingProgressStatSessions30d": "Sessions · 30 days",
+  "trainingProgressStatSessions7d": "Sessions · 7 days",
+  "trainingProgressStatStreak": "Weekly streak",
+  "trainingProgressStatVolume30d": "Volume · 30 days",
+  "trainingProgressStreakDone": "Trained this week",
+  "trainingProgressStreakKeep": "Train this week to keep it",
+  "trainingProgressStreakStart": "Train this week to start one",
+  "trainingProgressStreakWeeks": "{count, plural, =1{1 wk} other{{count} wks}}",
+  "trainingProgressTabBody": "Body",
+  "trainingProgressTabTraining": "Training",
+  "trainingProgressTitle": "Progress",
+  "trainingProgressTopWeight": "Top {weight}",
+  "trainingProgressTrendSemantics": "Trend, last value {value}",
+  "trainingProgressYesterday": "Yesterday",
+  "trainingRepFailureShort": "Failure",
+  "trainingRepTypeCount": "Reps",
+  "trainingRepTypeFailure": "To Failure",
+  "trainingRepsTimes": "{count}x",
+  "trainingRestAddSeconds": "+{seconds} s",
+  "trainingRestAddSecondsTooltip": "Add {seconds} seconds",
+  "trainingRestPresetTooltip": "Rest for {time}",
+  "trainingRestRemaining": "{time} of rest remaining",
+  "trainingRestSkip": "Skip",
+  "trainingRestTitle": "Rest",
+  "trainingRoutineAdd": "Add",
+  "trainingRoutineDayHint": "Day",
+  "trainingRoutineDeleteTitle": "Delete routine?",
+  "trainingRoutineDeleteTooltip": "Delete routine",
+  "trainingRoutineEditTitle": "Edit Routine",
+  "trainingRoutineEditTooltip": "Edit routine",
+  "trainingRoutineInvalidNumber": "Enter a valid number",
+  "trainingRoutineInvalidWeeks": "Enter a valid number of weeks",
+  "trainingRoutineMine": "Mine",
+  "trainingRoutineNameLabel": "Routine name *",
+  "trainingRoutineNoTrainings": "No trainings assigned yet",
+  "trainingRoutineNoTrainingsAdded": "No trainings added yet",
+  "trainingRoutineNumWeeksHint": "e.g. 12",
+  "trainingRoutineNumWeeksLabel": "Number of weeks *",
+  "trainingRoutinePrivate": "Private",
+  "trainingRoutineRemoveTraining": "Remove training",
+  "trainingRoutineRestDay": "Rest day",
+  "trainingRoutineSchedule": "Schedule",
+  "trainingRoutineScheduleType": "Schedule Type",
+  "trainingRoutineSearchTrainingsHint": "Search trainings…",
+  "trainingRoutineTrainingCount": "{count, plural, =1{1 training} other{{count} trainings}}",
+  "trainingRoutineTrainingFallback": "Training",
+  "trainingRoutineWeek": "Week {week}",
+  "trainingRoutineWeekShort": "Wk {week}",
+  "trainingRoutineWeekShortHint": "Wk",
+  "trainingScheduleFixedWeeks": "Fixed Weeks",
+  "trainingScheduleHasClasses": "has classes",
+  "trainingScheduleHours": "{hours} h",
+  "trainingScheduleHoursMinutes": "{hours} h {minutes} min",
+  "trainingScheduleMinutes": "{minutes} min",
+  "trainingScheduleNextDay": "{range} (+1 day)",
+  "trainingScheduleNextWeek": "Next week",
+  "trainingSchedulePreviousWeek": "Previous week",
+  "trainingScheduleThisWeek": "This week",
+  "trainingScheduleTitle": "Schedule",
+  "trainingScheduleTomorrow": "Tomorrow",
+  "trainingScheduleWildcard": "Wildcard",
+  "trainingScheduleYesterday": "Yesterday",
+  "trainingSessionAddDrop": "Add drop",
+  "trainingSessionCommentAthlete": "Athlete",
+  "trainingSessionCommentCoach": "Coach",
+  "trainingSessionCommentCount": "{count, plural, =1{1 comment} other{{count} comments}}",
+  "trainingSessionCommentDeleteMessage": "This comment will be permanently removed.",
+  "trainingSessionCommentDeleteTitle": "Delete comment?",
+  "trainingSessionCommentEditTitle": "Edit comment",
+  "trainingSessionCommentEdited": "{when} · edited",
+  "trainingSessionCommentHint": "Add a comment…",
+  "trainingSessionCommentOptions": "Comment options",
+  "trainingSessionCommentYou": "You",
+  "trainingSessionComments": "Comments",
+  "trainingSessionDate": "Date",
+  "trainingSessionDeleteMessage": "This log entry will be permanently removed.",
+  "trainingSessionDeleteSetTooltip": "Delete set",
+  "trainingSessionDeleteTitle": "Delete session?",
+  "trainingSessionDeleteTooltip": "Delete session",
+  "trainingSessionDeletedUser": "Deleted user",
+  "trainingSessionDetailTitle": "Session Detail",
+  "trainingSessionDropNumber": "Drop {number}",
+  "trainingSessionDuration": "Duration",
+  "trainingSessionDurationSemantics": "Duration {duration}",
+  "trainingSessionEditSetTitle": "Edit {title}",
+  "trainingSessionEditSetTooltip": "Edit set",
+  "trainingSessionFree": "Free Session",
+  "trainingSessionInProgress": "In progress",
+  "trainingSessionNoComments": "No comments yet. Coaches and the athlete can leave feedback here.",
+  "trainingSessionNoReps": "No reps recorded",
+  "trainingSessionNoSets": "No sets logged",
+  "trainingSessionNote": "Note",
+  "trainingSessionNotes": "Notes",
+  "trainingSessionPlanned": "Training Session",
+  "trainingSessionRemoveDrop": "Remove drop",
+  "trainingSessionRepType": "Type",
+  "trainingSessionRepsWholeNumber": "Reps must be a whole number",
+  "trainingSessionSendComment": "Send comment",
+  "trainingSessionSetDeleteMessage": "This logged set will be permanently removed.",
+  "trainingSessionSetDeleteTitle": "Delete set?",
+  "trainingSessionSetTitle": "Set {number}",
+  "trainingSessionSetTitleWithExercise": "Set {number} · {exercise}",
+  "trainingSessionSetsLogged": "{count, plural, =1{1 Set Logged} other{{count} Sets Logged}}",
+  "trainingSessionTapToEdit": "Tap a set to edit it.",
+  "trainingSessionTodayAt": "Today {time}",
+  "trainingSessionTrainer": "Trainer",
+  "trainingSessionWeightNumber": "Weight must be a number",
+  "trainingSessionYesterdayAt": "Yesterday {time}",
+  "trainingSessionsClassesTitle": "Classes",
+  "trainingSessionsEmpty": "No sessions yet",
+  "trainingSessionsEmptyHint": "Tap + to start your first workout",
+  "trainingSessionsMyProgress": "My progress",
+  "trainingSessionsNew": "New Session",
+  "trainingSessionsNoClasses": "No classes yet",
+  "trainingSessionsNoClassesHint": "Sessions you run for members will show up here",
+  "trainingSessionsTitle": "Sessions",
+  "trainingSetTypeCircuit": "Circuit",
+  "trainingSetTypeDropset": "Drop Set",
+  "trainingSetTypeStandard": "Straight Set",
+  "trainingSetTypeSuperset": "Superset",
+  "trainingShiftAdd": "Add shift",
+  "trainingShiftAddOn": "Add shift on {day}",
+  "trainingShiftAddOne": "Add a shift",
+  "trainingShiftAdded": "Shift added",
+  "trainingShiftCount": "{count, plural, =1{1 shift} other{{count} shifts}}",
+  "trainingShiftDelete": "Delete shift",
+  "trainingShiftDeleteMessage": "{name}'s shift on {day} will be removed.",
+  "trainingShiftDeleteNotifyMessage": "{name}'s shift on {day} will be removed and they'll be notified.",
+  "trainingShiftDeleteQuestion": "Delete shift?",
+  "trainingShiftDeleted": "Shift deleted",
+  "trainingShiftEdit": "Edit shift",
+  "trainingShiftEnd": "End {time}",
+  "trainingShiftEndsNextDay": "{duration} · ends the next day",
+  "trainingShiftFree": "You're free. New shifts will show up here.",
+  "trainingShiftLoadFailed": "Couldn't load shifts",
+  "trainingShiftMyShifts": "My shifts",
+  "trainingShiftNew": "New shift",
+  "trainingShiftNextDays": "Next {days} days",
+  "trainingShiftNextShifts": "Next shifts",
+  "trainingShiftNoStaff": "No staff to schedule",
+  "trainingShiftNoStaffMessage": "Add employees, employee-trainers or trainers to this gym first.",
+  "trainingShiftNoUpcoming": "No upcoming shifts",
+  "trainingShiftNoUpcomingMessage": "When a manager schedules you, your shifts show up here and you get a notification.",
+  "trainingShiftNone": "No shifts",
+  "trainingShiftNoneThisWeek": "No shifts this week",
+  "trainingShiftNoneThisWeekManage": "Plan who's working when. Staff get notified about their shifts.",
+  "trainingShiftNoneThisWeekMessage": "No one has been scheduled for this week yet.",
+  "trainingShiftNoteHint": "e.g. Front desk, open up",
+  "trainingShiftNoteOptional": "Note (optional)",
+  "trainingShiftOnNow": "On now",
+  "trainingShiftOptions": "Shift options",
+  "trainingShiftPickStaff": "Pick who works this shift",
+  "trainingShiftSeeAll": "See all",
+  "trainingShiftShifts": "Shifts",
+  "trainingShiftStaffMember": "Staff member",
+  "trainingShiftStart": "Start {time}",
+  "trainingShiftUpdated": "Shift updated",
+  "trainingSideBoth": "Both",
+  "trainingSideLeft": "Left",
+  "trainingSideRight": "Right",
+  "trainingStaffRoleEmployee": "Employee",
+  "trainingStaffRoleEmployeeTrainer": "Employee / Trainer",
+  "trainingStaffRoleTrainer": "Trainer",
+  "trainingWeekProgram": "{weeks}-Week Program",
+  "trainingWorkoutsAssignedByMe": "By me ({count})",
+  "trainingWorkoutsAssignedFor": "For {name}",
+  "trainingWorkoutsAssignedForMember": "For a member",
+  "trainingWorkoutsAssignedFrom": "From {name}",
+  "trainingWorkoutsAssignedFromCoach": "From your coach",
+  "trainingWorkoutsAssignedToMe": "Assigned to me ({count})",
+  "trainingWorkoutsByMeEmpty": "You haven't assigned routines to anyone yet.\nOpen a routine and tap Assign.",
+  "trainingWorkoutsClearSearch": "Clear search",
+  "trainingWorkoutsCreate": "Create",
+  "trainingWorkoutsMyRoutines": "My Routines",
+  "trainingWorkoutsMyTrainings": "My Trainings",
+  "trainingWorkoutsNewRoutine": "New Routine",
+  "trainingWorkoutsNewTraining": "New Training",
+  "trainingWorkoutsNoTrainings": "No trainings found",
+  "trainingWorkoutsSelfAssigned": "Self-assigned",
+  "trainingWorkoutsSetCount": "{count, plural, =1{1 set} other{{count} sets}}",
+  "trainingWorkoutsTabAssigned": "Assigned",
+  "trainingWorkoutsTabLibrary": "My Library",
+  "trainingWorkoutsTabRoutines": "Routines",
+  "trainingWorkoutsTabTrainings": "Trainings",
+  "trainingWorkoutsTitle": "Workouts",
+  "trainingWorkoutsToMeEmpty": "No routines assigned to you yet.\nYour coach's assignments show up here."
+}

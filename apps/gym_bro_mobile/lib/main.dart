@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/l10n.dart';
 import 'pages/signup_page.dart';
 import 'pages/check_email_page.dart';
 import 'pages/login_page.dart';
@@ -10,8 +12,21 @@ import 'pages/verify_invite_page.dart';
 import 'pages/forgot_password_page.dart';
 import 'pages/reset_password_page.dart';
 import 'services/auth_manager.dart';
+import 'services/push_service.dart';
+import 'services/settings_service.dart';
+import 'theme.dart';
 
-void main() {
+/// The app's root navigator. Push-notification taps navigate through it
+/// (see PushService / NotificationRouter), since they arrive outside any
+/// widget's context.
+final navigatorKey = GlobalKey<NavigatorState>();
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Apply the cached theme / units before the first frame.
+  await SettingsService.instance.loadCached();
+  // No-op unless the Firebase dart-defines are set (see push_service.dart).
+  unawaited(PushService.instance.init(navigatorKey));
   runApp(const GymBroApp());
 }
 
@@ -20,23 +35,37 @@ class GymBroApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Gym Bro',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    final settings = SettingsService.instance;
+    return ListenableBuilder(
+      listenable: Listenable.merge([settings.themeMode, settings.locale]),
+      builder: (context, _) => MaterialApp(
+        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+        navigatorKey: navigatorKey,
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: settings.themeMode.value,
+        locale: settings.locale.value,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        // Serbian is offered in Latin script only; plain `sr` exists as a
+        // fallback for devices set to Serbian.
+        supportedLocales: AppLocalizations.supportedLocales,
+        initialRoute: '/',
+        routes: {
+          '/': (_) => const _AppInit(),
+          '/signup': (_) => const SignupPage(),
+          '/check-email': (_) => const CheckEmailPage(),
+          '/login': (_) => const LoginPage(),
+          '/home': (_) => const HomePage(),
+          '/verify-invite': (_) => const VerifyInvitePage(),
+          '/forgot-password': (_) => const ForgotPasswordPage(),
+          '/reset-password': (_) => const ResetPasswordPage(),
+        },
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (_) => const _AppInit(),
-        '/signup': (_) => const SignupPage(),
-        '/check-email': (_) => const CheckEmailPage(),
-        '/login': (_) => const LoginPage(),
-        '/home': (_) => const HomePage(),
-        '/verify-invite': (_) => const VerifyInvitePage(),
-        '/forgot-password': (_) => const ForgotPasswordPage(),
-        '/reset-password': (_) => const ResetPasswordPage(),
-      },
     );
   }
 }
@@ -77,8 +106,14 @@ class _AppInitState extends State<_AppInit> {
       }
     }
 
-    // Normal start: restore persisted session.
-    final hasSession = await AuthManager.instance.tryRestoreSession();
+    // Normal start: restore persisted session. A storage failure (e.g. the
+    // keychain is unavailable) must not leave the user stuck on this spinner.
+    var hasSession = false;
+    try {
+      hasSession = await AuthManager.instance.tryRestoreSession();
+    } catch (e) {
+      debugPrint('Session restore failed: $e');
+    }
     if (mounted) {
       Navigator.pushReplacementNamed(context, hasSession ? '/home' : '/signup');
     }
@@ -116,8 +151,12 @@ class _AppInitState extends State<_AppInit> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
+    return Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(
+          semanticsLabel: context.l10n.commonLoading,
+        ),
+      ),
     );
   }
 }
