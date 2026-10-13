@@ -1109,6 +1109,9 @@ class MealPlanAssignment {
   final DateTime? endDate;
   final String? note;
   final DateTime createdAt;
+  // Joined by GET /meal-plan-assignments (may be absent on older responses).
+  final String? mealPlanName;
+  final String? assignedByName;
 
   const MealPlanAssignment({
     required this.id,
@@ -1120,7 +1123,14 @@ class MealPlanAssignment {
     this.endDate,
     this.note,
     required this.createdAt,
+    this.mealPlanName,
+    this.assignedByName,
   });
+
+  /// Best available plan name: joined field, embedded plan, or a fallback.
+  String get planName => mealPlanName ?? mealPlan?.name ?? 'Meal plan';
+
+  bool get isSelfAssigned => assignedById != null && assignedById == userId;
 
   factory MealPlanAssignment.fromJson(Map<String, dynamic> json) => MealPlanAssignment(
         id: json['id'] as String,
@@ -1134,6 +1144,8 @@ class MealPlanAssignment {
         endDate: json['end_date'] != null ? DateTime.parse(json['end_date'] as String) : null,
         note: json['note'] as String?,
         createdAt: DateTime.parse(json['created_at'] as String),
+        mealPlanName: json['meal_plan_name'] as String?,
+        assignedByName: json['assigned_by_name'] as String?,
       );
 
   Map<String, dynamic> toJson() => {

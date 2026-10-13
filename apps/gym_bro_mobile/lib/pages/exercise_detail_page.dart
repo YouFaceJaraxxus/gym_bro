@@ -3,6 +3,7 @@ import '../models/exercise.dart';
 import '../services/auth_manager.dart';
 import '../services/api_service.dart';
 import '../widgets/muscle_diagram.dart';
+import '../widgets/open_url.dart';
 import 'exercise_form_page.dart';
 
 class ExerciseDetailPage extends StatefulWidget {
@@ -143,7 +144,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
             const Text('Video', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
             InkWell(
-              onTap: () {/* open URL - launcher package not yet added */},
+              onTap: () => openExternalUrl(context, _exercise.videoUrl!),
               child: Text(
                 _exercise.videoUrl!,
                 style: const TextStyle(

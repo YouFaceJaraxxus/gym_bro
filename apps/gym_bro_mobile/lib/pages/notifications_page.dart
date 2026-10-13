@@ -1,9 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/app_notification.dart';
+import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'gym_detail_page.dart';
 import 'invite_accept_page.dart';
+import 'meal_plans_page.dart';
+import 'membership_page.dart';
+import 'posts_page.dart';
+import 'shop_detail_page.dart';
 
 const _kPageSize = 20;
 
@@ -178,8 +184,136 @@ class _NotificationsPageState extends State<NotificationsPage> {
           builder: (_) => InviteAcceptPage(notification: notif),
         ),
       );
+    } else {
+      await _navigateFor(notif);
     }
-    // Other notification types: just marking read is enough for now
+  }
+
+  /// Opens the screen a non-invite notification refers to, if any.
+  Future<void> _navigateFor(AppNotification notif) async {
+    final profile = AuthManager.instance.profile;
+    if (profile == null) return;
+
+    switch (notif.type) {
+      case NotificationType.invoiceIssued:
+      case NotificationType.memberSubscriptionExtended:
+      case NotificationType.membershipExpiring:
+        await Navigator.push<void>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => Scaffold(
+              appBar: AppBar(title: const Text('Membership')),
+              body: MembershipPage(profile: profile),
+            ),
+          ),
+        );
+
+      case NotificationType.news:
+        final businessId = notif.metadata?['business_id'] as String?;
+        if (businessId == null) return;
+        try {
+          final token = await AuthManager.instance.getValidToken();
+          final business = await _api.getBusiness(token, businessId);
+          if (!mounted) return;
+          await Navigator.push<void>(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PostsPage(
+                businessId: business.id,
+                businessName: business.name,
+              ),
+            ),
+          );
+        } catch (e) {
+          _showError(e);
+        }
+
+      case NotificationType.memberJoin:
+      case NotificationType.employeeJoin:
+      case NotificationType.vendorJoin:
+        await _openManagedBusiness(notif, profile);
+
+      case NotificationType.training:
+        // "New meal plan assigned".
+        await Navigator.push<void>(
+          context,
+          MaterialPageRoute(builder: (_) => const MealPlansPage()),
+        );
+
+      default:
+        // Nothing to open — marking read is enough.
+        break;
+    }
+  }
+
+  /// Opens the gym / shop from a *_join notification, but only when the
+  /// current user manages that business.
+  Future<void> _openManagedBusiness(
+      AppNotification notif, UserProfile profile) async {
+    final isShop = notif.type == NotificationType.vendorJoin ||
+        (notif.gymId == null && notif.shopId != null);
+    final businessId = (isShop ? notif.shopId : notif.gymId) ??
+        notif.metadata?['business_id'] as String?;
+    if (businessId == null) return;
+
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      if (profile.role != UserRole.superUser) {
+        final rows = isShop
+            ? await _api.getShopOwners(token, userId: profile.id)
+            : await _api.getGymOwners(token, userId: profile.id);
+        final key = isShop ? 'shop_id' : 'gym_id';
+        if (!rows.any((r) => r[key] == businessId)) return;
+      }
+      final name = notif.entityName ??
+          (await _api.getBusiness(token, businessId)).name;
+      if (!mounted) return;
+      await Navigator.push<void>(
+        context,
+        MaterialPageRoute(
+          builder: (_) => isShop
+              ? ShopDetailPage(shopId: businessId, shopName: name)
+              : GymDetailPage(gymId: businessId, gymName: name),
+        ),
+      );
+    } catch (e) {
+      _showError(e);
+    }
+  }
+
+  void _showError(Object e) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+    );
+  }
+
+  Future<void> _delete(AppNotification notif) async {
+    final cached = _cache;
+    if (cached == null) return;
+    final index = cached.items.indexWhere((n) => n.id == notif.id);
+    if (index < 0) return;
+
+    // Optimistically remove; restore on failure.
+    setState(() {
+      _cache = cached.copyWith(
+        items: [...cached.items]..removeAt(index),
+      );
+      if (!notif.isRead && _unreadCount > 0) _unreadCount--;
+    });
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      await _api.deleteNotification(token, notif.id);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        final items = [...?_cache?.items];
+        items.insert(index.clamp(0, items.length), notif);
+        _cache = _cache?.copyWith(items: items);
+        if (!notif.isRead) _unreadCount++;
+      });
+      _showError(e);
+    }
   }
 
   void _replaceItem(String id, {bool? isRead}) {
@@ -287,9 +421,21 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           child: const Text('Load more'))),
             );
           }
-          return _NotificationTile(
-            notification: items[index],
-            onTap: () => _openNotification(items[index]),
+          final notif = items[index];
+          return Dismissible(
+            key: ValueKey(notif.id),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              color: cs.errorContainer,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Icon(Icons.delete_outline, color: cs.onErrorContainer),
+            ),
+            onDismissed: (_) => _delete(notif),
+            child: _NotificationTile(
+              notification: notif,
+              onTap: () => _openNotification(notif),
+            ),
           );
         },
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/post.dart';
+import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/image_upload_field.dart';
@@ -56,9 +57,27 @@ class _PostsPageState extends State<PostsPage> {
   Future<void> _openCreatePost() async {
     final created = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(builder: (_) => _CreatePostPage(businessId: widget.businessId)),
+      MaterialPageRoute(builder: (_) => _PostFormPage(businessId: widget.businessId)),
     );
     if (created == true) _load();
+  }
+
+  Future<void> _openEditPost(Post post) async {
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => _PostFormPage(businessId: widget.businessId, post: post),
+      ),
+    );
+    if (saved == true) _load();
+  }
+
+  /// The API lets only the author (or a super user) edit or delete a post.
+  bool _canManage(Post post) {
+    final profile = AuthManager.instance.profile;
+    if (profile == null) return false;
+    return profile.role == UserRole.superUser ||
+        (post.authorId != null && post.authorId == profile.id);
   }
 
   Future<void> _delete(Post post) async {
@@ -134,7 +153,8 @@ class _PostsPageState extends State<PostsPage> {
         itemCount: _posts.length,
         itemBuilder: (_, i) => _PostCard(
           post: _posts[i],
-          canDelete: widget.canPost,
+          canManage: _canManage(_posts[i]),
+          onEdit: () => _openEditPost(_posts[i]),
           onDelete: () => _delete(_posts[i]),
         ),
       ),
@@ -143,10 +163,16 @@ class _PostsPageState extends State<PostsPage> {
 }
 
 class _PostCard extends StatelessWidget {
-  const _PostCard({required this.post, required this.canDelete, required this.onDelete});
+  const _PostCard({
+    required this.post,
+    required this.canManage,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   final Post post;
-  final bool canDelete;
+  final bool canManage;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   @override
@@ -157,10 +183,28 @@ class _PostCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (post.imageUrl != null)
+          if (post.images.length == 1)
             AspectRatio(
               aspectRatio: 16 / 9,
-              child: Image.network(post.imageUrl!, fit: BoxFit.cover),
+              child: Image.network(
+                post.images.first.url,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+              ),
+            )
+          else if (post.images.length > 1)
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: PageView(
+                children: post.images
+                    .map((img) => Image.network(
+                          img.url,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stack) =>
+                              const SizedBox.shrink(),
+                        ))
+                    .toList(),
+              ),
             ),
           Padding(
             padding: const EdgeInsets.all(16),
@@ -178,16 +222,42 @@ class _PostCard extends StatelessWidget {
                             ?.copyWith(color: Theme.of(context).colorScheme.outline),
                       ),
                     ),
-                    if (canDelete)
+                    if (post.images.length > 1)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Text(
+                          '${post.images.length} photos',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    if (canManage) ...[
                       IconButton(
+                        tooltip: 'Edit post',
+                        icon: const Icon(Icons.edit_outlined, size: 20),
+                        onPressed: onEdit,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      IconButton(
+                        tooltip: 'Delete post',
                         icon: const Icon(Icons.delete_outline, size: 20),
                         onPressed: onDelete,
                         visualDensity: VisualDensity.compact,
                       ),
+                    ],
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(post.content),
+                if (post.updatedAt.difference(post.createdAt).inMinutes >= 1) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    'Edited',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: Theme.of(context).colorScheme.outline),
+                  ),
+                ],
               ],
             ),
           ),
@@ -206,25 +276,53 @@ class _PostCard extends StatelessWidget {
   }
 }
 
-class _CreatePostPage extends StatefulWidget {
-  const _CreatePostPage({required this.businessId});
+/// Create a post, or edit [post]'s text and images when given.
+class _PostFormPage extends StatefulWidget {
+  const _PostFormPage({required this.businessId, this.post});
   final String businessId;
+  final Post? post;
 
   @override
-  State<_CreatePostPage> createState() => _CreatePostPageState();
+  State<_PostFormPage> createState() => _PostFormPageState();
 }
 
-class _CreatePostPageState extends State<_CreatePostPage> {
+class _PostFormPageState extends State<_PostFormPage> {
   final _api = ApiService();
-  final _contentCtrl = TextEditingController();
-  String? _imageUrl;
+  late final TextEditingController _contentCtrl;
+  late final List<String> _imageUrls;
+  bool _uploading = false;
   bool _saving = false;
   String? _error;
+
+  bool get _isEditing => widget.post != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _contentCtrl = TextEditingController(text: widget.post?.content ?? '');
+    final images = [...?widget.post?.images]
+      ..sort((a, b) => a.position.compareTo(b.position));
+    _imageUrls = images.map((i) => i.url).toList();
+  }
 
   @override
   void dispose() {
     _contentCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _addPhoto() async {
+    await pickAndUploadImage(
+      context: context,
+      bucket: 'media',
+      folder: 'posts',
+      onUploaded: (url) {
+        if (mounted) setState(() => _imageUrls.add(url));
+      },
+      onUploadingChanged: (v) {
+        if (mounted) setState(() => _uploading = v);
+      },
+    );
   }
 
   Future<void> _submit() async {
@@ -238,14 +336,28 @@ class _CreatePostPageState extends State<_CreatePostPage> {
     });
     try {
       final token = await AuthManager.instance.getValidToken();
-      await _api.createPost(token, {
-        'business_id': widget.businessId,
-        'content': _contentCtrl.text.trim(),
-        'images': _imageUrl != null ? [{'url': _imageUrl, 'position': 0}] : [],
-      });
+      final images = _imageUrls
+          .asMap()
+          .entries
+          .map((e) => {'url': e.value, 'position': e.key})
+          .toList();
+      if (_isEditing) {
+        await _api.updatePost(token, widget.post!.id, {
+          'content': _contentCtrl.text.trim(),
+          'images': images,
+        });
+      } else {
+        await _api.createPost(token, {
+          'business_id': widget.businessId,
+          'content': _contentCtrl.text.trim(),
+          'images': images,
+        });
+      }
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+      if (mounted) {
+        setState(() => _error = e.toString().replaceFirst('Exception: ', ''));
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -253,18 +365,89 @@ class _CreatePostPageState extends State<_CreatePostPage> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('New Post')),
+      appBar: AppBar(title: Text(_isEditing ? 'Edit Post' : 'New Post')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ImagePickerField(
-              imageUrl: _imageUrl,
-              folder: 'posts',
-              label: 'Add a photo (optional)',
-              onUploaded: (url) => setState(() => _imageUrl = url),
+            SizedBox(
+              height: 110,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  ..._imageUrls.asMap().entries.map((e) => Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                e.value,
+                                width: 110,
+                                height: 110,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stack) => Container(
+                                  width: 110,
+                                  height: 110,
+                                  color: cs.surfaceContainerHighest,
+                                  child: const Icon(Icons.broken_image_outlined),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 4,
+                              right: 4,
+                              child: InkWell(
+                                onTap: () =>
+                                    setState(() => _imageUrls.removeAt(e.key)),
+                                child: const CircleAvatar(
+                                  radius: 12,
+                                  backgroundColor: Colors.black54,
+                                  child: Icon(Icons.close,
+                                      size: 14, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                  InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: _uploading || _saving ? null : _addPhoto,
+                    child: Container(
+                      width: 110,
+                      height: 110,
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: _uploading
+                          ? const Center(
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.add_photo_alternate_outlined,
+                                    color: cs.onSurfaceVariant),
+                                const SizedBox(height: 4),
+                                Text('Add photo',
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: cs.onSurfaceVariant)),
+                              ],
+                            ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -277,18 +460,18 @@ class _CreatePostPageState extends State<_CreatePostPage> {
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
-              Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              Text(_error!, style: TextStyle(color: cs.error)),
             ],
             const SizedBox(height: 20),
             FilledButton(
-              onPressed: _saving ? null : _submit,
+              onPressed: _saving || _uploading ? null : _submit,
               child: _saving
                   ? const SizedBox(
                       height: 20,
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
-                  : const Text('Post'),
+                  : Text(_isEditing ? 'Save' : 'Post'),
             ),
           ],
         ),

@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../_shared/config.ts";
+import { json, jsonError, requireAuth } from "../_shared/auth.ts";
 
 // Uploads are proxied through this function using the service-role key — the
 // Flutter app never talks to Supabase Storage directly, matching the rest of
@@ -17,15 +18,6 @@ const EXT_BY_MIME: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/webp": "webp",
 };
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
-
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
-}
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
@@ -73,14 +65,3 @@ Deno.serve(async (req: Request) => {
 
   return json({ url: publicUrlData.publicUrl, bucket, path }, 201);
 });
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}

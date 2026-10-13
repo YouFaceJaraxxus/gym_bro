@@ -23,12 +23,8 @@ class GymHubPage extends StatelessWidget {
     final api = ApiService();
 
     Future<String?> firstGymId(Future<List<Map<String, dynamic>>> Function() fetch, String key) async {
-      try {
-        final rows = await fetch();
-        return rows.isNotEmpty ? rows.first[key] as String? : null;
-      } catch (_) {
-        return null;
-      }
+      final rows = await fetch();
+      return rows.isNotEmpty ? rows.first[key] as String? : null;
     }
 
     final staffGymId = await firstGymId(() => api.getEmployees(token, userId: p.id), 'gym_id') ??
@@ -39,26 +35,38 @@ class GymHubPage extends StatelessWidget {
     final gymId = staffGymId ?? await firstGymId(() => api.getMembers(token, userId: p.id), 'gym_id');
 
     if (gymId != null) {
-      try {
-        final business = await api.getBusiness(token, gymId);
-        return (id: gymId, name: business.name, canPost: staffGymId != null);
-      } catch (_) {}
+      final business = await api.getBusiness(token, gymId);
+      return (id: gymId, name: business.name, canPost: staffGymId != null);
     }
 
     final shopId = await firstGymId(() => api.getShopOwners(token, userId: p.id), 'shop_id') ??
         await firstGymId(() => api.getShopVendors(token, userId: p.id), 'shop_id');
     if (shopId != null) {
-      try {
-        final business = await api.getBusiness(token, shopId);
-        return (id: shopId, name: business.name, canPost: true);
-      } catch (_) {}
+      final business = await api.getBusiness(token, shopId);
+      return (id: shopId, name: business.name, canPost: true);
     }
 
     return null;
   }
 
   Future<void> _openCommunity(BuildContext context) async {
-    final resolved = await _resolveBusiness();
+    ({String id, String name, bool canPost})? resolved;
+    try {
+      resolved = await _resolveBusiness();
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              "Couldn't open community: ${e.toString().replaceFirst('Exception: ', '')}"),
+          action: SnackBarAction(
+            label: 'Retry',
+            onPressed: () => _openCommunity(context),
+          ),
+        ),
+      );
+      return;
+    }
     if (!context.mounted) return;
     if (resolved == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -66,13 +74,14 @@ class GymHubPage extends StatelessWidget {
       );
       return;
     }
+    final target = resolved;
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => PostsPage(
-          businessId: resolved.id,
-          businessName: resolved.name,
-          canPost: resolved.canPost,
+          businessId: target.id,
+          businessName: target.name,
+          canPost: target.canPost,
         ),
       ),
     );

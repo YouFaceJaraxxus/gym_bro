@@ -1,18 +1,13 @@
-import { db, supabaseAdmin } from "../_shared/config.ts";
+import type { Kysely } from "npm:kysely@^0.27";
+import { db } from "../_shared/config.ts";
+import { forbidden, isSuperUser, json, jsonError, requireCaller } from "../_shared/auth.ts";
+import { businessName, gymOwnerIds, notify, shopOwnerIds } from "../_shared/notify.ts";
+import { assignRole, pgCode } from "../_shared/roles.ts";
 import type {
+  Database,
   NotificationInsert,
-  NotificationUpdate,
   NotificationType,
 } from "../../types/schema/public.ts";
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
-
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
-}
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -26,25 +21,84 @@ function parseAction(pathname: string): { id: string; action: string } | null {
   return match ? { id: match[1], action: match[2] } : null;
 }
 
-// ── Internal user lookup ──────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-async function getInternalUser(authId: string) {
+/**
+ * True when the user who sent an invite may still invite people to the
+ * business: super user, or owner of the gym / shop.
+ */
+async function inviterCanStillInvite(
+  inviterId: unknown,
+  kind: "gym" | "shop",
+  businessId: string,
+): Promise<boolean> {
+  if (typeof inviterId !== "string" || !inviterId) return false;
+  const inviter = await db.selectFrom("users").select("role").where("id", "=", inviterId).executeTakeFirst();
+  if (!inviter) return false;
+  if (inviter.role === "super_user") return true;
+  const row = kind === "gym"
+    ? await db.selectFrom("gym_owner").select("id").where("user_id", "=", inviterId)
+      .where("gym_id", "=", businessId).executeTakeFirst()
+    : await db.selectFrom("shop_owner").select("id").where("user_id", "=", inviterId)
+      .where("shop_id", "=", businessId).executeTakeFirst();
+  return !!row;
+}
+
+function setInviteStatus(id: string, meta: Record<string, unknown>, status: "accepted" | "declined") {
   return db
-    .selectFrom("users")
-    .select(["id", "name", "last_name"])
-    .where("auth_id", "=", authId)
-    .executeTakeFirst();
+    .updateTable("notification")
+    .set({ is_read: true, metadata: { ...meta, invite_status: status } })
+    .where("id", "=", id)
+    .returningAll()
+    .executeTakeFirstOrThrow();
+}
+
+/**
+ * Runs the role-row inserts and marks the invite accepted in one transaction.
+ * Returns null (after marking the invite declined) if the business is gone.
+ */
+async function acceptInTransaction(
+  id: string,
+  meta: Record<string, unknown>,
+  insertRows: (trx: Kysely<Database>) => Promise<void>,
+) {
+  try {
+    return await db.transaction().execute(async (trx) => {
+      await insertRows(trx);
+      return trx
+        .updateTable("notification")
+        .set({ is_read: true, metadata: { ...meta, invite_status: "accepted" } })
+        .where("id", "=", id)
+        .returningAll()
+        .executeTakeFirstOrThrow();
+    });
+  } catch (err) {
+    if (pgCode(err) !== "23503") throw err;
+    await setInviteStatus(id, meta, "declined");
+    return null;
+  }
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
-  const { user, error: authError } = await requireAuth(req);
-  if (!user) return jsonError(authError ?? "Unauthorized", 401);
+  const { caller, response } = await requireCaller(req);
+  if (response) return response;
 
   const url = new URL(req.url);
-  const id = parseId(url.pathname);
   const actionMatch = parseAction(url.pathname);
+
+  // ── POST /notifications/mark-all-read — matched before /:id ───────────────────
+  if (req.method === "POST" && url.pathname === "/notifications/mark-all-read") {
+    await db
+      .updateTable("notification")
+      .set({ is_read: true })
+      .where("user_id", "=", caller.id)
+      .where("is_read", "=", false)
+      .execute();
+
+    return json({ ok: true });
+  }
 
   // ── POST /notifications/:id/accept ────────────────────────────────────────────
   if (req.method === "POST" && actionMatch?.action === "accept") {
@@ -55,75 +109,102 @@ Deno.serve(async (req: Request) => {
       .executeTakeFirst();
     if (!notif) return jsonError("Notification not found", 404);
 
+    // Verify the notification belongs to the current user
+    if (notif.user_id !== caller.id) return forbidden();
+
     const meta = (notif.metadata ?? {}) as Record<string, unknown>;
     if (meta.invite_status !== "pending") {
       return jsonError("Invite is no longer pending", 409);
     }
 
-    // Verify the notification belongs to the current user
-    const internal = await getInternalUser(user.id);
-    if (!internal || notif.user_id !== internal.id) {
-      return jsonError("Forbidden", 403);
-    }
+    const fullName = `${caller.name} ${caller.last_name}`.trim();
 
     if (notif.type === "employee_gym_invite") {
       const gymId = meta.gym_id as string;
-      const employeeType = meta.employee_type as string;
+      const employeeType = meta.employee_type === "employee_trainer" ? "employee_trainer" : "employee";
+      if (!gymId) return jsonError("Invite is missing gym_id", 400);
 
-      if (employeeType === "employee") {
-        await db
-          .insertInto("employee")
-          .values({ user_id: internal.id, gym_id: gymId })
-          .onConflict((oc) => oc.columns(["user_id", "gym_id"]).doNothing())
-          .execute();
-        await db.updateTable("users").set({ role: "employee" }).where("id", "=", internal.id).execute();
-      } else {
-        // employee_trainer: find or create the trainer row first
-        let trainerRow = await db
-          .selectFrom("trainer")
-          .select(["id"])
-          .where("user_id", "=", internal.id)
-          .where("gym_id", "=", gymId)
-          .executeTakeFirst();
-
-        if (!trainerRow) {
-          trainerRow = await db
-            .insertInto("trainer")
-            .values({ user_id: internal.id, gym_id: gymId })
-            .returning(["id"])
-            .executeTakeFirstOrThrow();
-        }
-
-        await db
-          .insertInto("employee_trainer")
-          .values({ user_id: internal.id, gym_id: gymId, trainer_id: trainerRow.id })
-          .onConflict((oc) => oc.columns(["user_id", "gym_id"]).doNothing())
-          .execute();
-        await db.updateTable("users").set({ role: "employee_trainer" }).where("id", "=", internal.id).execute();
+      // The inviter may have lost access since the invite was sent.
+      if (!(await inviterCanStillInvite(meta.inviter_id, "gym", gymId))) {
+        await setInviteStatus(notif.id, meta, "declined");
+        return jsonError("This invite is no longer valid", 409);
       }
-    } else if (notif.type === "vendor_shop_invite") {
-      const shopId = meta.shop_id as string;
-      await db
-        .insertInto("shop_vendor")
-        .values({ user_id: internal.id, shop_id: shopId })
-        .onConflict((oc) => oc.columns(["user_id", "shop_id"]).doNothing())
-        .execute();
-      await db.updateTable("users").set({ role: "shop_vendor" }).where("id", "=", internal.id).execute();
-    } else {
-      return jsonError("Not an invite notification", 400);
+
+      const updated = await acceptInTransaction(notif.id, meta, async (trx) => {
+        if (employeeType === "employee") {
+          await trx
+            .insertInto("employee")
+            .values({ user_id: caller.id, gym_id: gymId })
+            .onConflict((oc) => oc.columns(["user_id", "gym_id"]).doNothing())
+            .execute();
+          await assignRole(trx, caller.id, "employee");
+        } else {
+          // employee_trainer: find or create the trainer row first
+          let trainerRow = await trx
+            .selectFrom("trainer")
+            .select(["id"])
+            .where("user_id", "=", caller.id)
+            .where("gym_id", "=", gymId)
+            .executeTakeFirst();
+          if (!trainerRow) {
+            trainerRow = await trx
+              .insertInto("trainer")
+              .values({ user_id: caller.id, gym_id: gymId })
+              .returning(["id"])
+              .executeTakeFirstOrThrow();
+          }
+          await trx
+            .insertInto("employee_trainer")
+            .values({ user_id: caller.id, gym_id: gymId, trainer_id: trainerRow.id })
+            .onConflict((oc) => oc.columns(["user_id", "gym_id"]).doNothing())
+            .execute();
+          await assignRole(trx, caller.id, "employee_trainer");
+        }
+      });
+      if (!updated) return jsonError("This invite is no longer valid", 409);
+
+      const gymName = (meta.gym_name as string | undefined) ?? await businessName(gymId);
+      await notify((await gymOwnerIds(gymId)).filter((id) => id !== caller.id), {
+        type: "employee_join",
+        title: `${fullName} joined ${gymName}`,
+        body: `${fullName} accepted your invitation to join ${gymName} as ${
+          employeeType === "employee_trainer" ? "Employee Trainer" : "Employee"
+        }.`,
+        metadata: { gym_id: gymId, user_id: caller.id, employee_type: employeeType },
+      });
+      return json(updated);
     }
 
-    const updated = await db
-      .updateTable("notification")
-      .set({
-        is_read: true,
-        metadata: JSON.stringify({ ...meta, invite_status: "accepted" }),
-      })
-      .where("id", "=", actionMatch.id)
-      .returningAll()
-      .executeTakeFirstOrThrow();
+    if (notif.type === "vendor_shop_invite") {
+      const shopId = meta.shop_id as string;
+      if (!shopId) return jsonError("Invite is missing shop_id", 400);
 
-    return json(updated);
+      if (!(await inviterCanStillInvite(meta.inviter_id, "shop", shopId))) {
+        await setInviteStatus(notif.id, meta, "declined");
+        return jsonError("This invite is no longer valid", 409);
+      }
+
+      const updated = await acceptInTransaction(notif.id, meta, async (trx) => {
+        await trx
+          .insertInto("shop_vendor")
+          .values({ user_id: caller.id, shop_id: shopId })
+          .onConflict((oc) => oc.columns(["user_id", "shop_id"]).doNothing())
+          .execute();
+        await assignRole(trx, caller.id, "shop_vendor");
+      });
+      if (!updated) return jsonError("This invite is no longer valid", 409);
+
+      const shopName = (meta.shop_name as string | undefined) ?? await businessName(shopId);
+      await notify((await shopOwnerIds(shopId)).filter((id) => id !== caller.id), {
+        type: "vendor_join",
+        title: `${fullName} joined ${shopName}`,
+        body: `${fullName} accepted your invitation to join ${shopName} as a Vendor.`,
+        metadata: { shop_id: shopId, user_id: caller.id },
+      });
+      return json(updated);
+    }
+
+    return jsonError("Not an invite notification", 400);
   }
 
   // ── POST /notifications/:id/decline ──────────────────────────────────────────
@@ -134,48 +215,35 @@ Deno.serve(async (req: Request) => {
       .where("id", "=", actionMatch.id)
       .executeTakeFirst();
     if (!notif) return jsonError("Notification not found", 404);
+    if (notif.user_id !== caller.id) return forbidden();
 
     const meta = (notif.metadata ?? {}) as Record<string, unknown>;
     if (meta.invite_status !== "pending") {
       return jsonError("Invite is no longer pending", 409);
     }
 
-    const internal = await getInternalUser(user.id);
-    if (!internal || notif.user_id !== internal.id) {
-      return jsonError("Forbidden", 403);
-    }
-
-    const updated = await db
-      .updateTable("notification")
-      .set({
-        is_read: true,
-        metadata: JSON.stringify({ ...meta, invite_status: "declined" }),
-      })
-      .where("id", "=", actionMatch.id)
-      .returningAll()
-      .executeTakeFirstOrThrow();
-
-    return json(updated);
+    return json(await setInviteStatus(notif.id, meta, "declined"));
   }
 
   // ── POST /notifications/:id/read ──────────────────────────────────────────────
   if (req.method === "POST" && actionMatch?.action === "read") {
-    const internal = await getInternalUser(user.id);
-    if (!internal) return jsonError("User not found", 404);
-
     const updated = await db
       .updateTable("notification")
       .set({ is_read: true })
       .where("id", "=", actionMatch.id)
-      .where("user_id", "=", internal.id)
+      .where("user_id", "=", caller.id)
       .returningAll()
       .executeTakeFirst();
     if (!updated) return jsonError("Notification not found", 404);
     return json(updated);
   }
 
-  // ── POST /notifications ───────────────────────────────────────────────────────
+  const id = parseId(url.pathname);
+
+  // ── POST /notifications — super user only (the server creates notifications) ─
   if (req.method === "POST" && !id) {
+    if (!isSuperUser(caller)) return forbidden();
+
     const body = await req.json().catch(() => null);
     const { user_id, type, title, body: msgBody, metadata } = body ?? {};
 
@@ -200,10 +268,11 @@ Deno.serve(async (req: Request) => {
     return json(row, 201);
   }
 
-  // ── GET /notifications — required: ?user_id=, optional page/page_size/unread_only ─
+  // ── GET /notifications — the caller's own; optional page/page_size/unread_only ─
+  // Super users may pass ?user_id= to read someone else's.
   if (req.method === "GET" && !id) {
-    const userId = url.searchParams.get("user_id");
-    if (!userId) return jsonError("user_id is required", 400);
+    const requested = url.searchParams.get("user_id");
+    const userId = isSuperUser(caller) && requested ? requested : caller.id;
 
     const page = Math.max(0, parseInt(url.searchParams.get("page") ?? "0", 10) || 0);
     const pageSize = Math.min(
@@ -237,38 +306,28 @@ Deno.serve(async (req: Request) => {
 
   // ── GET /notifications/:id ────────────────────────────────────────────────────
   if (req.method === "GET" && id) {
-    const internal = await getInternalUser(user.id);
-    if (!internal) return jsonError("User not found", 404);
-
     const row = await db
       .selectFrom("notification")
       .selectAll()
       .where("id", "=", id)
-      .where("user_id", "=", internal.id)
+      .where("user_id", "=", caller.id)
       .executeTakeFirst();
     if (!row) return jsonError("Notification not found", 404);
     return json(row);
   }
 
-  // ── PATCH /notifications/:id ──────────────────────────────────────────────────
+  // ── PATCH /notifications/:id — only is_read may change ────────────────────────
   if (req.method === "PATCH" && id) {
-    const internal = await getInternalUser(user.id);
-    if (!internal) return jsonError("User not found", 404);
-
     const body = await req.json().catch(() => null);
-    const allowed: NotificationUpdate = {};
-    if (typeof body?.is_read === "boolean") allowed.is_read = body.is_read;
-    if (body?.metadata !== undefined) allowed.metadata = body.metadata;
-
-    if (!Object.keys(allowed).length) {
-      return jsonError("Nothing to update", 400);
+    if (typeof body?.is_read !== "boolean") {
+      return jsonError("is_read (boolean) is required", 400);
     }
 
     const updated = await db
       .updateTable("notification")
-      .set(allowed)
+      .set({ is_read: body.is_read })
       .where("id", "=", id)
-      .where("user_id", "=", internal.id)
+      .where("user_id", "=", caller.id)
       .returningAll()
       .executeTakeFirst();
     if (!updated) return jsonError("Notification not found", 404);
@@ -277,43 +336,14 @@ Deno.serve(async (req: Request) => {
 
   // ── DELETE /notifications/:id ─────────────────────────────────────────────────
   if (req.method === "DELETE" && id) {
-    const internal = await getInternalUser(user.id);
-    if (!internal) return jsonError("User not found", 404);
-
     const result = await db
       .deleteFrom("notification")
       .where("id", "=", id)
-      .where("user_id", "=", internal.id)
+      .where("user_id", "=", caller.id)
       .executeTakeFirst();
     if (!result.numDeletedRows) return jsonError("Notification not found", 404);
     return new Response(null, { status: 204 });
   }
 
-  // ── POST /notifications/mark-all-read ─────────────────────────────────────────
-  if (req.method === "POST" && url.pathname.endsWith("/mark-all-read")) {
-    const internal = await getInternalUser(user.id);
-    if (!internal) return jsonError("User not found", 404);
-
-    await db
-      .updateTable("notification")
-      .set({ is_read: true })
-      .where("user_id", "=", internal.id)
-      .where("is_read", "=", false)
-      .execute();
-
-    return json({ ok: true });
-  }
-
   return jsonError("Not found", 404);
 });
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}

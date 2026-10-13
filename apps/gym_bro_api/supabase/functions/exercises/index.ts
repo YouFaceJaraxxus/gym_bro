@@ -1,4 +1,14 @@
-import { db, supabaseAdmin } from "../_shared/config.ts";
+import { sql } from "npm:kysely@^0.27";
+import { db } from "../_shared/config.ts";
+import {
+  type Caller,
+  canEditAuthored,
+  forbidden,
+  isSuperUser,
+  json,
+  jsonError,
+  requireCaller,
+} from "../_shared/auth.ts";
 import type {
   ExerciseInsert,
   ExerciseUpdate,
@@ -36,13 +46,18 @@ const VALID_MUSCLES: MuscleGroup[] = [
   "neck",
 ];
 
+function filterMuscles(value: unknown): MuscleGroup[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((m): m is MuscleGroup => VALID_MUSCLES.includes(m as MuscleGroup));
+}
+
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
+/** Reads are public; resolve the caller only when a token was sent. */
+async function optionalCaller(req: Request): Promise<Caller | null> {
+  if (!req.headers.get("Authorization")) return null;
+  const { caller } = await requireCaller(req);
+  return caller ?? null;
 }
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
@@ -52,13 +67,32 @@ function parseId(pathname: string): string | null {
   return match ? match[1] : null;
 }
 
+// ── Postgres error mapping ────────────────────────────────────────────────────
+
+function pgErrorResponse(e: unknown, method: string): Response {
+  const err = e as { code?: string; message?: string; detail?: string } | null;
+  switch (err?.code) {
+    case "23505":
+      return jsonError("Already exists", 409, { detail: err.detail });
+    case "23503":
+      return method === "DELETE"
+        ? jsonError("Exercise is used by a training and can't be deleted", 409)
+        : jsonError("Referenced record does not exist", 400, { detail: err.detail });
+    case "23502":
+    case "23514":
+    case "22P02":
+      return jsonError(err.message ?? "Invalid value", 400);
+  }
+  throw e;
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-Deno.serve(async (req: Request) => {
+async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const id = parseId(url.pathname);
 
-  // ── GET /exercises — public ───────────────────────────────────────────────────
+  // ── GET /exercises — public; ?is_public=false lists the caller's private ones ─
   if (req.method === "GET" && !id) {
     const name = url.searchParams.get("name");
     const muscle = url.searchParams.get("muscle") as MuscleGroup | null;
@@ -69,28 +103,29 @@ Deno.serve(async (req: Request) => {
 
     let query = db.selectFrom("exercise").select(COLS);
 
+    if (isPublic === "false") {
+      const { caller, response } = await requireCaller(req);
+      if (!caller) return response;
+      query = query.where("is_public", "=", false).where("author_id", "=", caller.id);
+    } else {
+      query = query.where("is_public", "=", true);
+    }
+
     if (name) {
       query = query.where(
-        db.fn("to_tsvector", ["english", "name"]),
-        "@@",
-        db.fn("plainto_tsquery", ["english", db.val(name)]),
-      ) as typeof query;
-    }
-    if (muscle && VALID_MUSCLES.includes(muscle)) {
-      query = query.where(
-        db.raw<boolean>("primary_muscles @> ARRAY[?]::muscle_group[]", [muscle]),
+        sql<boolean>`to_tsvector('english', name) @@ plainto_tsquery('english', ${name})`,
       );
     }
+    if (muscle && VALID_MUSCLES.includes(muscle)) {
+      query = query.where(sql<boolean>`primary_muscles @> ARRAY[${muscle}]::muscle_group[]`);
+    }
     if (authorId) query = query.where("author_id", "=", authorId);
-    if (isPublic === "true") query = query.where("is_public", "=", true);
-    else if (isPublic === "false") query = query.where("is_public", "=", false);
-    else query = query.where("is_public", "=", true); // default to public
 
     query = query.orderBy("name", "asc").limit(pageSize).offset(page * pageSize);
     return json(await query.execute());
   }
 
-  // ── GET /exercises/:id — public ───────────────────────────────────────────────
+  // ── GET /exercises/:id — public, private ones only for author / super ───────
   if (req.method === "GET" && id) {
     const exercise = await db
       .selectFrom("exercise")
@@ -98,13 +133,19 @@ Deno.serve(async (req: Request) => {
       .where("id", "=", id)
       .executeTakeFirst();
     if (!exercise) return jsonError("Exercise not found", 404);
+    if (!exercise.is_public) {
+      const caller = await optionalCaller(req);
+      if (!caller || (!isSuperUser(caller) && exercise.author_id !== caller.id)) {
+        return jsonError("Exercise not found", 404);
+      }
+    }
     return json(exercise);
   }
 
   // ── Auth wall ─────────────────────────────────────────────────────────────────
 
-  const { user, error: authError } = await requireAuth(req);
-  if (!user) return jsonError(authError ?? "Unauthorized", 401);
+  const { caller, response } = await requireCaller(req);
+  if (!caller) return response;
 
   // ── POST /exercises ────────────────────────────────────────────────────────────
   if (req.method === "POST" && !id) {
@@ -122,29 +163,15 @@ Deno.serve(async (req: Request) => {
 
     if (!name) return jsonError("Missing required field: name", 400);
 
-    const primaries: MuscleGroup[] = (primary_muscles ?? []).filter((m: string) =>
-      VALID_MUSCLES.includes(m as MuscleGroup)
-    );
-    const secondaries: MuscleGroup[] = (secondary_muscles ?? []).filter((m: string) =>
-      VALID_MUSCLES.includes(m as MuscleGroup)
-    );
-
-    // Resolve author_id from auth user
-    const dbUser = await db
-      .selectFrom("users")
-      .select(["id"])
-      .where("auth_id", "=", user.id)
-      .executeTakeFirst();
-
     const insert: ExerciseInsert = {
       name,
       description: description ?? null,
       note: note ?? null,
       image_url: image_url ?? null,
       video_url: video_url ?? null,
-      author_id: dbUser?.id ?? null,
-      primary_muscles: primaries,
-      secondary_muscles: secondaries,
+      author_id: caller.id,
+      primary_muscles: filterMuscles(primary_muscles),
+      secondary_muscles: filterMuscles(secondary_muscles),
       is_public: is_public ?? true,
     };
 
@@ -170,30 +197,23 @@ Deno.serve(async (req: Request) => {
       .where("id", "=", id)
       .executeTakeFirst();
     if (!existing) return jsonError("Exercise not found", 404);
+    if (!canEditAuthored(caller, existing.author_id)) return forbidden();
 
-    const dbUser = await db
-      .selectFrom("users")
-      .select(["id", "role"])
-      .where("auth_id", "=", user.id)
-      .executeTakeFirst();
+    const { name, description, note, image_url, video_url, primary_muscles, secondary_muscles, is_public } =
+      body;
 
-    if (existing.author_id && existing.author_id !== dbUser?.id && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
+    const update: ExerciseUpdate = {
+      ...(name !== undefined && { name }),
+      ...(description !== undefined && { description }),
+      ...(note !== undefined && { note }),
+      ...(image_url !== undefined && { image_url }),
+      ...(video_url !== undefined && { video_url }),
+      ...(primary_muscles !== undefined && { primary_muscles: filterMuscles(primary_muscles) }),
+      ...(secondary_muscles !== undefined && { secondary_muscles: filterMuscles(secondary_muscles) }),
+      ...(is_public !== undefined && { is_public }),
+      updated_at: new Date().toISOString(),
+    };
 
-    const { id: _id, author_id: _aid, created_at: _ca, ...fields } = body;
-    if (fields.primary_muscles) {
-      fields.primary_muscles = fields.primary_muscles.filter((m: string) =>
-        VALID_MUSCLES.includes(m as MuscleGroup)
-      );
-    }
-    if (fields.secondary_muscles) {
-      fields.secondary_muscles = fields.secondary_muscles.filter((m: string) =>
-        VALID_MUSCLES.includes(m as MuscleGroup)
-      );
-    }
-
-    const update: ExerciseUpdate = { ...fields, updated_at: new Date().toISOString() };
     const exercise = await db
       .updateTable("exercise")
       .set(update)
@@ -212,31 +232,19 @@ Deno.serve(async (req: Request) => {
       .where("id", "=", id)
       .executeTakeFirst();
     if (!existing) return jsonError("Exercise not found", 404);
-
-    const dbUser = await db
-      .selectFrom("users")
-      .select(["id", "role"])
-      .where("auth_id", "=", user.id)
-      .executeTakeFirst();
-
-    if (existing.author_id && existing.author_id !== dbUser?.id && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
+    if (!canEditAuthored(caller, existing.author_id)) return forbidden();
 
     await db.deleteFrom("exercise").where("id", "=", id).execute();
     return new Response(null, { status: 204 });
   }
 
   return jsonError("Not found", 404);
+}
+
+Deno.serve(async (req: Request) => {
+  try {
+    return await handler(req);
+  } catch (e) {
+    return pgErrorResponse(e, req.method);
+  }
 });
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}

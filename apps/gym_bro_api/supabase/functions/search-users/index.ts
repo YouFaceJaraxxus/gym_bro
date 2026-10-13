@@ -1,14 +1,6 @@
 import { sql } from "npm:kysely@^0.27";
-import { db, supabaseAdmin } from "../_shared/config.ts";
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
-
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
-}
+import { db } from "../_shared/config.ts";
+import { json, jsonError, requireAuth } from "../_shared/auth.ts";
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
@@ -99,14 +91,3 @@ Deno.serve(async (req: Request) => {
 
   return json(result.rows);
 });
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}

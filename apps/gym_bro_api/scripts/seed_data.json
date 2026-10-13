@@ -32,6 +32,56 @@
         6
       ],
       "logo_image_key": "shop-logo"
+    },
+    {
+      "name": "Summit Strength Collective",
+      "location": "1420 Larimer Street, Denver, CO 80202",
+      "type": "gym",
+      "working_hours_from": "05:00:00",
+      "working_hours_to": "22:00:00",
+      "working_weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "logo_image_key": "summit-gym-logo"
+    },
+    {
+      "name": "Coastal Barbell Club",
+      "location": "3311 Adams Avenue, San Diego, CA 92116",
+      "type": "gym",
+      "working_hours_from": "06:00:00",
+      "working_hours_to": "22:00:00",
+      "working_weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "logo_image_key": "coastal-gym-logo"
+    },
+    {
+      "name": "Trailhead Outdoor & Fitness Supply",
+      "location": "1500 Larimer Street, Denver, CO 80202",
+      "type": "shop",
+      "working_hours_from": "09:00:00",
+      "working_hours_to": "19:00:00",
+      "working_weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "logo_image_key": "trailhead-shop-logo"
     }
   ],
   "personas": [
@@ -41,7 +91,11 @@
       "first_name": "Marcus",
       "last_name": "Bennett",
       "role": "owner",
-      "avatar_key": "marcusbennett"
+      "avatar_key": "marcusbennett",
+      "businesses": [
+        "Ironclad Fitness",
+        "Peak Performance Supply Co."
+      ]
     },
     {
       "username": "elenavasquez",
@@ -49,7 +103,10 @@
       "first_name": "Elena",
       "last_name": "Vasquez",
       "role": "trainer",
-      "avatar_key": "elenavasquez"
+      "avatar_key": "elenavasquez",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
     },
     {
       "username": "jamalcarter",
@@ -57,7 +114,10 @@
       "first_name": "Jamal",
       "last_name": "Carter",
       "role": "trainer",
-      "avatar_key": "jamalcarter"
+      "avatar_key": "jamalcarter",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
     },
     {
       "username": "priyanair",
@@ -65,7 +125,10 @@
       "first_name": "Priya",
       "last_name": "Nair",
       "role": "employee",
-      "avatar_key": "priyanair"
+      "avatar_key": "priyanair",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
     },
     {
       "username": "tobiasschmidt",
@@ -73,7 +136,10 @@
       "first_name": "Tobias",
       "last_name": "Schmidt",
       "role": "employee",
-      "avatar_key": "tobiasschmidt"
+      "avatar_key": "tobiasschmidt",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
     },
     {
       "username": "aishamohammed",
@@ -81,7 +147,10 @@
       "first_name": "Aisha",
       "last_name": "Mohammed",
       "role": "employee_trainer",
-      "avatar_key": "aishamohammed"
+      "avatar_key": "aishamohammed",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
     },
     {
       "username": "liamoconnor",
@@ -89,7 +158,10 @@
       "first_name": "Liam",
       "last_name": "O'Connor",
       "role": "member",
-      "avatar_key": "liamoconnor"
+      "avatar_key": "liamoconnor",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
     },
     {
       "username": "sofiarossi",
@@ -97,7 +169,10 @@
       "first_name": "Sofia",
       "last_name": "Rossi",
       "role": "member",
-      "avatar_key": "sofiarossi"
+      "avatar_key": "sofiarossi",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
     },
     {
       "username": "kenjitanaka",
@@ -105,7 +180,10 @@
       "first_name": "Kenji",
       "last_name": "Tanaka",
       "role": "member",
-      "avatar_key": "kenjitanaka"
+      "avatar_key": "kenjitanaka",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
     },
     {
       "username": "graceokafor",
@@ -113,7 +191,10 @@
       "first_name": "Grace",
       "last_name": "Okafor",
       "role": "member",
-      "avatar_key": "graceokafor"
+      "avatar_key": "graceokafor",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
     },
     {
       "username": "danielkim",
@@ -121,7 +202,10 @@
       "first_name": "Daniel",
       "last_name": "Kim",
       "role": "member",
-      "avatar_key": "danielkim"
+      "avatar_key": "danielkim",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
     },
     {
       "username": "nataliapetrova",
@@ -129,7 +213,10 @@
       "first_name": "Natalia",
       "last_name": "Petrova",
       "role": "member",
-      "avatar_key": "nataliapetrova"
+      "avatar_key": "nataliapetrova",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
     },
     {
       "username": "ravideshmukh",
@@ -137,7 +224,10 @@
       "first_name": "Ravi",
       "last_name": "Deshmukh",
       "role": "shop_vendor",
-      "avatar_key": "ravideshmukh"
+      "avatar_key": "ravideshmukh",
+      "businesses": [
+        "Peak Performance Supply Co."
+      ]
     },
     {
       "username": "chloeanderson",
@@ -145,7 +235,229 @@
       "first_name": "Chloe",
       "last_name": "Anderson",
       "role": "super_user",
-      "avatar_key": "chloeanderson"
+      "avatar_key": "chloeanderson",
+      "businesses": []
+    },
+    {
+      "username": "hannahkessler",
+      "email": "hannah.kessler@example.com",
+      "first_name": "Hannah",
+      "last_name": "Kessler",
+      "role": "owner",
+      "avatar_key": "hannahkessler",
+      "businesses": [
+        "Summit Strength Collective",
+        "Trailhead Outdoor & Fitness Supply"
+      ]
+    },
+    {
+      "username": "beckymorrison",
+      "email": "becky.morrison@example.com",
+      "first_name": "Becky",
+      "last_name": "Morrison",
+      "role": "trainer",
+      "avatar_key": "beckymorrison",
+      "businesses": [
+        "Summit Strength Collective"
+      ]
+    },
+    {
+      "username": "tysonwalker",
+      "email": "tyson.walker@example.com",
+      "first_name": "Tyson",
+      "last_name": "Walker",
+      "role": "employee",
+      "avatar_key": "tysonwalker",
+      "businesses": [
+        "Summit Strength Collective"
+      ]
+    },
+    {
+      "username": "imaninewsome",
+      "email": "imani.newsome@example.com",
+      "first_name": "Imani",
+      "last_name": "Newsome",
+      "role": "employee_trainer",
+      "avatar_key": "imaninewsome",
+      "businesses": [
+        "Summit Strength Collective"
+      ]
+    },
+    {
+      "username": "camillewright",
+      "email": "camille.wright@example.com",
+      "first_name": "Camille",
+      "last_name": "Wright",
+      "role": "shop_vendor",
+      "avatar_key": "camillewright",
+      "businesses": [
+        "Trailhead Outdoor & Fitness Supply"
+      ]
+    },
+    {
+      "username": "andrewfoster",
+      "email": "andrew.foster@example.com",
+      "first_name": "Andrew",
+      "last_name": "Foster",
+      "role": "owner",
+      "avatar_key": "andrewfoster",
+      "businesses": [
+        "Coastal Barbell Club"
+      ]
+    },
+    {
+      "username": "renataalves",
+      "email": "renata.alves@example.com",
+      "first_name": "Renata",
+      "last_name": "Alves",
+      "role": "trainer",
+      "avatar_key": "renataalves",
+      "businesses": [
+        "Coastal Barbell Club"
+      ]
+    },
+    {
+      "username": "jordanpark",
+      "email": "jordan.park@example.com",
+      "first_name": "Jordan",
+      "last_name": "Park",
+      "role": "employee",
+      "avatar_key": "jordanpark",
+      "businesses": [
+        "Coastal Barbell Club"
+      ]
+    },
+    {
+      "username": "victorhuang",
+      "email": "victor.huang@example.com",
+      "first_name": "Victor",
+      "last_name": "Huang",
+      "role": "member",
+      "avatar_key": "victorhuang",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
+    },
+    {
+      "username": "ingridlarsen",
+      "email": "ingrid.larsen@example.com",
+      "first_name": "Ingrid",
+      "last_name": "Larsen",
+      "role": "member",
+      "avatar_key": "ingridlarsen",
+      "businesses": [
+        "Ironclad Fitness"
+      ]
+    },
+    {
+      "username": "mayaflores",
+      "email": "maya.flores@example.com",
+      "first_name": "Maya",
+      "last_name": "Flores",
+      "role": "member",
+      "avatar_key": "mayaflores",
+      "businesses": [
+        "Summit Strength Collective"
+      ]
+    },
+    {
+      "username": "ethanbrooks",
+      "email": "ethan.brooks@example.com",
+      "first_name": "Ethan",
+      "last_name": "Brooks",
+      "role": "member",
+      "avatar_key": "ethanbrooks",
+      "businesses": [
+        "Summit Strength Collective"
+      ]
+    },
+    {
+      "username": "zoeharrington",
+      "email": "zoe.harrington@example.com",
+      "first_name": "Zoe",
+      "last_name": "Harrington",
+      "role": "member",
+      "avatar_key": "zoeharrington",
+      "businesses": [
+        "Summit Strength Collective"
+      ]
+    },
+    {
+      "username": "lucasferreira",
+      "email": "lucas.ferreira@example.com",
+      "first_name": "Lucas",
+      "last_name": "Ferreira",
+      "role": "member",
+      "avatar_key": "lucasferreira",
+      "businesses": [
+        "Summit Strength Collective"
+      ]
+    },
+    {
+      "username": "isabelgomez",
+      "email": "isabel.gomez@example.com",
+      "first_name": "Isabel",
+      "last_name": "Gomez",
+      "role": "member",
+      "avatar_key": "isabelgomez",
+      "businesses": [
+        "Summit Strength Collective"
+      ]
+    },
+    {
+      "username": "oliviamercer",
+      "email": "olivia.mercer@example.com",
+      "first_name": "Olivia",
+      "last_name": "Mercer",
+      "role": "member",
+      "avatar_key": "oliviamercer",
+      "businesses": [
+        "Coastal Barbell Club"
+      ]
+    },
+    {
+      "username": "noahsullivan",
+      "email": "noah.sullivan@example.com",
+      "first_name": "Noah",
+      "last_name": "Sullivan",
+      "role": "member",
+      "avatar_key": "noahsullivan",
+      "businesses": [
+        "Coastal Barbell Club"
+      ]
+    },
+    {
+      "username": "ameliachang",
+      "email": "amelia.chang@example.com",
+      "first_name": "Amelia",
+      "last_name": "Chang",
+      "role": "member",
+      "avatar_key": "ameliachang",
+      "businesses": [
+        "Coastal Barbell Club"
+      ]
+    },
+    {
+      "username": "gabrielsantos",
+      "email": "gabriel.santos@example.com",
+      "first_name": "Gabriel",
+      "last_name": "Santos",
+      "role": "member",
+      "avatar_key": "gabrielsantos",
+      "businesses": [
+        "Coastal Barbell Club"
+      ]
+    },
+    {
+      "username": "harperreyes",
+      "email": "harper.reyes@example.com",
+      "first_name": "Harper",
+      "last_name": "Reyes",
+      "role": "member",
+      "avatar_key": "harperreyes",
+      "businesses": [
+        "Coastal Barbell Club"
+      ]
     }
   ],
   "exercises": [
@@ -160,7 +472,8 @@
       "secondary_muscles": [
         "hamstrings",
         "abs_lower"
-      ]
+      ],
+      "default_weight_kg": 80
     },
     {
       "name": "Conventional Deadlift",
@@ -175,7 +488,8 @@
         "quads_all",
         "back_traps",
         "forearms_all"
-      ]
+      ],
+      "default_weight_kg": 100
     },
     {
       "name": "Barbell Bench Press",
@@ -187,7 +501,8 @@
       "secondary_muscles": [
         "triceps_all",
         "delts_front"
-      ]
+      ],
+      "default_weight_kg": 60
     },
     {
       "name": "Pull-Up",
@@ -199,7 +514,8 @@
       "secondary_muscles": [
         "biceps",
         "back_mid"
-      ]
+      ],
+      "default_weight_kg": null
     },
     {
       "name": "Overhead Press",
@@ -211,18 +527,20 @@
       "secondary_muscles": [
         "triceps_all",
         "abs_upper"
-      ]
+      ],
+      "default_weight_kg": 40
     },
     {
       "name": "Dumbbell Bicep Curl",
       "description": "An isolation exercise that flexes the elbow to curl a pair of dumbbells from the thighs up to shoulder height.",
-      "note": "Avoid swinging the weight — let the biceps do the work.",
+      "note": "Avoid swinging the weight \u2014 let the biceps do the work.",
       "primary_muscles": [
         "biceps"
       ],
       "secondary_muscles": [
         "forearms_all"
-      ]
+      ],
+      "default_weight_kg": 12
     },
     {
       "name": "Cable Tricep Pushdown",
@@ -233,7 +551,8 @@
       ],
       "secondary_muscles": [
         "forearms_top"
-      ]
+      ],
+      "default_weight_kg": 25
     },
     {
       "name": "Leg Press",
@@ -245,7 +564,8 @@
       "secondary_muscles": [
         "glutes_maximus",
         "hamstrings"
-      ]
+      ],
+      "default_weight_kg": 120
     },
     {
       "name": "Romanian Deadlift",
@@ -257,7 +577,8 @@
       ],
       "secondary_muscles": [
         "back_lower"
-      ]
+      ],
+      "default_weight_kg": 70
     },
     {
       "name": "Plank",
@@ -269,7 +590,8 @@
       ],
       "secondary_muscles": [
         "abs_obliques"
-      ]
+      ],
+      "default_weight_kg": null
     },
     {
       "name": "Lat Pulldown",
@@ -281,7 +603,8 @@
       "secondary_muscles": [
         "biceps",
         "back_mid"
-      ]
+      ],
+      "default_weight_kg": 50
     },
     {
       "name": "One-Arm Dumbbell Row",
@@ -294,7 +617,8 @@
       "secondary_muscles": [
         "biceps",
         "delts_rear"
-      ]
+      ],
+      "default_weight_kg": 20
     },
     {
       "name": "Walking Lunges",
@@ -307,7 +631,8 @@
       "secondary_muscles": [
         "hamstrings",
         "calves"
-      ]
+      ],
+      "default_weight_kg": 14
     },
     {
       "name": "Barbell Hip Thrust",
@@ -319,7 +644,8 @@
       "secondary_muscles": [
         "hamstrings",
         "quads_all"
-      ]
+      ],
+      "default_weight_kg": 60
     },
     {
       "name": "Face Pull",
@@ -331,7 +657,8 @@
       "secondary_muscles": [
         "back_traps",
         "back_rhomboids"
-      ]
+      ],
+      "default_weight_kg": 18
     },
     {
       "name": "Standing Calf Raise",
@@ -340,7 +667,8 @@
       "primary_muscles": [
         "calves"
       ],
-      "secondary_muscles": []
+      "secondary_muscles": [],
+      "default_weight_kg": 40
     },
     {
       "name": "Incline Dumbbell Press",
@@ -352,7 +680,8 @@
       "secondary_muscles": [
         "delts_front",
         "triceps_all"
-      ]
+      ],
+      "default_weight_kg": 22
     },
     {
       "name": "Cable Chest Fly",
@@ -363,7 +692,8 @@
       ],
       "secondary_muscles": [
         "delts_front"
-      ]
+      ],
+      "default_weight_kg": 20
     },
     {
       "name": "Seated Cable Row",
@@ -375,7 +705,8 @@
       "secondary_muscles": [
         "back_lats",
         "biceps"
-      ]
+      ],
+      "default_weight_kg": 45
     },
     {
       "name": "Dumbbell Lateral Raise",
@@ -386,7 +717,8 @@
       ],
       "secondary_muscles": [
         "delts_front"
-      ]
+      ],
+      "default_weight_kg": 8
     },
     {
       "name": "Hammer Curl",
@@ -397,7 +729,8 @@
       ],
       "secondary_muscles": [
         "forearms_all"
-      ]
+      ],
+      "default_weight_kg": 12
     },
     {
       "name": "Lying Tricep Extension (Skull Crusher)",
@@ -406,19 +739,21 @@
       "primary_muscles": [
         "triceps_all"
       ],
-      "secondary_muscles": []
+      "secondary_muscles": [],
+      "default_weight_kg": 20
     },
     {
       "name": "Hanging Leg Raise",
       "description": "A core exercise hanging from a pull-up bar and raising the legs toward the torso using the lower abdominals.",
-      "note": "Avoid swinging — control the movement on the way down too.",
+      "note": "Avoid swinging \u2014 control the movement on the way down too.",
       "primary_muscles": [
         "abs_lower"
       ],
       "secondary_muscles": [
         "abs_obliques",
         "forearms_all"
-      ]
+      ],
+      "default_weight_kg": null
     },
     {
       "name": "Bulgarian Split Squat",
@@ -430,7 +765,8 @@
       ],
       "secondary_muscles": [
         "hamstrings"
-      ]
+      ],
+      "default_weight_kg": 16
     }
   ],
   "trainings": [
@@ -1364,7 +1700,7 @@
         }
       ],
       "steps": [
-        "Preheat the oven to 200°C (400°F).",
+        "Preheat the oven to 200\u00b0C (400\u00b0F).",
         "Toss the broccoli and carrots with olive oil, salt, and pepper on a sheet pan.",
         "Nestle the salmon fillets among the vegetables and season them as well.",
         "Roast for 18-20 minutes until the salmon flakes easily and vegetables are tender.",
@@ -1452,7 +1788,7 @@
       ],
       "steps": [
         "Whisk the eggs with a pinch of salt.",
-        "Heat the olive oil in a non-stick pan over medium heat and sauté the spinach and pepper for 2-3 minutes.",
+        "Heat the olive oil in a non-stick pan over medium heat and saut\u00e9 the spinach and pepper for 2-3 minutes.",
         "Pour the eggs over the vegetables and let them set around the edges.",
         "Fold the omelette in half once mostly set and cook for another minute.",
         "Slide onto a plate and serve."
@@ -1965,126 +2301,208 @@
       "description": "Fast-absorbing whey protein isolate with 25g of protein per scoop, low in lactose and fat.",
       "type": "supplement",
       "price": 44.99,
-      "quantity": 60
+      "quantity": 60,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Creatine Monohydrate - 300g",
       "description": "Micronized creatine monohydrate powder for strength, power, and muscle recovery support.",
       "type": "supplement",
       "price": 19.99,
-      "quantity": 85
+      "quantity": 85,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Pre-Workout Formula - 30 Servings",
       "description": "Energy and focus blend with caffeine, beta-alanine, and citrulline malate for high-intensity training.",
       "type": "supplement",
       "price": 34.99,
-      "quantity": 45
+      "quantity": 45,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "BCAA Powder - Watermelon",
       "description": "Branched-chain amino acid powder to support recovery and reduce muscle soreness during training blocks.",
       "type": "supplement",
       "price": 27.99,
-      "quantity": 50
+      "quantity": 50,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Daily Multivitamin - 90 Capsules",
       "description": "A full-spectrum daily multivitamin formulated for active adults, covering key vitamins and minerals.",
       "type": "supplement",
       "price": 15.99,
-      "quantity": 70
+      "quantity": 70,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Fish Oil Omega-3 Softgels - 120ct",
       "description": "Purified fish oil softgels delivering EPA and DHA to support joint and cardiovascular health.",
       "type": "supplement",
       "price": 21.99,
-      "quantity": 55
+      "quantity": 55,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Casein Protein - Night-Time - 2lb",
       "description": "Slow-digesting micellar casein protein designed for overnight muscle recovery.",
       "type": "supplement",
       "price": 39.99,
-      "quantity": 40
+      "quantity": 40,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Resistance Bands Set",
       "description": "A set of five color-coded resistance bands with varying tension levels for strength and mobility work.",
       "type": "equipment",
       "price": 24.99,
-      "quantity": 65
+      "quantity": 65,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Premium Yoga Mat",
       "description": "A 6mm-thick non-slip yoga mat suitable for stretching, mobility, and floor exercises.",
       "type": "equipment",
       "price": 32.99,
-      "quantity": 40
+      "quantity": 40,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Leather Lifting Straps",
       "description": "Durable leather wrist straps that improve grip on heavy pulling movements like deadlifts and rows.",
       "type": "equipment",
       "price": 16.99,
-      "quantity": 50
+      "quantity": 50,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Padded Gym Gloves",
       "description": "Breathable weightlifting gloves with palm padding to reduce callusing and improve bar grip.",
       "type": "equipment",
       "price": 18.99,
-      "quantity": 60
+      "quantity": 60,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "High-Density Foam Roller",
       "description": "A firm foam roller for self-myofascial release and post-workout muscle recovery.",
       "type": "equipment",
       "price": 22.99,
-      "quantity": 45
+      "quantity": 45,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Insulated Steel Water Bottle - 32oz",
       "description": "A double-wall insulated stainless steel bottle that keeps drinks cold for up to 24 hours.",
       "type": "equipment",
       "price": 26.99,
-      "quantity": 75
+      "quantity": 75,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Ironclad Gym Duffel Bag",
       "description": "A spacious gym duffel bag with a separate ventilated shoe compartment and wet-gear pocket.",
       "type": "equipment",
       "price": 49.99,
-      "quantity": 30
+      "quantity": 30,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Speed Jump Rope",
       "description": "An adjustable-length speed rope with ball-bearing handles for cardio and conditioning work.",
       "type": "equipment",
       "price": 14.99,
-      "quantity": 55
+      "quantity": 55,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "Gym Chalk Block - 8 Pack",
       "description": "Blocks of magnesium carbonate chalk to improve grip security during heavy lifts.",
       "type": "equipment",
       "price": 12.99,
-      "quantity": 80
+      "quantity": 80,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "$25 Gift Card",
       "description": "A $25 gift card redeemable for any product or membership add-on in the shop.",
       "type": "gift_card",
       "price": 25.0,
-      "quantity": 100
+      "quantity": 100,
+      "shop_name": "Peak Performance Supply Co."
     },
     {
       "name": "$50 Gift Card",
       "description": "A $50 gift card redeemable for any product or membership add-on in the shop.",
       "type": "gift_card",
       "price": 50.0,
-      "quantity": 100
+      "quantity": 100,
+      "shop_name": "Peak Performance Supply Co."
+    },
+    {
+      "name": "Trail Running Hydration Vest",
+      "description": "Lightweight running vest with a 1.5L reservoir and stash pockets for gels and layers.",
+      "type": "equipment",
+      "price": 79.99,
+      "quantity": 25,
+      "shop_name": "Trailhead Outdoor & Fitness Supply"
+    },
+    {
+      "name": "Electrolyte Hydration Mix - Citrus - 20 Servings",
+      "description": "Fast-mixing electrolyte powder built for long efforts at altitude.",
+      "type": "supplement",
+      "price": 22.99,
+      "quantity": 60,
+      "shop_name": "Trailhead Outdoor & Fitness Supply"
+    },
+    {
+      "name": "Merino Wool Trail Socks - 3 Pack",
+      "description": "Cushioned merino blend socks that regulate temperature on long trail days.",
+      "type": "equipment",
+      "price": 28.99,
+      "quantity": 40,
+      "shop_name": "Trailhead Outdoor & Fitness Supply"
+    },
+    {
+      "name": "Collapsible Trekking Poles",
+      "description": "Carbon-fiber trekking poles that collapse to fit in a daypack.",
+      "type": "equipment",
+      "price": 64.99,
+      "quantity": 20,
+      "shop_name": "Trailhead Outdoor & Fitness Supply"
+    },
+    {
+      "name": "Altitude Training Mask",
+      "description": "Adjustable resistance breathing mask for simulated high-altitude conditioning.",
+      "type": "equipment",
+      "price": 39.99,
+      "quantity": 15,
+      "shop_name": "Trailhead Outdoor & Fitness Supply"
+    },
+    {
+      "name": "Plant-Based Protein Powder - Vanilla - 2lb",
+      "description": "Pea and rice protein blend with 22g of protein per scoop, dairy-free.",
+      "type": "supplement",
+      "price": 36.99,
+      "quantity": 45,
+      "shop_name": "Trailhead Outdoor & Fitness Supply"
+    },
+    {
+      "name": "Insulated Camp Mug - 20oz",
+      "description": "Double-wall stainless mug that keeps coffee hot on cold trailhead mornings.",
+      "type": "equipment",
+      "price": 19.99,
+      "quantity": 55,
+      "shop_name": "Trailhead Outdoor & Fitness Supply"
+    },
+    {
+      "name": "Trailhead $25 Gift Card",
+      "description": "Gift card redeemable on any product at Trailhead Outdoor & Fitness Supply.",
+      "type": "gift_card",
+      "price": 25.0,
+      "quantity": 999,
+      "shop_name": "Trailhead Outdoor & Fitness Supply"
     }
   ],
   "posts": [
@@ -2095,7 +2513,7 @@
     },
     {
       "author_persona_username": "elenavasquez",
-      "content": "Happy Monday! Remember, consistency beats intensity every single time. Show up today even if it's just for twenty minutes — future you will thank you.",
+      "content": "Happy Monday! Remember, consistency beats intensity every single time. Show up today even if it's just for twenty minutes \u2014 future you will thank you.",
       "has_image": false
     },
     {
@@ -2105,7 +2523,7 @@
     },
     {
       "author_persona_username": "priyanair",
-      "content": "Heads up — the 6:30am spin class on Tuesdays is moving to 7:00am starting next week to make room for a new mobility class. Full updated schedule is posted at the front desk.",
+      "content": "Heads up \u2014 the 6:30am spin class on Tuesdays is moving to 7:00am starting next week to make room for a new mobility class. Full updated schedule is posted at the front desk.",
       "has_image": false
     },
     {
@@ -2130,7 +2548,7 @@
     },
     {
       "author_persona_username": "jamalcarter",
-      "content": "Friendly reminder to re-rack your weights and wipe down equipment after use — small habit, huge difference for everyone training around you.",
+      "content": "Friendly reminder to re-rack your weights and wipe down equipment after use \u2014 small habit, huge difference for everyone training around you.",
       "has_image": false
     },
     {
@@ -2150,7 +2568,7 @@
     },
     {
       "author_persona_username": "tobiasschmidt",
-      "content": "Gift cards are 10% off for the rest of the month — a great excuse to treat a friend or family member to their first month at Ironclad.",
+      "content": "Gift cards are 10% off for the rest of the month \u2014 a great excuse to treat a friend or family member to their first month at Ironclad.",
       "has_image": false
     },
     {
@@ -2167,6 +2585,56 @@
       "author_persona_username": "elenavasquez",
       "content": "Progress isn't always visible on the scale. Better sleep, more energy, and lifting heavier than last month all count. Keep going.",
       "has_image": false
+    },
+    {
+      "author_persona_username": "hannahkessler",
+      "content": "Summit Strength Collective is officially open in LoDo! Come tour the new strength floor and grab a free protein shake this weekend.",
+      "has_image": true
+    },
+    {
+      "author_persona_username": "beckymorrison",
+      "content": "Altitude makes everything feel harder here in Denver \u2014 give yourself an extra rep of rest between heavy sets and trust the process.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "tysonwalker",
+      "content": "Reminder: the 6am and 7am strength classes are now capped at 12 people so book your spot on the app ahead of time.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "imaninewsome",
+      "content": "Loved coaching the beginner squat clinic today. Depth over ego, every single time \u2014 proud of everyone who showed up.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "andrewfoster",
+      "content": "Coastal Barbell Club now has ocean-view cardio bays on the second floor. Best sunrise treadmill session in San Diego, guaranteed.",
+      "has_image": true
+    },
+    {
+      "author_persona_username": "renataalves",
+      "content": "Programming note: deload week starts Monday for anyone running Push Pull Legs with us. Trust the lighter loads, your joints will thank you.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "jordanpark",
+      "content": "Heads up \u2014 parking lot resurfacing runs through Friday, please use the side entrance on Adams Avenue during that time.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "camillewright",
+      "content": "New hydration vests just landed at Trailhead \u2014 perfect timing before the fall trail race season kicks off.",
+      "has_image": true
+    },
+    {
+      "author_persona_username": "hannahkessler",
+      "content": "Mile-high training tip: hydrate more than you think you need to. Water bottle refill stations are on every floor.",
+      "has_image": false
+    },
+    {
+      "author_persona_username": "andrewfoster",
+      "content": "Thank you to everyone who came out for our founders' week open house. Coastal Barbell Club would be nothing without this community.",
+      "has_image": true
     }
   ]
 }

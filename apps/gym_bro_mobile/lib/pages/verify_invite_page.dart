@@ -4,7 +4,11 @@ import '../services/auth_manager.dart';
 import '../services/auth_service.dart';
 
 class VerifyInvitePage extends StatefulWidget {
-  const VerifyInvitePage({super.key});
+  const VerifyInvitePage({super.key, this.initialEmail});
+
+  /// Prefills the email field (e.g. when coming from signup with a pending
+  /// invite).
+  final String? initialEmail;
 
   @override
   State<VerifyInvitePage> createState() => _VerifyInvitePageState();
@@ -12,7 +16,7 @@ class VerifyInvitePage extends StatefulWidget {
 
 class _VerifyInvitePageState extends State<VerifyInvitePage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
+  late final _emailCtrl = TextEditingController(text: widget.initialEmail);
   final _codeCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
@@ -167,7 +171,7 @@ class _VerifyInvitePageState extends State<VerifyInvitePage> {
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Back to login'),
+                child: const Text('Back'),
               ),
             ],
           ),

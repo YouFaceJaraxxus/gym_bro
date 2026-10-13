@@ -147,10 +147,11 @@ class _GymEmployeesPageState extends State<GymEmployeesPage> {
               : 'employee',
           user: entry.user,
           gymName: widget.gymName,
+          gymId: widget.gymId,
         ),
       ),
     );
-    if (result == 'removed') _load();
+    if (result == 'removed' || result == 'changed') _load();
   }
 
   @override

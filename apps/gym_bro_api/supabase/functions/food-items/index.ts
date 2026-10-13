@@ -1,6 +1,17 @@
-import { db, supabaseAdmin } from "../_shared/config.ts";
-import { sql } from "npm:kysely@^0.27";
+import { type Kysely, sql } from "npm:kysely@^0.27";
+import { db } from "../_shared/config.ts";
+import {
+  type Caller,
+  canEditAuthored,
+  coachesUser,
+  forbidden,
+  isSuperUser,
+  json,
+  jsonError,
+  requireCaller,
+} from "../_shared/auth.ts";
 import type {
+  Database,
   FoodItemInsert,
   FoodItemUpdate,
   FoodItemType,
@@ -78,13 +89,80 @@ const VALID_SPICE_SUBTYPES: SpiceSubtype[] = [
 
 const VALID_SERVING_UNITS: ServingUnit[] = ["g", "ml"];
 
+const EDITABLE_FIELDS = [
+  "name",
+  "brand",
+  "barcode",
+  "type",
+  "food_subtype",
+  "drink_subtype",
+  "spice_subtype",
+  "serving_unit",
+  "kcal_per_100",
+  "protein_per_100",
+  "carb_per_100",
+  "fat_per_100",
+  "fiber_per_100",
+  "is_public",
+] as const;
+
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
+/** Reads are public; resolve the caller only when a token was sent. */
+async function optionalCaller(req: Request): Promise<Caller | null> {
+  if (!req.headers.get("Authorization")) return null;
+  const { caller } = await requireCaller(req);
+  return caller ?? null;
+}
+
+/** System items are super-user only; everything else follows canEditAuthored. */
+function canEditFoodItem(caller: Caller, item: { author_id: string | null; is_system: boolean }): boolean {
+  if (item.is_system && !isSuperUser(caller)) return false;
+  return canEditAuthored(caller, item.author_id);
+}
+
+/**
+ * True when the caller was assigned one of these meal plans, or coaches
+ * someone who was. Grants read access to private plans and the daily plans,
+ * recipes and food items they reference.
+ */
+async function callerHasAssignedAccessToMealPlan(
+  caller: Caller,
+  mealPlanId: string | string[],
+): Promise<boolean> {
+  const ids = [...new Set(Array.isArray(mealPlanId) ? mealPlanId : [mealPlanId])];
+  if (!ids.length) return false;
+  const rows = await db
+    .selectFrom("meal_plan_assignment")
+    .select("user_id")
+    .where("meal_plan_id", "in", ids)
+    .execute();
+  const targets = [...new Set(rows.map((r) => r.user_id))];
+  if (targets.includes(caller.id)) return true;
+  for (const target of targets) {
+    if (await coachesUser(caller, target)) return true;
+  }
+  return false;
+}
+
+/** Meal plans whose days contain this food item, directly or via a recipe. */
+async function mealPlansUsingFoodItem(foodItemId: string): Promise<string[]> {
+  const direct = await db
+    .selectFrom("daily_meal_plan_slot_entry")
+    .innerJoin("daily_meal_plan_slot", "daily_meal_plan_slot.id", "daily_meal_plan_slot_entry.daily_meal_plan_slot_id")
+    .innerJoin("meal_plan_day", "meal_plan_day.daily_meal_plan_id", "daily_meal_plan_slot.daily_meal_plan_id")
+    .select("meal_plan_day.meal_plan_id")
+    .where("daily_meal_plan_slot_entry.food_item_id", "=", foodItemId)
+    .execute();
+  const viaRecipe = await db
+    .selectFrom("recipe_ingredient")
+    .innerJoin("daily_meal_plan_slot_entry", "daily_meal_plan_slot_entry.recipe_id", "recipe_ingredient.recipe_id")
+    .innerJoin("daily_meal_plan_slot", "daily_meal_plan_slot.id", "daily_meal_plan_slot_entry.daily_meal_plan_slot_id")
+    .innerJoin("meal_plan_day", "meal_plan_day.daily_meal_plan_id", "daily_meal_plan_slot.daily_meal_plan_id")
+    .select("meal_plan_day.meal_plan_id")
+    .where("recipe_ingredient.food_item_id", "=", foodItemId)
+    .execute();
+  return [...direct, ...viaRecipe].map((r) => r.meal_plan_id);
 }
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
@@ -190,11 +268,11 @@ async function fetchFoodItemDetail(id: string) {
   };
 }
 
-// ── Replace nested vitamins/minerals ─────────────────────────────────────────
+// ── Replace nested vitamins/minerals (always inside a transaction) ───────────
 
 // deno-lint-ignore no-explicit-any
-async function replaceFoodItemVitamins(foodItemId: string, vitamins: any[]) {
-  await db.deleteFrom("food_item_vitamin").where("food_item_id", "=", foodItemId).execute();
+async function replaceFoodItemVitamins(trx: Kysely<Database>, foodItemId: string, vitamins: any[]) {
+  await trx.deleteFrom("food_item_vitamin").where("food_item_id", "=", foodItemId).execute();
   const rows = vitamins
     .filter((v) => v?.vitamin_id)
     .map((v) => ({
@@ -203,12 +281,12 @@ async function replaceFoodItemVitamins(foodItemId: string, vitamins: any[]) {
       amount_per_100: v.amount_per_100 ?? 0,
       unit: v.unit ?? null,
     }));
-  if (rows.length) await db.insertInto("food_item_vitamin").values(rows).execute();
+  if (rows.length) await trx.insertInto("food_item_vitamin").values(rows).execute();
 }
 
 // deno-lint-ignore no-explicit-any
-async function replaceFoodItemMinerals(foodItemId: string, minerals: any[]) {
-  await db.deleteFrom("food_item_mineral").where("food_item_id", "=", foodItemId).execute();
+async function replaceFoodItemMinerals(trx: Kysely<Database>, foodItemId: string, minerals: any[]) {
+  await trx.deleteFrom("food_item_mineral").where("food_item_id", "=", foodItemId).execute();
   const rows = minerals
     .filter((m) => m?.mineral_id)
     .map((m) => ({
@@ -217,12 +295,31 @@ async function replaceFoodItemMinerals(foodItemId: string, minerals: any[]) {
       amount_per_100: m.amount_per_100 ?? 0,
       unit: m.unit ?? null,
     }));
-  if (rows.length) await db.insertInto("food_item_mineral").values(rows).execute();
+  if (rows.length) await trx.insertInto("food_item_mineral").values(rows).execute();
+}
+
+// ── Postgres error mapping ────────────────────────────────────────────────────
+
+function pgErrorResponse(e: unknown, method: string): Response {
+  const err = e as { code?: string; message?: string; detail?: string } | null;
+  switch (err?.code) {
+    case "23505":
+      return jsonError("Already exists", 409, { detail: err.detail });
+    case "23503":
+      return method === "DELETE"
+        ? jsonError("Food item is used by a recipe or meal plan and can't be deleted", 409)
+        : jsonError("Referenced vitamin or mineral does not exist", 400, { detail: err.detail });
+    case "23502":
+    case "23514":
+    case "22P02":
+      return jsonError(err.message ?? "Invalid value", 400);
+  }
+  throw e;
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-Deno.serve(async (req: Request) => {
+async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const id = parseId(url.pathname);
 
@@ -237,14 +334,10 @@ Deno.serve(async (req: Request) => {
     let query = db.selectFrom("food_item").select(FOOD_ITEM_COLS);
 
     if (mine) {
-      const { user } = await requireAuth(req);
-      if (!user) return jsonError("Unauthorized", 401);
-      const dbUser = await db
-        .selectFrom("users")
-        .select(["id"])
-        .where("auth_id", "=", user.id)
-        .executeTakeFirst();
-      if (dbUser) query = query.where("author_id", "=", dbUser.id);
+      // Never fall through to an unfiltered query when the profile is missing.
+      const { caller } = await requireCaller(req);
+      if (!caller) return jsonError("Unauthorized", 401);
+      query = query.where("author_id", "=", caller.id);
     } else {
       query = query.where("is_public", "=", true);
     }
@@ -265,30 +358,21 @@ Deno.serve(async (req: Request) => {
     const detail = await fetchFoodItemDetail(id);
     if (!detail) return jsonError("Food item not found", 404);
     if (!detail.is_public) {
-      const { user } = await requireAuth(req);
-      if (!user) return jsonError("Not found", 404);
-      const dbUser = await db
-        .selectFrom("users")
-        .select(["id", "role"])
-        .where("auth_id", "=", user.id)
-        .executeTakeFirst();
-      if (detail.author_id !== dbUser?.id && dbUser?.role !== "super_user") {
-        return jsonError("Not found", 404);
-      }
+      // Private items: author, super, or assigned access to a meal plan using it.
+      const caller = await optionalCaller(req);
+      const allowed = caller !== null && (
+        isSuperUser(caller) || detail.author_id === caller.id ||
+        (await callerHasAssignedAccessToMealPlan(caller, await mealPlansUsingFoodItem(id)))
+      );
+      if (!allowed) return jsonError("Food item not found", 404);
     }
     return json(detail);
   }
 
   // ── Auth wall ─────────────────────────────────────────────────────────────────
 
-  const { user, error: authError } = await requireAuth(req);
-  if (!user) return jsonError(authError ?? "Unauthorized", 401);
-
-  const dbUser = await db
-    .selectFrom("users")
-    .select(["id", "role"])
-    .where("auth_id", "=", user.id)
-    .executeTakeFirst();
+  const { caller, response } = await requireCaller(req);
+  if (!caller) return response;
 
   // ── POST /food-items ───────────────────────────────────────────────────────────
   if (req.method === "POST" && !id) {
@@ -317,43 +401,42 @@ Deno.serve(async (req: Request) => {
     const subtypeError = validateSubtypes(type, food_subtype, drink_subtype, spice_subtype);
     if (subtypeError) return jsonError(subtypeError, 400);
 
-    try {
-      const insert: FoodItemInsert = {
-        name,
-        brand: brand ?? null,
-        barcode: barcode ?? null,
-        type,
-        food_subtype: food_subtype ?? null,
-        drink_subtype: drink_subtype ?? null,
-        spice_subtype: spice_subtype ?? null,
-        serving_unit: VALID_SERVING_UNITS.includes(serving_unit) ? serving_unit : "g",
-        kcal_per_100: kcal_per_100 ?? 0,
-        protein_per_100: protein_per_100 ?? 0,
-        carb_per_100: carb_per_100 ?? 0,
-        fat_per_100: fat_per_100 ?? 0,
-        fiber_per_100: fiber_per_100 ?? 0,
-        author_id: dbUser?.id ?? null,
-        is_public: is_public ?? true,
-      };
+    const insert: FoodItemInsert = {
+      name,
+      brand: brand ?? null,
+      barcode: barcode ?? null,
+      type,
+      food_subtype: food_subtype ?? null,
+      drink_subtype: drink_subtype ?? null,
+      spice_subtype: spice_subtype ?? null,
+      serving_unit: VALID_SERVING_UNITS.includes(serving_unit) ? serving_unit : "g",
+      kcal_per_100: kcal_per_100 ?? 0,
+      protein_per_100: protein_per_100 ?? 0,
+      carb_per_100: carb_per_100 ?? 0,
+      fat_per_100: fat_per_100 ?? 0,
+      fiber_per_100: fiber_per_100 ?? 0,
+      author_id: caller.id,
+      is_public: is_public ?? true,
+    };
 
-      const foodItem = await db
+    const foodItemId = await db.transaction().execute(async (trx) => {
+      const foodItem = await trx
         .insertInto("food_item")
         .values(insert)
         .returning(["id"])
         .executeTakeFirstOrThrow();
 
       if (Array.isArray(vitamins) && vitamins.length) {
-        await replaceFoodItemVitamins(foodItem.id, vitamins);
+        await replaceFoodItemVitamins(trx, foodItem.id, vitamins);
       }
       if (Array.isArray(minerals) && minerals.length) {
-        await replaceFoodItemMinerals(foodItem.id, minerals);
+        await replaceFoodItemMinerals(trx, foodItem.id, minerals);
       }
+      return foodItem.id;
+    });
 
-      const detail = await fetchFoodItemDetail(foodItem.id);
-      return json(detail, 201);
-    } catch (e) {
-      return dbErrorResponse(e);
-    }
+    const detail = await fetchFoodItemDetail(foodItemId);
+    return json(detail, 201);
   }
 
   // ── PUT /food-items/:id ────────────────────────────────────────────────────────
@@ -365,27 +448,19 @@ Deno.serve(async (req: Request) => {
       .executeTakeFirst();
     if (!existing) return jsonError("Food item not found", 404);
 
-    if (existing.is_system && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
-    if (existing.author_id && existing.author_id !== dbUser?.id && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
+    if (!canEditFoodItem(caller, existing)) return forbidden();
 
     const body = await req.json().catch(() => null);
     if (!body || Object.keys(body).length === 0) {
       return jsonError("Body must not be empty", 400);
     }
 
-    const {
-      id: _id,
-      author_id: _aid,
-      is_system: _isys,
-      created_at: _ca,
-      vitamins,
-      minerals,
-      ...fields
-    } = body;
+    const { vitamins, minerals } = body;
+    // Only these columns are client-editable (author, is_system, timestamps are not).
+    const fields: Record<string, unknown> = {};
+    for (const key of EDITABLE_FIELDS) {
+      if (key in body) fields[key] = body[key];
+    }
 
     const finalType = fields.type ?? existing.type;
     const finalFoodSubtype = "food_subtype" in fields ? fields.food_subtype : existing.food_subtype;
@@ -397,18 +472,19 @@ Deno.serve(async (req: Request) => {
       if (subtypeError) return jsonError(subtypeError, 400);
     }
 
-    try {
-      const update: FoodItemUpdate = { ...fields, updated_at: new Date().toISOString() };
-      await db.updateTable("food_item").set(update).where("id", "=", id).execute();
-
-      if (Array.isArray(vitamins)) await replaceFoodItemVitamins(id, vitamins);
-      if (Array.isArray(minerals)) await replaceFoodItemMinerals(id, minerals);
-
-      const detail = await fetchFoodItemDetail(id);
-      return json(detail);
-    } catch (e) {
-      return dbErrorResponse(e);
+    if ("serving_unit" in fields && !VALID_SERVING_UNITS.includes(fields.serving_unit as ServingUnit)) {
+      return jsonError("serving_unit must be one of: g, ml", 400);
     }
+
+    const update = { ...fields, updated_at: new Date().toISOString() } as FoodItemUpdate;
+    await db.transaction().execute(async (trx) => {
+      await trx.updateTable("food_item").set(update).where("id", "=", id).execute();
+      if (Array.isArray(vitamins)) await replaceFoodItemVitamins(trx, id, vitamins);
+      if (Array.isArray(minerals)) await replaceFoodItemMinerals(trx, id, minerals);
+    });
+
+    const detail = await fetchFoodItemDetail(id);
+    return json(detail);
   }
 
   // ── DELETE /food-items/:id ─────────────────────────────────────────────────────
@@ -420,42 +496,19 @@ Deno.serve(async (req: Request) => {
       .executeTakeFirst();
     if (!existing) return jsonError("Food item not found", 404);
 
-    if (existing.is_system && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
-    if (existing.author_id && existing.author_id !== dbUser?.id && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
+    if (!canEditFoodItem(caller, existing)) return forbidden();
 
-    try {
-      await db.deleteFrom("food_item").where("id", "=", id).execute();
-    } catch (e) {
-      return dbErrorResponse(e);
-    }
+    await db.deleteFrom("food_item").where("id", "=", id).execute();
     return new Response(null, { status: 204 });
   }
 
   return jsonError("Not found", 404);
-});
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
 }
 
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}
-
-// Maps common Postgres constraint-violation error codes to a 400 response
-// instead of letting them surface as an opaque 500.
-function dbErrorResponse(e: unknown): Response {
-  const code = (e as { code?: string } | null)?.code;
-  if (code === "23503" || code === "23505" || code === "23514" || code === "23502") {
-    const message = (e as { message?: string } | null)?.message ?? "Constraint violation";
-    return jsonError(message, 400);
+Deno.serve(async (req: Request) => {
+  try {
+    return await handler(req);
+  } catch (e) {
+    return pgErrorResponse(e, req.method);
   }
-  throw e;
-}
+});

@@ -8,11 +8,23 @@ import 'shop_item_form_page.dart';
 import 'shop_vendors_page.dart';
 
 class ShopDetailPage extends StatefulWidget {
-  const ShopDetailPage(
-      {super.key, required this.shopId, required this.shopName});
+  const ShopDetailPage({
+    super.key,
+    required this.shopId,
+    required this.shopName,
+    this.vendorMode = false,
+    this.embedded = false,
+  });
 
   final String shopId;
   final String shopName;
+
+  /// Shop vendors can add/edit/delete items but cannot manage vendors.
+  final bool vendorMode;
+
+  /// Rendered inside another Scaffold (e.g. the vendor's "My Shop" tab):
+  /// no app bar; the shop name and Posts action move into the content.
+  final bool embedded;
 
   @override
   State<ShopDetailPage> createState() => _ShopDetailPageState();
@@ -65,10 +77,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
     final saved = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (_) => ShopItemFormPage(
-          shopId: widget.shopId,
-          item: item,
-        ),
+        builder: (_) => ShopItemFormPage(shopId: widget.shopId, item: item),
       ),
     );
     if (saved == true) _load();
@@ -82,11 +91,13 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
         content: Text('Remove "${item.name}" from this shop?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete')),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
         ],
       ),
     );
@@ -98,41 +109,43 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  e.toString().replaceFirst('Exception: ', ''))),
+          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
         );
       }
     }
   }
 
+  void _openPosts() => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => PostsPage(
+        businessId: widget.shopId,
+        businessName: widget.shopName,
+        canPost: true,
+      ),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.shopName),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.forum_outlined),
-            tooltip: 'Posts',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PostsPage(
-                  businessId: widget.shopId,
-                  businessName: widget.shopName,
-                  canPost: true,
+      appBar: widget.embedded
+          ? null
+          : AppBar(
+              title: Text(widget.shopName),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.forum_outlined),
+                  tooltip: 'Posts',
+                  onPressed: _openPosts,
                 ),
-              ),
+              ],
             ),
-          ),
-        ],
-      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? _buildError()
-              : _buildContent(),
+          ? _buildError()
+          : _buildContent(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openForm(),
         icon: const Icon(Icons.add),
@@ -146,8 +159,11 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.error_outline,
-              size: 48, color: Theme.of(context).colorScheme.error),
+          Icon(
+            Icons.error_outline,
+            size: 48,
+            color: Theme.of(context).colorScheme.error,
+          ),
           const SizedBox(height: 16),
           Text(_error!),
           const SizedBox(height: 16),
@@ -162,31 +178,58 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
       onRefresh: _load,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 88),
+        padding: const EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: 88,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (widget.embedded) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.shopName,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: _openPosts,
+                    icon: const Icon(Icons.forum_outlined, size: 18),
+                    label: const Text('Posts'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
             // ── Staff / Vendors section ───────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Staff / Vendors',
-                    style: Theme.of(context).textTheme.titleMedium),
-                TextButton.icon(
-                  onPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ShopVendorsPage(
-                            shopId: widget.shopId,
-                            shopName: widget.shopName),
-                      ),
-                    );
-                    _load();
-                  },
-                  icon: const Icon(Icons.open_in_new, size: 16),
-                  label: const Text('Manage'),
+                Text(
+                  'Staff / Vendors',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
+                if (!widget.vendorMode)
+                  TextButton.icon(
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ShopVendorsPage(
+                            shopId: widget.shopId,
+                            shopName: widget.shopName,
+                          ),
+                        ),
+                      );
+                      _load();
+                    },
+                    icon: const Icon(Icons.open_in_new, size: 16),
+                    label: const Text('Manage'),
+                  ),
               ],
             ),
             const SizedBox(height: 8),
@@ -195,13 +238,18 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Row(
                   children: [
-                    Icon(Icons.storefront_outlined,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.outline),
+                    Icon(
+                      Icons.storefront_outlined,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
                     const SizedBox(width: 8),
-                    Text('No vendors yet',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.outline)),
+                    Text(
+                      'No vendors yet',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
                   ],
                 ),
               )
@@ -210,9 +258,9 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: CircleAvatar(
-                    child: Text(v.name.isNotEmpty
-                        ? v.name[0].toUpperCase()
-                        : '?'),
+                    child: Text(
+                      v.name.isNotEmpty ? v.name[0].toUpperCase() : '?',
+                    ),
                   ),
                   title: Text(v.fullName),
                   subtitle: Text(v.email),
@@ -223,7 +271,8 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
                 child: Text(
                   '+ ${_vendors.length - 5} more',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary),
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
 
@@ -237,13 +286,18 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Row(
                   children: [
-                    Icon(Icons.inventory_2_outlined,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.outline),
+                    Icon(
+                      Icons.inventory_2_outlined,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
                     const SizedBox(width: 8),
-                    Text('No items yet',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.outline)),
+                    Text(
+                      'No items yet',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
                   ],
                 ),
               )
@@ -267,20 +321,21 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
 // ── Tile ──────────────────────────────────────────────────────────────────────
 
 class _ShopItemTile extends StatelessWidget {
-  const _ShopItemTile(
-      {required this.item,
-      required this.onEdit,
-      required this.onDelete});
+  const _ShopItemTile({
+    required this.item,
+    required this.onEdit,
+    required this.onDelete,
+  });
 
   final ShopItem item;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   IconData _typeIcon(ShopItemType t) => switch (t) {
-        ShopItemType.equipment => Icons.fitness_center,
-        ShopItemType.supplement => Icons.science_outlined,
-        ShopItemType.giftCard => Icons.card_giftcard_outlined,
-      };
+    ShopItemType.equipment => Icons.fitness_center,
+    ShopItemType.supplement => Icons.science_outlined,
+    ShopItemType.giftCard => Icons.card_giftcard_outlined,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -317,18 +372,23 @@ class _ShopItemTile extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(item.type.displayName,
-                style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              item.type.displayName,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             Row(
               children: [
-                Text('\$${item.price.toStringAsFixed(2)}',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: cs.primary)),
+                Text(
+                  '\$${item.price.toStringAsFixed(2)}',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: cs.primary),
+                ),
                 const SizedBox(width: 12),
-                Text('Qty: ${item.quantity}',
-                    style: Theme.of(context).textTheme.bodySmall),
+                Text(
+                  'Qty: ${item.quantity}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             ),
           ],

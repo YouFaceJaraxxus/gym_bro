@@ -28,7 +28,9 @@ import type {
   FoodSubtype,
   MealSlotType,
   MuscleGroup,
+  NotificationType,
   RepType,
+  SessionDropLogInsert,
   SpiceSubtype,
   TrainingSetDropInsert,
   TrainingSetExerciseInsert,
@@ -88,6 +90,11 @@ type SeedPersona = {
   last_name: string;
   role: UserRole;
   avatar_key: string;
+  // Names of the business(es) this persona has a role-join row for — a gym for
+  // trainer/member/employee/employee_trainer, a shop for shop_vendor, and
+  // potentially several of either for owner. Empty for business-less roles
+  // like super_user.
+  businesses: string[];
 };
 type SeedExercise = {
   name: string;
@@ -95,6 +102,9 @@ type SeedExercise = {
   note: string | null;
   primary_muscles: MuscleGroup[];
   secondary_muscles: MuscleGroup[];
+  // Baseline working weight (kg) used to generate realistic training_session
+  // logs; null for bodyweight-only movements.
+  default_weight_kg: number | null;
 };
 type SeedTrainingSet = {
   exercise_name: string;
@@ -160,6 +170,7 @@ type SeedShopProduct = {
   type: "equipment" | "supplement" | "gift_card";
   price: number;
   quantity: number;
+  shop_name: string;
 };
 type SeedPost = { author_persona_username: string; content: string; has_image: boolean };
 
@@ -174,6 +185,24 @@ const dailyMealPlans: SeedDailyMealPlan[] = seedData.daily_meal_plans;
 const mealPlans: SeedMealPlan[] = seedData.meal_plans;
 const shopProducts: SeedShopProduct[] = seedData.shop_products;
 const posts: SeedPost[] = seedData.posts;
+
+// Pure derivations from the persona list — no DB round-trip needed, so these
+// are ready before any inserts happen and can be used throughout.
+const memberUsernamesByGym = new Map<string, string[]>();
+const trainerUsernamesByGym = new Map<string, string[]>();
+const ownerUsernameByBusiness = new Map<string, string>();
+for (const p of personas) {
+  const homeBusiness = p.businesses[0];
+  if (p.role === "member" && homeBusiness) {
+    (memberUsernamesByGym.get(homeBusiness) ?? memberUsernamesByGym.set(homeBusiness, []).get(homeBusiness)!).push(p.username);
+  }
+  if ((p.role === "trainer" || p.role === "employee_trainer") && homeBusiness) {
+    (trainerUsernamesByGym.get(homeBusiness) ?? trainerUsernamesByGym.set(homeBusiness, []).get(homeBusiness)!).push(p.username);
+  }
+  if (p.role === "owner") {
+    for (const b of p.businesses) if (!ownerUsernameByBusiness.has(b)) ownerUsernameByBusiness.set(b, p.username);
+  }
+}
 
 // ── 1. Businesses ─────────────────────────────────────────────────────────────
 
@@ -208,11 +237,6 @@ for (const b of businesses) {
   businessIdByName.set(b.name, id);
   businessTypeByName.set(b.name, b.type);
 }
-
-const gymName = businesses.find((b) => b.type === "gym")!.name;
-const shopName = businesses.find((b) => b.type === "shop")!.name;
-const gymId = businessIdByName.get(gymName)!;
-const shopId = businessIdByName.get(shopName)!;
 
 // ── 2. Personas (auth users + profile rows + role-join rows) ─────────────────
 
@@ -269,7 +293,8 @@ for (const p of personas) {
   }
   userIdByUsername.set(p.username, userId);
 
-  // Role-join rows (idempotent: only insert if not already present).
+  // Role-join rows for every business this persona is tied to (idempotent:
+  // only insert — and only notify the business owner — if not already present).
   const roleTable = {
     trainer: "trainer" as const,
     member: "member" as const,
@@ -277,55 +302,98 @@ for (const p of personas) {
     employee_trainer: "employee_trainer" as const,
   }[p.role as "trainer" | "member" | "employee" | "employee_trainer"];
 
-  if (roleTable) {
-    const exists = await db
-      .selectFrom(roleTable)
-      .select("id")
-      .where("user_id", "=", userId)
-      .where("gym_id", "=", gymId)
-      .executeTakeFirst();
-    if (!exists) await db.insertInto(roleTable).values({ user_id: userId, gym_id: gymId }).execute();
-  } else if (p.role === "owner") {
-    const gymOwnerExists = await db
-      .selectFrom("gym_owner")
-      .select("id")
-      .where("user_id", "=", userId)
-      .where("gym_id", "=", gymId)
-      .executeTakeFirst();
-    if (!gymOwnerExists) await db.insertInto("gym_owner").values({ user_id: userId, gym_id: gymId }).execute();
+  for (const businessName of p.businesses) {
+    const businessId = businessIdByName.get(businessName);
+    const businessType = businessTypeByName.get(businessName);
+    if (!businessId || !businessType) {
+      console.warn(`  ! unknown business "${businessName}" referenced by persona "${p.username}" — skipping`);
+      continue;
+    }
 
-    const shopOwnerExists = await db
-      .selectFrom("shop_owner")
-      .select("id")
-      .where("user_id", "=", userId)
-      .where("shop_id", "=", shopId)
-      .executeTakeFirst();
-    if (!shopOwnerExists) await db.insertInto("shop_owner").values({ user_id: userId, shop_id: shopId }).execute();
-  } else if (p.role === "shop_vendor") {
-    const exists = await db
-      .selectFrom("shop_vendor")
-      .select("id")
-      .where("user_id", "=", userId)
-      .where("shop_id", "=", shopId)
-      .executeTakeFirst();
-    if (!exists) await db.insertInto("shop_vendor").values({ user_id: userId, shop_id: shopId }).execute();
+    let didInsert = false;
+    if (p.role === "owner") {
+      if (businessType === "gym") {
+        const exists = await db
+          .selectFrom("gym_owner")
+          .select("id")
+          .where("user_id", "=", userId)
+          .where("gym_id", "=", businessId)
+          .executeTakeFirst();
+        if (!exists) {
+          await db.insertInto("gym_owner").values({ user_id: userId, gym_id: businessId }).execute();
+          didInsert = true;
+        }
+      } else {
+        const exists = await db
+          .selectFrom("shop_owner")
+          .select("id")
+          .where("user_id", "=", userId)
+          .where("shop_id", "=", businessId)
+          .executeTakeFirst();
+        if (!exists) {
+          await db.insertInto("shop_owner").values({ user_id: userId, shop_id: businessId }).execute();
+          didInsert = true;
+        }
+      }
+    } else if (p.role === "shop_vendor") {
+      const exists = await db
+        .selectFrom("shop_vendor")
+        .select("id")
+        .where("user_id", "=", userId)
+        .where("shop_id", "=", businessId)
+        .executeTakeFirst();
+      if (!exists) {
+        await db.insertInto("shop_vendor").values({ user_id: userId, shop_id: businessId }).execute();
+        didInsert = true;
+      }
+    } else if (roleTable) {
+      const exists = await db
+        .selectFrom(roleTable)
+        .select("id")
+        .where("user_id", "=", userId)
+        .where("gym_id", "=", businessId)
+        .executeTakeFirst();
+      if (!exists) {
+        await db.insertInto(roleTable).values({ user_id: userId, gym_id: businessId }).execute();
+        didInsert = true;
+      }
+    }
+
+    // Notify the business owner the first time someone joins their business.
+    if (didInsert && p.role !== "owner") {
+      const ownerUsername = ownerUsernameByBusiness.get(businessName);
+      const ownerId = ownerUsername ? userIdByUsername.get(ownerUsername) : undefined;
+      if (ownerId) {
+        const notifType: NotificationType = p.role === "shop_vendor" ? "vendor_join" : p.role === "member" ? "member_join" : "employee_join";
+        await db
+          .insertInto("notification")
+          .values({
+            user_id: ownerId,
+            type: notifType,
+            title: `${p.first_name} ${p.last_name} joined ${businessName}`,
+            body: null,
+            metadata: { user_id: userId, username: p.username, role: p.role },
+          })
+          .execute();
+      }
+    }
   }
 }
 
 const trainerUsername = personas.find((p) => p.role === "trainer")!.username;
-const ownerUsername = personas.find((p) => p.role === "owner")!.username;
 const trainerId = userIdByUsername.get(trainerUsername)!;
-const ownerId = userIdByUsername.get(ownerUsername)!;
 const memberUsernames = personas.filter((p) => p.role === "member").map((p) => p.username);
 
 // ── 3. Exercises ──────────────────────────────────────────────────────────────
 
 const exerciseIdByName = new Map<string, string>();
+const exerciseWeightById = new Map<string, number | null>();
 
 for (const ex of exercises) {
   const existing = await db.selectFrom("exercise").select(["id"]).where("name", "=", ex.name).executeTakeFirst();
   if (existing) {
     exerciseIdByName.set(ex.name, existing.id);
+    exerciseWeightById.set(existing.id, ex.default_weight_kg);
     continue;
   }
   const row = await db
@@ -344,6 +412,7 @@ for (const ex of exercises) {
     .returning(["id"])
     .executeTakeFirstOrThrow();
   exerciseIdByName.set(ex.name, row.id);
+  exerciseWeightById.set(row.id, ex.default_weight_kg);
   console.log(`+ exercise "${ex.name}"`);
 }
 
@@ -427,6 +496,51 @@ for (const t of trainings) {
     }
   }
   console.log(`+ training "${t.name}"`);
+}
+
+// Reload the full set/exercise/drop structure for every training (regardless
+// of whether it was just created or already existed) — training_session
+// generation below needs the real ids to log against.
+type TrainingSetStructure = {
+  trainingSetId: string;
+  exercises: {
+    exerciseId: string;
+    position: number;
+    drops: { id: string; dropNumber: number; repType: RepType; repCount: number | null }[];
+  }[];
+};
+const trainingStructureByName = new Map<string, TrainingSetStructure[]>();
+
+for (const t of trainings) {
+  const trainingId = trainingIdByName.get(t.name);
+  if (!trainingId) continue;
+
+  const sets = await db.selectFrom("training_set").select(["id"]).where("training_id", "=", trainingId).orderBy("position").execute();
+  const structure: TrainingSetStructure[] = [];
+  for (const s of sets) {
+    const setExercises = await db
+      .selectFrom("training_set_exercise")
+      .select(["id", "exercise_id", "position"])
+      .where("training_set_id", "=", s.id)
+      .orderBy("position")
+      .execute();
+    const exercisesWithDrops = [];
+    for (const e of setExercises) {
+      const drops = await db
+        .selectFrom("training_set_drop")
+        .select(["id", "drop_number", "rep_type", "rep_count"])
+        .where("training_set_exercise_id", "=", e.id)
+        .orderBy("drop_number")
+        .execute();
+      exercisesWithDrops.push({
+        exerciseId: e.exercise_id,
+        position: e.position,
+        drops: drops.map((d) => ({ id: d.id, dropNumber: d.drop_number, repType: d.rep_type, repCount: d.rep_count })),
+      });
+    }
+    structure.push({ trainingSetId: s.id, exercises: exercisesWithDrops });
+  }
+  trainingStructureByName.set(t.name, structure);
 }
 
 // ── 5. Routines ────────────────────────────────────────────────────────────────
@@ -770,6 +884,11 @@ for (const [i, m] of mealPlans.entries()) {
 // ── 10. Shop products ─────────────────────────────────────────────────────────
 
 for (const p of shopProducts) {
+  const shopId = businessIdByName.get(p.shop_name);
+  if (!shopId) {
+    console.warn(`  ! unknown shop "${p.shop_name}" referenced by product "${p.name}" — skipping`);
+    continue;
+  }
   const existing = await db
     .selectFrom("shop_item")
     .select(["id"])
@@ -791,16 +910,16 @@ for (const p of shopProducts) {
       image_url: photoUrl(`product-${p.name}`, 800, 800),
     })
     .execute();
-  console.log(`+ shop product "${p.name}"`);
+  console.log(`+ shop product "${p.name}" (${p.shop_name})`);
 }
 
 // ── 11. Posts ──────────────────────────────────────────────────────────────────
 
 const personaByUsername = new Map(personas.map((p) => [p.username, p]));
 
-function businessIdForAuthor(username: string): string {
-  const role = personaByUsername.get(username)?.role;
-  return role === "shop_vendor" ? shopId : gymId;
+function businessIdForAuthor(username: string): string | null {
+  const homeBusiness = personaByUsername.get(username)?.businesses[0];
+  return homeBusiness ? businessIdByName.get(homeBusiness) ?? null : null;
 }
 
 for (const p of posts) {
@@ -816,10 +935,15 @@ for (const p of posts) {
     console.warn(`  ! unknown persona "${p.author_persona_username}" referenced by a post — skipping`);
     continue;
   }
+  const businessId = businessIdForAuthor(p.author_persona_username);
+  if (!businessId) {
+    console.warn(`  ! persona "${p.author_persona_username}" has no home business — skipping post`);
+    continue;
+  }
 
   const post = await db
     .insertInto("post")
-    .values({ business_id: businessIdForAuthor(p.author_persona_username), author_id: authorId, content: p.content })
+    .values({ business_id: businessId, author_id: authorId, content: p.content })
     .returning(["id"])
     .executeTakeFirstOrThrow();
 
@@ -839,60 +963,193 @@ const membershipTypeDefs = [
   { name: "Premium", monthly_cost: 59.99 },
   { name: "Elite", monthly_cost: 99.99 },
 ];
-const membershipTypeIdByName = new Map<string, string>();
 
-for (const t of membershipTypeDefs) {
-  const existing = await db
-    .selectFrom("gym_membership_type")
-    .select(["id"])
-    .where("gym_id", "=", gymId)
-    .where("name", "=", t.name)
-    .executeTakeFirst();
-  if (existing) {
-    membershipTypeIdByName.set(t.name, existing.id);
-    continue;
+for (const gym of businesses.filter((b) => b.type === "gym")) {
+  const gymId = businessIdByName.get(gym.name)!;
+  const membershipTypeIdByName = new Map<string, string>();
+
+  for (const t of membershipTypeDefs) {
+    const existing = await db
+      .selectFrom("gym_membership_type")
+      .select(["id"])
+      .where("gym_id", "=", gymId)
+      .where("name", "=", t.name)
+      .executeTakeFirst();
+    if (existing) {
+      membershipTypeIdByName.set(t.name, existing.id);
+      continue;
+    }
+    const row = await db
+      .insertInto("gym_membership_type")
+      .values({ name: t.name, monthly_cost: t.monthly_cost, gym_id: gymId, is_active: true })
+      .returning(["id"])
+      .executeTakeFirstOrThrow();
+    membershipTypeIdByName.set(t.name, row.id);
+    console.log(`+ membership type "${t.name}" (${gym.name})`);
   }
-  const row = await db
-    .insertInto("gym_membership_type")
-    .values({ name: t.name, monthly_cost: t.monthly_cost, gym_id: gymId, is_active: true })
-    .returning(["id"])
-    .executeTakeFirstOrThrow();
-  membershipTypeIdByName.set(t.name, row.id);
-  console.log(`+ membership type "${t.name}"`);
+
+  const typeNames = [...membershipTypeIdByName.keys()];
+  const gymMembers = memberUsernamesByGym.get(gym.name) ?? [];
+  for (const [i, username] of gymMembers.entries()) {
+    const userId = userIdByUsername.get(username)!;
+    const existing = await db.selectFrom("membership").select(["id"]).where("user_id", "=", userId).executeTakeFirst();
+    if (existing) continue;
+
+    const typeName = typeNames[i % typeNames.length];
+    const typeId = membershipTypeIdByName.get(typeName)!;
+    const from = new Date();
+    from.setMonth(from.getMonth() - 1);
+    const to = new Date();
+    to.setMonth(to.getMonth() + 2);
+
+    const membership = await db
+      .insertInto("membership")
+      .values({
+        user_id: userId,
+        current_membership_type_id: typeId,
+        from_date: from.toISOString().substring(0, 10),
+        to_date: to.toISOString().substring(0, 10),
+        is_active: true,
+      })
+      .returning(["id"])
+      .executeTakeFirstOrThrow();
+
+    const monthlyCost = membershipTypeDefs.find((t) => t.name === typeName)!.monthly_cost;
+    const invoiceAmount = monthlyCost * 3;
+    await db
+      .insertInto("membership_invoice")
+      .values({ membership_id: membership.id, membership_type_id: typeId, amount: invoiceAmount })
+      .execute();
+
+    await db
+      .insertInto("notification")
+      .values({
+        user_id: userId,
+        type: "invoice_issued",
+        title: `Invoice issued — ${typeName} membership`,
+        body: `Your ${typeName} membership invoice for $${invoiceAmount.toFixed(2)} has been issued.`,
+        metadata: { membership_id: membership.id, amount: invoiceAmount },
+      })
+      .execute();
+
+    console.log(`+ membership for ${username} (${typeName}, ${gym.name})`);
+  }
 }
 
-const typeNames = [...membershipTypeIdByName.keys()];
-for (const [i, username] of memberUsernames.entries()) {
-  const userId = userIdByUsername.get(username)!;
-  const existing = await db.selectFrom("membership").select(["id"]).where("user_id", "=", userId).executeTakeFirst();
-  if (existing) continue;
+// ── 13. Training sessions (logged workout history) ───────────────────────────
+// Procedurally generated per member so this stays low-maintenance as more
+// gyms/members are added — driven entirely by the trainings/exercises already
+// seeded above, not by seed_data.json. Guarded per-user: a member with any
+// existing session is left untouched, so re-runs never duplicate history.
 
-  const typeName = typeNames[i % typeNames.length];
-  const typeId = membershipTypeIdByName.get(typeName)!;
-  const from = new Date();
-  from.setMonth(from.getMonth() - 1);
-  const to = new Date();
-  to.setMonth(to.getMonth() + 2);
+const allTrainingNames = trainings.map((t) => t.name);
+const sessionNotePool = [
+  "Felt strong today, hit every rep.",
+  "Low energy but pushed through.",
+  "New PR on the last set!",
+  "Short on time, trimmed the accessory work.",
+  "Great pump, form felt clean all session.",
+  null,
+  null,
+  null,
+];
 
-  const membership = await db
-    .insertInto("membership")
-    .values({
-      user_id: userId,
-      current_membership_type_id: typeId,
-      from_date: from.toISOString().substring(0, 10),
-      to_date: to.toISOString().substring(0, 10),
-      is_active: true,
-    })
-    .returning(["id"])
-    .executeTakeFirstOrThrow();
+function actualWeightKg(baseWeight: number | null | undefined, progressFactor: number): number | null {
+  if (baseWeight === null || baseWeight === undefined) return null;
+  const jitter = 1 + (Math.random() * 0.06 - 0.03);
+  return Math.round((baseWeight * progressFactor * jitter) / 1.25) * 1.25;
+}
 
-  const monthlyCost = membershipTypeDefs.find((t) => t.name === typeName)!.monthly_cost;
-  await db
-    .insertInto("membership_invoice")
-    .values({ membership_id: membership.id, membership_type_id: typeId, amount: monthlyCost * 3 })
-    .execute();
+for (const gym of businesses.filter((b) => b.type === "gym")) {
+  const gymMembers = memberUsernamesByGym.get(gym.name) ?? [];
+  const gymTrainers = trainerUsernamesByGym.get(gym.name) ?? [];
 
-  console.log(`+ membership for ${username} (${typeName})`);
+  for (const username of gymMembers) {
+    const userId = userIdByUsername.get(username)!;
+    const alreadyLogged = await db
+      .selectFrom("training_session")
+      .select("id")
+      .where("user_id", "=", userId)
+      .executeTakeFirst();
+    if (alreadyLogged) continue;
+
+    const sessionCount = 4 + Math.floor(Math.random() * 4); // 4-7 sessions
+    const maxDaysAgo = 3 + (sessionCount - 1) * 4;
+
+    for (let i = 0; i < sessionCount; i++) {
+      const trainingName = allTrainingNames[Math.floor(Math.random() * allTrainingNames.length)];
+      const structure = trainingStructureByName.get(trainingName);
+      if (!structure || structure.length === 0) continue;
+
+      const daysAgo = Math.max(1, maxDaysAgo - i * 4 - Math.floor(Math.random() * 2));
+      const progressFactor = 0.88 + (1 - daysAgo / maxDaysAgo) * 0.18; // older sessions load lighter
+      const trainerUsername = gymTrainers.length && Math.random() < 0.5
+        ? gymTrainers[Math.floor(Math.random() * gymTrainers.length)]
+        : null;
+      const trainerId = trainerUsername ? userIdByUsername.get(trainerUsername) ?? null : null;
+
+      const totalDrops = structure.reduce((sum, s) => sum + s.exercises.reduce((s2, e) => s2 + e.drops.length, 0), 0);
+      const durationMinutes = 15 + Math.round(totalDrops * 3.2);
+
+      const startedAt = new Date();
+      startedAt.setDate(startedAt.getDate() - daysAgo);
+      startedAt.setHours(6 + Math.floor(Math.random() * 14), Math.floor(Math.random() * 60), 0, 0);
+      const endedAt = new Date(startedAt.getTime() + durationMinutes * 60_000);
+
+      const session = await db
+        .insertInto("training_session")
+        .values({
+          user_id: userId,
+          trainer_id: trainerId,
+          training_id: trainingIdByName.get(trainingName)!,
+          started_at: startedAt.toISOString(),
+          ended_at: endedAt.toISOString(),
+          notes: sessionNotePool[Math.floor(Math.random() * sessionNotePool.length)],
+        })
+        .returning(["id"])
+        .executeTakeFirstOrThrow();
+
+      const setLogRows = await db
+        .insertInto("session_set_log")
+        .values(
+          structure.flatMap((set) =>
+            set.exercises.map((ex) => ({
+              session_id: session.id,
+              training_set_id: set.trainingSetId,
+              exercise_id: null,
+              position: ex.position,
+              note: null,
+            })),
+          ),
+        )
+        .returning(["id", "position", "training_set_id"])
+        .execute();
+
+      const dropInserts: SessionDropLogInsert[] = [];
+      for (const set of structure) {
+        for (const ex of set.exercises) {
+          const setLogRow = setLogRows.find((r) => r.training_set_id === set.trainingSetId && r.position === ex.position);
+          if (!setLogRow) continue;
+          const baseWeight = exerciseWeightById.get(ex.exerciseId);
+          for (const drop of ex.drops) {
+            const repDelta = Math.floor(Math.random() * 3) - 1; // -1..+1 vs. planned
+            dropInserts.push({
+              session_set_log_id: setLogRow.id,
+              training_set_drop_id: drop.id,
+              drop_number: drop.dropNumber,
+              rep_type_actual: drop.repType,
+              rep_count_actual: drop.repCount === null ? null : Math.max(1, drop.repCount + repDelta),
+              weight_kg_actual: actualWeightKg(baseWeight, progressFactor),
+              side: "both",
+              note: null,
+            });
+          }
+        }
+      }
+      if (dropInserts.length) await db.insertInto("session_drop_log").values(dropInserts).execute();
+    }
+    console.log(`+ ${sessionCount} training sessions for ${username} (${gym.name})`);
+  }
 }
 
 await db.destroy();

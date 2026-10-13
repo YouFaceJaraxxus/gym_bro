@@ -1,82 +1,105 @@
 import 'package:flutter/material.dart';
+import '../../models/business.dart';
 import '../../models/user_profile.dart';
+import '../../services/api_service.dart';
+import '../../services/auth_manager.dart';
+import '../invoices_page.dart';
+import 'home_widgets.dart';
 
-class OwnerHomePage extends StatelessWidget {
+/// Owner dashboard: live stats across the gyms the owner manages.
+class OwnerHomePage extends StatefulWidget {
   const OwnerHomePage({super.key, required this.profile});
 
   final UserProfile profile;
 
   @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Welcome back, ${profile.name}',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            profile.role.displayName,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: colorScheme.primary),
-          ),
-          const SizedBox(height: 32),
-          _SummaryCard(
-            icon: Icons.people_outline,
-            label: 'Total Members',
-            value: '—',
-            color: colorScheme.primaryContainer,
-          ),
-          const SizedBox(height: 12),
-          _SummaryCard(
-            icon: Icons.person_outline,
-            label: 'Active Staff',
-            value: '—',
-            color: colorScheme.secondaryContainer,
-          ),
-          const SizedBox(height: 12),
-          _SummaryCard(
-            icon: Icons.receipt_long_outlined,
-            label: 'Invoices This Month',
-            value: '—',
-            color: colorScheme.tertiaryContainer,
-          ),
-        ],
-      ),
-    );
-  }
+  State<OwnerHomePage> createState() => _OwnerHomePageState();
 }
 
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
+class _OwnerHomePageState extends State<OwnerHomePage> {
+  final _api = ApiService();
+  BusinessStats? _stats;
+  bool _loading = true;
+  String? _error;
 
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = _stats == null;
+      _error = null;
+    });
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final stats = await _api.getBusinessStats(token);
+      if (mounted) {
+        setState(() {
+          _stats = stats;
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString().replaceFirst('Exception: ', '');
+          _loading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: color,
-      child: ListTile(
-        leading: Icon(icon, size: 28),
-        title: Text(label),
-        trailing: Text(
-          value,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+    final stats = _stats;
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        children: [
+          HomeHeader(
+            title: 'Welcome back, ${widget.profile.name}',
+            subtitle: widget.profile.role.displayName,
+          ),
+          const SizedBox(height: 24),
+          if (_loading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 48),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else ...[
+            if (_error != null) HomeError(message: _error!, onRetry: _load),
+            if (stats != null) ...[
+              if (stats.gyms == 0)
+                const HomeEmpty(
+                  icon: Icons.fitness_center_outlined,
+                  label: "You don't own any gyms yet — add one from the "
+                      'Businesses tab.',
+                )
+              else ...[
+                BusinessStatsView(stats: stats, onChanged: _load),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) =>
+                              const InvoicesPage(initialStatus: null)),
+                    );
+                    _load();
+                  },
+                  icon: const Icon(Icons.receipt_long_outlined),
+                  label: const Text('All invoices'),
+                ),
+              ],
+            ],
+          ],
+        ],
       ),
     );
   }

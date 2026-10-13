@@ -1,14 +1,8 @@
+import type { Kysely } from "npm:kysely@^0.27";
 import { db, supabaseAdmin } from "../_shared/config.ts";
-import type { UserInsert } from "../../types/schema/public.ts";
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
-
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
-}
+import { canManageGym, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
+import type { Database, UserInsert } from "../../types/schema/public.ts";
+import { pgCode, assignRole, reconcileRoles } from "../_shared/roles.ts";
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -30,72 +24,125 @@ const SELECT_COLS = [
   "users.role",
 ] as const;
 
-const SELECT_ET_COLS = [
-  "employee_trainer.id",
-  "employee_trainer.user_id",
-  "employee_trainer.gym_id",
-  "employee_trainer.trainer_id",
-  "users.email",
-  "users.name",
-  "users.last_name",
-  "users.username",
-  "users.role",
-] as const;
+type EmployeeType = "employee" | "employee_trainer";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-async function getInternalUser(authId: string) {
-  return db
-    .selectFrom("users")
-    .select(["id", "name", "last_name"])
-    .where("auth_id", "=", authId)
-    .executeTakeFirst();
-}
-
-async function getGymName(gymId: string): Promise<string> {
+async function getGymName(gymId: string): Promise<string | null> {
   const row = await db
     .selectFrom("business")
     .innerJoin("gym", "gym.id", "business.id")
     .select(["business.name"])
     .where("gym.id", "=", gymId)
     .executeTakeFirst();
-  return row?.name ?? "the gym";
+  return row?.name ?? null;
 }
 
-async function createInviteNotification(opts: {
-  userId: string;
-  gymId: string;
-  gymName: string;
-  inviterId: string;
-  employeeType: "employee" | "employee_trainer";
-}) {
-  const isTrainer = opts.employeeType === "employee_trainer";
-  const roleLabel = isTrainer ? "Employee Trainer" : "Employee";
-  await db
-    .insertInto("notification")
-    .values({
-      user_id: opts.userId,
-      type: "employee_gym_invite",
-      title: `You've been invited to join ${opts.gymName}`,
-      body: `You have a pending invitation to work at ${opts.gymName} as ${roleLabel}.`,
-      metadata: JSON.stringify({
-        invite_status: "pending",
-        inviter_id: opts.inviterId,
-        gym_id: opts.gymId,
-        gym_name: opts.gymName,
-        employee_type: opts.employeeType,
-      }),
-    })
-    .execute();
+/** Inserts the employee or employee_trainer row (creating the trainer row for the latter). */
+async function insertStaffRow(
+  trx: Kysely<Database>,
+  userId: string,
+  gymId: string,
+  employeeType: EmployeeType,
+) {
+  if (employeeType === "employee") {
+    const row = await trx
+      .insertInto("employee")
+      .values({ user_id: userId, gym_id: gymId })
+      .returningAll()
+      .executeTakeFirstOrThrow();
+    await assignRole(trx, userId, "employee");
+    return row;
+  }
+
+  let trainerRow = await trx
+    .selectFrom("trainer")
+    .select(["id"])
+    .where("user_id", "=", userId)
+    .where("gym_id", "=", gymId)
+    .executeTakeFirst();
+  if (!trainerRow) {
+    trainerRow = await trx
+      .insertInto("trainer")
+      .values({ user_id: userId, gym_id: gymId })
+      .returning(["id"])
+      .executeTakeFirstOrThrow();
+  }
+  const row = await trx
+    .insertInto("employee_trainer")
+    .values({ user_id: userId, gym_id: gymId, trainer_id: trainerRow.id })
+    .returningAll()
+    .executeTakeFirstOrThrow();
+  await assignRole(trx, userId, "employee_trainer");
+  return row;
+}
+
+/** The staff row in the same shape as GET /employees rows, plus employee_type. */
+async function staffRowWithUser(q: Kysely<Database>, userId: string, gymId: string, employeeType: EmployeeType) {
+  const table = employeeType;
+  const row = await q
+    .selectFrom(table)
+    .innerJoin("users", "users.id", `${table}.user_id`)
+    .select([
+      `${table}.id`,
+      `${table}.user_id`,
+      `${table}.gym_id`,
+      "users.email",
+      "users.name",
+      "users.last_name",
+      "users.username",
+      "users.role",
+    ])
+    .where(`${table}.user_id`, "=", userId)
+    .where(`${table}.gym_id`, "=", gymId)
+    .executeTakeFirstOrThrow();
+  return { ...row, employee_type: employeeType };
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
-  const { user, error: authError } = await requireAuth(req);
-  if (!user) return jsonError(authError ?? "Unauthorized", 401);
+  const { caller, response } = await requireCaller(req);
+  if (response) return response;
 
   const url = new URL(req.url);
+
+  // ── PUT /employees/role — matched before /:id ─────────────────────────────────
+  // Moves a staff member between the employee and employee_trainer tables.
+  if (req.method === "PUT" && url.pathname === "/employees/role") {
+    const body = await req.json().catch(() => null);
+    const { user_id, gym_id, employee_type } = body ?? {};
+    if (!user_id || !gym_id) return jsonError("user_id and gym_id are required", 400);
+    if (employee_type !== "employee" && employee_type !== "employee_trainer") {
+      return jsonError("employee_type must be 'employee' or 'employee_trainer'", 400);
+    }
+    if (!(await canManageGym(caller, gym_id))) return forbidden();
+
+    const result = await db.transaction().execute(async (trx) => {
+      const [emp, et] = await Promise.all([
+        trx.selectFrom("employee").select("id").where("user_id", "=", user_id).where("gym_id", "=", gym_id)
+          .executeTakeFirst(),
+        trx.selectFrom("employee_trainer").select("id").where("user_id", "=", user_id)
+          .where("gym_id", "=", gym_id).executeTakeFirst(),
+      ]);
+      if (!emp && !et) return null;
+
+      if (employee_type === "employee_trainer" && !et) {
+        await trx.deleteFrom("employee").where("id", "=", emp!.id).execute();
+        await insertStaffRow(trx, user_id, gym_id, "employee_trainer");
+      } else if (employee_type === "employee" && !emp) {
+        // The trainer row is left in place.
+        await trx.deleteFrom("employee_trainer").where("id", "=", et!.id).execute();
+        await insertStaffRow(trx, user_id, gym_id, "employee");
+      }
+      // Already in the target table → idempotent no-op.
+      return staffRowWithUser(trx, user_id, gym_id, employee_type);
+    });
+
+    if (!result) return jsonError("This user is not an employee at this gym", 404);
+    return json(result);
+  }
+
   const id = parseId(url.pathname);
 
   // ── POST /employees ───────────────────────────────────────────────────────────
@@ -119,140 +166,105 @@ Deno.serve(async (req: Request) => {
       return jsonError("employee_type must be 'employee' or 'employee_trainer'", 400);
     }
 
-    // Resolve the calling user's internal ID (for self-add check + invite)
-    const callerInternal = await getInternalUser(user.id);
-    if (!callerInternal) return jsonError("Caller user not found", 404);
+    const gymName = await getGymName(gym_id);
+    if (!gymName) return jsonError("Gym not found", 404);
+    if (!(await canManageGym(caller, gym_id))) return forbidden();
 
-    let resolvedUserId: string = user_id;
-    let isNewUser = false;
-
-    if (!resolvedUserId) {
+    let existingUserId: string | null = user_id ?? null;
+    if (!existingUserId) {
       if (!email) return jsonError("Either user_id or email is required", 400);
-
       const existing = await db
         .selectFrom("users")
         .select(["id"])
         .where("email", "=", email)
         .executeTakeFirst();
+      existingUserId = existing?.id ?? null;
+    }
 
-      if (existing) {
-        resolvedUserId = existing.id;
-      } else {
-        // Brand-new user: pre-create via Supabase auth invite and insert immediately.
-        if (!name || !last_name || !username) {
-          return jsonError(
-            "name, last_name, and username are required when the email does not match an existing user",
-            400,
-          );
-        }
+    // ── Existing user: guards, then a pending invite notification ─────────────
+    if (existingUserId) {
+      if (existingUserId === caller.id) {
+        return jsonError("You cannot add yourself as an employee", 400);
+      }
 
-        const redirectTo =
-          Deno.env.get("APP_INVITE_REDIRECT_URL") ?? "gymbroo://auth/callback";
+      const target = await db.selectFrom("users").select("id").where("id", "=", existingUserId)
+        .executeTakeFirst();
+      if (!target) return jsonError("User not found", 404);
 
-        const { data, error: inviteErr } = await supabaseAdmin.auth.admin.inviteUserByEmail(
-          email,
-          { redirectTo, data: { username, name, last_name } },
-        );
-        if (inviteErr) return jsonError(inviteErr.message, 400);
+      const existingEmployee = await db
+        .selectFrom("employee")
+        .select(["id"])
+        .where("user_id", "=", existingUserId)
+        .where("gym_id", "=", gym_id)
+        .executeTakeFirst();
+      if (existingEmployee) {
+        return jsonError("This user is already an employee at this gym", 409);
+      }
 
-        const insert: UserInsert = {
-          email,
-          name,
-          last_name,
-          username,
-          auth_id: data.user.id,
-        };
-        const newUser = await db
+      const existingEt = await db
+        .selectFrom("employee_trainer")
+        .select(["id"])
+        .where("user_id", "=", existingUserId)
+        .where("gym_id", "=", gym_id)
+        .executeTakeFirst();
+      if (existingEt) {
+        return jsonError("This user is already an employee trainer at this gym", 409);
+      }
+
+      const roleLabel = employee_type === "employee_trainer" ? "Employee Trainer" : "Employee";
+      await db
+        .insertInto("notification")
+        .values({
+          user_id: existingUserId,
+          type: "employee_gym_invite",
+          title: `You've been invited to join ${gymName}`,
+          body: `You have a pending invitation to work at ${gymName} as ${roleLabel}.`,
+          metadata: {
+            invite_status: "pending",
+            inviter_id: caller.id,
+            gym_id,
+            gym_name: gymName,
+            employee_type,
+          },
+        })
+        .execute();
+      return json({ invited: true, user_id: existingUserId }, 200);
+    }
+
+    // ── Brand-new user: auth invite email, then user + staff rows atomically ──
+    if (!name || !last_name || !username) {
+      return jsonError(
+        "name, last_name, and username are required when the email does not match an existing user",
+        400,
+      );
+    }
+    const usernameTaken = await db.selectFrom("users").select("id").where("username", "=", username)
+      .executeTakeFirst();
+    if (usernameTaken) return jsonError("Username is already taken", 409);
+
+    const redirectTo = Deno.env.get("APP_INVITE_REDIRECT_URL") ?? "gymbroo://auth/callback";
+    const { data, error: inviteErr } = await supabaseAdmin.auth.admin.inviteUserByEmail(
+      email,
+      { redirectTo, data: { username, name, last_name } },
+    );
+    if (inviteErr) return jsonError(inviteErr.message, 400);
+
+    try {
+      const row = await db.transaction().execute(async (trx) => {
+        const insert: UserInsert = { email, name, last_name, username, auth_id: data.user.id };
+        const newUser = await trx
           .insertInto("users")
           .values(insert)
           .returning(["id"])
           .executeTakeFirstOrThrow();
-
-        resolvedUserId = newUser.id;
-        isNewUser = true;
-      }
-    }
-
-    // ── Self-add guard ────────────────────────────────────────────────────────
-    if (resolvedUserId === callerInternal.id) {
-      return jsonError("You cannot add yourself as an employee", 400);
-    }
-
-    // ── Duplicate guard ───────────────────────────────────────────────────────
-    const existingEmployee = await db
-      .selectFrom("employee")
-      .select(["id"])
-      .where("user_id", "=", resolvedUserId)
-      .where("gym_id", "=", gym_id)
-      .executeTakeFirst();
-    if (existingEmployee) {
-      return jsonError("This user is already an employee at this gym", 409);
-    }
-
-    const existingEt = await db
-      .selectFrom("employee_trainer")
-      .select(["id"])
-      .where("user_id", "=", resolvedUserId)
-      .where("gym_id", "=", gym_id)
-      .executeTakeFirst();
-    if (existingEt) {
-      return jsonError("This user is already an employee trainer at this gym", 409);
-    }
-
-    // ── Existing user: send invite notification ───────────────────────────────
-    if (!isNewUser) {
-      const gymName = await getGymName(gym_id);
-      await createInviteNotification({
-        userId: resolvedUserId,
-        gymId: gym_id,
-        gymName,
-        inviterId: callerInternal.id,
-        employeeType: employee_type,
+        return insertStaffRow(trx, newUser.id, gym_id, employee_type);
       });
-      return json({ invited: true, user_id: resolvedUserId }, 200);
-    }
-
-    // ── New user: insert immediately (they accept by setting up their account) ─
-    if (employee_type === "employee") {
-      const row = await db
-        .insertInto("employee")
-        .values({ user_id: resolvedUserId, gym_id })
-        .returningAll()
-        .executeTakeFirstOrThrow();
-      await db
-        .updateTable("users")
-        .set({ role: "employee" })
-        .where("id", "=", resolvedUserId)
-        .execute();
       return json(row, 201);
-    } else {
-      // employee_trainer: find or create the trainer row first
-      let trainerRow = await db
-        .selectFrom("trainer")
-        .select(["id"])
-        .where("user_id", "=", resolvedUserId)
-        .where("gym_id", "=", gym_id)
-        .executeTakeFirst();
-
-      if (!trainerRow) {
-        trainerRow = await db
-          .insertInto("trainer")
-          .values({ user_id: resolvedUserId, gym_id })
-          .returning(["id"])
-          .executeTakeFirstOrThrow();
-      }
-
-      const row = await db
-        .insertInto("employee_trainer")
-        .values({ user_id: resolvedUserId, gym_id, trainer_id: trainerRow.id })
-        .returningAll()
-        .executeTakeFirstOrThrow();
-      await db
-        .updateTable("users")
-        .set({ role: "employee_trainer" })
-        .where("id", "=", resolvedUserId)
-        .execute();
-      return json(row, 201);
+    } catch (err) {
+      // Don't leave an orphaned auth account behind.
+      await supabaseAdmin.auth.admin.deleteUser(data.user.id).catch(() => {});
+      if (pgCode(err) === "23505") return jsonError("A user with this email or username already exists", 409);
+      throw err;
     }
   }
 
@@ -283,21 +295,20 @@ Deno.serve(async (req: Request) => {
 
   // ── DELETE /employees/:id ─────────────────────────────────────────────────────
   if (req.method === "DELETE" && id) {
-    const result = await db.deleteFrom("employee").where("id", "=", id).executeTakeFirst();
-    if (!result.numDeletedRows) return jsonError("Employee not found", 404);
+    const existing = await db
+      .selectFrom("employee")
+      .select(["id", "user_id", "gym_id"])
+      .where("id", "=", id)
+      .executeTakeFirst();
+    if (!existing) return jsonError("Employee not found", 404);
+    if (!(await canManageGym(caller, existing.gym_id))) return forbidden();
+
+    await db.transaction().execute(async (trx) => {
+      await trx.deleteFrom("employee").where("id", "=", id).execute();
+      await reconcileRoles(trx, [existing.user_id]);
+    });
     return new Response(null, { status: 204 });
   }
 
   return jsonError("Not found", 404);
 });
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}

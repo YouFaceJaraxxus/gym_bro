@@ -1,32 +1,19 @@
-import { db, supabaseAdmin } from "../_shared/config.ts";
-import type { PostImageInsert, PostInsert, PostUpdate } from "../../types/schema/public.ts";
+import type { Kysely } from "npm:kysely@^0.27";
+import { db } from "../_shared/config.ts";
+import {
+  canCoachAtGym,
+  canEditAuthored,
+  canStaffShop,
+  forbidden,
+  json,
+  jsonError,
+  requireCaller,
+} from "../_shared/auth.ts";
+import { notify } from "../_shared/notify.ts";
+import type { Database, PostImageInsert, PostInsert, PostUpdate } from "../../types/schema/public.ts";
 
 const POST_COLS = ["id", "business_id", "author_id", "content", "created_at", "updated_at"] as const;
 const IMAGE_COLS = ["id", "post_id", "url", "position"] as const;
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
-
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
-}
-
-// A post is an announcement from business staff, not open member-generated
-// content — only people with a staff role at the business (or super_user) may
-// create/edit/delete posts there.
-async function isBusinessStaff(dbUserId: string, businessId: string): Promise<boolean> {
-  const [gymOwner, shopOwner, employee, trainer, employeeTrainer, shopVendor] = await Promise.all([
-    db.selectFrom("gym_owner").select("id").where("user_id", "=", dbUserId).where("gym_id", "=", businessId).executeTakeFirst(),
-    db.selectFrom("shop_owner").select("id").where("user_id", "=", dbUserId).where("shop_id", "=", businessId).executeTakeFirst(),
-    db.selectFrom("employee").select("id").where("user_id", "=", dbUserId).where("gym_id", "=", businessId).executeTakeFirst(),
-    db.selectFrom("trainer").select("id").where("user_id", "=", dbUserId).where("gym_id", "=", businessId).executeTakeFirst(),
-    db.selectFrom("employee_trainer").select("id").where("user_id", "=", dbUserId).where("gym_id", "=", businessId).executeTakeFirst(),
-    db.selectFrom("shop_vendor").select("id").where("user_id", "=", dbUserId).where("shop_id", "=", businessId).executeTakeFirst(),
-  ]);
-  return !!(gymOwner || shopOwner || employee || trainer || employeeTrainer || shopVendor);
-}
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -47,9 +34,42 @@ async function attachImages<T extends { id: string }>(posts: T[]) {
   return posts.map((p) => ({ ...p, images: byPost[p.id] ?? [] }));
 }
 
+// Always call inside a transaction.
+async function replacePostImages(
+  trx: Kysely<Database>,
+  postId: string,
+  images: { url: string; position?: number }[],
+) {
+  await trx.deleteFrom("post_image").where("post_id", "=", postId).execute();
+  if (!images.length) return;
+  const imageInserts: PostImageInsert[] = images.map((img, i) => ({
+    post_id: postId,
+    url: img.url,
+    position: img.position ?? i,
+  }));
+  await trx.insertInto("post_image").values(imageInserts).execute();
+}
+
+// ── Postgres error mapping ────────────────────────────────────────────────────
+
+function pgErrorResponse(e: unknown): Response {
+  const err = e as { code?: string; message?: string; detail?: string } | null;
+  switch (err?.code) {
+    case "23505":
+      return jsonError("Already exists", 409, { detail: err.detail });
+    case "23503":
+      return jsonError("Referenced business does not exist", 400, { detail: err.detail });
+    case "23502":
+    case "23514":
+    case "22P02":
+      return jsonError(err.message ?? "Invalid value", 400);
+  }
+  throw e;
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-Deno.serve(async (req: Request) => {
+async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const id = parseId(url.pathname);
 
@@ -83,17 +103,12 @@ Deno.serve(async (req: Request) => {
 
   // ── Auth wall ─────────────────────────────────────────────────────────────────
 
-  const { user, error: authError } = await requireAuth(req);
-  if (!user) return jsonError(authError ?? "Unauthorized", 401);
-
-  const dbUser = await db
-    .selectFrom("users")
-    .select(["id", "role"])
-    .where("auth_id", "=", user.id)
-    .executeTakeFirst();
-  if (!dbUser) return jsonError("User not found", 404);
+  const { caller, response } = await requireCaller(req);
+  if (!caller) return response;
 
   // ── POST /posts ────────────────────────────────────────────────────────────────
+  // A post is an announcement from business staff, not open member-generated
+  // content — gym staff/trainers, shop owners/vendors (or super_user) only.
   if (req.method === "POST" && !id) {
     const body = await req.json().catch(() => null);
     const { business_id, content, images } = body ?? {};
@@ -102,22 +117,36 @@ Deno.serve(async (req: Request) => {
       return jsonError("Missing required fields: business_id, content", 400);
     }
 
-    if (dbUser.role !== "super_user" && !(await isBusinessStaff(dbUser.id, business_id))) {
-      return jsonError("Forbidden — only business staff can post", 403);
-    }
+    const business = await db
+      .selectFrom("business")
+      .select(["id", "name", "type"])
+      .where("id", "=", business_id)
+      .executeTakeFirst();
+    if (!business) return jsonError("Business not found", 404);
 
-    const insert: PostInsert = { business_id, author_id: dbUser.id, content };
-    const post = await db.insertInto("post").values(insert).returning(POST_COLS).executeTakeFirstOrThrow();
+    const allowed = business.type === "gym"
+      ? await canCoachAtGym(caller, business_id)
+      : await canStaffShop(caller, business_id);
+    if (!allowed) return forbidden("Only business staff can post");
 
-    if (Array.isArray(images) && images.length) {
-      const imageInserts: PostImageInsert[] = images.map(
-        (img: { url: string; position?: number }, i: number) => ({
-          post_id: post.id,
-          url: img.url,
-          position: img.position ?? i,
-        }),
+    const insert: PostInsert = { business_id, author_id: caller.id, content };
+    const post = await db.transaction().execute(async (trx) => {
+      const created = await trx.insertInto("post").values(insert).returning(POST_COLS).executeTakeFirstOrThrow();
+      if (Array.isArray(images) && images.length) await replacePostImages(trx, created.id, images);
+      return created;
+    });
+
+    if (business.type === "gym") {
+      const members = await db.selectFrom("member").select("user_id").where("gym_id", "=", business_id).execute();
+      await notify(
+        members.map((m) => m.user_id).filter((uid) => uid !== caller.id),
+        {
+          type: "news",
+          title: `${business.name}: new post`,
+          body: String(content).slice(0, 120),
+          metadata: { business_id, post_id: post.id },
+        },
       );
-      await db.insertInto("post_image").values(imageInserts).execute();
     }
 
     const [withImages] = await attachImages([post]);
@@ -132,10 +161,7 @@ Deno.serve(async (req: Request) => {
       .where("id", "=", id)
       .executeTakeFirst();
     if (!existing) return jsonError("Post not found", 404);
-
-    if (dbUser.role !== "super_user" && existing.author_id !== dbUser.id) {
-      return jsonError("Forbidden", 403);
-    }
+    if (!canEditAuthored(caller, existing.author_id)) return forbidden();
 
     const body = await req.json().catch(() => null);
     const { content, images } = body ?? {};
@@ -144,21 +170,10 @@ Deno.serve(async (req: Request) => {
       ...(content !== undefined && { content }),
       updated_at: new Date().toISOString(),
     };
-    await db.updateTable("post").set(update).where("id", "=", id).execute();
-
-    if (Array.isArray(images)) {
-      await db.deleteFrom("post_image").where("post_id", "=", id).execute();
-      if (images.length) {
-        const imageInserts: PostImageInsert[] = images.map(
-          (img: { url: string; position?: number }, i: number) => ({
-            post_id: id,
-            url: img.url,
-            position: img.position ?? i,
-          }),
-        );
-        await db.insertInto("post_image").values(imageInserts).execute();
-      }
-    }
+    await db.transaction().execute(async (trx) => {
+      await trx.updateTable("post").set(update).where("id", "=", id).execute();
+      if (Array.isArray(images)) await replacePostImages(trx, id, images);
+    });
 
     const post = await db.selectFrom("post").select(POST_COLS).where("id", "=", id).executeTakeFirstOrThrow();
     const [withImages] = await attachImages([post]);
@@ -173,25 +188,19 @@ Deno.serve(async (req: Request) => {
       .where("id", "=", id)
       .executeTakeFirst();
     if (!existing) return jsonError("Post not found", 404);
-
-    if (dbUser.role !== "super_user" && existing.author_id !== dbUser.id) {
-      return jsonError("Forbidden", 403);
-    }
+    if (!canEditAuthored(caller, existing.author_id)) return forbidden();
 
     await db.deleteFrom("post").where("id", "=", id).execute();
     return new Response(null, { status: 204 });
   }
 
   return jsonError("Not found", 404);
+}
+
+Deno.serve(async (req: Request) => {
+  try {
+    return await handler(req);
+  } catch (e) {
+    return pgErrorResponse(e);
+  }
 });
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}

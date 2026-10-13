@@ -20,6 +20,8 @@ class _ExercisesPageState extends State<ExercisesPage> {
   bool _loading = true;
   String? _error;
   MuscleGroup? _filterMuscle;
+  // false → public library; true → only my private exercises (is_public=false).
+  bool _privateOnly = false;
   int _page = 0;
   bool _hasMore = true;
 
@@ -53,6 +55,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
         token,
         name: _search.text.trim().isEmpty ? null : _search.text.trim(),
         muscle: _filterMuscle,
+        isPublic: _privateOnly ? false : null,
         page: _page,
         pageSize: _pageSize,
       );
@@ -136,6 +139,33 @@ class _ExercisesPageState extends State<ExercisesPage> {
               onSubmitted: (_) => _load(reset: true),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Row(
+              children: [
+                ChoiceChip(
+                  label: const Text('Public'),
+                  selected: !_privateOnly,
+                  onSelected: (_) {
+                    if (!_privateOnly) return;
+                    setState(() => _privateOnly = false);
+                    _load(reset: true);
+                  },
+                ),
+                const SizedBox(width: 8),
+                ChoiceChip(
+                  avatar: const Icon(Icons.lock_outline, size: 16),
+                  label: const Text('My private'),
+                  selected: _privateOnly,
+                  onSelected: (_) {
+                    if (_privateOnly) return;
+                    setState(() => _privateOnly = true);
+                    _load(reset: true);
+                  },
+                ),
+              ],
+            ),
+          ),
           if (_filterMuscle != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -177,7 +207,11 @@ class _ExercisesPageState extends State<ExercisesPage> {
       );
     }
     if (_exercises.isEmpty) {
-      return const Center(child: Text('No exercises found'));
+      return Center(
+        child: Text(_privateOnly
+            ? 'You have no private exercises'
+            : 'No exercises found'),
+      );
     }
     return NotificationListener<ScrollNotification>(
       onNotification: (n) {

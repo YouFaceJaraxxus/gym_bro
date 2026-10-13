@@ -141,9 +141,10 @@ class ApiService {
     required String lastName,
     required String role,
   }) async {
+    // The Bearer token lets the API honor `role` for super users.
     final r = await _client.post(
       Uri.parse('$_base/users/signup'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _headers(token),
       body: jsonEncode({
         'email': email,
         'password': password,
@@ -1184,10 +1185,12 @@ class ApiService {
   Future<List<Membership>> getMemberships(
     String token, {
     String? userId,
+    String? gymId,
     bool? isActive,
   }) async {
     final params = <String>[];
     if (userId != null) params.add('user_id=$userId');
+    if (gymId != null) params.add('gym_id=$gymId');
     if (isActive != null) params.add('is_active=$isActive');
     final q = params.isEmpty ? '' : '?${params.join('&')}';
     final r = await _client.get(
@@ -1235,8 +1238,16 @@ class ApiService {
   Future<List<MembershipInvoice>> getMembershipInvoices(
     String token, {
     String? membershipId,
+    String? gymId,
+    String? userId,
+    InvoiceStatus? status,
   }) async {
-    final q = membershipId != null ? '?membership_id=$membershipId' : '';
+    final params = <String>[];
+    if (membershipId != null) params.add('membership_id=$membershipId');
+    if (gymId != null) params.add('gym_id=$gymId');
+    if (userId != null) params.add('user_id=$userId');
+    if (status != null) params.add('status=${status.apiValue}');
+    final q = params.isEmpty ? '' : '?${params.join('&')}';
     final r = await _client.get(
       Uri.parse('$_base/membership-invoices$q'),
       headers: _headers(token),
@@ -1314,5 +1325,145 @@ class ApiService {
       headers: _headers(token),
     );
     if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  // ── Added: accounts, businesses, billing ──────────────────────────────────
+
+  /// GET /users/:id
+  Future<UserProfile> getUser(String token, String id) async {
+    final r = await _client.get(
+      Uri.parse('$_base/users/$id'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return UserProfile.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// POST /users/change-password — 400 if [currentPassword] is wrong.
+  Future<void> changePassword(
+    String token, {
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final r = await _client.post(
+      Uri.parse('$_base/users/change-password'),
+      headers: _headers(token),
+      body: jsonEncode({
+        'current_password': currentPassword,
+        'new_password': newPassword,
+      }),
+    );
+    _check(r);
+  }
+
+  /// DELETE /users/:id — 409 (message surfaced) if the user owns a business.
+  Future<void> deleteUser(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/users/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  /// DELETE /businesses/:id — removes the business and everything under it.
+  Future<void> deleteBusiness(String token, String id) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/businesses/$id'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  /// GET /businesses/stats — aggregates over the gyms the caller manages.
+  Future<BusinessStats> getBusinessStats(String token) async {
+    final r = await _client.get(
+      Uri.parse('$_base/businesses/stats'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return BusinessStats.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// PUT /employees/role — moves a staff member between employee and
+  /// employee_trainer at [gymId]. [employeeType] is `"employee"` or
+  /// `"employee_trainer"`. Returns the new staff row (incl. `id`).
+  Future<Map<String, dynamic>> changeEmployeeRole(
+    String token, {
+    required String userId,
+    required String gymId,
+    required String employeeType,
+  }) async {
+    final r = await _client.put(
+      Uri.parse('$_base/employees/role'),
+      headers: _headers(token),
+      body: jsonEncode({
+        'user_id': userId,
+        'gym_id': gymId,
+        'employee_type': employeeType,
+      }),
+    );
+    _check(r);
+    return jsonDecode(r.body) as Map<String, dynamic>;
+  }
+
+  /// PUT /membership-invoices/:id — mark an invoice paid / unpaid / void.
+  Future<MembershipInvoice> updateMembershipInvoiceStatus(
+      String token, String id, InvoiceStatus status) async {
+    final r = await _client.put(
+      Uri.parse('$_base/membership-invoices/$id'),
+      headers: _headers(token),
+      body: jsonEncode({'status': status.apiValue}),
+    );
+    _check(r);
+    return MembershipInvoice.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  // ── Added: training & nutrition ────────────────────────────────────────────
+
+  /// POST /training-sessions/:id/end — sets ended_at = now() (if not set yet).
+  Future<TrainingSession> endTrainingSession(String token, String id) async {
+    final r = await _client.post(
+      Uri.parse('$_base/training-sessions/$id/end'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// PUT /training-sessions/sets/:setLogId — same editable fields as
+  /// POST /training-sessions/:id/sets (exercise_id, position, note, drops).
+  Future<SessionSetLog> updateSessionSet(
+    String token,
+    String setLogId,
+    Map<String, dynamic> data,
+  ) async {
+    final r = await _client.put(
+      Uri.parse('$_base/training-sessions/sets/$setLogId'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return SessionSetLog.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// DELETE /training-sessions/sets/:setLogId (cascades its drop logs).
+  Future<void> deleteSessionSet(String token, String setLogId) async {
+    final r = await _client.delete(
+      Uri.parse('$_base/training-sessions/sets/$setLogId'),
+      headers: _headers(token),
+    );
+    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+  }
+
+  /// PUT /posts/:id — {content?, images?: [{url, position}]} (author or super).
+  Future<Post> updatePost(
+      String token, String id, Map<String, dynamic> data) async {
+    final r = await _client.put(
+      Uri.parse('$_base/posts/$id'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return Post.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
   }
 }

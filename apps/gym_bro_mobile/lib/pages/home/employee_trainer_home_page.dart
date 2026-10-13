@@ -1,78 +1,44 @@
 import 'package:flutter/material.dart';
 import '../../models/user_profile.dart';
+import 'employee_home_page.dart';
+import 'home_widgets.dart';
+import 'trainer_home_page.dart';
 
-class EmployeeTrainerHomePage extends StatelessWidget {
+/// Employee-trainer home: today's coaching sessions plus the gyms they staff.
+class EmployeeTrainerHomePage extends StatefulWidget {
   const EmployeeTrainerHomePage({super.key, required this.profile});
 
   final UserProfile profile;
 
   @override
+  State<EmployeeTrainerHomePage> createState() =>
+      _EmployeeTrainerHomePageState();
+}
+
+class _EmployeeTrainerHomePageState extends State<EmployeeTrainerHomePage> {
+  int _refreshTick = 0;
+
+  Future<void> _refresh() async => setState(() => _refreshTick++);
+
+  @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return RefreshIndicator(
+      onRefresh: _refresh,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(24),
         children: [
-          Text(
-            'Welcome, ${profile.name}',
-            style: Theme.of(context).textTheme.headlineSmall,
+          HomeHeader(
+            title: 'Welcome, ${widget.profile.name}',
+            subtitle: widget.profile.role.displayName,
           ),
-          const SizedBox(height: 4),
-          Text(
-            profile.role.displayName,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: colorScheme.primary),
+          TrainerTodaySection(
+            key: ValueKey('trainer-$_refreshTick'),
+            profile: widget.profile,
           ),
-          const SizedBox(height: 32),
-          Card(
-            color: colorScheme.primaryContainer,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.today_outlined, size: 28),
-                      const SizedBox(width: 12),
-                      Text(
-                        "Today's Classes",
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  const Text('No classes scheduled today'),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Card(
-            color: colorScheme.secondaryContainer,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.schedule_outlined, size: 28),
-                      const SizedBox(width: 12),
-                      Text(
-                        'My Shifts',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  const Text('No shifts scheduled'),
-                ],
-              ),
-            ),
+          StaffGymsSection(
+            key: ValueKey('gyms-$_refreshTick'),
+            profile: widget.profile,
           ),
         ],
       ),

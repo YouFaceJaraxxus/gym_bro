@@ -94,6 +94,20 @@ class AuthManager {
     await _storage.saveProfile(profile);
   }
 
+  /// Best-effort server-side logout (revokes refresh tokens), then clears the
+  /// local session regardless of whether the API call succeeded.
+  Future<void> logout() async {
+    if (hasSession) {
+      try {
+        final token = await getValidToken();
+        await _authService.logout(token);
+      } catch (_) {
+        // Ignore — the local session is cleared either way.
+      }
+    }
+    await clear();
+  }
+
   Future<void> clear() async {
     _accessToken = null;
     _refreshToken = null;

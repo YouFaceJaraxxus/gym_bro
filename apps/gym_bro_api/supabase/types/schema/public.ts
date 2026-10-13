@@ -19,6 +19,8 @@ export type UserRole =
 
 export type BusinessType = "gym" | "shop";
 
+export type InvoiceStatus = "unpaid" | "paid" | "void";
+
 export type ShopItemType = "equipment" | "supplement" | "gift_card";
 
 export type MuscleGroup =
@@ -218,6 +220,8 @@ export interface MembershipInvoiceTable {
   membership_type_id: string;
   issued_at: Generated<string>;
   amount: ColumnType<string, string | number, string | number>; // NUMERIC
+  status: Generated<InvoiceStatus>;
+  paid_at: string | null; // TIMESTAMPTZ as ISO string
 }
 
 export interface ShopItemTable {

@@ -3,7 +3,7 @@ import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/image_upload_field.dart';
-import 'forgot_password_page.dart';
+import 'typed_confirm_dialog.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, required this.profile, this.onUpdated});
@@ -81,8 +81,65 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _logout() async {
-    await AuthManager.instance.clear();
+    await AuthManager.instance.logout();
     if (mounted) Navigator.pushReplacementNamed(context, '/signup');
+  }
+
+  Future<void> _changePassword() async {
+    final changed = await showDialog<bool>(
+      context: context,
+      builder: (_) => const _ChangePasswordDialog(),
+    );
+    if (changed == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password changed')),
+      );
+    }
+  }
+
+  Future<void> _deleteAccount() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => const TypedConfirmDialog(
+        title: 'Delete account?',
+        message: 'This permanently deletes your account, memberships and '
+            'billing history. This cannot be undone.',
+        confirmText: 'DELETE',
+        actionLabel: 'Delete account',
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      await _api.deleteUser(token, _profile.id);
+      await AuthManager.instance.clear();
+      if (mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/signup', (_) => false);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _saving = false);
+        // 409 when the user still owns a gym or shop — show the API message.
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text("Couldn't delete account"),
+            content: Text(e.toString().replaceFirst('Exception: ', '')),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -160,19 +217,144 @@ class _ProfilePageState extends State<ProfilePage> {
               leading: const Icon(Icons.lock_outline),
               title: const Text('Change password'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
-              ),
+              onTap: _saving ? null : _changePassword,
             ),
             ListTile(
               leading: Icon(Icons.logout, color: cs.error),
               title: Text('Log out', style: TextStyle(color: cs.error)),
               onTap: _logout,
             ),
+            const SizedBox(height: 8),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.delete_forever_outlined, color: cs.error),
+              title: Text('Delete account', style: TextStyle(color: cs.error)),
+              subtitle: const Text('Permanently remove your account'),
+              onTap: _saving ? null : _deleteAccount,
+            ),
           ],
         ),
       ),
+    );
+  }
+}
+
+// ── Change password dialog ────────────────────────────────────────────────────
+
+class _ChangePasswordDialog extends StatefulWidget {
+  const _ChangePasswordDialog();
+
+  @override
+  State<_ChangePasswordDialog> createState() => _ChangePasswordDialogState();
+}
+
+class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
+  final _api = ApiService();
+  final _formKey = GlobalKey<FormState>();
+  final _currentCtrl = TextEditingController();
+  final _newCtrl = TextEditingController();
+  final _confirmCtrl = TextEditingController();
+  bool _obscure = true;
+  bool _saving = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _currentCtrl.dispose();
+    _newCtrl.dispose();
+    _confirmCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      await _api.changePassword(
+        token,
+        currentPassword: _currentCtrl.text,
+        newPassword: _newCtrl.text,
+      );
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString().replaceFirst('Exception: ', '');
+          _saving = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final toggle = IconButton(
+      icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),
+      tooltip: _obscure ? 'Show passwords' : 'Hide passwords',
+      onPressed: () => setState(() => _obscure = !_obscure),
+    );
+    return AlertDialog(
+      title: const Text('Change password'),
+      content: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _currentCtrl,
+                obscureText: _obscure,
+                decoration: InputDecoration(
+                  labelText: 'Current password',
+                  suffixIcon: toggle,
+                ),
+                validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _newCtrl,
+                obscureText: _obscure,
+                decoration: const InputDecoration(labelText: 'New password'),
+                validator: (v) =>
+                    (v == null || v.length < 6) ? 'Minimum 6 characters' : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _confirmCtrl,
+                obscureText: _obscure,
+                decoration: const InputDecoration(labelText: 'Confirm new password'),
+                validator: (v) =>
+                    v != _newCtrl.text ? 'Passwords do not match' : null,
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                Text(_error!, style: TextStyle(color: cs.error)),
+              ],
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _saving ? null : () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _saving ? null : _submit,
+          child: _saving
+              ? const SizedBox(
+                  height: 18,
+                  width: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Change'),
+        ),
+      ],
     );
   }
 }

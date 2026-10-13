@@ -1,4 +1,14 @@
-import { db, supabaseAdmin } from "../_shared/config.ts";
+import { db } from "../_shared/config.ts";
+import {
+  type Caller,
+  coachesUser,
+  forbidden,
+  isSuperUser,
+  json,
+  jsonError,
+  requireCaller,
+} from "../_shared/auth.ts";
+import { notify } from "../_shared/notify.ts";
 import type { MealPlanAssignmentInsert } from "../../types/schema/public.ts";
 
 const ASSIGNMENT_COLS = [
@@ -26,14 +36,12 @@ const MEAL_PLAN_COLS = [
   "updated_at",
 ] as const;
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
-
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
-}
+type AssignmentRow = {
+  id: string;
+  meal_plan_id: string;
+  user_id: string;
+  assigned_by_id: string | null;
+};
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -42,13 +50,64 @@ function parseId(pathname: string): string | null {
   return match ? match[1] : null;
 }
 
+// ── Response shaping ──────────────────────────────────────────────────────────
+// Each row: assignment columns + `meal_plan` (flat row or null) +
+// `meal_plan_name` + `assigned_by_name` ("Name Last" or null).
+
+async function withDetails<T extends AssignmentRow>(assignments: T[]) {
+  const planIds = [...new Set(assignments.map((a) => a.meal_plan_id))];
+  const plans = planIds.length
+    ? await db.selectFrom("meal_plan").select(MEAL_PLAN_COLS).where("id", "in", planIds).execute()
+    : [];
+  const planMap = Object.fromEntries(plans.map((p) => [p.id, p]));
+
+  const assignerIds = [...new Set(assignments.map((a) => a.assigned_by_id).filter((x): x is string => !!x))];
+  const assigners = assignerIds.length
+    ? await db.selectFrom("users").select(["id", "name", "last_name"]).where("id", "in", assignerIds).execute()
+    : [];
+  const assignerName = Object.fromEntries(
+    assigners.map((u) => [u.id, `${u.name ?? ""} ${u.last_name ?? ""}`.trim() || null]),
+  );
+
+  return assignments.map((a) => ({
+    ...a,
+    meal_plan: planMap[a.meal_plan_id] ?? null,
+    meal_plan_name: planMap[a.meal_plan_id]?.name ?? null,
+    assigned_by_name: a.assigned_by_id ? assignerName[a.assigned_by_id] ?? null : null,
+  }));
+}
+
+// ── Postgres error mapping ────────────────────────────────────────────────────
+
+function pgErrorResponse(e: unknown): Response {
+  const err = e as { code?: string; message?: string; detail?: string } | null;
+  switch (err?.code) {
+    case "23505":
+      return jsonError("Already assigned", 409, { detail: err.detail });
+    case "23503":
+      return jsonError("Referenced meal plan or user does not exist", 400, { detail: err.detail });
+    case "23502":
+    case "23514":
+    case "22P02":
+    case "22007":
+    case "22008":
+      return jsonError(err.message ?? "Invalid value", 400);
+  }
+  throw e;
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-Deno.serve(async (req: Request) => {
+async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const id = parseId(url.pathname);
 
-  // ── GET /meal-plan-assignments — public, filtered by user_id/meal_plan_id ────
+  const { caller, response } = await requireCaller(req);
+  if (!caller) return response;
+
+  // ── GET /meal-plan-assignments — ?user_id= / ?meal_plan_id= ──────────────────
+  // Rows are limited to ones where the caller is the target or the assigner,
+  // unless the caller is super or coaches the target user.
   if (req.method === "GET" && !id) {
     const userId = url.searchParams.get("user_id");
     const mealPlanId = url.searchParams.get("meal_plan_id");
@@ -57,27 +116,24 @@ Deno.serve(async (req: Request) => {
     if (userId) query = query.where("user_id", "=", userId);
     if (mealPlanId) query = query.where("meal_plan_id", "=", mealPlanId);
 
-    const assignments = await query.orderBy("created_at", "desc").execute();
+    const unrestricted = isSuperUser(caller) ||
+      (userId !== null && (userId === caller.id || (await coachesUser(caller, userId))));
 
-    const planIds = [...new Set(assignments.map((a) => a.meal_plan_id))];
-    const plans = planIds.length
-      ? await db.selectFrom("meal_plan").select(MEAL_PLAN_COLS).where("id", "in", planIds).execute()
-      : [];
-    const planMap = Object.fromEntries(plans.map((p) => [p.id, p]));
+    if (!unrestricted && !mealPlanId) {
+      // No plan filter: restrict in SQL so we never scan everyone's assignments.
+      query = query.where((eb) =>
+        eb.or([eb("user_id", "=", caller.id), eb("assigned_by_id", "=", caller.id)])
+      );
+    }
 
-    return json(assignments.map((a) => ({ ...a, meal_plan: planMap[a.meal_plan_id] ?? null })));
+    let assignments = await query.orderBy("created_at", "desc").execute();
+
+    if (!unrestricted && mealPlanId) {
+      assignments = await filterVisible(caller, assignments);
+    }
+
+    return json(await withDetails(assignments));
   }
-
-  // ── Auth wall ─────────────────────────────────────────────────────────────────
-
-  const { user, error: authError } = await requireAuth(req);
-  if (!user) return jsonError(authError ?? "Unauthorized", 401);
-
-  const dbUser = await db
-    .selectFrom("users")
-    .select(["id", "role"])
-    .where("auth_id", "=", user.id)
-    .executeTakeFirst();
 
   // ── POST /meal-plan-assignments ───────────────────────────────────────────────
   if (req.method === "POST" && !id) {
@@ -88,32 +144,51 @@ Deno.serve(async (req: Request) => {
       return jsonError("meal_plan_id and user_id are required", 400);
     }
 
-    try {
-      const insert: MealPlanAssignmentInsert = {
-        meal_plan_id,
-        user_id,
-        assigned_by_id: dbUser?.id ?? null,
-        start_date: start_date ?? null,
-        end_date: end_date ?? null,
-        note: note ?? null,
-      };
-
-      const assignment = await db
-        .insertInto("meal_plan_assignment")
-        .values(insert)
-        .returning(ASSIGNMENT_COLS)
-        .executeTakeFirstOrThrow();
-
-      const plan = await db
-        .selectFrom("meal_plan")
-        .select(MEAL_PLAN_COLS)
-        .where("id", "=", meal_plan_id)
-        .executeTakeFirst();
-
-      return json({ ...assignment, meal_plan: plan ?? null }, 201);
-    } catch (e) {
-      return dbErrorResponse(e);
+    const plan = await db
+      .selectFrom("meal_plan")
+      .select(MEAL_PLAN_COLS)
+      .where("id", "=", meal_plan_id)
+      .executeTakeFirst();
+    if (!plan) return jsonError("Meal plan not found", 404);
+    if (!plan.is_public && plan.author_id !== caller.id && !isSuperUser(caller)) {
+      return forbidden("You can only assign public meal plans or your own");
     }
+
+    if (user_id !== caller.id) {
+      const target = await db.selectFrom("users").select("id").where("id", "=", user_id).executeTakeFirst();
+      if (!target) return jsonError("User not found", 404);
+      if (!(await coachesUser(caller, user_id))) {
+        return forbidden("You can only assign meal plans to yourself or members you coach");
+      }
+    }
+
+    const insert: MealPlanAssignmentInsert = {
+      meal_plan_id,
+      user_id,
+      assigned_by_id: caller.id,
+      start_date: start_date ?? null,
+      end_date: end_date ?? null,
+      note: note ?? null,
+    };
+
+    const assignment = await db
+      .insertInto("meal_plan_assignment")
+      .values(insert)
+      .returning(ASSIGNMENT_COLS)
+      .executeTakeFirstOrThrow();
+
+    if (user_id !== caller.id) {
+      const assigner = `${caller.name ?? ""} ${caller.last_name ?? ""}`.trim() || "Your coach";
+      await notify([user_id], {
+        type: "training",
+        title: "New meal plan assigned",
+        body: `${assigner} assigned you "${plan.name}"`,
+        metadata: { meal_plan_id, assignment_id: assignment.id },
+      });
+    }
+
+    const [row] = await withDetails([assignment]);
+    return json(row, 201);
   }
 
   // ── DELETE /meal-plan-assignments/:id ─────────────────────────────────────────
@@ -125,35 +200,36 @@ Deno.serve(async (req: Request) => {
       .executeTakeFirst();
     if (!existing) return jsonError("Meal plan assignment not found", 404);
 
-    const isAssigner = existing.assigned_by_id && existing.assigned_by_id === dbUser?.id;
-    const isTargetUser = existing.user_id === dbUser?.id;
-    if (!isAssigner && !isTargetUser && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
+    const isAssigner = existing.assigned_by_id !== null && existing.assigned_by_id === caller.id;
+    const isTargetUser = existing.user_id === caller.id;
+    if (!isAssigner && !isTargetUser && !isSuperUser(caller)) return forbidden();
 
     await db.deleteFrom("meal_plan_assignment").where("id", "=", id).execute();
     return new Response(null, { status: 204 });
   }
 
   return jsonError("Not found", 404);
-});
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
 }
 
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}
-
-function dbErrorResponse(e: unknown): Response {
-  const code = (e as { code?: string } | null)?.code;
-  if (code === "23503" || code === "23505" || code === "23514" || code === "23502") {
-    const message = (e as { message?: string } | null)?.message ?? "Constraint violation";
-    return jsonError(message, 400);
+/** Keeps rows where the caller is target/assigner or coaches the target. */
+async function filterVisible<T extends AssignmentRow>(caller: Caller, rows: T[]): Promise<T[]> {
+  const coached = new Map<string, boolean>();
+  const out: T[] = [];
+  for (const row of rows) {
+    if (row.user_id === caller.id || row.assigned_by_id === caller.id) {
+      out.push(row);
+      continue;
+    }
+    if (!coached.has(row.user_id)) coached.set(row.user_id, await coachesUser(caller, row.user_id));
+    if (coached.get(row.user_id)) out.push(row);
   }
-  throw e;
+  return out;
 }
+
+Deno.serve(async (req: Request) => {
+  try {
+    return await handler(req);
+  } catch (e) {
+    return pgErrorResponse(e);
+  }
+});

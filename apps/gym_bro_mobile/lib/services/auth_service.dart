@@ -13,16 +13,12 @@ final _baseUrl =
 class AuthService {
   final _client = http.Client();
 
-  /// Signs up a new user. Returns the raw API response.
+  /// Signs up a new user. Returns `{ message, user }` on success (201); the
+  /// user must confirm their email before signing in — no session is returned.
   ///
-  /// Two possible shapes:
-  ///   - Normal signup (201): `{ message, user, role_assignment }` — no session yet,
-  ///     user must confirm their email.
-  ///   - Invited signup (200): `{ access_token, refresh_token, expires_in, ..., profile }`
-  ///     — the email was already pre-registered by an owner; a live session is returned
-  ///     so the app can navigate straight to home.
-  ///
-  /// Callers should check `data.containsKey('access_token')` to distinguish the two.
+  /// Throws [SignupException] carrying the API's `code` on failure, e.g.
+  /// `invite_pending` (the account was invited and the invite email was
+  /// re-sent) or `email_taken`.
   Future<Map<String, dynamic>> signup({
     required String email,
     required String password,
@@ -41,11 +37,31 @@ class AuthService {
         'last_name': lastName,
       }),
     );
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    Map<String, dynamic> data;
+    try {
+      data = jsonDecode(response.body) as Map<String, dynamic>;
+    } on FormatException {
+      data = {};
+    }
     if (response.statusCode >= 400) {
-      throw Exception(data['error'] ?? 'Signup failed');
+      throw SignupException(
+        data['error'] as String? ?? 'Signup failed (${response.statusCode})',
+        code: data['code'] as String?,
+        statusCode: response.statusCode,
+      );
     }
     return data;
+  }
+
+  /// Revokes the session's refresh tokens on the server (POST /users/logout).
+  Future<void> logout(String accessToken) async {
+    final response = await _client.post(
+      Uri.parse('$_baseUrl/logout'),
+      headers: {'Authorization': 'Bearer $accessToken'},
+    );
+    if (response.statusCode >= 400) {
+      throw Exception('Logout failed (${response.statusCode})');
+    }
   }
 
   Future<Map<String, dynamic>> signin({
@@ -137,4 +153,17 @@ class AuthService {
     }
     return data;
   }
+}
+
+/// Signup failure with the API's machine-readable `code`
+/// (`invite_pending`, `email_taken`, …) when one was returned.
+class SignupException implements Exception {
+  final String message;
+  final String? code;
+  final int statusCode;
+
+  const SignupException(this.message, {this.code, required this.statusCode});
+
+  @override
+  String toString() => message;
 }

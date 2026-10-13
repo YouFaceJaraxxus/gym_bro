@@ -1,13 +1,6 @@
-import { db, supabaseAdmin } from "../_shared/config.ts";
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
-
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
-}
+import { db } from "../_shared/config.ts";
+import { canManageGym, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
+import { pgCode, reconcileRoles } from "../_shared/roles.ts";
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -19,8 +12,8 @@ function parseId(pathname: string): string | null {
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
-  const { user, error: authError } = await requireAuth(req);
-  if (!user) return jsonError(authError ?? "Unauthorized", 401);
+  const { caller, response } = await requireCaller(req);
+  if (response) return response;
 
   const url = new URL(req.url);
   const id = parseId(url.pathname);
@@ -30,14 +23,31 @@ Deno.serve(async (req: Request) => {
     const body = await req.json().catch(() => null);
     const { user_id, gym_id } = body ?? {};
     if (!user_id || !gym_id) return jsonError("user_id and gym_id are required", 400);
+    if (!(await canManageGym(caller, gym_id))) return forbidden();
 
-    const row = await db
-      .insertInto("trainer")
-      .values({ user_id, gym_id })
-      .returningAll()
-      .executeTakeFirstOrThrow();
-    await db.updateTable("users").set({ role: "trainer" }).where("id", "=", user_id).execute();
-    return json(row, 201);
+    try {
+      const row = await db.transaction().execute(async (trx) => {
+        const inserted = await trx
+          .insertInto("trainer")
+          .values({ user_id, gym_id })
+          .returningAll()
+          .executeTakeFirstOrThrow();
+        // Don't downgrade front-desk staff to plain trainer.
+        await trx
+          .updateTable("users")
+          .set({ role: "trainer" })
+          .where("id", "=", user_id)
+          .where("role", "=", "member")
+          .execute();
+        return inserted;
+      });
+      return json(row, 201);
+    } catch (err) {
+      const code = pgCode(err);
+      if (code === "23505") return jsonError("This user is already a trainer at this gym", 409);
+      if (code === "23503") return jsonError("User or gym not found", 400);
+      throw err;
+    }
   }
 
   // ── GET /trainers — optional ?user_id= and/or ?gym_id= filters ───────────────
@@ -59,21 +69,20 @@ Deno.serve(async (req: Request) => {
 
   // ── DELETE /trainers/:id ──────────────────────────────────────────────────────
   if (req.method === "DELETE" && id) {
-    const result = await db.deleteFrom("trainer").where("id", "=", id).executeTakeFirst();
-    if (!result.numDeletedRows) return jsonError("Trainer not found", 404);
+    const existing = await db
+      .selectFrom("trainer")
+      .select(["id", "user_id", "gym_id"])
+      .where("id", "=", id)
+      .executeTakeFirst();
+    if (!existing) return jsonError("Trainer not found", 404);
+    if (!(await canManageGym(caller, existing.gym_id))) return forbidden();
+
+    await db.transaction().execute(async (trx) => {
+      await trx.deleteFrom("trainer").where("id", "=", id).execute();
+      await reconcileRoles(trx, [existing.user_id]);
+    });
     return new Response(null, { status: 204 });
   }
 
   return jsonError("Not found", 404);
 });
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}

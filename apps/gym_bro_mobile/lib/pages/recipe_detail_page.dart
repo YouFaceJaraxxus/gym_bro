@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/open_url.dart';
 import 'recipe_form_page.dart';
 
 class RecipeDetailPage extends StatefulWidget {
@@ -345,7 +346,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
                                 decoration: TextDecoration.underline,
                               ),
                             ),
-                            onTap: () {/* open URL */},
+                            onTap: () => openExternalUrl(context, video.url),
                           ),
                         );
                       },

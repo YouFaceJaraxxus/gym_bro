@@ -120,6 +120,8 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
       for (final entry in _schedule.entries) {
         final (weekNum, dayOfWeek) = entry.key;
         final draft = entry.value;
+        // Days beyond a shortened duration are dropped, not saved.
+        if (weekNum > _numWeeks) continue;
         if (draft.dailyMealPlanId != null) {
           assignedDays.add({
             'daily_meal_plan_id': draft.dailyMealPlanId,

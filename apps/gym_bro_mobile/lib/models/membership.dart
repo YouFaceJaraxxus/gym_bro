@@ -65,12 +65,46 @@ class Membership {
   bool get isExpired => DateTime.now().isAfter(toDate);
 }
 
+enum InvoiceStatus {
+  unpaid,
+  paid,
+  voided;
+
+  static InvoiceStatus fromString(String? s) => switch (s) {
+        'paid' => InvoiceStatus.paid,
+        'void' => InvoiceStatus.voided,
+        _ => InvoiceStatus.unpaid,
+      };
+
+  String get apiValue => switch (this) {
+        InvoiceStatus.unpaid => 'unpaid',
+        InvoiceStatus.paid => 'paid',
+        InvoiceStatus.voided => 'void',
+      };
+
+  String get displayName => switch (this) {
+        InvoiceStatus.unpaid => 'Unpaid',
+        InvoiceStatus.paid => 'Paid',
+        InvoiceStatus.voided => 'Void',
+      };
+}
+
 class MembershipInvoice {
   final String id;
   final String membershipId;
   final String membershipTypeId;
   final DateTime issuedAt;
   final double amount;
+  final InvoiceStatus status;
+  final DateTime? paidAt;
+
+  // Joined fields (present on GET /membership-invoices and PUT responses).
+  final String? userId;
+  final String? memberName;
+  final String? memberLastName;
+  final String? gymId;
+  final String? gymName;
+  final String? membershipTypeName;
 
   const MembershipInvoice({
     required this.id,
@@ -78,7 +112,18 @@ class MembershipInvoice {
     required this.membershipTypeId,
     required this.issuedAt,
     required this.amount,
+    this.status = InvoiceStatus.unpaid,
+    this.paidAt,
+    this.userId,
+    this.memberName,
+    this.memberLastName,
+    this.gymId,
+    this.gymName,
+    this.membershipTypeName,
   });
+
+  String get memberFullName =>
+      '${memberName ?? ''} ${memberLastName ?? ''}'.trim();
 
   factory MembershipInvoice.fromJson(Map<String, dynamic> json) => MembershipInvoice(
         id: json['id'] as String,
@@ -86,5 +131,15 @@ class MembershipInvoice {
         membershipTypeId: json['membership_type_id'] as String,
         issuedAt: DateTime.parse(json['issued_at'] as String),
         amount: double.parse(json['amount'].toString()),
+        status: InvoiceStatus.fromString(json['status'] as String?),
+        paidAt: json['paid_at'] == null
+            ? null
+            : DateTime.tryParse(json['paid_at'].toString()),
+        userId: json['user_id'] as String?,
+        memberName: json['member_name'] as String?,
+        memberLastName: json['member_last_name'] as String?,
+        gymId: json['gym_id'] as String?,
+        gymName: json['gym_name'] as String?,
+        membershipTypeName: json['membership_type_name'] as String?,
       );
 }

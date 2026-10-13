@@ -6,6 +6,7 @@ import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../membership_page.dart';
 import '../sessions_page.dart';
+import 'home_widgets.dart';
 
 class MemberHomePage extends StatefulWidget {
   const MemberHomePage({super.key, required this.profile});
@@ -21,6 +22,7 @@ class _MemberHomePageState extends State<MemberHomePage> {
   Membership? _membership;
   TrainingSession? _nextSession;
   bool _loading = true;
+  String? _error;
 
   @override
   void initState() {
@@ -29,6 +31,10 @@ class _MemberHomePageState extends State<MemberHomePage> {
   }
 
   Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
     try {
       final token = await AuthManager.instance.getValidToken();
       final results = await Future.wait([
@@ -46,8 +52,13 @@ class _MemberHomePageState extends State<MemberHomePage> {
           _loading = false;
         });
       }
-    } catch (_) {
-      if (mounted) setState(() => _loading = false);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString().replaceFirst('Exception: ', '');
+          _loading = false;
+        });
+      }
     }
   }
 
@@ -57,10 +68,11 @@ class _MemberHomePageState extends State<MemberHomePage> {
     final membership = _membership;
     final isValid = membership != null && !membership.isExpired;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(24),
         children: [
           Text(
             'Hey, ${widget.profile.name}!',
@@ -75,12 +87,17 @@ class _MemberHomePageState extends State<MemberHomePage> {
                 ?.copyWith(color: colorScheme.primary),
           ),
           const SizedBox(height: 32),
+          if (_error != null) ...[
+            HomeError(message: _error!, onRetry: _load),
+            const SizedBox(height: 16),
+          ],
           InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => MembershipPage(profile: widget.profile)),
-            ),
+            onTap: () async {
+              await pushTabPage<void>(
+                  context, 'Membership', MembershipPage(profile: widget.profile));
+              _load();
+            },
             child: Card(
               color: colorScheme.primaryContainer,
               child: Padding(
@@ -105,6 +122,8 @@ class _MemberHomePageState extends State<MemberHomePage> {
                         width: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
+                    else if (_error != null)
+                      const Text("Couldn't load your membership")
                     else if (!isValid)
                       const Text('No active membership')
                     else
@@ -125,7 +144,9 @@ class _MemberHomePageState extends State<MemberHomePage> {
               subtitle: Text(
                 _loading
                     ? 'Loading…'
-                    : _nextSession != null
+                    : _error != null
+                        ? 'Unavailable'
+                        : _nextSession != null
                         ? 'Session in progress'
                         : 'None scheduled',
               ),

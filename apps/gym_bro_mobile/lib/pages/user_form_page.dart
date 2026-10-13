@@ -50,15 +50,6 @@ class _UserFormPageState extends State<UserFormPage> {
     super.dispose();
   }
 
-  String _roleToString(UserRole role) => switch (role) {
-        UserRole.owner => 'owner',
-        UserRole.trainer => 'trainer',
-        UserRole.employee => 'employee',
-        UserRole.employeeTrainer => 'employee_trainer',
-        UserRole.member => 'member',
-        UserRole.superUser => 'super_user',
-      };
-
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -76,7 +67,7 @@ class _UserFormPageState extends State<UserFormPage> {
           'last_name': _lastNameCtrl.text.trim(),
           'username': _usernameCtrl.text.trim(),
           'email': _emailCtrl.text.trim(),
-          'role': _roleToString(_role),
+          'role': _role.apiValue,
         });
       } else {
         await _api.createUser(
@@ -86,7 +77,7 @@ class _UserFormPageState extends State<UserFormPage> {
           username: _usernameCtrl.text.trim(),
           name: _nameCtrl.text.trim(),
           lastName: _lastNameCtrl.text.trim(),
-          role: _roleToString(_role),
+          role: _role.apiValue,
         );
       }
 

@@ -1,5 +1,7 @@
-import { db, supabaseAdmin } from "../_shared/config.ts";
-import type { ShopItemInsert, ShopItemUpdate } from "../../types/schema/public.ts";
+import { db } from "../_shared/config.ts";
+import { canStaffShop, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
+import type { ShopItemInsert, ShopItemType, ShopItemUpdate } from "../../types/schema/public.ts";
+import { pgCode } from "../_shared/roles.ts";
 
 const COLS = [
   "id",
@@ -14,14 +16,19 @@ const COLS = [
   "image_url",
 ] as const;
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
+const ITEM_TYPES: ShopItemType[] = ["equipment", "supplement", "gift_card"];
 
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
-}
+// Columns a PUT may change (shop_id is immutable).
+const UPDATABLE = [
+  "type",
+  "name",
+  "description",
+  "price",
+  "quantity",
+  "is_active",
+  "active_until",
+  "image_url",
+] as const;
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -57,10 +64,10 @@ Deno.serve(async (req: Request) => {
     return json(item);
   }
 
-  // ── Auth wall — writes require a valid JWT ────────────────────────────────────
+  // ── Auth wall — writes require shop staff (owner or vendor) ──────────────────
 
-  const { user, error: authError } = await requireAuth(req);
-  if (!user) return jsonError(authError ?? "Unauthorized", 401);
+  const { caller, response } = await requireCaller(req);
+  if (response) return response;
 
   // ── POST /shop-items ──────────────────────────────────────────────────────────
   if (req.method === "POST" && !id) {
@@ -71,12 +78,13 @@ Deno.serve(async (req: Request) => {
     if (!shop_id || !type || !name || price == null || quantity == null) {
       return jsonError("Missing required fields: shop_id, type, name, price, quantity", 400);
     }
-    if (!["equipment", "supplement", "gift_card"].includes(type)) {
+    if (!ITEM_TYPES.includes(type)) {
       return jsonError("type must be 'equipment', 'supplement', or 'gift_card'", 400);
     }
     if (!Number.isInteger(quantity) || quantity < 1) {
       return jsonError("quantity must be a positive integer", 400);
     }
+    if (!(await canStaffShop(caller, shop_id))) return forbidden();
 
     const insert: ShopItemInsert = {
       shop_id,
@@ -90,22 +98,41 @@ Deno.serve(async (req: Request) => {
       image_url: image_url ?? null,
     };
 
-    const item = await db
-      .insertInto("shop_item")
-      .values(insert)
-      .returning(COLS)
-      .executeTakeFirstOrThrow();
-    return json(item, 201);
+    try {
+      const item = await db
+        .insertInto("shop_item")
+        .values(insert)
+        .returning(COLS)
+        .executeTakeFirstOrThrow();
+      return json(item, 201);
+    } catch (err) {
+      if (pgCode(err) === "23503") return jsonError("Shop not found", 400);
+      throw err;
+    }
   }
 
   // ── PUT /shop-items/:id ───────────────────────────────────────────────────────
   if (req.method === "PUT" && id) {
     const body = await req.json().catch(() => null);
-    if (!body || Object.keys(body).length === 0) {
-      return jsonError("Body must not be empty", 400);
+    if (!body || typeof body !== "object") return jsonError("Body must not be empty", 400);
+
+    const update: ShopItemUpdate = {};
+    for (const key of UPDATABLE) {
+      if (key in body) (update as Record<string, unknown>)[key] = body[key];
     }
-    const { id: _id, shop_id: _sid, ...fields } = body;
-    const update: ShopItemUpdate = fields;
+    if (Object.keys(update).length === 0) return jsonError("Body must not be empty", 400);
+    if (update.type !== undefined && !ITEM_TYPES.includes(update.type as ShopItemType)) {
+      return jsonError("type must be 'equipment', 'supplement', or 'gift_card'", 400);
+    }
+    if (update.quantity !== undefined && (!Number.isInteger(update.quantity) || update.quantity < 1)) {
+      return jsonError("quantity must be a positive integer", 400);
+    }
+
+    const existing = await db.selectFrom("shop_item").select("shop_id").where("id", "=", id)
+      .executeTakeFirst();
+    if (!existing) return jsonError("Shop item not found", 404);
+    if (!(await canStaffShop(caller, existing.shop_id))) return forbidden();
+
     const item = await db
       .updateTable("shop_item")
       .set(update)
@@ -118,24 +145,21 @@ Deno.serve(async (req: Request) => {
 
   // ── DELETE /shop-items/:id ────────────────────────────────────────────────────
   if (req.method === "DELETE" && id) {
-    const result = await db
-      .deleteFrom("shop_item")
-      .where("id", "=", id)
+    const existing = await db.selectFrom("shop_item").select("shop_id").where("id", "=", id)
       .executeTakeFirst();
-    if (!result.numDeletedRows) return jsonError("Shop item not found", 404);
+    if (!existing) return jsonError("Shop item not found", 404);
+    if (!(await canStaffShop(caller, existing.shop_id))) return forbidden();
+
+    try {
+      await db.deleteFrom("shop_item").where("id", "=", id).execute();
+    } catch (err) {
+      if (pgCode(err) === "23503") {
+        return jsonError("This item appears on invoices — deactivate it instead", 409);
+      }
+      throw err;
+    }
     return new Response(null, { status: 204 });
   }
 
   return jsonError("Not found", 404);
 });
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}

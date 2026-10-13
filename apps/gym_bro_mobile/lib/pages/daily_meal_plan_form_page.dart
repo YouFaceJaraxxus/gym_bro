@@ -915,7 +915,7 @@ class _RecipePickerSheetState extends State<_RecipePickerSheet> {
                               width: 40,
                               height: 40,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, _) => const Icon(Icons.restaurant),
+                              errorBuilder: (_, _, _) => const Icon(Icons.restaurant),
                             ),
                           )
                         : const Icon(Icons.restaurant),

@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../models/exercise.dart';
 import '../models/training.dart';
 import '../models/training_session.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/exercise_picker_sheet.dart';
 
 /// Active workout logging screen.
 /// Pass [training] for a structured session following a program,
@@ -84,9 +86,7 @@ class _SessionLogPageState extends State<SessionLogPage> {
     setState(() => _finishing = true);
     try {
       final token = await AuthManager.instance.getValidToken();
-      await _api.updateTrainingSession(token, _session!.id, {
-        'ended_at': DateTime.now().toIso8601String(),
-      });
+      await _api.endTrainingSession(token, _session!.id);
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       setState(() => _finishing = false);
@@ -250,7 +250,14 @@ class _SetLoggerState extends State<_SetLogger> {
       });
       widget.onLogged(List.from(_drops));
     } catch (e) {
+      if (!mounted) return;
       setState(() => _logging = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not log set: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -353,7 +360,11 @@ class _FreeFormLoggerState extends State<_FreeFormLogger> {
                 final result = await showModalBottomSheet<Map<String, dynamic>>(
                   context: context,
                   isScrollControlled: true,
-                  builder: (_) => _AdHocSetSheet(session: widget.session, api: widget.api),
+                  builder: (_) => _AdHocSetSheet(
+                    session: widget.session,
+                    api: widget.api,
+                    position: _logged.length,
+                  ),
                 );
                 if (result != null && mounted) {
                   setState(() => _logged.add(result));
@@ -374,8 +385,13 @@ class _FreeFormLoggerState extends State<_FreeFormLogger> {
 class _AdHocSetSheet extends StatefulWidget {
   final TrainingSession session;
   final ApiService api;
+  final int position;
 
-  const _AdHocSetSheet({required this.session, required this.api});
+  const _AdHocSetSheet({
+    required this.session,
+    required this.api,
+    required this.position,
+  });
 
   @override
   State<_AdHocSetSheet> createState() => _AdHocSetSheetState();
@@ -386,39 +402,78 @@ class _AdHocSetSheetState extends State<_AdHocSetSheet> {
   final _weight = TextEditingController();
   RepType _repType = RepType.count;
   bool _saving = false;
-  String _exerciseName = 'Exercise';
-  String? _exerciseId;
+  Exercise? _exercise;
+  String? _error;
+
+  @override
+  void dispose() {
+    _reps.dispose();
+    _weight.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickExercise() async {
+    final picked = await showExercisePicker(context);
+    if (picked != null && mounted) {
+      setState(() {
+        _exercise = picked;
+        _error = null;
+      });
+    }
+  }
 
   Future<void> _save() async {
-    setState(() => _saving = true);
+    if (_exercise == null) {
+      setState(() => _error = 'Pick an exercise first');
+      return;
+    }
+    if (_repType == RepType.count && int.tryParse(_reps.text.trim()) == null) {
+      setState(() => _error = 'Enter the number of reps');
+      return;
+    }
+    final weightText = _weight.text.trim().replaceAll(',', '.');
+    if (weightText.isNotEmpty && double.tryParse(weightText) == null) {
+      setState(() => _error = 'Weight must be a number');
+      return;
+    }
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
     try {
       final token = await AuthManager.instance.getValidToken();
       final data = {
-        'exercise_id': _exerciseId,
-        'position': 0,
+        'exercise_id': _exercise!.id,
+        'position': widget.position,
         'drops': [
           {
             'drop_number': 0,
             'rep_type_actual': _repType.apiValue,
-            'rep_count_actual': int.tryParse(_reps.text),
-            'weight_kg_actual': double.tryParse(_weight.text),
+            'rep_count_actual': _repType == RepType.count
+                ? int.tryParse(_reps.text.trim())
+                : null,
+            'weight_kg_actual': double.tryParse(weightText),
             'side': 'both',
           }
         ],
       };
       await widget.api.logSessionSet(token, widget.session.id, data);
       final repsLabel = _repType == RepType.count
-          ? '${_reps.text} reps'
+          ? '${_reps.text.trim()} reps'
           : _repType.displayName;
-      final weightLabel = _weight.text.isNotEmpty ? ' @ ${_weight.text}kg' : '';
+      final weightLabel = weightText.isNotEmpty ? ' @ ${weightText}kg' : '';
       if (mounted) {
         Navigator.pop(context, {
-          'exercise': _exerciseName,
+          'exercise': _exercise!.name,
           'summary': '$repsLabel$weightLabel',
         });
       }
     } catch (e) {
-      setState(() => _saving = false);
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = e.toString();
+      });
     }
   }
 
@@ -437,9 +492,21 @@ class _AdHocSetSheetState extends State<_AdHocSetSheet> {
         children: [
           const Text('Log Set', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          TextField(
-            decoration: const InputDecoration(labelText: 'Exercise name'),
-            onChanged: (v) => _exerciseName = v,
+          InkWell(
+            onTap: _saving ? null : _pickExercise,
+            borderRadius: BorderRadius.circular(4),
+            child: InputDecorator(
+              decoration: const InputDecoration(
+                labelText: 'Exercise',
+                suffixIcon: Icon(Icons.search),
+              ),
+              child: Text(
+                _exercise?.name ?? 'Tap to choose an exercise',
+                style: _exercise == null
+                    ? const TextStyle(color: Colors.grey)
+                    : null,
+              ),
+            ),
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<RepType>(
@@ -464,6 +531,10 @@ class _AdHocSetSheetState extends State<_AdHocSetSheet> {
             decoration: const InputDecoration(labelText: 'Weight (kg)', hintText: 'Leave blank for bodyweight'),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
           ),
+          if (_error != null) ...[
+            const SizedBox(height: 12),
+            Text(_error!, style: const TextStyle(color: Colors.red)),
+          ],
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,

@@ -1,5 +1,17 @@
-import { db, supabaseAdmin } from "../_shared/config.ts";
+import type { Kysely } from "npm:kysely@^0.27";
+import { db } from "../_shared/config.ts";
+import {
+  type Caller,
+  canEditAuthored,
+  coachesUser,
+  forbidden,
+  isSuperUser,
+  json,
+  jsonError,
+  requireCaller,
+} from "../_shared/auth.ts";
 import type {
+  Database,
   DailyMealPlanInsert,
   DailyMealPlanUpdate,
   DailyMealPlanSlotInsert,
@@ -89,11 +101,50 @@ const VALID_SLOT_TYPES: MealSlotType[] = [
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
+/** Reads are public; resolve the caller only when a token was sent. */
+async function optionalCaller(req: Request): Promise<Caller | null> {
+  if (!req.headers.get("Authorization")) return null;
+  const { caller } = await requireCaller(req);
+  return caller ?? null;
+}
+
+/** System rows are super-user only; everything else follows canEditAuthored. */
+function canEdit(caller: Caller, row: { author_id: string | null; is_system: boolean }): boolean {
+  if (row.is_system && !isSuperUser(caller)) return false;
+  return canEditAuthored(caller, row.author_id);
+}
+
+/**
+ * True when the caller was assigned one of these meal plans, or coaches
+ * someone who was. Grants read access to private plans and the daily plans,
+ * recipes and food items they reference.
+ */
+async function callerHasAssignedAccessToMealPlan(
+  caller: Caller,
+  mealPlanId: string | string[],
+): Promise<boolean> {
+  const ids = [...new Set(Array.isArray(mealPlanId) ? mealPlanId : [mealPlanId])];
+  if (!ids.length) return false;
+  const rows = await db
+    .selectFrom("meal_plan_assignment")
+    .select("user_id")
+    .where("meal_plan_id", "in", ids)
+    .execute();
+  const targets = [...new Set(rows.map((r) => r.user_id))];
+  if (targets.includes(caller.id)) return true;
+  for (const target of targets) {
+    if (await coachesUser(caller, target)) return true;
+  }
+  return false;
+}
+
+async function mealPlansUsingDailyPlan(dailyPlanId: string): Promise<string[]> {
+  const rows = await db
+    .selectFrom("meal_plan_day")
+    .select("meal_plan_id")
+    .where("daily_meal_plan_id", "=", dailyPlanId)
+    .execute();
+  return rows.map((r) => r.meal_plan_id);
 }
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
@@ -164,13 +215,15 @@ async function fetchDailyMealPlanDetail(planId: string) {
 
 // ── Replace nested slots → entries ───────────────────────────────────────────
 // Deletes all existing slots (cascade removes entries) then re-inserts.
+// Always call inside a transaction.
 
 async function replaceDailyMealPlanSlots(
+  trx: Kysely<Database>,
   planId: string,
   // deno-lint-ignore no-explicit-any
   slotsPayload: any[],
 ) {
-  await db.deleteFrom("daily_meal_plan_slot").where("daily_meal_plan_id", "=", planId).execute();
+  await trx.deleteFrom("daily_meal_plan_slot").where("daily_meal_plan_id", "=", planId).execute();
 
   for (const [si, slotData] of slotsPayload.entries()) {
     const slotType: MealSlotType = VALID_SLOT_TYPES.includes(slotData.slot_type)
@@ -184,7 +237,7 @@ async function replaceDailyMealPlanSlots(
       note: slotData.note ?? null,
     };
 
-    const newSlot = await db
+    const newSlot = await trx
       .insertInto("daily_meal_plan_slot")
       .values(slotInsert)
       .returning(["id"])
@@ -210,7 +263,7 @@ async function replaceDailyMealPlanSlots(
       }));
 
     if (entryRows.length) {
-      await db.insertInto("daily_meal_plan_slot_entry").values(entryRows).execute();
+      await trx.insertInto("daily_meal_plan_slot_entry").values(entryRows).execute();
     }
   }
 }
@@ -223,8 +276,8 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-async function recomputeDailyMealPlanTotals(planId: string) {
-  const slots = await db
+async function recomputeDailyMealPlanTotals(trx: Kysely<Database>, planId: string) {
+  const slots = await trx
     .selectFrom("daily_meal_plan_slot")
     .select(["id"])
     .where("daily_meal_plan_id", "=", planId)
@@ -234,7 +287,7 @@ async function recomputeDailyMealPlanTotals(planId: string) {
   let kcal = 0, protein = 0, carb = 0, fat = 0, fiber = 0;
 
   if (slotIds.length) {
-    const entries = await db
+    const entries = await trx
       .selectFrom("daily_meal_plan_slot_entry")
       .select(["food_item_id", "recipe_id", "quantity", "servings"])
       .where("daily_meal_plan_slot_id", "in", slotIds)
@@ -244,14 +297,14 @@ async function recomputeDailyMealPlanTotals(planId: string) {
     const recipeIds = [...new Set(entries.filter((e) => e.recipe_id).map((e) => e.recipe_id!))];
 
     const foodItems = foodItemIds.length
-      ? await db
+      ? await trx
           .selectFrom("food_item")
           .select(["id", "kcal_per_100", "protein_per_100", "carb_per_100", "fat_per_100", "fiber_per_100"])
           .where("id", "in", foodItemIds)
           .execute()
       : [];
     const recipes = recipeIds.length
-      ? await db
+      ? await trx
           .selectFrom("recipe")
           .select([
             "id",
@@ -289,7 +342,7 @@ async function recomputeDailyMealPlanTotals(planId: string) {
     }
   }
 
-  await db
+  await trx
     .updateTable("daily_meal_plan")
     .set({
       kcal_total: round2(kcal),
@@ -303,9 +356,28 @@ async function recomputeDailyMealPlanTotals(planId: string) {
     .execute();
 }
 
+// ── Postgres error mapping ────────────────────────────────────────────────────
+
+function pgErrorResponse(e: unknown, method: string): Response {
+  const err = e as { code?: string; message?: string; detail?: string } | null;
+  switch (err?.code) {
+    case "23505":
+      return jsonError("Already exists", 409, { detail: err.detail });
+    case "23503":
+      return method === "DELETE"
+        ? jsonError("Daily meal plan is used by a meal plan and can't be deleted", 409)
+        : jsonError("Referenced food item or recipe does not exist", 400, { detail: err.detail });
+    case "23502":
+    case "23514":
+    case "22P02":
+      return jsonError(err.message ?? "Invalid value", 400);
+  }
+  throw e;
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-Deno.serve(async (req: Request) => {
+async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const id = parseId(url.pathname);
 
@@ -319,14 +391,10 @@ Deno.serve(async (req: Request) => {
     let query = db.selectFrom("daily_meal_plan").select(PLAN_COLS);
 
     if (mine) {
-      const { user } = await requireAuth(req);
-      if (!user) return jsonError("Unauthorized", 401);
-      const dbUser = await db
-        .selectFrom("users")
-        .select(["id"])
-        .where("auth_id", "=", user.id)
-        .executeTakeFirst();
-      if (dbUser) query = query.where("author_id", "=", dbUser.id);
+      // Never fall through to an unfiltered query when the profile is missing.
+      const { caller } = await requireCaller(req);
+      if (!caller) return jsonError("Unauthorized", 401);
+      query = query.where("author_id", "=", caller.id);
     } else {
       query = query.where("is_public", "=", true);
     }
@@ -355,30 +423,21 @@ Deno.serve(async (req: Request) => {
     const detail = await fetchDailyMealPlanDetail(id);
     if (!detail) return jsonError("Daily meal plan not found", 404);
     if (!detail.is_public) {
-      const { user } = await requireAuth(req);
-      if (!user) return jsonError("Not found", 404);
-      const dbUser = await db
-        .selectFrom("users")
-        .select(["id", "role"])
-        .where("auth_id", "=", user.id)
-        .executeTakeFirst();
-      if (detail.author_id !== dbUser?.id && dbUser?.role !== "super_user") {
-        return jsonError("Not found", 404);
-      }
+      // Private plans: author, super, or assigned access to a meal plan using it.
+      const caller = await optionalCaller(req);
+      const allowed = caller !== null && (
+        isSuperUser(caller) || detail.author_id === caller.id ||
+        (await callerHasAssignedAccessToMealPlan(caller, await mealPlansUsingDailyPlan(id)))
+      );
+      if (!allowed) return jsonError("Daily meal plan not found", 404);
     }
     return json(detail);
   }
 
   // ── Auth wall ─────────────────────────────────────────────────────────────────
 
-  const { user, error: authError } = await requireAuth(req);
-  if (!user) return jsonError(authError ?? "Unauthorized", 401);
-
-  const dbUser = await db
-    .selectFrom("users")
-    .select(["id", "role"])
-    .where("auth_id", "=", user.id)
-    .executeTakeFirst();
+  const { caller, response } = await requireCaller(req);
+  if (!caller) return response;
 
   // ── POST /daily-meal-plans ──────────────────────────────────────────────────────
   if (req.method === "POST" && !id) {
@@ -387,31 +446,30 @@ Deno.serve(async (req: Request) => {
 
     if (!name) return jsonError("Missing required field: name", 400);
 
-    try {
-      const insert: DailyMealPlanInsert = {
-        name,
-        description: description ?? null,
-        author_id: dbUser?.id ?? null,
-        is_public: is_public ?? false,
-      };
+    const insert: DailyMealPlanInsert = {
+      name,
+      description: description ?? null,
+      author_id: caller.id,
+      is_public: is_public ?? false,
+    };
 
-      const plan = await db
+    const planId = await db.transaction().execute(async (trx) => {
+      const plan = await trx
         .insertInto("daily_meal_plan")
         .values(insert)
         .returning(["id"])
         .executeTakeFirstOrThrow();
 
       if (Array.isArray(slots) && slots.length) {
-        await replaceDailyMealPlanSlots(plan.id, slots);
+        await replaceDailyMealPlanSlots(trx, plan.id, slots);
       }
 
-      await recomputeDailyMealPlanTotals(plan.id);
+      await recomputeDailyMealPlanTotals(trx, plan.id);
+      return plan.id;
+    });
 
-      const detail = await fetchDailyMealPlanDetail(plan.id);
-      return json(detail, 201);
-    } catch (e) {
-      return dbErrorResponse(e);
-    }
+    const detail = await fetchDailyMealPlanDetail(planId);
+    return json(detail, 201);
   }
 
   // ── PUT /daily-meal-plans/:id ────────────────────────────────────────────────────
@@ -423,12 +481,7 @@ Deno.serve(async (req: Request) => {
       .executeTakeFirst();
     if (!existing) return jsonError("Daily meal plan not found", 404);
 
-    if (existing.is_system && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
-    if (existing.author_id && existing.author_id !== dbUser?.id && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
+    if (!canEdit(caller, existing)) return forbidden();
 
     const body = await req.json().catch(() => null);
     if (!body || Object.keys(body).length === 0) {
@@ -437,26 +490,25 @@ Deno.serve(async (req: Request) => {
 
     const { name, description, is_public, slots } = body;
 
-    try {
-      const update: DailyMealPlanUpdate = {
-        ...(name !== undefined && { name }),
-        ...(description !== undefined && { description }),
-        ...(is_public !== undefined && { is_public }),
-        updated_at: new Date().toISOString(),
-      };
-      await db.updateTable("daily_meal_plan").set(update).where("id", "=", id).execute();
+    const update: DailyMealPlanUpdate = {
+      ...(name !== undefined && { name }),
+      ...(description !== undefined && { description }),
+      ...(is_public !== undefined && { is_public }),
+      updated_at: new Date().toISOString(),
+    };
+
+    await db.transaction().execute(async (trx) => {
+      await trx.updateTable("daily_meal_plan").set(update).where("id", "=", id).execute();
 
       if (Array.isArray(slots)) {
-        await replaceDailyMealPlanSlots(id, slots);
+        await replaceDailyMealPlanSlots(trx, id, slots);
       }
 
-      await recomputeDailyMealPlanTotals(id);
+      await recomputeDailyMealPlanTotals(trx, id);
+    });
 
-      const detail = await fetchDailyMealPlanDetail(id);
-      return json(detail);
-    } catch (e) {
-      return dbErrorResponse(e);
-    }
+    const detail = await fetchDailyMealPlanDetail(id);
+    return json(detail);
   }
 
   // ── DELETE /daily-meal-plans/:id ───────────────────────────────────────────────
@@ -468,40 +520,19 @@ Deno.serve(async (req: Request) => {
       .executeTakeFirst();
     if (!existing) return jsonError("Daily meal plan not found", 404);
 
-    if (existing.is_system && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
-    if (existing.author_id && existing.author_id !== dbUser?.id && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
+    if (!canEdit(caller, existing)) return forbidden();
 
-    try {
-      await db.deleteFrom("daily_meal_plan").where("id", "=", id).execute();
-    } catch (e) {
-      return dbErrorResponse(e);
-    }
+    await db.deleteFrom("daily_meal_plan").where("id", "=", id).execute();
     return new Response(null, { status: 204 });
   }
 
   return jsonError("Not found", 404);
-});
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
 }
 
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}
-
-function dbErrorResponse(e: unknown): Response {
-  const code = (e as { code?: string } | null)?.code;
-  if (code === "23503" || code === "23505" || code === "23514" || code === "23502") {
-    const message = (e as { message?: string } | null)?.message ?? "Constraint violation";
-    return jsonError(message, 400);
+Deno.serve(async (req: Request) => {
+  try {
+    return await handler(req);
+  } catch (e) {
+    return pgErrorResponse(e, req.method);
   }
-  throw e;
-}
+});

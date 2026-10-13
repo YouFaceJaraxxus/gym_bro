@@ -3,6 +3,7 @@ import '../models/business.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/image_upload_field.dart';
+import 'typed_confirm_dialog.dart';
 
 class BusinessFormPage extends StatefulWidget {
   const BusinessFormPage({super.key, this.business});
@@ -28,6 +29,7 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
   String? _logo;
 
   bool _loading = false;
+  bool _deleting = false;
   String? _error;
 
   bool get _isEditing => widget.business != null;
@@ -129,6 +131,46 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
           () => _error = e.toString().replaceFirst('Exception: ', ''));
     } finally {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _delete() async {
+    final business = widget.business!;
+    final kind = business.type == 'gym' ? 'gym' : 'shop';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => TypedConfirmDialog(
+        title: 'Delete ${business.name}?',
+        message: business.type == 'gym'
+            ? 'This permanently deletes the gym with all its members, staff, '
+                'membership types, memberships, invoices and posts.'
+            : 'This permanently deletes the shop with all its items, vendors '
+                'and posts.',
+        confirmText: business.name,
+        actionLabel: 'Delete $kind',
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() {
+      _deleting = true;
+      _error = null;
+    });
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      await _api.deleteBusiness(token, business.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${business.name} deleted')),
+      );
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString().replaceFirst('Exception: ', '');
+          _deleting = false;
+        });
+      }
     }
   }
 
@@ -239,7 +281,7 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
                   ),
                 ),
               FilledButton(
-                onPressed: _loading ? null : _submit,
+                onPressed: (_loading || _deleting) ? null : _submit,
                 child: _loading
                     ? const SizedBox(
                         height: 20,
@@ -251,6 +293,29 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
                         ? 'Save Changes'
                         : 'Create Business'),
               ),
+              if (_isEditing) ...[
+                const SizedBox(height: 32),
+                OutlinedButton.icon(
+                  onPressed: (_loading || _deleting) ? null : _delete,
+                  icon: _deleting
+                      ? SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Theme.of(context).colorScheme.error),
+                        )
+                      : Icon(Icons.delete_forever_outlined,
+                          color: Theme.of(context).colorScheme.error),
+                  label: Text('Delete Business',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.error)),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                        color: Theme.of(context).colorScheme.error),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

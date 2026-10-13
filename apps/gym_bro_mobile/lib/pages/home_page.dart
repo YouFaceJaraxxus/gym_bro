@@ -12,6 +12,9 @@ import 'home/employee_home_page.dart';
 import 'home/employee_trainer_home_page.dart';
 import 'home/super_user_home_page.dart';
 import 'home/owner_users_page.dart';
+import 'home/trainer_members_page.dart';
+import 'home/vendor_home_page.dart';
+import 'home/vendor_shop_page.dart';
 import 'notifications_page.dart';
 import 'gym_hub_page.dart';
 import 'profile_page.dart';
@@ -63,6 +66,12 @@ const _employeeTrainerTabs = <_Tab>[
   ..._sharedTabs,
 ];
 
+const _vendorTabs = <_Tab>[
+  (label: 'Home', icon: Icons.home_outlined),
+  (label: 'My Shop', icon: Icons.storefront_outlined),
+  ..._sharedTabs,
+];
+
 const _superUserTabs = <_Tab>[
   (label: 'Home', icon: Icons.home_outlined),
   (label: 'Businesses', icon: Icons.business_outlined),
@@ -76,6 +85,7 @@ List<_Tab> _tabsForRole(UserRole role) => switch (role) {
       UserRole.trainer => _trainerTabs,
       UserRole.employee => _employeeTabs,
       UserRole.employeeTrainer => _employeeTrainerTabs,
+      UserRole.shopVendor => _vendorTabs,
       UserRole.superUser => _superUserTabs,
     };
 
@@ -164,7 +174,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _logout() async {
-    await AuthManager.instance.clear();
+    await AuthManager.instance.logout();
     if (mounted) Navigator.pushReplacementNamed(context, '/signup');
   }
 
@@ -197,6 +207,8 @@ class _HomePageState extends State<HomePage> {
 
     final profile = _profile!;
     final tabs = _tabsForRole(profile.role);
+    // The role (and so the tab count) can change after a profile refresh.
+    if (_tabIndex >= tabs.length) _tabIndex = 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -250,9 +262,15 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tabIndex,
         onDestinationSelected: (i) => setState(() => _tabIndex = i),
+        // Icon-only look; labels are still exposed to screen readers.
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
         destinations: [
           for (final tab in tabs)
-            NavigationDestination(icon: Icon(tab.icon), label: ''),
+            NavigationDestination(
+              icon: Icon(tab.icon),
+              label: tab.label,
+              tooltip: tab.label,
+            ),
         ],
       ),
     );
@@ -267,8 +285,14 @@ class _HomePageState extends State<HomePage> {
         UserRole.trainer => TrainerHomePage(profile: profile),
         UserRole.employee => EmployeeHomePage(profile: profile),
         UserRole.employeeTrainer => EmployeeTrainerHomePage(profile: profile),
+        UserRole.shopVendor => VendorHomePage(profile: profile),
         UserRole.superUser => SuperUserHomePage(profile: profile),
       };
+    }
+
+    // Shop vendor "My Shop" tab.
+    if (profile.role == UserRole.shopVendor) {
+      if (index == 1) return VendorShopPage(profile: profile);
     }
 
     // Owner / super-user Businesses tab.
@@ -298,9 +322,10 @@ class _HomePageState extends State<HomePage> {
       if (index == 2) return const SessionsPage();
     }
 
-    // Trainer Classes (sessions they run for members).
+    // Trainer Classes (sessions they run for members) + Members they coach.
     if (profile.role == UserRole.trainer) {
       if (index == 1) return SessionsPage(asTrainerId: profile.id);
+      if (index == 2) return TrainerMembersPage(profile: profile);
     }
 
     // Employee-trainer Classes + Schedule.
@@ -322,26 +347,7 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
-    // Remaining tabs show a placeholder until their pages are built.
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(tabs[index].icon,
-              size: 48, color: Theme.of(context).colorScheme.outline),
-          const SizedBox(height: 16),
-          Text(tabs[index].label,
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Text(
-            'Coming soon',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: Theme.of(context).colorScheme.outline),
-          ),
-        ],
-      ),
-    );
+    // Every role's tabs are handled above.
+    return const SizedBox.shrink();
   }
 }

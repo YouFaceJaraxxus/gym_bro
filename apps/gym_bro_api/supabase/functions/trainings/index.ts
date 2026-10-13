@@ -1,5 +1,16 @@
-import { db, supabaseAdmin } from "../_shared/config.ts";
+import type { Kysely } from "npm:kysely@^0.27";
+import { db } from "../_shared/config.ts";
+import {
+  type Caller,
+  canEditAuthored,
+  forbidden,
+  isSuperUser,
+  json,
+  jsonError,
+  requireCaller,
+} from "../_shared/auth.ts";
 import type {
+  Database,
   TrainingInsert,
   TrainingUpdate,
   TrainingImageInsert,
@@ -33,11 +44,11 @@ const VALID_SIDES: BodySide[] = ["both", "left", "right"];
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
+/** Reads are public; resolve the caller only when a token was sent. */
+async function optionalCaller(req: Request): Promise<Caller | null> {
+  if (!req.headers.get("Authorization")) return null;
+  const { caller } = await requireCaller(req);
+  return caller ?? null;
 }
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
@@ -124,13 +135,17 @@ async function fetchTrainingDetail(trainingId: string) {
 
 // ── Upsert nested sets for a training ────────────────────────────────────────
 // Deletes all existing sets (cascade) then re-inserts from payload.
+// Re-inserting sets nulls session_set_log.training_set_id on past sessions
+// (ON DELETE SET NULL) — history keeps its exercise_id and drop logs.
+// Always call inside a transaction.
 
 async function replaceTrainingSets(
+  trx: Kysely<Database>,
   trainingId: string,
   // deno-lint-ignore no-explicit-any
   setsPayload: any[],
 ) {
-  await db.deleteFrom("training_set").where("training_id", "=", trainingId).execute();
+  await trx.deleteFrom("training_set").where("training_id", "=", trainingId).execute();
 
   for (const [si, setData] of setsPayload.entries()) {
     const setType: WorkoutSetType = VALID_SET_TYPES.includes(setData.type)
@@ -145,7 +160,7 @@ async function replaceTrainingSets(
       note: setData.note ?? null,
     };
 
-    const newSet = await db
+    const newSet = await trx
       .insertInto("training_set")
       .values(setInsert)
       .returning(["id"])
@@ -163,7 +178,7 @@ async function replaceTrainingSets(
         note: exData.note ?? null,
       };
 
-      const newEx = await db
+      const newEx = await trx
         .insertInto("training_set_exercise")
         .values(exInsert)
         .returning(["id"])
@@ -185,15 +200,50 @@ async function replaceTrainingSets(
           note: dropData.note ?? null,
         };
 
-        await db.insertInto("training_set_drop").values(dropInsert).execute();
+        await trx.insertInto("training_set_drop").values(dropInsert).execute();
       }
     }
   }
 }
 
+// deno-lint-ignore no-explicit-any
+async function replaceTrainingImages(trx: Kysely<Database>, trainingId: string, images: any[]) {
+  await trx.deleteFrom("training_image").where("training_id", "=", trainingId).execute();
+  const imageInserts: TrainingImageInsert[] = images.map(
+    (img: { url: string; is_thumbnail?: boolean; position?: number }, i: number) => ({
+      training_id: trainingId,
+      url: img.url,
+      is_thumbnail: img.is_thumbnail ?? i === 0,
+      position: img.position ?? i,
+    }),
+  );
+  if (imageInserts.length) {
+    await trx.insertInto("training_image").values(imageInserts).execute();
+  }
+}
+
+// ── Postgres error mapping ────────────────────────────────────────────────────
+
+function pgErrorResponse(e: unknown, method: string): Response {
+  const err = e as { code?: string; message?: string; detail?: string } | null;
+  switch (err?.code) {
+    case "23505":
+      return jsonError("Already exists", 409, { detail: err.detail });
+    case "23503":
+      return method === "DELETE"
+        ? jsonError("Training is used by a routine and can't be deleted", 409)
+        : jsonError("Referenced exercise does not exist", 400, { detail: err.detail });
+    case "23502":
+    case "23514":
+    case "22P02":
+      return jsonError(err.message ?? "Invalid value", 400);
+  }
+  throw e;
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-Deno.serve(async (req: Request) => {
+async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const id = parseId(url.pathname);
 
@@ -208,14 +258,10 @@ Deno.serve(async (req: Request) => {
     let query = db.selectFrom("training").select(TRAINING_COLS);
 
     if (mine) {
-      const { user } = await requireAuth(req);
-      if (!user) return jsonError("Unauthorized", 401);
-      const dbUser = await db
-        .selectFrom("users")
-        .select(["id"])
-        .where("auth_id", "=", user.id)
-        .executeTakeFirst();
-      if (dbUser) query = query.where("author_id", "=", dbUser.id);
+      // Never fall through to an unfiltered query when the profile is missing.
+      const { caller } = await requireCaller(req);
+      if (!caller) return jsonError("Unauthorized", 401);
+      query = query.where("author_id", "=", caller.id);
     } else {
       query = query.where("is_public", "=", true);
     }
@@ -252,15 +298,9 @@ Deno.serve(async (req: Request) => {
     if (!detail) return jsonError("Training not found", 404);
     if (!detail.is_public) {
       // allow owner or super_user to read private
-      const { user } = await requireAuth(req);
-      if (!user) return jsonError("Not found", 404);
-      const dbUser = await db
-        .selectFrom("users")
-        .select(["id", "role"])
-        .where("auth_id", "=", user.id)
-        .executeTakeFirst();
-      if (detail.author_id !== dbUser?.id && dbUser?.role !== "super_user") {
-        return jsonError("Not found", 404);
+      const caller = await optionalCaller(req);
+      if (!caller || (!isSuperUser(caller) && detail.author_id !== caller.id)) {
+        return jsonError("Training not found", 404);
       }
     }
     return json(detail);
@@ -268,14 +308,8 @@ Deno.serve(async (req: Request) => {
 
   // ── Auth wall ─────────────────────────────────────────────────────────────────
 
-  const { user, error: authError } = await requireAuth(req);
-  if (!user) return jsonError(authError ?? "Unauthorized", 401);
-
-  const dbUser = await db
-    .selectFrom("users")
-    .select(["id", "role"])
-    .where("auth_id", "=", user.id)
-    .executeTakeFirst();
+  const { caller, response } = await requireCaller(req);
+  if (!caller) return response;
 
   // ── POST /trainings ────────────────────────────────────────────────────────────
   if (req.method === "POST" && !id) {
@@ -288,37 +322,27 @@ Deno.serve(async (req: Request) => {
       name,
       description: description ?? null,
       notes: notes ?? null,
-      author_id: dbUser?.id ?? null,
+      author_id: caller.id,
       is_public: is_public ?? false,
     };
 
-    const training = await db
-      .insertInto("training")
-      .values(insert)
-      .returning(TRAINING_COLS)
-      .executeTakeFirstOrThrow();
+    const trainingId = await db.transaction().execute(async (trx) => {
+      const training = await trx
+        .insertInto("training")
+        .values(insert)
+        .returning(["id"])
+        .executeTakeFirstOrThrow();
 
-    if (Array.isArray(images)) {
-      const imageInserts: TrainingImageInsert[] = images.map((img: {
-        url: string;
-        is_thumbnail?: boolean;
-        position?: number;
-      }, i: number) => ({
-        training_id: training.id,
-        url: img.url,
-        is_thumbnail: img.is_thumbnail ?? i === 0,
-        position: img.position ?? i,
-      }));
-      if (imageInserts.length) {
-        await db.insertInto("training_image").values(imageInserts).execute();
+      if (Array.isArray(images) && images.length) {
+        await replaceTrainingImages(trx, training.id, images);
       }
-    }
+      if (Array.isArray(sets) && sets.length) {
+        await replaceTrainingSets(trx, training.id, sets);
+      }
+      return training.id;
+    });
 
-    if (Array.isArray(sets) && sets.length) {
-      await replaceTrainingSets(training.id, sets);
-    }
-
-    const detail = await fetchTrainingDetail(training.id);
+    const detail = await fetchTrainingDetail(trainingId);
     return json(detail, 201);
   }
 
@@ -331,9 +355,7 @@ Deno.serve(async (req: Request) => {
       .executeTakeFirst();
     if (!existing) return jsonError("Training not found", 404);
 
-    if (existing.author_id && existing.author_id !== dbUser?.id && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
+    if (!canEditAuthored(caller, existing.author_id)) return forbidden();
 
     const body = await req.json().catch(() => null);
     const { name, description, notes, is_public, images, sets } = body ?? {};
@@ -346,26 +368,11 @@ Deno.serve(async (req: Request) => {
       updated_at: new Date().toISOString(),
     };
 
-    await db.updateTable("training").set(update).where("id", "=", id).execute();
-
-    if (Array.isArray(images)) {
-      await db.deleteFrom("training_image").where("training_id", "=", id).execute();
-      const imageInserts: TrainingImageInsert[] = images.map(
-        (img: { url: string; is_thumbnail?: boolean; position?: number }, i: number) => ({
-          training_id: id,
-          url: img.url,
-          is_thumbnail: img.is_thumbnail ?? i === 0,
-          position: img.position ?? i,
-        }),
-      );
-      if (imageInserts.length) {
-        await db.insertInto("training_image").values(imageInserts).execute();
-      }
-    }
-
-    if (Array.isArray(sets)) {
-      await replaceTrainingSets(id, sets);
-    }
+    await db.transaction().execute(async (trx) => {
+      await trx.updateTable("training").set(update).where("id", "=", id).execute();
+      if (Array.isArray(images)) await replaceTrainingImages(trx, id, images);
+      if (Array.isArray(sets)) await replaceTrainingSets(trx, id, sets);
+    });
 
     const detail = await fetchTrainingDetail(id);
     return json(detail);
@@ -380,24 +387,19 @@ Deno.serve(async (req: Request) => {
       .executeTakeFirst();
     if (!existing) return jsonError("Training not found", 404);
 
-    if (existing.author_id && existing.author_id !== dbUser?.id && dbUser?.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
+    if (!canEditAuthored(caller, existing.author_id)) return forbidden();
 
     await db.deleteFrom("training").where("id", "=", id).execute();
     return new Response(null, { status: 204 });
   }
 
   return jsonError("Not found", 404);
+}
+
+Deno.serve(async (req: Request) => {
+  try {
+    return await handler(req);
+  } catch (e) {
+    return pgErrorResponse(e, req.method);
+  }
 });
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}

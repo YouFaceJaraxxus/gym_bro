@@ -1,11 +1,22 @@
-import { db, supabaseAdmin } from "../_shared/config.ts";
+import { type Kysely, sql } from "npm:kysely@^0.27";
+import { db } from "../_shared/config.ts";
+import {
+  type Caller,
+  coachesUser,
+  forbidden,
+  isSuperUser,
+  json,
+  jsonError,
+  requireCaller,
+} from "../_shared/auth.ts";
 import type {
+  BodySide,
+  Database,
+  RepType,
+  SessionDropLogInsert,
+  SessionSetLogInsert,
   TrainingSessionInsert,
   TrainingSessionUpdate,
-  SessionSetLogInsert,
-  SessionDropLogInsert,
-  RepType,
-  BodySide,
 } from "../../types/schema/public.ts";
 
 const SESSION_COLS = [
@@ -26,25 +37,47 @@ const DROP_LOG_COLS = [
 const VALID_REP_TYPES: RepType[] = ["count", "failure", "unspecified"];
 const VALID_SIDES: BodySide[] = ["both", "left", "right"];
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
+type DropPayload = {
+  training_set_drop_id?: string;
+  drop_number?: number;
+  rep_type_actual?: RepType;
+  rep_count_actual?: number;
+  weight_kg_actual?: number;
+  side?: BodySide;
+  note?: string;
+};
 
-async function requireAuth(req: Request) {
-  const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return { user: null, error: "Missing Authorization header" };
-  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-  return { user: error ? null : user, error: error?.message ?? null };
+function toDropInserts(setLogId: string, drops: DropPayload[]): SessionDropLogInsert[] {
+  return drops.map((d, i) => ({
+    session_set_log_id: setLogId,
+    training_set_drop_id: d.training_set_drop_id ?? null,
+    drop_number: d.drop_number ?? i,
+    rep_type_actual: VALID_REP_TYPES.includes(d.rep_type_actual!) ? d.rep_type_actual! : "count",
+    rep_count_actual: d.rep_count_actual ?? null,
+    weight_kg_actual: d.weight_kg_actual ?? null,
+    side: VALID_SIDES.includes(d.side!) ? d.side! : "both",
+    note: d.note ?? null,
+  }));
 }
 
 // ── Path helpers ──────────────────────────────────────────────────────────────
+// Set-log routes are matched first so "sets" is never parsed as a session id.
 
 // /training-sessions                        → { id: null, action: null }
+// /training-sessions/sets/:setLogId         → { id: setLogId, action: 'set_log' }
+// /training-sessions/sets/:setLogId/drops   → { id: setLogId, action: 'drops' }
 // /training-sessions/:id                    → { id, action: null }
 // /training-sessions/:id/sets               → { id, action: 'sets' }
-// /training-sessions/sets/:setLogId/drops   → { id: setLogId, action: 'drops' }
+// /training-sessions/:id/end                → { id, action: 'end' }
 
-function parsePath(pathname: string) {
+type Action = "set_log" | "drops" | "sets" | "end" | null;
+
+function parsePath(pathname: string): { id: string | null; action: Action } {
+  const setLog = pathname.match(/^\/training-sessions\/sets\/([^/]+)$/);
+  if (setLog) return { id: setLog[1], action: "set_log" };
+
   const setsDrops = pathname.match(/^\/training-sessions\/sets\/([^/]+)\/drops$/);
-  if (setsDrops) return { id: setsDrops[1], action: "drops" as const };
+  if (setsDrops) return { id: setsDrops[1], action: "drops" };
 
   const withAction = pathname.match(/^\/training-sessions\/([^/]+)\/(sets|end)$/);
   if (withAction) return { id: withAction[1], action: withAction[2] as "sets" | "end" };
@@ -55,7 +88,48 @@ function parsePath(pathname: string) {
   return { id: null, action: null };
 }
 
+// ── Access ────────────────────────────────────────────────────────────────────
+
+/** Owner, the session's trainer, anyone who coaches the owner, or super. */
+async function canReadSession(
+  caller: Caller,
+  session: { user_id: string; trainer_id: string | null },
+): Promise<boolean> {
+  if (session.user_id === caller.id || isSuperUser(caller)) return true;
+  if (session.trainer_id && session.trainer_id === caller.id) return true;
+  return await coachesUser(caller, session.user_id);
+}
+
+function canWriteSession(caller: Caller, session: { user_id: string }): boolean {
+  return session.user_id === caller.id || isSuperUser(caller);
+}
+
+/** Loads a set log together with the owner of its session. */
+async function findSetLog(setLogId: string) {
+  return await db
+    .selectFrom("session_set_log")
+    .innerJoin("training_session", "training_session.id", "session_set_log.session_id")
+    .select(["session_set_log.id", "session_set_log.session_id", "training_session.user_id"])
+    .where("session_set_log.id", "=", setLogId)
+    .executeTakeFirst();
+}
+
 // ── Nested fetch ──────────────────────────────────────────────────────────────
+
+async function fetchSetLogWithDrops(setLogId: string, executor: Kysely<Database> = db) {
+  const setLog = await executor
+    .selectFrom("session_set_log")
+    .select(SET_LOG_COLS)
+    .where("id", "=", setLogId)
+    .executeTakeFirstOrThrow();
+  const dropLogs = await executor
+    .selectFrom("session_drop_log")
+    .select(DROP_LOG_COLS)
+    .where("session_set_log_id", "=", setLogId)
+    .orderBy("drop_number", "asc")
+    .execute();
+  return { ...setLog, drop_logs: dropLogs };
+}
 
 async function fetchSessionDetail(sessionId: string) {
   const session = await db
@@ -100,24 +174,35 @@ async function fetchSessionDetail(sessionId: string) {
   };
 }
 
+// ── Postgres error mapping ────────────────────────────────────────────────────
+
+function pgErrorResponse(e: unknown): Response {
+  const err = e as { code?: string; message?: string; detail?: string } | null;
+  switch (err?.code) {
+    case "23505":
+      return jsonError("Already exists", 409, { detail: err.detail });
+    case "23503":
+      return jsonError("Referenced record does not exist", 400, { detail: err.detail });
+    case "23502":
+    case "23514":
+    case "22P02":
+    case "22007":
+    case "22008":
+      return jsonError(err.message ?? "Invalid value", 400);
+  }
+  throw e;
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
-Deno.serve(async (req: Request) => {
+async function handler(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const { id, action } = parsePath(url.pathname);
 
-  const { user, error: authError } = await requireAuth(req);
-  if (!user) return jsonError(authError ?? "Unauthorized", 401);
+  const { caller, response } = await requireCaller(req);
+  if (!caller) return response;
 
-  const dbUser = await db
-    .selectFrom("users")
-    .select(["id", "role"])
-    .where("auth_id", "=", user.id)
-    .executeTakeFirst();
-
-  if (!dbUser) return jsonError("User not found", 404);
-
-  // ── GET /training-sessions — list user's sessions ─────────────────────────────
+  // ── GET /training-sessions — list sessions ────────────────────────────────────
   if (req.method === "GET" && !id) {
     const trainerId = url.searchParams.get("trainer_id");
     const trainingId = url.searchParams.get("training_id");
@@ -128,15 +213,13 @@ Deno.serve(async (req: Request) => {
 
     if (trainerId) {
       // "Classes I'm running" view — only the trainer themself or super_user may read it.
-      if (trainerId !== dbUser.id && dbUser.role !== "super_user") {
-        return jsonError("Forbidden", 403);
-      }
+      if (trainerId !== caller.id && !isSuperUser(caller)) return forbidden();
       query = query.where("trainer_id", "=", trainerId);
     } else {
-      const targetUserId = url.searchParams.get("user_id") ?? dbUser.id;
-      // Only super_user can read other users' sessions
-      if (targetUserId !== dbUser.id && dbUser.role !== "super_user") {
-        return jsonError("Forbidden", 403);
+      const targetUserId = url.searchParams.get("user_id") ?? caller.id;
+      // Self, super user, or someone who coaches the user at one of their gyms.
+      if (targetUserId !== caller.id && !(await coachesUser(caller, targetUserId))) {
+        return forbidden();
       }
       query = query.where("user_id", "=", targetUserId);
     }
@@ -156,11 +239,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === "GET" && id && !action) {
     const detail = await fetchSessionDetail(id);
     if (!detail) return jsonError("Session not found", 404);
-
-    if (detail.user_id !== dbUser.id && dbUser.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
-
+    if (!(await canReadSession(caller, detail))) return forbidden();
     return json(detail);
   }
 
@@ -169,8 +248,18 @@ Deno.serve(async (req: Request) => {
     const body = await req.json().catch(() => null);
     const { training_id, trainer_id, notes } = body ?? {};
 
+    if (trainer_id) {
+      const [trainer, employeeTrainer] = await Promise.all([
+        db.selectFrom("trainer").select("id").where("user_id", "=", trainer_id).executeTakeFirst(),
+        db.selectFrom("employee_trainer").select("id").where("user_id", "=", trainer_id).executeTakeFirst(),
+      ]);
+      if (!trainer && !employeeTrainer) {
+        return jsonError("trainer_id must be a user who is a trainer", 400);
+      }
+    }
+
     const insert: TrainingSessionInsert = {
-      user_id: dbUser.id,
+      user_id: caller.id,
       training_id: training_id ?? null,
       trainer_id: trainer_id ?? null,
       notes: notes ?? null,
@@ -193,9 +282,7 @@ Deno.serve(async (req: Request) => {
       .where("id", "=", id)
       .executeTakeFirst();
     if (!session) return jsonError("Session not found", 404);
-    if (session.user_id !== dbUser.id && dbUser.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
+    if (!canWriteSession(caller, session)) return forbidden();
 
     const body = await req.json().catch(() => null);
     const update: TrainingSessionUpdate = {
@@ -214,6 +301,27 @@ Deno.serve(async (req: Request) => {
     return json(updated);
   }
 
+  // ── POST /training-sessions/:id/end — finish the session ──────────────────────
+  if (req.method === "POST" && id && action === "end") {
+    const session = await db
+      .selectFrom("training_session")
+      .select(["id", "user_id"])
+      .where("id", "=", id)
+      .executeTakeFirst();
+    if (!session) return jsonError("Session not found", 404);
+    if (!canWriteSession(caller, session)) return forbidden();
+
+    // Idempotent: an already-ended session keeps its original ended_at.
+    await db
+      .updateTable("training_session")
+      .set({ ended_at: sql<string>`now()`, updated_at: sql<string>`now()` })
+      .where("id", "=", id)
+      .where("ended_at", "is", null)
+      .execute();
+
+    return json(await fetchSessionDetail(id));
+  }
+
   // ── POST /training-sessions/:id/sets — log a set ──────────────────────────────
   if (req.method === "POST" && id && action === "sets") {
     const session = await db
@@ -222,7 +330,7 @@ Deno.serve(async (req: Request) => {
       .where("id", "=", id)
       .executeTakeFirst();
     if (!session) return jsonError("Session not found", 404);
-    if (session.user_id !== dbUser.id) return jsonError("Forbidden", 403);
+    if (!canWriteSession(caller, session)) return forbidden();
 
     const body = await req.json().catch(() => null);
     const { training_set_id, exercise_id, position, note, drops } = body ?? {};
@@ -235,91 +343,90 @@ Deno.serve(async (req: Request) => {
       note: note ?? null,
     };
 
-    const setLog = await db
-      .insertInto("session_set_log")
-      .values(setLogInsert)
-      .returning(SET_LOG_COLS)
-      .executeTakeFirstOrThrow();
+    const result = await db.transaction().execute(async (trx) => {
+      const setLog = await trx
+        .insertInto("session_set_log")
+        .values(setLogInsert)
+        .returning(["id"])
+        .executeTakeFirstOrThrow();
 
-    if (Array.isArray(drops) && drops.length) {
-      const dropInserts: SessionDropLogInsert[] = drops.map(
-        (d: {
-          training_set_drop_id?: string;
-          drop_number?: number;
-          rep_type_actual?: RepType;
-          rep_count_actual?: number;
-          weight_kg_actual?: number;
-          side?: BodySide;
-          note?: string;
-        }, i: number) => ({
-          session_set_log_id: setLog.id,
-          training_set_drop_id: d.training_set_drop_id ?? null,
-          drop_number: d.drop_number ?? i,
-          rep_type_actual: VALID_REP_TYPES.includes(d.rep_type_actual!)
-            ? d.rep_type_actual!
-            : "count",
-          rep_count_actual: d.rep_count_actual ?? null,
-          weight_kg_actual: d.weight_kg_actual ?? null,
-          side: VALID_SIDES.includes(d.side!) ? d.side! : "both",
-          note: d.note ?? null,
-        }),
-      );
-      await db.insertInto("session_drop_log").values(dropInserts).execute();
+      if (Array.isArray(drops) && drops.length) {
+        await trx.insertInto("session_drop_log").values(toDropInserts(setLog.id, drops)).execute();
+      }
+
+      return await fetchSetLogWithDrops(setLog.id, trx);
+    });
+
+    return json(result, 201);
+  }
+
+  // ── PUT /training-sessions/sets/:setLogId — edit a logged set ─────────────────
+  // Body: any of { training_set_id, exercise_id, position, note, drops }.
+  // When `drops` is an array it replaces all drop logs of the set.
+  if (req.method === "PUT" && id && action === "set_log") {
+    const setLog = await findSetLog(id);
+    if (!setLog) return jsonError("Set log not found", 404);
+    if (!canWriteSession(caller, setLog)) return forbidden();
+
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return jsonError("Body must be an object", 400);
     }
+    const { training_set_id, exercise_id, position, note, drops } = body;
 
-    // Return the set log with drops
-    const dropLogs = await db
-      .selectFrom("session_drop_log")
-      .select(DROP_LOG_COLS)
-      .where("session_set_log_id", "=", setLog.id)
-      .orderBy("drop_number", "asc")
-      .execute();
+    const fields = {
+      ...(training_set_id !== undefined && { training_set_id }),
+      ...(exercise_id !== undefined && { exercise_id }),
+      ...(position !== undefined && { position }),
+      ...(note !== undefined && { note }),
+    };
 
-    return json({ ...setLog, drop_logs: dropLogs }, 201);
+    const result = await db.transaction().execute(async (trx) => {
+      if (Object.keys(fields).length) {
+        await trx.updateTable("session_set_log").set(fields).where("id", "=", id).execute();
+      }
+      if (Array.isArray(drops)) {
+        await trx.deleteFrom("session_drop_log").where("session_set_log_id", "=", id).execute();
+        if (drops.length) {
+          await trx.insertInto("session_drop_log").values(toDropInserts(id, drops)).execute();
+        }
+      }
+      await trx
+        .updateTable("training_session")
+        .set({ updated_at: new Date().toISOString() })
+        .where("id", "=", setLog.session_id)
+        .execute();
+      return await fetchSetLogWithDrops(id, trx);
+    });
+
+    return json(result);
+  }
+
+  // ── DELETE /training-sessions/sets/:setLogId — remove a logged set ────────────
+  if (req.method === "DELETE" && id && action === "set_log") {
+    const setLog = await findSetLog(id);
+    if (!setLog) return jsonError("Set log not found", 404);
+    if (!canWriteSession(caller, setLog)) return forbidden();
+
+    // session_drop_log rows cascade.
+    await db.deleteFrom("session_set_log").where("id", "=", id).execute();
+    return new Response(null, { status: 204 });
   }
 
   // ── POST /training-sessions/sets/:setLogId/drops — add drops to a set log ─────
   if (req.method === "POST" && id && action === "drops") {
-    const setLog = await db
-      .selectFrom("session_set_log")
-      .select(["id", "session_id"])
-      .where("id", "=", id)
-      .executeTakeFirst();
+    const setLog = await findSetLog(id);
     if (!setLog) return jsonError("Set log not found", 404);
-
-    // Verify the session belongs to this user
-    const session = await db
-      .selectFrom("training_session")
-      .select(["user_id"])
-      .where("id", "=", setLog.session_id)
-      .executeTakeFirst();
-    if (!session || session.user_id !== dbUser.id) return jsonError("Forbidden", 403);
+    if (!canWriteSession(caller, setLog)) return forbidden();
 
     const body = await req.json().catch(() => null);
-    const drops: {
-      training_set_drop_id?: string;
-      drop_number?: number;
-      rep_type_actual?: RepType;
-      rep_count_actual?: number;
-      weight_kg_actual?: number;
-      side?: BodySide;
-      note?: string;
-    }[] = Array.isArray(body) ? body : [body];
-
-    const dropInserts: SessionDropLogInsert[] = drops.map((d, i) => ({
-      session_set_log_id: id,
-      training_set_drop_id: d.training_set_drop_id ?? null,
-      drop_number: d.drop_number ?? i,
-      rep_type_actual: VALID_REP_TYPES.includes(d.rep_type_actual!) ? d.rep_type_actual! : "count",
-      rep_count_actual: d.rep_count_actual ?? null,
-      weight_kg_actual: d.weight_kg_actual ?? null,
-      side: VALID_SIDES.includes(d.side!) ? d.side! : "both",
-      note: d.note ?? null,
-    }));
+    if (!body) return jsonError("Body must not be empty", 400);
+    const drops: DropPayload[] = Array.isArray(body) ? body : [body];
+    if (!drops.length) return json([], 201);
 
     const inserted = await db
       .insertInto("session_drop_log")
-      .values(dropInserts)
+      .values(toDropInserts(id, drops))
       .returning(DROP_LOG_COLS)
       .execute();
 
@@ -334,24 +441,19 @@ Deno.serve(async (req: Request) => {
       .where("id", "=", id)
       .executeTakeFirst();
     if (!session) return jsonError("Session not found", 404);
-    if (session.user_id !== dbUser.id && dbUser.role !== "super_user") {
-      return jsonError("Forbidden", 403);
-    }
+    if (!canWriteSession(caller, session)) return forbidden();
 
     await db.deleteFrom("training_session").where("id", "=", id).execute();
     return new Response(null, { status: 204 });
   }
 
   return jsonError("Not found", 404);
+}
+
+Deno.serve(async (req: Request) => {
+  try {
+    return await handler(req);
+  } catch (e) {
+    return pgErrorResponse(e);
+  }
 });
-
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-function jsonError(message: string, status: number): Response {
-  return json({ error: message }, status);
-}

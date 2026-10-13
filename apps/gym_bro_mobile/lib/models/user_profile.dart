@@ -4,6 +4,7 @@ enum UserRole {
   employee,
   employeeTrainer,
   member,
+  shopVendor,
   superUser;
 
   static UserRole fromString(String value) {
@@ -13,10 +14,22 @@ enum UserRole {
       'employee' => UserRole.employee,
       'employee_trainer' => UserRole.employeeTrainer,
       'member' => UserRole.member,
+      'shop_vendor' => UserRole.shopVendor,
       'super_user' => UserRole.superUser,
       _ => UserRole.member,
     };
   }
+
+  /// The value stored in `users.role` on the API side.
+  String get apiValue => switch (this) {
+        UserRole.owner => 'owner',
+        UserRole.trainer => 'trainer',
+        UserRole.employee => 'employee',
+        UserRole.employeeTrainer => 'employee_trainer',
+        UserRole.member => 'member',
+        UserRole.shopVendor => 'shop_vendor',
+        UserRole.superUser => 'super_user',
+      };
 
   String get displayName => switch (this) {
         UserRole.owner => 'Owner',
@@ -24,6 +37,7 @@ enum UserRole {
         UserRole.employee => 'Employee',
         UserRole.employeeTrainer => 'Employee / Trainer',
         UserRole.member => 'Member',
+        UserRole.shopVendor => 'Shop Vendor',
         UserRole.superUser => 'Super User',
       };
 }
@@ -68,13 +82,6 @@ class UserProfile {
         'name': name,
         'last_name': lastName,
         'avatar_url': avatarUrl,
-        'role': switch (role) {
-          UserRole.owner => 'owner',
-          UserRole.trainer => 'trainer',
-          UserRole.employee => 'employee',
-          UserRole.employeeTrainer => 'employee_trainer',
-          UserRole.member => 'member',
-          UserRole.superUser => 'super_user',
-        },
+        'role': role.apiValue,
       };
 }
