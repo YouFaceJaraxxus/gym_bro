@@ -632,6 +632,318 @@
       }
     }
   },
+  "@chatAddCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@chatBlockConfirmTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatBlockedSnack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatDeleteGroupConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatLeaveGroupConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatMakeOwnerConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatMembersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@chatNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatPeopleAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@chatPreviewSender": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatPreviewYou": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatRemoveMemberConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatReplyingTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatRequestBanner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatSayHi": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatSysAdded": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "targets": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatSysCreated": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatSysLeft": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatSysMadeAdmin": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatSysMadeOwner": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatSysNameCleared": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatSysPhoto": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatSysRemoved": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatSysRemovedAdmin": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatSysRenamed": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatSysUpdated": {
+    "placeholders": {
+      "who": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatUnreadCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@feedMediaIndex": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@feedMediaLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@feedOpenProfile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@feedPostedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@feedReactionsAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@feedReplyCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@feedReplyingTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@feedShowMoreReplies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@feedUploadingProgress": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@nutritionAddNamed": {
     "placeholders": {
       "name": {
@@ -1159,7 +1471,226 @@
       }
     }
   },
+  "@peopleBlockTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleBlockedSnack": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleCancelFollowRequestTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleCancelFriendRequestTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleDistanceKm": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "@peopleFollowRequestsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@peopleFriendRequestFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleFriendRequestsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@peopleInterestRemove": {
+    "placeholders": {
+      "interest": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleInterestsMax": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@peopleLocationOnUpdated": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleMutualFriendsMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleMutualFriendsOne": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleMutualFriendsTwo": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleNearbyEmpty": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "@peopleNoMatches": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleRadiusKm": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "@peopleReasonInterests": {
+    "placeholders": {
+      "interests": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleReasonMutual": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@peopleReasonNearby": {
+    "placeholders": {
+      "km": {
+        "type": "int"
+      }
+    }
+  },
+  "@peopleReasonSameClass": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@peopleReasonSameGym": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleRemoveFollowerTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleRemoveFriendTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleReportTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleTrainsAt": {
+    "placeholders": {
+      "gyms": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleUnblockedSnack": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "@peopleUnfollowTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "@reactionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@shellAuthPasswordMin": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shellChatsUnread": {
     "placeholders": {
       "count": {
         "type": "int"
@@ -1448,6 +1979,20 @@
     }
   },
   "@shellWelcomeBack": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@socialActiveAgo": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@socialTyping": {
     "placeholders": {
       "name": {
         "type": "String"
@@ -2741,6 +3286,150 @@
   "businessShopTimelinePlaced": "Order placed",
   "businessShopTotal": "Total",
   "businessShopYourCart": "Your cart",
+  "chatAccept": "Accept",
+  "chatAddCount": "{count, plural, =1{Add 1 person} other{Add {count} people}}",
+  "chatAddPeople": "Add people",
+  "chatAddPeopleTitle": "Add people",
+  "chatAlreadyMember": "Already in the group",
+  "chatArchive": "Archive",
+  "chatArchived": "Archived",
+  "chatArchivedSnack": "Chat archived",
+  "chatArchivedTitle": "Archived chats",
+  "chatAttach": "Attach",
+  "chatBlock": "Block",
+  "chatBlockConfirmBody": "They won't be able to message you or find your profile. They won't be told you blocked them.",
+  "chatBlockConfirmTitle": "Block {name}?",
+  "chatBlockedSnack": "{name} is blocked",
+  "chatCancel": "Cancel",
+  "chatClearChat": "Clear chat",
+  "chatClearChatConfirm": "Clear this chat's history for you? Others in the chat still see it.",
+  "chatCleared": "Chat cleared",
+  "chatCopied": "Copied",
+  "chatCopy": "Copy",
+  "chatCreateGroup": "Create group",
+  "chatDeleteChat": "Delete chat",
+  "chatDeleteChatConfirm": "Delete this chat? It's removed for you only — the other person still sees it.",
+  "chatDeleteGroup": "Delete group",
+  "chatDeleteGroupConfirm": "Delete \"{title}\" for everyone? This can't be undone.",
+  "chatEditGroup": "Edit group",
+  "chatEdited": "Edited",
+  "chatEditingMessage": "Editing message",
+  "chatEmptyArchived": "No archived chats",
+  "chatEmptyInbox": "No chats yet",
+  "chatEmptyInboxHint": "Start a conversation with your gym buddies.",
+  "chatEmptyRequests": "No message requests",
+  "chatEmptyRequestsHint": "Messages from people who can't message you directly show up here.",
+  "chatFailed": "Not sent · Tap to retry",
+  "chatFollowingSection": "Following",
+  "chatGroupDescription": "Description",
+  "chatGroupFallback": "Group chat",
+  "chatGroupInfo": "Group info",
+  "chatGroupName": "Group name",
+  "chatGroupNameHint": "Name your group (optional)",
+  "chatGroupRequestBanner": "You've been added to this group",
+  "chatGroupRequestHint": "Accept to join the conversation.",
+  "chatInboxTitle": "Chats",
+  "chatInvited": "Invited",
+  "chatJumpToLatest": "Jump to latest",
+  "chatLeaveGroup": "Leave group",
+  "chatLeaveGroupConfirm": "Leave \"{title}\"? You won't get new messages from this group.",
+  "chatMakeAdmin": "Make admin",
+  "chatMakeOwner": "Make group owner",
+  "chatMakeOwnerConfirm": "Make {name} the group owner? You'll stay on as an admin.",
+  "chatMarkRead": "Mark as read",
+  "chatMediaAudio": "🎤 Audio",
+  "chatMediaFile": "📎 File",
+  "chatMediaPhoto": "📷 Photo",
+  "chatMediaVideo": "🎥 Video",
+  "chatMembersCount": "{count, plural, =1{1 member} other{{count} members}}",
+  "chatMembersTitle": "Members",
+  "chatMessageHint": "Message…",
+  "chatMessageMember": "Message",
+  "chatMessageUnsent": "Message unsent",
+  "chatMoreOptions": "More options",
+  "chatMute": "Mute",
+  "chatMutedSnack": "Notifications muted",
+  "chatNewMessage": "New message",
+  "chatNoAudio": "No audio yet",
+  "chatNoFiles": "No files yet",
+  "chatNoMedia": "No photos or videos yet",
+  "chatNoPeopleFound": "No people found",
+  "chatNoResults": "No chats match \"{query}\"",
+  "chatOpenFile": "Open file",
+  "chatOriginalNotFound": "Couldn't find the original message",
+  "chatPause": "Pause",
+  "chatPeopleAdded": "{count, plural, =1{1 person added} other{{count} people added}}",
+  "chatPhotoMessage": "Photo",
+  "chatPlay": "Play",
+  "chatPreviewSender": "{name}: {text}",
+  "chatPreviewYou": "You: {text}",
+  "chatReactions": "Reactions",
+  "chatRemoveAdmin": "Remove as admin",
+  "chatRemoveAttachment": "Remove",
+  "chatRemoveMember": "Remove from group",
+  "chatRemoveMemberConfirm": "Remove {name} from the group?",
+  "chatRemoveMessage": "Remove for everyone",
+  "chatReply": "Reply",
+  "chatReplyingTo": "Replying to {name}",
+  "chatReplyingToYourself": "Replying to yourself",
+  "chatReport": "Report",
+  "chatReportHarassment": "Harassment or bullying",
+  "chatReportImpersonation": "Pretending to be someone else",
+  "chatReportInappropriate": "Inappropriate content",
+  "chatReportOther": "Something else",
+  "chatReportSent": "Thanks — we'll review it.",
+  "chatReportSpam": "Spam",
+  "chatReportTitle": "Why are you reporting this?",
+  "chatRequestBanner": "{name} wants to message you",
+  "chatRequestBannerHint": "They won't know you've seen this until you accept.",
+  "chatRoleAdmin": "Admin",
+  "chatRoleOwner": "Owner",
+  "chatSaveEdit": "Save",
+  "chatSayHi": "Say hi to {name} 👋",
+  "chatSayHiGroup": "Say hi to the group 👋",
+  "chatSearchHint": "Search",
+  "chatSearchPeople": "Search people",
+  "chatSeen": "Seen",
+  "chatSelected": "Selected",
+  "chatSend": "Send",
+  "chatSending": "Sending…",
+  "chatSent": "Sent",
+  "chatSharedMedia": "Media, files and audio",
+  "chatSomeone": "Someone",
+  "chatStartChat": "Chat",
+  "chatSuggestedSection": "Suggested",
+  "chatSysAdded": "{who, select, me{You added {targets}} other{{name} added {targets}}}",
+  "chatSysCreated": "{who, select, me{You created the group} other{{name} created the group}}",
+  "chatSysLeft": "{who, select, me{You left the group} other{{name} left the group}}",
+  "chatSysMadeAdmin": "{who, select, me{You made {target} an admin} other{{name} made {target} an admin}}",
+  "chatSysMadeOwner": "{who, select, me{You made {target} the group owner} other{{name} made {target} the group owner}}",
+  "chatSysNameCleared": "{who, select, me{You removed the group name} other{{name} removed the group name}}",
+  "chatSysPhoto": "{who, select, me{You changed the group photo} other{{name} changed the group photo}}",
+  "chatSysRemoved": "{who, select, me{You removed {target}} other{{name} removed {target}}}",
+  "chatSysRemovedAdmin": "{who, select, me{You removed {target} as admin} other{{name} removed {target} as admin}}",
+  "chatSysRenamed": "{who, select, me{You named the group \"{title}\"} other{{name} named the group \"{title}\"}}",
+  "chatSysUpdated": "{who, select, me{You updated the group} other{{name} updated the group}}",
+  "chatTabAudio": "Audio",
+  "chatTabChats": "Chats",
+  "chatTabFiles": "Files",
+  "chatTabMedia": "Media",
+  "chatTabRequests": "Requests",
+  "chatTapToRemove": "Tap to remove",
+  "chatTo": "To:",
+  "chatUnarchive": "Unarchive",
+  "chatUnarchivedSnack": "Chat moved to your inbox",
+  "chatUndo": "Undo",
+  "chatUnmute": "Unmute",
+  "chatUnmutedSnack": "Notifications unmuted",
+  "chatUnreadCount": "{count, plural, =1{1 unread message} other{{count} unread messages}}",
+  "chatUnsend": "Unsend",
+  "chatUnsendConfirmBody": "It will be removed for everyone in this chat.",
+  "chatUnsendConfirmTitle": "Unsend message?",
+  "chatVideoMessage": "Video",
+  "chatViewProfile": "View profile",
+  "chatYesterday": "Yesterday",
+  "chatYou": "You",
+  "chatYouObject": "you",
   "commonBack": "Back",
   "commonCancel": "Cancel",
   "commonClose": "Close",
@@ -2757,6 +3446,76 @@
   "commonSomethingWentWrong": "Something went wrong",
   "commonToday": "Today",
   "commonYes": "Yes",
+  "feedAddMedia": "Add photos or videos",
+  "feedAddMore": "Add",
+  "feedAllComments": "Back to all comments",
+  "feedCancelReply": "Cancel reply",
+  "feedCaptionHint": "Write a caption…",
+  "feedCollapseThread": "Collapse thread",
+  "feedCommentsHeader": "Comments",
+  "feedComposerHint": "Share a photo or update…",
+  "feedContinueThread": "Continue this thread →",
+  "feedCopied": "Copied to clipboard",
+  "feedCopyText": "Copy text",
+  "feedDeletedComment": "[deleted]",
+  "feedDiscard": "Discard",
+  "feedDiscardTitle": "Discard this post?",
+  "feedDoubleTapToLove": "Double-tap to love",
+  "feedEmptyExploreBody": "Popular public posts will show up here.",
+  "feedEmptyExploreTitle": "Nothing to explore yet",
+  "feedEmptyHomeBody": "Follow people or join a gym to see their posts here.",
+  "feedEmptyHomeTitle": "Your feed is empty",
+  "feedEndOfFeed": "You're all caught up",
+  "feedExpandThread": "Expand thread",
+  "feedExploreAction": "Explore popular posts",
+  "feedHiddenComment": "[hidden]",
+  "feedLoadMoreComments": "Load more comments",
+  "feedMediaIndex": "{index}/{count}",
+  "feedMediaLimit": "Up to {count} photos or videos per post",
+  "feedMore": "more",
+  "feedMoveLeft": "Move left",
+  "feedMoveRight": "Move right",
+  "feedMultipleMedia": "Multiple photos or videos",
+  "feedNewPost": "New post",
+  "feedNoReactions": "No reactions yet",
+  "feedOp": "OP",
+  "feedOpenProfile": "Open {name}'s profile",
+  "feedOriginalPoster": "Original poster",
+  "feedPostEmpty": "Add a photo, video or caption first",
+  "feedPostNotFound": "This post isn't available anymore.",
+  "feedPostOptions": "Post options",
+  "feedPostTitle": "Post",
+  "feedPostUpdated": "Post updated",
+  "feedPosted": "Posted",
+  "feedPostedBy": "by {name}",
+  "feedPrivateAccountNote": "Your account is private, so only your followers will see this post.",
+  "feedPublishing": "Publishing…",
+  "feedReactionsAll": "All {count}",
+  "feedReactionsTitle": "Reactions",
+  "feedRemoveMedia": "Remove",
+  "feedReorderHint": "Hold and drag to reorder",
+  "feedReply": "Reply",
+  "feedReplyCount": "{count, plural, =1{1 reply} other{{count} replies}}",
+  "feedReplyingTo": "Replying to {name}",
+  "feedSending": "Sending…",
+  "feedShowLess": "Show less",
+  "feedShowMoreReplies": "{count, plural, =1{Show 1 more reply} other{Show {count} more replies}}",
+  "feedShowParent": "Show parent comment",
+  "feedSortLabel": "Sort comments",
+  "feedSortNew": "New",
+  "feedSortOld": "Old",
+  "feedSortTop": "Top",
+  "feedTabExplore": "Explore",
+  "feedTabHome": "Home",
+  "feedThreadTitle": "Thread",
+  "feedUploadingProgress": "Uploading {index} of {count}…",
+  "feedVideo": "Video",
+  "feedVisibilityFollowers": "Followers",
+  "feedVisibilityFollowersHint": "Only your followers can see this post",
+  "feedVisibilityLabel": "Who can see this",
+  "feedVisibilityPublic": "Public",
+  "feedVisibilityPublicHint": "Anyone can see this post",
+  "feedWriteReplyHint": "Write a reply…",
   "nutritionAdd": "Add",
   "nutritionAddFoodItem": "Add food item",
   "nutritionAddFoodTitle": "Add food",
@@ -3142,6 +3901,184 @@
   "nutritionYesterday": "Yesterday",
   "nutritionYourCoachFallback": "your coach",
   "nutritionYours": "Yours",
+  "peopleAccept": "Accept",
+  "peopleAddFriend": "Add friend",
+  "peopleBio": "Bio",
+  "peopleBioHint": "Tell people about your training",
+  "peopleBioLess": "less",
+  "peopleBioMore": "more",
+  "peopleBlock": "Block",
+  "peopleBlockBody": "They won't be able to find your profile, see your posts or message you, and you won't see theirs. Follows and friendship between you are removed. They won't be notified.",
+  "peopleBlockTitle": "Block @{username}?",
+  "peopleBlockedSnack": "@{username} blocked",
+  "peopleBlockedStateBody": "Unblock to see their profile and interact again.",
+  "peopleBlockedStateTitle": "You blocked this account",
+  "peopleBlockedUsers": "Blocked users",
+  "peopleBlockedUsersEmpty": "You haven't blocked anyone.",
+  "peopleBlockedUsersSubtitle": "People you've blocked",
+  "peopleCancelFollowRequestTitle": "Cancel your follow request to @{username}?",
+  "peopleCancelFriendRequestTitle": "Cancel your friend request to {name}?",
+  "peopleCancelRequest": "Cancel request",
+  "peopleCopyUsername": "Copy username",
+  "peopleDecline": "Decline",
+  "peopleDiscard": "Discard",
+  "peopleDiscardTitle": "Discard changes?",
+  "peopleDiscoverable": "Appear in suggestions & nearby",
+  "peopleDiscoverableHint": "People can still find you by searching your name.",
+  "peopleDismiss": "Dismiss",
+  "peopleDistanceKm": "~{km} km",
+  "peopleDistanceUnder1": "< 1 km",
+  "peopleEditProfile": "Edit profile",
+  "peopleEditTitle": "Edit profile",
+  "peopleFollow": "Follow",
+  "peopleFollowBack": "Follow back",
+  "peopleFollowRequestsCount": "{count, plural, =1{1 follow request} other{{count} follow requests}}",
+  "peopleFollowRequestsTab": "Follow requests",
+  "peopleFollowers": "Followers",
+  "peopleFollowing": "Following",
+  "peopleFriendRequestFrom": "{name} sent you a friend request",
+  "peopleFriendRequestSent": "Request sent",
+  "peopleFriendRequestsCount": "{count, plural, =1{1 friend request} other{{count} friend requests}}",
+  "peopleFriendRequestsTab": "Friend requests",
+  "peopleFriends": "Friends",
+  "peopleGoPublicBody": "Anyone will be able to see your posts and follower lists, and all pending follow requests will be accepted.",
+  "peopleGoPublicConfirm": "Switch to public",
+  "peopleGoPublicTitle": "Switch to a public account?",
+  "peopleInterestBodybuilding": "Bodybuilding",
+  "peopleInterestBoxing": "Boxing",
+  "peopleInterestCalisthenics": "Calisthenics",
+  "peopleInterestClimbing": "Climbing",
+  "peopleInterestCrossfit": "CrossFit",
+  "peopleInterestCycling": "Cycling",
+  "peopleInterestHiit": "HIIT",
+  "peopleInterestHiking": "Hiking",
+  "peopleInterestMealPrep": "Meal prep",
+  "peopleInterestMobility": "Mobility",
+  "peopleInterestNutrition": "Nutrition",
+  "peopleInterestOlympicLifting": "Olympic lifting",
+  "peopleInterestPilates": "Pilates",
+  "peopleInterestPowerlifting": "Powerlifting",
+  "peopleInterestRemove": "Remove {interest}",
+  "peopleInterestRunning": "Running",
+  "peopleInterestStrongman": "Strongman",
+  "peopleInterestSwimming": "Swimming",
+  "peopleInterestYoga": "Yoga",
+  "peopleInterests": "Interests",
+  "peopleInterestsHint": "Add an interest",
+  "peopleInterestsMax": "Up to {max} interests",
+  "peopleKeep": "Keep",
+  "peopleListEmptyFollowers": "No followers yet",
+  "peopleListEmptyFollowing": "Not following anyone yet",
+  "peopleListEmptyFriends": "No friends yet",
+  "peopleListEmptyMutual": "No mutual friends",
+  "peopleLocationDenied": "Location permission is off. You can turn it on in your phone's settings.",
+  "peopleLocationFailed": "Couldn't get your location. Try again.",
+  "peopleLocationOff": "Not sharing your location",
+  "peopleLocationOn": "Sharing your approximate location (about 1 km)",
+  "peopleLocationOnUpdated": "Sharing your approximate location · updated {when}",
+  "peopleLocationSection": "Location sharing",
+  "peopleLocationServiceOff": "Turn on location services to find people nearby.",
+  "peopleLocationStop": "Stop sharing",
+  "peopleLocationStopped": "Location sharing stopped",
+  "peopleLocationUpdate": "Update now",
+  "peopleLocationUpdated": "Location updated",
+  "peopleLocked": "Private",
+  "peopleMessage": "Message",
+  "peopleMessageRequestHint": "Your message will arrive as a request",
+  "peopleMoreOptions": "More options",
+  "peopleMoreSuggestions": "More suggestions",
+  "peopleMutual": "Mutual",
+  "peopleMutualFriendsMore": "{count, plural, =1{Friends with {a}, {b} and 1 other} other{Friends with {a}, {b} and {count} others}}",
+  "peopleMutualFriendsOne": "Friends with {a}",
+  "peopleMutualFriendsTwo": "Friends with {a} and {b}",
+  "peopleNearbyEmpty": "No one within {km} km yet.",
+  "peopleNearbyPrivacyBody": "We store your location rounded to about 1 km and only use it to show distances. Your exact location is never shared with anyone.",
+  "peopleNearbyPrivacyTitle": "See people training near you",
+  "peopleNearbyTitle": "Nearby",
+  "peopleNoFollowRequests": "No follow requests",
+  "peopleNoFollowRequestsHint": "When your account is private, people who want to follow you show up here.",
+  "peopleNoFriendRequests": "No friend requests",
+  "peopleNoMatches": "No one matches “{query}”",
+  "peopleNoPosts": "No posts yet",
+  "peopleNoSentRequests": "No pending requests you've sent",
+  "peopleNoSuggestions": "No suggestions right now. Check in at your gym or add interests to your profile to get better ones.",
+  "peoplePosts": "Posts",
+  "peoplePrivacy": "Privacy",
+  "peoplePrivacySubtitle": "Private account, messages, activity status",
+  "peoplePrivateAccount": "Private account",
+  "peoplePrivateAccountHint": "Only people you approve see your photos, videos and follower lists. Anyone can still find you and see your comments and reactions.",
+  "peoplePrivateBody": "Follow to see their photos and videos.",
+  "peoplePrivateRequestedBody": "Your follow request is pending. You'll see their photos and videos once they accept.",
+  "peoplePrivateTitle": "This account is private",
+  "peopleProfileUnavailable": "This profile isn't available.",
+  "peopleRadiusKm": "{km} km",
+  "peopleReasonFollowsYou": "Follows you",
+  "peopleReasonInterests": "Also into {interests}",
+  "peopleReasonMutual": "{count, plural, =1{1 mutual friend} other{{count} mutual friends}}",
+  "peopleReasonNearby": "~{km} km away",
+  "peopleReasonNearbyUnder1": "Less than 1 km away",
+  "peopleReasonSameClass": "{count, plural, =1{Took the same class} other{Took {count} of the same classes}}",
+  "peopleReasonSameGym": "Goes to {gym}",
+  "peopleReasonSameTime": "Trains at the same times",
+  "peopleRemove": "Remove",
+  "peopleRemoveFollower": "Remove follower",
+  "peopleRemoveFollowerBody": "They won't be notified that you removed them.",
+  "peopleRemoveFollowerTitle": "Remove @{username} from your followers?",
+  "peopleRemoveFriend": "Remove friend",
+  "peopleRemoveFriendBody": "You'll stay followers of each other unless you also unfollow.",
+  "peopleRemoveFriendTitle": "Remove {name} from your friends?",
+  "peopleReport": "Report",
+  "peopleReportDetails": "Details (optional)",
+  "peopleReportReasonHarassment": "Harassment or bullying",
+  "peopleReportReasonImpersonation": "Pretending to be someone else",
+  "peopleReportReasonInappropriate": "Inappropriate content",
+  "peopleReportReasonOther": "Something else",
+  "peopleReportReasonSpam": "Spam",
+  "peopleReportSend": "Send report",
+  "peopleReportSent": "Thanks. Our team will review your report.",
+  "peopleReportTitle": "Report @{username}",
+  "peopleReportWhy": "Why are you reporting this account?",
+  "peopleRequested": "Requested",
+  "peopleRequestsSubtitle": "Follow and friend requests",
+  "peopleRequestsTitle": "Requests",
+  "peopleRespond": "Respond",
+  "peopleSaved": "Profile saved",
+  "peopleSearchHint": "Search by name or username",
+  "peopleSearchInList": "Search",
+  "peopleSentTab": "Sent",
+  "peopleSettingSaved": "Saved",
+  "peopleShare": "Share",
+  "peopleShareLocation": "Share my location",
+  "peopleShowActivity": "Show activity status",
+  "peopleShowActivityHint": "People you're connected with can see when you were last active.",
+  "peopleSuggestionsTitle": "People you may know",
+  "peopleTrainsAt": "Trains at {gyms}",
+  "peopleUnblock": "Unblock",
+  "peopleUnblockedSnack": "@{username} unblocked",
+  "peopleUnfollow": "Unfollow",
+  "peopleUnfollowPrivateBody": "This account is private. You'll have to request again to see their photos and videos.",
+  "peopleUnfollowTitle": "Unfollow @{username}?",
+  "peopleUsernameCopied": "Username copied",
+  "peopleUsernameInvalid": "3–30 letters, numbers, dots or underscores",
+  "peopleUsernameTaken": "That username is taken",
+  "peopleViewProfile": "View profile",
+  "peopleWhoCanMessage": "Who can message me",
+  "peopleWhoCanMessageHint": "Messages from anyone else land in your message requests.",
+  "peopleWhoEveryone": "Everyone",
+  "peopleWhoFollowing": "People I follow",
+  "peopleWhoFriends": "Friends",
+  "reactionAngry": "Angry",
+  "reactionCelebrate": "Celebrate",
+  "reactionClap": "Clap",
+  "reactionCount": "{count, plural, =1{1 reaction} other{{count} reactions}}",
+  "reactionFire": "Fire",
+  "reactionHaha": "Haha",
+  "reactionLike": "Like",
+  "reactionLove": "Love",
+  "reactionPickerHint": "Hold to pick a reaction",
+  "reactionSad": "Sad",
+  "reactionStrong": "Strong",
+  "reactionWow": "Wow",
   "settingsLanguage": "Language",
   "settingsLanguageEnglish": "English",
   "settingsLanguageSerbian": "Srpski",
@@ -3169,6 +4106,8 @@
   "shellChangeEmail": "Change email",
   "shellChangeEmailIntro": "We'll send a confirmation link to the new address. Your email changes once you open it.",
   "shellChangePassword": "Change password",
+  "shellChats": "Messages",
+  "shellChatsUnread": "{count, plural, =1{Messages, 1 unread chat} other{Messages, {count} unread chats}}",
   "shellCheckEmailBody": "We sent you a confirmation link. Please verify your email before logging in.",
   "shellCheckEmailTitle": "Check your email",
   "shellChooseShop": "Choose a shop",
@@ -3272,10 +4211,14 @@
   "shellMuteCoaching": "Coaching",
   "shellMuteCoachingDescription": "Assigned routines and plans, session feedback",
   "shellMuteCommunity": "Community",
-  "shellMuteCommunityDescription": "Gym news and comments on your posts",
+  "shellMuteCommunityDescription": "Gym news, comments, replies and reactions to your posts",
   "shellMuteFootnote": "Invites always come through. Muted notifications still appear in the app.",
+  "shellMuteMessages": "Messages",
+  "shellMuteMessagesDescription": "New chat messages and being added to groups",
   "shellMuteShop": "Shop",
   "shellMuteShopDescription": "Order updates, new orders and restocks",
+  "shellMuteSocial": "Followers & friends",
+  "shellMuteSocialDescription": "New followers, follow and friend requests",
   "shellMuteStaff": "Staff",
   "shellMuteStaffDescription": "Shifts and people joining your business",
   "shellMyMembership": "My membership",
@@ -3371,6 +4314,8 @@
   "shellStatsUnpaidInvoices": "Unpaid invoices",
   "shellTabBusinesses": "Businesses",
   "shellTabClasses": "Classes",
+  "shellTabDiscover": "Discover",
+  "shellTabFeed": "Feed",
   "shellTabGym": "Gym",
   "shellTabHome": "Home",
   "shellTabMembers": "Members",
@@ -3405,6 +4350,18 @@
   "shellYourGyms": "Your gyms",
   "shellYourShop": "Your shop",
   "shellYourShops": "Your shops",
+  "socialActiveAgo": "Active {when}",
+  "socialActiveNow": "Active now",
+  "socialCamera": "Camera",
+  "socialFile": "File",
+  "socialFileTooLarge": "Files are limited to 50 MB.",
+  "socialGallery": "Photos & videos",
+  "socialRecordVideo": "Record video",
+  "socialRetry": "Retry",
+  "socialTakePhoto": "Take photo",
+  "socialTyping": "{name} is typing…",
+  "socialTypingSeveral": "Several people are typing…",
+  "socialUploadFailed": "Upload failed. Try again.",
   "trainingAssignAction": "Assign",
   "trainingAssignAssignedOn": "Assigned {date}",
   "trainingAssignClearDates": "Clear dates",

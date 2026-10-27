@@ -29,4 +29,21 @@ class AppConfig {
 
   /// True when the API URL came from a dart-define rather than the local default.
   static bool get hasCustomApiBaseUrl => _apiBaseUrlOverride.isNotEmpty;
+
+  /// The Supabase project origin (`https://xyz.supabase.co`), derived from
+  /// [apiBaseUrl]. Storage and Realtime live under it.
+  static String get supabaseOrigin {
+    final base = apiBaseUrl;
+    const suffix = '/functions/v1';
+    return base.endsWith(suffix) ? base.substring(0, base.length - suffix.length) : base;
+  }
+
+  /// Realtime websocket endpoint (`wss://…/realtime/v1`).
+  static String get realtimeUrl =>
+      '${supabaseOrigin.replaceFirst(RegExp('^http'), 'ws')}/realtime/v1';
+
+  /// The API returns private-media URLs relative to the Supabase origin
+  /// (`/storage/v1/object/sign/…`); absolute URLs pass through unchanged.
+  static String resolveUrl(String url) =>
+      url.startsWith('/') ? '$supabaseOrigin$url' : url;
 }

@@ -67,7 +67,37 @@ export type NotificationType =
   | "shift_assigned"
   | "order_update"
   | "payment_received"
-  | "session_comment";
+  | "session_comment"
+  | "follow"
+  | "follow_request"
+  | "follow_accepted"
+  | "friend_request"
+  | "friend_accepted"
+  | "chat_message"
+  | "group_added"
+  | "post_reaction"
+  | "comment_reply";
+
+export type ReactionType =
+  | "like"
+  | "love"
+  | "haha"
+  | "wow"
+  | "sad"
+  | "angry"
+  | "fire"
+  | "strong"
+  | "clap"
+  | "celebrate";
+export type FollowStatus = "pending" | "accepted";
+export type ConversationKind = "direct" | "group";
+export type ParticipantRole = "owner" | "admin" | "member";
+export type ParticipantStatus = "active" | "request";
+export type MessageKind = "text" | "media" | "system";
+export type WhoCanMessage = "everyone" | "following" | "friends"; // following = people I follow
+export type PostVisibility = "public" | "followers";
+export type ReportReason = "spam" | "harassment" | "inappropriate" | "impersonation" | "other";
+export type MediaBucket = "chat-media" | "user-media";
 
 export type PaymentStatus = "pending" | "succeeded" | "failed" | "cancelled" | "refunded";
 export type PaymentKind = "invoice" | "order" | "membership";
@@ -142,6 +172,17 @@ export interface UsersTable {
   auth_id: ColumnType<string | null, string | null | undefined, string | null>;
   created_at: Generated<string>;
   updated_at: Generated<string>;
+  bio: Generated<string | null>;
+  is_private: Generated<boolean>;
+  discoverable: Generated<boolean>;
+  interests: Generated<string[]>;
+  who_can_message: Generated<WhoCanMessage>;
+  show_activity_status: Generated<boolean>;
+  last_active_at: Generated<string | null>;
+  // Rounded to ~1 km; never returned to other users.
+  location_lat: Generated<number | null>;
+  location_lng: Generated<number | null>;
+  location_updated_at: Generated<string | null>;
 }
 
 export interface BusinessTable {
@@ -153,6 +194,8 @@ export interface BusinessTable {
   working_hours_to: string;
   working_weekdays: number[]; // ISO weekday ints 1–7
   type: BusinessType;
+  latitude: Generated<number | null>;
+  longitude: Generated<number | null>;
 }
 
 export interface GymTable {
@@ -609,9 +652,11 @@ export interface MealPlanAssignmentTable {
 
 export interface PostTable {
   id: Generated<string>;
-  business_id: string;
+  // Null for a user's personal post.
+  business_id: string | null;
   author_id: string | null;
   content: string;
+  visibility: Generated<PostVisibility>;
   created_at: Generated<string>;
   updated_at: Generated<string>;
 }
@@ -619,8 +664,16 @@ export interface PostTable {
 export interface PostImageTable {
   id: Generated<string>;
   post_id: string;
-  url: string;
+  // Public URL (business posts) — or null when storage_path points into the
+  // private user-media bucket and the URL is signed per request.
+  url: string | null;
   position: Generated<number>;
+  media_type: Generated<"image" | "video">;
+  storage_path: string | null;
+  mime_type: string | null;
+  width: number | null;
+  height: number | null;
+  duration_ms: number | null;
 }
 
 // ── Database ──────────────────────────────────────────────────────────────────
@@ -753,12 +806,132 @@ export interface PostCommentTable {
   body: string;
   created_at: Generated<string>;
   updated_at: Generated<string>;
+  parent_id: string | null;
+  // Set by trigger from the parent: 0 top-level … 9 deepest reply.
+  depth: Generated<number>;
+  deleted_at: Generated<string | null>;
 }
 
-export interface PostLikeTable {
+export interface PostReactionTable {
   post_id: string;
   user_id: string;
+  reaction: ReactionType;
   created_at: Generated<string>;
+}
+
+export interface CommentReactionTable {
+  comment_id: string;
+  user_id: string;
+  reaction: ReactionType;
+  created_at: Generated<string>;
+}
+
+// ── Social graph ──────────────────────────────────────────────────────────────
+
+export interface FollowTable {
+  follower_id: string;
+  followee_id: string;
+  status: Generated<FollowStatus>;
+  created_at: Generated<string>;
+  accepted_at: string | null;
+}
+
+export interface FriendshipTable {
+  requester_id: string;
+  addressee_id: string;
+  status: Generated<FollowStatus>;
+  created_at: Generated<string>;
+  accepted_at: string | null;
+}
+
+export interface UserBlockTable {
+  blocker_id: string;
+  blocked_id: string;
+  created_at: Generated<string>;
+}
+
+export interface UserReportTable {
+  id: Generated<string>;
+  reporter_id: string | null;
+  target_user_id: string | null;
+  message_id: string | null;
+  reason: ReportReason;
+  details: string | null;
+  created_at: Generated<string>;
+  resolved_at: string | null;
+  resolved_by: string | null;
+}
+
+// ── Chat ──────────────────────────────────────────────────────────────────────
+
+export interface ConversationTable {
+  id: Generated<string>;
+  kind: ConversationKind;
+  title: string | null;
+  description: string | null;
+  avatar_url: string | null;
+  direct_key: string | null;
+  created_by: string | null;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+  last_message_at: Generated<string>;
+}
+
+export interface ConversationParticipantTable {
+  conversation_id: string;
+  user_id: string;
+  role: Generated<ParticipantRole>;
+  status: Generated<ParticipantStatus>;
+  added_by: string | null;
+  joined_at: Generated<string>;
+  last_read_at: string | null;
+  muted_until: string | null;
+  archived_at: string | null;
+  cleared_at: string | null;
+}
+
+export interface MessageTable {
+  id: Generated<string>;
+  conversation_id: string;
+  sender_id: string | null;
+  kind: Generated<MessageKind>;
+  body: string | null;
+  reply_to_id: string | null;
+  client_id: string | null;
+  metadata: ColumnType<Record<string, unknown>, Record<string, unknown> | undefined, Record<string, unknown>>;
+  created_at: Generated<string>;
+  edited_at: string | null;
+  deleted_at: string | null;
+}
+
+export interface MessageAttachmentTable {
+  id: Generated<string>;
+  message_id: string;
+  storage_path: string;
+  mime_type: string;
+  size_bytes: ColumnType<string, number, number>; // BIGINT arrives as a string
+  file_name: string | null;
+  width: number | null;
+  height: number | null;
+  duration_ms: number | null;
+  position: Generated<number>;
+}
+
+export interface MessageReactionTable {
+  message_id: string;
+  user_id: string;
+  reaction: ReactionType;
+  created_at: Generated<string>;
+}
+
+export interface MediaUploadTable {
+  storage_path: string;
+  bucket: MediaBucket;
+  uploader_id: string;
+  conversation_id: string | null;
+  mime_type: string;
+  created_at: Generated<string>;
+  claimed_at: string | null;
 }
 
 export interface CheckInTable {
@@ -849,7 +1022,18 @@ export interface Database {
   routine_assignment: RoutineAssignmentTable;
   session_comment: SessionCommentTable;
   post_comment: PostCommentTable;
-  post_like: PostLikeTable;
+  post_reaction: PostReactionTable;
+  comment_reaction: CommentReactionTable;
+  follow: FollowTable;
+  friendship: FriendshipTable;
+  user_block: UserBlockTable;
+  user_report: UserReportTable;
+  conversation: ConversationTable;
+  conversation_participant: ConversationParticipantTable;
+  message: MessageTable;
+  message_attachment: MessageAttachmentTable;
+  message_reaction: MessageReactionTable;
+  media_upload: MediaUploadTable;
   check_in: CheckInTable;
   food_log: FoodLogTable;
 }

@@ -23,6 +23,9 @@ import '../models/coaching.dart';
 import '../models/social.dart';
 import '../models/check_in.dart';
 import '../models/food_log.dart';
+import '../models/chat.dart';
+import '../models/people.dart';
+import '../models/reaction.dart';
 import '../config.dart';
 import 'auth_manager.dart';
 import 'offline/offline_support.dart';
@@ -37,6 +40,8 @@ part 'api/coaching_api.dart';
 part 'api/social_api.dart';
 part 'api/checkins_api.dart';
 part 'api/food_logs_api.dart';
+part 'api/people_api.dart';
+part 'api/chat_api.dart';
 
 // Set with --dart-define=API_BASE_URL=... (see lib/config.dart / README.md).
 final _base = AppConfig.apiBaseUrl;

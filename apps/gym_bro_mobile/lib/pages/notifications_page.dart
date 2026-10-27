@@ -542,6 +542,15 @@ class _NotificationTile extends StatelessWidget {
     NotificationType.orderUpdate => Icons.local_shipping_outlined,
     NotificationType.paymentReceived => Icons.payments_outlined,
     NotificationType.sessionComment => Icons.comment_outlined,
+    NotificationType.follow => Icons.person_add_alt_1_outlined,
+    NotificationType.followRequest => Icons.lock_person_outlined,
+    NotificationType.followAccepted => Icons.how_to_reg_outlined,
+    NotificationType.friendRequest => Icons.group_add_outlined,
+    NotificationType.friendAccepted => Icons.people_alt_outlined,
+    NotificationType.chatMessage => Icons.chat_outlined,
+    NotificationType.groupAdded => Icons.forum_outlined,
+    NotificationType.postReaction => Icons.add_reaction_outlined,
+    NotificationType.commentReply => Icons.reply_outlined,
   };
 
   Color _colorFor(AppNotification n, ColorScheme cs) {

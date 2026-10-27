@@ -32,6 +32,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../l10n/app_localizations.dart';
 import 'api_service.dart';
 import 'auth_manager.dart';
+import 'realtime_service.dart';
 import 'notification_router.dart';
 import 'settings_service.dart';
 
@@ -225,6 +226,11 @@ class PushService {
   Future<void> _showForeground(RemoteMessage message) async {
     final n = message.notification;
     if (n == null) return;
+    // No banner for a message in the chat that's open on screen.
+    if (message.data['type'] == 'chat_message') {
+      final open = RealtimeService.instance.activeConversationId;
+      if (open != null && (message.data['metadata'] ?? '').toString().contains(open)) return;
+    }
     final channel = _androidChannel;
     await _local.show(
       id:

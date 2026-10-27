@@ -17,7 +17,8 @@
 #
 # Uses `psql` when installed; otherwise runs psql inside the local Supabase DB
 # container (supabase_db_gym_bro_api, override with $DB_CONTAINER) via
-# `docker exec`, rewriting the local host port 54322 to the container's 5432.
+# `docker exec` (the container publishing the URL's port, for local URLs),
+# rewriting that port to the container's 5432.
 #
 # The tracking table has RLS enabled and no grants to anon/authenticated, so it
 # is invisible through the REST API.
@@ -55,13 +56,24 @@ else
     echo "Error: neither psql nor docker is available." >&2
     exit 1
   fi
-  if ! docker ps --format '{{.Names}}' | grep -qx "$DB_CONTAINER"; then
+  # For a local URL, use the container that actually publishes that port, so a
+  # second local stack never gets its SQL run against the first one.
+  LOCAL_PORT="$(echo "$DATABASE_URL" | sed -nE 's#.*@(127\.0\.0\.1|localhost):([0-9]+)/.*#\2#p')"
+  if [[ -n "$LOCAL_PORT" ]]; then
+    PUBLISHER="$(docker ps --filter "publish=$LOCAL_PORT" --format '{{.Names}}' | head -1)"
+    if [[ -z "$PUBLISHER" ]]; then
+      echo "Error: psql isn't installed and no running container publishes port $LOCAL_PORT." >&2
+      echo "Install psql or start the local stack (supabase start)." >&2
+      exit 1
+    fi
+    DB_CONTAINER="$PUBLISHER"
+  elif ! docker ps --format '{{.Names}}' | grep -qx "$DB_CONTAINER"; then
     echo "Error: psql isn't installed and container '$DB_CONTAINER' isn't running." >&2
-    echo "Install psql or start the local stack (supabase start)." >&2
+    echo "Install psql, or start the local stack so its psql can reach the remote database." >&2
     exit 1
   fi
-  # Inside the container the database listens on 5432, not the host's 54322.
-  CONTAINER_URL="$(echo "$DATABASE_URL" | sed -E 's#@(127\.0\.0\.1|localhost):54322/#@127.0.0.1:5432/#')"
+  # Inside the container the database listens on 5432, not the published port.
+  CONTAINER_URL="$(echo "$DATABASE_URL" | sed -E 's#@(127\.0\.0\.1|localhost):[0-9]+/#@127.0.0.1:5432/#')"
   run_psql() { docker exec -i "$DB_CONTAINER" psql "$CONTAINER_URL" -X -q -v ON_ERROR_STOP=1 "$@"; }
   TARGET_DESC="$(echo "$CONTAINER_URL" | sed -E 's#://([^:@/]+):[^@]*@#://\1:***@#') (via docker exec $DB_CONTAINER)"
 fi

@@ -1,4 +1,5 @@
 import { sql } from "npm:kysely@^0.27";
+import { removeObjects } from "../_shared/media.ts";
 import { db, supabaseAdmin, supabaseUrl, supabaseAnonKey } from "../_shared/config.ts";
 import {
   canManageShop,
@@ -68,6 +69,15 @@ const NOTIFICATION_TYPES: readonly NotificationType[] = [
   "order_update",
   "payment_received",
   "session_comment",
+  "follow",
+  "follow_request",
+  "follow_accepted",
+  "friend_request",
+  "friend_accepted",
+  "chat_message",
+  "group_added",
+  "post_reaction",
+  "comment_reply",
 ];
 
 const WEIGHT_UNITS = ["kg", "lb"] as const;
@@ -950,7 +960,20 @@ Deno.serve(async (req: Request) => {
       return jsonError("This account owns a gym or shop. Delete those businesses first.", 409);
     }
 
+    // Personal posts go with the account (business posts stay, authorless),
+    // and so do the private files behind them.
+    const personalMedia = await db.selectFrom("post_image")
+      .innerJoin("post", "post.id", "post_image.post_id")
+      .select("post_image.storage_path")
+      .where("post.author_id", "=", id)
+      .where("post.business_id", "is", null)
+      .where("post_image.storage_path", "is not", null)
+      .execute();
+    const pendingUploads = await db.selectFrom("media_upload").select(["bucket", "storage_path"])
+      .where("uploader_id", "=", id).where("claimed_at", "is", null).execute();
+
     await db.transaction().execute(async (trx) => {
+      await trx.deleteFrom("post").where("author_id", "=", id).where("business_id", "is", null).execute();
       // employee_trainer references trainer, so it goes first.
       await trx.deleteFrom("employee_trainer").where("user_id", "=", id).execute();
       await trx.deleteFrom("employee").where("user_id", "=", id).execute();
@@ -964,6 +987,12 @@ Deno.serve(async (req: Request) => {
 
       await trx.deleteFrom("users").where("id", "=", id).execute();
     });
+
+    await removeObjects("user-media", [
+      ...personalMedia.map((m) => m.storage_path!),
+      ...pendingUploads.filter((u) => u.bucket === "user-media").map((u) => u.storage_path),
+    ]);
+    await removeObjects("chat-media", pendingUploads.filter((u) => u.bucket === "chat-media").map((u) => u.storage_path));
 
     if (target.auth_id) {
       const { error: authDelErr } = await supabaseAdmin.auth.admin.deleteUser(target.auth_id);

@@ -1,6 +1,7 @@
 import { sql } from "npm:kysely@^0.27";
 import { db } from "./config.ts";
 import type { NotificationType } from "../../types/schema/public.ts";
+import { broadcastToUsers } from "./realtime.ts";
 
 /**
  * Reads an optional secret. An `env(NAME)` reference in config.toml whose
@@ -48,7 +49,26 @@ export async function notify(userIds: string[], n: NotificationInput): Promise<v
     console.error("notify failed", n.type, err);
     return;
   }
+  // Live badge/list update for open apps.
+  for (const row of rows) {
+    await broadcastToUsers([row.user_id], "notification", {
+      id: row.id,
+      type: n.type,
+      title: n.title,
+      body: n.body,
+      metadata: n.metadata ?? {},
+    });
+  }
   schedulePush(rows, n);
+}
+
+/**
+ * Push only, without an in-app notification row — for high-volume events
+ * like chat messages, whose in-app state is the inbox itself.
+ */
+export function pushOnly(userIds: string[], n: NotificationInput): void {
+  const unique = [...new Set(userIds)].filter(Boolean);
+  schedulePush(unique.map((user_id) => ({ id: "", user_id })), n);
 }
 
 /** User ids of everyone who owns the gym. */

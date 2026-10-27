@@ -19,7 +19,16 @@ enum NotificationType {
   shiftAssigned('shift_assigned'),
   orderUpdate('order_update'),
   paymentReceived('payment_received'),
-  sessionComment('session_comment');
+  sessionComment('session_comment'),
+  follow('follow'),
+  followRequest('follow_request'),
+  followAccepted('follow_accepted'),
+  friendRequest('friend_request'),
+  friendAccepted('friend_accepted'),
+  chatMessage('chat_message'),
+  groupAdded('group_added'),
+  postReaction('post_reaction'),
+  commentReply('comment_reply');
 
   const NotificationType(this.apiValue);
 

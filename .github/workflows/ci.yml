@@ -96,11 +96,8 @@ jobs:
             echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
           } >> "$GITHUB_ENV"
 
-      - name: Apply schema
-        run: ./scripts/migrate.sh && ./scripts/migrate.sh --status
-
-      - name: Seed demo data
-        run: deno run --allow-net --allow-env --allow-read --allow-sys scripts/seed.ts
+      - name: Apply schema and seed demo data
+        run: ./scripts/setup_db.sh --yes && ./scripts/migrate.sh --status
 
       - name: Serve edge functions
         run: |

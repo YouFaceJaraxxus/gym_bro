@@ -53,6 +53,11 @@ dependencies:
   intl: ^0.20.2
   flutter_localizations:
     sdk: flutter
+  realtime_client: ^2.13.2
+  video_player: ^2.11.1
+  file_picker: ^10.2.4
+  mime: ^2.1.0
+  geolocator: ^14.0.1
 
 dev_dependencies:
   flutter_test:

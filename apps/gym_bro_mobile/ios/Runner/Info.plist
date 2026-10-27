@@ -38,9 +38,13 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Gym Bro needs access to your photos so you can choose profile pictures and other images.</string>
+	<string>Gym Bro needs access to your photos and videos so you can post them, send them in chats and choose profile pictures.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Gym Bro uses your camera to take profile and progress photos and to scan gym check-in QR codes and product barcodes.</string>
+	<string>Gym Bro uses your camera to take photos and videos for posts and chats, profile and progress photos, and to scan gym check-in QR codes and product barcodes.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Gym Bro records sound with the videos you take for posts and chats.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>If you choose to, Gym Bro uses your approximate location (rounded to about a kilometre) to suggest people who train nearby. Your exact location is never shared.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_bro_mobile/l10n/app_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:gym_bro_mobile/models/post.dart';
+import 'package:gym_bro_mobile/models/reaction.dart';
 import 'package:gym_bro_mobile/models/social.dart';
 
 void main() {
@@ -52,7 +53,7 @@ void main() {
     final unliked = liked.toggledLike();
     expect(unliked.likedByMe, isFalse);
     expect(unliked.likeCount, 3);
-    final weird = p.copyWith(likedByMe: true, likeCount: 0).toggledLike();
+    final weird = p.copyWith(myReaction: ReactionType.like, reactions: ReactionSummary.empty).toggledLike();
     expect(weird.likeCount, 0);
   });
 

@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 import '../models/user_profile.dart';
+import '../pages/chat/chat_launcher.dart';
 import '../pages/classes/class_detail_page.dart';
+import '../pages/feed/post_detail_page.dart';
 import '../pages/classes/my_shifts_page.dart';
 import '../pages/gym_detail_page.dart';
 import '../pages/meal_plans_page.dart';
 import '../pages/membership_page.dart';
 import '../pages/notifications_page.dart';
+import '../pages/people/requests_page.dart';
+import '../pages/people/user_profile_page.dart';
 import '../pages/posts_page.dart';
 import '../pages/routine_detail_page.dart';
 import '../pages/session_detail_page.dart';
@@ -78,6 +82,22 @@ class NotificationRouter {
       case 'invoice_issued':
       case 'member_subscription_extended':
         await push(_membershipScreen(profile, l10n));
+
+      // Comments, replies and reactions open the post itself (scrolled to
+      // the comment); gym news opens the business feed.
+      case 'post_comment' || 'comment_reply' || 'post_reaction' when str('post_id') != null:
+        await push(PostDetailPage(postId: str('post_id')!, focusCommentId: str('comment_id')));
+
+      case 'follow_request' || 'friend_request':
+        await push(const RequestsPage());
+
+      case 'follow' || 'follow_accepted' || 'friend_accepted':
+        final userId = str('user_id');
+        if (userId != null) await push(UserProfilePage(userId: userId));
+
+      case 'chat_message' || 'group_added':
+        final conversationId = str('conversation_id');
+        if (conversationId != null && context.mounted) await openConversation(context, conversationId);
 
       case 'news':
       case 'post_comment':

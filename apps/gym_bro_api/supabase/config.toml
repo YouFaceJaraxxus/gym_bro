@@ -60,8 +60,9 @@ enabled = true
 schema_paths = []
 
 [db.seed]
-# If enabled, seeds the database after migrations during a db reset.
-enabled = true
+# Disabled: the schema lives in sql/schemas and the demo data in scripts/seed.ts.
+# `./scripts/setup_db.sh --reset` resets, migrates and seeds in one go.
+enabled = false
 # Specifies an ordered list of seed files to load during db reset.
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
 sql_paths = ["./seed.sql"]

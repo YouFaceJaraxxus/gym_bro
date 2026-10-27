@@ -1646,6 +1646,570 @@ class AppLocalizationsSr extends AppLocalizations {
   String get businessShopYourCart => 'Tvoja korpa';
 
   @override
+  String get chatAccept => 'Prihvati';
+
+  @override
+  String chatAddCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Dodaj $count osoba',
+      few: 'Dodaj $count osobe',
+      one: 'Dodaj 1 osobu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatAddPeople => 'Dodaj ljude';
+
+  @override
+  String get chatAddPeopleTitle => 'Dodaj ljude';
+
+  @override
+  String get chatAlreadyMember => 'Već je u grupi';
+
+  @override
+  String get chatArchive => 'Arhiviraj';
+
+  @override
+  String get chatArchived => 'Arhivirano';
+
+  @override
+  String get chatArchivedSnack => 'Čet je arhiviran';
+
+  @override
+  String get chatArchivedTitle => 'Arhivirani četovi';
+
+  @override
+  String get chatAttach => 'Priloži';
+
+  @override
+  String get chatBlock => 'Blokiraj';
+
+  @override
+  String get chatBlockConfirmBody =>
+      'Neće moći da vam pišu niti da pronađu vaš profil. Neće biti obavešteni da ste ih blokirali.';
+
+  @override
+  String chatBlockConfirmTitle(String name) {
+    return 'Blokirati korisnika $name?';
+  }
+
+  @override
+  String chatBlockedSnack(String name) {
+    return 'Korisnik $name je blokiran';
+  }
+
+  @override
+  String get chatCancel => 'Otkaži';
+
+  @override
+  String get chatClearChat => 'Očisti čet';
+
+  @override
+  String get chatClearChatConfirm =>
+      'Obrisati istoriju ovog četa samo za vas? Ostali je i dalje vide.';
+
+  @override
+  String get chatCleared => 'Čet je očišćen';
+
+  @override
+  String get chatCopied => 'Kopirano';
+
+  @override
+  String get chatCopy => 'Kopiraj';
+
+  @override
+  String get chatCreateGroup => 'Napravi grupu';
+
+  @override
+  String get chatDeleteChat => 'Obriši čet';
+
+  @override
+  String get chatDeleteChatConfirm =>
+      'Obrisati ovaj čet? Briše se samo kod vas — druga osoba ga i dalje vidi.';
+
+  @override
+  String get chatDeleteGroup => 'Obriši grupu';
+
+  @override
+  String chatDeleteGroupConfirm(String title) {
+    return 'Obrisati „$title” za sve? Ovo se ne može opozvati.';
+  }
+
+  @override
+  String get chatEditGroup => 'Izmeni grupu';
+
+  @override
+  String get chatEdited => 'Izmenjeno';
+
+  @override
+  String get chatEditingMessage => 'Izmena poruke';
+
+  @override
+  String get chatEmptyArchived => 'Nema arhiviranih četova';
+
+  @override
+  String get chatEmptyInbox => 'Još nema četova';
+
+  @override
+  String get chatEmptyInboxHint => 'Započnite razgovor sa ekipom iz teretane.';
+
+  @override
+  String get chatEmptyRequests => 'Nema zahteva za poruke';
+
+  @override
+  String get chatEmptyRequestsHint =>
+      'Ovde stižu poruke od ljudi koji vam ne mogu pisati direktno.';
+
+  @override
+  String get chatFailed => 'Nije poslato · Dodirnite za ponovni pokušaj';
+
+  @override
+  String get chatFollowingSection => 'Pratite';
+
+  @override
+  String get chatGroupDescription => 'Opis';
+
+  @override
+  String get chatGroupFallback => 'Grupni čet';
+
+  @override
+  String get chatGroupInfo => 'Podaci o grupi';
+
+  @override
+  String get chatGroupName => 'Naziv grupe';
+
+  @override
+  String get chatGroupNameHint => 'Dajte grupi naziv (opciono)';
+
+  @override
+  String get chatGroupRequestBanner => 'Dodati ste u ovu grupu';
+
+  @override
+  String get chatGroupRequestHint =>
+      'Prihvatite da biste se pridružili razgovoru.';
+
+  @override
+  String get chatInboxTitle => 'Poruke';
+
+  @override
+  String get chatInvited => 'Pozvan/a';
+
+  @override
+  String get chatJumpToLatest => 'Na najnovije';
+
+  @override
+  String get chatLeaveGroup => 'Napusti grupu';
+
+  @override
+  String chatLeaveGroupConfirm(String title) {
+    return 'Napustiti „$title”? Nećete više dobijati poruke iz ove grupe.';
+  }
+
+  @override
+  String get chatMakeAdmin => 'Postavi za admina';
+
+  @override
+  String get chatMakeOwner => 'Postavi za vlasnika grupe';
+
+  @override
+  String chatMakeOwnerConfirm(String name) {
+    return 'Postaviti korisnika $name za vlasnika grupe? Vi ostajete admin.';
+  }
+
+  @override
+  String get chatMarkRead => 'Označi kao pročitano';
+
+  @override
+  String get chatMediaAudio => '🎤 Audio';
+
+  @override
+  String get chatMediaFile => '📎 Fajl';
+
+  @override
+  String get chatMediaPhoto => '📷 Fotografija';
+
+  @override
+  String get chatMediaVideo => '🎥 Video';
+
+  @override
+  String chatMembersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count članova',
+      few: '$count člana',
+      one: '1 član',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatMembersTitle => 'Članovi';
+
+  @override
+  String get chatMessageHint => 'Poruka…';
+
+  @override
+  String get chatMessageMember => 'Poruka';
+
+  @override
+  String get chatMessageUnsent => 'Poruka je povučena';
+
+  @override
+  String get chatMoreOptions => 'Još opcija';
+
+  @override
+  String get chatMute => 'Isključi obaveštenja';
+
+  @override
+  String get chatMutedSnack => 'Obaveštenja su isključena';
+
+  @override
+  String get chatNewMessage => 'Nova poruka';
+
+  @override
+  String get chatNoAudio => 'Još nema audio snimaka';
+
+  @override
+  String get chatNoFiles => 'Još nema fajlova';
+
+  @override
+  String get chatNoMedia => 'Još nema fotografija ni video snimaka';
+
+  @override
+  String get chatNoPeopleFound => 'Nema pronađenih osoba';
+
+  @override
+  String chatNoResults(String query) {
+    return 'Nijedan čet ne odgovara pojmu „$query”';
+  }
+
+  @override
+  String get chatOpenFile => 'Otvori fajl';
+
+  @override
+  String get chatOriginalNotFound => 'Originalna poruka nije pronađena';
+
+  @override
+  String get chatPause => 'Pauziraj';
+
+  @override
+  String chatPeopleAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Dodato je $count osoba',
+      few: 'Dodate su $count osobe',
+      one: 'Dodata je 1 osoba',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatPhotoMessage => 'Fotografija';
+
+  @override
+  String get chatPlay => 'Pusti';
+
+  @override
+  String chatPreviewSender(String name, String text) {
+    return '$name: $text';
+  }
+
+  @override
+  String chatPreviewYou(String text) {
+    return 'Vi: $text';
+  }
+
+  @override
+  String get chatReactions => 'Reakcije';
+
+  @override
+  String get chatRemoveAdmin => 'Ukloni kao admina';
+
+  @override
+  String get chatRemoveAttachment => 'Ukloni';
+
+  @override
+  String get chatRemoveMember => 'Ukloni iz grupe';
+
+  @override
+  String chatRemoveMemberConfirm(String name) {
+    return 'Ukloniti korisnika $name iz grupe?';
+  }
+
+  @override
+  String get chatRemoveMessage => 'Ukloni za sve';
+
+  @override
+  String get chatReply => 'Odgovori';
+
+  @override
+  String chatReplyingTo(String name) {
+    return 'Odgovor za $name';
+  }
+
+  @override
+  String get chatReplyingToYourself => 'Odgovor na sopstvenu poruku';
+
+  @override
+  String get chatReport => 'Prijavi';
+
+  @override
+  String get chatReportHarassment => 'Uznemiravanje ili maltretiranje';
+
+  @override
+  String get chatReportImpersonation => 'Lažno predstavljanje';
+
+  @override
+  String get chatReportInappropriate => 'Neprikladan sadržaj';
+
+  @override
+  String get chatReportOther => 'Nešto drugo';
+
+  @override
+  String get chatReportSent => 'Hvala — pregledaćemo prijavu.';
+
+  @override
+  String get chatReportSpam => 'Spam';
+
+  @override
+  String get chatReportTitle => 'Zašto prijavljujete?';
+
+  @override
+  String chatRequestBanner(String name) {
+    return '$name želi da vam piše';
+  }
+
+  @override
+  String get chatRequestBannerHint =>
+      'Neće znati da ste videli poruku dok ne prihvatite.';
+
+  @override
+  String get chatRoleAdmin => 'Admin';
+
+  @override
+  String get chatRoleOwner => 'Vlasnik';
+
+  @override
+  String get chatSaveEdit => 'Sačuvaj';
+
+  @override
+  String chatSayHi(String name) {
+    return 'Pozdravite osobu $name 👋';
+  }
+
+  @override
+  String get chatSayHiGroup => 'Pozdravite grupu 👋';
+
+  @override
+  String get chatSearchHint => 'Pretraga';
+
+  @override
+  String get chatSearchPeople => 'Pretraži ljude';
+
+  @override
+  String get chatSeen => 'Viđeno';
+
+  @override
+  String get chatSelected => 'Izabrano';
+
+  @override
+  String get chatSend => 'Pošalji';
+
+  @override
+  String get chatSending => 'Šalje se…';
+
+  @override
+  String get chatSent => 'Poslato';
+
+  @override
+  String get chatSharedMedia => 'Mediji, fajlovi i audio';
+
+  @override
+  String get chatSomeone => 'Neko';
+
+  @override
+  String get chatStartChat => 'Ćaskaj';
+
+  @override
+  String get chatSuggestedSection => 'Predlozi';
+
+  @override
+  String chatSysAdded(String who, String name, String targets) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Dodali ste: $targets',
+      'other': '$name je dodao/la: $targets',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysCreated(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Napravili ste grupu',
+      'other': '$name je napravio/la grupu',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysLeft(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Napustili ste grupu',
+      'other': '$name je napustio/la grupu',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysMadeAdmin(String who, String name, String target) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Postavili ste za admina: $target',
+      'other': '$name je postavio/la za admina: $target',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysMadeOwner(String who, String name, String target) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Postavili ste za vlasnika grupe: $target',
+      'other': '$name je postavio/la za vlasnika grupe: $target',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysNameCleared(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Uklonili ste naziv grupe',
+      'other': '$name je uklonio/la naziv grupe',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysPhoto(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Promenili ste fotografiju grupe',
+      'other': '$name je promenio/la fotografiju grupe',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysRemoved(String who, String name, String target) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Uklonili ste: $target',
+      'other': '$name je uklonio/la: $target',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysRemovedAdmin(String who, String name, String target) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Uklonili ste kao admina: $target',
+      'other': '$name je uklonio/la kao admina: $target',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysRenamed(String who, String name, String title) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Nazvali ste grupu „$title”',
+      'other': '$name je nazvao/la grupu „$title”',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysUpdated(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Ažurirali ste grupu',
+      'other': '$name je ažurirao/la grupu',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get chatTabAudio => 'Audio';
+
+  @override
+  String get chatTabChats => 'Četovi';
+
+  @override
+  String get chatTabFiles => 'Fajlovi';
+
+  @override
+  String get chatTabMedia => 'Mediji';
+
+  @override
+  String get chatTabRequests => 'Zahtevi';
+
+  @override
+  String get chatTapToRemove => 'Dodirnite za uklanjanje';
+
+  @override
+  String get chatTo => 'Za:';
+
+  @override
+  String get chatUnarchive => 'Vrati iz arhive';
+
+  @override
+  String get chatUnarchivedSnack => 'Čet je vraćen u prijemno sanduče';
+
+  @override
+  String get chatUndo => 'Opozovi';
+
+  @override
+  String get chatUnmute => 'Uključi obaveštenja';
+
+  @override
+  String get chatUnmutedSnack => 'Obaveštenja su uključena';
+
+  @override
+  String chatUnreadCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nepročitanih poruka',
+      few: '$count nepročitane poruke',
+      one: '1 nepročitana poruka',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatUnsend => 'Povuci poruku';
+
+  @override
+  String get chatUnsendConfirmBody => 'Biće uklonjena za sve u ovom četu.';
+
+  @override
+  String get chatUnsendConfirmTitle => 'Povući poruku?';
+
+  @override
+  String get chatVideoMessage => 'Video';
+
+  @override
+  String get chatViewProfile => 'Pogledaj profil';
+
+  @override
+  String get chatYesterday => 'Juče';
+
+  @override
+  String get chatYou => 'Vi';
+
+  @override
+  String get chatYouObject => 'vas';
+
+  @override
   String get commonBack => 'Nazad';
 
   @override
@@ -1692,6 +2256,251 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get commonYes => 'Da';
+
+  @override
+  String get feedAddMedia => 'Dodaj fotografije ili video';
+
+  @override
+  String get feedAddMore => 'Dodaj';
+
+  @override
+  String get feedAllComments => 'Nazad na sve komentare';
+
+  @override
+  String get feedCancelReply => 'Otkaži odgovor';
+
+  @override
+  String get feedCaptionHint => 'Napiši opis…';
+
+  @override
+  String get feedCollapseThread => 'Skupi nit';
+
+  @override
+  String get feedCommentsHeader => 'Komentari';
+
+  @override
+  String get feedComposerHint => 'Podeli fotografiju ili novost…';
+
+  @override
+  String get feedContinueThread => 'Nastavi ovu nit →';
+
+  @override
+  String get feedCopied => 'Kopirano';
+
+  @override
+  String get feedCopyText => 'Kopiraj tekst';
+
+  @override
+  String get feedDeletedComment => '[obrisano]';
+
+  @override
+  String get feedDiscard => 'Odbaci';
+
+  @override
+  String get feedDiscardTitle => 'Odbaciti ovu objavu?';
+
+  @override
+  String get feedDoubleTapToLove => 'Dodirni dvaput za srce';
+
+  @override
+  String get feedEmptyExploreBody => 'Popularne javne objave pojaviće se ovde.';
+
+  @override
+  String get feedEmptyExploreTitle => 'Još nema ničega za istraživanje';
+
+  @override
+  String get feedEmptyHomeBody =>
+      'Zaprati ljude ili se učlani u teretanu da bi ovde video njihove objave.';
+
+  @override
+  String get feedEmptyHomeTitle => 'Tvoj feed je prazan';
+
+  @override
+  String get feedEndOfFeed => 'Video si sve';
+
+  @override
+  String get feedExpandThread => 'Proširi nit';
+
+  @override
+  String get feedExploreAction => 'Istraži popularne objave';
+
+  @override
+  String get feedHiddenComment => '[sakriveno]';
+
+  @override
+  String get feedLoadMoreComments => 'Učitaj još komentara';
+
+  @override
+  String feedMediaIndex(int index, int count) {
+    return '$index/$count';
+  }
+
+  @override
+  String feedMediaLimit(int count) {
+    return 'Najviše $count fotografija ili video snimaka po objavi';
+  }
+
+  @override
+  String get feedMore => 'još';
+
+  @override
+  String get feedMoveLeft => 'Pomeri levo';
+
+  @override
+  String get feedMoveRight => 'Pomeri desno';
+
+  @override
+  String get feedMultipleMedia => 'Više fotografija ili video snimaka';
+
+  @override
+  String get feedNewPost => 'Nova objava';
+
+  @override
+  String get feedNoReactions => 'Još nema reakcija';
+
+  @override
+  String get feedOp => 'AUTOR';
+
+  @override
+  String feedOpenProfile(String name) {
+    return 'Otvori profil: $name';
+  }
+
+  @override
+  String get feedOriginalPoster => 'Autor objave';
+
+  @override
+  String get feedPostEmpty => 'Prvo dodaj fotografiju, video ili opis';
+
+  @override
+  String get feedPostNotFound => 'Ova objava više nije dostupna.';
+
+  @override
+  String get feedPostOptions => 'Opcije objave';
+
+  @override
+  String get feedPostTitle => 'Objava';
+
+  @override
+  String get feedPostUpdated => 'Objava je izmenjena';
+
+  @override
+  String get feedPosted => 'Objavljeno';
+
+  @override
+  String feedPostedBy(String name) {
+    return 'objavio/la $name';
+  }
+
+  @override
+  String get feedPrivateAccountNote =>
+      'Tvoj nalog je privatan, pa će ovu objavu videti samo tvoji pratioci.';
+
+  @override
+  String get feedPublishing => 'Objavljivanje…';
+
+  @override
+  String feedReactionsAll(int count) {
+    return 'Sve $count';
+  }
+
+  @override
+  String get feedReactionsTitle => 'Reakcije';
+
+  @override
+  String get feedRemoveMedia => 'Ukloni';
+
+  @override
+  String get feedReorderHint => 'Zadrži i prevuci da promeniš redosled';
+
+  @override
+  String get feedReply => 'Odgovori';
+
+  @override
+  String feedReplyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count odgovora',
+      few: '$count odgovora',
+      one: '1 odgovor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String feedReplyingTo(String name) {
+    return 'Odgovaraš korisniku $name';
+  }
+
+  @override
+  String get feedSending => 'Šalje se…';
+
+  @override
+  String get feedShowLess => 'Prikaži manje';
+
+  @override
+  String feedShowMoreReplies(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Prikaži još $count odgovora',
+      few: 'Prikaži još $count odgovora',
+      one: 'Prikaži još 1 odgovor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get feedShowParent => 'Prikaži nadređeni komentar';
+
+  @override
+  String get feedSortLabel => 'Sortiraj komentare';
+
+  @override
+  String get feedSortNew => 'Najnovije';
+
+  @override
+  String get feedSortOld => 'Najstarije';
+
+  @override
+  String get feedSortTop => 'Najbolje';
+
+  @override
+  String get feedTabExplore => 'Istraži';
+
+  @override
+  String get feedTabHome => 'Početna';
+
+  @override
+  String get feedThreadTitle => 'Nit';
+
+  @override
+  String feedUploadingProgress(int index, int count) {
+    return 'Otpremanje $index od $count…';
+  }
+
+  @override
+  String get feedVideo => 'Video';
+
+  @override
+  String get feedVisibilityFollowers => 'Pratioci';
+
+  @override
+  String get feedVisibilityFollowersHint =>
+      'Samo tvoji pratioci mogu da vide ovu objavu';
+
+  @override
+  String get feedVisibilityLabel => 'Ko može da vidi';
+
+  @override
+  String get feedVisibilityPublic => 'Javno';
+
+  @override
+  String get feedVisibilityPublicHint => 'Svi mogu da vide ovu objavu';
+
+  @override
+  String get feedWriteReplyHint => 'Napiši odgovor…';
 
   @override
   String get nutritionAdd => 'Dodaj';
@@ -3060,6 +3869,660 @@ class AppLocalizationsSr extends AppLocalizations {
   String get nutritionYours => 'Tvoj';
 
   @override
+  String get peopleAccept => 'Prihvati';
+
+  @override
+  String get peopleAddFriend => 'Dodaj prijatelja';
+
+  @override
+  String get peopleBio => 'Biografija';
+
+  @override
+  String get peopleBioHint => 'Reci nešto o svom treningu';
+
+  @override
+  String get peopleBioLess => 'manje';
+
+  @override
+  String get peopleBioMore => 'više';
+
+  @override
+  String get peopleBlock => 'Blokiraj';
+
+  @override
+  String get peopleBlockBody =>
+      'Neće moći da pronađu tvoj profil, vide tvoje objave niti da ti pišu, a ni ti nećeš videti njihove. Praćenja i prijateljstvo između vas se uklanjaju. Neće dobiti obaveštenje.';
+
+  @override
+  String peopleBlockTitle(String username) {
+    return 'Blokirati @$username?';
+  }
+
+  @override
+  String peopleBlockedSnack(String username) {
+    return '@$username je blokiran/a';
+  }
+
+  @override
+  String get peopleBlockedStateBody =>
+      'Odblokiraj da bi video/la profil i ponovo komunicirao/la.';
+
+  @override
+  String get peopleBlockedStateTitle => 'Blokirao/la si ovaj nalog';
+
+  @override
+  String get peopleBlockedUsers => 'Blokirani korisnici';
+
+  @override
+  String get peopleBlockedUsersEmpty => 'Nisi blokirao/la nikoga.';
+
+  @override
+  String get peopleBlockedUsersSubtitle => 'Osobe koje si blokirao/la';
+
+  @override
+  String peopleCancelFollowRequestTitle(String username) {
+    return 'Otkazati zahtev za praćenje za @$username?';
+  }
+
+  @override
+  String peopleCancelFriendRequestTitle(String name) {
+    return 'Otkazati zahtev za prijateljstvo za $name?';
+  }
+
+  @override
+  String get peopleCancelRequest => 'Otkaži zahtev';
+
+  @override
+  String get peopleCopyUsername => 'Kopiraj korisničko ime';
+
+  @override
+  String get peopleDecline => 'Odbij';
+
+  @override
+  String get peopleDiscard => 'Odbaci';
+
+  @override
+  String get peopleDiscardTitle => 'Odbaciti izmene?';
+
+  @override
+  String get peopleDiscoverable => 'Prikaži me u predlozima i u blizini';
+
+  @override
+  String get peopleDiscoverableHint =>
+      'Ljudi i dalje mogu da te pronađu pretragom po imenu.';
+
+  @override
+  String get peopleDismiss => 'Odbaci';
+
+  @override
+  String peopleDistanceKm(int km) {
+    return '~$km km';
+  }
+
+  @override
+  String get peopleDistanceUnder1 => '< 1 km';
+
+  @override
+  String get peopleEditProfile => 'Izmeni profil';
+
+  @override
+  String get peopleEditTitle => 'Izmeni profil';
+
+  @override
+  String get peopleFollow => 'Zaprati';
+
+  @override
+  String get peopleFollowBack => 'Uzvrati praćenje';
+
+  @override
+  String peopleFollowRequestsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zahteva za praćenje',
+      few: '$count zahteva za praćenje',
+      one: '$count zahtev za praćenje',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get peopleFollowRequestsTab => 'Zahtevi za praćenje';
+
+  @override
+  String get peopleFollowers => 'Pratioci';
+
+  @override
+  String get peopleFollowing => 'Pratiš';
+
+  @override
+  String peopleFriendRequestFrom(String name) {
+    return '$name ti je poslao/la zahtev za prijateljstvo';
+  }
+
+  @override
+  String get peopleFriendRequestSent => 'Zahtev poslat';
+
+  @override
+  String peopleFriendRequestsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zahteva za prijateljstvo',
+      few: '$count zahteva za prijateljstvo',
+      one: '$count zahtev za prijateljstvo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get peopleFriendRequestsTab => 'Zahtevi za prijateljstvo';
+
+  @override
+  String get peopleFriends => 'Prijatelji';
+
+  @override
+  String get peopleGoPublicBody =>
+      'Svako će moći da vidi tvoje objave i liste pratilaca, a svi zahtevi za praćenje na čekanju biće prihvaćeni.';
+
+  @override
+  String get peopleGoPublicConfirm => 'Prebaci na javni';
+
+  @override
+  String get peopleGoPublicTitle => 'Prebaciti na javni nalog?';
+
+  @override
+  String get peopleInterestBodybuilding => 'Bodibilding';
+
+  @override
+  String get peopleInterestBoxing => 'Boks';
+
+  @override
+  String get peopleInterestCalisthenics => 'Kalistenika';
+
+  @override
+  String get peopleInterestClimbing => 'Penjanje';
+
+  @override
+  String get peopleInterestCrossfit => 'CrossFit';
+
+  @override
+  String get peopleInterestCycling => 'Biciklizam';
+
+  @override
+  String get peopleInterestHiit => 'HIIT';
+
+  @override
+  String get peopleInterestHiking => 'Planinarenje';
+
+  @override
+  String get peopleInterestMealPrep => 'Priprema obroka';
+
+  @override
+  String get peopleInterestMobility => 'Mobilnost';
+
+  @override
+  String get peopleInterestNutrition => 'Ishrana';
+
+  @override
+  String get peopleInterestOlympicLifting => 'Olimpijsko dizanje';
+
+  @override
+  String get peopleInterestPilates => 'Pilates';
+
+  @override
+  String get peopleInterestPowerlifting => 'Powerlifting';
+
+  @override
+  String peopleInterestRemove(String interest) {
+    return 'Ukloni $interest';
+  }
+
+  @override
+  String get peopleInterestRunning => 'Trčanje';
+
+  @override
+  String get peopleInterestStrongman => 'Strongman';
+
+  @override
+  String get peopleInterestSwimming => 'Plivanje';
+
+  @override
+  String get peopleInterestYoga => 'Joga';
+
+  @override
+  String get peopleInterests => 'Interesovanja';
+
+  @override
+  String get peopleInterestsHint => 'Dodaj interesovanje';
+
+  @override
+  String peopleInterestsMax(int max) {
+    return 'Najviše $max interesovanja';
+  }
+
+  @override
+  String get peopleKeep => 'Zadrži';
+
+  @override
+  String get peopleListEmptyFollowers => 'Još nema pratilaca';
+
+  @override
+  String get peopleListEmptyFollowing => 'Još ne prati nikoga';
+
+  @override
+  String get peopleListEmptyFriends => 'Još nema prijatelja';
+
+  @override
+  String get peopleListEmptyMutual => 'Nema zajedničkih prijatelja';
+
+  @override
+  String get peopleLocationDenied =>
+      'Dozvola za lokaciju je isključena. Možeš je uključiti u podešavanjima telefona.';
+
+  @override
+  String get peopleLocationFailed =>
+      'Nije moguće odrediti lokaciju. Pokušaj ponovo.';
+
+  @override
+  String get peopleLocationOff => 'Ne deliš lokaciju';
+
+  @override
+  String get peopleLocationOn => 'Deliš približnu lokaciju (oko 1 km)';
+
+  @override
+  String peopleLocationOnUpdated(String when) {
+    return 'Deliš približnu lokaciju · ažurirano $when';
+  }
+
+  @override
+  String get peopleLocationSection => 'Deljenje lokacije';
+
+  @override
+  String get peopleLocationServiceOff =>
+      'Uključi lokacijske usluge da bi pronašao/la osobe u blizini.';
+
+  @override
+  String get peopleLocationStop => 'Prestani da deliš';
+
+  @override
+  String get peopleLocationStopped => 'Deljenje lokacije zaustavljeno';
+
+  @override
+  String get peopleLocationUpdate => 'Ažuriraj sada';
+
+  @override
+  String get peopleLocationUpdated => 'Lokacija ažurirana';
+
+  @override
+  String get peopleLocked => 'Privatno';
+
+  @override
+  String get peopleMessage => 'Poruka';
+
+  @override
+  String get peopleMessageRequestHint => 'Tvoja poruka će stići kao zahtev';
+
+  @override
+  String get peopleMoreOptions => 'Još opcija';
+
+  @override
+  String get peopleMoreSuggestions => 'Još predloga';
+
+  @override
+  String get peopleMutual => 'Zajednički';
+
+  @override
+  String peopleMutualFriendsMore(int count, String a, String b) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Prijatelj/ica sa: $a, $b i još $count osoba',
+      few: 'Prijatelj/ica sa: $a, $b i još $count osobe',
+      one: 'Prijatelj/ica sa: $a, $b i još $count osobom',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String peopleMutualFriendsOne(String a) {
+    return 'Prijatelj/ica sa: $a';
+  }
+
+  @override
+  String peopleMutualFriendsTwo(String a, String b) {
+    return 'Prijatelj/ica sa: $a i $b';
+  }
+
+  @override
+  String peopleNearbyEmpty(int km) {
+    return 'Još nema nikoga u krugu od $km km.';
+  }
+
+  @override
+  String get peopleNearbyPrivacyBody =>
+      'Tvoju lokaciju čuvamo zaokruženu na oko 1 km i koristimo je samo za prikaz udaljenosti. Tvoja tačna lokacija se nikome ne prikazuje.';
+
+  @override
+  String get peopleNearbyPrivacyTitle => 'Pogledaj ko trenira u tvojoj blizini';
+
+  @override
+  String get peopleNearbyTitle => 'U blizini';
+
+  @override
+  String get peopleNoFollowRequests => 'Nema zahteva za praćenje';
+
+  @override
+  String get peopleNoFollowRequestsHint =>
+      'Kada je tvoj nalog privatan, ovde se pojavljuju osobe koje žele da te prate.';
+
+  @override
+  String get peopleNoFriendRequests => 'Nema zahteva za prijateljstvo';
+
+  @override
+  String peopleNoMatches(String query) {
+    return 'Niko ne odgovara pretrazi „$query“';
+  }
+
+  @override
+  String get peopleNoPosts => 'Još nema objava';
+
+  @override
+  String get peopleNoSentRequests => 'Nema poslatih zahteva na čekanju';
+
+  @override
+  String get peopleNoSuggestions =>
+      'Trenutno nema predloga. Prijavi se u teretani ili dodaj interesovanja na profil za bolje predloge.';
+
+  @override
+  String get peoplePosts => 'Objave';
+
+  @override
+  String get peoplePrivacy => 'Privatnost';
+
+  @override
+  String get peoplePrivacySubtitle =>
+      'Privatni nalog, poruke, status aktivnosti';
+
+  @override
+  String get peoplePrivateAccount => 'Privatni nalog';
+
+  @override
+  String get peoplePrivateAccountHint =>
+      'Samo osobe koje odobriš vide tvoje fotografije, snimke i liste pratilaca. Svako i dalje može da te pronađe i vidi tvoje komentare i reakcije.';
+
+  @override
+  String get peoplePrivateBody =>
+      'Zaprati da bi video/la fotografije i snimke.';
+
+  @override
+  String get peoplePrivateRequestedBody =>
+      'Zahtev za praćenje čeka odobrenje. Videćeš fotografije i snimke kada ga prihvate.';
+
+  @override
+  String get peoplePrivateTitle => 'Ovaj nalog je privatan';
+
+  @override
+  String get peopleProfileUnavailable => 'Ovaj profil nije dostupan.';
+
+  @override
+  String peopleRadiusKm(int km) {
+    return '$km km';
+  }
+
+  @override
+  String get peopleReasonFollowsYou => 'Prati te';
+
+  @override
+  String peopleReasonInterests(String interests) {
+    return 'Takođe voli: $interests';
+  }
+
+  @override
+  String peopleReasonMutual(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zajedničkih prijatelja',
+      few: '$count zajednička prijatelja',
+      one: '$count zajednički prijatelj',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String peopleReasonNearby(int km) {
+    return '~$km km udaljenosti';
+  }
+
+  @override
+  String get peopleReasonNearbyUnder1 => 'Manje od 1 km';
+
+  @override
+  String peopleReasonSameClass(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zajedničkih časova',
+      few: '$count zajednička časa',
+      one: 'Zajednički čas',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String peopleReasonSameGym(String gym) {
+    return 'Ide u $gym';
+  }
+
+  @override
+  String get peopleReasonSameTime => 'Trenira u isto vreme';
+
+  @override
+  String get peopleRemove => 'Ukloni';
+
+  @override
+  String get peopleRemoveFollower => 'Ukloni pratioca';
+
+  @override
+  String get peopleRemoveFollowerBody =>
+      'Neće dobiti obaveštenje da si ih uklonio/la.';
+
+  @override
+  String peopleRemoveFollowerTitle(String username) {
+    return 'Ukloniti @$username iz pratilaca?';
+  }
+
+  @override
+  String get peopleRemoveFriend => 'Ukloni prijatelja';
+
+  @override
+  String get peopleRemoveFriendBody =>
+      'I dalje ćete pratiti jedno drugo osim ako ne prestaneš da pratiš.';
+
+  @override
+  String peopleRemoveFriendTitle(String name) {
+    return 'Ukloniti $name iz prijatelja?';
+  }
+
+  @override
+  String get peopleReport => 'Prijavi';
+
+  @override
+  String get peopleReportDetails => 'Detalji (opciono)';
+
+  @override
+  String get peopleReportReasonHarassment => 'Uznemiravanje ili maltretiranje';
+
+  @override
+  String get peopleReportReasonImpersonation => 'Predstavlja se kao neko drugi';
+
+  @override
+  String get peopleReportReasonInappropriate => 'Neprikladan sadržaj';
+
+  @override
+  String get peopleReportReasonOther => 'Nešto drugo';
+
+  @override
+  String get peopleReportReasonSpam => 'Neželjeni sadržaj';
+
+  @override
+  String get peopleReportSend => 'Pošalji prijavu';
+
+  @override
+  String get peopleReportSent => 'Hvala. Naš tim će pregledati prijavu.';
+
+  @override
+  String peopleReportTitle(String username) {
+    return 'Prijavi @$username';
+  }
+
+  @override
+  String get peopleReportWhy => 'Zašto prijavljuješ ovaj nalog?';
+
+  @override
+  String get peopleRequested => 'Zatraženo';
+
+  @override
+  String get peopleRequestsSubtitle => 'Zahtevi za praćenje i prijateljstvo';
+
+  @override
+  String get peopleRequestsTitle => 'Zahtevi';
+
+  @override
+  String get peopleRespond => 'Odgovori';
+
+  @override
+  String get peopleSaved => 'Profil sačuvan';
+
+  @override
+  String get peopleSearchHint => 'Pretraži po imenu ili korisničkom imenu';
+
+  @override
+  String get peopleSearchInList => 'Pretraga';
+
+  @override
+  String get peopleSentTab => 'Poslato';
+
+  @override
+  String get peopleSettingSaved => 'Sačuvano';
+
+  @override
+  String get peopleShare => 'Podeli';
+
+  @override
+  String get peopleShareLocation => 'Podeli moju lokaciju';
+
+  @override
+  String get peopleShowActivity => 'Prikaži status aktivnosti';
+
+  @override
+  String get peopleShowActivityHint =>
+      'Osobe sa kojima si povezan/a vide kada si poslednji put bio/la aktivan/na.';
+
+  @override
+  String get peopleSuggestionsTitle => 'Osobe koje možda poznaješ';
+
+  @override
+  String peopleTrainsAt(String gyms) {
+    return 'Trenira u: $gyms';
+  }
+
+  @override
+  String get peopleUnblock => 'Odblokiraj';
+
+  @override
+  String peopleUnblockedSnack(String username) {
+    return '@$username je odblokiran/a';
+  }
+
+  @override
+  String get peopleUnfollow => 'Prestani da pratiš';
+
+  @override
+  String get peopleUnfollowPrivateBody =>
+      'Ovaj nalog je privatan. Moraćeš ponovo da pošalješ zahtev da bi video/la fotografije i snimke.';
+
+  @override
+  String peopleUnfollowTitle(String username) {
+    return 'Prestati da pratiš @$username?';
+  }
+
+  @override
+  String get peopleUsernameCopied => 'Korisničko ime kopirano';
+
+  @override
+  String get peopleUsernameInvalid =>
+      '3–30 slova, brojeva, tačaka ili donjih crta';
+
+  @override
+  String get peopleUsernameTaken => 'To korisničko ime je zauzeto';
+
+  @override
+  String get peopleViewProfile => 'Pogledaj profil';
+
+  @override
+  String get peopleWhoCanMessage => 'Ko može da mi piše';
+
+  @override
+  String get peopleWhoCanMessageHint =>
+      'Poruke svih ostalih stižu u zahteve za poruke.';
+
+  @override
+  String get peopleWhoEveryone => 'Svi';
+
+  @override
+  String get peopleWhoFollowing => 'Osobe koje pratim';
+
+  @override
+  String get peopleWhoFriends => 'Prijatelji';
+
+  @override
+  String get reactionAngry => 'Ljuto';
+
+  @override
+  String get reactionCelebrate => 'Slavlje';
+
+  @override
+  String get reactionClap => 'Aplauz';
+
+  @override
+  String reactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reakcija',
+      few: '$count reakcije',
+      one: '1 reakcija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reactionFire => 'Vatra';
+
+  @override
+  String get reactionHaha => 'Haha';
+
+  @override
+  String get reactionLike => 'Sviđa mi se';
+
+  @override
+  String get reactionLove => 'Volim';
+
+  @override
+  String get reactionPickerHint => 'Zadržite za izbor reakcije';
+
+  @override
+  String get reactionSad => 'Tužno';
+
+  @override
+  String get reactionStrong => 'Snaga';
+
+  @override
+  String get reactionWow => 'Vau';
+
+  @override
   String get settingsLanguage => 'Jezik';
 
   @override
@@ -3144,6 +4607,21 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellChangePassword => 'Promeni lozinku';
+
+  @override
+  String get shellChats => 'Poruke';
+
+  @override
+  String shellChatsUnread(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Poruke, $count nepročitanih razgovora',
+      few: 'Poruke, $count nepročitana razgovora',
+      one: 'Poruke, 1 nepročitan razgovor',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get shellCheckEmailBody =>
@@ -3515,11 +4993,17 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellMuteCommunityDescription =>
-      'Vesti iz teretane i komentari na tvoje objave';
+      'Vesti iz teretane, komentari, odgovori i reakcije na tvoje objave';
 
   @override
   String get shellMuteFootnote =>
       'Pozivnice uvek stižu. Utišana obaveštenja se i dalje prikazuju u aplikaciji.';
+
+  @override
+  String get shellMuteMessages => 'Poruke';
+
+  @override
+  String get shellMuteMessagesDescription => 'Nove poruke i dodavanje u grupe';
 
   @override
   String get shellMuteShop => 'Prodavnica';
@@ -3527,6 +5011,13 @@ class AppLocalizationsSr extends AppLocalizations {
   @override
   String get shellMuteShopDescription =>
       'Status porudžbina, nove porudžbine i dopune zaliha';
+
+  @override
+  String get shellMuteSocial => 'Pratioci i prijatelji';
+
+  @override
+  String get shellMuteSocialDescription =>
+      'Novi pratioci, zahtevi za praćenje i prijateljstvo';
 
   @override
   String get shellMuteStaff => 'Osoblje';
@@ -3865,6 +5356,12 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellTabClasses => 'Časovi';
 
   @override
+  String get shellTabDiscover => 'Otkrij';
+
+  @override
+  String get shellTabFeed => 'Objave';
+
+  @override
   String get shellTabGym => 'Teretana';
 
   @override
@@ -4006,6 +5503,46 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellYourShops => 'Tvoje prodavnice';
+
+  @override
+  String socialActiveAgo(String when) {
+    return 'Aktivan/na $when';
+  }
+
+  @override
+  String get socialActiveNow => 'Aktivan/na sada';
+
+  @override
+  String get socialCamera => 'Kamera';
+
+  @override
+  String get socialFile => 'Fajl';
+
+  @override
+  String get socialFileTooLarge => 'Fajlovi mogu imati najviše 50 MB.';
+
+  @override
+  String get socialGallery => 'Fotografije i video';
+
+  @override
+  String get socialRecordVideo => 'Snimi video';
+
+  @override
+  String get socialRetry => 'Pokušaj ponovo';
+
+  @override
+  String get socialTakePhoto => 'Snimi fotografiju';
+
+  @override
+  String socialTyping(String name) {
+    return '$name kuca…';
+  }
+
+  @override
+  String get socialTypingSeveral => 'Više osoba kuca…';
+
+  @override
+  String get socialUploadFailed => 'Otpremanje nije uspelo. Pokušajte ponovo.';
 
   @override
   String get trainingAssignAction => 'Dodeli';
@@ -7710,6 +9247,570 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get businessShopYourCart => 'Tvoja korpa';
 
   @override
+  String get chatAccept => 'Prihvati';
+
+  @override
+  String chatAddCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Dodaj $count osoba',
+      few: 'Dodaj $count osobe',
+      one: 'Dodaj 1 osobu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatAddPeople => 'Dodaj ljude';
+
+  @override
+  String get chatAddPeopleTitle => 'Dodaj ljude';
+
+  @override
+  String get chatAlreadyMember => 'Već je u grupi';
+
+  @override
+  String get chatArchive => 'Arhiviraj';
+
+  @override
+  String get chatArchived => 'Arhivirano';
+
+  @override
+  String get chatArchivedSnack => 'Čet je arhiviran';
+
+  @override
+  String get chatArchivedTitle => 'Arhivirani četovi';
+
+  @override
+  String get chatAttach => 'Priloži';
+
+  @override
+  String get chatBlock => 'Blokiraj';
+
+  @override
+  String get chatBlockConfirmBody =>
+      'Neće moći da vam pišu niti da pronađu vaš profil. Neće biti obavešteni da ste ih blokirali.';
+
+  @override
+  String chatBlockConfirmTitle(String name) {
+    return 'Blokirati korisnika $name?';
+  }
+
+  @override
+  String chatBlockedSnack(String name) {
+    return 'Korisnik $name je blokiran';
+  }
+
+  @override
+  String get chatCancel => 'Otkaži';
+
+  @override
+  String get chatClearChat => 'Očisti čet';
+
+  @override
+  String get chatClearChatConfirm =>
+      'Obrisati istoriju ovog četa samo za vas? Ostali je i dalje vide.';
+
+  @override
+  String get chatCleared => 'Čet je očišćen';
+
+  @override
+  String get chatCopied => 'Kopirano';
+
+  @override
+  String get chatCopy => 'Kopiraj';
+
+  @override
+  String get chatCreateGroup => 'Napravi grupu';
+
+  @override
+  String get chatDeleteChat => 'Obriši čet';
+
+  @override
+  String get chatDeleteChatConfirm =>
+      'Obrisati ovaj čet? Briše se samo kod vas — druga osoba ga i dalje vidi.';
+
+  @override
+  String get chatDeleteGroup => 'Obriši grupu';
+
+  @override
+  String chatDeleteGroupConfirm(String title) {
+    return 'Obrisati „$title” za sve? Ovo se ne može opozvati.';
+  }
+
+  @override
+  String get chatEditGroup => 'Izmeni grupu';
+
+  @override
+  String get chatEdited => 'Izmenjeno';
+
+  @override
+  String get chatEditingMessage => 'Izmena poruke';
+
+  @override
+  String get chatEmptyArchived => 'Nema arhiviranih četova';
+
+  @override
+  String get chatEmptyInbox => 'Još nema četova';
+
+  @override
+  String get chatEmptyInboxHint => 'Započnite razgovor sa ekipom iz teretane.';
+
+  @override
+  String get chatEmptyRequests => 'Nema zahteva za poruke';
+
+  @override
+  String get chatEmptyRequestsHint =>
+      'Ovde stižu poruke od ljudi koji vam ne mogu pisati direktno.';
+
+  @override
+  String get chatFailed => 'Nije poslato · Dodirnite za ponovni pokušaj';
+
+  @override
+  String get chatFollowingSection => 'Pratite';
+
+  @override
+  String get chatGroupDescription => 'Opis';
+
+  @override
+  String get chatGroupFallback => 'Grupni čet';
+
+  @override
+  String get chatGroupInfo => 'Podaci o grupi';
+
+  @override
+  String get chatGroupName => 'Naziv grupe';
+
+  @override
+  String get chatGroupNameHint => 'Dajte grupi naziv (opciono)';
+
+  @override
+  String get chatGroupRequestBanner => 'Dodati ste u ovu grupu';
+
+  @override
+  String get chatGroupRequestHint =>
+      'Prihvatite da biste se pridružili razgovoru.';
+
+  @override
+  String get chatInboxTitle => 'Poruke';
+
+  @override
+  String get chatInvited => 'Pozvan/a';
+
+  @override
+  String get chatJumpToLatest => 'Na najnovije';
+
+  @override
+  String get chatLeaveGroup => 'Napusti grupu';
+
+  @override
+  String chatLeaveGroupConfirm(String title) {
+    return 'Napustiti „$title”? Nećete više dobijati poruke iz ove grupe.';
+  }
+
+  @override
+  String get chatMakeAdmin => 'Postavi za admina';
+
+  @override
+  String get chatMakeOwner => 'Postavi za vlasnika grupe';
+
+  @override
+  String chatMakeOwnerConfirm(String name) {
+    return 'Postaviti korisnika $name za vlasnika grupe? Vi ostajete admin.';
+  }
+
+  @override
+  String get chatMarkRead => 'Označi kao pročitano';
+
+  @override
+  String get chatMediaAudio => '🎤 Audio';
+
+  @override
+  String get chatMediaFile => '📎 Fajl';
+
+  @override
+  String get chatMediaPhoto => '📷 Fotografija';
+
+  @override
+  String get chatMediaVideo => '🎥 Video';
+
+  @override
+  String chatMembersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count članova',
+      few: '$count člana',
+      one: '1 član',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatMembersTitle => 'Članovi';
+
+  @override
+  String get chatMessageHint => 'Poruka…';
+
+  @override
+  String get chatMessageMember => 'Poruka';
+
+  @override
+  String get chatMessageUnsent => 'Poruka je povučena';
+
+  @override
+  String get chatMoreOptions => 'Još opcija';
+
+  @override
+  String get chatMute => 'Isključi obaveštenja';
+
+  @override
+  String get chatMutedSnack => 'Obaveštenja su isključena';
+
+  @override
+  String get chatNewMessage => 'Nova poruka';
+
+  @override
+  String get chatNoAudio => 'Još nema audio snimaka';
+
+  @override
+  String get chatNoFiles => 'Još nema fajlova';
+
+  @override
+  String get chatNoMedia => 'Još nema fotografija ni video snimaka';
+
+  @override
+  String get chatNoPeopleFound => 'Nema pronađenih osoba';
+
+  @override
+  String chatNoResults(String query) {
+    return 'Nijedan čet ne odgovara pojmu „$query”';
+  }
+
+  @override
+  String get chatOpenFile => 'Otvori fajl';
+
+  @override
+  String get chatOriginalNotFound => 'Originalna poruka nije pronađena';
+
+  @override
+  String get chatPause => 'Pauziraj';
+
+  @override
+  String chatPeopleAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Dodato je $count osoba',
+      few: 'Dodate su $count osobe',
+      one: 'Dodata je 1 osoba',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatPhotoMessage => 'Fotografija';
+
+  @override
+  String get chatPlay => 'Pusti';
+
+  @override
+  String chatPreviewSender(String name, String text) {
+    return '$name: $text';
+  }
+
+  @override
+  String chatPreviewYou(String text) {
+    return 'Vi: $text';
+  }
+
+  @override
+  String get chatReactions => 'Reakcije';
+
+  @override
+  String get chatRemoveAdmin => 'Ukloni kao admina';
+
+  @override
+  String get chatRemoveAttachment => 'Ukloni';
+
+  @override
+  String get chatRemoveMember => 'Ukloni iz grupe';
+
+  @override
+  String chatRemoveMemberConfirm(String name) {
+    return 'Ukloniti korisnika $name iz grupe?';
+  }
+
+  @override
+  String get chatRemoveMessage => 'Ukloni za sve';
+
+  @override
+  String get chatReply => 'Odgovori';
+
+  @override
+  String chatReplyingTo(String name) {
+    return 'Odgovor za $name';
+  }
+
+  @override
+  String get chatReplyingToYourself => 'Odgovor na sopstvenu poruku';
+
+  @override
+  String get chatReport => 'Prijavi';
+
+  @override
+  String get chatReportHarassment => 'Uznemiravanje ili maltretiranje';
+
+  @override
+  String get chatReportImpersonation => 'Lažno predstavljanje';
+
+  @override
+  String get chatReportInappropriate => 'Neprikladan sadržaj';
+
+  @override
+  String get chatReportOther => 'Nešto drugo';
+
+  @override
+  String get chatReportSent => 'Hvala — pregledaćemo prijavu.';
+
+  @override
+  String get chatReportSpam => 'Spam';
+
+  @override
+  String get chatReportTitle => 'Zašto prijavljujete?';
+
+  @override
+  String chatRequestBanner(String name) {
+    return '$name želi da vam piše';
+  }
+
+  @override
+  String get chatRequestBannerHint =>
+      'Neće znati da ste videli poruku dok ne prihvatite.';
+
+  @override
+  String get chatRoleAdmin => 'Admin';
+
+  @override
+  String get chatRoleOwner => 'Vlasnik';
+
+  @override
+  String get chatSaveEdit => 'Sačuvaj';
+
+  @override
+  String chatSayHi(String name) {
+    return 'Pozdravite osobu $name 👋';
+  }
+
+  @override
+  String get chatSayHiGroup => 'Pozdravite grupu 👋';
+
+  @override
+  String get chatSearchHint => 'Pretraga';
+
+  @override
+  String get chatSearchPeople => 'Pretraži ljude';
+
+  @override
+  String get chatSeen => 'Viđeno';
+
+  @override
+  String get chatSelected => 'Izabrano';
+
+  @override
+  String get chatSend => 'Pošalji';
+
+  @override
+  String get chatSending => 'Šalje se…';
+
+  @override
+  String get chatSent => 'Poslato';
+
+  @override
+  String get chatSharedMedia => 'Mediji, fajlovi i audio';
+
+  @override
+  String get chatSomeone => 'Neko';
+
+  @override
+  String get chatStartChat => 'Ćaskaj';
+
+  @override
+  String get chatSuggestedSection => 'Predlozi';
+
+  @override
+  String chatSysAdded(String who, String name, String targets) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Dodali ste: $targets',
+      'other': '$name je dodao/la: $targets',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysCreated(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Napravili ste grupu',
+      'other': '$name je napravio/la grupu',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysLeft(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Napustili ste grupu',
+      'other': '$name je napustio/la grupu',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysMadeAdmin(String who, String name, String target) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Postavili ste za admina: $target',
+      'other': '$name je postavio/la za admina: $target',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysMadeOwner(String who, String name, String target) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Postavili ste za vlasnika grupe: $target',
+      'other': '$name je postavio/la za vlasnika grupe: $target',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysNameCleared(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Uklonili ste naziv grupe',
+      'other': '$name je uklonio/la naziv grupe',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysPhoto(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Promenili ste fotografiju grupe',
+      'other': '$name je promenio/la fotografiju grupe',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysRemoved(String who, String name, String target) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Uklonili ste: $target',
+      'other': '$name je uklonio/la: $target',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysRemovedAdmin(String who, String name, String target) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Uklonili ste kao admina: $target',
+      'other': '$name je uklonio/la kao admina: $target',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysRenamed(String who, String name, String title) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Nazvali ste grupu „$title”',
+      'other': '$name je nazvao/la grupu „$title”',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysUpdated(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'Ažurirali ste grupu',
+      'other': '$name je ažurirao/la grupu',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get chatTabAudio => 'Audio';
+
+  @override
+  String get chatTabChats => 'Četovi';
+
+  @override
+  String get chatTabFiles => 'Fajlovi';
+
+  @override
+  String get chatTabMedia => 'Mediji';
+
+  @override
+  String get chatTabRequests => 'Zahtevi';
+
+  @override
+  String get chatTapToRemove => 'Dodirnite za uklanjanje';
+
+  @override
+  String get chatTo => 'Za:';
+
+  @override
+  String get chatUnarchive => 'Vrati iz arhive';
+
+  @override
+  String get chatUnarchivedSnack => 'Čet je vraćen u prijemno sanduče';
+
+  @override
+  String get chatUndo => 'Opozovi';
+
+  @override
+  String get chatUnmute => 'Uključi obaveštenja';
+
+  @override
+  String get chatUnmutedSnack => 'Obaveštenja su uključena';
+
+  @override
+  String chatUnreadCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nepročitanih poruka',
+      few: '$count nepročitane poruke',
+      one: '1 nepročitana poruka',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatUnsend => 'Povuci poruku';
+
+  @override
+  String get chatUnsendConfirmBody => 'Biće uklonjena za sve u ovom četu.';
+
+  @override
+  String get chatUnsendConfirmTitle => 'Povući poruku?';
+
+  @override
+  String get chatVideoMessage => 'Video';
+
+  @override
+  String get chatViewProfile => 'Pogledaj profil';
+
+  @override
+  String get chatYesterday => 'Juče';
+
+  @override
+  String get chatYou => 'Vi';
+
+  @override
+  String get chatYouObject => 'vas';
+
+  @override
   String get commonBack => 'Nazad';
 
   @override
@@ -7756,6 +9857,251 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get commonYes => 'Da';
+
+  @override
+  String get feedAddMedia => 'Dodaj fotografije ili video';
+
+  @override
+  String get feedAddMore => 'Dodaj';
+
+  @override
+  String get feedAllComments => 'Nazad na sve komentare';
+
+  @override
+  String get feedCancelReply => 'Otkaži odgovor';
+
+  @override
+  String get feedCaptionHint => 'Napiši opis…';
+
+  @override
+  String get feedCollapseThread => 'Skupi nit';
+
+  @override
+  String get feedCommentsHeader => 'Komentari';
+
+  @override
+  String get feedComposerHint => 'Podeli fotografiju ili novost…';
+
+  @override
+  String get feedContinueThread => 'Nastavi ovu nit →';
+
+  @override
+  String get feedCopied => 'Kopirano';
+
+  @override
+  String get feedCopyText => 'Kopiraj tekst';
+
+  @override
+  String get feedDeletedComment => '[obrisano]';
+
+  @override
+  String get feedDiscard => 'Odbaci';
+
+  @override
+  String get feedDiscardTitle => 'Odbaciti ovu objavu?';
+
+  @override
+  String get feedDoubleTapToLove => 'Dodirni dvaput za srce';
+
+  @override
+  String get feedEmptyExploreBody => 'Popularne javne objave pojaviće se ovde.';
+
+  @override
+  String get feedEmptyExploreTitle => 'Još nema ničega za istraživanje';
+
+  @override
+  String get feedEmptyHomeBody =>
+      'Zaprati ljude ili se učlani u teretanu da bi ovde video njihove objave.';
+
+  @override
+  String get feedEmptyHomeTitle => 'Tvoj feed je prazan';
+
+  @override
+  String get feedEndOfFeed => 'Video si sve';
+
+  @override
+  String get feedExpandThread => 'Proširi nit';
+
+  @override
+  String get feedExploreAction => 'Istraži popularne objave';
+
+  @override
+  String get feedHiddenComment => '[sakriveno]';
+
+  @override
+  String get feedLoadMoreComments => 'Učitaj još komentara';
+
+  @override
+  String feedMediaIndex(int index, int count) {
+    return '$index/$count';
+  }
+
+  @override
+  String feedMediaLimit(int count) {
+    return 'Najviše $count fotografija ili video snimaka po objavi';
+  }
+
+  @override
+  String get feedMore => 'još';
+
+  @override
+  String get feedMoveLeft => 'Pomeri levo';
+
+  @override
+  String get feedMoveRight => 'Pomeri desno';
+
+  @override
+  String get feedMultipleMedia => 'Više fotografija ili video snimaka';
+
+  @override
+  String get feedNewPost => 'Nova objava';
+
+  @override
+  String get feedNoReactions => 'Još nema reakcija';
+
+  @override
+  String get feedOp => 'AUTOR';
+
+  @override
+  String feedOpenProfile(String name) {
+    return 'Otvori profil: $name';
+  }
+
+  @override
+  String get feedOriginalPoster => 'Autor objave';
+
+  @override
+  String get feedPostEmpty => 'Prvo dodaj fotografiju, video ili opis';
+
+  @override
+  String get feedPostNotFound => 'Ova objava više nije dostupna.';
+
+  @override
+  String get feedPostOptions => 'Opcije objave';
+
+  @override
+  String get feedPostTitle => 'Objava';
+
+  @override
+  String get feedPostUpdated => 'Objava je izmenjena';
+
+  @override
+  String get feedPosted => 'Objavljeno';
+
+  @override
+  String feedPostedBy(String name) {
+    return 'objavio/la $name';
+  }
+
+  @override
+  String get feedPrivateAccountNote =>
+      'Tvoj nalog je privatan, pa će ovu objavu videti samo tvoji pratioci.';
+
+  @override
+  String get feedPublishing => 'Objavljivanje…';
+
+  @override
+  String feedReactionsAll(int count) {
+    return 'Sve $count';
+  }
+
+  @override
+  String get feedReactionsTitle => 'Reakcije';
+
+  @override
+  String get feedRemoveMedia => 'Ukloni';
+
+  @override
+  String get feedReorderHint => 'Zadrži i prevuci da promeniš redosled';
+
+  @override
+  String get feedReply => 'Odgovori';
+
+  @override
+  String feedReplyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count odgovora',
+      few: '$count odgovora',
+      one: '1 odgovor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String feedReplyingTo(String name) {
+    return 'Odgovaraš korisniku $name';
+  }
+
+  @override
+  String get feedSending => 'Šalje se…';
+
+  @override
+  String get feedShowLess => 'Prikaži manje';
+
+  @override
+  String feedShowMoreReplies(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Prikaži još $count odgovora',
+      few: 'Prikaži još $count odgovora',
+      one: 'Prikaži još 1 odgovor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get feedShowParent => 'Prikaži nadređeni komentar';
+
+  @override
+  String get feedSortLabel => 'Sortiraj komentare';
+
+  @override
+  String get feedSortNew => 'Najnovije';
+
+  @override
+  String get feedSortOld => 'Najstarije';
+
+  @override
+  String get feedSortTop => 'Najbolje';
+
+  @override
+  String get feedTabExplore => 'Istraži';
+
+  @override
+  String get feedTabHome => 'Početna';
+
+  @override
+  String get feedThreadTitle => 'Nit';
+
+  @override
+  String feedUploadingProgress(int index, int count) {
+    return 'Otpremanje $index od $count…';
+  }
+
+  @override
+  String get feedVideo => 'Video';
+
+  @override
+  String get feedVisibilityFollowers => 'Pratioci';
+
+  @override
+  String get feedVisibilityFollowersHint =>
+      'Samo tvoji pratioci mogu da vide ovu objavu';
+
+  @override
+  String get feedVisibilityLabel => 'Ko može da vidi';
+
+  @override
+  String get feedVisibilityPublic => 'Javno';
+
+  @override
+  String get feedVisibilityPublicHint => 'Svi mogu da vide ovu objavu';
+
+  @override
+  String get feedWriteReplyHint => 'Napiši odgovor…';
 
   @override
   String get nutritionAdd => 'Dodaj';
@@ -9124,6 +11470,660 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get nutritionYours => 'Tvoj';
 
   @override
+  String get peopleAccept => 'Prihvati';
+
+  @override
+  String get peopleAddFriend => 'Dodaj prijatelja';
+
+  @override
+  String get peopleBio => 'Biografija';
+
+  @override
+  String get peopleBioHint => 'Reci nešto o svom treningu';
+
+  @override
+  String get peopleBioLess => 'manje';
+
+  @override
+  String get peopleBioMore => 'više';
+
+  @override
+  String get peopleBlock => 'Blokiraj';
+
+  @override
+  String get peopleBlockBody =>
+      'Neće moći da pronađu tvoj profil, vide tvoje objave niti da ti pišu, a ni ti nećeš videti njihove. Praćenja i prijateljstvo između vas se uklanjaju. Neće dobiti obaveštenje.';
+
+  @override
+  String peopleBlockTitle(String username) {
+    return 'Blokirati @$username?';
+  }
+
+  @override
+  String peopleBlockedSnack(String username) {
+    return '@$username je blokiran/a';
+  }
+
+  @override
+  String get peopleBlockedStateBody =>
+      'Odblokiraj da bi video/la profil i ponovo komunicirao/la.';
+
+  @override
+  String get peopleBlockedStateTitle => 'Blokirao/la si ovaj nalog';
+
+  @override
+  String get peopleBlockedUsers => 'Blokirani korisnici';
+
+  @override
+  String get peopleBlockedUsersEmpty => 'Nisi blokirao/la nikoga.';
+
+  @override
+  String get peopleBlockedUsersSubtitle => 'Osobe koje si blokirao/la';
+
+  @override
+  String peopleCancelFollowRequestTitle(String username) {
+    return 'Otkazati zahtev za praćenje za @$username?';
+  }
+
+  @override
+  String peopleCancelFriendRequestTitle(String name) {
+    return 'Otkazati zahtev za prijateljstvo za $name?';
+  }
+
+  @override
+  String get peopleCancelRequest => 'Otkaži zahtev';
+
+  @override
+  String get peopleCopyUsername => 'Kopiraj korisničko ime';
+
+  @override
+  String get peopleDecline => 'Odbij';
+
+  @override
+  String get peopleDiscard => 'Odbaci';
+
+  @override
+  String get peopleDiscardTitle => 'Odbaciti izmene?';
+
+  @override
+  String get peopleDiscoverable => 'Prikaži me u predlozima i u blizini';
+
+  @override
+  String get peopleDiscoverableHint =>
+      'Ljudi i dalje mogu da te pronađu pretragom po imenu.';
+
+  @override
+  String get peopleDismiss => 'Odbaci';
+
+  @override
+  String peopleDistanceKm(int km) {
+    return '~$km km';
+  }
+
+  @override
+  String get peopleDistanceUnder1 => '< 1 km';
+
+  @override
+  String get peopleEditProfile => 'Izmeni profil';
+
+  @override
+  String get peopleEditTitle => 'Izmeni profil';
+
+  @override
+  String get peopleFollow => 'Zaprati';
+
+  @override
+  String get peopleFollowBack => 'Uzvrati praćenje';
+
+  @override
+  String peopleFollowRequestsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zahteva za praćenje',
+      few: '$count zahteva za praćenje',
+      one: '$count zahtev za praćenje',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get peopleFollowRequestsTab => 'Zahtevi za praćenje';
+
+  @override
+  String get peopleFollowers => 'Pratioci';
+
+  @override
+  String get peopleFollowing => 'Pratiš';
+
+  @override
+  String peopleFriendRequestFrom(String name) {
+    return '$name ti je poslao/la zahtev za prijateljstvo';
+  }
+
+  @override
+  String get peopleFriendRequestSent => 'Zahtev poslat';
+
+  @override
+  String peopleFriendRequestsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zahteva za prijateljstvo',
+      few: '$count zahteva za prijateljstvo',
+      one: '$count zahtev za prijateljstvo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get peopleFriendRequestsTab => 'Zahtevi za prijateljstvo';
+
+  @override
+  String get peopleFriends => 'Prijatelji';
+
+  @override
+  String get peopleGoPublicBody =>
+      'Svako će moći da vidi tvoje objave i liste pratilaca, a svi zahtevi za praćenje na čekanju biće prihvaćeni.';
+
+  @override
+  String get peopleGoPublicConfirm => 'Prebaci na javni';
+
+  @override
+  String get peopleGoPublicTitle => 'Prebaciti na javni nalog?';
+
+  @override
+  String get peopleInterestBodybuilding => 'Bodibilding';
+
+  @override
+  String get peopleInterestBoxing => 'Boks';
+
+  @override
+  String get peopleInterestCalisthenics => 'Kalistenika';
+
+  @override
+  String get peopleInterestClimbing => 'Penjanje';
+
+  @override
+  String get peopleInterestCrossfit => 'CrossFit';
+
+  @override
+  String get peopleInterestCycling => 'Biciklizam';
+
+  @override
+  String get peopleInterestHiit => 'HIIT';
+
+  @override
+  String get peopleInterestHiking => 'Planinarenje';
+
+  @override
+  String get peopleInterestMealPrep => 'Priprema obroka';
+
+  @override
+  String get peopleInterestMobility => 'Mobilnost';
+
+  @override
+  String get peopleInterestNutrition => 'Ishrana';
+
+  @override
+  String get peopleInterestOlympicLifting => 'Olimpijsko dizanje';
+
+  @override
+  String get peopleInterestPilates => 'Pilates';
+
+  @override
+  String get peopleInterestPowerlifting => 'Powerlifting';
+
+  @override
+  String peopleInterestRemove(String interest) {
+    return 'Ukloni $interest';
+  }
+
+  @override
+  String get peopleInterestRunning => 'Trčanje';
+
+  @override
+  String get peopleInterestStrongman => 'Strongman';
+
+  @override
+  String get peopleInterestSwimming => 'Plivanje';
+
+  @override
+  String get peopleInterestYoga => 'Joga';
+
+  @override
+  String get peopleInterests => 'Interesovanja';
+
+  @override
+  String get peopleInterestsHint => 'Dodaj interesovanje';
+
+  @override
+  String peopleInterestsMax(int max) {
+    return 'Najviše $max interesovanja';
+  }
+
+  @override
+  String get peopleKeep => 'Zadrži';
+
+  @override
+  String get peopleListEmptyFollowers => 'Još nema pratilaca';
+
+  @override
+  String get peopleListEmptyFollowing => 'Još ne prati nikoga';
+
+  @override
+  String get peopleListEmptyFriends => 'Još nema prijatelja';
+
+  @override
+  String get peopleListEmptyMutual => 'Nema zajedničkih prijatelja';
+
+  @override
+  String get peopleLocationDenied =>
+      'Dozvola za lokaciju je isključena. Možeš je uključiti u podešavanjima telefona.';
+
+  @override
+  String get peopleLocationFailed =>
+      'Nije moguće odrediti lokaciju. Pokušaj ponovo.';
+
+  @override
+  String get peopleLocationOff => 'Ne deliš lokaciju';
+
+  @override
+  String get peopleLocationOn => 'Deliš približnu lokaciju (oko 1 km)';
+
+  @override
+  String peopleLocationOnUpdated(String when) {
+    return 'Deliš približnu lokaciju · ažurirano $when';
+  }
+
+  @override
+  String get peopleLocationSection => 'Deljenje lokacije';
+
+  @override
+  String get peopleLocationServiceOff =>
+      'Uključi lokacijske usluge da bi pronašao/la osobe u blizini.';
+
+  @override
+  String get peopleLocationStop => 'Prestani da deliš';
+
+  @override
+  String get peopleLocationStopped => 'Deljenje lokacije zaustavljeno';
+
+  @override
+  String get peopleLocationUpdate => 'Ažuriraj sada';
+
+  @override
+  String get peopleLocationUpdated => 'Lokacija ažurirana';
+
+  @override
+  String get peopleLocked => 'Privatno';
+
+  @override
+  String get peopleMessage => 'Poruka';
+
+  @override
+  String get peopleMessageRequestHint => 'Tvoja poruka će stići kao zahtev';
+
+  @override
+  String get peopleMoreOptions => 'Još opcija';
+
+  @override
+  String get peopleMoreSuggestions => 'Još predloga';
+
+  @override
+  String get peopleMutual => 'Zajednički';
+
+  @override
+  String peopleMutualFriendsMore(int count, String a, String b) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Prijatelj/ica sa: $a, $b i još $count osoba',
+      few: 'Prijatelj/ica sa: $a, $b i još $count osobe',
+      one: 'Prijatelj/ica sa: $a, $b i još $count osobom',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String peopleMutualFriendsOne(String a) {
+    return 'Prijatelj/ica sa: $a';
+  }
+
+  @override
+  String peopleMutualFriendsTwo(String a, String b) {
+    return 'Prijatelj/ica sa: $a i $b';
+  }
+
+  @override
+  String peopleNearbyEmpty(int km) {
+    return 'Još nema nikoga u krugu od $km km.';
+  }
+
+  @override
+  String get peopleNearbyPrivacyBody =>
+      'Tvoju lokaciju čuvamo zaokruženu na oko 1 km i koristimo je samo za prikaz udaljenosti. Tvoja tačna lokacija se nikome ne prikazuje.';
+
+  @override
+  String get peopleNearbyPrivacyTitle => 'Pogledaj ko trenira u tvojoj blizini';
+
+  @override
+  String get peopleNearbyTitle => 'U blizini';
+
+  @override
+  String get peopleNoFollowRequests => 'Nema zahteva za praćenje';
+
+  @override
+  String get peopleNoFollowRequestsHint =>
+      'Kada je tvoj nalog privatan, ovde se pojavljuju osobe koje žele da te prate.';
+
+  @override
+  String get peopleNoFriendRequests => 'Nema zahteva za prijateljstvo';
+
+  @override
+  String peopleNoMatches(String query) {
+    return 'Niko ne odgovara pretrazi „$query“';
+  }
+
+  @override
+  String get peopleNoPosts => 'Još nema objava';
+
+  @override
+  String get peopleNoSentRequests => 'Nema poslatih zahteva na čekanju';
+
+  @override
+  String get peopleNoSuggestions =>
+      'Trenutno nema predloga. Prijavi se u teretani ili dodaj interesovanja na profil za bolje predloge.';
+
+  @override
+  String get peoplePosts => 'Objave';
+
+  @override
+  String get peoplePrivacy => 'Privatnost';
+
+  @override
+  String get peoplePrivacySubtitle =>
+      'Privatni nalog, poruke, status aktivnosti';
+
+  @override
+  String get peoplePrivateAccount => 'Privatni nalog';
+
+  @override
+  String get peoplePrivateAccountHint =>
+      'Samo osobe koje odobriš vide tvoje fotografije, snimke i liste pratilaca. Svako i dalje može da te pronađe i vidi tvoje komentare i reakcije.';
+
+  @override
+  String get peoplePrivateBody =>
+      'Zaprati da bi video/la fotografije i snimke.';
+
+  @override
+  String get peoplePrivateRequestedBody =>
+      'Zahtev za praćenje čeka odobrenje. Videćeš fotografije i snimke kada ga prihvate.';
+
+  @override
+  String get peoplePrivateTitle => 'Ovaj nalog je privatan';
+
+  @override
+  String get peopleProfileUnavailable => 'Ovaj profil nije dostupan.';
+
+  @override
+  String peopleRadiusKm(int km) {
+    return '$km km';
+  }
+
+  @override
+  String get peopleReasonFollowsYou => 'Prati te';
+
+  @override
+  String peopleReasonInterests(String interests) {
+    return 'Takođe voli: $interests';
+  }
+
+  @override
+  String peopleReasonMutual(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zajedničkih prijatelja',
+      few: '$count zajednička prijatelja',
+      one: '$count zajednički prijatelj',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String peopleReasonNearby(int km) {
+    return '~$km km udaljenosti';
+  }
+
+  @override
+  String get peopleReasonNearbyUnder1 => 'Manje od 1 km';
+
+  @override
+  String peopleReasonSameClass(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zajedničkih časova',
+      few: '$count zajednička časa',
+      one: 'Zajednički čas',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String peopleReasonSameGym(String gym) {
+    return 'Ide u $gym';
+  }
+
+  @override
+  String get peopleReasonSameTime => 'Trenira u isto vreme';
+
+  @override
+  String get peopleRemove => 'Ukloni';
+
+  @override
+  String get peopleRemoveFollower => 'Ukloni pratioca';
+
+  @override
+  String get peopleRemoveFollowerBody =>
+      'Neće dobiti obaveštenje da si ih uklonio/la.';
+
+  @override
+  String peopleRemoveFollowerTitle(String username) {
+    return 'Ukloniti @$username iz pratilaca?';
+  }
+
+  @override
+  String get peopleRemoveFriend => 'Ukloni prijatelja';
+
+  @override
+  String get peopleRemoveFriendBody =>
+      'I dalje ćete pratiti jedno drugo osim ako ne prestaneš da pratiš.';
+
+  @override
+  String peopleRemoveFriendTitle(String name) {
+    return 'Ukloniti $name iz prijatelja?';
+  }
+
+  @override
+  String get peopleReport => 'Prijavi';
+
+  @override
+  String get peopleReportDetails => 'Detalji (opciono)';
+
+  @override
+  String get peopleReportReasonHarassment => 'Uznemiravanje ili maltretiranje';
+
+  @override
+  String get peopleReportReasonImpersonation => 'Predstavlja se kao neko drugi';
+
+  @override
+  String get peopleReportReasonInappropriate => 'Neprikladan sadržaj';
+
+  @override
+  String get peopleReportReasonOther => 'Nešto drugo';
+
+  @override
+  String get peopleReportReasonSpam => 'Neželjeni sadržaj';
+
+  @override
+  String get peopleReportSend => 'Pošalji prijavu';
+
+  @override
+  String get peopleReportSent => 'Hvala. Naš tim će pregledati prijavu.';
+
+  @override
+  String peopleReportTitle(String username) {
+    return 'Prijavi @$username';
+  }
+
+  @override
+  String get peopleReportWhy => 'Zašto prijavljuješ ovaj nalog?';
+
+  @override
+  String get peopleRequested => 'Zatraženo';
+
+  @override
+  String get peopleRequestsSubtitle => 'Zahtevi za praćenje i prijateljstvo';
+
+  @override
+  String get peopleRequestsTitle => 'Zahtevi';
+
+  @override
+  String get peopleRespond => 'Odgovori';
+
+  @override
+  String get peopleSaved => 'Profil sačuvan';
+
+  @override
+  String get peopleSearchHint => 'Pretraži po imenu ili korisničkom imenu';
+
+  @override
+  String get peopleSearchInList => 'Pretraga';
+
+  @override
+  String get peopleSentTab => 'Poslato';
+
+  @override
+  String get peopleSettingSaved => 'Sačuvano';
+
+  @override
+  String get peopleShare => 'Podeli';
+
+  @override
+  String get peopleShareLocation => 'Podeli moju lokaciju';
+
+  @override
+  String get peopleShowActivity => 'Prikaži status aktivnosti';
+
+  @override
+  String get peopleShowActivityHint =>
+      'Osobe sa kojima si povezan/a vide kada si poslednji put bio/la aktivan/na.';
+
+  @override
+  String get peopleSuggestionsTitle => 'Osobe koje možda poznaješ';
+
+  @override
+  String peopleTrainsAt(String gyms) {
+    return 'Trenira u: $gyms';
+  }
+
+  @override
+  String get peopleUnblock => 'Odblokiraj';
+
+  @override
+  String peopleUnblockedSnack(String username) {
+    return '@$username je odblokiran/a';
+  }
+
+  @override
+  String get peopleUnfollow => 'Prestani da pratiš';
+
+  @override
+  String get peopleUnfollowPrivateBody =>
+      'Ovaj nalog je privatan. Moraćeš ponovo da pošalješ zahtev da bi video/la fotografije i snimke.';
+
+  @override
+  String peopleUnfollowTitle(String username) {
+    return 'Prestati da pratiš @$username?';
+  }
+
+  @override
+  String get peopleUsernameCopied => 'Korisničko ime kopirano';
+
+  @override
+  String get peopleUsernameInvalid =>
+      '3–30 slova, brojeva, tačaka ili donjih crta';
+
+  @override
+  String get peopleUsernameTaken => 'To korisničko ime je zauzeto';
+
+  @override
+  String get peopleViewProfile => 'Pogledaj profil';
+
+  @override
+  String get peopleWhoCanMessage => 'Ko može da mi piše';
+
+  @override
+  String get peopleWhoCanMessageHint =>
+      'Poruke svih ostalih stižu u zahteve za poruke.';
+
+  @override
+  String get peopleWhoEveryone => 'Svi';
+
+  @override
+  String get peopleWhoFollowing => 'Osobe koje pratim';
+
+  @override
+  String get peopleWhoFriends => 'Prijatelji';
+
+  @override
+  String get reactionAngry => 'Ljuto';
+
+  @override
+  String get reactionCelebrate => 'Slavlje';
+
+  @override
+  String get reactionClap => 'Aplauz';
+
+  @override
+  String reactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reakcija',
+      few: '$count reakcije',
+      one: '1 reakcija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reactionFire => 'Vatra';
+
+  @override
+  String get reactionHaha => 'Haha';
+
+  @override
+  String get reactionLike => 'Sviđa mi se';
+
+  @override
+  String get reactionLove => 'Volim';
+
+  @override
+  String get reactionPickerHint => 'Zadržite za izbor reakcije';
+
+  @override
+  String get reactionSad => 'Tužno';
+
+  @override
+  String get reactionStrong => 'Snaga';
+
+  @override
+  String get reactionWow => 'Vau';
+
+  @override
   String get settingsLanguage => 'Jezik';
 
   @override
@@ -9208,6 +12208,21 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellChangePassword => 'Promeni lozinku';
+
+  @override
+  String get shellChats => 'Poruke';
+
+  @override
+  String shellChatsUnread(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Poruke, $count nepročitanih razgovora',
+      few: 'Poruke, $count nepročitana razgovora',
+      one: 'Poruke, 1 nepročitan razgovor',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get shellCheckEmailBody =>
@@ -9579,11 +12594,17 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellMuteCommunityDescription =>
-      'Vesti iz teretane i komentari na tvoje objave';
+      'Vesti iz teretane, komentari, odgovori i reakcije na tvoje objave';
 
   @override
   String get shellMuteFootnote =>
       'Pozivnice uvek stižu. Utišana obaveštenja se i dalje prikazuju u aplikaciji.';
+
+  @override
+  String get shellMuteMessages => 'Poruke';
+
+  @override
+  String get shellMuteMessagesDescription => 'Nove poruke i dodavanje u grupe';
 
   @override
   String get shellMuteShop => 'Prodavnica';
@@ -9591,6 +12612,13 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   @override
   String get shellMuteShopDescription =>
       'Status porudžbina, nove porudžbine i dopune zaliha';
+
+  @override
+  String get shellMuteSocial => 'Pratioci i prijatelji';
+
+  @override
+  String get shellMuteSocialDescription =>
+      'Novi pratioci, zahtevi za praćenje i prijateljstvo';
 
   @override
   String get shellMuteStaff => 'Osoblje';
@@ -9929,6 +12957,12 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellTabClasses => 'Časovi';
 
   @override
+  String get shellTabDiscover => 'Otkrij';
+
+  @override
+  String get shellTabFeed => 'Objave';
+
+  @override
   String get shellTabGym => 'Teretana';
 
   @override
@@ -10070,6 +13104,46 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellYourShops => 'Tvoje prodavnice';
+
+  @override
+  String socialActiveAgo(String when) {
+    return 'Aktivan/na $when';
+  }
+
+  @override
+  String get socialActiveNow => 'Aktivan/na sada';
+
+  @override
+  String get socialCamera => 'Kamera';
+
+  @override
+  String get socialFile => 'Fajl';
+
+  @override
+  String get socialFileTooLarge => 'Fajlovi mogu imati najviše 50 MB.';
+
+  @override
+  String get socialGallery => 'Fotografije i video';
+
+  @override
+  String get socialRecordVideo => 'Snimi video';
+
+  @override
+  String get socialRetry => 'Pokušaj ponovo';
+
+  @override
+  String get socialTakePhoto => 'Snimi fotografiju';
+
+  @override
+  String socialTyping(String name) {
+    return '$name kuca…';
+  }
+
+  @override
+  String get socialTypingSeveral => 'Više osoba kuca…';
+
+  @override
+  String get socialUploadFailed => 'Otpremanje nije uspelo. Pokušajte ponovo.';
 
   @override
   String get trainingAssignAction => 'Dodeli';

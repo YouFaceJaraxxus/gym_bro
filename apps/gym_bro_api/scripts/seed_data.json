@@ -15,7 +15,10 @@
         6,
         7
       ],
-      "logo_image_key": "gym-logo"
+      "logo_image_key": "gym-logo",
+      "timezone": "America/New_York",
+      "latitude": 40.6826,
+      "longitude": -73.9298
     },
     {
       "name": "Peak Performance Supply Co.",
@@ -31,7 +34,10 @@
         5,
         6
       ],
-      "logo_image_key": "shop-logo"
+      "logo_image_key": "shop-logo",
+      "timezone": "America/New_York",
+      "latitude": 40.6915,
+      "longitude": -73.9912
     },
     {
       "name": "Summit Strength Collective",
@@ -48,7 +54,10 @@
         6,
         7
       ],
-      "logo_image_key": "summit-gym-logo"
+      "logo_image_key": "summit-gym-logo",
+      "timezone": "America/Denver",
+      "latitude": 39.7491,
+      "longitude": -104.9997
     },
     {
       "name": "Coastal Barbell Club",
@@ -65,7 +74,10 @@
         6,
         7
       ],
-      "logo_image_key": "coastal-gym-logo"
+      "logo_image_key": "coastal-gym-logo",
+      "timezone": "America/Los_Angeles",
+      "latitude": 32.7631,
+      "longitude": -117.1225
     },
     {
       "name": "Trailhead Outdoor & Fitness Supply",
@@ -81,7 +93,10 @@
         5,
         6
       ],
-      "logo_image_key": "trailhead-shop-logo"
+      "logo_image_key": "trailhead-shop-logo",
+      "timezone": "America/Denver",
+      "latitude": 39.7477,
+      "longitude": -104.9985
     }
   ],
   "personas": [
@@ -533,7 +548,7 @@
     {
       "name": "Dumbbell Bicep Curl",
       "description": "An isolation exercise that flexes the elbow to curl a pair of dumbbells from the thighs up to shoulder height.",
-      "note": "Avoid swinging the weight \u2014 let the biceps do the work.",
+      "note": "Avoid swinging the weight — let the biceps do the work.",
       "primary_muscles": [
         "biceps"
       ],
@@ -745,7 +760,7 @@
     {
       "name": "Hanging Leg Raise",
       "description": "A core exercise hanging from a pull-up bar and raising the legs toward the torso using the lower abdominals.",
-      "note": "Avoid swinging \u2014 control the movement on the way down too.",
+      "note": "Avoid swinging — control the movement on the way down too.",
       "primary_muscles": [
         "abs_lower"
       ],
@@ -1089,7 +1104,8 @@
       "protein_per_100": 31.0,
       "carb_per_100": 0.0,
       "fat_per_100": 3.6,
-      "fiber_per_100": 0.0
+      "fiber_per_100": 0.0,
+      "barcode": null
     },
     {
       "name": "Lean Ground Beef, 93% Lean",
@@ -1103,7 +1119,8 @@
       "protein_per_100": 21.4,
       "carb_per_100": 0.0,
       "fat_per_100": 7.2,
-      "fiber_per_100": 0.0
+      "fiber_per_100": 0.0,
+      "barcode": null
     },
     {
       "name": "Atlantic Salmon Fillet",
@@ -1117,7 +1134,8 @@
       "protein_per_100": 20.4,
       "carb_per_100": 0.0,
       "fat_per_100": 13.4,
-      "fiber_per_100": 0.0
+      "fiber_per_100": 0.0,
+      "barcode": null
     },
     {
       "name": "Whole Egg",
@@ -1131,7 +1149,8 @@
       "protein_per_100": 12.6,
       "carb_per_100": 0.7,
       "fat_per_100": 9.5,
-      "fiber_per_100": 0.0
+      "fiber_per_100": 0.0,
+      "barcode": null
     },
     {
       "name": "Firm Tofu",
@@ -1145,7 +1164,8 @@
       "protein_per_100": 15.5,
       "carb_per_100": 2.8,
       "fat_per_100": 8.7,
-      "fiber_per_100": 1.2
+      "fiber_per_100": 1.2,
+      "barcode": "0075730001023"
     },
     {
       "name": "Greek Yogurt, Plain (2%)",
@@ -1159,7 +1179,8 @@
       "protein_per_100": 9.0,
       "carb_per_100": 3.9,
       "fat_per_100": 2.0,
-      "fiber_per_100": 0.0
+      "fiber_per_100": 0.0,
+      "barcode": "0894700010236"
     },
     {
       "name": "Turkey Breast, Skinless",
@@ -1173,7 +1194,8 @@
       "protein_per_100": 30.1,
       "carb_per_100": 0.0,
       "fat_per_100": 1.0,
-      "fiber_per_100": 0.0
+      "fiber_per_100": 0.0,
+      "barcode": null
     },
     {
       "name": "White Rice, Cooked",
@@ -1187,7 +1209,8 @@
       "protein_per_100": 2.7,
       "carb_per_100": 28.2,
       "fat_per_100": 0.3,
-      "fiber_per_100": 0.4
+      "fiber_per_100": 0.4,
+      "barcode": null
     },
     {
       "name": "Rolled Oats",
@@ -1201,7 +1224,8 @@
       "protein_per_100": 16.9,
       "carb_per_100": 66.3,
       "fat_per_100": 6.9,
-      "fiber_per_100": 10.6
+      "fiber_per_100": 10.6,
+      "barcode": "0030000042168"
     },
     {
       "name": "Sweet Potato, Baked",
@@ -1215,7 +1239,8 @@
       "protein_per_100": 2.0,
       "carb_per_100": 20.7,
       "fat_per_100": 0.1,
-      "fiber_per_100": 3.3
+      "fiber_per_100": 3.3,
+      "barcode": null
     },
     {
       "name": "Whole Wheat Bread",
@@ -1229,7 +1254,8 @@
       "protein_per_100": 13.0,
       "carb_per_100": 41.0,
       "fat_per_100": 3.5,
-      "fiber_per_100": 6.0
+      "fiber_per_100": 6.0,
+      "barcode": "0072250037129"
     },
     {
       "name": "Quinoa, Cooked",
@@ -1243,7 +1269,8 @@
       "protein_per_100": 4.4,
       "carb_per_100": 21.3,
       "fat_per_100": 1.9,
-      "fiber_per_100": 2.8
+      "fiber_per_100": 2.8,
+      "barcode": null
     },
     {
       "name": "Whole Wheat Pasta, Cooked",
@@ -1257,7 +1284,8 @@
       "protein_per_100": 5.3,
       "carb_per_100": 26.5,
       "fat_per_100": 0.5,
-      "fiber_per_100": 3.9
+      "fiber_per_100": 3.9,
+      "barcode": "0076808280081"
     },
     {
       "name": "Extra Virgin Olive Oil",
@@ -1271,7 +1299,8 @@
       "protein_per_100": 0.0,
       "carb_per_100": 0.0,
       "fat_per_100": 100.0,
-      "fiber_per_100": 0.0
+      "fiber_per_100": 0.0,
+      "barcode": "0041129011041"
     },
     {
       "name": "Almonds, Raw",
@@ -1285,7 +1314,8 @@
       "protein_per_100": 21.2,
       "carb_per_100": 21.6,
       "fat_per_100": 49.9,
-      "fiber_per_100": 12.5
+      "fiber_per_100": 12.5,
+      "barcode": "0041333018058"
     },
     {
       "name": "Avocado",
@@ -1299,7 +1329,8 @@
       "protein_per_100": 2.0,
       "carb_per_100": 8.5,
       "fat_per_100": 14.7,
-      "fiber_per_100": 6.7
+      "fiber_per_100": 6.7,
+      "barcode": null
     },
     {
       "name": "Natural Peanut Butter",
@@ -1313,7 +1344,8 @@
       "protein_per_100": 25.1,
       "carb_per_100": 20.0,
       "fat_per_100": 50.4,
-      "fiber_per_100": 6.0
+      "fiber_per_100": 6.0,
+      "barcode": "0051500255162"
     },
     {
       "name": "Chia Seeds",
@@ -1327,7 +1359,8 @@
       "protein_per_100": 16.5,
       "carb_per_100": 42.1,
       "fat_per_100": 30.7,
-      "fiber_per_100": 34.4
+      "fiber_per_100": 34.4,
+      "barcode": "0811433012146"
     },
     {
       "name": "Broccoli, Raw",
@@ -1341,7 +1374,8 @@
       "protein_per_100": 2.8,
       "carb_per_100": 6.6,
       "fat_per_100": 0.4,
-      "fiber_per_100": 2.6
+      "fiber_per_100": 2.6,
+      "barcode": null
     },
     {
       "name": "Spinach, Raw",
@@ -1355,7 +1389,8 @@
       "protein_per_100": 2.9,
       "carb_per_100": 3.6,
       "fat_per_100": 0.4,
-      "fiber_per_100": 2.2
+      "fiber_per_100": 2.2,
+      "barcode": null
     },
     {
       "name": "Red Bell Pepper",
@@ -1369,7 +1404,8 @@
       "protein_per_100": 1.0,
       "carb_per_100": 6.0,
       "fat_per_100": 0.3,
-      "fiber_per_100": 2.1
+      "fiber_per_100": 2.1,
+      "barcode": null
     },
     {
       "name": "Carrot, Raw",
@@ -1383,7 +1419,8 @@
       "protein_per_100": 0.9,
       "carb_per_100": 9.6,
       "fat_per_100": 0.2,
-      "fiber_per_100": 2.8
+      "fiber_per_100": 2.8,
+      "barcode": null
     },
     {
       "name": "Banana",
@@ -1397,7 +1434,8 @@
       "protein_per_100": 1.1,
       "carb_per_100": 22.8,
       "fat_per_100": 0.3,
-      "fiber_per_100": 2.6
+      "fiber_per_100": 2.6,
+      "barcode": null
     },
     {
       "name": "Apple",
@@ -1411,7 +1449,8 @@
       "protein_per_100": 0.3,
       "carb_per_100": 13.8,
       "fat_per_100": 0.2,
-      "fiber_per_100": 2.4
+      "fiber_per_100": 2.4,
+      "barcode": null
     },
     {
       "name": "Blueberries",
@@ -1425,7 +1464,8 @@
       "protein_per_100": 0.7,
       "carb_per_100": 14.5,
       "fat_per_100": 0.3,
-      "fiber_per_100": 2.4
+      "fiber_per_100": 2.4,
+      "barcode": null
     },
     {
       "name": "Whole Milk",
@@ -1439,7 +1479,8 @@
       "protein_per_100": 3.2,
       "carb_per_100": 4.8,
       "fat_per_100": 3.3,
-      "fiber_per_100": 0.0
+      "fiber_per_100": 0.0,
+      "barcode": "0041900001643"
     },
     {
       "name": "Orange Juice, 100%",
@@ -1453,7 +1494,8 @@
       "protein_per_100": 0.7,
       "carb_per_100": 10.4,
       "fat_per_100": 0.2,
-      "fiber_per_100": 0.2
+      "fiber_per_100": 0.2,
+      "barcode": "0048500001028"
     },
     {
       "name": "Whey Protein Powder, Vanilla",
@@ -1467,7 +1509,8 @@
       "protein_per_100": 80.0,
       "carb_per_100": 8.0,
       "fat_per_100": 3.5,
-      "fiber_per_100": 1.0
+      "fiber_per_100": 1.0,
+      "barcode": "0748822210763"
     },
     {
       "name": "Sea Salt",
@@ -1481,7 +1524,8 @@
       "protein_per_100": 0.0,
       "carb_per_100": 0.0,
       "fat_per_100": 0.0,
-      "fiber_per_100": 0.0
+      "fiber_per_100": 0.0,
+      "barcode": null
     },
     {
       "name": "Black Pepper, Ground",
@@ -1495,7 +1539,8 @@
       "protein_per_100": 10.4,
       "carb_per_100": 63.9,
       "fat_per_100": 3.3,
-      "fiber_per_100": 25.3
+      "fiber_per_100": 25.3,
+      "barcode": null
     }
   ],
   "recipes": [
@@ -1700,7 +1745,7 @@
         }
       ],
       "steps": [
-        "Preheat the oven to 200\u00b0C (400\u00b0F).",
+        "Preheat the oven to 200°C (400°F).",
         "Toss the broccoli and carrots with olive oil, salt, and pepper on a sheet pan.",
         "Nestle the salmon fillets among the vegetables and season them as well.",
         "Roast for 18-20 minutes until the salmon flakes easily and vegetables are tender.",
@@ -1788,7 +1833,7 @@
       ],
       "steps": [
         "Whisk the eggs with a pinch of salt.",
-        "Heat the olive oil in a non-stick pan over medium heat and saut\u00e9 the spinach and pepper for 2-3 minutes.",
+        "Heat the olive oil in a non-stick pan over medium heat and sauté the spinach and pepper for 2-3 minutes.",
         "Pour the eggs over the vegetables and let them set around the edges.",
         "Fold the omelette in half once mostly set and cook for another minute.",
         "Slide onto a plate and serve."
@@ -2513,7 +2558,7 @@
     },
     {
       "author_persona_username": "elenavasquez",
-      "content": "Happy Monday! Remember, consistency beats intensity every single time. Show up today even if it's just for twenty minutes \u2014 future you will thank you.",
+      "content": "Happy Monday! Remember, consistency beats intensity every single time. Show up today even if it's just for twenty minutes — future you will thank you.",
       "has_image": false
     },
     {
@@ -2523,7 +2568,7 @@
     },
     {
       "author_persona_username": "priyanair",
-      "content": "Heads up \u2014 the 6:30am spin class on Tuesdays is moving to 7:00am starting next week to make room for a new mobility class. Full updated schedule is posted at the front desk.",
+      "content": "Heads up — the 6:30am spin class on Tuesdays is moving to 7:00am starting next week to make room for a new mobility class. Full updated schedule is posted at the front desk.",
       "has_image": false
     },
     {
@@ -2548,7 +2593,7 @@
     },
     {
       "author_persona_username": "jamalcarter",
-      "content": "Friendly reminder to re-rack your weights and wipe down equipment after use \u2014 small habit, huge difference for everyone training around you.",
+      "content": "Friendly reminder to re-rack your weights and wipe down equipment after use — small habit, huge difference for everyone training around you.",
       "has_image": false
     },
     {
@@ -2568,7 +2613,7 @@
     },
     {
       "author_persona_username": "tobiasschmidt",
-      "content": "Gift cards are 10% off for the rest of the month \u2014 a great excuse to treat a friend or family member to their first month at Ironclad.",
+      "content": "Gift cards are 10% off for the rest of the month — a great excuse to treat a friend or family member to their first month at Ironclad.",
       "has_image": false
     },
     {
@@ -2593,7 +2638,7 @@
     },
     {
       "author_persona_username": "beckymorrison",
-      "content": "Altitude makes everything feel harder here in Denver \u2014 give yourself an extra rep of rest between heavy sets and trust the process.",
+      "content": "Altitude makes everything feel harder here in Denver — give yourself an extra rep of rest between heavy sets and trust the process.",
       "has_image": false
     },
     {
@@ -2603,7 +2648,7 @@
     },
     {
       "author_persona_username": "imaninewsome",
-      "content": "Loved coaching the beginner squat clinic today. Depth over ego, every single time \u2014 proud of everyone who showed up.",
+      "content": "Loved coaching the beginner squat clinic today. Depth over ego, every single time — proud of everyone who showed up.",
       "has_image": false
     },
     {
@@ -2618,12 +2663,12 @@
     },
     {
       "author_persona_username": "jordanpark",
-      "content": "Heads up \u2014 parking lot resurfacing runs through Friday, please use the side entrance on Adams Avenue during that time.",
+      "content": "Heads up — parking lot resurfacing runs through Friday, please use the side entrance on Adams Avenue during that time.",
       "has_image": false
     },
     {
       "author_persona_username": "camillewright",
-      "content": "New hydration vests just landed at Trailhead \u2014 perfect timing before the fall trail race season kicks off.",
+      "content": "New hydration vests just landed at Trailhead — perfect timing before the fall trail race season kicks off.",
       "has_image": true
     },
     {
@@ -2636,5 +2681,2571 @@
       "content": "Thank you to everyone who came out for our founders' week open house. Coastal Barbell Club would be nothing without this community.",
       "has_image": true
     }
-  ]
+  ],
+  "food_micronutrients": [
+    {
+      "food_item_name": "Spinach, Raw",
+      "vitamins": {
+        "A": 469,
+        "B2": 0.189,
+        "B6": 0.195,
+        "B9": 194,
+        "C": 28.1,
+        "E": 2.03,
+        "K": 482.9
+      },
+      "minerals": {
+        "Ca": 99,
+        "Fe": 2.71,
+        "Mg": 79,
+        "P": 49,
+        "K": 558,
+        "Na": 79,
+        "Zn": 0.53,
+        "Mn": 0.897
+      }
+    },
+    {
+      "food_item_name": "Broccoli, Raw",
+      "vitamins": {
+        "A": 31,
+        "B6": 0.175,
+        "B9": 63,
+        "C": 89.2,
+        "E": 0.78,
+        "K": 101.6
+      },
+      "minerals": {
+        "Ca": 47,
+        "Fe": 0.73,
+        "Mg": 21,
+        "P": 66,
+        "K": 316,
+        "Na": 33,
+        "Zn": 0.41,
+        "Se": 2.5
+      }
+    },
+    {
+      "food_item_name": "Red Bell Pepper",
+      "vitamins": {
+        "A": 157,
+        "B6": 0.291,
+        "B9": 46,
+        "C": 127.7,
+        "E": 1.58,
+        "K": 4.9
+      },
+      "minerals": {
+        "Ca": 7,
+        "Fe": 0.43,
+        "Mg": 12,
+        "P": 26,
+        "K": 211,
+        "Na": 4
+      }
+    },
+    {
+      "food_item_name": "Carrot, Raw",
+      "vitamins": {
+        "A": 835,
+        "B1": 0.066,
+        "B3": 0.983,
+        "B6": 0.138,
+        "C": 5.9,
+        "K": 13.2
+      },
+      "minerals": {
+        "Ca": 33,
+        "Fe": 0.3,
+        "Mg": 12,
+        "P": 35,
+        "K": 320,
+        "Na": 69
+      }
+    },
+    {
+      "food_item_name": "Sweet Potato, Baked",
+      "vitamins": {
+        "A": 961,
+        "B1": 0.107,
+        "B3": 1.487,
+        "B5": 0.884,
+        "B6": 0.286,
+        "C": 19.6,
+        "E": 0.71
+      },
+      "minerals": {
+        "Ca": 38,
+        "Fe": 0.69,
+        "Mg": 27,
+        "P": 54,
+        "K": 475,
+        "Na": 36,
+        "Mn": 0.497
+      }
+    },
+    {
+      "food_item_name": "Banana",
+      "vitamins": {
+        "A": 3,
+        "B2": 0.073,
+        "B6": 0.367,
+        "B9": 20,
+        "C": 8.7
+      },
+      "minerals": {
+        "Ca": 5,
+        "Fe": 0.26,
+        "Mg": 27,
+        "P": 22,
+        "K": 358,
+        "Mn": 0.27
+      }
+    },
+    {
+      "food_item_name": "Blueberries",
+      "vitamins": {
+        "A": 3,
+        "B6": 0.052,
+        "C": 9.7,
+        "E": 0.57,
+        "K": 19.3
+      },
+      "minerals": {
+        "Ca": 6,
+        "Fe": 0.28,
+        "Mg": 6,
+        "K": 77,
+        "Mn": 0.336
+      }
+    },
+    {
+      "food_item_name": "Avocado",
+      "vitamins": {
+        "B3": 1.738,
+        "B5": 1.389,
+        "B6": 0.257,
+        "B9": 81,
+        "C": 10,
+        "E": 2.07,
+        "K": 21
+      },
+      "minerals": {
+        "Fe": 0.55,
+        "Mg": 29,
+        "P": 52,
+        "K": 485,
+        "Zn": 0.64,
+        "Cu": 0.19
+      }
+    },
+    {
+      "food_item_name": "Almonds, Raw",
+      "vitamins": {
+        "B1": 0.205,
+        "B2": 1.138,
+        "B3": 3.618,
+        "B9": 44,
+        "E": 25.63
+      },
+      "minerals": {
+        "Ca": 269,
+        "Fe": 3.71,
+        "Mg": 270,
+        "P": 481,
+        "K": 733,
+        "Zn": 3.12,
+        "Cu": 1.031,
+        "Mn": 2.179,
+        "Se": 4.1
+      }
+    },
+    {
+      "food_item_name": "Atlantic Salmon Fillet",
+      "vitamins": {
+        "A": 12,
+        "B3": 7.86,
+        "B5": 1.664,
+        "B6": 0.818,
+        "B12": 3.18,
+        "D": 11
+      },
+      "minerals": {
+        "Fe": 0.8,
+        "Mg": 29,
+        "P": 200,
+        "K": 363,
+        "Na": 44,
+        "Zn": 0.64,
+        "Se": 36.5
+      }
+    },
+    {
+      "food_item_name": "Whole Egg",
+      "vitamins": {
+        "A": 160,
+        "B2": 0.457,
+        "B5": 1.533,
+        "B7": 20,
+        "B9": 47,
+        "B12": 0.89,
+        "D": 2,
+        "E": 1.05
+      },
+      "minerals": {
+        "Ca": 56,
+        "Fe": 1.75,
+        "Mg": 12,
+        "P": 198,
+        "K": 138,
+        "Na": 142,
+        "Zn": 1.29,
+        "Se": 30.7,
+        "I": 26
+      }
+    },
+    {
+      "food_item_name": "Chicken Breast, Skinless",
+      "vitamins": {
+        "B3": 9.6,
+        "B5": 1.5,
+        "B6": 0.81,
+        "B12": 0.21
+      },
+      "minerals": {
+        "Fe": 0.37,
+        "Mg": 28,
+        "P": 210,
+        "K": 334,
+        "Na": 45,
+        "Zn": 0.68,
+        "Se": 22.8
+      }
+    },
+    {
+      "food_item_name": "Greek Yogurt, Plain (2%)",
+      "vitamins": {
+        "A": 18,
+        "B2": 0.23,
+        "B12": 0.75
+      },
+      "minerals": {
+        "Ca": 115,
+        "Mg": 11,
+        "P": 136,
+        "K": 141,
+        "Na": 34,
+        "Zn": 0.6,
+        "Se": 9.7,
+        "I": 33
+      }
+    },
+    {
+      "food_item_name": "Chia Seeds",
+      "vitamins": {
+        "B1": 0.62,
+        "B3": 8.83,
+        "E": 0.5
+      },
+      "minerals": {
+        "Ca": 631,
+        "Fe": 7.72,
+        "Mg": 335,
+        "P": 860,
+        "K": 407,
+        "Na": 16,
+        "Zn": 4.58,
+        "Cu": 0.924,
+        "Mn": 2.72,
+        "Se": 55.2
+      }
+    },
+    {
+      "food_item_name": "Firm Tofu",
+      "vitamins": {
+        "B1": 0.16,
+        "B9": 29
+      },
+      "minerals": {
+        "Ca": 683,
+        "Fe": 2.66,
+        "Mg": 58,
+        "P": 190,
+        "K": 237,
+        "Na": 14,
+        "Zn": 1.57,
+        "Mn": 1.18,
+        "Se": 17.4
+      }
+    }
+  ],
+  "membership_plans": {
+    "liamoconnor": {
+      "type": "Premium",
+      "start_months_ago": 4,
+      "start_extra_days": 3,
+      "ends_in_days": 48,
+      "latest_invoice": "paid"
+    },
+    "sofiarossi": {
+      "type": "Basic",
+      "start_months_ago": 2,
+      "start_extra_days": 0,
+      "ends_in_days": 5,
+      "latest_invoice": "unpaid"
+    },
+    "kenjitanaka": {
+      "type": "Elite",
+      "start_months_ago": 6,
+      "start_extra_days": 10,
+      "ends_in_days": 120,
+      "latest_invoice": "paid"
+    },
+    "graceokafor": {
+      "type": "Premium",
+      "start_months_ago": 3,
+      "start_extra_days": 1,
+      "ends_in_days": 2,
+      "latest_invoice": "unpaid"
+    },
+    "danielkim": {
+      "type": "Basic",
+      "start_months_ago": 5,
+      "start_extra_days": 0,
+      "ends_in_days": 30,
+      "latest_invoice": "paid"
+    },
+    "nataliapetrova": {
+      "type": "Elite",
+      "start_months_ago": 7,
+      "start_extra_days": 20,
+      "ends_in_days": -19,
+      "latest_invoice": "void"
+    },
+    "victorhuang": {
+      "type": "Basic",
+      "start_months_ago": 1,
+      "start_extra_days": 2,
+      "ends_in_days": 60,
+      "latest_invoice": "paid"
+    },
+    "ingridlarsen": {
+      "type": "Premium",
+      "start_months_ago": 2,
+      "start_extra_days": 6,
+      "ends_in_days": 6,
+      "latest_invoice": "paid"
+    },
+    "mayaflores": {
+      "type": "Premium",
+      "start_months_ago": 3,
+      "start_extra_days": 0,
+      "ends_in_days": 90,
+      "latest_invoice": "paid"
+    },
+    "ethanbrooks": {
+      "type": "Basic",
+      "start_months_ago": 2,
+      "start_extra_days": 4,
+      "ends_in_days": 4,
+      "latest_invoice": "unpaid"
+    },
+    "zoeharrington": {
+      "type": "Elite",
+      "start_months_ago": 5,
+      "start_extra_days": 1,
+      "ends_in_days": 150,
+      "latest_invoice": "paid"
+    },
+    "lucasferreira": {
+      "type": "Basic",
+      "start_months_ago": 4,
+      "start_extra_days": 12,
+      "ends_in_days": -12,
+      "latest_invoice": "paid"
+    },
+    "isabelgomez": {
+      "type": "Premium",
+      "start_months_ago": 1,
+      "start_extra_days": 0,
+      "ends_in_days": 29,
+      "latest_invoice": "unpaid"
+    },
+    "oliviamercer": {
+      "type": "Elite",
+      "start_months_ago": 6,
+      "start_extra_days": 0,
+      "ends_in_days": 180,
+      "latest_invoice": "paid"
+    },
+    "noahsullivan": {
+      "type": "Basic",
+      "start_months_ago": 2,
+      "start_extra_days": 2,
+      "ends_in_days": 7,
+      "latest_invoice": "paid"
+    },
+    "ameliachang": {
+      "type": "Premium",
+      "start_months_ago": 3,
+      "start_extra_days": 5,
+      "ends_in_days": 45,
+      "latest_invoice": "paid"
+    },
+    "gabrielsantos": {
+      "type": "Basic",
+      "start_months_ago": 1,
+      "start_extra_days": 0,
+      "ends_in_days": 30,
+      "latest_invoice": "unpaid"
+    },
+    "harperreyes": {
+      "type": "Premium",
+      "start_months_ago": 8,
+      "start_extra_days": 15,
+      "ends_in_days": -14,
+      "latest_invoice": "paid"
+    }
+  },
+  "user_settings": [
+    {
+      "username": "marcusbennett",
+      "theme_mode": "dark"
+    },
+    {
+      "username": "kenjitanaka",
+      "weight_unit": "lb"
+    },
+    {
+      "username": "nataliapetrova",
+      "locale": "sr-Latn",
+      "theme_mode": "dark"
+    },
+    {
+      "username": "danielkim",
+      "muted_types": [
+        "news",
+        "class_reminder"
+      ]
+    },
+    {
+      "username": "hannahkessler",
+      "theme_mode": "light",
+      "weight_unit": "lb"
+    },
+    {
+      "username": "priyanair",
+      "push_enabled": false
+    }
+  ],
+  "class_templates": [
+    {
+      "gym": "Ironclad Fitness",
+      "title": "Sunrise HIIT",
+      "description": "45 minutes of intervals on the bike, rower and turf to start the day strong. All levels welcome.",
+      "location": "Studio A",
+      "capacity": 14,
+      "trainer": "elenavasquez",
+      "weekdays": [
+        1,
+        3
+      ],
+      "start": "06:30",
+      "duration_minutes": 45
+    },
+    {
+      "gym": "Ironclad Fitness",
+      "title": "Barbell Basics",
+      "description": "Small-group coaching on the squat, bench and deadlift. Bring your questions and your training log.",
+      "location": "Platform Area",
+      "capacity": 5,
+      "trainer": "jamalcarter",
+      "weekdays": [
+        2
+      ],
+      "start": "18:00",
+      "duration_minutes": 60,
+      "full_next": true
+    },
+    {
+      "gym": "Ironclad Fitness",
+      "title": "Kettlebell Conditioning",
+      "description": "Swings, carries and complexes for full-body conditioning. Bells provided.",
+      "location": "Turf Zone",
+      "capacity": 10,
+      "trainer": "jamalcarter",
+      "weekdays": [
+        4
+      ],
+      "start": "18:30",
+      "duration_minutes": 45,
+      "cancel_next": true
+    },
+    {
+      "gym": "Ironclad Fitness",
+      "title": "Mobility & Stretch",
+      "description": "A slow, guided session to open up hips, shoulders and the upper back. Great on rest days.",
+      "location": "Studio B",
+      "capacity": 16,
+      "trainer": "aishamohammed",
+      "weekdays": [
+        6
+      ],
+      "start": "09:00",
+      "duration_minutes": 50
+    },
+    {
+      "gym": "Ironclad Fitness",
+      "title": "Core Express",
+      "description": "Thirty minutes of anti-rotation, carries and bracing drills over lunch.",
+      "location": "Studio A",
+      "capacity": 12,
+      "trainer": "aishamohammed",
+      "weekdays": [
+        5
+      ],
+      "start": "12:15",
+      "duration_minutes": 30
+    },
+    {
+      "gym": "Summit Strength Collective",
+      "title": "Altitude Conditioning",
+      "description": "Sled pushes, assault bike and carries, paced for training at 5,280 feet.",
+      "location": "Conditioning Bay",
+      "capacity": 12,
+      "trainer": "beckymorrison",
+      "weekdays": [
+        1,
+        4
+      ],
+      "start": "06:00",
+      "duration_minutes": 45
+    },
+    {
+      "gym": "Summit Strength Collective",
+      "title": "Olympic Lifting Clinic",
+      "description": "Technique work on the snatch and clean & jerk with video feedback.",
+      "location": "Platforms 1-3",
+      "capacity": 3,
+      "trainer": "imaninewsome",
+      "weekdays": [
+        3
+      ],
+      "start": "17:30",
+      "duration_minutes": 75,
+      "full_next": true
+    },
+    {
+      "gym": "Summit Strength Collective",
+      "title": "Trail Runner Strength",
+      "description": "Single-leg strength, ankle stability and hill-specific conditioning for trail runners.",
+      "location": "Turf",
+      "capacity": 10,
+      "trainer": "beckymorrison",
+      "weekdays": [
+        6
+      ],
+      "start": "08:00",
+      "duration_minutes": 60
+    },
+    {
+      "gym": "Summit Strength Collective",
+      "title": "Yoga Flow",
+      "description": "A vinyasa flow to restore range of motion after a week of heavy lifting.",
+      "location": "Studio",
+      "capacity": 15,
+      "trainer": "imaninewsome",
+      "weekdays": [
+        7
+      ],
+      "start": "10:00",
+      "duration_minutes": 60
+    },
+    {
+      "gym": "Coastal Barbell Club",
+      "title": "Beach Bootcamp",
+      "description": "Sprints, bodyweight circuits and partner drills on the front lawn.",
+      "location": "Front Lawn",
+      "capacity": 15,
+      "trainer": "renataalves",
+      "weekdays": [
+        2,
+        4
+      ],
+      "start": "07:00",
+      "duration_minutes": 50
+    },
+    {
+      "gym": "Coastal Barbell Club",
+      "title": "Powerlifting Club",
+      "description": "Heavy singles and doubles on the competition lifts with spotters and a coach.",
+      "location": "Platforms",
+      "capacity": 8,
+      "trainer": "renataalves",
+      "weekdays": [
+        6
+      ],
+      "start": "10:00",
+      "duration_minutes": 90
+    },
+    {
+      "gym": "Coastal Barbell Club",
+      "title": "Sunset Mobility",
+      "description": "Wind down with mobility and breathing work overlooking the ocean.",
+      "location": "Ocean Room",
+      "capacity": 12,
+      "trainer": "renataalves",
+      "weekdays": [
+        3
+      ],
+      "start": "18:30",
+      "duration_minutes": 45
+    },
+    {
+      "gym": "Coastal Barbell Club",
+      "title": "Rowing Intervals",
+      "description": "Erg intervals from 250 m to 2 k with pacing guidance.",
+      "location": "Cardio Bay",
+      "capacity": 8,
+      "trainer": "renataalves",
+      "weekdays": [
+        5
+      ],
+      "start": "17:30",
+      "duration_minutes": 40
+    }
+  ],
+  "shift_patterns": [
+    {
+      "username": "priyanair",
+      "gym": "Ironclad Fitness",
+      "weekdays": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": "15:00",
+      "end": "23:00",
+      "note": "Closing shift"
+    },
+    {
+      "username": "tobiasschmidt",
+      "gym": "Ironclad Fitness",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "05:00",
+      "end": "13:00",
+      "note": "Opening shift"
+    },
+    {
+      "username": "elenavasquez",
+      "gym": "Ironclad Fitness",
+      "weekdays": [
+        1,
+        3,
+        5
+      ],
+      "start": "06:00",
+      "end": "12:00",
+      "note": "Floor coaching"
+    },
+    {
+      "username": "jamalcarter",
+      "gym": "Ironclad Fitness",
+      "weekdays": [
+        2,
+        4
+      ],
+      "start": "14:00",
+      "end": "20:30",
+      "note": "Floor coaching"
+    },
+    {
+      "username": "jamalcarter",
+      "gym": "Ironclad Fitness",
+      "weekdays": [
+        6
+      ],
+      "start": "08:00",
+      "end": "14:00",
+      "note": null
+    },
+    {
+      "username": "aishamohammed",
+      "gym": "Ironclad Fitness",
+      "weekdays": [
+        5
+      ],
+      "start": "10:00",
+      "end": "16:00",
+      "note": null
+    },
+    {
+      "username": "aishamohammed",
+      "gym": "Ironclad Fitness",
+      "weekdays": [
+        6,
+        7
+      ],
+      "start": "08:00",
+      "end": "14:00",
+      "note": "Weekend front desk"
+    },
+    {
+      "username": "beckymorrison",
+      "gym": "Summit Strength Collective",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "start": "05:30",
+      "end": "13:30",
+      "note": "Floor coaching"
+    },
+    {
+      "username": "beckymorrison",
+      "gym": "Summit Strength Collective",
+      "weekdays": [
+        6
+      ],
+      "start": "07:00",
+      "end": "12:00",
+      "note": null
+    },
+    {
+      "username": "tysonwalker",
+      "gym": "Summit Strength Collective",
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "start": "14:00",
+      "end": "22:00",
+      "note": "Closing shift"
+    },
+    {
+      "username": "imaninewsome",
+      "gym": "Summit Strength Collective",
+      "weekdays": [
+        3
+      ],
+      "start": "12:00",
+      "end": "20:00",
+      "note": null
+    },
+    {
+      "username": "imaninewsome",
+      "gym": "Summit Strength Collective",
+      "weekdays": [
+        5,
+        6,
+        7
+      ],
+      "start": "08:00",
+      "end": "16:00",
+      "note": "Front desk"
+    },
+    {
+      "username": "renataalves",
+      "gym": "Coastal Barbell Club",
+      "weekdays": [
+        1,
+        3,
+        5
+      ],
+      "start": "12:00",
+      "end": "20:00",
+      "note": "Floor coaching"
+    },
+    {
+      "username": "renataalves",
+      "gym": "Coastal Barbell Club",
+      "weekdays": [
+        2,
+        4
+      ],
+      "start": "06:00",
+      "end": "14:00",
+      "note": "Floor coaching"
+    },
+    {
+      "username": "renataalves",
+      "gym": "Coastal Barbell Club",
+      "weekdays": [
+        6
+      ],
+      "start": "08:00",
+      "end": "13:00",
+      "note": null
+    },
+    {
+      "username": "jordanpark",
+      "gym": "Coastal Barbell Club",
+      "weekdays": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": "14:00",
+      "end": "22:00",
+      "note": "Front desk"
+    }
+  ],
+  "routine_assignment_notes": [
+    "Start light in week 1 and focus on form.",
+    "Three sessions a week minimum. Message me if you miss one.",
+    "Log every set so we can track your progress together.",
+    "Keep 1-2 reps in reserve on the main lifts for the first two weeks.",
+    null,
+    null
+  ],
+  "session_comments": {
+    "coach": [
+      "Solid session. Bar speed looked much better on the last two sets.",
+      "Nice work! Next time add 2.5 kg to the top set if all the reps feel this clean.",
+      "Great consistency this week. Remember to note how hard each set felt so we can adjust.",
+      "Watch the tempo on the way down. Aim for a 3-second lower.",
+      "Good call trimming the accessories when time was short. The main lifts matter most.",
+      "That's a rep PR on the last set, well done!",
+      "Rest periods crept up a bit. Try keeping them under 2 minutes on the accessories.",
+      "Form looked sharp. Let's push the volume a little next week."
+    ],
+    "member": [
+      "Thanks coach! Felt good today.",
+      "Will do. The last set was a grind though.",
+      "Noted, I'll slow down the lowering phase.",
+      "Appreciate it! Going for 2.5 kg more next week.",
+      "Makes sense, I'll set a timer between sets.",
+      "Thanks! Sleep was much better this week, I think that helped."
+    ]
+  },
+  "body_measurement_notes": [
+    "Morning, fasted",
+    "After a weekend away",
+    "Post-holiday weigh-in",
+    "New scale at the gym"
+  ],
+  "post_comment_threads": [
+    {
+      "post_starts_with": "Big news: our new squat rack section",
+      "comments": [
+        {
+          "author": "liamoconnor",
+          "body": "Finally! The wait for a rack at 6pm was brutal."
+        },
+        {
+          "author": "sofiarossi",
+          "body": "Will there be a booking system for the racks?"
+        },
+        {
+          "author": "marcusbennett",
+          "body": "No booking needed. We went from 4 to 10 racks, so it should be first come, first served without the queue.",
+          "reply_to": 1
+        },
+        {
+          "author": "sofiarossi",
+          "body": "Perfect, thank you! See you Saturday.",
+          "reply_to": 2
+        },
+        {
+          "author": "liamoconnor",
+          "body": "Free shaker bottles too? I'm camping out at the door.",
+          "reply_to": 0
+        }
+      ]
+    },
+    {
+      "post_starts_with": "Our 4-week Push Pull Legs challenge",
+      "comments": [
+        {
+          "author": "kenjitanaka",
+          "body": "I'm in! Is it okay if I can only make 5 days a week?"
+        },
+        {
+          "author": "elenavasquez",
+          "body": "Absolutely. Fold the second leg day into Saturday. Consistency over perfection.",
+          "reply_to": 0
+        },
+        {
+          "author": "danielkim",
+          "body": "Signed up. Let's go!"
+        },
+        {
+          "author": "kenjitanaka",
+          "body": "Perfect, thanks Elena!",
+          "reply_to": 1
+        },
+        {
+          "author": "liamoconnor",
+          "body": "Daniel, you're going to regret this by day 3 😂",
+          "reply_to": 2
+        },
+        {
+          "author": "danielkim",
+          "body": "Regret is temporary, gains are forever",
+          "reply_to": 4
+        }
+      ]
+    },
+    {
+      "post_starts_with": "Shoutout to Daniel Kim",
+      "comments": [
+        {
+          "author": "danielkim",
+          "body": "Thanks Aisha! Couldn't have done it without the bracing cues."
+        },
+        {
+          "author": "graceokafor",
+          "body": "Huge, congrats Daniel!"
+        }
+      ]
+    },
+    {
+      "post_starts_with": "New mobility and stretching class",
+      "comments": [
+        {
+          "author": "nataliapetrova",
+          "body": "My hips thank you in advance."
+        },
+        {
+          "author": "ingridlarsen",
+          "body": "Is it beginner friendly?"
+        },
+        {
+          "author": "aishamohammed",
+          "body": "Totally. Every move has an easier option."
+        }
+      ]
+    },
+    {
+      "post_starts_with": "Summit Strength Collective is officially open",
+      "comments": [
+        {
+          "author": "mayaflores",
+          "body": "So glad to have a proper lifting gym downtown!"
+        },
+        {
+          "author": "ethanbrooks",
+          "body": "The chalk-friendly policy sold me."
+        }
+      ]
+    },
+    {
+      "post_starts_with": "Loved coaching the beginner squat clinic",
+      "comments": [
+        {
+          "author": "zoeharrington",
+          "body": "That clinic fixed my knee cave in one session. Thank you!"
+        },
+        {
+          "author": "imaninewsome",
+          "body": "So proud of the progress, Zoe!"
+        }
+      ]
+    },
+    {
+      "post_starts_with": "Coastal Barbell Club now has ocean-view cardio",
+      "comments": [
+        {
+          "author": "oliviamercer",
+          "body": "Best view for a 30-minute easy cardio session, hands down."
+        },
+        {
+          "author": "noahsullivan",
+          "body": "Can we get a fan by the rowers though?"
+        }
+      ]
+    },
+    {
+      "post_starts_with": "The shop just got a fresh shipment of whey isolate",
+      "comments": [
+        {
+          "author": "liamoconnor",
+          "body": "Is the chocolate flavour back in stock too?"
+        },
+        {
+          "author": "ravideshmukh",
+          "body": "Yes! Chocolate and vanilla are both back."
+        },
+        {
+          "author": "victorhuang",
+          "body": "Picked one up yesterday. Great price."
+        }
+      ]
+    },
+    {
+      "post_starts_with": "Programming note: deload week starts Monday",
+      "comments": [
+        {
+          "author": "gabrielsantos",
+          "body": "Perfect timing, my shoulders needed this."
+        },
+        {
+          "author": "harperreyes",
+          "body": "Do we keep the same accessory work?"
+        },
+        {
+          "author": "renataalves",
+          "body": "Same movements, half the sets. Keep it easy."
+        }
+      ]
+    }
+  ],
+  "food_diary": {
+    "adhoc_members": [
+      "graceokafor",
+      "mayaflores",
+      "oliviamercer"
+    ],
+    "adhoc_meals": {
+      "breakfast": [
+        [
+          {
+            "source": "food_item",
+            "name": "Rolled Oats",
+            "amount": 60
+          },
+          {
+            "source": "food_item",
+            "name": "Banana",
+            "amount": 120
+          },
+          {
+            "source": "food_item",
+            "name": "Whole Milk",
+            "amount": 200
+          }
+        ],
+        [
+          {
+            "source": "food_item",
+            "name": "Whole Egg",
+            "amount": 150
+          },
+          {
+            "source": "food_item",
+            "name": "Whole Wheat Bread",
+            "amount": 70
+          },
+          {
+            "source": "food_item",
+            "name": "Avocado",
+            "amount": 50
+          }
+        ],
+        [
+          {
+            "source": "recipe",
+            "name": "Greek Yogurt Parfait",
+            "amount": 1
+          }
+        ],
+        [
+          {
+            "source": "recipe",
+            "name": "Veggie Omelette",
+            "amount": 1
+          },
+          {
+            "source": "food_item",
+            "name": "Orange Juice, 100%",
+            "amount": 250
+          }
+        ]
+      ],
+      "lunch": [
+        [
+          {
+            "source": "recipe",
+            "name": "Grilled Chicken & Rice Bowl",
+            "amount": 1
+          }
+        ],
+        [
+          {
+            "source": "food_item",
+            "name": "Turkey Breast, Skinless",
+            "amount": 120
+          },
+          {
+            "source": "food_item",
+            "name": "Whole Wheat Bread",
+            "amount": 80
+          },
+          {
+            "source": "food_item",
+            "name": "Spinach, Raw",
+            "amount": 40
+          }
+        ],
+        [
+          {
+            "source": "food_item",
+            "name": "Quinoa, Cooked",
+            "amount": 180
+          },
+          {
+            "source": "food_item",
+            "name": "Firm Tofu",
+            "amount": 150
+          },
+          {
+            "source": "food_item",
+            "name": "Red Bell Pepper",
+            "amount": 80
+          }
+        ],
+        [
+          {
+            "source": "recipe",
+            "name": "Turkey Chili",
+            "amount": 1.5
+          }
+        ]
+      ],
+      "afternoon_snack": [
+        [
+          {
+            "source": "food_item",
+            "name": "Apple",
+            "amount": 150
+          },
+          {
+            "source": "food_item",
+            "name": "Natural Peanut Butter",
+            "amount": 25
+          }
+        ],
+        [
+          {
+            "source": "food_item",
+            "name": "Almonds, Raw",
+            "amount": 30
+          }
+        ],
+        [
+          {
+            "source": "recipe",
+            "name": "Post-Workout Smoothie",
+            "amount": 1
+          }
+        ],
+        [
+          {
+            "source": "food_item",
+            "name": "Greek Yogurt, Plain (2%)",
+            "amount": 170
+          },
+          {
+            "source": "food_item",
+            "name": "Blueberries",
+            "amount": 60
+          }
+        ]
+      ],
+      "dinner": [
+        [
+          {
+            "source": "recipe",
+            "name": "Salmon & Broccoli Sheet Pan",
+            "amount": 1
+          }
+        ],
+        [
+          {
+            "source": "food_item",
+            "name": "Whole Wheat Pasta, Cooked",
+            "amount": 220
+          },
+          {
+            "source": "food_item",
+            "name": "Lean Ground Beef, 93% Lean",
+            "amount": 130
+          }
+        ],
+        [
+          {
+            "source": "food_item",
+            "name": "Chicken Breast, Skinless",
+            "amount": 160
+          },
+          {
+            "source": "food_item",
+            "name": "Sweet Potato, Baked",
+            "amount": 200
+          },
+          {
+            "source": "food_item",
+            "name": "Broccoli, Raw",
+            "amount": 120
+          }
+        ],
+        [
+          {
+            "source": "recipe",
+            "name": "Turkey Chili",
+            "amount": 1
+          }
+        ]
+      ],
+      "evening_snack": [
+        [
+          {
+            "source": "food_item",
+            "name": "Blueberries",
+            "amount": 100
+          }
+        ],
+        [
+          {
+            "source": "food_item",
+            "name": "Greek Yogurt, Plain (2%)",
+            "amount": 150
+          }
+        ]
+      ]
+    }
+  },
+  "shop_orders": [
+    {
+      "buyer": "liamoconnor",
+      "shop": "Peak Performance Supply Co.",
+      "status": "fulfilled",
+      "days_ago": 12,
+      "payment_method": "pay_at_pickup",
+      "note": null,
+      "items": [
+        {
+          "name": "Whey Protein Isolate - 2lb",
+          "quantity": 1
+        },
+        {
+          "name": "Creatine Monohydrate - 300g",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "buyer": "sofiarossi",
+      "shop": "Peak Performance Supply Co.",
+      "status": "fulfilled",
+      "days_ago": 9,
+      "payment_method": "card",
+      "note": null,
+      "items": [
+        {
+          "name": "Premium Yoga Mat",
+          "quantity": 1
+        },
+        {
+          "name": "Resistance Bands Set",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "buyer": "nataliapetrova",
+      "shop": "Peak Performance Supply Co.",
+      "status": "fulfilled",
+      "days_ago": 20,
+      "payment_method": "pay_at_pickup",
+      "note": null,
+      "items": [
+        {
+          "name": "Daily Multivitamin - 90 Capsules",
+          "quantity": 2
+        },
+        {
+          "name": "Fish Oil Omega-3 Softgels - 120ct",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "buyer": "kenjitanaka",
+      "shop": "Peak Performance Supply Co.",
+      "status": "paid",
+      "days_ago": 2,
+      "payment_method": "card",
+      "note": "I'll pick these up after my Thursday session.",
+      "items": [
+        {
+          "name": "Leather Lifting Straps",
+          "quantity": 1
+        },
+        {
+          "name": "Gym Chalk Block - 8 Pack",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "buyer": "danielkim",
+      "shop": "Peak Performance Supply Co.",
+      "status": "pending",
+      "days_ago": 1,
+      "payment_method": "pay_at_pickup",
+      "note": null,
+      "items": [
+        {
+          "name": "Pre-Workout Formula - 30 Servings",
+          "quantity": 1
+        },
+        {
+          "name": "BCAA Powder - Watermelon",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "buyer": "victorhuang",
+      "shop": "Peak Performance Supply Co.",
+      "status": "pending",
+      "days_ago": 0,
+      "payment_method": "pay_at_pickup",
+      "note": "It's a birthday present, could you add a card?",
+      "items": [
+        {
+          "name": "$50 Gift Card",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "buyer": "graceokafor",
+      "shop": "Peak Performance Supply Co.",
+      "status": "cancelled",
+      "days_ago": 6,
+      "payment_method": "pay_at_pickup",
+      "note": "Changed my mind, I'll get the isolate instead.",
+      "items": [
+        {
+          "name": "Casein Protein - Night-Time - 2lb",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "buyer": "mayaflores",
+      "shop": "Trailhead Outdoor & Fitness Supply",
+      "status": "fulfilled",
+      "days_ago": 15,
+      "payment_method": "pay_at_pickup",
+      "note": null,
+      "items": [
+        {
+          "name": "Trail Running Hydration Vest",
+          "quantity": 1
+        },
+        {
+          "name": "Electrolyte Hydration Mix - Citrus - 20 Servings",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "buyer": "ethanbrooks",
+      "shop": "Trailhead Outdoor & Fitness Supply",
+      "status": "paid",
+      "days_ago": 3,
+      "payment_method": "card",
+      "note": null,
+      "items": [
+        {
+          "name": "Collapsible Trekking Poles",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "buyer": "zoeharrington",
+      "shop": "Trailhead Outdoor & Fitness Supply",
+      "status": "pending",
+      "days_ago": 1,
+      "payment_method": "pay_at_pickup",
+      "note": null,
+      "items": [
+        {
+          "name": "Plant-Based Protein Powder - Vanilla - 2lb",
+          "quantity": 1
+        },
+        {
+          "name": "Insulated Camp Mug - 20oz",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "buyer": "lucasferreira",
+      "shop": "Trailhead Outdoor & Fitness Supply",
+      "status": "cancelled",
+      "days_ago": 4,
+      "payment_method": "pay_at_pickup",
+      "note": null,
+      "items": [
+        {
+          "name": "Altitude Training Mask",
+          "quantity": 1
+        }
+      ]
+    }
+  ],
+  "social_profiles": {
+    "marcusbennett": {
+      "bio": "Owner @ Ironclad Fitness & Peak Performance. 20 years under the bar. Ask me about the new racks.",
+      "interests": [
+        "powerlifting",
+        "strongman",
+        "nutrition"
+      ]
+    },
+    "elenavasquez": {
+      "bio": "Coach at Ironclad 🏋️‍♀️ Strength, mobility, and showing up when it's hard. DM for programming questions.",
+      "interests": [
+        "powerlifting",
+        "mobility",
+        "olympic lifting"
+      ]
+    },
+    "jamalcarter": {
+      "bio": "Hypertrophy nerd. Coach at Ironclad. Tempo reps are not optional.",
+      "interests": [
+        "bodybuilding",
+        "nutrition",
+        "meal prep"
+      ]
+    },
+    "priyanair": {
+      "bio": "Front desk at Ironclad ☕ Will remember your name and your coffee order.",
+      "interests": [
+        "yoga",
+        "running",
+        "pilates"
+      ]
+    },
+    "tobiasschmidt": {
+      "bio": "Ironclad desk + weekend trail runner. Berlin → Brooklyn.",
+      "interests": [
+        "running",
+        "hiking",
+        "cycling"
+      ]
+    },
+    "aishamohammed": {
+      "bio": "Coach & desk at Ironclad. Kettlebells, conditioning, and loud playlists.",
+      "interests": [
+        "hiit",
+        "crossfit",
+        "boxing"
+      ]
+    },
+    "liamoconnor": {
+      "bio": "6am crew. Chasing a 200kg deadlift. Eats oats like it's a personality.",
+      "interests": [
+        "powerlifting",
+        "meal prep",
+        "running"
+      ]
+    },
+    "sofiarossi": {
+      "bio": "Lifting, pasta, repeat 🍝 Private account — say hi first.",
+      "interests": [
+        "bodybuilding",
+        "nutrition",
+        "yoga"
+      ],
+      "is_private": true
+    },
+    "kenjitanaka": {
+      "bio": "PPL devotee. Engineer by day. Logging every set since 2023.",
+      "interests": [
+        "bodybuilding",
+        "calisthenics",
+        "cycling"
+      ]
+    },
+    "graceokafor": {
+      "bio": "Marathoner learning to love the barbell. Brooklyn half PR 1:41.",
+      "interests": [
+        "running",
+        "mobility",
+        "hiit"
+      ]
+    },
+    "danielkim": {
+      "bio": "Gym rat in training. Here for the challenges and the protein bars.",
+      "interests": [
+        "crossfit",
+        "hiit",
+        "boxing"
+      ]
+    },
+    "nataliapetrova": {
+      "bio": "Former gymnast. Handstands, rings, and an unhealthy love of chalk.",
+      "interests": [
+        "calisthenics",
+        "olympic lifting",
+        "mobility"
+      ]
+    },
+    "ravideshmukh": {
+      "bio": "Peak Performance Supply — supplements, gear, honest advice. Come say hi on Court St.",
+      "interests": [
+        "nutrition",
+        "cycling"
+      ]
+    },
+    "chloeanderson": {
+      "bio": "Gym Bro team. Keeping the lights on.",
+      "interests": [
+        "running",
+        "yoga"
+      ],
+      "discoverable": false
+    },
+    "hannahkessler": {
+      "bio": "Founder of Summit Strength & Trailhead Supply. Mountains on weekends, barbells on weekdays.",
+      "interests": [
+        "hiking",
+        "climbing",
+        "powerlifting"
+      ]
+    },
+    "beckymorrison": {
+      "bio": "Strength coach @ Summit. Altitude makes everything harder, and that's the point.",
+      "interests": [
+        "powerlifting",
+        "strongman",
+        "mobility"
+      ]
+    },
+    "tysonwalker": {
+      "bio": "Summit front desk. Former D2 linebacker. Ask me about sled pushes.",
+      "interests": [
+        "strongman",
+        "hiit"
+      ]
+    },
+    "imaninewsome": {
+      "bio": "Coach + desk at Summit. Pilates instructor, mobility evangelist.",
+      "interests": [
+        "pilates",
+        "mobility",
+        "yoga"
+      ]
+    },
+    "camillewright": {
+      "bio": "Trailhead Supply. I will talk you into the right hiking boots.",
+      "interests": [
+        "hiking",
+        "climbing",
+        "running"
+      ]
+    },
+    "andrewfoster": {
+      "bio": "Owner, Coastal Barbell Club. Weightlifting, sunshine, and early mornings by the ocean.",
+      "interests": [
+        "olympic lifting",
+        "swimming",
+        "powerlifting"
+      ]
+    },
+    "renataalves": {
+      "bio": "Olympic lifting coach at Coastal 🇧🇷 Snatch is life.",
+      "interests": [
+        "olympic lifting",
+        "mobility",
+        "crossfit"
+      ]
+    },
+    "jordanpark": {
+      "bio": "Coastal desk + surf on Sundays 🏄",
+      "interests": [
+        "swimming",
+        "yoga"
+      ]
+    },
+    "victorhuang": {
+      "bio": "Late-night lifter. If the gym is empty, I'm probably there.",
+      "interests": [
+        "bodybuilding",
+        "powerlifting",
+        "meal prep"
+      ]
+    },
+    "ingridlarsen": {
+      "bio": "Norwegian in NYC. Cross-country skier turned lifter.",
+      "interests": [
+        "running",
+        "cycling",
+        "powerlifting"
+      ],
+      "is_private": true,
+      "who_can_message": "following"
+    },
+    "mayaflores": {
+      "bio": "Climber who lifts. Denver born and raised 🏔️",
+      "interests": [
+        "climbing",
+        "hiking",
+        "calisthenics"
+      ]
+    },
+    "ethanbrooks": {
+      "bio": "Cyclist on the mend — rebuilding the legs at Summit.",
+      "interests": [
+        "cycling",
+        "mobility",
+        "nutrition"
+      ]
+    },
+    "zoeharrington": {
+      "bio": "Quiet lifter, loud music.",
+      "interests": [
+        "powerlifting",
+        "yoga"
+      ],
+      "is_private": true
+    },
+    "lucasferreira": {
+      "bio": "Soccer every Sunday, squats every other day ⚽",
+      "interests": [
+        "hiit",
+        "running",
+        "boxing"
+      ]
+    },
+    "isabelgomez": {
+      "bio": "Nurse working nights. Lifting keeps me sane.",
+      "interests": [
+        "pilates",
+        "mobility",
+        "meal prep"
+      ]
+    },
+    "oliviamercer": {
+      "bio": "Coastal Barbell. First meet in March, wish me luck!",
+      "interests": [
+        "olympic lifting",
+        "powerlifting",
+        "nutrition"
+      ]
+    },
+    "noahsullivan": {
+      "bio": "Surf, lift, eat, sleep, repeat.",
+      "interests": [
+        "swimming",
+        "bodybuilding",
+        "hiit"
+      ]
+    },
+    "ameliachang": {
+      "bio": "Physio student. Ask me about your knees.",
+      "interests": [
+        "mobility",
+        "pilates",
+        "running"
+      ],
+      "is_private": true,
+      "who_can_message": "friends"
+    },
+    "gabrielsantos": {
+      "bio": "Calisthenics park regular. Muscle-up or bust.",
+      "interests": [
+        "calisthenics",
+        "crossfit",
+        "boxing"
+      ]
+    },
+    "harperreyes": {
+      "bio": "Coastal member. Morning lifts, afternoon tacos 🌮",
+      "interests": [
+        "crossfit",
+        "hiit",
+        "swimming"
+      ]
+    }
+  },
+  "social_graph": {
+    "friendships": [
+      [
+        "liamoconnor",
+        "kenjitanaka"
+      ],
+      [
+        "liamoconnor",
+        "danielkim"
+      ],
+      [
+        "liamoconnor",
+        "elenavasquez"
+      ],
+      [
+        "sofiarossi",
+        "graceokafor"
+      ],
+      [
+        "sofiarossi",
+        "nataliapetrova"
+      ],
+      [
+        "kenjitanaka",
+        "danielkim"
+      ],
+      [
+        "graceokafor",
+        "tobiasschmidt"
+      ],
+      [
+        "victorhuang",
+        "liamoconnor"
+      ],
+      [
+        "ingridlarsen",
+        "graceokafor"
+      ],
+      [
+        "mayaflores",
+        "ethanbrooks"
+      ],
+      [
+        "mayaflores",
+        "zoeharrington"
+      ],
+      [
+        "lucasferreira",
+        "ethanbrooks"
+      ],
+      [
+        "isabelgomez",
+        "imaninewsome"
+      ],
+      [
+        "beckymorrison",
+        "mayaflores"
+      ],
+      [
+        "oliviamercer",
+        "noahsullivan"
+      ],
+      [
+        "oliviamercer",
+        "renataalves"
+      ],
+      [
+        "ameliachang",
+        "harperreyes"
+      ],
+      [
+        "gabrielsantos",
+        "noahsullivan"
+      ],
+      [
+        "andrewfoster",
+        "renataalves"
+      ],
+      [
+        "marcusbennett",
+        "hannahkessler"
+      ],
+      [
+        "marcusbennett",
+        "andrewfoster"
+      ]
+    ],
+    "pending_friend_requests": [
+      [
+        "nataliapetrova",
+        "liamoconnor"
+      ],
+      [
+        "danielkim",
+        "sofiarossi"
+      ],
+      [
+        "harperreyes",
+        "oliviamercer"
+      ],
+      [
+        "lucasferreira",
+        "mayaflores"
+      ],
+      [
+        "gabrielsantos",
+        "liamoconnor"
+      ]
+    ],
+    "pending_follow_requests": [
+      [
+        "danielkim",
+        "sofiarossi"
+      ],
+      [
+        "victorhuang",
+        "ingridlarsen"
+      ],
+      [
+        "liamoconnor",
+        "zoeharrington"
+      ],
+      [
+        "noahsullivan",
+        "ameliachang"
+      ]
+    ],
+    "cross_follows": [
+      [
+        "liamoconnor",
+        "mayaflores"
+      ],
+      [
+        "liamoconnor",
+        "oliviamercer"
+      ],
+      [
+        "graceokafor",
+        "camillewright"
+      ],
+      [
+        "mayaflores",
+        "renataalves"
+      ],
+      [
+        "oliviamercer",
+        "beckymorrison"
+      ],
+      [
+        "kenjitanaka",
+        "gabrielsantos"
+      ],
+      [
+        "gabrielsantos",
+        "nataliapetrova"
+      ],
+      [
+        "ethanbrooks",
+        "tobiasschmidt"
+      ],
+      [
+        "hannahkessler",
+        "andrewfoster"
+      ]
+    ],
+    "blocks": [
+      [
+        "zoeharrington",
+        "lucasferreira"
+      ]
+    ]
+  },
+  "personal_posts": [
+    {
+      "author": "liamoconnor",
+      "caption": "190kg deadlift ✅ 10kg to go. Thanks @elenavasquez for fixing my lockout.",
+      "media": [
+        "deadlift-pr"
+      ],
+      "days_ago": 1.2,
+      "visibility": "public"
+    },
+    {
+      "author": "liamoconnor",
+      "caption": "Sunday meal prep: 12 containers, 3 recipes, 0 excuses.",
+      "media": [
+        "meal-prep-1",
+        "meal-prep-2"
+      ],
+      "days_ago": 6,
+      "visibility": "public"
+    },
+    {
+      "author": "kenjitanaka",
+      "caption": "Week 12 of PPL. Pull day pump hits different.",
+      "media": [
+        "pull-day"
+      ],
+      "days_ago": 2.5,
+      "visibility": "public"
+    },
+    {
+      "author": "graceokafor",
+      "caption": "Long run along the waterfront before leg day. Legs are… questioning my choices.",
+      "media": [
+        "waterfront-run"
+      ],
+      "days_ago": 0.6,
+      "visibility": "public"
+    },
+    {
+      "author": "sofiarossi",
+      "caption": "Homemade protein pasta night 🍝 recipe in the comments if you ask nicely",
+      "media": [
+        "pasta-night"
+      ],
+      "days_ago": 3,
+      "visibility": "public"
+    },
+    {
+      "author": "sofiarossi",
+      "caption": "Progress pics, 6 months apart. Followers only for this one.",
+      "media": [
+        "progress-a",
+        "progress-b"
+      ],
+      "days_ago": 9,
+      "visibility": "followers"
+    },
+    {
+      "author": "nataliapetrova",
+      "caption": "Freestanding handstand, 22 seconds. The gymnast in me is screaming.",
+      "media": [
+        "handstand"
+      ],
+      "days_ago": 4,
+      "visibility": "public"
+    },
+    {
+      "author": "danielkim",
+      "caption": "Day 9 of the PPL challenge. Still alive. Barely.",
+      "media": [],
+      "days_ago": 1.8,
+      "visibility": "public"
+    },
+    {
+      "author": "elenavasquez",
+      "caption": "Form check Friday: brace, wedge, push the floor away. Drop your questions below 👇",
+      "media": [
+        "form-check"
+      ],
+      "days_ago": 2,
+      "visibility": "public"
+    },
+    {
+      "author": "victorhuang",
+      "caption": "11pm and the gym is all mine.",
+      "media": [
+        "empty-gym"
+      ],
+      "days_ago": 5,
+      "visibility": "public"
+    },
+    {
+      "author": "mayaflores",
+      "caption": "Sent my project at Clear Creek! Hangboard + pull-ups at Summit paid off.",
+      "media": [
+        "climb-1",
+        "climb-2"
+      ],
+      "days_ago": 1,
+      "visibility": "public"
+    },
+    {
+      "author": "ethanbrooks",
+      "caption": "First ride since the knee surgery. 20 miles, zero pain. Grateful.",
+      "media": [
+        "bike-ride"
+      ],
+      "days_ago": 3.5,
+      "visibility": "public"
+    },
+    {
+      "author": "zoeharrington",
+      "caption": "New squat PR. No caption needed.",
+      "media": [
+        "squat-pr"
+      ],
+      "days_ago": 2.2,
+      "visibility": "public"
+    },
+    {
+      "author": "beckymorrison",
+      "caption": "Sled push Saturday is back at Summit. Who's in?",
+      "media": [
+        "video:sled-push"
+      ],
+      "days_ago": 0.4,
+      "visibility": "public"
+    },
+    {
+      "author": "oliviamercer",
+      "caption": "8 weeks out from my first meet. Openers feeling smooth.",
+      "media": [
+        "meet-prep"
+      ],
+      "days_ago": 1.5,
+      "visibility": "public"
+    },
+    {
+      "author": "renataalves",
+      "caption": "Snatch technique clinic this weekend at Coastal 🇧🇷 bring your shoes and your patience.",
+      "media": [
+        "snatch-clinic"
+      ],
+      "days_ago": 2.8,
+      "visibility": "public"
+    },
+    {
+      "author": "noahsullivan",
+      "caption": "Dawn patrol then lift. San Diego mornings are unfair.",
+      "media": [
+        "surf-dawn"
+      ],
+      "days_ago": 0.9,
+      "visibility": "public"
+    },
+    {
+      "author": "ameliachang",
+      "caption": "Knee rehab exercises I give every client. Save this.",
+      "media": [
+        "rehab"
+      ],
+      "days_ago": 7,
+      "visibility": "public"
+    },
+    {
+      "author": "gabrielsantos",
+      "caption": "Muscle-up #10 today. It's never getting old.",
+      "media": [
+        "muscle-up"
+      ],
+      "days_ago": 4.5,
+      "visibility": "public"
+    },
+    {
+      "author": "harperreyes",
+      "caption": "Post-WOD tacos are a recovery tool, change my mind 🌮",
+      "media": [
+        "tacos"
+      ],
+      "days_ago": 0.3,
+      "visibility": "public"
+    },
+    {
+      "author": "ingridlarsen",
+      "caption": "Snow is coming back in Oslo. Training for ski season from Brooklyn.",
+      "media": [
+        "ski-prep"
+      ],
+      "days_ago": 8,
+      "visibility": "public"
+    },
+    {
+      "author": "marcusbennett",
+      "caption": "20 years since I opened my first gym. Still the best job in the world.",
+      "media": [
+        "anniversary"
+      ],
+      "days_ago": 10,
+      "visibility": "public"
+    }
+  ],
+  "personal_post_threads": [
+    {
+      "post_starts_with": "190kg deadlift",
+      "comments": [
+        {
+          "author": "elenavasquez",
+          "body": "That lockout looked clean. 200 by the end of the month."
+        },
+        {
+          "author": "liamoconnor",
+          "body": "From your lips to the barbell's ears 🙏",
+          "reply_to": 0
+        },
+        {
+          "author": "kenjitanaka",
+          "body": "Monster. What are you pulling with, mixed grip or hook?"
+        },
+        {
+          "author": "liamoconnor",
+          "body": "Hook grip. Thumbs hated me for a month.",
+          "reply_to": 2
+        },
+        {
+          "author": "kenjitanaka",
+          "body": "Okay I'm trying it next pull day.",
+          "reply_to": 3
+        },
+        {
+          "author": "elenavasquez",
+          "body": "Tape your thumbs the first few weeks. Trust me.",
+          "reply_to": 4
+        },
+        {
+          "author": "kenjitanaka",
+          "body": "Noted coach 🫡",
+          "reply_to": 5
+        },
+        {
+          "author": "danielkim",
+          "body": "Meanwhile I'm celebrating my 100kg 😅"
+        },
+        {
+          "author": "liamoconnor",
+          "body": "100 is huge! Everyone starts somewhere.",
+          "reply_to": 7
+        }
+      ]
+    },
+    {
+      "post_starts_with": "Homemade protein pasta",
+      "comments": [
+        {
+          "author": "graceokafor",
+          "body": "Asking nicely 🥺"
+        },
+        {
+          "author": "sofiarossi",
+          "body": "Chickpea pasta, turkey ragù, a mountain of parmesan. Full macros incoming.",
+          "reply_to": 0
+        },
+        {
+          "author": "nataliapetrova",
+          "body": "Parmesan counts as protein, right?",
+          "reply_to": 1
+        },
+        {
+          "author": "sofiarossi",
+          "body": "In my house it does.",
+          "reply_to": 2
+        }
+      ]
+    },
+    {
+      "post_starts_with": "Form check Friday",
+      "comments": [
+        {
+          "author": "graceokafor",
+          "body": "My hips shoot up first on heavy pulls. Any cues?"
+        },
+        {
+          "author": "elenavasquez",
+          "body": "Pull the slack out of the bar before it leaves the floor and think chest up, not hips up.",
+          "reply_to": 0
+        },
+        {
+          "author": "graceokafor",
+          "body": "Going to film my next session and send it to you.",
+          "reply_to": 1
+        },
+        {
+          "author": "aishamohammed",
+          "body": "Also try paused deadlifts at the knee, 3 sets of 3. Fixed mine."
+        }
+      ]
+    },
+    {
+      "post_starts_with": "Sent my project",
+      "comments": [
+        {
+          "author": "ethanbrooks",
+          "body": "Let's gooo! What grade?"
+        },
+        {
+          "author": "mayaflores",
+          "body": "V6! Third season trying.",
+          "reply_to": 0
+        },
+        {
+          "author": "beckymorrison",
+          "body": "Told you those weighted pull-ups would pay off 💪"
+        },
+        {
+          "author": "mayaflores",
+          "body": "Coach was right as always",
+          "reply_to": 2
+        }
+      ]
+    },
+    {
+      "post_starts_with": "8 weeks out",
+      "comments": [
+        {
+          "author": "renataalves",
+          "body": "Smooth like butter. Keep the openers boring."
+        },
+        {
+          "author": "noahsullivan",
+          "body": "We're all coming to cheer!"
+        },
+        {
+          "author": "oliviamercer",
+          "body": "You better bring a sign 😂",
+          "reply_to": 1
+        }
+      ]
+    }
+  ],
+  "conversations": {
+    "direct": [
+      {
+        "a": "liamoconnor",
+        "b": "kenjitanaka",
+        "days_ago": 2,
+        "messages": [
+          {
+            "from": "kenjitanaka",
+            "text": "You lifting tomorrow at 6?"
+          },
+          {
+            "from": "liamoconnor",
+            "text": "Always. Pull day for me"
+          },
+          {
+            "from": "kenjitanaka",
+            "text": "Perfect, same. I'll grab the platform by the window"
+          },
+          {
+            "from": "liamoconnor",
+            "text": "Trying hook grip on your advice?",
+            "reply_to": 0
+          },
+          {
+            "from": "kenjitanaka",
+            "text": "Hook grip pain incoming 😂",
+            "reaction": {
+              "by": "liamoconnor",
+              "type": "haha"
+            }
+          },
+          {
+            "from": "liamoconnor",
+            "image": "chalk-bucket",
+            "text": "Bringing the good chalk"
+          },
+          {
+            "from": "kenjitanaka",
+            "text": "Legend",
+            "reaction": {
+              "by": "liamoconnor",
+              "type": "strong"
+            }
+          }
+        ]
+      },
+      {
+        "a": "elenavasquez",
+        "b": "liamoconnor",
+        "days_ago": 4,
+        "messages": [
+          {
+            "from": "elenavasquez",
+            "text": "Looked at your deadlift video. Lockout is good, but your bar drifts forward off the floor."
+          },
+          {
+            "from": "liamoconnor",
+            "text": "I knew something felt off. Fix?"
+          },
+          {
+            "from": "elenavasquez",
+            "text": "Lats tight, 'protect your armpits'. 3x3 paused at mid-shin, 70%."
+          },
+          {
+            "from": "liamoconnor",
+            "text": "On it. Thanks coach 🙏",
+            "reaction": {
+              "by": "elenavasquez",
+              "type": "like"
+            }
+          },
+          {
+            "from": "elenavasquez",
+            "image": "bar-path",
+            "text": "This is the bar path we want"
+          },
+          {
+            "from": "liamoconnor",
+            "text": "Saving this."
+          }
+        ]
+      },
+      {
+        "a": "sofiarossi",
+        "b": "graceokafor",
+        "days_ago": 1,
+        "messages": [
+          {
+            "from": "graceokafor",
+            "text": "Are we still doing Saturday brunch after the run?"
+          },
+          {
+            "from": "sofiarossi",
+            "text": "Obviously. I've been dreaming about those pancakes all week"
+          },
+          {
+            "from": "graceokafor",
+            "text": "10k first though 🏃‍♀️"
+          },
+          {
+            "from": "sofiarossi",
+            "text": "Ugh. Fine. 8k and I'll buy the coffee",
+            "reaction": {
+              "by": "graceokafor",
+              "type": "love"
+            }
+          }
+        ]
+      },
+      {
+        "a": "mayaflores",
+        "b": "beckymorrison",
+        "days_ago": 3,
+        "messages": [
+          {
+            "from": "mayaflores",
+            "text": "Can we add more grip work to my program? Fingers are the limiter."
+          },
+          {
+            "from": "beckymorrison",
+            "text": "Yes! Dead hangs and farmer's carries at the end of upper days."
+          },
+          {
+            "from": "mayaflores",
+            "text": "Love it 🙌",
+            "reaction": {
+              "by": "beckymorrison",
+              "type": "fire"
+            }
+          }
+        ]
+      },
+      {
+        "a": "oliviamercer",
+        "b": "renataalves",
+        "days_ago": 1.5,
+        "messages": [
+          {
+            "from": "oliviamercer",
+            "text": "Missed my 3rd snatch attempt again today 😩"
+          },
+          {
+            "from": "renataalves",
+            "text": "You're pulling early. Patience off the floor, then explode."
+          },
+          {
+            "from": "oliviamercer",
+            "image": "snatch-frame",
+            "text": "Here's the frame where it goes wrong"
+          },
+          {
+            "from": "renataalves",
+            "text": "Yep, arms bent at the knee. We'll fix it Thursday.",
+            "reply_to": 2
+          }
+        ]
+      },
+      {
+        "a": "danielkim",
+        "b": "liamoconnor",
+        "days_ago": 0.5,
+        "messages": [
+          {
+            "from": "danielkim",
+            "text": "Bro how do you eat this much oats"
+          },
+          {
+            "from": "liamoconnor",
+            "text": "Practice. And peanut butter."
+          }
+        ]
+      },
+      {
+        "a": "lucasferreira",
+        "b": "isabelgomez",
+        "days_ago": 6,
+        "messages": [
+          {
+            "from": "lucasferreira",
+            "text": "Hey! Saw you at the 7pm class. Are you doing the Sunday soccer game?"
+          }
+        ],
+        "request": true
+      },
+      {
+        "a": "gabrielsantos",
+        "b": "ameliachang",
+        "days_ago": 2,
+        "messages": [
+          {
+            "from": "gabrielsantos",
+            "text": "Hi Amelia! Saw your rehab post — any tips for elbow pain from muscle-ups?"
+          }
+        ],
+        "request": true
+      }
+    ],
+    "groups": [
+      {
+        "title": "Ironclad 6am Crew 🌅",
+        "owner": "liamoconnor",
+        "admins": [
+          "kenjitanaka"
+        ],
+        "members": [
+          "kenjitanaka",
+          "danielkim",
+          "graceokafor",
+          "victorhuang",
+          "elenavasquez"
+        ],
+        "days_ago": 5,
+        "messages": [
+          {
+            "from": "liamoconnor",
+            "text": "Made a group so we stop texting in 5 different chats"
+          },
+          {
+            "from": "graceokafor",
+            "text": "Finally some organization 🙌"
+          },
+          {
+            "from": "kenjitanaka",
+            "text": "Who's in tomorrow?"
+          },
+          {
+            "from": "danielkim",
+            "text": "Me!"
+          },
+          {
+            "from": "victorhuang",
+            "text": "6am is a war crime but fine"
+          },
+          {
+            "from": "elenavasquez",
+            "text": "I'll be on the floor from 5:45 if anyone wants a form check",
+            "reaction": {
+              "by": "liamoconnor",
+              "type": "love"
+            }
+          },
+          {
+            "from": "graceokafor",
+            "image": "sunrise-gym",
+            "text": "View from the treadmill this morning"
+          },
+          {
+            "from": "danielkim",
+            "text": "Okay that's actually beautiful",
+            "reply_to": 6
+          },
+          {
+            "from": "liamoconnor",
+            "text": "PPL challenge leaderboard update: Kenji is winning, Daniel is surviving",
+            "reaction": {
+              "by": "danielkim",
+              "type": "haha"
+            }
+          },
+          {
+            "from": "kenjitanaka",
+            "text": "Surviving is winning 💪"
+          }
+        ]
+      },
+      {
+        "title": "Summit Climbers & Lifters",
+        "owner": "mayaflores",
+        "admins": [],
+        "members": [
+          "ethanbrooks",
+          "zoeharrington",
+          "beckymorrison",
+          "lucasferreira"
+        ],
+        "days_ago": 7,
+        "messages": [
+          {
+            "from": "mayaflores",
+            "text": "Clear Creek this Saturday? Weather looks perfect"
+          },
+          {
+            "from": "ethanbrooks",
+            "text": "I'm in if we're back by 3"
+          },
+          {
+            "from": "beckymorrison",
+            "text": "Don't skip Friday's session or I'll know 👀"
+          },
+          {
+            "from": "zoeharrington",
+            "text": "Bringing snacks"
+          },
+          {
+            "from": "mayaflores",
+            "image": "crag",
+            "text": "Last time's view, for motivation",
+            "reaction": {
+              "by": "ethanbrooks",
+              "type": "wow"
+            }
+          },
+          {
+            "from": "ethanbrooks",
+            "video": "bike-clip",
+            "text": "Proof I can still ride 🚴"
+          }
+        ]
+      },
+      {
+        "title": "Coastal Meet Prep",
+        "owner": "renataalves",
+        "admins": [
+          "andrewfoster"
+        ],
+        "members": [
+          "oliviamercer",
+          "noahsullivan",
+          "harperreyes",
+          "andrewfoster"
+        ],
+        "days_ago": 10,
+        "messages": [
+          {
+            "from": "renataalves",
+            "text": "Meet is March 14. Openers due to me by the end of next week."
+          },
+          {
+            "from": "oliviamercer",
+            "text": "Snatch 62, C&J 78?"
+          },
+          {
+            "from": "renataalves",
+            "text": "Perfect. Boring openers win meets.",
+            "reply_to": 1
+          },
+          {
+            "from": "andrewfoster",
+            "text": "The club will cover entry fees for first-timers 🎉",
+            "reaction": {
+              "by": "oliviamercer",
+              "type": "celebrate"
+            }
+          },
+          {
+            "from": "harperreyes",
+            "text": "Best gym owner"
+          },
+          {
+            "from": "noahsullivan",
+            "text": "I'll handle the music for warm-ups"
+          }
+        ]
+      }
+    ]
+  }
 }

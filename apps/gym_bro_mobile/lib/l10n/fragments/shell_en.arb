@@ -433,7 +433,7 @@
   "shellMuteShop": "Shop",
   "shellMuteShopDescription": "Order updates, new orders and restocks",
   "shellMuteCommunity": "Community",
-  "shellMuteCommunityDescription": "Gym news and comments on your posts",
+  "shellMuteCommunityDescription": "Gym news, comments, replies and reactions to your posts",
   "shellMuteCoaching": "Coaching",
   "shellMuteCoachingDescription": "Assigned routines and plans, session feedback",
   "shellMuteStaff": "Staff",
@@ -552,5 +552,20 @@
         "type": "int"
       }
     }
-  }
+  },
+  "shellTabFeed": "Feed",
+  "shellTabDiscover": "Discover",
+  "shellChats": "Messages",
+  "shellChatsUnread": "{count, plural, =1{Messages, 1 unread chat} other{Messages, {count} unread chats}}",
+  "@shellChatsUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shellMuteSocial": "Followers & friends",
+  "shellMuteSocialDescription": "New followers, follow and friend requests",
+  "shellMuteMessages": "Messages",
+  "shellMuteMessagesDescription": "New chat messages and being added to groups"
 }

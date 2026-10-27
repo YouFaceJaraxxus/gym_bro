@@ -201,7 +201,7 @@
   "shellMuteShop": "Prodavnica",
   "shellMuteShopDescription": "Status porudžbina, nove porudžbine i dopune zaliha",
   "shellMuteCommunity": "Zajednica",
-  "shellMuteCommunityDescription": "Vesti iz teretane i komentari na tvoje objave",
+  "shellMuteCommunityDescription": "Vesti iz teretane, komentari, odgovori i reakcije na tvoje objave",
   "shellMuteCoaching": "Trening sa trenerom",
   "shellMuteCoachingDescription": "Dodeljene rutine i planovi, komentari na treninge",
   "shellMuteStaff": "Osoblje",
@@ -257,5 +257,20 @@
   "shellTimeDaysShort": "{count} d",
   "shellTimeMinutesAgo": "{count, plural, one{pre {count} minut} few{pre {count} minuta} other{pre {count} minuta}}",
   "shellTimeHoursAgo": "{count, plural, one{pre {count} sat} few{pre {count} sata} other{pre {count} sati}}",
-  "shellTimeDaysAgo": "{count, plural, one{pre {count} dan} few{pre {count} dana} other{pre {count} dana}}"
+  "shellTimeDaysAgo": "{count, plural, one{pre {count} dan} few{pre {count} dana} other{pre {count} dana}}",
+  "shellTabFeed": "Objave",
+  "shellTabDiscover": "Otkrij",
+  "shellChats": "Poruke",
+  "shellChatsUnread": "{count, plural, =1{Poruke, 1 nepročitan razgovor} few{Poruke, {count} nepročitana razgovora} other{Poruke, {count} nepročitanih razgovora}}",
+  "@shellChatsUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shellMuteSocial": "Pratioci i prijatelji",
+  "shellMuteSocialDescription": "Novi pratioci, zahtevi za praćenje i prijateljstvo",
+  "shellMuteMessages": "Poruke",
+  "shellMuteMessagesDescription": "Nove poruke i dodavanje u grupe"
 }

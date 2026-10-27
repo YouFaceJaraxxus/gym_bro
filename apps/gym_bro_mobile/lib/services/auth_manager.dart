@@ -7,6 +7,7 @@ import 'auth_service.dart';
 import 'auth_storage.dart';
 import 'offline/offline_support.dart';
 import 'push_service.dart';
+import 'realtime_service.dart';
 import 'settings_service.dart';
 
 /// Manages the current auth session and user profile across all sign-in providers.
@@ -220,6 +221,7 @@ class AuthManager {
     _expiresAt = null;
     _profile = null;
     _admin = null;
+    await RealtimeService.instance.disconnect();
     await _storage.clear();
     await SettingsService.instance.reset();
     // Cached responses and queued writes belong to the user who signed out.
@@ -232,6 +234,8 @@ class AuthManager {
   /// Runs in the background; neither blocks navigation.
   void _onSignedIn() {
     unawaited(SettingsService.instance.syncFromServer());
+    // Reconnects as whoever is signed in now (also after impersonation switches).
+    unawaited(RealtimeService.instance.disconnect().then((_) => RealtimeService.instance.connect()));
     unawaited(PushService.instance.registerCurrentUser().catchError((Object e) {
       debugPrint('Push registration failed: $e');
     }));

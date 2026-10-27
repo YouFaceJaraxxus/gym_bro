@@ -1626,6 +1626,567 @@ class AppLocalizationsEn extends AppLocalizations {
   String get businessShopYourCart => 'Your cart';
 
   @override
+  String get chatAccept => 'Accept';
+
+  @override
+  String chatAddCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Add $count people',
+      one: 'Add 1 person',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatAddPeople => 'Add people';
+
+  @override
+  String get chatAddPeopleTitle => 'Add people';
+
+  @override
+  String get chatAlreadyMember => 'Already in the group';
+
+  @override
+  String get chatArchive => 'Archive';
+
+  @override
+  String get chatArchived => 'Archived';
+
+  @override
+  String get chatArchivedSnack => 'Chat archived';
+
+  @override
+  String get chatArchivedTitle => 'Archived chats';
+
+  @override
+  String get chatAttach => 'Attach';
+
+  @override
+  String get chatBlock => 'Block';
+
+  @override
+  String get chatBlockConfirmBody =>
+      'They won\'t be able to message you or find your profile. They won\'t be told you blocked them.';
+
+  @override
+  String chatBlockConfirmTitle(String name) {
+    return 'Block $name?';
+  }
+
+  @override
+  String chatBlockedSnack(String name) {
+    return '$name is blocked';
+  }
+
+  @override
+  String get chatCancel => 'Cancel';
+
+  @override
+  String get chatClearChat => 'Clear chat';
+
+  @override
+  String get chatClearChatConfirm =>
+      'Clear this chat\'s history for you? Others in the chat still see it.';
+
+  @override
+  String get chatCleared => 'Chat cleared';
+
+  @override
+  String get chatCopied => 'Copied';
+
+  @override
+  String get chatCopy => 'Copy';
+
+  @override
+  String get chatCreateGroup => 'Create group';
+
+  @override
+  String get chatDeleteChat => 'Delete chat';
+
+  @override
+  String get chatDeleteChatConfirm =>
+      'Delete this chat? It\'s removed for you only — the other person still sees it.';
+
+  @override
+  String get chatDeleteGroup => 'Delete group';
+
+  @override
+  String chatDeleteGroupConfirm(String title) {
+    return 'Delete \"$title\" for everyone? This can\'t be undone.';
+  }
+
+  @override
+  String get chatEditGroup => 'Edit group';
+
+  @override
+  String get chatEdited => 'Edited';
+
+  @override
+  String get chatEditingMessage => 'Editing message';
+
+  @override
+  String get chatEmptyArchived => 'No archived chats';
+
+  @override
+  String get chatEmptyInbox => 'No chats yet';
+
+  @override
+  String get chatEmptyInboxHint =>
+      'Start a conversation with your gym buddies.';
+
+  @override
+  String get chatEmptyRequests => 'No message requests';
+
+  @override
+  String get chatEmptyRequestsHint =>
+      'Messages from people who can\'t message you directly show up here.';
+
+  @override
+  String get chatFailed => 'Not sent · Tap to retry';
+
+  @override
+  String get chatFollowingSection => 'Following';
+
+  @override
+  String get chatGroupDescription => 'Description';
+
+  @override
+  String get chatGroupFallback => 'Group chat';
+
+  @override
+  String get chatGroupInfo => 'Group info';
+
+  @override
+  String get chatGroupName => 'Group name';
+
+  @override
+  String get chatGroupNameHint => 'Name your group (optional)';
+
+  @override
+  String get chatGroupRequestBanner => 'You\'ve been added to this group';
+
+  @override
+  String get chatGroupRequestHint => 'Accept to join the conversation.';
+
+  @override
+  String get chatInboxTitle => 'Chats';
+
+  @override
+  String get chatInvited => 'Invited';
+
+  @override
+  String get chatJumpToLatest => 'Jump to latest';
+
+  @override
+  String get chatLeaveGroup => 'Leave group';
+
+  @override
+  String chatLeaveGroupConfirm(String title) {
+    return 'Leave \"$title\"? You won\'t get new messages from this group.';
+  }
+
+  @override
+  String get chatMakeAdmin => 'Make admin';
+
+  @override
+  String get chatMakeOwner => 'Make group owner';
+
+  @override
+  String chatMakeOwnerConfirm(String name) {
+    return 'Make $name the group owner? You\'ll stay on as an admin.';
+  }
+
+  @override
+  String get chatMarkRead => 'Mark as read';
+
+  @override
+  String get chatMediaAudio => '🎤 Audio';
+
+  @override
+  String get chatMediaFile => '📎 File';
+
+  @override
+  String get chatMediaPhoto => '📷 Photo';
+
+  @override
+  String get chatMediaVideo => '🎥 Video';
+
+  @override
+  String chatMembersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count members',
+      one: '1 member',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatMembersTitle => 'Members';
+
+  @override
+  String get chatMessageHint => 'Message…';
+
+  @override
+  String get chatMessageMember => 'Message';
+
+  @override
+  String get chatMessageUnsent => 'Message unsent';
+
+  @override
+  String get chatMoreOptions => 'More options';
+
+  @override
+  String get chatMute => 'Mute';
+
+  @override
+  String get chatMutedSnack => 'Notifications muted';
+
+  @override
+  String get chatNewMessage => 'New message';
+
+  @override
+  String get chatNoAudio => 'No audio yet';
+
+  @override
+  String get chatNoFiles => 'No files yet';
+
+  @override
+  String get chatNoMedia => 'No photos or videos yet';
+
+  @override
+  String get chatNoPeopleFound => 'No people found';
+
+  @override
+  String chatNoResults(String query) {
+    return 'No chats match \"$query\"';
+  }
+
+  @override
+  String get chatOpenFile => 'Open file';
+
+  @override
+  String get chatOriginalNotFound => 'Couldn\'t find the original message';
+
+  @override
+  String get chatPause => 'Pause';
+
+  @override
+  String chatPeopleAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people added',
+      one: '1 person added',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatPhotoMessage => 'Photo';
+
+  @override
+  String get chatPlay => 'Play';
+
+  @override
+  String chatPreviewSender(String name, String text) {
+    return '$name: $text';
+  }
+
+  @override
+  String chatPreviewYou(String text) {
+    return 'You: $text';
+  }
+
+  @override
+  String get chatReactions => 'Reactions';
+
+  @override
+  String get chatRemoveAdmin => 'Remove as admin';
+
+  @override
+  String get chatRemoveAttachment => 'Remove';
+
+  @override
+  String get chatRemoveMember => 'Remove from group';
+
+  @override
+  String chatRemoveMemberConfirm(String name) {
+    return 'Remove $name from the group?';
+  }
+
+  @override
+  String get chatRemoveMessage => 'Remove for everyone';
+
+  @override
+  String get chatReply => 'Reply';
+
+  @override
+  String chatReplyingTo(String name) {
+    return 'Replying to $name';
+  }
+
+  @override
+  String get chatReplyingToYourself => 'Replying to yourself';
+
+  @override
+  String get chatReport => 'Report';
+
+  @override
+  String get chatReportHarassment => 'Harassment or bullying';
+
+  @override
+  String get chatReportImpersonation => 'Pretending to be someone else';
+
+  @override
+  String get chatReportInappropriate => 'Inappropriate content';
+
+  @override
+  String get chatReportOther => 'Something else';
+
+  @override
+  String get chatReportSent => 'Thanks — we\'ll review it.';
+
+  @override
+  String get chatReportSpam => 'Spam';
+
+  @override
+  String get chatReportTitle => 'Why are you reporting this?';
+
+  @override
+  String chatRequestBanner(String name) {
+    return '$name wants to message you';
+  }
+
+  @override
+  String get chatRequestBannerHint =>
+      'They won\'t know you\'ve seen this until you accept.';
+
+  @override
+  String get chatRoleAdmin => 'Admin';
+
+  @override
+  String get chatRoleOwner => 'Owner';
+
+  @override
+  String get chatSaveEdit => 'Save';
+
+  @override
+  String chatSayHi(String name) {
+    return 'Say hi to $name 👋';
+  }
+
+  @override
+  String get chatSayHiGroup => 'Say hi to the group 👋';
+
+  @override
+  String get chatSearchHint => 'Search';
+
+  @override
+  String get chatSearchPeople => 'Search people';
+
+  @override
+  String get chatSeen => 'Seen';
+
+  @override
+  String get chatSelected => 'Selected';
+
+  @override
+  String get chatSend => 'Send';
+
+  @override
+  String get chatSending => 'Sending…';
+
+  @override
+  String get chatSent => 'Sent';
+
+  @override
+  String get chatSharedMedia => 'Media, files and audio';
+
+  @override
+  String get chatSomeone => 'Someone';
+
+  @override
+  String get chatStartChat => 'Chat';
+
+  @override
+  String get chatSuggestedSection => 'Suggested';
+
+  @override
+  String chatSysAdded(String who, String name, String targets) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'You added $targets',
+      'other': '$name added $targets',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysCreated(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'You created the group',
+      'other': '$name created the group',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysLeft(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'You left the group',
+      'other': '$name left the group',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysMadeAdmin(String who, String name, String target) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'You made $target an admin',
+      'other': '$name made $target an admin',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysMadeOwner(String who, String name, String target) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'You made $target the group owner',
+      'other': '$name made $target the group owner',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysNameCleared(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'You removed the group name',
+      'other': '$name removed the group name',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysPhoto(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'You changed the group photo',
+      'other': '$name changed the group photo',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysRemoved(String who, String name, String target) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'You removed $target',
+      'other': '$name removed $target',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysRemovedAdmin(String who, String name, String target) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'You removed $target as admin',
+      'other': '$name removed $target as admin',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysRenamed(String who, String name, String title) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'You named the group \"$title\"',
+      'other': '$name named the group \"$title\"',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String chatSysUpdated(String who, String name) {
+    String _temp0 = intl.Intl.selectLogic(who, {
+      'me': 'You updated the group',
+      'other': '$name updated the group',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get chatTabAudio => 'Audio';
+
+  @override
+  String get chatTabChats => 'Chats';
+
+  @override
+  String get chatTabFiles => 'Files';
+
+  @override
+  String get chatTabMedia => 'Media';
+
+  @override
+  String get chatTabRequests => 'Requests';
+
+  @override
+  String get chatTapToRemove => 'Tap to remove';
+
+  @override
+  String get chatTo => 'To:';
+
+  @override
+  String get chatUnarchive => 'Unarchive';
+
+  @override
+  String get chatUnarchivedSnack => 'Chat moved to your inbox';
+
+  @override
+  String get chatUndo => 'Undo';
+
+  @override
+  String get chatUnmute => 'Unmute';
+
+  @override
+  String get chatUnmutedSnack => 'Notifications unmuted';
+
+  @override
+  String chatUnreadCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unread messages',
+      one: '1 unread message',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatUnsend => 'Unsend';
+
+  @override
+  String get chatUnsendConfirmBody =>
+      'It will be removed for everyone in this chat.';
+
+  @override
+  String get chatUnsendConfirmTitle => 'Unsend message?';
+
+  @override
+  String get chatVideoMessage => 'Video';
+
+  @override
+  String get chatViewProfile => 'View profile';
+
+  @override
+  String get chatYesterday => 'Yesterday';
+
+  @override
+  String get chatYou => 'You';
+
+  @override
+  String get chatYouObject => 'you';
+
+  @override
   String get commonBack => 'Back';
 
   @override
@@ -1672,6 +2233,249 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonYes => 'Yes';
+
+  @override
+  String get feedAddMedia => 'Add photos or videos';
+
+  @override
+  String get feedAddMore => 'Add';
+
+  @override
+  String get feedAllComments => 'Back to all comments';
+
+  @override
+  String get feedCancelReply => 'Cancel reply';
+
+  @override
+  String get feedCaptionHint => 'Write a caption…';
+
+  @override
+  String get feedCollapseThread => 'Collapse thread';
+
+  @override
+  String get feedCommentsHeader => 'Comments';
+
+  @override
+  String get feedComposerHint => 'Share a photo or update…';
+
+  @override
+  String get feedContinueThread => 'Continue this thread →';
+
+  @override
+  String get feedCopied => 'Copied to clipboard';
+
+  @override
+  String get feedCopyText => 'Copy text';
+
+  @override
+  String get feedDeletedComment => '[deleted]';
+
+  @override
+  String get feedDiscard => 'Discard';
+
+  @override
+  String get feedDiscardTitle => 'Discard this post?';
+
+  @override
+  String get feedDoubleTapToLove => 'Double-tap to love';
+
+  @override
+  String get feedEmptyExploreBody => 'Popular public posts will show up here.';
+
+  @override
+  String get feedEmptyExploreTitle => 'Nothing to explore yet';
+
+  @override
+  String get feedEmptyHomeBody =>
+      'Follow people or join a gym to see their posts here.';
+
+  @override
+  String get feedEmptyHomeTitle => 'Your feed is empty';
+
+  @override
+  String get feedEndOfFeed => 'You\'re all caught up';
+
+  @override
+  String get feedExpandThread => 'Expand thread';
+
+  @override
+  String get feedExploreAction => 'Explore popular posts';
+
+  @override
+  String get feedHiddenComment => '[hidden]';
+
+  @override
+  String get feedLoadMoreComments => 'Load more comments';
+
+  @override
+  String feedMediaIndex(int index, int count) {
+    return '$index/$count';
+  }
+
+  @override
+  String feedMediaLimit(int count) {
+    return 'Up to $count photos or videos per post';
+  }
+
+  @override
+  String get feedMore => 'more';
+
+  @override
+  String get feedMoveLeft => 'Move left';
+
+  @override
+  String get feedMoveRight => 'Move right';
+
+  @override
+  String get feedMultipleMedia => 'Multiple photos or videos';
+
+  @override
+  String get feedNewPost => 'New post';
+
+  @override
+  String get feedNoReactions => 'No reactions yet';
+
+  @override
+  String get feedOp => 'OP';
+
+  @override
+  String feedOpenProfile(String name) {
+    return 'Open $name\'s profile';
+  }
+
+  @override
+  String get feedOriginalPoster => 'Original poster';
+
+  @override
+  String get feedPostEmpty => 'Add a photo, video or caption first';
+
+  @override
+  String get feedPostNotFound => 'This post isn\'t available anymore.';
+
+  @override
+  String get feedPostOptions => 'Post options';
+
+  @override
+  String get feedPostTitle => 'Post';
+
+  @override
+  String get feedPostUpdated => 'Post updated';
+
+  @override
+  String get feedPosted => 'Posted';
+
+  @override
+  String feedPostedBy(String name) {
+    return 'by $name';
+  }
+
+  @override
+  String get feedPrivateAccountNote =>
+      'Your account is private, so only your followers will see this post.';
+
+  @override
+  String get feedPublishing => 'Publishing…';
+
+  @override
+  String feedReactionsAll(int count) {
+    return 'All $count';
+  }
+
+  @override
+  String get feedReactionsTitle => 'Reactions';
+
+  @override
+  String get feedRemoveMedia => 'Remove';
+
+  @override
+  String get feedReorderHint => 'Hold and drag to reorder';
+
+  @override
+  String get feedReply => 'Reply';
+
+  @override
+  String feedReplyCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count replies',
+      one: '1 reply',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String feedReplyingTo(String name) {
+    return 'Replying to $name';
+  }
+
+  @override
+  String get feedSending => 'Sending…';
+
+  @override
+  String get feedShowLess => 'Show less';
+
+  @override
+  String feedShowMoreReplies(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Show $count more replies',
+      one: 'Show 1 more reply',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get feedShowParent => 'Show parent comment';
+
+  @override
+  String get feedSortLabel => 'Sort comments';
+
+  @override
+  String get feedSortNew => 'New';
+
+  @override
+  String get feedSortOld => 'Old';
+
+  @override
+  String get feedSortTop => 'Top';
+
+  @override
+  String get feedTabExplore => 'Explore';
+
+  @override
+  String get feedTabHome => 'Home';
+
+  @override
+  String get feedThreadTitle => 'Thread';
+
+  @override
+  String feedUploadingProgress(int index, int count) {
+    return 'Uploading $index of $count…';
+  }
+
+  @override
+  String get feedVideo => 'Video';
+
+  @override
+  String get feedVisibilityFollowers => 'Followers';
+
+  @override
+  String get feedVisibilityFollowersHint =>
+      'Only your followers can see this post';
+
+  @override
+  String get feedVisibilityLabel => 'Who can see this';
+
+  @override
+  String get feedVisibilityPublic => 'Public';
+
+  @override
+  String get feedVisibilityPublicHint => 'Anyone can see this post';
+
+  @override
+  String get feedWriteReplyHint => 'Write a reply…';
 
   @override
   String get nutritionAdd => 'Add';
@@ -3029,6 +3833,654 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nutritionYours => 'Yours';
 
   @override
+  String get peopleAccept => 'Accept';
+
+  @override
+  String get peopleAddFriend => 'Add friend';
+
+  @override
+  String get peopleBio => 'Bio';
+
+  @override
+  String get peopleBioHint => 'Tell people about your training';
+
+  @override
+  String get peopleBioLess => 'less';
+
+  @override
+  String get peopleBioMore => 'more';
+
+  @override
+  String get peopleBlock => 'Block';
+
+  @override
+  String get peopleBlockBody =>
+      'They won\'t be able to find your profile, see your posts or message you, and you won\'t see theirs. Follows and friendship between you are removed. They won\'t be notified.';
+
+  @override
+  String peopleBlockTitle(String username) {
+    return 'Block @$username?';
+  }
+
+  @override
+  String peopleBlockedSnack(String username) {
+    return '@$username blocked';
+  }
+
+  @override
+  String get peopleBlockedStateBody =>
+      'Unblock to see their profile and interact again.';
+
+  @override
+  String get peopleBlockedStateTitle => 'You blocked this account';
+
+  @override
+  String get peopleBlockedUsers => 'Blocked users';
+
+  @override
+  String get peopleBlockedUsersEmpty => 'You haven\'t blocked anyone.';
+
+  @override
+  String get peopleBlockedUsersSubtitle => 'People you\'ve blocked';
+
+  @override
+  String peopleCancelFollowRequestTitle(String username) {
+    return 'Cancel your follow request to @$username?';
+  }
+
+  @override
+  String peopleCancelFriendRequestTitle(String name) {
+    return 'Cancel your friend request to $name?';
+  }
+
+  @override
+  String get peopleCancelRequest => 'Cancel request';
+
+  @override
+  String get peopleCopyUsername => 'Copy username';
+
+  @override
+  String get peopleDecline => 'Decline';
+
+  @override
+  String get peopleDiscard => 'Discard';
+
+  @override
+  String get peopleDiscardTitle => 'Discard changes?';
+
+  @override
+  String get peopleDiscoverable => 'Appear in suggestions & nearby';
+
+  @override
+  String get peopleDiscoverableHint =>
+      'People can still find you by searching your name.';
+
+  @override
+  String get peopleDismiss => 'Dismiss';
+
+  @override
+  String peopleDistanceKm(int km) {
+    return '~$km km';
+  }
+
+  @override
+  String get peopleDistanceUnder1 => '< 1 km';
+
+  @override
+  String get peopleEditProfile => 'Edit profile';
+
+  @override
+  String get peopleEditTitle => 'Edit profile';
+
+  @override
+  String get peopleFollow => 'Follow';
+
+  @override
+  String get peopleFollowBack => 'Follow back';
+
+  @override
+  String peopleFollowRequestsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count follow requests',
+      one: '1 follow request',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get peopleFollowRequestsTab => 'Follow requests';
+
+  @override
+  String get peopleFollowers => 'Followers';
+
+  @override
+  String get peopleFollowing => 'Following';
+
+  @override
+  String peopleFriendRequestFrom(String name) {
+    return '$name sent you a friend request';
+  }
+
+  @override
+  String get peopleFriendRequestSent => 'Request sent';
+
+  @override
+  String peopleFriendRequestsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count friend requests',
+      one: '1 friend request',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get peopleFriendRequestsTab => 'Friend requests';
+
+  @override
+  String get peopleFriends => 'Friends';
+
+  @override
+  String get peopleGoPublicBody =>
+      'Anyone will be able to see your posts and follower lists, and all pending follow requests will be accepted.';
+
+  @override
+  String get peopleGoPublicConfirm => 'Switch to public';
+
+  @override
+  String get peopleGoPublicTitle => 'Switch to a public account?';
+
+  @override
+  String get peopleInterestBodybuilding => 'Bodybuilding';
+
+  @override
+  String get peopleInterestBoxing => 'Boxing';
+
+  @override
+  String get peopleInterestCalisthenics => 'Calisthenics';
+
+  @override
+  String get peopleInterestClimbing => 'Climbing';
+
+  @override
+  String get peopleInterestCrossfit => 'CrossFit';
+
+  @override
+  String get peopleInterestCycling => 'Cycling';
+
+  @override
+  String get peopleInterestHiit => 'HIIT';
+
+  @override
+  String get peopleInterestHiking => 'Hiking';
+
+  @override
+  String get peopleInterestMealPrep => 'Meal prep';
+
+  @override
+  String get peopleInterestMobility => 'Mobility';
+
+  @override
+  String get peopleInterestNutrition => 'Nutrition';
+
+  @override
+  String get peopleInterestOlympicLifting => 'Olympic lifting';
+
+  @override
+  String get peopleInterestPilates => 'Pilates';
+
+  @override
+  String get peopleInterestPowerlifting => 'Powerlifting';
+
+  @override
+  String peopleInterestRemove(String interest) {
+    return 'Remove $interest';
+  }
+
+  @override
+  String get peopleInterestRunning => 'Running';
+
+  @override
+  String get peopleInterestStrongman => 'Strongman';
+
+  @override
+  String get peopleInterestSwimming => 'Swimming';
+
+  @override
+  String get peopleInterestYoga => 'Yoga';
+
+  @override
+  String get peopleInterests => 'Interests';
+
+  @override
+  String get peopleInterestsHint => 'Add an interest';
+
+  @override
+  String peopleInterestsMax(int max) {
+    return 'Up to $max interests';
+  }
+
+  @override
+  String get peopleKeep => 'Keep';
+
+  @override
+  String get peopleListEmptyFollowers => 'No followers yet';
+
+  @override
+  String get peopleListEmptyFollowing => 'Not following anyone yet';
+
+  @override
+  String get peopleListEmptyFriends => 'No friends yet';
+
+  @override
+  String get peopleListEmptyMutual => 'No mutual friends';
+
+  @override
+  String get peopleLocationDenied =>
+      'Location permission is off. You can turn it on in your phone\'s settings.';
+
+  @override
+  String get peopleLocationFailed => 'Couldn\'t get your location. Try again.';
+
+  @override
+  String get peopleLocationOff => 'Not sharing your location';
+
+  @override
+  String get peopleLocationOn =>
+      'Sharing your approximate location (about 1 km)';
+
+  @override
+  String peopleLocationOnUpdated(String when) {
+    return 'Sharing your approximate location · updated $when';
+  }
+
+  @override
+  String get peopleLocationSection => 'Location sharing';
+
+  @override
+  String get peopleLocationServiceOff =>
+      'Turn on location services to find people nearby.';
+
+  @override
+  String get peopleLocationStop => 'Stop sharing';
+
+  @override
+  String get peopleLocationStopped => 'Location sharing stopped';
+
+  @override
+  String get peopleLocationUpdate => 'Update now';
+
+  @override
+  String get peopleLocationUpdated => 'Location updated';
+
+  @override
+  String get peopleLocked => 'Private';
+
+  @override
+  String get peopleMessage => 'Message';
+
+  @override
+  String get peopleMessageRequestHint =>
+      'Your message will arrive as a request';
+
+  @override
+  String get peopleMoreOptions => 'More options';
+
+  @override
+  String get peopleMoreSuggestions => 'More suggestions';
+
+  @override
+  String get peopleMutual => 'Mutual';
+
+  @override
+  String peopleMutualFriendsMore(int count, String a, String b) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Friends with $a, $b and $count others',
+      one: 'Friends with $a, $b and 1 other',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String peopleMutualFriendsOne(String a) {
+    return 'Friends with $a';
+  }
+
+  @override
+  String peopleMutualFriendsTwo(String a, String b) {
+    return 'Friends with $a and $b';
+  }
+
+  @override
+  String peopleNearbyEmpty(int km) {
+    return 'No one within $km km yet.';
+  }
+
+  @override
+  String get peopleNearbyPrivacyBody =>
+      'We store your location rounded to about 1 km and only use it to show distances. Your exact location is never shared with anyone.';
+
+  @override
+  String get peopleNearbyPrivacyTitle => 'See people training near you';
+
+  @override
+  String get peopleNearbyTitle => 'Nearby';
+
+  @override
+  String get peopleNoFollowRequests => 'No follow requests';
+
+  @override
+  String get peopleNoFollowRequestsHint =>
+      'When your account is private, people who want to follow you show up here.';
+
+  @override
+  String get peopleNoFriendRequests => 'No friend requests';
+
+  @override
+  String peopleNoMatches(String query) {
+    return 'No one matches “$query”';
+  }
+
+  @override
+  String get peopleNoPosts => 'No posts yet';
+
+  @override
+  String get peopleNoSentRequests => 'No pending requests you\'ve sent';
+
+  @override
+  String get peopleNoSuggestions =>
+      'No suggestions right now. Check in at your gym or add interests to your profile to get better ones.';
+
+  @override
+  String get peoplePosts => 'Posts';
+
+  @override
+  String get peoplePrivacy => 'Privacy';
+
+  @override
+  String get peoplePrivacySubtitle =>
+      'Private account, messages, activity status';
+
+  @override
+  String get peoplePrivateAccount => 'Private account';
+
+  @override
+  String get peoplePrivateAccountHint =>
+      'Only people you approve see your photos, videos and follower lists. Anyone can still find you and see your comments and reactions.';
+
+  @override
+  String get peoplePrivateBody => 'Follow to see their photos and videos.';
+
+  @override
+  String get peoplePrivateRequestedBody =>
+      'Your follow request is pending. You\'ll see their photos and videos once they accept.';
+
+  @override
+  String get peoplePrivateTitle => 'This account is private';
+
+  @override
+  String get peopleProfileUnavailable => 'This profile isn\'t available.';
+
+  @override
+  String peopleRadiusKm(int km) {
+    return '$km km';
+  }
+
+  @override
+  String get peopleReasonFollowsYou => 'Follows you';
+
+  @override
+  String peopleReasonInterests(String interests) {
+    return 'Also into $interests';
+  }
+
+  @override
+  String peopleReasonMutual(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count mutual friends',
+      one: '1 mutual friend',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String peopleReasonNearby(int km) {
+    return '~$km km away';
+  }
+
+  @override
+  String get peopleReasonNearbyUnder1 => 'Less than 1 km away';
+
+  @override
+  String peopleReasonSameClass(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Took $count of the same classes',
+      one: 'Took the same class',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String peopleReasonSameGym(String gym) {
+    return 'Goes to $gym';
+  }
+
+  @override
+  String get peopleReasonSameTime => 'Trains at the same times';
+
+  @override
+  String get peopleRemove => 'Remove';
+
+  @override
+  String get peopleRemoveFollower => 'Remove follower';
+
+  @override
+  String get peopleRemoveFollowerBody =>
+      'They won\'t be notified that you removed them.';
+
+  @override
+  String peopleRemoveFollowerTitle(String username) {
+    return 'Remove @$username from your followers?';
+  }
+
+  @override
+  String get peopleRemoveFriend => 'Remove friend';
+
+  @override
+  String get peopleRemoveFriendBody =>
+      'You\'ll stay followers of each other unless you also unfollow.';
+
+  @override
+  String peopleRemoveFriendTitle(String name) {
+    return 'Remove $name from your friends?';
+  }
+
+  @override
+  String get peopleReport => 'Report';
+
+  @override
+  String get peopleReportDetails => 'Details (optional)';
+
+  @override
+  String get peopleReportReasonHarassment => 'Harassment or bullying';
+
+  @override
+  String get peopleReportReasonImpersonation => 'Pretending to be someone else';
+
+  @override
+  String get peopleReportReasonInappropriate => 'Inappropriate content';
+
+  @override
+  String get peopleReportReasonOther => 'Something else';
+
+  @override
+  String get peopleReportReasonSpam => 'Spam';
+
+  @override
+  String get peopleReportSend => 'Send report';
+
+  @override
+  String get peopleReportSent => 'Thanks. Our team will review your report.';
+
+  @override
+  String peopleReportTitle(String username) {
+    return 'Report @$username';
+  }
+
+  @override
+  String get peopleReportWhy => 'Why are you reporting this account?';
+
+  @override
+  String get peopleRequested => 'Requested';
+
+  @override
+  String get peopleRequestsSubtitle => 'Follow and friend requests';
+
+  @override
+  String get peopleRequestsTitle => 'Requests';
+
+  @override
+  String get peopleRespond => 'Respond';
+
+  @override
+  String get peopleSaved => 'Profile saved';
+
+  @override
+  String get peopleSearchHint => 'Search by name or username';
+
+  @override
+  String get peopleSearchInList => 'Search';
+
+  @override
+  String get peopleSentTab => 'Sent';
+
+  @override
+  String get peopleSettingSaved => 'Saved';
+
+  @override
+  String get peopleShare => 'Share';
+
+  @override
+  String get peopleShareLocation => 'Share my location';
+
+  @override
+  String get peopleShowActivity => 'Show activity status';
+
+  @override
+  String get peopleShowActivityHint =>
+      'People you\'re connected with can see when you were last active.';
+
+  @override
+  String get peopleSuggestionsTitle => 'People you may know';
+
+  @override
+  String peopleTrainsAt(String gyms) {
+    return 'Trains at $gyms';
+  }
+
+  @override
+  String get peopleUnblock => 'Unblock';
+
+  @override
+  String peopleUnblockedSnack(String username) {
+    return '@$username unblocked';
+  }
+
+  @override
+  String get peopleUnfollow => 'Unfollow';
+
+  @override
+  String get peopleUnfollowPrivateBody =>
+      'This account is private. You\'ll have to request again to see their photos and videos.';
+
+  @override
+  String peopleUnfollowTitle(String username) {
+    return 'Unfollow @$username?';
+  }
+
+  @override
+  String get peopleUsernameCopied => 'Username copied';
+
+  @override
+  String get peopleUsernameInvalid =>
+      '3–30 letters, numbers, dots or underscores';
+
+  @override
+  String get peopleUsernameTaken => 'That username is taken';
+
+  @override
+  String get peopleViewProfile => 'View profile';
+
+  @override
+  String get peopleWhoCanMessage => 'Who can message me';
+
+  @override
+  String get peopleWhoCanMessageHint =>
+      'Messages from anyone else land in your message requests.';
+
+  @override
+  String get peopleWhoEveryone => 'Everyone';
+
+  @override
+  String get peopleWhoFollowing => 'People I follow';
+
+  @override
+  String get peopleWhoFriends => 'Friends';
+
+  @override
+  String get reactionAngry => 'Angry';
+
+  @override
+  String get reactionCelebrate => 'Celebrate';
+
+  @override
+  String get reactionClap => 'Clap';
+
+  @override
+  String reactionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reactions',
+      one: '1 reaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reactionFire => 'Fire';
+
+  @override
+  String get reactionHaha => 'Haha';
+
+  @override
+  String get reactionLike => 'Like';
+
+  @override
+  String get reactionLove => 'Love';
+
+  @override
+  String get reactionPickerHint => 'Hold to pick a reaction';
+
+  @override
+  String get reactionSad => 'Sad';
+
+  @override
+  String get reactionStrong => 'Strong';
+
+  @override
+  String get reactionWow => 'Wow';
+
+  @override
   String get settingsLanguage => 'Language';
 
   @override
@@ -3112,6 +4564,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellChangePassword => 'Change password';
+
+  @override
+  String get shellChats => 'Messages';
+
+  @override
+  String shellChatsUnread(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Messages, $count unread chats',
+      one: 'Messages, 1 unread chat',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get shellCheckEmailBody =>
@@ -3480,11 +4946,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellMuteCommunityDescription =>
-      'Gym news and comments on your posts';
+      'Gym news, comments, replies and reactions to your posts';
 
   @override
   String get shellMuteFootnote =>
       'Invites always come through. Muted notifications still appear in the app.';
+
+  @override
+  String get shellMuteMessages => 'Messages';
+
+  @override
+  String get shellMuteMessagesDescription =>
+      'New chat messages and being added to groups';
 
   @override
   String get shellMuteShop => 'Shop';
@@ -3492,6 +4965,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get shellMuteShopDescription =>
       'Order updates, new orders and restocks';
+
+  @override
+  String get shellMuteSocial => 'Followers & friends';
+
+  @override
+  String get shellMuteSocialDescription =>
+      'New followers, follow and friend requests';
 
   @override
   String get shellMuteStaff => 'Staff';
@@ -3827,6 +5307,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellTabClasses => 'Classes';
 
   @override
+  String get shellTabDiscover => 'Discover';
+
+  @override
+  String get shellTabFeed => 'Feed';
+
+  @override
   String get shellTabGym => 'Gym';
 
   @override
@@ -3965,6 +5451,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellYourShops => 'Your shops';
+
+  @override
+  String socialActiveAgo(String when) {
+    return 'Active $when';
+  }
+
+  @override
+  String get socialActiveNow => 'Active now';
+
+  @override
+  String get socialCamera => 'Camera';
+
+  @override
+  String get socialFile => 'File';
+
+  @override
+  String get socialFileTooLarge => 'Files are limited to 50 MB.';
+
+  @override
+  String get socialGallery => 'Photos & videos';
+
+  @override
+  String get socialRecordVideo => 'Record video';
+
+  @override
+  String get socialRetry => 'Retry';
+
+  @override
+  String get socialTakePhoto => 'Take photo';
+
+  @override
+  String socialTyping(String name) {
+    return '$name is typing…';
+  }
+
+  @override
+  String get socialTypingSeveral => 'Several people are typing…';
+
+  @override
+  String get socialUploadFailed => 'Upload failed. Try again.';
 
   @override
   String get trainingAssignAction => 'Assign';

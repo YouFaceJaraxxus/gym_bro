@@ -4,6 +4,10 @@
     <!-- Profile photos and check-in / barcode scanning (mobile_scanner). -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <!-- Videos recorded for posts and chats. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- Opt-in "people nearby": approximate location only. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <!-- Push + local notifications (Android 13+ asks at runtime). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- flutter_local_notifications: re-schedule pending notifications after reboot. -->

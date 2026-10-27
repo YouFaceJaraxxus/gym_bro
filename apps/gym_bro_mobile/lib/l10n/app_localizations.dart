@@ -2689,6 +2689,870 @@ abstract class AppLocalizations {
   /// **'Your cart'**
   String get businessShopYourCart;
 
+  /// No description provided for @chatAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get chatAccept;
+
+  /// No description provided for @chatAddCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Add 1 person} other{Add {count} people}}'**
+  String chatAddCount(int count);
+
+  /// No description provided for @chatAddPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Add people'**
+  String get chatAddPeople;
+
+  /// No description provided for @chatAddPeopleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add people'**
+  String get chatAddPeopleTitle;
+
+  /// No description provided for @chatAlreadyMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in the group'**
+  String get chatAlreadyMember;
+
+  /// No description provided for @chatArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get chatArchive;
+
+  /// No description provided for @chatArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get chatArchived;
+
+  /// No description provided for @chatArchivedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat archived'**
+  String get chatArchivedSnack;
+
+  /// No description provided for @chatArchivedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived chats'**
+  String get chatArchivedTitle;
+
+  /// No description provided for @chatAttach.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach'**
+  String get chatAttach;
+
+  /// No description provided for @chatBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get chatBlock;
+
+  /// No description provided for @chatBlockConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They won\'t be able to message you or find your profile. They won\'t be told you blocked them.'**
+  String get chatBlockConfirmBody;
+
+  /// No description provided for @chatBlockConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block {name}?'**
+  String chatBlockConfirmTitle(String name);
+
+  /// No description provided for @chatBlockedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is blocked'**
+  String chatBlockedSnack(String name);
+
+  /// No description provided for @chatCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get chatCancel;
+
+  /// No description provided for @chatClearChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear chat'**
+  String get chatClearChat;
+
+  /// No description provided for @chatClearChatConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear this chat\'s history for you? Others in the chat still see it.'**
+  String get chatClearChatConfirm;
+
+  /// No description provided for @chatCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat cleared'**
+  String get chatCleared;
+
+  /// No description provided for @chatCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get chatCopied;
+
+  /// No description provided for @chatCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get chatCopy;
+
+  /// No description provided for @chatCreateGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Create group'**
+  String get chatCreateGroup;
+
+  /// No description provided for @chatDeleteChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete chat'**
+  String get chatDeleteChat;
+
+  /// No description provided for @chatDeleteChatConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this chat? It\'s removed for you only — the other person still sees it.'**
+  String get chatDeleteChatConfirm;
+
+  /// No description provided for @chatDeleteGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete group'**
+  String get chatDeleteGroup;
+
+  /// No description provided for @chatDeleteGroupConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\" for everyone? This can\'t be undone.'**
+  String chatDeleteGroupConfirm(String title);
+
+  /// No description provided for @chatEditGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit group'**
+  String get chatEditGroup;
+
+  /// No description provided for @chatEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited'**
+  String get chatEdited;
+
+  /// No description provided for @chatEditingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Editing message'**
+  String get chatEditingMessage;
+
+  /// No description provided for @chatEmptyArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'No archived chats'**
+  String get chatEmptyArchived;
+
+  /// No description provided for @chatEmptyInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'No chats yet'**
+  String get chatEmptyInbox;
+
+  /// No description provided for @chatEmptyInboxHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a conversation with your gym buddies.'**
+  String get chatEmptyInboxHint;
+
+  /// No description provided for @chatEmptyRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No message requests'**
+  String get chatEmptyRequests;
+
+  /// No description provided for @chatEmptyRequestsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages from people who can\'t message you directly show up here.'**
+  String get chatEmptyRequestsHint;
+
+  /// No description provided for @chatFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent · Tap to retry'**
+  String get chatFailed;
+
+  /// No description provided for @chatFollowingSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get chatFollowingSection;
+
+  /// No description provided for @chatGroupDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get chatGroupDescription;
+
+  /// No description provided for @chatGroupFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Group chat'**
+  String get chatGroupFallback;
+
+  /// No description provided for @chatGroupInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Group info'**
+  String get chatGroupInfo;
+
+  /// No description provided for @chatGroupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name'**
+  String get chatGroupName;
+
+  /// No description provided for @chatGroupNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name your group (optional)'**
+  String get chatGroupNameHint;
+
+  /// No description provided for @chatGroupRequestBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve been added to this group'**
+  String get chatGroupRequestBanner;
+
+  /// No description provided for @chatGroupRequestHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept to join the conversation.'**
+  String get chatGroupRequestHint;
+
+  /// No description provided for @chatInboxTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chats'**
+  String get chatInboxTitle;
+
+  /// No description provided for @chatInvited.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get chatInvited;
+
+  /// No description provided for @chatJumpToLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to latest'**
+  String get chatJumpToLatest;
+
+  /// No description provided for @chatLeaveGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave group'**
+  String get chatLeaveGroup;
+
+  /// No description provided for @chatLeaveGroupConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave \"{title}\"? You won\'t get new messages from this group.'**
+  String chatLeaveGroupConfirm(String title);
+
+  /// No description provided for @chatMakeAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Make admin'**
+  String get chatMakeAdmin;
+
+  /// No description provided for @chatMakeOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Make group owner'**
+  String get chatMakeOwner;
+
+  /// No description provided for @chatMakeOwnerConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Make {name} the group owner? You\'ll stay on as an admin.'**
+  String chatMakeOwnerConfirm(String name);
+
+  /// No description provided for @chatMarkRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as read'**
+  String get chatMarkRead;
+
+  /// No description provided for @chatMediaAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'🎤 Audio'**
+  String get chatMediaAudio;
+
+  /// No description provided for @chatMediaFile.
+  ///
+  /// In en, this message translates to:
+  /// **'📎 File'**
+  String get chatMediaFile;
+
+  /// No description provided for @chatMediaPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'📷 Photo'**
+  String get chatMediaPhoto;
+
+  /// No description provided for @chatMediaVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'🎥 Video'**
+  String get chatMediaVideo;
+
+  /// No description provided for @chatMembersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member} other{{count} members}}'**
+  String chatMembersCount(int count);
+
+  /// No description provided for @chatMembersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get chatMembersTitle;
+
+  /// No description provided for @chatMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message…'**
+  String get chatMessageHint;
+
+  /// No description provided for @chatMessageMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get chatMessageMember;
+
+  /// No description provided for @chatMessageUnsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Message unsent'**
+  String get chatMessageUnsent;
+
+  /// No description provided for @chatMoreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get chatMoreOptions;
+
+  /// No description provided for @chatMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get chatMute;
+
+  /// No description provided for @chatMutedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications muted'**
+  String get chatMutedSnack;
+
+  /// No description provided for @chatNewMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'New message'**
+  String get chatNewMessage;
+
+  /// No description provided for @chatNoAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'No audio yet'**
+  String get chatNoAudio;
+
+  /// No description provided for @chatNoFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'No files yet'**
+  String get chatNoFiles;
+
+  /// No description provided for @chatNoMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos or videos yet'**
+  String get chatNoMedia;
+
+  /// No description provided for @chatNoPeopleFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No people found'**
+  String get chatNoPeopleFound;
+
+  /// No description provided for @chatNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No chats match \"{query}\"'**
+  String chatNoResults(String query);
+
+  /// No description provided for @chatOpenFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open file'**
+  String get chatOpenFile;
+
+  /// No description provided for @chatOriginalNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t find the original message'**
+  String get chatOriginalNotFound;
+
+  /// No description provided for @chatPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get chatPause;
+
+  /// No description provided for @chatPeopleAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 person added} other{{count} people added}}'**
+  String chatPeopleAdded(int count);
+
+  /// No description provided for @chatPhotoMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get chatPhotoMessage;
+
+  /// No description provided for @chatPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get chatPlay;
+
+  /// No description provided for @chatPreviewSender.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {text}'**
+  String chatPreviewSender(String name, String text);
+
+  /// No description provided for @chatPreviewYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You: {text}'**
+  String chatPreviewYou(String text);
+
+  /// No description provided for @chatReactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get chatReactions;
+
+  /// No description provided for @chatRemoveAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove as admin'**
+  String get chatRemoveAdmin;
+
+  /// No description provided for @chatRemoveAttachment.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get chatRemoveAttachment;
+
+  /// No description provided for @chatRemoveMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from group'**
+  String get chatRemoveMember;
+
+  /// No description provided for @chatRemoveMemberConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name} from the group?'**
+  String chatRemoveMemberConfirm(String name);
+
+  /// No description provided for @chatRemoveMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove for everyone'**
+  String get chatRemoveMessage;
+
+  /// No description provided for @chatReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get chatReply;
+
+  /// No description provided for @chatReplyingTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying to {name}'**
+  String chatReplyingTo(String name);
+
+  /// No description provided for @chatReplyingToYourself.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying to yourself'**
+  String get chatReplyingToYourself;
+
+  /// No description provided for @chatReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get chatReport;
+
+  /// No description provided for @chatReportHarassment.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment or bullying'**
+  String get chatReportHarassment;
+
+  /// No description provided for @chatReportImpersonation.
+  ///
+  /// In en, this message translates to:
+  /// **'Pretending to be someone else'**
+  String get chatReportImpersonation;
+
+  /// No description provided for @chatReportInappropriate.
+  ///
+  /// In en, this message translates to:
+  /// **'Inappropriate content'**
+  String get chatReportInappropriate;
+
+  /// No description provided for @chatReportOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get chatReportOther;
+
+  /// No description provided for @chatReportSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks — we\'ll review it.'**
+  String get chatReportSent;
+
+  /// No description provided for @chatReportSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam'**
+  String get chatReportSpam;
+
+  /// No description provided for @chatReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are you reporting this?'**
+  String get chatReportTitle;
+
+  /// No description provided for @chatRequestBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} wants to message you'**
+  String chatRequestBanner(String name);
+
+  /// No description provided for @chatRequestBannerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They won\'t know you\'ve seen this until you accept.'**
+  String get chatRequestBannerHint;
+
+  /// No description provided for @chatRoleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get chatRoleAdmin;
+
+  /// No description provided for @chatRoleOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get chatRoleOwner;
+
+  /// No description provided for @chatSaveEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get chatSaveEdit;
+
+  /// No description provided for @chatSayHi.
+  ///
+  /// In en, this message translates to:
+  /// **'Say hi to {name} 👋'**
+  String chatSayHi(String name);
+
+  /// No description provided for @chatSayHiGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Say hi to the group 👋'**
+  String get chatSayHiGroup;
+
+  /// No description provided for @chatSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get chatSearchHint;
+
+  /// No description provided for @chatSearchPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Search people'**
+  String get chatSearchPeople;
+
+  /// No description provided for @chatSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Seen'**
+  String get chatSeen;
+
+  /// No description provided for @chatSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get chatSelected;
+
+  /// No description provided for @chatSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get chatSend;
+
+  /// No description provided for @chatSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get chatSending;
+
+  /// No description provided for @chatSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get chatSent;
+
+  /// No description provided for @chatSharedMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Media, files and audio'**
+  String get chatSharedMedia;
+
+  /// No description provided for @chatSomeone.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone'**
+  String get chatSomeone;
+
+  /// No description provided for @chatStartChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get chatStartChat;
+
+  /// No description provided for @chatSuggestedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested'**
+  String get chatSuggestedSection;
+
+  /// No description provided for @chatSysAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{who, select, me{You added {targets}} other{{name} added {targets}}}'**
+  String chatSysAdded(String who, String name, String targets);
+
+  /// No description provided for @chatSysCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'{who, select, me{You created the group} other{{name} created the group}}'**
+  String chatSysCreated(String who, String name);
+
+  /// No description provided for @chatSysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{who, select, me{You left the group} other{{name} left the group}}'**
+  String chatSysLeft(String who, String name);
+
+  /// No description provided for @chatSysMadeAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'{who, select, me{You made {target} an admin} other{{name} made {target} an admin}}'**
+  String chatSysMadeAdmin(String who, String name, String target);
+
+  /// No description provided for @chatSysMadeOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'{who, select, me{You made {target} the group owner} other{{name} made {target} the group owner}}'**
+  String chatSysMadeOwner(String who, String name, String target);
+
+  /// No description provided for @chatSysNameCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'{who, select, me{You removed the group name} other{{name} removed the group name}}'**
+  String chatSysNameCleared(String who, String name);
+
+  /// No description provided for @chatSysPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'{who, select, me{You changed the group photo} other{{name} changed the group photo}}'**
+  String chatSysPhoto(String who, String name);
+
+  /// No description provided for @chatSysRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{who, select, me{You removed {target}} other{{name} removed {target}}}'**
+  String chatSysRemoved(String who, String name, String target);
+
+  /// No description provided for @chatSysRemovedAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'{who, select, me{You removed {target} as admin} other{{name} removed {target} as admin}}'**
+  String chatSysRemovedAdmin(String who, String name, String target);
+
+  /// No description provided for @chatSysRenamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{who, select, me{You named the group \"{title}\"} other{{name} named the group \"{title}\"}}'**
+  String chatSysRenamed(String who, String name, String title);
+
+  /// No description provided for @chatSysUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'{who, select, me{You updated the group} other{{name} updated the group}}'**
+  String chatSysUpdated(String who, String name);
+
+  /// No description provided for @chatTabAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get chatTabAudio;
+
+  /// No description provided for @chatTabChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Chats'**
+  String get chatTabChats;
+
+  /// No description provided for @chatTabFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get chatTabFiles;
+
+  /// No description provided for @chatTabMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Media'**
+  String get chatTabMedia;
+
+  /// No description provided for @chatTabRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests'**
+  String get chatTabRequests;
+
+  /// No description provided for @chatTapToRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to remove'**
+  String get chatTapToRemove;
+
+  /// No description provided for @chatTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To:'**
+  String get chatTo;
+
+  /// No description provided for @chatUnarchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive'**
+  String get chatUnarchive;
+
+  /// No description provided for @chatUnarchivedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat moved to your inbox'**
+  String get chatUnarchivedSnack;
+
+  /// No description provided for @chatUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get chatUndo;
+
+  /// No description provided for @chatUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get chatUnmute;
+
+  /// No description provided for @chatUnmutedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications unmuted'**
+  String get chatUnmutedSnack;
+
+  /// No description provided for @chatUnreadCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 unread message} other{{count} unread messages}}'**
+  String chatUnreadCount(int count);
+
+  /// No description provided for @chatUnsend.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsend'**
+  String get chatUnsend;
+
+  /// No description provided for @chatUnsendConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It will be removed for everyone in this chat.'**
+  String get chatUnsendConfirmBody;
+
+  /// No description provided for @chatUnsendConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsend message?'**
+  String get chatUnsendConfirmTitle;
+
+  /// No description provided for @chatVideoMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get chatVideoMessage;
+
+  /// No description provided for @chatViewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'View profile'**
+  String get chatViewProfile;
+
+  /// No description provided for @chatYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get chatYesterday;
+
+  /// No description provided for @chatYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get chatYou;
+
+  /// No description provided for @chatYouObject.
+  ///
+  /// In en, this message translates to:
+  /// **'you'**
+  String get chatYouObject;
+
   /// No description provided for @commonBack.
   ///
   /// In en, this message translates to:
@@ -2784,6 +3648,426 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yes'**
   String get commonYes;
+
+  /// No description provided for @feedAddMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photos or videos'**
+  String get feedAddMedia;
+
+  /// No description provided for @feedAddMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get feedAddMore;
+
+  /// No description provided for @feedAllComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to all comments'**
+  String get feedAllComments;
+
+  /// No description provided for @feedCancelReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel reply'**
+  String get feedCancelReply;
+
+  /// No description provided for @feedCaptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a caption…'**
+  String get feedCaptionHint;
+
+  /// No description provided for @feedCollapseThread.
+  ///
+  /// In en, this message translates to:
+  /// **'Collapse thread'**
+  String get feedCollapseThread;
+
+  /// No description provided for @feedCommentsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get feedCommentsHeader;
+
+  /// No description provided for @feedComposerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a photo or update…'**
+  String get feedComposerHint;
+
+  /// No description provided for @feedContinueThread.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue this thread →'**
+  String get feedContinueThread;
+
+  /// No description provided for @feedCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get feedCopied;
+
+  /// No description provided for @feedCopyText.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy text'**
+  String get feedCopyText;
+
+  /// No description provided for @feedDeletedComment.
+  ///
+  /// In en, this message translates to:
+  /// **'[deleted]'**
+  String get feedDeletedComment;
+
+  /// No description provided for @feedDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get feedDiscard;
+
+  /// No description provided for @feedDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this post?'**
+  String get feedDiscardTitle;
+
+  /// No description provided for @feedDoubleTapToLove.
+  ///
+  /// In en, this message translates to:
+  /// **'Double-tap to love'**
+  String get feedDoubleTapToLove;
+
+  /// No description provided for @feedEmptyExploreBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular public posts will show up here.'**
+  String get feedEmptyExploreBody;
+
+  /// No description provided for @feedEmptyExploreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to explore yet'**
+  String get feedEmptyExploreTitle;
+
+  /// No description provided for @feedEmptyHomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow people or join a gym to see their posts here.'**
+  String get feedEmptyHomeBody;
+
+  /// No description provided for @feedEmptyHomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your feed is empty'**
+  String get feedEmptyHomeTitle;
+
+  /// No description provided for @feedEndOfFeed.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up'**
+  String get feedEndOfFeed;
+
+  /// No description provided for @feedExpandThread.
+  ///
+  /// In en, this message translates to:
+  /// **'Expand thread'**
+  String get feedExpandThread;
+
+  /// No description provided for @feedExploreAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore popular posts'**
+  String get feedExploreAction;
+
+  /// No description provided for @feedHiddenComment.
+  ///
+  /// In en, this message translates to:
+  /// **'[hidden]'**
+  String get feedHiddenComment;
+
+  /// No description provided for @feedLoadMoreComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more comments'**
+  String get feedLoadMoreComments;
+
+  /// No description provided for @feedMediaIndex.
+  ///
+  /// In en, this message translates to:
+  /// **'{index}/{count}'**
+  String feedMediaIndex(int index, int count);
+
+  /// No description provided for @feedMediaLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {count} photos or videos per post'**
+  String feedMediaLimit(int count);
+
+  /// No description provided for @feedMore.
+  ///
+  /// In en, this message translates to:
+  /// **'more'**
+  String get feedMore;
+
+  /// No description provided for @feedMoveLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Move left'**
+  String get feedMoveLeft;
+
+  /// No description provided for @feedMoveRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Move right'**
+  String get feedMoveRight;
+
+  /// No description provided for @feedMultipleMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple photos or videos'**
+  String get feedMultipleMedia;
+
+  /// No description provided for @feedNewPost.
+  ///
+  /// In en, this message translates to:
+  /// **'New post'**
+  String get feedNewPost;
+
+  /// No description provided for @feedNoReactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No reactions yet'**
+  String get feedNoReactions;
+
+  /// No description provided for @feedOp.
+  ///
+  /// In en, this message translates to:
+  /// **'OP'**
+  String get feedOp;
+
+  /// No description provided for @feedOpenProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open {name}\'s profile'**
+  String feedOpenProfile(String name);
+
+  /// No description provided for @feedOriginalPoster.
+  ///
+  /// In en, this message translates to:
+  /// **'Original poster'**
+  String get feedOriginalPoster;
+
+  /// No description provided for @feedPostEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo, video or caption first'**
+  String get feedPostEmpty;
+
+  /// No description provided for @feedPostNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This post isn\'t available anymore.'**
+  String get feedPostNotFound;
+
+  /// No description provided for @feedPostOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Post options'**
+  String get feedPostOptions;
+
+  /// No description provided for @feedPostTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get feedPostTitle;
+
+  /// No description provided for @feedPostUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Post updated'**
+  String get feedPostUpdated;
+
+  /// No description provided for @feedPosted.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted'**
+  String get feedPosted;
+
+  /// No description provided for @feedPostedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'by {name}'**
+  String feedPostedBy(String name);
+
+  /// No description provided for @feedPrivateAccountNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is private, so only your followers will see this post.'**
+  String get feedPrivateAccountNote;
+
+  /// No description provided for @feedPublishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing…'**
+  String get feedPublishing;
+
+  /// No description provided for @feedReactionsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All {count}'**
+  String feedReactionsAll(int count);
+
+  /// No description provided for @feedReactionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get feedReactionsTitle;
+
+  /// No description provided for @feedRemoveMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get feedRemoveMedia;
+
+  /// No description provided for @feedReorderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold and drag to reorder'**
+  String get feedReorderHint;
+
+  /// No description provided for @feedReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get feedReply;
+
+  /// No description provided for @feedReplyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 reply} other{{count} replies}}'**
+  String feedReplyCount(int count);
+
+  /// No description provided for @feedReplyingTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Replying to {name}'**
+  String feedReplyingTo(String name);
+
+  /// No description provided for @feedSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get feedSending;
+
+  /// No description provided for @feedShowLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get feedShowLess;
+
+  /// No description provided for @feedShowMoreReplies.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Show 1 more reply} other{Show {count} more replies}}'**
+  String feedShowMoreReplies(int count);
+
+  /// No description provided for @feedShowParent.
+  ///
+  /// In en, this message translates to:
+  /// **'Show parent comment'**
+  String get feedShowParent;
+
+  /// No description provided for @feedSortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort comments'**
+  String get feedSortLabel;
+
+  /// No description provided for @feedSortNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get feedSortNew;
+
+  /// No description provided for @feedSortOld.
+  ///
+  /// In en, this message translates to:
+  /// **'Old'**
+  String get feedSortOld;
+
+  /// No description provided for @feedSortTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Top'**
+  String get feedSortTop;
+
+  /// No description provided for @feedTabExplore.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get feedTabExplore;
+
+  /// No description provided for @feedTabHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get feedTabHome;
+
+  /// No description provided for @feedThreadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thread'**
+  String get feedThreadTitle;
+
+  /// No description provided for @feedUploadingProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading {index} of {count}…'**
+  String feedUploadingProgress(int index, int count);
+
+  /// No description provided for @feedVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get feedVideo;
+
+  /// No description provided for @feedVisibilityFollowers.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers'**
+  String get feedVisibilityFollowers;
+
+  /// No description provided for @feedVisibilityFollowersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only your followers can see this post'**
+  String get feedVisibilityFollowersHint;
+
+  /// No description provided for @feedVisibilityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Who can see this'**
+  String get feedVisibilityLabel;
+
+  /// No description provided for @feedVisibilityPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get feedVisibilityPublic;
+
+  /// No description provided for @feedVisibilityPublicHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone can see this post'**
+  String get feedVisibilityPublicHint;
+
+  /// No description provided for @feedWriteReplyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a reply…'**
+  String get feedWriteReplyHint;
 
   /// No description provided for @nutritionAdd.
   ///
@@ -5095,6 +6379,1074 @@ abstract class AppLocalizations {
   /// **'Yours'**
   String get nutritionYours;
 
+  /// No description provided for @peopleAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get peopleAccept;
+
+  /// No description provided for @peopleAddFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Add friend'**
+  String get peopleAddFriend;
+
+  /// No description provided for @peopleBio.
+  ///
+  /// In en, this message translates to:
+  /// **'Bio'**
+  String get peopleBio;
+
+  /// No description provided for @peopleBioHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell people about your training'**
+  String get peopleBioHint;
+
+  /// No description provided for @peopleBioLess.
+  ///
+  /// In en, this message translates to:
+  /// **'less'**
+  String get peopleBioLess;
+
+  /// No description provided for @peopleBioMore.
+  ///
+  /// In en, this message translates to:
+  /// **'more'**
+  String get peopleBioMore;
+
+  /// No description provided for @peopleBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get peopleBlock;
+
+  /// No description provided for @peopleBlockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They won\'t be able to find your profile, see your posts or message you, and you won\'t see theirs. Follows and friendship between you are removed. They won\'t be notified.'**
+  String get peopleBlockBody;
+
+  /// No description provided for @peopleBlockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block @{username}?'**
+  String peopleBlockTitle(String username);
+
+  /// No description provided for @peopleBlockedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'@{username} blocked'**
+  String peopleBlockedSnack(String username);
+
+  /// No description provided for @peopleBlockedStateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock to see their profile and interact again.'**
+  String get peopleBlockedStateBody;
+
+  /// No description provided for @peopleBlockedStateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You blocked this account'**
+  String get peopleBlockedStateTitle;
+
+  /// No description provided for @peopleBlockedUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked users'**
+  String get peopleBlockedUsers;
+
+  /// No description provided for @peopleBlockedUsersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t blocked anyone.'**
+  String get peopleBlockedUsersEmpty;
+
+  /// No description provided for @peopleBlockedUsersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'People you\'ve blocked'**
+  String get peopleBlockedUsersSubtitle;
+
+  /// No description provided for @peopleCancelFollowRequestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel your follow request to @{username}?'**
+  String peopleCancelFollowRequestTitle(String username);
+
+  /// No description provided for @peopleCancelFriendRequestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel your friend request to {name}?'**
+  String peopleCancelFriendRequestTitle(String name);
+
+  /// No description provided for @peopleCancelRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel request'**
+  String get peopleCancelRequest;
+
+  /// No description provided for @peopleCopyUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy username'**
+  String get peopleCopyUsername;
+
+  /// No description provided for @peopleDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get peopleDecline;
+
+  /// No description provided for @peopleDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get peopleDiscard;
+
+  /// No description provided for @peopleDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get peopleDiscardTitle;
+
+  /// No description provided for @peopleDiscoverable.
+  ///
+  /// In en, this message translates to:
+  /// **'Appear in suggestions & nearby'**
+  String get peopleDiscoverable;
+
+  /// No description provided for @peopleDiscoverableHint.
+  ///
+  /// In en, this message translates to:
+  /// **'People can still find you by searching your name.'**
+  String get peopleDiscoverableHint;
+
+  /// No description provided for @peopleDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get peopleDismiss;
+
+  /// No description provided for @peopleDistanceKm.
+  ///
+  /// In en, this message translates to:
+  /// **'~{km} km'**
+  String peopleDistanceKm(int km);
+
+  /// No description provided for @peopleDistanceUnder1.
+  ///
+  /// In en, this message translates to:
+  /// **'< 1 km'**
+  String get peopleDistanceUnder1;
+
+  /// No description provided for @peopleEditProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get peopleEditProfile;
+
+  /// No description provided for @peopleEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get peopleEditTitle;
+
+  /// No description provided for @peopleFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get peopleFollow;
+
+  /// No description provided for @peopleFollowBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow back'**
+  String get peopleFollowBack;
+
+  /// No description provided for @peopleFollowRequestsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 follow request} other{{count} follow requests}}'**
+  String peopleFollowRequestsCount(int count);
+
+  /// No description provided for @peopleFollowRequestsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow requests'**
+  String get peopleFollowRequestsTab;
+
+  /// No description provided for @peopleFollowers.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers'**
+  String get peopleFollowers;
+
+  /// No description provided for @peopleFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get peopleFollowing;
+
+  /// No description provided for @peopleFriendRequestFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} sent you a friend request'**
+  String peopleFriendRequestFrom(String name);
+
+  /// No description provided for @peopleFriendRequestSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent'**
+  String get peopleFriendRequestSent;
+
+  /// No description provided for @peopleFriendRequestsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 friend request} other{{count} friend requests}}'**
+  String peopleFriendRequestsCount(int count);
+
+  /// No description provided for @peopleFriendRequestsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend requests'**
+  String get peopleFriendRequestsTab;
+
+  /// No description provided for @peopleFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get peopleFriends;
+
+  /// No description provided for @peopleGoPublicBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone will be able to see your posts and follower lists, and all pending follow requests will be accepted.'**
+  String get peopleGoPublicBody;
+
+  /// No description provided for @peopleGoPublicConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to public'**
+  String get peopleGoPublicConfirm;
+
+  /// No description provided for @peopleGoPublicTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to a public account?'**
+  String get peopleGoPublicTitle;
+
+  /// No description provided for @peopleInterestBodybuilding.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodybuilding'**
+  String get peopleInterestBodybuilding;
+
+  /// No description provided for @peopleInterestBoxing.
+  ///
+  /// In en, this message translates to:
+  /// **'Boxing'**
+  String get peopleInterestBoxing;
+
+  /// No description provided for @peopleInterestCalisthenics.
+  ///
+  /// In en, this message translates to:
+  /// **'Calisthenics'**
+  String get peopleInterestCalisthenics;
+
+  /// No description provided for @peopleInterestClimbing.
+  ///
+  /// In en, this message translates to:
+  /// **'Climbing'**
+  String get peopleInterestClimbing;
+
+  /// No description provided for @peopleInterestCrossfit.
+  ///
+  /// In en, this message translates to:
+  /// **'CrossFit'**
+  String get peopleInterestCrossfit;
+
+  /// No description provided for @peopleInterestCycling.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycling'**
+  String get peopleInterestCycling;
+
+  /// No description provided for @peopleInterestHiit.
+  ///
+  /// In en, this message translates to:
+  /// **'HIIT'**
+  String get peopleInterestHiit;
+
+  /// No description provided for @peopleInterestHiking.
+  ///
+  /// In en, this message translates to:
+  /// **'Hiking'**
+  String get peopleInterestHiking;
+
+  /// No description provided for @peopleInterestMealPrep.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal prep'**
+  String get peopleInterestMealPrep;
+
+  /// No description provided for @peopleInterestMobility.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobility'**
+  String get peopleInterestMobility;
+
+  /// No description provided for @peopleInterestNutrition.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition'**
+  String get peopleInterestNutrition;
+
+  /// No description provided for @peopleInterestOlympicLifting.
+  ///
+  /// In en, this message translates to:
+  /// **'Olympic lifting'**
+  String get peopleInterestOlympicLifting;
+
+  /// No description provided for @peopleInterestPilates.
+  ///
+  /// In en, this message translates to:
+  /// **'Pilates'**
+  String get peopleInterestPilates;
+
+  /// No description provided for @peopleInterestPowerlifting.
+  ///
+  /// In en, this message translates to:
+  /// **'Powerlifting'**
+  String get peopleInterestPowerlifting;
+
+  /// No description provided for @peopleInterestRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {interest}'**
+  String peopleInterestRemove(String interest);
+
+  /// No description provided for @peopleInterestRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get peopleInterestRunning;
+
+  /// No description provided for @peopleInterestStrongman.
+  ///
+  /// In en, this message translates to:
+  /// **'Strongman'**
+  String get peopleInterestStrongman;
+
+  /// No description provided for @peopleInterestSwimming.
+  ///
+  /// In en, this message translates to:
+  /// **'Swimming'**
+  String get peopleInterestSwimming;
+
+  /// No description provided for @peopleInterestYoga.
+  ///
+  /// In en, this message translates to:
+  /// **'Yoga'**
+  String get peopleInterestYoga;
+
+  /// No description provided for @peopleInterests.
+  ///
+  /// In en, this message translates to:
+  /// **'Interests'**
+  String get peopleInterests;
+
+  /// No description provided for @peopleInterestsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an interest'**
+  String get peopleInterestsHint;
+
+  /// No description provided for @peopleInterestsMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {max} interests'**
+  String peopleInterestsMax(int max);
+
+  /// No description provided for @peopleKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get peopleKeep;
+
+  /// No description provided for @peopleListEmptyFollowers.
+  ///
+  /// In en, this message translates to:
+  /// **'No followers yet'**
+  String get peopleListEmptyFollowers;
+
+  /// No description provided for @peopleListEmptyFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not following anyone yet'**
+  String get peopleListEmptyFollowing;
+
+  /// No description provided for @peopleListEmptyFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'No friends yet'**
+  String get peopleListEmptyFriends;
+
+  /// No description provided for @peopleListEmptyMutual.
+  ///
+  /// In en, this message translates to:
+  /// **'No mutual friends'**
+  String get peopleListEmptyMutual;
+
+  /// No description provided for @peopleLocationDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is off. You can turn it on in your phone\'s settings.'**
+  String get peopleLocationDenied;
+
+  /// No description provided for @peopleLocationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get your location. Try again.'**
+  String get peopleLocationFailed;
+
+  /// No description provided for @peopleLocationOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sharing your location'**
+  String get peopleLocationOff;
+
+  /// No description provided for @peopleLocationOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing your approximate location (about 1 km)'**
+  String get peopleLocationOn;
+
+  /// No description provided for @peopleLocationOnUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing your approximate location · updated {when}'**
+  String peopleLocationOnUpdated(String when);
+
+  /// No description provided for @peopleLocationSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Location sharing'**
+  String get peopleLocationSection;
+
+  /// No description provided for @peopleLocationServiceOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on location services to find people nearby.'**
+  String get peopleLocationServiceOff;
+
+  /// No description provided for @peopleLocationStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop sharing'**
+  String get peopleLocationStop;
+
+  /// No description provided for @peopleLocationStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Location sharing stopped'**
+  String get peopleLocationStopped;
+
+  /// No description provided for @peopleLocationUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update now'**
+  String get peopleLocationUpdate;
+
+  /// No description provided for @peopleLocationUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Location updated'**
+  String get peopleLocationUpdated;
+
+  /// No description provided for @peopleLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get peopleLocked;
+
+  /// No description provided for @peopleMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get peopleMessage;
+
+  /// No description provided for @peopleMessageRequestHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your message will arrive as a request'**
+  String get peopleMessageRequestHint;
+
+  /// No description provided for @peopleMoreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get peopleMoreOptions;
+
+  /// No description provided for @peopleMoreSuggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'More suggestions'**
+  String get peopleMoreSuggestions;
+
+  /// No description provided for @peopleMutual.
+  ///
+  /// In en, this message translates to:
+  /// **'Mutual'**
+  String get peopleMutual;
+
+  /// No description provided for @peopleMutualFriendsMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Friends with {a}, {b} and 1 other} other{Friends with {a}, {b} and {count} others}}'**
+  String peopleMutualFriendsMore(int count, String a, String b);
+
+  /// No description provided for @peopleMutualFriendsOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends with {a}'**
+  String peopleMutualFriendsOne(String a);
+
+  /// No description provided for @peopleMutualFriendsTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends with {a} and {b}'**
+  String peopleMutualFriendsTwo(String a, String b);
+
+  /// No description provided for @peopleNearbyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one within {km} km yet.'**
+  String peopleNearbyEmpty(int km);
+
+  /// No description provided for @peopleNearbyPrivacyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We store your location rounded to about 1 km and only use it to show distances. Your exact location is never shared with anyone.'**
+  String get peopleNearbyPrivacyBody;
+
+  /// No description provided for @peopleNearbyPrivacyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See people training near you'**
+  String get peopleNearbyPrivacyTitle;
+
+  /// No description provided for @peopleNearbyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby'**
+  String get peopleNearbyTitle;
+
+  /// No description provided for @peopleNoFollowRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No follow requests'**
+  String get peopleNoFollowRequests;
+
+  /// No description provided for @peopleNoFollowRequestsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When your account is private, people who want to follow you show up here.'**
+  String get peopleNoFollowRequestsHint;
+
+  /// No description provided for @peopleNoFriendRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No friend requests'**
+  String get peopleNoFriendRequests;
+
+  /// No description provided for @peopleNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No one matches “{query}”'**
+  String peopleNoMatches(String query);
+
+  /// No description provided for @peopleNoPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts yet'**
+  String get peopleNoPosts;
+
+  /// No description provided for @peopleNoSentRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending requests you\'ve sent'**
+  String get peopleNoSentRequests;
+
+  /// No description provided for @peopleNoSuggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'No suggestions right now. Check in at your gym or add interests to your profile to get better ones.'**
+  String get peopleNoSuggestions;
+
+  /// No description provided for @peoplePosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get peoplePosts;
+
+  /// No description provided for @peoplePrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get peoplePrivacy;
+
+  /// No description provided for @peoplePrivacySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Private account, messages, activity status'**
+  String get peoplePrivacySubtitle;
+
+  /// No description provided for @peoplePrivateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Private account'**
+  String get peoplePrivateAccount;
+
+  /// No description provided for @peoplePrivateAccountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only people you approve see your photos, videos and follower lists. Anyone can still find you and see your comments and reactions.'**
+  String get peoplePrivateAccountHint;
+
+  /// No description provided for @peoplePrivateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow to see their photos and videos.'**
+  String get peoplePrivateBody;
+
+  /// No description provided for @peoplePrivateRequestedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your follow request is pending. You\'ll see their photos and videos once they accept.'**
+  String get peoplePrivateRequestedBody;
+
+  /// No description provided for @peoplePrivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is private'**
+  String get peoplePrivateTitle;
+
+  /// No description provided for @peopleProfileUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This profile isn\'t available.'**
+  String get peopleProfileUnavailable;
+
+  /// No description provided for @peopleRadiusKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String peopleRadiusKm(int km);
+
+  /// No description provided for @peopleReasonFollowsYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Follows you'**
+  String get peopleReasonFollowsYou;
+
+  /// No description provided for @peopleReasonInterests.
+  ///
+  /// In en, this message translates to:
+  /// **'Also into {interests}'**
+  String peopleReasonInterests(String interests);
+
+  /// No description provided for @peopleReasonMutual.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 mutual friend} other{{count} mutual friends}}'**
+  String peopleReasonMutual(int count);
+
+  /// No description provided for @peopleReasonNearby.
+  ///
+  /// In en, this message translates to:
+  /// **'~{km} km away'**
+  String peopleReasonNearby(int km);
+
+  /// No description provided for @peopleReasonNearbyUnder1.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than 1 km away'**
+  String get peopleReasonNearbyUnder1;
+
+  /// No description provided for @peopleReasonSameClass.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Took the same class} other{Took {count} of the same classes}}'**
+  String peopleReasonSameClass(int count);
+
+  /// No description provided for @peopleReasonSameGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes to {gym}'**
+  String peopleReasonSameGym(String gym);
+
+  /// No description provided for @peopleReasonSameTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Trains at the same times'**
+  String get peopleReasonSameTime;
+
+  /// No description provided for @peopleRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get peopleRemove;
+
+  /// No description provided for @peopleRemoveFollower.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove follower'**
+  String get peopleRemoveFollower;
+
+  /// No description provided for @peopleRemoveFollowerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They won\'t be notified that you removed them.'**
+  String get peopleRemoveFollowerBody;
+
+  /// No description provided for @peopleRemoveFollowerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove @{username} from your followers?'**
+  String peopleRemoveFollowerTitle(String username);
+
+  /// No description provided for @peopleRemoveFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove friend'**
+  String get peopleRemoveFriend;
+
+  /// No description provided for @peopleRemoveFriendBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll stay followers of each other unless you also unfollow.'**
+  String get peopleRemoveFriendBody;
+
+  /// No description provided for @peopleRemoveFriendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name} from your friends?'**
+  String peopleRemoveFriendTitle(String name);
+
+  /// No description provided for @peopleReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get peopleReport;
+
+  /// No description provided for @peopleReportDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Details (optional)'**
+  String get peopleReportDetails;
+
+  /// No description provided for @peopleReportReasonHarassment.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment or bullying'**
+  String get peopleReportReasonHarassment;
+
+  /// No description provided for @peopleReportReasonImpersonation.
+  ///
+  /// In en, this message translates to:
+  /// **'Pretending to be someone else'**
+  String get peopleReportReasonImpersonation;
+
+  /// No description provided for @peopleReportReasonInappropriate.
+  ///
+  /// In en, this message translates to:
+  /// **'Inappropriate content'**
+  String get peopleReportReasonInappropriate;
+
+  /// No description provided for @peopleReportReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get peopleReportReasonOther;
+
+  /// No description provided for @peopleReportReasonSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam'**
+  String get peopleReportReasonSpam;
+
+  /// No description provided for @peopleReportSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send report'**
+  String get peopleReportSend;
+
+  /// No description provided for @peopleReportSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks. Our team will review your report.'**
+  String get peopleReportSent;
+
+  /// No description provided for @peopleReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report @{username}'**
+  String peopleReportTitle(String username);
+
+  /// No description provided for @peopleReportWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are you reporting this account?'**
+  String get peopleReportWhy;
+
+  /// No description provided for @peopleRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested'**
+  String get peopleRequested;
+
+  /// No description provided for @peopleRequestsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow and friend requests'**
+  String get peopleRequestsSubtitle;
+
+  /// No description provided for @peopleRequestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests'**
+  String get peopleRequestsTitle;
+
+  /// No description provided for @peopleRespond.
+  ///
+  /// In en, this message translates to:
+  /// **'Respond'**
+  String get peopleRespond;
+
+  /// No description provided for @peopleSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved'**
+  String get peopleSaved;
+
+  /// No description provided for @peopleSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or username'**
+  String get peopleSearchHint;
+
+  /// No description provided for @peopleSearchInList.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get peopleSearchInList;
+
+  /// No description provided for @peopleSentTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get peopleSentTab;
+
+  /// No description provided for @peopleSettingSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get peopleSettingSaved;
+
+  /// No description provided for @peopleShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get peopleShare;
+
+  /// No description provided for @peopleShareLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Share my location'**
+  String get peopleShareLocation;
+
+  /// No description provided for @peopleShowActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Show activity status'**
+  String get peopleShowActivity;
+
+  /// No description provided for @peopleShowActivityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'People you\'re connected with can see when you were last active.'**
+  String get peopleShowActivityHint;
+
+  /// No description provided for @peopleSuggestionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'People you may know'**
+  String get peopleSuggestionsTitle;
+
+  /// No description provided for @peopleTrainsAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Trains at {gyms}'**
+  String peopleTrainsAt(String gyms);
+
+  /// No description provided for @peopleUnblock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock'**
+  String get peopleUnblock;
+
+  /// No description provided for @peopleUnblockedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'@{username} unblocked'**
+  String peopleUnblockedSnack(String username);
+
+  /// No description provided for @peopleUnfollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfollow'**
+  String get peopleUnfollow;
+
+  /// No description provided for @peopleUnfollowPrivateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is private. You\'ll have to request again to see their photos and videos.'**
+  String get peopleUnfollowPrivateBody;
+
+  /// No description provided for @peopleUnfollowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfollow @{username}?'**
+  String peopleUnfollowTitle(String username);
+
+  /// No description provided for @peopleUsernameCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Username copied'**
+  String get peopleUsernameCopied;
+
+  /// No description provided for @peopleUsernameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'3–30 letters, numbers, dots or underscores'**
+  String get peopleUsernameInvalid;
+
+  /// No description provided for @peopleUsernameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That username is taken'**
+  String get peopleUsernameTaken;
+
+  /// No description provided for @peopleViewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'View profile'**
+  String get peopleViewProfile;
+
+  /// No description provided for @peopleWhoCanMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Who can message me'**
+  String get peopleWhoCanMessage;
+
+  /// No description provided for @peopleWhoCanMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages from anyone else land in your message requests.'**
+  String get peopleWhoCanMessageHint;
+
+  /// No description provided for @peopleWhoEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone'**
+  String get peopleWhoEveryone;
+
+  /// No description provided for @peopleWhoFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'People I follow'**
+  String get peopleWhoFollowing;
+
+  /// No description provided for @peopleWhoFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get peopleWhoFriends;
+
+  /// No description provided for @reactionAngry.
+  ///
+  /// In en, this message translates to:
+  /// **'Angry'**
+  String get reactionAngry;
+
+  /// No description provided for @reactionCelebrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Celebrate'**
+  String get reactionCelebrate;
+
+  /// No description provided for @reactionClap.
+  ///
+  /// In en, this message translates to:
+  /// **'Clap'**
+  String get reactionClap;
+
+  /// No description provided for @reactionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 reaction} other{{count} reactions}}'**
+  String reactionCount(int count);
+
+  /// No description provided for @reactionFire.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire'**
+  String get reactionFire;
+
+  /// No description provided for @reactionHaha.
+  ///
+  /// In en, this message translates to:
+  /// **'Haha'**
+  String get reactionHaha;
+
+  /// No description provided for @reactionLike.
+  ///
+  /// In en, this message translates to:
+  /// **'Like'**
+  String get reactionLike;
+
+  /// No description provided for @reactionLove.
+  ///
+  /// In en, this message translates to:
+  /// **'Love'**
+  String get reactionLove;
+
+  /// No description provided for @reactionPickerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold to pick a reaction'**
+  String get reactionPickerHint;
+
+  /// No description provided for @reactionSad.
+  ///
+  /// In en, this message translates to:
+  /// **'Sad'**
+  String get reactionSad;
+
+  /// No description provided for @reactionStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get reactionStrong;
+
+  /// No description provided for @reactionWow.
+  ///
+  /// In en, this message translates to:
+  /// **'Wow'**
+  String get reactionWow;
+
   /// No description provided for @settingsLanguage.
   ///
   /// In en, this message translates to:
@@ -5256,6 +7608,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change password'**
   String get shellChangePassword;
+
+  /// No description provided for @shellChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get shellChats;
+
+  /// No description provided for @shellChatsUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Messages, 1 unread chat} other{Messages, {count} unread chats}}'**
+  String shellChatsUnread(int count);
 
   /// No description provided for @shellCheckEmailBody.
   ///
@@ -5878,7 +8242,7 @@ abstract class AppLocalizations {
   /// No description provided for @shellMuteCommunityDescription.
   ///
   /// In en, this message translates to:
-  /// **'Gym news and comments on your posts'**
+  /// **'Gym news, comments, replies and reactions to your posts'**
   String get shellMuteCommunityDescription;
 
   /// No description provided for @shellMuteFootnote.
@@ -5886,6 +8250,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invites always come through. Muted notifications still appear in the app.'**
   String get shellMuteFootnote;
+
+  /// No description provided for @shellMuteMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get shellMuteMessages;
+
+  /// No description provided for @shellMuteMessagesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'New chat messages and being added to groups'**
+  String get shellMuteMessagesDescription;
 
   /// No description provided for @shellMuteShop.
   ///
@@ -5898,6 +8274,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Order updates, new orders and restocks'**
   String get shellMuteShopDescription;
+
+  /// No description provided for @shellMuteSocial.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers & friends'**
+  String get shellMuteSocial;
+
+  /// No description provided for @shellMuteSocialDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'New followers, follow and friend requests'**
+  String get shellMuteSocialDescription;
 
   /// No description provided for @shellMuteStaff.
   ///
@@ -6469,6 +8857,18 @@ abstract class AppLocalizations {
   /// **'Classes'**
   String get shellTabClasses;
 
+  /// No description provided for @shellTabDiscover.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover'**
+  String get shellTabDiscover;
+
+  /// No description provided for @shellTabFeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Feed'**
+  String get shellTabFeed;
+
   /// No description provided for @shellTabGym.
   ///
   /// In en, this message translates to:
@@ -6672,6 +9072,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your shops'**
   String get shellYourShops;
+
+  /// No description provided for @socialActiveAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'Active {when}'**
+  String socialActiveAgo(String when);
+
+  /// No description provided for @socialActiveNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Active now'**
+  String get socialActiveNow;
+
+  /// No description provided for @socialCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get socialCamera;
+
+  /// No description provided for @socialFile.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get socialFile;
+
+  /// No description provided for @socialFileTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Files are limited to 50 MB.'**
+  String get socialFileTooLarge;
+
+  /// No description provided for @socialGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos & videos'**
+  String get socialGallery;
+
+  /// No description provided for @socialRecordVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Record video'**
+  String get socialRecordVideo;
+
+  /// No description provided for @socialRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get socialRetry;
+
+  /// No description provided for @socialTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get socialTakePhoto;
+
+  /// No description provided for @socialTyping.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is typing…'**
+  String socialTyping(String name);
+
+  /// No description provided for @socialTypingSeveral.
+  ///
+  /// In en, this message translates to:
+  /// **'Several people are typing…'**
+  String get socialTypingSeveral;
+
+  /// No description provided for @socialUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed. Try again.'**
+  String get socialUploadFailed;
 
   /// No description provided for @trainingAssignAction.
   ///

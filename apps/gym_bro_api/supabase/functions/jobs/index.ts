@@ -2,6 +2,7 @@ import { sql } from "npm:kysely@^0.27";
 import { db } from "../_shared/config.ts";
 import { json, jsonError } from "../_shared/auth.ts";
 import { notify, optionalSecret } from "../_shared/notify.ts";
+import { removeObjects } from "../_shared/media.ts";
 
 // Scheduled maintenance, called by pg_cron every 15 minutes (see
 // sql/cron.sql) with the shared CRON_SECRET in the x-cron-secret header.
@@ -120,6 +121,23 @@ async function sendClassReminders(): Promise<{ classes: number; notifications: n
   return { classes: claimed.length, notifications };
 }
 
+/**
+ * Deletes upload slots (and their files) that were never attached to a
+ * message or post within a day — abandoned sends, closed apps.
+ */
+async function sweepAbandonedUploads(): Promise<number> {
+  const stale = await db
+    .deleteFrom("media_upload")
+    .where("claimed_at", "is", null)
+    .where(sql<boolean>`created_at < NOW() - INTERVAL '24 hours'`)
+    .returning(["bucket", "storage_path"])
+    .execute();
+  for (const bucket of ["chat-media", "user-media"] as const) {
+    await removeObjects(bucket, stale.filter((s) => s.bucket === bucket).map((s) => s.storage_path));
+  }
+  return stale.length;
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -136,11 +154,13 @@ Deno.serve(async (req: Request) => {
     const memberships_expired = await expireLapsedMemberships();
     const expiring_notifications = await notifyExpiringMemberships();
     const class_reminders = await sendClassReminders();
+    const abandoned_uploads_removed = await sweepAbandonedUploads();
 
     return json({
       memberships_expired,
       expiring_notifications,
       class_reminders,
+      abandoned_uploads_removed,
       duration_ms: Date.now() - started,
     });
   }

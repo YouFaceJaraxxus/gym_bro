@@ -23,7 +23,15 @@ enum _MuteCategory {
     'purchase_made',
     'shop_item_update',
   ]),
-  community(Icons.forum_outlined, ['news', 'post_comment']),
+  community(Icons.forum_outlined, ['news', 'post_comment', 'post_reaction', 'comment_reply']),
+  social(Icons.people_alt_outlined, [
+    'follow',
+    'follow_request',
+    'follow_accepted',
+    'friend_request',
+    'friend_accepted',
+  ]),
+  messages(Icons.chat_bubble_outline, ['chat_message', 'group_added']),
   coaching(Icons.sports_outlined, [
     'training',
     'training_update',
@@ -46,6 +54,8 @@ enum _MuteCategory {
     _MuteCategory.billing => l10n.shellMuteBilling,
     _MuteCategory.shop => l10n.shellMuteShop,
     _MuteCategory.community => l10n.shellMuteCommunity,
+    _MuteCategory.social => l10n.shellMuteSocial,
+    _MuteCategory.messages => l10n.shellMuteMessages,
     _MuteCategory.coaching => l10n.shellMuteCoaching,
     _MuteCategory.staff => l10n.shellMuteStaff,
   };
@@ -55,6 +65,8 @@ enum _MuteCategory {
     _MuteCategory.billing => l10n.shellMuteBillingDescription,
     _MuteCategory.shop => l10n.shellMuteShopDescription,
     _MuteCategory.community => l10n.shellMuteCommunityDescription,
+    _MuteCategory.social => l10n.shellMuteSocialDescription,
+    _MuteCategory.messages => l10n.shellMuteMessagesDescription,
     _MuteCategory.coaching => l10n.shellMuteCoachingDescription,
     _MuteCategory.staff => l10n.shellMuteStaffDescription,
   };

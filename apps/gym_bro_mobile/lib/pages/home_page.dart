@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
+import '../models/people.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/auth_service.dart';
+import '../services/realtime_service.dart';
 import 'home/owner_home_page.dart';
 import 'home/owner_businesses_page.dart';
 import 'home/employee_members_page.dart';
@@ -19,7 +23,10 @@ import 'home/vendor_shop_page.dart';
 import '../widgets/offline_banner.dart';
 import 'classes/class_schedule_page.dart';
 import 'classes/trainer_classes_page.dart';
+import 'chat/chat_inbox_page.dart';
+import 'feed/feed_page.dart';
 import 'notifications_page.dart';
+import 'people/discover_page.dart';
 import 'gym_hub_page.dart';
 import 'profile_page.dart';
 import 'membership_page.dart';
@@ -37,6 +44,8 @@ enum _Tab {
   members(Icons.people_outline),
   myShop(Icons.storefront_outlined),
   users(Icons.manage_accounts_outlined),
+  feed(Icons.dynamic_feed_outlined),
+  discover(Icons.travel_explore),
   gym(Icons.fitness_center),
   profile(Icons.person_outline);
 
@@ -53,13 +62,15 @@ enum _Tab {
     _Tab.members => l10n.shellTabMembers,
     _Tab.myShop => l10n.shellTabMyShop,
     _Tab.users => l10n.shellTabUsers,
+    _Tab.feed => l10n.shellTabFeed,
+    _Tab.discover => l10n.shellTabDiscover,
     _Tab.gym => l10n.shellTabGym,
     _Tab.profile => l10n.shellTabProfile,
   };
 }
 
 // Shared tabs appended to every role's list.
-const _sharedTabs = <_Tab>[_Tab.gym, _Tab.profile];
+const _sharedTabs = <_Tab>[_Tab.feed, _Tab.discover, _Tab.gym, _Tab.profile];
 
 const _ownerTabs = <_Tab>[_Tab.home, _Tab.businesses, ..._sharedTabs];
 
@@ -129,11 +140,29 @@ class _HomePageState extends State<HomePage> {
   bool _loading = true;
   String? _error;
   int _unreadNotifications = 0;
+  SocialBadges _badges = const SocialBadges();
+  StreamSubscription<UserEvent>? _realtimeSub;
+  Timer? _badgeDebounce;
 
   @override
   void initState() {
     super.initState();
     _loadProfile();
+    // Live badges: any inbox, notification or relationship event refreshes them.
+    _realtimeSub = RealtimeService.instance.userEvents.listen((_) {
+      _badgeDebounce?.cancel();
+      _badgeDebounce = Timer(const Duration(milliseconds: 400), () {
+        final profile = _profile;
+        if (profile != null && mounted) _refreshUnreadCount(profile.id);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _realtimeSub?.cancel();
+    _badgeDebounce?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadProfile() async {
@@ -186,6 +215,21 @@ class _HomePageState extends State<HomePage> {
       );
       if (mounted) setState(() => _unreadNotifications = page.unreadCount);
     } catch (_) {}
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final badges = await _api.getSocialBadges(token);
+      if (mounted) setState(() => _badges = badges);
+    } catch (_) {}
+    unawaited(RealtimeService.instance.connect());
+  }
+
+  Future<void> _openChats() async {
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(builder: (_) => const ChatInboxPage()),
+    );
+    final profile = _profile;
+    if (profile != null && mounted) _refreshUnreadCount(profile.id);
   }
 
   Future<void> _openNotifications() async {
@@ -257,6 +301,14 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(tabs[_tabIndex].label(l10n)),
         actions: [
+          _BadgeIconButton(
+            icon: Icons.chat_bubble_outline,
+            count: _badges.unreadConversations + _badges.messageRequests,
+            tooltip: _badges.unreadConversations + _badges.messageRequests > 0
+                ? l10n.shellChatsUnread(_badges.unreadConversations + _badges.messageRequests)
+                : l10n.shellChats,
+            onPressed: _openChats,
+          ),
           Stack(
             alignment: Alignment.center,
             children: [
@@ -326,7 +378,9 @@ class _HomePageState extends State<HomePage> {
         destinations: [
           for (final tab in tabs)
             NavigationDestination(
-              icon: Icon(tab.icon),
+              icon: tab == _Tab.discover && _badges.requests > 0
+                  ? Badge(label: Text('${_badges.requests}'), child: Icon(tab.icon))
+                  : Icon(tab.icon),
               label: tab.label(l10n),
               tooltip: tab.label(l10n),
             ),
@@ -393,21 +447,48 @@ class _HomePageState extends State<HomePage> {
       if (index == 3) return const ClassSchedulePage();
     }
 
-    // Shared gym tab — always the second-to-last entry in every role's list.
+    // Shared tabs, appended to every role's list.
     final tabs = _tabsForRole(profile.role);
-    final tabCount = tabs.length;
-    if (index == tabCount - 2) return GymHubPage(profile: profile);
-
-    // Shared Profile tab — always the last entry in every role's list.
-    if (index == tabCount - 1) {
-      return ProfilePage(
+    return switch (tabs[index]) {
+      _Tab.feed => const FeedPage(),
+      _Tab.discover => const DiscoverPage(),
+      _Tab.gym => GymHubPage(profile: profile),
+      _Tab.profile => ProfilePage(
         profile: profile,
         onUpdated: (updated) => setState(() => _profile = updated),
-      );
-    }
+      ),
+      // Every role's own tabs are handled above.
+      _ => const SizedBox.shrink(),
+    };
+  }
+}
 
-    // Every role's tabs are handled above.
-    return const SizedBox.shrink();
+/// App bar icon with a small count badge (hidden at zero).
+class _BadgeIconButton extends StatelessWidget {
+  final IconData icon;
+  final int count;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  const _BadgeIconButton({
+    required this.icon,
+    required this.count,
+    required this.tooltip,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: Badge(
+        isLabelVisible: count > 0,
+        // The count is already in the tooltip.
+        label: ExcludeSemantics(child: Text(count > 99 ? '99+' : '$count')),
+        child: Icon(icon),
+      ),
+    );
   }
 }
 

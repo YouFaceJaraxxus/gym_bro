@@ -20,6 +20,8 @@ const COLS = [
   "working_hours_to",
   "working_weekdays",
   "type",
+  "latitude",
+  "longitude",
 ] as const;
 
 // Columns a PUT may change (type is immutable after creation).
@@ -30,6 +32,8 @@ const UPDATABLE = [
   "working_hours_from",
   "working_hours_to",
   "working_weekdays",
+  "latitude",
+  "longitude",
 ] as const;
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
@@ -256,7 +260,7 @@ Deno.serve(async (req: Request) => {
   // Creates a business row, the gym or shop sub-row and the caller's owner row atomically.
   if (req.method === "POST" && !id) {
     const body = await req.json().catch(() => null);
-    const { name, location, logo, working_hours_from, working_hours_to, working_weekdays, type } =
+    const { name, location, logo, working_hours_from, working_hours_to, working_weekdays, type, latitude, longitude } =
       body ?? {};
 
     if (!name || !location || !working_hours_from || !working_hours_to || !working_weekdays || !type) {
@@ -275,6 +279,8 @@ Deno.serve(async (req: Request) => {
       working_hours_to,
       working_weekdays,
       type,
+      latitude: Number.isFinite(latitude) ? latitude : null,
+      longitude: Number.isFinite(longitude) ? longitude : null,
     };
 
     const business = await db.transaction().execute(async (trx) => {
