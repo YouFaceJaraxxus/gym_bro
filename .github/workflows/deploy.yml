@@ -1,9 +1,9 @@
 name: Deploy
 
-# Runs after CI passes on a push to main (CI's path filters decide whether a
-# commit ships at all), or by hand from the Actions tab. Order: database
-# migrations → edge functions → Android APK, so a published app never talks to
-# an older API.
+# Runs after CI passes on main, from a push (CI's path filters decide whether a
+# commit ships at all) or a manual CI run, or by hand from the Actions tab.
+# Order: database migrations → edge functions → Android APK, so a published app
+# never talks to an older API.
 #
 # Secrets (Settings → Environments → "production"):
 #   PROD_DATABASE_URL       Session pooler URL (port 5432) of the hosted project,
@@ -49,7 +49,8 @@ jobs:
     name: Backend (migrations, edge functions)
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+      (github.event.workflow_run.conclusion == 'success' &&
+       contains(fromJSON('["push", "workflow_dispatch"]'), github.event.workflow_run.event))
     runs-on: ubuntu-24.04
     environment: production
     timeout-minutes: 30
@@ -81,7 +82,8 @@ jobs:
           command -v psql >/dev/null || { sudo apt-get update -q && sudo apt-get install -yq postgresql-client; }
           ./scripts/migrate.sh --status | tee /tmp/migrate-status.txt
           # migrate.sh never re-runs an applied file, so an edit to one doesn't reach prod.
-          grep 'file changed since it was applied' /tmp/migrate-status.txt | while read -r line; do
+          # `|| true`: steps run with pipefail, and grep exits 1 when nothing matches.
+          { grep 'file changed since it was applied' /tmp/migrate-status.txt || true; } | while read -r line; do
             echo "::warning::$line — edits to applied migrations are not re-run; put the change in a new file."
           done
           ./scripts/migrate.sh
