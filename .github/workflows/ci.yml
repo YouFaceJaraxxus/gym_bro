@@ -122,9 +122,9 @@ jobs:
 
       - name: Serve edge functions
         run: |
+          # No CRON_SECRET: the integration tests check /jobs/run answers 503 without one.
           cat > /tmp/functions.env <<ENV
           POSTGRES_URL=$POSTGRES_URL
-          CRON_SECRET=ci-cron-secret
           ENV
           nohup supabase functions serve --env-file /tmp/functions.env > /tmp/functions.log 2>&1 &
           for i in $(seq 1 90); do
@@ -143,3 +143,7 @@ jobs:
       - name: Functions log
         if: failure()
         run: tail -n 200 /tmp/functions.log || true
+
+      - name: Realtime log
+        if: failure()
+        run: docker logs --tail 200 supabase_realtime_gym_bro_api 2>&1 || true
