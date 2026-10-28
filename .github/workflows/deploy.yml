@@ -71,6 +71,8 @@ jobs:
           [ -n "$PROD_DATABASE_URL" ] || missing="$missing PROD_DATABASE_URL"
           [ -n "$SUPABASE_ACCESS_TOKEN" ] || missing="$missing SUPABASE_ACCESS_TOKEN"
           if [ -n "$missing" ]; then echo "::error::Missing secrets:$missing"; exit 1; fi
+          # The host isn't secret, and seeing it makes a wrong URL obvious.
+          echo "Database host: $(echo "$PROD_DATABASE_URL" | sed -E 's#.*@([^/?]*).*#\1#')"
           case "$PROD_DATABASE_URL" in
             *@db.*.supabase.co*)
               echo "::error::PROD_DATABASE_URL uses db.<ref>.supabase.co, which is IPv6-only and unreachable from runners; use the session pooler URL (…pooler.supabase.com:5432)."
