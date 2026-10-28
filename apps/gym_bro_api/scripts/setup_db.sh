@@ -10,6 +10,9 @@
 #   ./scripts/setup_db.sh --baseline      # database was migrated by hand before
 #                                         # migrate.sh existed: record every schema
 #                                         # file as applied, then seed
+#   ./scripts/setup_db.sh --seed-only --reset-passwords
+#                                         # also set already-seeded users' password
+#                                         # to SEED_PASSWORD (rotate a leaked one)
 #
 # Any other database (e.g. a hosted Supabase project):
 #   ./scripts/setup_db.sh \
@@ -22,7 +25,9 @@
 # With no target given, the local stack's URLs and keys are read from
 # `supabase status`. Both steps are idempotent, so re-running is safe:
 # migrations skip what's applied, the seed adds only what's missing.
-# Seeded users all sign in with the password GymBroSeed123!.
+#
+# Seeding needs SEED_PASSWORD (every seeded user's password): from the
+# environment, else that one key is read from .env.local or .env.
 
 set -euo pipefail
 
@@ -30,12 +35,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$API_DIR"
 
-usage() { sed -n '2,25p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '2,31p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
 
 RESET=false
 DO_MIGRATE=true
 DO_SEED=true
 BASELINE=false
+RESET_PASSWORDS=false
 ASSUME_YES=false
 DB_URL="${DB_URL:-}"
 SUPABASE_URL="${SUPABASE_URL:-}"
@@ -47,6 +53,7 @@ while [[ $# -gt 0 ]]; do
     --migrate-only) DO_SEED=false ;;
     --seed-only) DO_MIGRATE=false ;;
     --baseline) BASELINE=true ;;
+    --reset-passwords) RESET_PASSWORDS=true ;;
     --yes|-y) ASSUME_YES=true ;;
     --db-url) DB_URL="$2"; shift ;;
     --supabase-url) SUPABASE_URL="$2"; shift ;;
@@ -69,10 +76,13 @@ mask() { echo "$1" | sed -E 's#://([^:@/]+):[^@]*@#://\1:***@#'; }
 
 is_local_url() { [[ "$1" =~ (127\.0\.0\.1|localhost|host\.docker\.internal) ]]; }
 
-if [[ -z "$DB_URL" && -z "$SUPABASE_URL" ]]; then
-  # Nothing given: use the local stack.
+# Nothing given, or a local DB_URL without the API URL / key (CI exports DB_URL
+# from `supabase status` for the integration tests): fill the gaps from the
+# local stack.
+if [[ -z "$DB_URL" && -z "$SUPABASE_URL" ]] ||
+  { is_local_url "$DB_URL" && [[ -z "$SUPABASE_URL" || -z "$SUPABASE_SERVICE_ROLE_KEY" ]]; }; then
   if ! command -v supabase >/dev/null 2>&1; then
-    echo "Error: no target given and the supabase CLI isn't installed." >&2
+    echo "Error: no complete target given and the supabase CLI isn't installed." >&2
     exit 1
   fi
   if ! STATUS_ENV="$(supabase status -o env 2>/dev/null)"; then
@@ -80,8 +90,8 @@ if [[ -z "$DB_URL" && -z "$SUPABASE_URL" ]]; then
     exit 1
   fi
   read_status() { echo "$STATUS_ENV" | grep "^$1=" | head -1 | cut -d= -f2- | tr -d '"'; }
-  DB_URL="$(read_status DB_URL)"
-  SUPABASE_URL="$(read_status API_URL)"
+  DB_URL="${DB_URL:-$(read_status DB_URL)}"
+  SUPABASE_URL="${SUPABASE_URL:-$(read_status API_URL)}"
   SUPABASE_SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-$(read_status SERVICE_ROLE_KEY)}"
 fi
 
@@ -92,6 +102,22 @@ fi
 if $DO_SEED && { [[ -z "$SUPABASE_URL" ]] || [[ -z "$SUPABASE_SERVICE_ROLE_KEY" ]]; }; then
   echo "Error: seeding needs --supabase-url and --service-role-key (it creates auth users)." >&2
   exit 1
+fi
+
+# Only this key, never the whole file: .env.local also holds POSTGRES_URL & co.
+read_env_file_key() { [[ -f "$2" ]] && grep -E "^$1=" "$2" | tail -1 | cut -d= -f2- | sed -E "s/^[\"']//; s/[\"']$//"; }
+SEED_PASSWORD="${SEED_PASSWORD:-}"
+for f in .env.local .env; do
+  [[ -n "$SEED_PASSWORD" ]] && break
+  SEED_PASSWORD="$(read_env_file_key SEED_PASSWORD "$f" || true)"
+done
+if $DO_SEED && [[ -z "$SEED_PASSWORD" ]]; then
+  echo "Error: seeding needs SEED_PASSWORD (export it, or add SEED_PASSWORD=... to .env.local)." >&2
+  exit 1
+fi
+if $RESET_PASSWORDS && ! $DO_SEED; then
+  echo "Error: --reset-passwords is part of seeding; drop --migrate-only." >&2
+  exit 2
 fi
 
 LOCAL=false
@@ -172,9 +198,10 @@ if $DO_SEED; then
   fi
   step "Seeding demo data"
   DB_URL="$DB_URL" SUPABASE_URL="$SUPABASE_URL" SUPABASE_SERVICE_ROLE_KEY="$SUPABASE_SERVICE_ROLE_KEY" \
+    SEED_PASSWORD="$SEED_PASSWORD" SEED_RESET_PASSWORDS="$($RESET_PASSWORDS && echo 1 || echo 0)" \
     deno run --allow-net --allow-env --allow-read --allow-sys "$SCRIPT_DIR/seed.ts"
 fi
 
 step "Done"
-$DO_SEED && echo "Sign in with any seeded user, password GymBroSeed123! (e.g. marcus.bennett@example.com, owner)."
+$DO_SEED && echo "Sign in with any seeded user and SEED_PASSWORD (e.g. marcus.bennett@example.com, owner)."
 exit 0

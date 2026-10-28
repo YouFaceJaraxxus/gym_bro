@@ -1,18 +1,18 @@
 // deno-lint-ignore-file no-explicit-any
 // Shared helpers for the integration suites. They run against a live stack:
-//   API_URL=http://127.0.0.1:54321 ANON_KEY=<anon key> deno task test:integration
-// Without API_URL / ANON_KEY every suite is skipped (ignored), so
-// `deno task test:integration` is safe to run anywhere.
+//   API_URL=http://127.0.0.1:54321 ANON_KEY=<anon key> SEED_PASSWORD=<seed password> deno task test:integration
+// Without API_URL / ANON_KEY / SEED_PASSWORD every suite is skipped (ignored),
+// so `deno task test:integration` is safe to run anywhere.
 import { assert } from "jsr:@std/assert@1";
 
 export const API = Deno.env.get("API_URL")?.replace(/\/$/, "") ?? "";
 export const ANON = Deno.env.get("ANON_KEY") ?? "";
-export const configured = API !== "" && ANON !== "";
+export const PW = Deno.env.get("SEED_PASSWORD") ?? "";
+export const configured = API !== "" && ANON !== "" && PW !== "";
 export const FN = `${API}/functions/v1`;
-export const PW = Deno.env.get("SEED_PASSWORD") ?? "GymBroSeed123!";
 
 if (!configured) {
-  console.warn("API_URL / ANON_KEY not set — skipping integration tests.");
+  console.warn("API_URL / ANON_KEY / SEED_PASSWORD not set — skipping integration tests.");
 }
 
 export type CallResult = { status: number; data: any };

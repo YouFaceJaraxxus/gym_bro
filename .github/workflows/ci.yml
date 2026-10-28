@@ -57,7 +57,12 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: dart analyze lib
-      - run: flutter test
+      - run: flutter test --coverage
+      # lcov.info only lists files the tests load (most of lib/, through imports).
+      - name: Coverage summary
+        run: |
+          awk -F: '/^LF:/{lf+=$2} /^LH:/{lh+=$2} END{printf "Mobile line coverage (files loaded by tests): %.1f%% (%d/%d lines)\n", lh*100/lf, lh, lf}' \
+            coverage/lcov.info | tee -a "$GITHUB_STEP_SUMMARY"
 
   integration:
     name: API integration (local Supabase)
@@ -88,7 +93,11 @@ jobs:
           supabase status -o env > /tmp/supabase.env
           set -a; . /tmp/supabase.env; set +a
           echo "::add-mask::$SERVICE_ROLE_KEY"
+          # Throwaway stack, so a fresh seed password per run (setup_db.sh and the tests read it).
+          SEED_PASSWORD="$(openssl rand -hex 16)"
+          echo "::add-mask::$SEED_PASSWORD"
           {
+            echo "SEED_PASSWORD=$SEED_PASSWORD"
             echo "API_URL=$API_URL"
             echo "ANON_KEY=$ANON_KEY"
             # Lets the integration tests clean up rows that have no DELETE endpoint.

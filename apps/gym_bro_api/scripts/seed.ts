@@ -18,6 +18,7 @@
 // Standalone (database already migrated):
 //   cd apps/gym_bro_api
 //   export SUPABASE_SERVICE_ROLE_KEY="$(supabase status -o env | grep '^SERVICE_ROLE_KEY=' | cut -d'"' -f2)"
+//   export SEED_PASSWORD='<demo password>'
 //   deno run --allow-net --allow-env --allow-read --allow-sys scripts/seed.ts
 //
 // Environment:
@@ -27,6 +28,8 @@
 //                               as supabase/functions/_shared/config.ts).
 //   SUPABASE_URL                Project URL for the Auth admin API. Default http://127.0.0.1:54321.
 //   SUPABASE_SERVICE_ROLE_KEY   Required. Service role key of that project.
+//   SEED_PASSWORD               Required. Password of every seeded user (8+ characters).
+//   SEED_RESET_PASSWORDS        "1" also resets already-seeded users to SEED_PASSWORD.
 //   SEED_RANDOM_SEED            Optional PRNG seed (default "gym-bro-demo").
 //
 // Note: .env.local's SUPABASE_SERVICE_ROLE_KEY is pulled from Doppler and may
@@ -128,7 +131,13 @@ const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-const SEED_PASSWORD = "GymBroSeed123!";
+const SEED_PASSWORD = Deno.env.get("SEED_PASSWORD") ?? "";
+if (SEED_PASSWORD.length < 8) {
+  throw new Error("SEED_PASSWORD is not set (or shorter than 8 characters). It becomes every seeded user's password.");
+}
+// Existing seeded users keep their password unless this is set; then it is
+// reset to SEED_PASSWORD (to rotate a password that leaked).
+const RESET_PASSWORDS = Deno.env.get("SEED_RESET_PASSWORDS") === "1";
 
 // ── Deterministic randomness ──────────────────────────────────────────────────
 // Every random choice comes from a mulberry32 stream keyed by the global seed
@@ -767,13 +776,20 @@ let roleRowsAdded = 0;
 for (const p of personas) {
   const existingProfile = await db
     .selectFrom("users")
-    .select(["id"])
+    .select(["id", "auth_id"])
     .where("email", "=", p.email)
     .executeTakeFirst();
 
   let userId: string;
   if (existingProfile) {
     userId = existingProfile.id;
+    if (RESET_PASSWORDS && existingProfile.auth_id) {
+      const { error } = await supabaseAdmin.auth.admin.updateUserById(existingProfile.auth_id, {
+        password: SEED_PASSWORD,
+      });
+      if (error) throw new Error(`Failed to reset the password of ${p.email}: ${error.message}`);
+      console.log(`  ~ password reset for "${p.username}"`);
+    }
   } else {
     let authUserId: string;
     const { data, error } = await supabaseAdmin.auth.admin.createUser({

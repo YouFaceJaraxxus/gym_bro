@@ -9,6 +9,7 @@ REST API exposes nothing directly.
 
 ```bash
 supabase start                     # Docker stack: Postgres, Auth, Storage, Studio
+echo "SEED_PASSWORD='<pick one>'" >> .env.local   # once; the seeded users' password
 ./scripts/setup_db.sh              # apply the schema and seed demo data
 ./scripts/serve.sh                 # serve the edge functions with .env.local
 ```
@@ -17,7 +18,10 @@ supabase start                     # Docker stack: Postgres, Auth, Storage, Stud
 - Studio: http://127.0.0.1:54323
 - Mailpit (invite and reset emails): http://127.0.0.1:54324
 
-Every seeded user signs in with the password `GymBroSeed123!`:
+Every seeded user signs in with `SEED_PASSWORD`, read by `setup_db.sh` from
+the environment or `.env.local` / `.env`. Users seeded earlier keep their old
+password; `./scripts/setup_db.sh --seed-only --reset-passwords` sets them to
+the current one.
 
 | Email | Role |
 |---|---|
@@ -112,8 +116,22 @@ deno task lint
 deno task test:unit
 eval "$(supabase status -o env | grep -E '^(API_URL|ANON_KEY|DB_URL)=')"
 export API_URL ANON_KEY DB_URL
+export SEED_PASSWORD='<the password the local stack was seeded with>'
 deno task test:integration # against the running local stack; cleans up after itself
 ```
 
 CI (`.github/workflows/ci.yml`) runs all of these on a fresh stack filled with
 `setup_db.sh`.
+
+## Deploying
+
+`.github/workflows/deploy.yml` runs after CI passes on a push to `main` (or by
+hand from the Actions tab): it applies pending `sql/schemas/` files to the
+hosted database with `migrate.sh`, deploys every edge function, smoke-tests
+`users/signin`, then builds a release APK against the hosted project and
+publishes it as the `android-latest` pre-release. It never seeds. The secrets
+it needs are listed at the top of the workflow.
+
+`migrate.sh` records files by name and never re-runs an applied one, so a
+change to an already-applied migration must go in a new file; the deploy warns
+when it sees one.
