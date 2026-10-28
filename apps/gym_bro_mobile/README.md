@@ -25,7 +25,7 @@ cd ios && pod install && cd ..
 
 Start the API first (see `apps/gym_bro_api`): `supabase start`, then
 `./scripts/serve.sh` to serve the edge functions on `http://127.0.0.1:54321/functions/v1`.
-Seeded demo users all use the password `GymBroSeed123!` (e.g. `liam.oconnor@example.com`
+Seeded demo users all use the API's `SEED_PASSWORD` (e.g. `liam.oconnor@example.com`
 member, `marcus.bennett@example.com` gym owner).
 
 ```bash
