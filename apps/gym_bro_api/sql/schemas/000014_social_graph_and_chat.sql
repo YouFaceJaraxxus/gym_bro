@@ -416,7 +416,14 @@ $$;
 REVOKE ALL ON FUNCTION realtime_authz.can_use_topic(TEXT, BOOLEAN) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION realtime_authz.can_use_topic(TEXT, BOOLEAN) TO authenticated;
 
-ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
+-- Hosted projects already have RLS on, and there realtime.messages is owned by
+-- supabase_realtime_admin, so an unconditional ALTER fails for postgres.
+DO $$
+BEGIN
+  IF NOT (SELECT relrowsecurity FROM pg_class WHERE oid = 'realtime.messages'::regclass) THEN
+    ALTER TABLE realtime.messages ENABLE ROW LEVEL SECURITY;
+  END IF;
+END $$;
 
 DROP POLICY IF EXISTS gym_bro_realtime_read ON realtime.messages;
 CREATE POLICY gym_bro_realtime_read ON realtime.messages

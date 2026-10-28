@@ -17,6 +17,18 @@ const isLocal =
   postgresUrl.includes("localhost") ||
   postgresUrl.includes("host.docker.internal");
 
+// `supabase secrets set` run from a shell with .env.local sourced also uploads
+// config.toml's [edge_runtime.secrets], replacing the hosted POSTGRES_URL with
+// the local one. Fail loudly instead of with a confusing getaddrinfo error.
+const isHosted = /^https:\/\/[a-z0-9]+\.supabase\.co\/?$/.test(Deno.env.get("SUPABASE_URL") ?? "");
+if (isHosted && isLocal) {
+  throw new Error(
+    "POSTGRES_URL points at a local database but this is a hosted project. It was most likely " +
+      "overwritten by `supabase secrets set` run from a shell with .env.local sourced. " +
+      "Set it back to the pooler URL from a clean shell.",
+  );
+}
+
 export const db = new Kysely<Database>({
   dialect: new PostgresDialect({
     pool: new Pool({

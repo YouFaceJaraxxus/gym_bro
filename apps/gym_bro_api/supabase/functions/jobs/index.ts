@@ -150,19 +150,31 @@ Deno.serve(async (req: Request) => {
     const provided = req.headers.get("x-cron-secret") ?? "";
     if (!safeEqual(provided, secret)) return jsonError("Unauthorized", 401);
 
+    // The caller is pg_cron, so a failure is only ever seen in
+    // net._http_response: report which step broke and why.
     const started = Date.now();
-    const memberships_expired = await expireLapsedMemberships();
-    const expiring_notifications = await notifyExpiringMemberships();
-    const class_reminders = await sendClassReminders();
-    const abandoned_uploads_removed = await sweepAbandonedUploads();
+    let step = "expire_memberships";
+    try {
+      const memberships_expired = await expireLapsedMemberships();
+      step = "expiring_notifications";
+      const expiring_notifications = await notifyExpiringMemberships();
+      step = "class_reminders";
+      const class_reminders = await sendClassReminders();
+      step = "sweep_uploads";
+      const abandoned_uploads_removed = await sweepAbandonedUploads();
 
-    return json({
-      memberships_expired,
-      expiring_notifications,
-      class_reminders,
-      abandoned_uploads_removed,
-      duration_ms: Date.now() - started,
-    });
+      return json({
+        memberships_expired,
+        expiring_notifications,
+        class_reminders,
+        abandoned_uploads_removed,
+        duration_ms: Date.now() - started,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`jobs step ${step} failed`, err);
+      return jsonError(`Job step ${step} failed: ${message}`, 500, { code: "job_failed" });
+    }
   }
 
   return jsonError("Not found", 404);
