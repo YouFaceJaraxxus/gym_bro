@@ -78,6 +78,18 @@ jobs:
               echo "::error::PROD_DATABASE_URL uses db.<ref>.supabase.co, which is IPv6-only and unreachable from runners; use the session pooler URL (…pooler.supabase.com:5432)."
               exit 1 ;;
           esac
+          # Names the kind of key without printing any of it.
+          token="$(printf %s "$SUPABASE_ACCESS_TOKEN" | tr -d '[:space:]')"
+          case "$token" in
+            sbp_*) ;;
+            eyJ*) kind="a JWT (anon or service_role key)" ;;
+            sb_secret_*|sb_publishable_*) kind="a project API key" ;;
+            *) kind="not a personal access token" ;;
+          esac
+          if [ -n "${kind:-}" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN is $kind; it must be a personal access token (sbp_…) from supabase.com/dashboard/account/tokens."
+            exit 1
+          fi
 
       - name: Apply migrations
         env:
@@ -96,7 +108,10 @@ jobs:
       - name: Deploy edge functions
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        run: supabase functions deploy --project-ref "$SUPABASE_PROJECT_REF" --use-docker
+        # Trimmed: a pasted secret can carry a trailing newline the CLI rejects.
+        run: |
+          SUPABASE_ACCESS_TOKEN="$(printf %s "$SUPABASE_ACCESS_TOKEN" | tr -d '[:space:]')" \
+            supabase functions deploy --project-ref "$SUPABASE_PROJECT_REF" --use-docker
 
       # A 400 means the function booted (config.ts throws at load if POSTGRES_URL
       # is wrong) and validated the empty body.
