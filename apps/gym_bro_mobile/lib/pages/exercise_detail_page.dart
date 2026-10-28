@@ -5,6 +5,7 @@ import '../services/auth_manager.dart';
 import '../services/api_service.dart';
 import '../widgets/muscle_diagram.dart';
 import '../widgets/open_url.dart';
+import '../widgets/social_widgets.dart';
 import 'exercise_form_page.dart';
 
 class ExerciseDetailPage extends StatefulWidget {
@@ -97,16 +98,23 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Illustrations are wide start/end panels: show the whole image at
+          // its own aspect ratio (no crop); tap for full screen + pinch zoom.
           if (_exercise.imageUrl != null) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                _exercise.imageUrl!,
-                height: 220,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                semanticLabel: l10n.trainingExercisePhoto(_exercise.name),
-                errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+            GestureDetector(
+              onTap: () => MediaViewerPage.open(context, url: _exercise.displayImageUrl!, title: _exercise.name),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 320),
+                  child: Image.network(
+                    _exercise.displayImageUrl!,
+                    width: double.infinity,
+                    fit: BoxFit.contain,
+                    semanticLabel: l10n.trainingExercisePhoto(_exercise.name),
+                    errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 20),

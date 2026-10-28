@@ -277,10 +277,12 @@ class _ExerciseCard extends StatelessWidget {
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
-                  exercise.imageUrl!,
+                  exercise.displayImageUrl!,
                   width: 52,
                   height: 52,
                   fit: BoxFit.cover,
+                  // Square crop on the right (end position) panel of the illustration.
+                  alignment: const Alignment(0.8, 0),
                   excludeFromSemantics: true,
                   errorBuilder: (context, error, stack) => _placeholder(cs),
                 ),

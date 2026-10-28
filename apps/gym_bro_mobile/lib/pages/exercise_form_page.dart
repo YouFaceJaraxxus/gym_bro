@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../config.dart';
 import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../services/api_service.dart';
@@ -189,7 +190,7 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
             ),
             const SizedBox(height: 16),
             ImagePickerField(
-              imageUrl: _imageUrl.text.isEmpty ? null : _imageUrl.text,
+              imageUrl: _imageUrl.text.isEmpty ? null : AppConfig.resolveUrl(_imageUrl.text),
               folder: 'exercises',
               label: l10n.trainingExerciseAddPhoto,
               onUploaded: (url) => setState(() => _imageUrl.text = url),

@@ -49,6 +49,14 @@
 // (and one sample video). Without network access those items are seeded
 // without media (captions / text only); a re-run with network adds the
 // missing files to personal posts (chat messages keep their text only).
+//
+// Exercise illustrations are the committed JPEGs in seed_assets/exercises/
+// (<exercise-name-slug>.jpg; an exercise without one gets no image), uploaded
+// to the public `media` bucket under exercises/illustrations/. image_url is stored relative
+// to the Supabase origin (clients prefix their own) with a ?v=<content hash>,
+// so a changed image gets a new URL. Re-runs upload changed files and point
+// seeded exercises still on a placeholder or an older illustration at the
+// current one; an image an author uploaded themselves is left alone.
 
 import { type Insertable, Kysely, PostgresDialect, sql } from "npm:kysely@^0.27";
 import pg from "npm:pg@^8";
@@ -346,6 +354,50 @@ async function seedStorageObject(
     console.warn(`  ! couldn't fetch ${sourceUrl} for ${bucket}/${path}: ${(err as Error).message}`);
     return null;
   }
+}
+
+const ILLUSTRATION_DIR = new URL("./seed_assets/exercises/", import.meta.url);
+const ILLUSTRATION_PREFIX = "exercises/illustrations";
+const ILLUSTRATION_URL_PREFIX = `/storage/v1/object/public/media/${ILLUSTRATION_PREFIX}/`;
+
+const slugify = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+/** Objects already in media/exercises/illustrations, name → size. */
+let illustrationObjects: Map<string, number> | null = null;
+let illustrationsUploaded = 0;
+
+/**
+ * Uploads the exercise's illustration to the public `media` bucket when it's
+ * missing or changed, and returns its origin-relative URL. Null when there's
+ * no illustration file for it (or the upload failed).
+ */
+async function exerciseIllustrationUrl(exerciseName: string): Promise<string | null> {
+  const file = `${slugify(exerciseName)}.jpg`;
+  let bytes: Uint8Array<ArrayBuffer>;
+  try {
+    bytes = await Deno.readFile(new URL(file, ILLUSTRATION_DIR));
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) return null;
+    throw err;
+  }
+  if (!illustrationObjects) {
+    const { data, error } = await supabaseAdmin.storage.from("media").list(ILLUSTRATION_PREFIX, { limit: 1000 });
+    if (error) throw new Error(`listing media/${ILLUSTRATION_PREFIX}: ${error.message}`);
+    illustrationObjects = new Map(data.map((o) => [o.name, Number(o.metadata?.size ?? 0)]));
+  }
+  if (illustrationObjects.get(file) !== bytes.length) {
+    const { error } = await supabaseAdmin.storage.from("media")
+      .upload(`${ILLUSTRATION_PREFIX}/${file}`, bytes, { contentType: "image/jpeg", upsert: true });
+    if (error) {
+      console.warn(`  ! couldn't upload media/${ILLUSTRATION_PREFIX}/${file}: ${error.message}`);
+      return null;
+    }
+    illustrationObjects.set(file, bytes.length);
+    illustrationsUploaded++;
+  }
+  const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+  const version = [...hash.slice(0, 4)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `${ILLUSTRATION_URL_PREFIX}${file}?v=${version}`;
 }
 
 /** Seeded media key → file (an image from picsum, or the sample video). */
@@ -866,12 +918,24 @@ const uid = (username: string) => userIdByUsername.get(username)!;
 const exerciseIdByName = new Map<string, string>();
 const exerciseWeightById = new Map<string, number | null>();
 added = 0;
+let illustrationsLinked = 0;
 
 for (const ex of exercises) {
-  const existing = await db.selectFrom("exercise").select(["id"]).where("name", "=", ex.name).executeTakeFirst();
+  const imageUrl = await exerciseIllustrationUrl(ex.name);
+  const existing = await db.selectFrom("exercise").select(["id", "image_url", "author_id"])
+    .where("name", "=", ex.name).executeTakeFirst();
   if (existing) {
     exerciseIdByName.set(ex.name, existing.id);
     exerciseWeightById.set(existing.id, ex.default_weight_kg);
+    // Only seeded rows still showing a picsum placeholder or an older
+    // illustration — never an image someone uploaded.
+    const current = existing.image_url;
+    const replaceable = current === null || current.startsWith("https://picsum.photos/") ||
+      current.startsWith(ILLUSTRATION_URL_PREFIX);
+    if (imageUrl && current !== imageUrl && replaceable && existing.author_id === trainerId) {
+      await db.updateTable("exercise").set({ image_url: imageUrl }).where("id", "=", existing.id).execute();
+      illustrationsLinked++;
+    }
     continue;
   }
   const row = await db
@@ -880,7 +944,7 @@ for (const ex of exercises) {
       name: ex.name,
       description: ex.description,
       note: ex.note,
-      image_url: photoUrl(`exercise-${ex.name}`, 800, 600),
+      image_url: imageUrl,
       video_url: null,
       author_id: trainerId,
       primary_muscles: ex.primary_muscles,
@@ -894,6 +958,8 @@ for (const ex of exercises) {
   added++;
 }
 report("exercises", added);
+report("exercise illustration uploads", illustrationsUploaded);
+report("existing exercises given their illustration", illustrationsLinked);
 
 // ── 4. Trainings ──────────────────────────────────────────────────────────────
 

@@ -782,6 +782,1183 @@
         "hamstrings"
       ],
       "default_weight_kg": 16
+    },
+    {
+      "name": "Incline Barbell Bench Press",
+      "description": "A barbell press on a bench inclined to about 30 degrees that shifts more of the work to the upper chest and front delts.",
+      "note": "Touch the bar just below the collarbones and keep your shoulder blades pinned back.",
+      "primary_muscles": [
+        "chest_upper"
+      ],
+      "secondary_muscles": [
+        "delts_front",
+        "triceps_all"
+      ],
+      "default_weight_kg": 60
+    },
+    {
+      "name": "Decline Barbell Bench Press",
+      "description": "A barbell press on a decline bench with the legs hooked under pads, emphasising the lower chest.",
+      "note": "Lower the bar to the bottom of the chest and keep the elbows slightly tucked.",
+      "primary_muscles": [
+        "chest_lower"
+      ],
+      "secondary_muscles": [
+        "triceps_all",
+        "delts_front"
+      ],
+      "default_weight_kg": 70
+    },
+    {
+      "name": "Dumbbell Bench Press",
+      "description": "A flat-bench press with a dumbbell in each hand that allows a deeper stretch and independent work for each arm.",
+      "note": "Lower until the dumbbells are level with your chest, then press up and slightly in.",
+      "primary_muscles": [
+        "chest_all"
+      ],
+      "secondary_muscles": [
+        "triceps_all",
+        "delts_front"
+      ],
+      "default_weight_kg": 30
+    },
+    {
+      "name": "Decline Dumbbell Bench Press",
+      "description": "A dumbbell press on a decline bench that targets the lower chest with a long range of motion.",
+      "note": "Hook your feet securely before bringing the dumbbells into position.",
+      "primary_muscles": [
+        "chest_lower"
+      ],
+      "secondary_muscles": [
+        "triceps_all",
+        "delts_front"
+      ],
+      "default_weight_kg": 28
+    },
+    {
+      "name": "Dumbbell Fly",
+      "description": "A flat-bench isolation move where the arms open wide in an arc to stretch the chest, then squeeze back together.",
+      "note": "Keep a soft, fixed bend in the elbows; the movement happens at the shoulders.",
+      "primary_muscles": [
+        "chest_all"
+      ],
+      "secondary_muscles": [
+        "delts_front"
+      ],
+      "default_weight_kg": 14
+    },
+    {
+      "name": "Incline Dumbbell Fly",
+      "description": "A fly on an incline bench that puts the upper chest under a deep stretch.",
+      "note": "Stop the descent when the dumbbells reach chest level; don't chase extra depth.",
+      "primary_muscles": [
+        "chest_upper"
+      ],
+      "secondary_muscles": [
+        "delts_front"
+      ],
+      "default_weight_kg": 12
+    },
+    {
+      "name": "Low-to-High Cable Fly",
+      "description": "A cable fly from the low pulleys that sweeps the hands up and together to target the upper chest.",
+      "note": "Finish with the hands at chin height and squeeze the upper chest.",
+      "primary_muscles": [
+        "chest_upper"
+      ],
+      "secondary_muscles": [
+        "delts_front"
+      ],
+      "default_weight_kg": 10
+    },
+    {
+      "name": "High-to-Low Cable Fly",
+      "description": "A cable fly from the high pulleys that sweeps the hands down and together to target the lower chest.",
+      "note": "Lean slightly forward and bring the hands together in front of your hips.",
+      "primary_muscles": [
+        "chest_lower"
+      ],
+      "secondary_muscles": [
+        "delts_front"
+      ],
+      "default_weight_kg": 12
+    },
+    {
+      "name": "Pec Deck Fly",
+      "description": "A seated machine fly that keeps constant tension on the chest through the whole range of motion.",
+      "note": "Set the seat so the handles are at chest height and don't let your arms drift behind your shoulders.",
+      "primary_muscles": [
+        "chest_all"
+      ],
+      "secondary_muscles": [
+        "delts_front"
+      ],
+      "default_weight_kg": 45
+    },
+    {
+      "name": "Machine Chest Press",
+      "description": "A seated, guided press that lets you push the chest hard without balancing a bar.",
+      "note": "Keep your back flat against the pad and don't slam the elbows into lockout.",
+      "primary_muscles": [
+        "chest_all"
+      ],
+      "secondary_muscles": [
+        "triceps_all",
+        "delts_front"
+      ],
+      "default_weight_kg": 50
+    },
+    {
+      "name": "Incline Machine Chest Press",
+      "description": "A seated machine press on an upward path that biases the upper chest.",
+      "note": "Keep the shoulder blades back and press up and away from your face.",
+      "primary_muscles": [
+        "chest_upper"
+      ],
+      "secondary_muscles": [
+        "delts_front",
+        "triceps_all"
+      ],
+      "default_weight_kg": 40
+    },
+    {
+      "name": "Smith Machine Bench Press",
+      "description": "A flat bench press on a Smith machine whose fixed bar path makes it easy to push close to failure safely.",
+      "note": "Position the bench so the bar lands on your mid-chest.",
+      "primary_muscles": [
+        "chest_all"
+      ],
+      "secondary_muscles": [
+        "triceps_all",
+        "delts_front"
+      ],
+      "default_weight_kg": 60
+    },
+    {
+      "name": "Smith Machine Incline Press",
+      "description": "An incline press on a Smith machine that loads the upper chest with a stable bar path.",
+      "note": "Set the bench to about 30 degrees and lower the bar to just below the collarbones.",
+      "primary_muscles": [
+        "chest_upper"
+      ],
+      "secondary_muscles": [
+        "delts_front",
+        "triceps_all"
+      ],
+      "default_weight_kg": 50
+    },
+    {
+      "name": "Chest Dip",
+      "description": "A bodyweight dip performed with a forward torso lean to bias the lower chest.",
+      "note": "Lean forward, let the elbows flare slightly and lower until you feel a stretch in the chest.",
+      "primary_muscles": [
+        "chest_lower"
+      ],
+      "secondary_muscles": [
+        "triceps_all",
+        "delts_front"
+      ],
+      "default_weight_kg": null
+    },
+    {
+      "name": "Push-Up",
+      "description": "The classic bodyweight press that trains the chest, shoulders and triceps while the core holds a rigid plank.",
+      "note": "Keep your body in one straight line and lower until your chest nearly touches the floor.",
+      "primary_muscles": [
+        "chest_all"
+      ],
+      "secondary_muscles": [
+        "triceps_all",
+        "delts_front",
+        "abs_upper"
+      ],
+      "default_weight_kg": null
+    },
+    {
+      "name": "Decline Push-Up",
+      "description": "A push-up with the feet elevated that shifts the work toward the upper chest and shoulders.",
+      "note": "Keep the hips in line with the shoulders; don't let them sag or pike.",
+      "primary_muscles": [
+        "chest_upper"
+      ],
+      "secondary_muscles": [
+        "delts_front",
+        "triceps_all"
+      ],
+      "default_weight_kg": null
+    },
+    {
+      "name": "Dumbbell Pullover",
+      "description": "Lying across a bench and lowering one dumbbell behind the head stretches the chest and lats through a long arc.",
+      "note": "Keep a slight bend in the elbows and only lower as far as your shoulders comfortably allow.",
+      "primary_muscles": [
+        "chest_all"
+      ],
+      "secondary_muscles": [
+        "back_lats",
+        "triceps_long"
+      ],
+      "default_weight_kg": 22
+    },
+    {
+      "name": "Chin-Up",
+      "description": "A pull-up with an underhand, shoulder-width grip that adds more biceps to the lat work.",
+      "note": "Start from a full hang and pull until your chin clears the bar.",
+      "primary_muscles": [
+        "back_lats",
+        "biceps"
+      ],
+      "secondary_muscles": [
+        "back_mid"
+      ],
+      "default_weight_kg": null
+    },
+    {
+      "name": "Neutral-Grip Pull-Up",
+      "description": "A pull-up on parallel handles that is easy on the shoulders and elbows while heavily loading the lats.",
+      "note": "Drive your elbows down toward your hips rather than pulling with the hands.",
+      "primary_muscles": [
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "biceps",
+        "back_mid"
+      ],
+      "default_weight_kg": null
+    },
+    {
+      "name": "Weighted Pull-Up",
+      "description": "A pull-up with extra load hanging from a dip belt for progressive overload once bodyweight reps get easy.",
+      "note": "Keep the plate still under you; no swinging or kipping.",
+      "primary_muscles": [
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "biceps",
+        "back_mid"
+      ],
+      "default_weight_kg": 20
+    },
+    {
+      "name": "Assisted Pull-Up Machine",
+      "description": "A pull-up on a machine with a counterweighted knee pad, ideal for building up to unassisted reps.",
+      "note": "Use the least assistance that still lets you hit a full range of motion.",
+      "primary_muscles": [
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "biceps",
+        "back_mid"
+      ],
+      "default_weight_kg": null
+    },
+    {
+      "name": "Close-Grip Lat Pulldown",
+      "description": "A pulldown with a V-handle that allows a long stretch and strong contraction of the lats.",
+      "note": "Lean back slightly and pull the handle to your upper chest.",
+      "primary_muscles": [
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "biceps",
+        "back_mid"
+      ],
+      "default_weight_kg": 55
+    },
+    {
+      "name": "Reverse-Grip Lat Pulldown",
+      "description": "A pulldown with an underhand, shoulder-width grip that drives the elbows close to the body.",
+      "note": "Keep your chest up and pull the bar to the top of your chest.",
+      "primary_muscles": [
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "biceps",
+        "back_mid"
+      ],
+      "default_weight_kg": 55
+    },
+    {
+      "name": "Single-Arm Cable Pulldown",
+      "description": "A one-arm pulldown with a D-handle that lets each lat work through its full range independently.",
+      "note": "Reach up for a full stretch, then pull the elbow down to your side.",
+      "primary_muscles": [
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "biceps"
+      ],
+      "default_weight_kg": 20
+    },
+    {
+      "name": "Straight-Arm Cable Pulldown",
+      "description": "A lat isolation move where straight arms sweep a bar from eye level down to the thighs.",
+      "note": "Keep the arms straight and feel the lats, not the triceps, do the work.",
+      "primary_muscles": [
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "triceps_long",
+        "delts_rear"
+      ],
+      "default_weight_kg": 25
+    },
+    {
+      "name": "Barbell Bent-Over Row",
+      "description": "A heavy compound row from a hip-hinged position that builds thickness across the whole back.",
+      "note": "Keep your torso angle fixed and pull the bar to your lower ribs.",
+      "primary_muscles": [
+        "back_mid",
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "delts_rear",
+        "biceps",
+        "back_lower"
+      ],
+      "default_weight_kg": 60
+    },
+    {
+      "name": "Pendlay Row",
+      "description": "A strict barbell row from a torso-parallel position where each rep starts dead on the floor.",
+      "note": "Let the bar settle on the floor between reps and explode it to your lower chest.",
+      "primary_muscles": [
+        "back_mid",
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "delts_rear",
+        "biceps",
+        "back_lower"
+      ],
+      "default_weight_kg": 60
+    },
+    {
+      "name": "Underhand Barbell Row",
+      "description": "A bent-over row with an underhand grip and a more upright torso that emphasises the lats and biceps.",
+      "note": "Pull the bar to your belly button and keep the elbows close.",
+      "primary_muscles": [
+        "back_lats",
+        "back_mid"
+      ],
+      "secondary_muscles": [
+        "biceps",
+        "back_lower"
+      ],
+      "default_weight_kg": 60
+    },
+    {
+      "name": "Dumbbell Bent-Over Row",
+      "description": "A two-arm row with dumbbells from a hip hinge that lets the hands move freely.",
+      "note": "Brace your core and row both dumbbells toward your hips.",
+      "primary_muscles": [
+        "back_mid",
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "biceps",
+        "delts_rear"
+      ],
+      "default_weight_kg": 26
+    },
+    {
+      "name": "Chest-Supported Dumbbell Row",
+      "description": "A row lying face-down on an incline bench that removes the lower back from the movement.",
+      "note": "Keep your chest on the pad and squeeze your shoulder blades together at the top.",
+      "primary_muscles": [
+        "back_mid"
+      ],
+      "secondary_muscles": [
+        "back_lats",
+        "delts_rear",
+        "biceps"
+      ],
+      "default_weight_kg": 24
+    },
+    {
+      "name": "T-Bar Row",
+      "description": "A row on a landmine-anchored barbell with a V-handle that lets you load the mid back heavily.",
+      "note": "Keep your back flat and pull the handle to your chest.",
+      "primary_muscles": [
+        "back_mid",
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "biceps",
+        "delts_rear",
+        "back_lower"
+      ],
+      "default_weight_kg": 40
+    },
+    {
+      "name": "Seal Row",
+      "description": "A barbell row lying face-down on a high bench that isolates the back with zero cheating.",
+      "note": "Pull the bar to the underside of the bench and pause briefly.",
+      "primary_muscles": [
+        "back_mid",
+        "back_lats"
+      ],
+      "secondary_muscles": [
+        "delts_rear",
+        "biceps"
+      ],
+      "default_weight_kg": 40
+    },
+    {
+      "name": "Meadows Row",
+      "description": "A one-arm landmine row with an overhand grip on the bar end that hits the lats and upper back hard.",
+      "note": "Stand side-on to the bar and drive the elbow up and back.",
+      "primary_muscles": [
+        "back_lats",
+        "back_mid"
+      ],
+      "secondary_muscles": [
+        "delts_rear",
+        "biceps",
+        "forearms_all"
+      ],
+      "default_weight_kg": 30
+    },
+    {
+      "name": "Machine Row",
+      "description": "A seated, chest-supported row machine that lets you train the mid back hard with a fixed path.",
+      "note": "Keep your chest on the pad and pull the handles to your sides.",
+      "primary_muscles": [
+        "back_mid"
+      ],
+      "secondary_muscles": [
+        "back_lats",
+        "delts_rear",
+        "biceps"
+      ],
+      "default_weight_kg": 50
+    },
+    {
+      "name": "Wide-Grip Seated Cable Row",
+      "description": "A seated cable row with a wide bar and flared elbows that targets the upper back and rear delts.",
+      "note": "Pull to your upper abdomen with the elbows out at about 60 degrees.",
+      "primary_muscles": [
+        "back_mid"
+      ],
+      "secondary_muscles": [
+        "delts_rear",
+        "back_lats",
+        "biceps",
+        "back_traps"
+      ],
+      "default_weight_kg": 45
+    },
+    {
+      "name": "Single-Arm Cable Row",
+      "description": "A standing one-arm row with a D-handle that lets the shoulder blade move freely through a long range.",
+      "note": "Reach forward for the stretch, then pull the elbow back past your torso.",
+      "primary_muscles": [
+        "back_lats",
+        "back_mid"
+      ],
+      "secondary_muscles": [
+        "biceps",
+        "delts_rear"
+      ],
+      "default_weight_kg": 20
+    },
+    {
+      "name": "Inverted Row",
+      "description": "A bodyweight row hanging under a fixed bar that builds the mid back and teaches a strong pulling position.",
+      "note": "Keep your body rigid like a plank and pull your chest to the bar.",
+      "primary_muscles": [
+        "back_mid"
+      ],
+      "secondary_muscles": [
+        "back_lats",
+        "biceps",
+        "delts_rear"
+      ],
+      "default_weight_kg": null
+    },
+    {
+      "name": "Rack Pull",
+      "description": "A partial deadlift from pins at knee height that overloads the lockout and the upper back.",
+      "note": "Push the hips through at the top without leaning back.",
+      "primary_muscles": [
+        "back_lower",
+        "back_traps"
+      ],
+      "secondary_muscles": [
+        "glutes_maximus",
+        "hamstrings",
+        "forearms_all"
+      ],
+      "default_weight_kg": 140
+    },
+    {
+      "name": "Back Extension",
+      "description": "A hip extension on a 45-degree bench that strengthens the lower back, glutes and hamstrings.",
+      "note": "Move through the hips and stop when your body forms a straight line.",
+      "primary_muscles": [
+        "back_lower"
+      ],
+      "secondary_muscles": [
+        "glutes_maximus",
+        "hamstrings"
+      ],
+      "default_weight_kg": null
+    },
+    {
+      "name": "Good Morning",
+      "description": "A barbell hip hinge with the bar on the upper back that loads the lower back and hamstrings.",
+      "note": "Keep a soft bend in the knees and push the hips back until you feel the hamstrings stretch.",
+      "primary_muscles": [
+        "back_lower",
+        "hamstrings"
+      ],
+      "secondary_muscles": [
+        "glutes_maximus"
+      ],
+      "default_weight_kg": 40
+    },
+    {
+      "name": "Barbell Shrug",
+      "description": "A heavy shrug holding a barbell in front of the thighs that builds the upper traps.",
+      "note": "Lift the shoulders straight up toward the ears; don't roll them.",
+      "primary_muscles": [
+        "back_traps"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ],
+      "default_weight_kg": 100
+    },
+    {
+      "name": "Dumbbell Shrug",
+      "description": "A shrug with a dumbbell in each hand that allows a natural arm position at the sides.",
+      "note": "Pause for a second at the top of each rep.",
+      "primary_muscles": [
+        "back_traps"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ],
+      "default_weight_kg": 36
+    },
+    {
+      "name": "Front Squat",
+      "description": "A squat with the barbell racked on the front of the shoulders that keeps the torso upright and emphasises the quads.",
+      "note": "Keep the elbows high so the bar stays on your shoulders.",
+      "primary_muscles": [
+        "quads_all"
+      ],
+      "secondary_muscles": [
+        "glutes_maximus",
+        "abs_upper",
+        "back_upper"
+      ],
+      "default_weight_kg": 60
+    },
+    {
+      "name": "Hack Squat",
+      "description": "A machine squat on an angled sled that lets you load the quads heavily with back support.",
+      "note": "Keep your back flat on the pad and go as deep as you can control.",
+      "primary_muscles": [
+        "quads_all"
+      ],
+      "secondary_muscles": [
+        "glutes_maximus"
+      ],
+      "default_weight_kg": 80
+    },
+    {
+      "name": "Goblet Squat",
+      "description": "A squat holding one dumbbell vertically at the chest, great for learning depth and an upright torso.",
+      "note": "Let the elbows travel inside the knees at the bottom.",
+      "primary_muscles": [
+        "quads_all",
+        "glutes_maximus"
+      ],
+      "secondary_muscles": [
+        "abs_upper",
+        "back_upper"
+      ],
+      "default_weight_kg": 24
+    },
+    {
+      "name": "Leg Extension",
+      "description": "A seated machine isolation move that works the quads through knee extension.",
+      "note": "Pause briefly at the top and lower under control.",
+      "primary_muscles": [
+        "quads_all"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 45
+    },
+    {
+      "name": "Lying Leg Curl",
+      "description": "A face-down machine curl that isolates the hamstrings through knee flexion.",
+      "note": "Keep your hips pressed into the pad as you curl.",
+      "primary_muscles": [
+        "hamstrings"
+      ],
+      "secondary_muscles": [
+        "calves"
+      ],
+      "default_weight_kg": 35
+    },
+    {
+      "name": "Seated Leg Curl",
+      "description": "A seated machine curl that trains the hamstrings from a stretched, hips-flexed position.",
+      "note": "Lock the thigh pad down firmly so the hips don't rise.",
+      "primary_muscles": [
+        "hamstrings"
+      ],
+      "secondary_muscles": [
+        "calves"
+      ],
+      "default_weight_kg": 40
+    },
+    {
+      "name": "Dumbbell Romanian Deadlift",
+      "description": "A Romanian deadlift with a dumbbell in each hand that trains the hamstrings and glutes through a hip hinge.",
+      "note": "Keep the dumbbells close to your legs and the back flat.",
+      "primary_muscles": [
+        "hamstrings",
+        "glutes_maximus"
+      ],
+      "secondary_muscles": [
+        "back_lower"
+      ],
+      "default_weight_kg": 26
+    },
+    {
+      "name": "Trap Bar Deadlift",
+      "description": "A deadlift inside a hexagonal bar that keeps the load centred and splits the work between quads and hips.",
+      "note": "Stand in the middle of the bar and push the floor away.",
+      "primary_muscles": [
+        "quads_all",
+        "glutes_maximus"
+      ],
+      "secondary_muscles": [
+        "hamstrings",
+        "back_lower",
+        "back_traps",
+        "forearms_all"
+      ],
+      "default_weight_kg": 120
+    },
+    {
+      "name": "Sumo Deadlift",
+      "description": "A wide-stance deadlift with the hands inside the knees that shortens the pull and loads the hips and adductors.",
+      "note": "Push the knees out over the toes and keep the chest up.",
+      "primary_muscles": [
+        "glutes_maximus",
+        "hamstrings"
+      ],
+      "secondary_muscles": [
+        "quads_all",
+        "back_lower",
+        "back_traps"
+      ],
+      "default_weight_kg": 120
+    },
+    {
+      "name": "Dumbbell Step-Up",
+      "description": "A single-leg step onto a bench or box that builds the quads and glutes one side at a time.",
+      "note": "Drive through the heel of the top foot and don't push off the bottom leg.",
+      "primary_muscles": [
+        "quads_all",
+        "glutes_maximus"
+      ],
+      "secondary_muscles": [
+        "hamstrings",
+        "calves"
+      ],
+      "default_weight_kg": 16
+    },
+    {
+      "name": "Glute-Ham Raise",
+      "description": "A bodyweight hamstring curl on a glute-ham developer that trains knee flexion and hip extension together.",
+      "note": "Keep your hips extended and lower slowly.",
+      "primary_muscles": [
+        "hamstrings"
+      ],
+      "secondary_muscles": [
+        "glutes_maximus",
+        "calves"
+      ],
+      "default_weight_kg": null
+    },
+    {
+      "name": "Seated Calf Raise",
+      "description": "A seated machine calf raise that targets the soleus with the knees bent.",
+      "note": "Pause at the bottom stretch before driving up.",
+      "primary_muscles": [
+        "calves"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 40
+    },
+    {
+      "name": "Leg Press Calf Raise",
+      "description": "A calf raise on the leg press with straight legs that lets you load the calves heavily.",
+      "note": "Keep the knees straight but not locked and use the full range.",
+      "primary_muscles": [
+        "calves"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 120
+    },
+    {
+      "name": "Barbell Curl",
+      "description": "The standard standing barbell curl for building overall biceps size and strength.",
+      "note": "Keep the elbows at your sides and don't swing the torso.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ],
+      "default_weight_kg": 30
+    },
+    {
+      "name": "EZ-Bar Curl",
+      "description": "A curl with an angled EZ bar that is easier on the wrists than a straight bar.",
+      "note": "Grip the inner angles and curl with control.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ],
+      "default_weight_kg": 25
+    },
+    {
+      "name": "Incline Dumbbell Curl",
+      "description": "A curl reclined on an incline bench that stretches the biceps' long head with the arms behind the body.",
+      "note": "Let the arms hang straight down and keep the elbows back throughout.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ],
+      "default_weight_kg": 10
+    },
+    {
+      "name": "EZ-Bar Preacher Curl",
+      "description": "A curl over a preacher bench that locks the upper arms in place and removes momentum.",
+      "note": "Lower until the arms are almost straight, without bouncing at the bottom.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ],
+      "default_weight_kg": 20
+    },
+    {
+      "name": "Single-Arm Dumbbell Preacher Curl",
+      "description": "A one-arm preacher curl with a dumbbell that lets you focus on each biceps separately.",
+      "note": "Use the other hand to brace the pad and stay square.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ],
+      "default_weight_kg": 10
+    },
+    {
+      "name": "Concentration Curl",
+      "description": "A seated one-arm curl with the elbow braced against the inner thigh for strict isolation.",
+      "note": "Keep the upper arm still and squeeze hard at the top.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 12
+    },
+    {
+      "name": "Spider Curl",
+      "description": "A curl lying chest-down on an incline bench with the arms hanging vertically for a hard peak contraction.",
+      "note": "Keep the upper arms perpendicular to the floor the whole time.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 10
+    },
+    {
+      "name": "Cable Curl",
+      "description": "A standing curl on a low pulley that keeps constant tension on the biceps.",
+      "note": "Step back slightly so the cable stays taut at the bottom.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ],
+      "default_weight_kg": 25
+    },
+    {
+      "name": "Bayesian Cable Curl",
+      "description": "A one-arm curl facing away from a low pulley that loads the biceps in a deep stretch behind the body.",
+      "note": "Let the arm drift back for the stretch, then curl without moving the elbow forward.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 10
+    },
+    {
+      "name": "Rope Cable Hammer Curl",
+      "description": "A hammer curl with a rope on the low pulley that trains the brachialis and brachioradialis with constant tension.",
+      "note": "Keep the palms facing each other and pull the rope ends apart at the top.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ],
+      "default_weight_kg": 25
+    },
+    {
+      "name": "Machine Preacher Curl",
+      "description": "A preacher curl on a selectorised machine that gives smooth resistance through the whole curl.",
+      "note": "Line your elbows up with the machine's pivot.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 30
+    },
+    {
+      "name": "Reverse EZ-Bar Curl",
+      "description": "A curl with an overhand grip that shifts the work to the brachioradialis and forearm extensors.",
+      "note": "Keep the wrists straight and the elbows tucked.",
+      "primary_muscles": [
+        "biceps",
+        "forearms_top"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 20
+    },
+    {
+      "name": "Zottman Curl",
+      "description": "A dumbbell curl that goes up palms-up and comes down palms-down to train both the biceps and the forearms.",
+      "note": "Rotate the wrists at the top and lower slowly with the palms down.",
+      "primary_muscles": [
+        "biceps"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ],
+      "default_weight_kg": 10
+    },
+    {
+      "name": "Rope Tricep Pushdown",
+      "description": "A pushdown with a rope attachment that lets the hands split apart for a stronger triceps contraction.",
+      "note": "Spread the rope ends apart at the bottom and keep the elbows pinned.",
+      "primary_muscles": [
+        "triceps_all"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 25
+    },
+    {
+      "name": "Reverse-Grip Cable Pushdown",
+      "description": "A pushdown with an underhand grip that shifts emphasis toward the triceps' medial head.",
+      "note": "Use a lighter weight and keep the wrists neutral.",
+      "primary_muscles": [
+        "triceps_all"
+      ],
+      "secondary_muscles": [
+        "forearms_all"
+      ],
+      "default_weight_kg": 20
+    },
+    {
+      "name": "Overhead Cable Tricep Extension",
+      "description": "An overhead extension on a cable that loads the triceps' long head in a deep stretch.",
+      "note": "Keep the elbows pointing forward and close to your head.",
+      "primary_muscles": [
+        "triceps_long"
+      ],
+      "secondary_muscles": [
+        "triceps_lateral",
+        "triceps_medial"
+      ],
+      "default_weight_kg": 25
+    },
+    {
+      "name": "Seated Overhead Dumbbell Extension",
+      "description": "A seated two-hand extension with one dumbbell behind the head that stretches the long head of the triceps.",
+      "note": "Keep the elbows narrow and lower the dumbbell until your forearms pass parallel.",
+      "primary_muscles": [
+        "triceps_long"
+      ],
+      "secondary_muscles": [
+        "triceps_lateral",
+        "triceps_medial"
+      ],
+      "default_weight_kg": 24
+    },
+    {
+      "name": "Single-Arm Overhead Dumbbell Extension",
+      "description": "A one-arm overhead extension that lets each triceps work through its full stretch.",
+      "note": "Support the working elbow with your free hand if it drifts out.",
+      "primary_muscles": [
+        "triceps_long"
+      ],
+      "secondary_muscles": [
+        "triceps_lateral",
+        "triceps_medial"
+      ],
+      "default_weight_kg": 12
+    },
+    {
+      "name": "Close-Grip Bench Press",
+      "description": "A bench press with the hands about shoulder-width apart that shifts the work toward the triceps.",
+      "note": "Keep the elbows tucked close to your sides as you lower the bar.",
+      "primary_muscles": [
+        "triceps_all"
+      ],
+      "secondary_muscles": [
+        "chest_all",
+        "delts_front"
+      ],
+      "default_weight_kg": 60
+    },
+    {
+      "name": "Tricep Dip",
+      "description": "A bodyweight dip with an upright torso that puts most of the load on the triceps.",
+      "note": "Stay upright and keep the elbows pointing back, not out.",
+      "primary_muscles": [
+        "triceps_all"
+      ],
+      "secondary_muscles": [
+        "chest_lower",
+        "delts_front"
+      ],
+      "default_weight_kg": null
+    },
+    {
+      "name": "Bench Dip",
+      "description": "A dip with the hands on a bench behind you, an accessible way to train the triceps with bodyweight.",
+      "note": "Keep your hips close to the bench and lower until the elbows reach 90 degrees.",
+      "primary_muscles": [
+        "triceps_all"
+      ],
+      "secondary_muscles": [
+        "delts_front",
+        "chest_lower"
+      ],
+      "default_weight_kg": null
+    },
+    {
+      "name": "Dumbbell Tricep Kickback",
+      "description": "A bent-over isolation move that extends the arm back to fully shorten the triceps.",
+      "note": "Keep the upper arm parallel to the floor and only move the forearm.",
+      "primary_muscles": [
+        "triceps_all"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 8
+    },
+    {
+      "name": "Cable Tricep Kickback",
+      "description": "A kickback on a low cable that keeps tension on the triceps at the fully extended position.",
+      "note": "Hinge forward and lock the upper arm in line with your torso.",
+      "primary_muscles": [
+        "triceps_all"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 10
+    },
+    {
+      "name": "JM Press",
+      "description": "A hybrid of a close-grip bench press and a skull crusher that heavily overloads the triceps.",
+      "note": "Lower the bar toward your chin by bending the elbows forward, then press back up.",
+      "primary_muscles": [
+        "triceps_all"
+      ],
+      "secondary_muscles": [
+        "chest_all",
+        "delts_front"
+      ],
+      "default_weight_kg": 40
+    },
+    {
+      "name": "Diamond Push-Up",
+      "description": "A push-up with the hands together under the chest forming a diamond, heavily targeting the triceps.",
+      "note": "Keep the elbows close to your body as you lower.",
+      "primary_muscles": [
+        "triceps_all"
+      ],
+      "secondary_muscles": [
+        "chest_all",
+        "delts_front"
+      ],
+      "default_weight_kg": null
+    },
+    {
+      "name": "Lying Dumbbell Tricep Extension",
+      "description": "A skull-crusher-style extension with dumbbells and a neutral grip that is easy on the elbows.",
+      "note": "Lower the dumbbells beside your head, not onto your forehead.",
+      "primary_muscles": [
+        "triceps_all"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 12
+    },
+    {
+      "name": "Seated Dumbbell Shoulder Press",
+      "description": "A seated overhead press with dumbbells that builds the front and side delts with back support.",
+      "note": "Lower until the dumbbells reach ear level and press without arching the lower back.",
+      "primary_muscles": [
+        "delts_front"
+      ],
+      "secondary_muscles": [
+        "delts_medial",
+        "triceps_all"
+      ],
+      "default_weight_kg": 22
+    },
+    {
+      "name": "Arnold Press",
+      "description": "A seated dumbbell press that rotates the palms from facing you to facing forward on the way up.",
+      "note": "Rotate smoothly as you press; finish with the palms facing forward.",
+      "primary_muscles": [
+        "delts_front",
+        "delts_medial"
+      ],
+      "secondary_muscles": [
+        "triceps_all"
+      ],
+      "default_weight_kg": 18
+    },
+    {
+      "name": "Machine Shoulder Press",
+      "description": "A seated, guided overhead press that lets you push the delts hard without stabilising free weights.",
+      "note": "Keep your back on the pad and stop just short of lockout.",
+      "primary_muscles": [
+        "delts_front"
+      ],
+      "secondary_muscles": [
+        "delts_medial",
+        "triceps_all"
+      ],
+      "default_weight_kg": 40
+    },
+    {
+      "name": "Push Press",
+      "description": "An overhead press driven by a quick leg dip that lets you move heavier loads than a strict press.",
+      "note": "Dip straight down a few inches, then drive through the legs and press.",
+      "primary_muscles": [
+        "delts_all"
+      ],
+      "secondary_muscles": [
+        "triceps_all",
+        "quads_all",
+        "glutes_maximus"
+      ],
+      "default_weight_kg": 60
+    },
+    {
+      "name": "Landmine Press",
+      "description": "A single-arm press on an angled barbell anchored at one end that is shoulder-friendly and trains the upper chest too.",
+      "note": "Press up and slightly forward, keeping the ribs down.",
+      "primary_muscles": [
+        "delts_front",
+        "chest_upper"
+      ],
+      "secondary_muscles": [
+        "triceps_all",
+        "abs_obliques"
+      ],
+      "default_weight_kg": 20
+    },
+    {
+      "name": "Cable Lateral Raise",
+      "description": "A one-arm lateral raise on a low cable that keeps tension on the side delt through the whole range.",
+      "note": "Lead with the elbow and stop at shoulder height.",
+      "primary_muscles": [
+        "delts_medial"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 8
+    },
+    {
+      "name": "Machine Lateral Raise",
+      "description": "A seated lateral raise machine that isolates the side delts with a fixed path.",
+      "note": "Push with the elbows against the pads and pause at the top.",
+      "primary_muscles": [
+        "delts_medial"
+      ],
+      "secondary_muscles": [],
+      "default_weight_kg": 30
+    },
+    {
+      "name": "Dumbbell Front Raise",
+      "description": "A front raise with dumbbells that isolates the front delts.",
+      "note": "Raise to eye level without swinging the torso.",
+      "primary_muscles": [
+        "delts_front"
+      ],
+      "secondary_muscles": [
+        "delts_medial"
+      ],
+      "default_weight_kg": 10
+    },
+    {
+      "name": "Reverse Pec Deck",
+      "description": "A rear delt fly on the pec deck machine, sitting facing the pad.",
+      "note": "Keep the arms nearly straight and open them wide without shrugging.",
+      "primary_muscles": [
+        "delts_rear"
+      ],
+      "secondary_muscles": [
+        "back_rhomboids",
+        "back_traps"
+      ],
+      "default_weight_kg": 30
+    },
+    {
+      "name": "Bent-Over Dumbbell Rear Delt Fly",
+      "description": "A bent-over raise with light dumbbells that isolates the rear delts.",
+      "note": "Lead with the pinkies and keep the back flat.",
+      "primary_muscles": [
+        "delts_rear"
+      ],
+      "secondary_muscles": [
+        "back_rhomboids",
+        "back_traps"
+      ],
+      "default_weight_kg": 8
+    },
+    {
+      "name": "Cable Rear Delt Fly",
+      "description": "A rear delt fly between two cable pulleys with the cables crossed, keeping constant tension on the rear delts.",
+      "note": "Pull out and back in a wide arc, not toward your body.",
+      "primary_muscles": [
+        "delts_rear"
+      ],
+      "secondary_muscles": [
+        "back_rhomboids"
+      ],
+      "default_weight_kg": 8
+    },
+    {
+      "name": "Barbell Upright Row",
+      "description": "A vertical pull of a barbell to chest height that trains the side delts and upper traps.",
+      "note": "Use a grip at least shoulder-width and stop when the elbows reach shoulder height.",
+      "primary_muscles": [
+        "delts_medial",
+        "back_traps"
+      ],
+      "secondary_muscles": [
+        "delts_front",
+        "biceps"
+      ],
+      "default_weight_kg": 30
     }
   ],
   "trainings": [

@@ -102,10 +102,12 @@ class _ExercisePickerSheetState extends State<ExercisePickerSheet> {
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(6),
                   child: Image.network(
-                    ex.imageUrl!,
+                    ex.displayImageUrl!,
                     width: 40,
                     height: 40,
                     fit: BoxFit.cover,
+                    // Square crop on the right (end position) panel of the illustration.
+                    alignment: const Alignment(0.8, 0),
                     excludeFromSemantics: true,
                     errorBuilder: (context, error, stack) =>
                         const Icon(Icons.fitness_center),

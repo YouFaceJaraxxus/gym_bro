@@ -19,10 +19,12 @@ import 'social_widgets.dart';
 /// The API returns a page of top-level comments plus every reply under them
 /// as one flat list; [CommentTree] rebuilds the tree from `parentId` and
 /// [CommentThreadView] renders it as a *sliver* (put it in a
-/// `CustomScrollView`): thin guide lines per level (tap one, or a comment's
-/// header, to collapse that subtree), 12 px indentation, "Show N more
-/// replies" for long sibling lists and "Continue this thread →" past
-/// [CommentThreadView.maxVisibleDepth].
+/// `CustomScrollView`): thin guide lines per level (tap one, or a comment, to
+/// collapse that subtree), 12 px indentation, "Show N more replies" for long
+/// sibling lists and "Continue this thread →" past
+/// [CommentThreadView.maxVisibleDepth]. Every comment starts collapsed to its
+/// header; expanding one shows its body and its (still collapsed) replies, and
+/// collapsing it collapses everything below again.
 
 enum CommentSort {
   top('top'),
@@ -128,8 +130,8 @@ class CommentThreadController {
   void toggle(String commentId) => _state?._toggle(commentId);
 }
 
-/// The comment thread as a sliver. Owns only view state (collapsed
-/// subtrees, how many replies are revealed); the comments and every action
+/// The comment thread as a sliver. Owns only view state (expanded
+/// comments, how many replies are revealed); the comments and every action
 /// belong to the parent.
 class CommentThreadView extends StatefulWidget {
   const CommentThreadView({
@@ -224,7 +226,8 @@ class _CommentThreadViewState extends State<CommentThreadView> {
   static const _moreStep = 10;
   static const _unit = 12.0;
 
-  final Set<String> _collapsed = {};
+  /// Comments not in here are collapsed — the thread opens fully collapsed.
+  final Set<String> _expanded = {};
   final Map<String, int> _shown = {};
   final Map<String, GlobalKey> _keys = {};
 
@@ -237,6 +240,8 @@ class _CommentThreadViewState extends State<CommentThreadView> {
   void initState() {
     super.initState();
     widget.controller?._state = this;
+    // A focused thread opens on its root comment.
+    if (widget.rootId != null) _expanded.add(widget.rootId!);
   }
 
   @override
@@ -287,7 +292,7 @@ class _CommentThreadViewState extends State<CommentThreadView> {
       final limit = level == 0 ? siblings.length : math.min(siblings.length, _shown[parentKey] ?? _initialReplies);
       for (var i = 0; i < limit; i++) {
         final n = siblings[i];
-        final collapsed = _collapsed.contains(n.id);
+        final collapsed = !_expanded.contains(n.id);
         rows.add(_CommentRow(n, level, lines, collapsed: collapsed));
         if (collapsed || n.children.isEmpty) continue;
         final childLines = [...lines, n.id];
@@ -305,8 +310,22 @@ class _CommentThreadViewState extends State<CommentThreadView> {
   }
 
   void _toggle(String id) {
-    final collapsing = !_collapsed.contains(id);
-    setState(() => collapsing ? _collapsed.add(id) : _collapsed.remove(id));
+    final collapsing = _expanded.contains(id);
+    setState(() {
+      if (!collapsing) {
+        _expanded.add(id);
+        return;
+      }
+      // Collapse the whole subtree so re-expanding starts from scratch.
+      void collapse(CommentNode n) {
+        _expanded.remove(n.id);
+        _shown.remove(n.id);
+        n.children.forEach(collapse);
+      }
+
+      final node = _currentTree[id];
+      node == null ? _expanded.remove(id) : collapse(node);
+    });
     if (collapsing) {
       // Collapsing from a guide line deep below can leave the comment above
       // the viewport: bring its header back.
@@ -337,7 +356,7 @@ class _CommentThreadViewState extends State<CommentThreadView> {
     final path = chain.sublist(start);
     setState(() {
       for (var i = 0; i < path.length; i++) {
-        if (i < path.length - 1) _collapsed.remove(path[i].id);
+        _expanded.add(path[i].id);
         if (i > 0) {
           final parent = path[i - 1];
           final idx = parent.children.indexOf(path[i]);
@@ -665,9 +684,13 @@ class _CommentTile extends StatelessWidget {
           ]),
           if (!collapsed) ...[
             if (!placeholder && c.body.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(left: 28, right: 4),
-                child: Text(c.body, style: tt.bodyMedium),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: pending ? null : onToggle,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 28, right: 4),
+                  child: Text(c.body, style: tt.bodyMedium),
+                ),
               ),
             if (interactive)
               Padding(

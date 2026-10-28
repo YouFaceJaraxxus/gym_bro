@@ -1,3 +1,4 @@
+import '../config.dart';
 import '../l10n/app_localizations.dart';
 
 enum MuscleGroup {
@@ -236,6 +237,11 @@ class Exercise {
     required this.createdAt,
     required this.updatedAt,
   });
+
+  /// [imageUrl] made absolute for display: seeded illustrations are stored
+  /// relative to the Supabase origin (see [AppConfig.resolveUrl]). The raw
+  /// value is what gets saved back on edit.
+  String? get displayImageUrl => imageUrl == null ? null : AppConfig.resolveUrl(imageUrl!);
 
   factory Exercise.fromJson(Map<String, dynamic> json) {
     List<MuscleGroup> parseMuscles(dynamic raw) {
