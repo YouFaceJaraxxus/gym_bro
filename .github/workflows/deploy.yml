@@ -38,6 +38,9 @@ permissions:
 env:
   FLUTTER_VERSION: 3.41.6
   SUPABASE_CLI_VERSION: 2.84.2
+  # setup-cli points the CLI at ghcr.io unless this is set, and ghcr.io answers
+  # runner image pulls with `toomanyrequests`. ECR Public is the CLI's own default.
+  SUPABASE_INTERNAL_IMAGE_REGISTRY: public.ecr.aws
   SUPABASE_PROJECT_REF: zbrdpjlnkbuddowbfptf
   DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
 
