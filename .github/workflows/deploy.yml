@@ -11,11 +11,13 @@ name: Deploy
 #                           be the pooler host, not db.<ref>.supabase.co.
 #   SUPABASE_ACCESS_TOKEN   Personal access token (supabase.com/dashboard/account/tokens).
 #   ANDROID_KEYSTORE_B64    Optional: base64 of the upload keystore (.jks).
-#   ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
-#                           Optional, go with the keystore. Without them the APK
+#   ANDROID_KEYSTORE_PASSWORD  Goes with the keystore. Without a keystore the APK
 #                           is signed with the runner's throwaway debug key, so
 #                           every build has a new signature and Android refuses
 #                           to install it over the previous one.
+#   ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+#                           Optional: default to `upload` and the keystore
+#                           password (a PKCS12 keystore has just the one).
 #   MOBILE_DART_DEFINES_JSON  Optional: JSON object of extra dart-defines
 #                           (FIREBASE_*, GOOGLE_SERVER_CLIENT_ID); API_BASE_URL
 #                           is set from SUPABASE_PROJECT_REF below.
@@ -162,7 +164,14 @@ jobs:
             echo "::warning::No ANDROID_KEYSTORE_B64 — signing with a throwaway debug key; uninstall the previous build before installing this one."
             exit 0
           fi
+          if [ -z "$STORE_PASSWORD" ]; then
+            echo "::error::ANDROID_KEYSTORE_B64 is set but ANDROID_KEYSTORE_PASSWORD is not."; exit 1
+          fi
+          KEY_ALIAS="${KEY_ALIAS:-upload}"
+          KEY_PASSWORD="${KEY_PASSWORD:-$STORE_PASSWORD}"
           echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          # Fails here, rather than deep in Gradle, on a wrong password or alias.
+          keytool -list -keystore "$RUNNER_TEMP/upload.jks" -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" > /dev/null
           cat > android/key.properties <<EOF
           storePassword=$STORE_PASSWORD
           keyPassword=$KEY_PASSWORD
