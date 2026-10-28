@@ -85,8 +85,18 @@ jobs:
         with:
           version: ${{ env.SUPABASE_CLI_VERSION }}
 
+      # ghcr.io (setup-cli's registry) briefly answers pulls with `toomanyrequests`;
+      # layers already pulled are kept, so a later attempt gets through. ECR Public
+      # avoids that but took 15+ minutes to pull the stack.
       - name: Start Supabase
-        run: supabase start -x studio,imgproxy,vector,logflare,supavisor
+        run: |
+          for i in 1 2 3 4; do
+            supabase start -x studio,imgproxy,vector,logflare,supavisor && exit 0
+            echo "::warning::supabase start failed (attempt $i), retrying in $((i * 30))s"
+            supabase stop --no-backup || true
+            sleep $((i * 30))
+          done
+          exit 1
 
       - name: Read local keys
         run: |
@@ -110,9 +120,9 @@ jobs:
 
       - name: Serve edge functions
         run: |
+          # No CRON_SECRET: the integration tests check /jobs/run answers 503 without one.
           cat > /tmp/functions.env <<ENV
           POSTGRES_URL=$POSTGRES_URL
-          CRON_SECRET=ci-cron-secret
           ENV
           nohup supabase functions serve --env-file /tmp/functions.env > /tmp/functions.log 2>&1 &
           for i in $(seq 1 90); do
@@ -131,3 +141,7 @@ jobs:
       - name: Functions log
         if: failure()
         run: tail -n 200 /tmp/functions.log || true
+
+      - name: Realtime log
+        if: failure()
+        run: docker logs --tail 200 supabase_realtime_gym_bro_api 2>&1 || true
