@@ -25,9 +25,6 @@ env:
   DENO_VERSION: v2.7.8
   FLUTTER_VERSION: 3.41.6
   SUPABASE_CLI_VERSION: 2.84.2
-  # setup-cli points the CLI at ghcr.io unless this is set, and ghcr.io answers
-  # runner image pulls with `toomanyrequests`. ECR Public is the CLI's own default.
-  SUPABASE_INTERNAL_IMAGE_REGISTRY: public.ecr.aws
 
 jobs:
   api:
@@ -88,8 +85,9 @@ jobs:
         with:
           version: ${{ env.SUPABASE_CLI_VERSION }}
 
-      # A registry hiccup can still fail a pull; layers already pulled are kept,
-      # so a later attempt usually gets through.
+      # ghcr.io (setup-cli's registry) briefly answers pulls with `toomanyrequests`;
+      # layers already pulled are kept, so a later attempt gets through. ECR Public
+      # avoids that but took 15+ minutes to pull the stack.
       - name: Start Supabase
         run: |
           for i in 1 2 3 4; do
