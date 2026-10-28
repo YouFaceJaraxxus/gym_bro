@@ -4,7 +4,10 @@
 // posts (visibility, private media, reactions, threaded comments, feed).
 // Relationships between seeded users are snapshotted and restored; created
 // rows are deleted in `finally`.
-import { createClient, type RealtimeChannel } from "jsr:@supabase/supabase-js@2";
+
+// Pinned: deno.json has no lockfile, and a newer realtime client than the
+// local stack's realtime server joins private channels but never gets broadcasts.
+import { createClient, type RealtimeChannel } from "jsr:@supabase/supabase-js@2.100.1";
 import { ANON, API, call, checker, deleteNotifications, notificationsOf, short, signin, suite } from "./_client.ts";
 import { sql } from "./_db.ts";
 
