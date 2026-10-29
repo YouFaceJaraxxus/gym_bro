@@ -3,11 +3,11 @@ import 'package:intl/intl.dart';
 import '../l10n/l10n.dart';
 import '../models/draft.dart';
 import '../models/routine.dart';
-import '../models/training.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/drafts.dart';
 import '../widgets/image_upload_field.dart';
+import '../widgets/training_picker_sheet.dart';
 
 class RoutineFormPage extends StatefulWidget {
   final Routine? routine;
@@ -148,15 +148,11 @@ class _RoutineFormPageState extends State<RoutineFormPage> with DraftableForm {
   }
 
   Future<void> _pickTraining() async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => const _TrainingPickerSheet(),
-    );
-    if (result != null && mounted) {
+    final picked = (await showTrainingPicker(context))?.training;
+    if (picked != null && mounted) {
       setState(() => _entries.add(_RoutineTrainingDraft(
-            trainingId: result['id'] as String,
-            trainingName: result['name'] as String,
+            trainingId: picked.id,
+            trainingName: picked.name,
           )));
     }
   }
@@ -474,94 +470,6 @@ class _TrainingEntryTile extends StatelessWidget {
           icon: Icon(Icons.close, color: cs.error),
           onPressed: onRemove,
         ),
-      ),
-    );
-  }
-}
-
-// ── Training picker sheet ─────────────────────────────────────────────────────
-
-class _TrainingPickerSheet extends StatefulWidget {
-  const _TrainingPickerSheet();
-
-  @override
-  State<_TrainingPickerSheet> createState() => _TrainingPickerSheetState();
-}
-
-class _TrainingPickerSheetState extends State<_TrainingPickerSheet> {
-  final _api = ApiService();
-  final _search = TextEditingController();
-  List<Training> _trainings = [];
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    setState(() => _loading = true);
-    try {
-      final token = await AuthManager.instance.getValidToken();
-      final results = await _api.getTrainings(token, name: _search.text.trim().isEmpty ? null : _search.text.trim(), pageSize: 50);
-      setState(() {
-        _trainings = results;
-        _loading = false;
-      });
-    } catch (e) {
-      setState(() => _loading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.65,
-      maxChildSize: 0.95,
-      builder: (context, scroll) => Column(
-        children: [
-          const SizedBox(height: 12),
-          Container(
-            width: 40, height: 4,
-            decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                borderRadius: BorderRadius.circular(2)),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: TextField(
-              controller: _search,
-              decoration: InputDecoration(
-                hintText: context.l10n.trainingRoutineSearchTrainingsHint,
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-              ),
-              onSubmitted: (_) => _load(),
-            ),
-          ),
-          if (_loading)
-            const Expanded(child: Center(child: CircularProgressIndicator()))
-          else
-            Expanded(
-              child: ListView.builder(
-                controller: scroll,
-                itemCount: _trainings.length,
-                itemBuilder: (context, i) {
-                  final t = _trainings[i];
-                  return ListTile(
-                    title: Text(t.name),
-                    subtitle: t.description != null
-                        ? Text(t.description!, maxLines: 1, overflow: TextOverflow.ellipsis)
-                        : null,
-                    onTap: () => Navigator.pop(context, {'id': t.id, 'name': t.name}),
-                  );
-                },
-              ),
-            ),
-        ],
       ),
     );
   }

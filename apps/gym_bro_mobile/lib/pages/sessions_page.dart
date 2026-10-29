@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/l10n.dart';
+import '../models/training.dart';
 import '../models/training_session.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../theme.dart';
+import '../widgets/training_picker_sheet.dart';
 import 'session_detail_page.dart';
 import 'progress/progress_page.dart';
 import 'session_log_page.dart';
@@ -72,6 +74,37 @@ class _SessionsPageState extends State<SessionsPage> {
     }
   }
 
+  /// Picks what to follow (trainings logged before first, then a coach's,
+  /// then any) or a free session, then opens the live logger.
+  Future<void> _startSession() async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final pick = await showTrainingPicker(
+      context,
+      title: l10n.trainingSessionsNew,
+      noneLabel: l10n.trainingSessionFree,
+    );
+    if (pick == null || !mounted) return;
+    Training? training;
+    if (pick.training != null) {
+      try {
+        final token = await AuthManager.instance.getValidToken();
+        training = await _api.getTraining(token, pick.training!.id);
+      } catch (e) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        );
+        return;
+      }
+    }
+    if (!mounted) return;
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => SessionLogPage(training: training)),
+    );
+    if (result == true) _load(reset: true);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -93,13 +126,7 @@ class _SessionsPageState extends State<SessionsPage> {
       floatingActionButton: _isTrainerView
           ? null
           : FloatingActionButton.extended(
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SessionLogPage()),
-                );
-                if (result == true) _load(reset: true);
-              },
+              onPressed: _startSession,
               icon: const Icon(Icons.play_arrow),
               label: Text(l10n.trainingSessionsNew),
             ),
@@ -214,7 +241,8 @@ class _SessionCard extends StatelessWidget {
           ),
         ),
         title: Text(
-          session.trainingId != null ? l10n.trainingSessionPlanned : l10n.trainingSessionFree,
+          session.trainingName ??
+              (session.trainingId != null ? l10n.trainingSessionPlanned : l10n.trainingSessionFree),
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Column(

@@ -61,6 +61,7 @@ void main() {
     Future<List<(DateTime, DateTime)>> pump(
       WidgetTester tester, {
       void Function(_Item)? onTap,
+      Future<bool> Function(DateTime slot)? onSlotTap,
       int firstWeekday = DateTime.monday,
     }) async {
       tester.view.physicalSize = const Size(800, 1600);
@@ -87,6 +88,7 @@ void main() {
               ),
               filter: (i) => !i.hidden,
               onTap: onTap == null ? null : (i) async => onTap(i),
+              onSlotTap: onSlotTap,
             ),
           ),
         ),
@@ -120,6 +122,42 @@ void main() {
       expect(tapped?.title, 'Alpha');
       expect(loads.length, 2);
     });
+
+    testWidgets(
+      'tapping an empty hour opens that slot; the week reloads only when something was added',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        _Item? tapped;
+        final slots = <DateTime>[];
+        var added = false;
+        final loads = await pump(
+          tester,
+          onTap: (i) => tapped = i,
+          onSlotTap: (slot) async {
+            slots.add(slot);
+            return added;
+          },
+        );
+
+        await tester.tap(find.bySemanticsLabel('2 PM'));
+        await tester.pumpAndSettle();
+        expect(slots.single, DateTime(2030, 1, 7, 14));
+        expect(loads, hasLength(1), reason: 'nothing added');
+
+        added = true;
+        await tester.tap(find.bySemanticsLabel('3 PM'));
+        await tester.pumpAndSettle();
+        expect(slots.last, DateTime(2030, 1, 7, 15));
+        expect(loads, hasLength(2));
+
+        // Entries sit above the slots and still open themselves.
+        await tester.tap(find.text('Alpha'));
+        await tester.pumpAndSettle();
+        expect(tapped?.title, 'Alpha');
+        expect(slots, hasLength(2));
+        semantics.dispose();
+      },
+    );
 
     testWidgets('weeks can start on Sunday', (tester) async {
       final loads = await pump(tester, firstWeekday: DateTime.sunday);

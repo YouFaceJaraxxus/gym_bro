@@ -8394,6 +8394,192 @@ class AppLocalizationsSr extends AppLocalizations {
   @override
   String get trainingWorkoutsToMeEmpty =>
       'Još ti nije dodeljen nijedan program.\nOvde se prikazuju programi koje ti dodeli trener.';
+
+  @override
+  String get workoutLogAddExercise => 'Dodaj vežbu';
+
+  @override
+  String get workoutLogAddToTrainings => 'Dodaj u treninge';
+
+  @override
+  String get workoutLogAddToTrainingsMessage =>
+      'Sačuvaj ove vežbe, serije i težine kao trening da bi ga sledeći put upisao/la ili započeo/la jednim dodirom.';
+
+  @override
+  String get workoutLogAddToTrainingsTitle => 'Dodati u tvoje treninge?';
+
+  @override
+  String get workoutLogCalendarDone => 'Trening';
+
+  @override
+  String workoutLogCalendarSemantics(String title) {
+    return 'Trening: $title';
+  }
+
+  @override
+  String get workoutLogChooseTraining => 'Izaberi trening (nije obavezno)';
+
+  @override
+  String get workoutLogClearTraining => 'Bez treninga';
+
+  @override
+  String get workoutLogDate => 'Datum';
+
+  @override
+  String get workoutLogDuration => 'Trajanje';
+
+  @override
+  String get workoutLogExercises => 'Vežbe';
+
+  @override
+  String get workoutLogFutureError =>
+      'Vreme početka ne može biti u budućnosti.';
+
+  @override
+  String get workoutLogFutureSlot => 'Trening možeš da upišeš kad počne.';
+
+  @override
+  String workoutLogMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get workoutLogMissingRepsError =>
+      'Unesi broj ponavljanja za svaku seriju ili je prebaci na otkaz.';
+
+  @override
+  String get workoutLogNoExercisesError => 'Dodaj bar jednu vežbu.';
+
+  @override
+  String get workoutLogNoExercisesHint =>
+      'Dodaj vežbe koje si radio/la ili izaberi trening iznad.';
+
+  @override
+  String get workoutLogNotNow => 'Ne sada';
+
+  @override
+  String get workoutLogPickTraining => 'Šta si trenirao/la?';
+
+  @override
+  String get workoutLogRemoveSet => 'Ukloni ovu seriju';
+
+  @override
+  String get workoutLogRepeatSet => 'Ponovi ovu seriju';
+
+  @override
+  String get workoutLogReplace => 'Zameni';
+
+  @override
+  String workoutLogReplaceMessage(String name) {
+    return 'Vežbe koje si uneo/la biće zamenjene vežbama iz treninga $name.';
+  }
+
+  @override
+  String get workoutLogReplaceTitle => 'Zameniti vežbe?';
+
+  @override
+  String get workoutLogReps => 'Ponavljanja';
+
+  @override
+  String get workoutLogSaved => 'Trening je upisan';
+
+  @override
+  String get workoutLogScheduleEmptyDay =>
+      'Ništa za ovaj dan. Dodirni sat da upišeš trening.';
+
+  @override
+  String workoutLogSetCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count serija',
+      few: '$count serije',
+      one: '$count serija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String workoutLogSetNumber(int number) {
+    return 'Serija $number';
+  }
+
+  @override
+  String workoutLogSlotLabel(String time) {
+    return '$time, upiši trening';
+  }
+
+  @override
+  String get workoutLogStart => 'Početak';
+
+  @override
+  String get workoutLogTitle => 'Upiši trening';
+
+  @override
+  String get workoutLogTraining => 'Trening';
+
+  @override
+  String get workoutLogTrainingHelper =>
+      'Izaberi trening da popuniš njegove vežbe ili ih dodaj ispod.';
+
+  @override
+  String get workoutPickerAssigned => 'Od tvog trenera';
+
+  @override
+  String workoutPickerLastLogged(String date) {
+    return 'Poslednji put $date';
+  }
+
+  @override
+  String get workoutPickerLibrary => 'Svi treninzi';
+
+  @override
+  String get workoutPickerNoResults => 'Nema pronađenih treninga';
+
+  @override
+  String get workoutPickerRecent => 'Već odrađeni';
+
+  @override
+  String get workoutPickerSearchHint => 'Pretraži treninge';
+
+  @override
+  String workoutTrainingCopyName(String name) {
+    return '$name (kopija)';
+  }
+
+  @override
+  String workoutTrainingCopySaved(String name) {
+    return '„$name” je sačuvan u tvojim treninzima';
+  }
+
+  @override
+  String get workoutTrainingInNoRoutine => 'Nije ni u jednoj tvojoj rutini';
+
+  @override
+  String get workoutTrainingLockedMessage =>
+      'Ovaj trening već ima upisane sesije koje prikazuju njegove vežbe, pa se serije ne mogu menjati. I dalje možeš da menjaš naziv, fotografiju, beleške, vidljivost i rutine.';
+
+  @override
+  String get workoutTrainingNoRoutines => 'Još nisi napravio/la nijednu rutinu';
+
+  @override
+  String get workoutTrainingRoutines => 'Rutine';
+
+  @override
+  String get workoutTrainingRoutinesDone => 'Gotovo';
+
+  @override
+  String get workoutTrainingRoutinesHint =>
+      'Tvoje rutine koje sadrže ovaj trening. U nove se dodaje na kraj; nedelju i dan podesi u rutini.';
+
+  @override
+  String get workoutTrainingRoutinesLoading => 'Učitavanje tvojih rutina…';
+
+  @override
+  String get workoutTrainingRoutinesUnavailable => 'Rutine nije moguće učitati';
+
+  @override
+  String get workoutTrainingSaveAsCopy => 'Sačuvaj kao novi trening';
 }
 
 /// The translations for Serbian, using the Latin script (`sr_Latn`).
@@ -16786,4 +16972,190 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   @override
   String get trainingWorkoutsToMeEmpty =>
       'Još ti nije dodeljen nijedan program.\nOvde se prikazuju programi koje ti dodeli trener.';
+
+  @override
+  String get workoutLogAddExercise => 'Dodaj vežbu';
+
+  @override
+  String get workoutLogAddToTrainings => 'Dodaj u treninge';
+
+  @override
+  String get workoutLogAddToTrainingsMessage =>
+      'Sačuvaj ove vežbe, serije i težine kao trening da bi ga sledeći put upisao/la ili započeo/la jednim dodirom.';
+
+  @override
+  String get workoutLogAddToTrainingsTitle => 'Dodati u tvoje treninge?';
+
+  @override
+  String get workoutLogCalendarDone => 'Trening';
+
+  @override
+  String workoutLogCalendarSemantics(String title) {
+    return 'Trening: $title';
+  }
+
+  @override
+  String get workoutLogChooseTraining => 'Izaberi trening (nije obavezno)';
+
+  @override
+  String get workoutLogClearTraining => 'Bez treninga';
+
+  @override
+  String get workoutLogDate => 'Datum';
+
+  @override
+  String get workoutLogDuration => 'Trajanje';
+
+  @override
+  String get workoutLogExercises => 'Vežbe';
+
+  @override
+  String get workoutLogFutureError =>
+      'Vreme početka ne može biti u budućnosti.';
+
+  @override
+  String get workoutLogFutureSlot => 'Trening možeš da upišeš kad počne.';
+
+  @override
+  String workoutLogMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get workoutLogMissingRepsError =>
+      'Unesi broj ponavljanja za svaku seriju ili je prebaci na otkaz.';
+
+  @override
+  String get workoutLogNoExercisesError => 'Dodaj bar jednu vežbu.';
+
+  @override
+  String get workoutLogNoExercisesHint =>
+      'Dodaj vežbe koje si radio/la ili izaberi trening iznad.';
+
+  @override
+  String get workoutLogNotNow => 'Ne sada';
+
+  @override
+  String get workoutLogPickTraining => 'Šta si trenirao/la?';
+
+  @override
+  String get workoutLogRemoveSet => 'Ukloni ovu seriju';
+
+  @override
+  String get workoutLogRepeatSet => 'Ponovi ovu seriju';
+
+  @override
+  String get workoutLogReplace => 'Zameni';
+
+  @override
+  String workoutLogReplaceMessage(String name) {
+    return 'Vežbe koje si uneo/la biće zamenjene vežbama iz treninga $name.';
+  }
+
+  @override
+  String get workoutLogReplaceTitle => 'Zameniti vežbe?';
+
+  @override
+  String get workoutLogReps => 'Ponavljanja';
+
+  @override
+  String get workoutLogSaved => 'Trening je upisan';
+
+  @override
+  String get workoutLogScheduleEmptyDay =>
+      'Ništa za ovaj dan. Dodirni sat da upišeš trening.';
+
+  @override
+  String workoutLogSetCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count serija',
+      few: '$count serije',
+      one: '$count serija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String workoutLogSetNumber(int number) {
+    return 'Serija $number';
+  }
+
+  @override
+  String workoutLogSlotLabel(String time) {
+    return '$time, upiši trening';
+  }
+
+  @override
+  String get workoutLogStart => 'Početak';
+
+  @override
+  String get workoutLogTitle => 'Upiši trening';
+
+  @override
+  String get workoutLogTraining => 'Trening';
+
+  @override
+  String get workoutLogTrainingHelper =>
+      'Izaberi trening da popuniš njegove vežbe ili ih dodaj ispod.';
+
+  @override
+  String get workoutPickerAssigned => 'Od tvog trenera';
+
+  @override
+  String workoutPickerLastLogged(String date) {
+    return 'Poslednji put $date';
+  }
+
+  @override
+  String get workoutPickerLibrary => 'Svi treninzi';
+
+  @override
+  String get workoutPickerNoResults => 'Nema pronađenih treninga';
+
+  @override
+  String get workoutPickerRecent => 'Već odrađeni';
+
+  @override
+  String get workoutPickerSearchHint => 'Pretraži treninge';
+
+  @override
+  String workoutTrainingCopyName(String name) {
+    return '$name (kopija)';
+  }
+
+  @override
+  String workoutTrainingCopySaved(String name) {
+    return '„$name” je sačuvan u tvojim treninzima';
+  }
+
+  @override
+  String get workoutTrainingInNoRoutine => 'Nije ni u jednoj tvojoj rutini';
+
+  @override
+  String get workoutTrainingLockedMessage =>
+      'Ovaj trening već ima upisane sesije koje prikazuju njegove vežbe, pa se serije ne mogu menjati. I dalje možeš da menjaš naziv, fotografiju, beleške, vidljivost i rutine.';
+
+  @override
+  String get workoutTrainingNoRoutines => 'Još nisi napravio/la nijednu rutinu';
+
+  @override
+  String get workoutTrainingRoutines => 'Rutine';
+
+  @override
+  String get workoutTrainingRoutinesDone => 'Gotovo';
+
+  @override
+  String get workoutTrainingRoutinesHint =>
+      'Tvoje rutine koje sadrže ovaj trening. U nove se dodaje na kraj; nedelju i dan podesi u rutini.';
+
+  @override
+  String get workoutTrainingRoutinesLoading => 'Učitavanje tvojih rutina…';
+
+  @override
+  String get workoutTrainingRoutinesUnavailable => 'Rutine nije moguće učitati';
+
+  @override
+  String get workoutTrainingSaveAsCopy => 'Sačuvaj kao novi trening';
 }

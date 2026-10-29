@@ -3116,6 +3116,69 @@
       }
     }
   },
+  "@workoutLogCalendarSemantics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutLogMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@workoutLogReplaceMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutLogSetCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@workoutLogSetNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@workoutLogSlotLabel": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutPickerLastLogged": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutTrainingCopyName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutTrainingCopySaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "appTitle": "Gym Bro",
   "businessCheckInAllTime": "All time",
   "businessCheckInAttendanceTitle": "Attendance",
@@ -5396,5 +5459,56 @@
   "trainingWorkoutsTabRoutines": "Routines",
   "trainingWorkoutsTabTrainings": "Trainings",
   "trainingWorkoutsTitle": "Workouts",
-  "trainingWorkoutsToMeEmpty": "No routines assigned to you yet.\nYour coach's assignments show up here."
+  "trainingWorkoutsToMeEmpty": "No routines assigned to you yet.\nYour coach's assignments show up here.",
+  "workoutLogAddExercise": "Add exercise",
+  "workoutLogAddToTrainings": "Add to trainings",
+  "workoutLogAddToTrainingsMessage": "Save these exercises, sets and weights as a training so you can log or start it again in one tap.",
+  "workoutLogAddToTrainingsTitle": "Add to your trainings?",
+  "workoutLogCalendarDone": "Workout",
+  "workoutLogCalendarSemantics": "Workout: {title}",
+  "workoutLogChooseTraining": "Choose a training (optional)",
+  "workoutLogClearTraining": "Don't follow a training",
+  "workoutLogDate": "Date",
+  "workoutLogDuration": "Duration",
+  "workoutLogExercises": "Exercises",
+  "workoutLogFutureError": "The start time can't be in the future.",
+  "workoutLogFutureSlot": "You can log a workout once it has started.",
+  "workoutLogMinutes": "{minutes} min",
+  "workoutLogMissingRepsError": "Enter the reps for every set, or switch it to failure.",
+  "workoutLogNoExercisesError": "Add at least one exercise.",
+  "workoutLogNoExercisesHint": "Add the exercises you did, or pick a training above.",
+  "workoutLogNotNow": "Not now",
+  "workoutLogPickTraining": "What did you train?",
+  "workoutLogRemoveSet": "Remove this set",
+  "workoutLogRepeatSet": "Repeat this set",
+  "workoutLogReplace": "Replace",
+  "workoutLogReplaceMessage": "The exercises you entered will be replaced with the ones from {name}.",
+  "workoutLogReplaceTitle": "Replace exercises?",
+  "workoutLogReps": "Reps",
+  "workoutLogSaved": "Workout logged",
+  "workoutLogScheduleEmptyDay": "Nothing on this day. Tap an hour to log a workout.",
+  "workoutLogSetCount": "{count, plural, =1{1 set} other{{count} sets}}",
+  "workoutLogSetNumber": "Set {number}",
+  "workoutLogSlotLabel": "{time}, log a workout",
+  "workoutLogStart": "Start",
+  "workoutLogTitle": "Log workout",
+  "workoutLogTraining": "Training",
+  "workoutLogTrainingHelper": "Pick one to fill in its exercises, or add them yourself below.",
+  "workoutPickerAssigned": "From your coach",
+  "workoutPickerLastLogged": "Last logged {date}",
+  "workoutPickerLibrary": "All trainings",
+  "workoutPickerNoResults": "No trainings found",
+  "workoutPickerRecent": "Logged before",
+  "workoutPickerSearchHint": "Search trainings",
+  "workoutTrainingCopyName": "{name} (copy)",
+  "workoutTrainingCopySaved": "Saved “{name}” to your trainings",
+  "workoutTrainingInNoRoutine": "Not in any of your routines",
+  "workoutTrainingLockedMessage": "This training has logged sessions, and they show its exercises, so the sets can't be changed. You can still edit its name, photo, notes, visibility and routines.",
+  "workoutTrainingNoRoutines": "You haven't created any routines yet",
+  "workoutTrainingRoutines": "Routines",
+  "workoutTrainingRoutinesDone": "Done",
+  "workoutTrainingRoutinesHint": "Your routines this training is part of. New ones get it at the end; set its week and day in the routine.",
+  "workoutTrainingRoutinesLoading": "Loading your routines…",
+  "workoutTrainingRoutinesUnavailable": "Couldn't load your routines",
+  "workoutTrainingSaveAsCopy": "Save as a new training"
 }

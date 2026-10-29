@@ -469,6 +469,42 @@ void main() {
       expect(t.id, trainingId);
     });
 
+    test('getTraining: has_sessions and routine_ids default off/empty; parsed when sent', () async {
+      backend().on('GET /trainings/$trainingId', ok(trainingDetailJson));
+      final plain = await ctx.api().getTraining(token, trainingId);
+      expect(plain.hasSessions, isFalse);
+      expect(plain.routineIds, isEmpty);
+
+      backend().on('GET /trainings/$trainingId', ok({...trainingDetailJson, 'has_sessions': true, 'routine_ids': [routineId]}));
+      final used = await ctx.api().getTraining(token, trainingId);
+      expect(used.hasSessions, isTrue);
+      expect(used.routineIds, [routineId]);
+    });
+
+    test('getTrainingSuggestions: query, sections and their extras', () async {
+      backend().on('GET /trainings/suggestions', ok({
+        'recent': [
+          {...trainingListJson, 'thumbnail': null, 'last_used_at': '2026-10-28T18:00:00.000Z'},
+        ],
+        'assigned': [
+          {...trainingListJson, 'id': 'a1', 'thumbnail': null, 'routine_name': 'Strength block', 'assigned_by_name': 'Elena Vasquez'},
+        ],
+        'library': [],
+      }));
+      final r = await ctx.api().getTrainingSuggestions(token, name: 'core & legs');
+      expectGet(backend().only, '/trainings/suggestions', {'limit': '10', 'name': 'core & legs'});
+      expect(r.recent.single.training.id, trainingId);
+      expect(r.recent.single.lastUsedAt, DateTime.utc(2026, 10, 28, 18));
+      expect(r.assigned.single.routineName, 'Strength block');
+      expect(r.assigned.single.assignedByName, 'Elena Vasquez');
+      expect(r.assigned.single.lastUsedAt, isNull);
+      expect(r.library, isEmpty);
+      expect(r.isEmpty, isFalse);
+
+      await ctx.api().getTrainingSuggestions(token, name: '', limit: 20);
+      expectGet(backend().requests.last, '/trainings/suggestions', {'limit': '20'});
+    });
+
     test('deleteTraining DELETEs /trainings/:id', () async {
       backend().on('DELETE /trainings/$trainingId', ok('', 204));
       await ctx.api().deleteTraining(token, trainingId);
@@ -593,6 +629,44 @@ void main() {
         'trainer_id': elenaId,
         'training_id': trainingId,
       });
+
+      await ctx.api().getTrainingSessions(token, from: DateTime.utc(2026, 10, 26), to: DateTime.utc(2026, 11, 2));
+      expectGet(backend().requests.last, '/training-sessions', {
+        'page': '0',
+        'page_size': '20',
+        'from': '2026-10-26T00:00:00.000Z',
+        'to': '2026-11-02T00:00:00.000Z',
+      });
+    });
+
+    test('a session row carries its training name', () async {
+      backend().on('GET /training-sessions', ok([{...sessionListJson, 'training_name': 'Push day'}]));
+      expect((await ctx.api().getTrainingSessions(token)).single.trainingName, 'Push day');
+      backend().on('GET /training-sessions', ok([sessionListJson]));
+      expect((await ctx.api().getTrainingSessions(token)).single.trainingName, isNull);
+    });
+
+    test('logPastTrainingSession POSTs the whole session and parses the detail', () async {
+      backend().on('POST /training-sessions', ok(sessionDetailJson, 201));
+      final data = {
+        'training_id': trainingId,
+        'started_at': '2026-10-26T19:00:00.000Z',
+        'ended_at': '2026-10-26T20:00:00.000Z',
+        'notes': null,
+        'sets': [
+          {
+            'training_set_id': null,
+            'exercise_id': exerciseId,
+            'position': 0,
+            'drops': [
+              {'training_set_drop_id': null, 'drop_number': 0, 'rep_type_actual': 'count', 'rep_count_actual': 8, 'weight_kg_actual': 40.0, 'side': 'both'},
+            ],
+          },
+        ],
+      };
+      final s = await ctx.api().logPastTrainingSession(token, data);
+      expectJson(backend().only, 'POST', '/training-sessions', data);
+      expect(s.setLogs, hasLength(1));
     });
 
     test('getTrainingSession parses set logs, drop logs and string numbers', () async {

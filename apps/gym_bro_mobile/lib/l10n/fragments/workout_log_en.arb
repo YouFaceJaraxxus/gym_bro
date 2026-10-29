@@ -1,0 +1,116 @@
+{
+  "workoutPickerSearchHint": "Search trainings",
+  "workoutPickerRecent": "Logged before",
+  "workoutPickerAssigned": "From your coach",
+  "workoutPickerLibrary": "All trainings",
+  "workoutPickerNoResults": "No trainings found",
+  "workoutPickerLastLogged": "Last logged {date}",
+  "@workoutPickerLastLogged": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutLogTitle": "Log workout",
+  "workoutLogDate": "Date",
+  "workoutLogStart": "Start",
+  "workoutLogDuration": "Duration",
+  "workoutLogMinutes": "{minutes} min",
+  "@workoutLogMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutLogTraining": "Training",
+  "workoutLogChooseTraining": "Choose a training (optional)",
+  "workoutLogTrainingHelper": "Pick one to fill in its exercises, or add them yourself below.",
+  "workoutLogClearTraining": "Don't follow a training",
+  "workoutLogPickTraining": "What did you train?",
+  "workoutLogReplaceTitle": "Replace exercises?",
+  "workoutLogReplaceMessage": "The exercises you entered will be replaced with the ones from {name}.",
+  "@workoutLogReplaceMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutLogReplace": "Replace",
+  "workoutLogExercises": "Exercises",
+  "workoutLogSetCount": "{count, plural, =1{1 set} other{{count} sets}}",
+  "@workoutLogSetCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutLogSetNumber": "Set {number}",
+  "@workoutLogSetNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutLogNoExercisesHint": "Add the exercises you did, or pick a training above.",
+  "workoutLogAddExercise": "Add exercise",
+  "workoutLogRepeatSet": "Repeat this set",
+  "workoutLogRemoveSet": "Remove this set",
+  "workoutLogReps": "Reps",
+  "workoutLogFutureError": "The start time can't be in the future.",
+  "workoutLogNoExercisesError": "Add at least one exercise.",
+  "workoutLogMissingRepsError": "Enter the reps for every set, or switch it to failure.",
+  "workoutLogSaved": "Workout logged",
+  "workoutLogAddToTrainingsTitle": "Add to your trainings?",
+  "workoutLogAddToTrainingsMessage": "Save these exercises, sets and weights as a training so you can log or start it again in one tap.",
+  "workoutLogAddToTrainings": "Add to trainings",
+  "workoutLogNotNow": "Not now",
+  "workoutLogFutureSlot": "You can log a workout once it has started.",
+  "workoutLogSlotLabel": "{time}, log a workout",
+  "@workoutLogSlotLabel": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutLogCalendarDone": "Workout",
+  "workoutLogCalendarSemantics": "Workout: {title}",
+  "@workoutLogCalendarSemantics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutTrainingRoutines": "Routines",
+  "workoutTrainingRoutinesHint": "Your routines this training is part of. New ones get it at the end; set its week and day in the routine.",
+  "workoutTrainingRoutinesDone": "Done",
+  "workoutTrainingRoutinesLoading": "Loading your routines…",
+  "workoutTrainingRoutinesUnavailable": "Couldn't load your routines",
+  "workoutTrainingNoRoutines": "You haven't created any routines yet",
+  "workoutTrainingInNoRoutine": "Not in any of your routines",
+  "workoutTrainingLockedMessage": "This training has logged sessions, and they show its exercises, so the sets can't be changed. You can still edit its name, photo, notes, visibility and routines.",
+  "workoutTrainingSaveAsCopy": "Save as a new training",
+  "workoutTrainingCopyName": "{name} (copy)",
+  "@workoutTrainingCopyName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutTrainingCopySaved": "Saved “{name}” to your trainings",
+  "@workoutTrainingCopySaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutLogScheduleEmptyDay": "Nothing on this day. Tap an hour to log a workout."
+}

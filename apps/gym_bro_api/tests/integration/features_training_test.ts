@@ -781,5 +781,161 @@ Deno.test({
       }
       assertAll();
     });
+
+    await t.step("24. logging past workouts: suggestions, back-dated sessions, frozen sets, routine membership", async () => {
+      let trainingId: string | null = null;
+      let otherTrainingId: string | null = null;
+      let routineId: string | null = null;
+      let assignmentId: string | null = null;
+      let sessionId: string | null = null;
+      let memberRoutineId: string | null = null;
+      try {
+        const name = uniq();
+        const pubEx = ((await call("GET", "/exercises?page_size=1")).data as any[])[0];
+        const tr = await call("POST", "/trainings", trainer.token, {
+          name: `${name} push`, is_public: false,
+          sets: [{ exercises: [{ exercise_id: pubEx.id, drops: [{ rep_count: 8, weight_kg: 30 }] }] }],
+        });
+        trainingId = tr.data?.id ?? null;
+        const plannedSet = tr.data?.sets?.[0];
+        const plannedDrop = plannedSet?.exercises?.[0]?.drops?.[0];
+        check(
+          "training detail embeds each exercise and starts unused",
+          tr.status === 201 && plannedSet?.exercises?.[0]?.exercise?.id === pubEx.id &&
+            plannedSet.exercises[0].exercise.name === pubEx.name && tr.data.has_sessions === false &&
+            Array.isArray(tr.data.routine_ids) && tr.data.routine_ids.length === 0,
+          short(tr.data),
+        );
+        const routine = await call("POST", "/routines", trainer.token, {
+          name: `${name} plan`, is_public: false, trainings: [{ training_id: trainingId }],
+        });
+        routineId = routine.data?.id ?? null;
+        const asg = await call("POST", "/routine-assignments", trainer.token, { routine_id: routineId, user_id: member.profile.id });
+        assignmentId = asg.data?.id ?? null;
+        check("trainer assigns a private routine to the member", routine.status === 201 && asg.status === 201, `status ${routine.status}/${asg.status}`);
+        assertAll();
+
+        // ── Assignees read the coach's private routine and its trainings ──
+        const readRoutine = await call("GET", `/routines/${routineId}`, member.token);
+        const readTraining = await call("GET", `/trainings/${trainingId}`, member.token);
+        check("the assignee reads the private routine and training", readRoutine.status === 200 && readTraining.status === 200, `status ${readRoutine.status}/${readTraining.status}`);
+        const outsider = await call("GET", `/trainings/${trainingId}`, vendor.token);
+        check("others still get 404", outsider.status === 404, `status ${outsider.status}`);
+
+        // ── Suggestions before logging ──
+        const before = await call("GET", `/trainings/suggestions?name=${encodeURIComponent(name)}`, member.token);
+        const assignedRow = (before.data?.assigned as any[])?.find((x) => x.id === trainingId);
+        check(
+          "suggestions offer the coach's training under assigned",
+          before.status === 200 && !!assignedRow && assignedRow.routine_name === `${name} plan` && !!assignedRow.assigned_by_name &&
+            !(before.data.recent as any[]).some((x) => x.id === trainingId) &&
+            !(before.data.library as any[]).some((x) => x.id === trainingId),
+          short(before.data),
+        );
+        const anonSuggest = await call("GET", "/trainings/suggestions");
+        check("suggestions need a signed-in user", anonSuggest.status === 401, `status ${anonSuggest.status}`);
+
+        // ── Back-dated session in one request ──
+        const start = new Date(Date.now() - 3 * 3600_000);
+        const end = new Date(start.getTime() + 3600_000);
+        const future = await call("POST", "/training-sessions", member.token, {
+          started_at: new Date(Date.now() + 3600_000).toISOString(), sets: [{ exercise_id: pubEx.id }],
+        });
+        if (future.status === 201) sessionId = future.data.id;
+        check("a session can't start in the future", future.status === 400, `status ${future.status}`);
+        const backwards = await call("POST", "/training-sessions", member.token, { started_at: end.toISOString(), ended_at: start.toISOString() });
+        check("ended_at must be after started_at", backwards.status === 400, `status ${backwards.status}`);
+        const noIds = await call("POST", "/training-sessions", member.token, { started_at: start.toISOString(), sets: [{ drops: [] }] });
+        check("each logged set needs an exercise or a planned set", noIds.status === 400, `status ${noIds.status}`);
+
+        const logged = await call("POST", "/training-sessions", member.token, {
+          training_id: trainingId, started_at: start.toISOString(), ended_at: end.toISOString(), notes: "from the calendar",
+          sets: [
+            {
+              training_set_id: plannedSet.id, exercise_id: pubEx.id,
+              drops: [{ training_set_drop_id: plannedDrop.id, rep_count_actual: 8, weight_kg_actual: 32.5 }],
+            },
+            { exercise_id: pubEx.id, drops: [{ rep_type_actual: "failure" }] },
+          ],
+        });
+        if (logged.data?.id) sessionId = logged.data.id;
+        check(
+          "member logs a finished session with its sets in one request",
+          logged.status === 201 && new Date(logged.data.started_at).getTime() === start.getTime() &&
+            new Date(logged.data.ended_at).getTime() === end.getTime() && logged.data.training_name === `${name} push` &&
+            logged.data.set_logs.length === 2 && logged.data.set_logs[0].training_set_id === plannedSet.id &&
+            logged.data.set_logs[0].drop_logs[0].weight_kg_actual == 32.5 && logged.data.set_logs[1].position === 1,
+          short(logged.data),
+        );
+
+        const from = new Date(start.getTime() - 60_000).toISOString();
+        const to = new Date(end.getTime()).toISOString();
+        const week = await call("GET", `/training-sessions?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&page_size=100`, member.token);
+        const row = (week.data as any[])?.find((x) => x.id === sessionId);
+        check("from/to lists the session with its training name", week.status === 200 && row?.training_name === `${name} push`, short(row));
+        const later = await call("GET", `/training-sessions?from=${encodeURIComponent(to)}&page_size=100`, member.token);
+        check("sessions starting before from are left out", later.status === 200 && !(later.data as any[]).some((x) => x.id === sessionId), `status ${later.status}`);
+        const badFrom = await call("GET", "/training-sessions?from=nope", member.token);
+        check("an invalid from is 400", badFrom.status === 400, `status ${badFrom.status}`);
+
+        const after = await call("GET", `/trainings/suggestions?name=${encodeURIComponent(name)}`, member.token);
+        const recentRow = (after.data?.recent as any[])?.find((x) => x.id === trainingId);
+        check(
+          "once logged it moves to recent (and isn't repeated under assigned)",
+          after.status === 200 && !!recentRow && !!recentRow.last_used_at &&
+            !(after.data.assigned as any[]).some((x) => x.id === trainingId),
+          short(after.data),
+        );
+
+        // ── Frozen sets ──
+        const used = await call("GET", `/trainings/${trainingId}`, trainer.token);
+        check("the training now reports has_sessions", used.status === 200 && used.data.has_sessions === true && used.data.routine_ids.includes(routineId), short(used.data));
+        const locked = await call("PUT", `/trainings/${trainingId}`, trainer.token, {
+          sets: [{ exercises: [{ exercise_id: pubEx.id, drops: [{ rep_count: 12 }] }] }],
+        });
+        check("its sets can't be replaced any more", locked.status === 409 && locked.data.code === "exercises_locked", short(locked.data));
+        const renamed = await call("PUT", `/trainings/${trainingId}`, trainer.token, {
+          name: `${name} push v2`, notes: "still editable", images: [{ url: "https://example.com/p.jpg" }],
+        });
+        check(
+          "its details still change and the sets stay put",
+          renamed.status === 200 && renamed.data.name === `${name} push v2` && renamed.data.sets[0].id === plannedSet.id &&
+            renamed.data.sets[0].exercises[0].drops[0].id === plannedDrop.id && renamed.data.images.length === 1,
+          short(renamed.data),
+        );
+
+        // ── Routine membership from the training form ──
+        const other = await call("POST", "/trainings", trainer.token, { name: `${name} pull`, routine_ids: [routineId] });
+        otherTrainingId = other.data?.id ?? null;
+        const withOther = await call("GET", `/routines/${routineId}`, trainer.token);
+        const entries = withOther.data?.trainings as any[] | undefined;
+        check(
+          "routine_ids adds a new training at the end of the routine",
+          other.status === 201 && other.data.routine_ids.includes(routineId) && entries?.length === 2 &&
+            entries[1].training_id === otherTrainingId && entries[1].position > entries[0].position && entries[1].week_number === null,
+          short(entries),
+        );
+        const memberRoutine = await call("POST", "/routines", member.token, { name: `${name} mine` });
+        memberRoutineId = memberRoutine.data?.id ?? null;
+        const foreign = await call("PUT", `/trainings/${otherTrainingId}`, trainer.token, { routine_ids: [memberRoutineId] });
+        check("routine_ids must be the caller's own routines", foreign.status === 400, `status ${foreign.status}`);
+        const removed = await call("PUT", `/trainings/${otherTrainingId}`, trainer.token, { routine_ids: [] });
+        const without = await call("GET", `/routines/${routineId}`, trainer.token);
+        check(
+          "an empty routine_ids takes it out again",
+          removed.status === 200 && removed.data.routine_ids.length === 0 &&
+            !(without.data?.trainings as any[]).some((x) => x.training_id === otherTrainingId),
+          short(without.data?.trainings),
+        );
+      } finally {
+        if (sessionId) await call("DELETE", `/training-sessions/${sessionId}`, member.token);
+        if (assignmentId) await call("DELETE", `/routine-assignments/${assignmentId}`, trainer.token);
+        if (routineId) await call("DELETE", `/routines/${routineId}`, trainer.token);
+        if (memberRoutineId) await call("DELETE", `/routines/${memberRoutineId}`, member.token);
+        if (otherTrainingId) await call("DELETE", `/trainings/${otherTrainingId}`, trainer.token);
+        if (trainingId) await call("DELETE", `/trainings/${trainingId}`, trainer.token);
+      }
+      assertAll();
+    });
   },
 });

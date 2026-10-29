@@ -8324,4 +8324,191 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get trainingWorkoutsToMeEmpty =>
       'No routines assigned to you yet.\nYour coach\'s assignments show up here.';
+
+  @override
+  String get workoutLogAddExercise => 'Add exercise';
+
+  @override
+  String get workoutLogAddToTrainings => 'Add to trainings';
+
+  @override
+  String get workoutLogAddToTrainingsMessage =>
+      'Save these exercises, sets and weights as a training so you can log or start it again in one tap.';
+
+  @override
+  String get workoutLogAddToTrainingsTitle => 'Add to your trainings?';
+
+  @override
+  String get workoutLogCalendarDone => 'Workout';
+
+  @override
+  String workoutLogCalendarSemantics(String title) {
+    return 'Workout: $title';
+  }
+
+  @override
+  String get workoutLogChooseTraining => 'Choose a training (optional)';
+
+  @override
+  String get workoutLogClearTraining => 'Don\'t follow a training';
+
+  @override
+  String get workoutLogDate => 'Date';
+
+  @override
+  String get workoutLogDuration => 'Duration';
+
+  @override
+  String get workoutLogExercises => 'Exercises';
+
+  @override
+  String get workoutLogFutureError => 'The start time can\'t be in the future.';
+
+  @override
+  String get workoutLogFutureSlot =>
+      'You can log a workout once it has started.';
+
+  @override
+  String workoutLogMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get workoutLogMissingRepsError =>
+      'Enter the reps for every set, or switch it to failure.';
+
+  @override
+  String get workoutLogNoExercisesError => 'Add at least one exercise.';
+
+  @override
+  String get workoutLogNoExercisesHint =>
+      'Add the exercises you did, or pick a training above.';
+
+  @override
+  String get workoutLogNotNow => 'Not now';
+
+  @override
+  String get workoutLogPickTraining => 'What did you train?';
+
+  @override
+  String get workoutLogRemoveSet => 'Remove this set';
+
+  @override
+  String get workoutLogRepeatSet => 'Repeat this set';
+
+  @override
+  String get workoutLogReplace => 'Replace';
+
+  @override
+  String workoutLogReplaceMessage(String name) {
+    return 'The exercises you entered will be replaced with the ones from $name.';
+  }
+
+  @override
+  String get workoutLogReplaceTitle => 'Replace exercises?';
+
+  @override
+  String get workoutLogReps => 'Reps';
+
+  @override
+  String get workoutLogSaved => 'Workout logged';
+
+  @override
+  String get workoutLogScheduleEmptyDay =>
+      'Nothing on this day. Tap an hour to log a workout.';
+
+  @override
+  String workoutLogSetCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sets',
+      one: '1 set',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String workoutLogSetNumber(int number) {
+    return 'Set $number';
+  }
+
+  @override
+  String workoutLogSlotLabel(String time) {
+    return '$time, log a workout';
+  }
+
+  @override
+  String get workoutLogStart => 'Start';
+
+  @override
+  String get workoutLogTitle => 'Log workout';
+
+  @override
+  String get workoutLogTraining => 'Training';
+
+  @override
+  String get workoutLogTrainingHelper =>
+      'Pick one to fill in its exercises, or add them yourself below.';
+
+  @override
+  String get workoutPickerAssigned => 'From your coach';
+
+  @override
+  String workoutPickerLastLogged(String date) {
+    return 'Last logged $date';
+  }
+
+  @override
+  String get workoutPickerLibrary => 'All trainings';
+
+  @override
+  String get workoutPickerNoResults => 'No trainings found';
+
+  @override
+  String get workoutPickerRecent => 'Logged before';
+
+  @override
+  String get workoutPickerSearchHint => 'Search trainings';
+
+  @override
+  String workoutTrainingCopyName(String name) {
+    return '$name (copy)';
+  }
+
+  @override
+  String workoutTrainingCopySaved(String name) {
+    return 'Saved “$name” to your trainings';
+  }
+
+  @override
+  String get workoutTrainingInNoRoutine => 'Not in any of your routines';
+
+  @override
+  String get workoutTrainingLockedMessage =>
+      'This training has logged sessions, and they show its exercises, so the sets can\'t be changed. You can still edit its name, photo, notes, visibility and routines.';
+
+  @override
+  String get workoutTrainingNoRoutines =>
+      'You haven\'t created any routines yet';
+
+  @override
+  String get workoutTrainingRoutines => 'Routines';
+
+  @override
+  String get workoutTrainingRoutinesDone => 'Done';
+
+  @override
+  String get workoutTrainingRoutinesHint =>
+      'Your routines this training is part of. New ones get it at the end; set its week and day in the routine.';
+
+  @override
+  String get workoutTrainingRoutinesLoading => 'Loading your routines…';
+
+  @override
+  String get workoutTrainingRoutinesUnavailable =>
+      'Couldn\'t load your routines';
+
+  @override
+  String get workoutTrainingSaveAsCopy => 'Save as a new training';
 }

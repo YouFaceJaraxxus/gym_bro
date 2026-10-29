@@ -729,6 +729,22 @@ class ApiService {
         .toList();
   }
 
+  /// What to offer when logging a workout; [name] filters every section.
+  Future<TrainingSuggestions> getTrainingSuggestions(
+    String token, {
+    String? name,
+    int limit = 10,
+  }) async {
+    final params = <String>['limit=$limit'];
+    if (name != null && name.isNotEmpty) params.add('name=${Uri.encodeComponent(name)}');
+    final r = await _client.get(
+      Uri.parse('$_base/trainings/suggestions?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return TrainingSuggestions.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
   Future<Training> getTraining(String token, String id) async {
     final r = await _client.get(
       Uri.parse('$_base/trainings/$id'),
@@ -837,6 +853,8 @@ class ApiService {
     String? userId,
     String? trainerId,
     String? trainingId,
+    DateTime? from,
+    DateTime? to,
     int page = 0,
     int pageSize = 20,
   }) async {
@@ -847,6 +865,8 @@ class ApiService {
     if (userId != null) params.add('user_id=$userId');
     if (trainerId != null) params.add('trainer_id=$trainerId');
     if (trainingId != null) params.add('training_id=$trainingId');
+    if (from != null) params.add('from=${Uri.encodeComponent(from.toUtc().toIso8601String())}');
+    if (to != null) params.add('to=${Uri.encodeComponent(to.toUtc().toIso8601String())}');
     final r = await _client.get(
       Uri.parse('$_base/training-sessions?${params.join('&')}'),
       headers: _headers(token),
@@ -880,6 +900,22 @@ class ApiService {
         'trainer_id': trainerId,
         'notes': notes,
       }),
+    );
+    _check(r);
+    return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// Logs a finished session in one go (e.g. from a calendar slot): [data]
+  /// has started_at, ended_at, training_id?, notes? and sets (each with
+  /// training_set_id? / exercise_id and drops). Returns the full detail.
+  Future<TrainingSession> logPastTrainingSession(
+    String token,
+    Map<String, dynamic> data,
+  ) async {
+    final r = await _client.post(
+      Uri.parse('$_base/training-sessions'),
+      headers: _headers(token),
+      body: jsonEncode(data),
     );
     _check(r);
     return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);

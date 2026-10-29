@@ -204,8 +204,15 @@ async function handler(req: Request): Promise<Response> {
     const detail = await fetchRoutineDetail(id);
     if (!detail) return jsonError("Routine not found", 404);
     if (!detail.is_public) {
+      // The author, super users, and anyone it's assigned to.
       const caller = await optionalCaller(req);
-      if (!caller || (!isSuperUser(caller) && detail.author_id !== caller.id)) {
+      const assigned = caller && await db
+        .selectFrom("routine_assignment")
+        .select("id")
+        .where("routine_id", "=", id)
+        .where("user_id", "=", caller.id)
+        .executeTakeFirst();
+      if (!caller || (!isSuperUser(caller) && detail.author_id !== caller.id && !assigned)) {
         return jsonError("Routine not found", 404);
       }
     }

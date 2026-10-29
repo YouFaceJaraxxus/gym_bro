@@ -13792,6 +13792,312 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No routines assigned to you yet.\nYour coach\'s assignments show up here.'**
   String get trainingWorkoutsToMeEmpty;
+
+  /// No description provided for @workoutLogAddExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exercise'**
+  String get workoutLogAddExercise;
+
+  /// No description provided for @workoutLogAddToTrainings.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to trainings'**
+  String get workoutLogAddToTrainings;
+
+  /// No description provided for @workoutLogAddToTrainingsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Save these exercises, sets and weights as a training so you can log or start it again in one tap.'**
+  String get workoutLogAddToTrainingsMessage;
+
+  /// No description provided for @workoutLogAddToTrainingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to your trainings?'**
+  String get workoutLogAddToTrainingsTitle;
+
+  /// No description provided for @workoutLogCalendarDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout'**
+  String get workoutLogCalendarDone;
+
+  /// No description provided for @workoutLogCalendarSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout: {title}'**
+  String workoutLogCalendarSemantics(String title);
+
+  /// No description provided for @workoutLogChooseTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a training (optional)'**
+  String get workoutLogChooseTraining;
+
+  /// No description provided for @workoutLogClearTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t follow a training'**
+  String get workoutLogClearTraining;
+
+  /// No description provided for @workoutLogDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get workoutLogDate;
+
+  /// No description provided for @workoutLogDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get workoutLogDuration;
+
+  /// No description provided for @workoutLogExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises'**
+  String get workoutLogExercises;
+
+  /// No description provided for @workoutLogFutureError.
+  ///
+  /// In en, this message translates to:
+  /// **'The start time can\'t be in the future.'**
+  String get workoutLogFutureError;
+
+  /// No description provided for @workoutLogFutureSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'You can log a workout once it has started.'**
+  String get workoutLogFutureSlot;
+
+  /// No description provided for @workoutLogMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String workoutLogMinutes(int minutes);
+
+  /// No description provided for @workoutLogMissingRepsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the reps for every set, or switch it to failure.'**
+  String get workoutLogMissingRepsError;
+
+  /// No description provided for @workoutLogNoExercisesError.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one exercise.'**
+  String get workoutLogNoExercisesError;
+
+  /// No description provided for @workoutLogNoExercisesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the exercises you did, or pick a training above.'**
+  String get workoutLogNoExercisesHint;
+
+  /// No description provided for @workoutLogNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get workoutLogNotNow;
+
+  /// No description provided for @workoutLogPickTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'What did you train?'**
+  String get workoutLogPickTraining;
+
+  /// No description provided for @workoutLogRemoveSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this set'**
+  String get workoutLogRemoveSet;
+
+  /// No description provided for @workoutLogRepeatSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat this set'**
+  String get workoutLogRepeatSet;
+
+  /// No description provided for @workoutLogReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get workoutLogReplace;
+
+  /// No description provided for @workoutLogReplaceMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The exercises you entered will be replaced with the ones from {name}.'**
+  String workoutLogReplaceMessage(String name);
+
+  /// No description provided for @workoutLogReplaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace exercises?'**
+  String get workoutLogReplaceTitle;
+
+  /// No description provided for @workoutLogReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps'**
+  String get workoutLogReps;
+
+  /// No description provided for @workoutLogSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout logged'**
+  String get workoutLogSaved;
+
+  /// No description provided for @workoutLogScheduleEmptyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on this day. Tap an hour to log a workout.'**
+  String get workoutLogScheduleEmptyDay;
+
+  /// No description provided for @workoutLogSetCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 set} other{{count} sets}}'**
+  String workoutLogSetCount(int count);
+
+  /// No description provided for @workoutLogSetNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {number}'**
+  String workoutLogSetNumber(int number);
+
+  /// No description provided for @workoutLogSlotLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{time}, log a workout'**
+  String workoutLogSlotLabel(String time);
+
+  /// No description provided for @workoutLogStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get workoutLogStart;
+
+  /// No description provided for @workoutLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log workout'**
+  String get workoutLogTitle;
+
+  /// No description provided for @workoutLogTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get workoutLogTraining;
+
+  /// No description provided for @workoutLogTrainingHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one to fill in its exercises, or add them yourself below.'**
+  String get workoutLogTrainingHelper;
+
+  /// No description provided for @workoutPickerAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'From your coach'**
+  String get workoutPickerAssigned;
+
+  /// No description provided for @workoutPickerLastLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Last logged {date}'**
+  String workoutPickerLastLogged(String date);
+
+  /// No description provided for @workoutPickerLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'All trainings'**
+  String get workoutPickerLibrary;
+
+  /// No description provided for @workoutPickerNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No trainings found'**
+  String get workoutPickerNoResults;
+
+  /// No description provided for @workoutPickerRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged before'**
+  String get workoutPickerRecent;
+
+  /// No description provided for @workoutPickerSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search trainings'**
+  String get workoutPickerSearchHint;
+
+  /// No description provided for @workoutTrainingCopyName.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (copy)'**
+  String workoutTrainingCopyName(String name);
+
+  /// No description provided for @workoutTrainingCopySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved “{name}” to your trainings'**
+  String workoutTrainingCopySaved(String name);
+
+  /// No description provided for @workoutTrainingInNoRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in any of your routines'**
+  String get workoutTrainingInNoRoutine;
+
+  /// No description provided for @workoutTrainingLockedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This training has logged sessions, and they show its exercises, so the sets can\'t be changed. You can still edit its name, photo, notes, visibility and routines.'**
+  String get workoutTrainingLockedMessage;
+
+  /// No description provided for @workoutTrainingNoRoutines.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t created any routines yet'**
+  String get workoutTrainingNoRoutines;
+
+  /// No description provided for @workoutTrainingRoutines.
+  ///
+  /// In en, this message translates to:
+  /// **'Routines'**
+  String get workoutTrainingRoutines;
+
+  /// No description provided for @workoutTrainingRoutinesDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get workoutTrainingRoutinesDone;
+
+  /// No description provided for @workoutTrainingRoutinesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your routines this training is part of. New ones get it at the end; set its week and day in the routine.'**
+  String get workoutTrainingRoutinesHint;
+
+  /// No description provided for @workoutTrainingRoutinesLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your routines…'**
+  String get workoutTrainingRoutinesLoading;
+
+  /// No description provided for @workoutTrainingRoutinesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your routines'**
+  String get workoutTrainingRoutinesUnavailable;
+
+  /// No description provided for @workoutTrainingSaveAsCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as a new training'**
+  String get workoutTrainingSaveAsCopy;
 }
 
 class _AppLocalizationsDelegate

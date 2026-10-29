@@ -30,13 +30,17 @@ import '../l10n/l10n.dart';
 /// )
 /// ```
 ///
-/// An entry shows on the day it starts and is cut off at midnight.
+/// An entry shows on the day it starts and is cut off at midnight. With
+/// [CalendarView.onSlotTap], tapping empty time opens that hour (e.g. to add
+/// something there); the slot stays highlighted until the future completes.
 class CalendarView<T> extends StatefulWidget {
   const CalendarView({
     super.key,
     required this.load,
     required this.describe,
     this.onTap,
+    this.onSlotTap,
+    this.slotSemanticsLabel,
     this.filter,
     this.blockBuilder,
     this.initialDay,
@@ -59,6 +63,13 @@ class CalendarView<T> extends StatefulWidget {
   /// Opens an item; the item's week reloads once the future completes. Null
   /// makes the calendar read-only.
   final Future<void> Function(T item)? onTap;
+
+  /// Opens an empty hour, given its start (local); completes with whether
+  /// something was added (the week then reloads). Null: empty time does nothing.
+  final Future<bool> Function(DateTime slot)? onSlotTap;
+
+  /// Screen-reader label for an hour slot, given its formatted time ("6 PM").
+  final String Function(String time)? slotSemanticsLabel;
 
   /// Which loaded items to show (applied without reloading).
   final bool Function(T item)? filter;
@@ -202,6 +213,9 @@ class CalendarViewState<T> extends State<CalendarView<T>> {
   Timer? _clock;
   DateTime? _scrolledFor;
 
+  /// The hour opened through [CalendarView.onSlotTap], highlighted until done.
+  DateTime? _activeSlot;
+
   /// The day on screen.
   DateTime get day => _day;
 
@@ -281,6 +295,21 @@ class CalendarViewState<T> extends State<CalendarView<T>> {
     await widget.onTap!(item);
     if (!mounted) return;
     final week = _weekOf(entry.start);
+    _weeks.remove(week);
+    _scrolledFor = _day; // keep the scroll position on return
+    await _ensureWeek(week, force: true);
+  }
+
+  Future<void> _openSlot(DateTime slot) async {
+    setState(() => _activeSlot = slot);
+    var changed = false;
+    try {
+      changed = await widget.onSlotTap!(slot);
+    } finally {
+      if (mounted) setState(() => _activeSlot = null);
+    }
+    if (!changed || !mounted) return;
+    final week = _weekOf(slot);
     _weeks.remove(week);
     _scrolledFor = _day; // keep the scroll position on return
     await _ensureWeek(week, force: true);
@@ -523,6 +552,7 @@ class CalendarViewState<T> extends State<CalendarView<T>> {
               builder: (context, box) => Stack(
                 children: [
                   ..._hourLines(context, hourHeight),
+                  if (widget.onSlotTap != null) ..._slots(context, hourHeight),
                   ..._blocks(
                     context,
                     entries,
@@ -608,6 +638,53 @@ class CalendarViewState<T> extends State<CalendarView<T>> {
             ),
           ),
       ],
+    ];
+  }
+
+  /// One tappable row per hour, under the entries (which win the tap).
+  List<Widget> _slots(BuildContext context, double hourHeight) {
+    final cs = Theme.of(context).colorScheme;
+    final fmt = DateFormat.j(_locale(context));
+    return [
+      for (var h = 0; h < 24; h++)
+        Builder(
+          builder: (context) {
+            final slot = DateTime(_day.year, _day.month, _day.day, h);
+            final active = _activeSlot == slot;
+            final time = fmt.format(slot);
+            return Positioned(
+              left: _gutter,
+              right: 0,
+              top: h * hourHeight + 8 + 1,
+              height: hourHeight - 1,
+              child: Semantics(
+                button: true,
+                label: widget.slotSemanticsLabel?.call(time) ?? time,
+                excludeSemantics: true,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: _activeSlot == null ? () => _openSlot(slot) : null,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                    alignment: AlignmentDirectional.topStart,
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: active
+                          ? cs.primary.withValues(alpha: 0.14)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                      border: active ? Border.all(color: cs.primary) : null,
+                    ),
+                    child: active
+                        ? Icon(Icons.add, size: 18, color: cs.primary)
+                        : null,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
     ];
   }
 
