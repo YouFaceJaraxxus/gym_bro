@@ -32,14 +32,16 @@ class _TrainerClassesPageState extends State<TrainerClassesPage> {
 
   Future<void> _load() async {
     final me = AuthManager.instance.profile?.id;
-    final notSignedIn = context.l10n.trainingClassNotSignedIn;
     setState(() {
       _loading = _classes.isEmpty;
       _error = null;
     });
     try {
-      if (me == null) throw Exception(notSignedIn);
       final token = await AuthManager.instance.getValidToken();
+      // After the await: this first runs from initState, before inherited
+      // widgets (localizations) may be read.
+      if (!mounted) return;
+      if (me == null) throw Exception(context.l10n.trainingClassNotSignedIn);
       final now = DateTime.now();
       final classes = await _api.getClasses(
         token,

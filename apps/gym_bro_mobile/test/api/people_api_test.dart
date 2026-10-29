@@ -80,7 +80,7 @@ Map<String, dynamic> _meJson() => {
       'settings': {
         'is_private': false,
         'discoverable': true,
-        'who_can_message': 'friends',
+        'allow_non_follower_messages': false,
         'show_activity_status': true,
         'has_location': true,
         'location_updated_at': '2026-10-20T10:00:00.000Z',
@@ -140,7 +140,7 @@ void _expectMe(PublicProfile p) {
   final s = p.settings!;
   expect(s.isPrivate, isFalse);
   expect(s.discoverable, isTrue);
-  expect(s.whoCanMessage, WhoCanMessage.friends);
+  expect(s.allowNonFollowerMessages, isFalse);
   expect(s.showActivityStatus, isTrue);
   expect(s.hasLocation, isTrue);
   expect(s.locationUpdatedAt!.toUtc(), _utc('2026-10-20T10:00:00.000Z'));
@@ -194,7 +194,7 @@ void main() {
         'interests': ['running'],
         'is_private': true,
         'discoverable': false,
-        'who_can_message': 'friends',
+        'allow_non_follower_messages': false,
         'show_activity_status': false,
         'username': 'liam.o',
       };

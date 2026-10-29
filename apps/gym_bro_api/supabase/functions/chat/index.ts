@@ -17,13 +17,16 @@ import {
   displayName,
   isBlockedBetween,
   isReaction,
+  MESSAGE_RULE_COLS,
+  messageable,
+  type MessageRecipient,
   REACTION_EMOJI,
   touchActivity,
   unreadMessageSql,
   type UserSummary,
   userSummaries,
 } from "../_shared/social.ts";
-import type { Database, ParticipantRole, ParticipantStatus, WhoCanMessage } from "../../types/schema/public.ts";
+import type { Database, ParticipantRole, ParticipantStatus } from "../../types/schema/public.ts";
 
 // Direct and group chat.
 //
@@ -423,20 +426,22 @@ async function announce(conversationId: string, messages: MessageRow[]) {
 // ── Adding people ─────────────────────────────────────────────────────────────
 
 /**
- * Validates people to add: they exist, aren't blocked either way, and get
- * status 'active' if they let `adder` message them, else 'request'.
+ * Validates people to add: they exist, `adder` may message them (see
+ * directMessageStatus), and gets each one's status: 'active' or 'request'.
  */
 async function resolveInvitees(adder: Caller, userIds: string[]) {
   const unique = [...new Set(userIds)].filter((id) => id !== adder.id);
   if (unique.some((id) => !UUID_RE.test(id))) return { error: "user_ids must be user ids" };
   const users = unique.length
-    ? await db.selectFrom("users").select(["id", "who_can_message"]).where("id", "in", unique).execute()
+    ? await db.selectFrom("users").select(MESSAGE_RULE_COLS).where("id", "in", unique).execute()
     : [];
   if (users.length !== unique.length) return { error: "Some users don't exist" };
   const out: { id: string; status: ParticipantStatus }[] = [];
   for (const u of users) {
-    const status = await directMessageStatus(adder.id, u as { id: string; who_can_message: WhoCanMessage });
-    if (!status) return { error: "You can't add someone who blocked you or whom you blocked" };
+    const rule = await directMessageStatus(adder.id, u);
+    if (rule === "blocked") return { error: "You can't add someone who blocked you or whom you blocked" };
+    const status = messageable(rule);
+    if (!status) return { error: "Some of these people only take messages from their followers" };
     out.push({ id: u.id, status });
   }
   return { invitees: out };
@@ -948,16 +953,24 @@ async function handler(req: Request): Promise<Response> {
     }
 
     // Direct chats: blocked either way → no sending; a recipient who left or
-    // declined is re-added (as a request if they don't let me message them).
-    let directOther: { id: string; who_can_message: WhoCanMessage } | undefined;
+    // declined is re-added (inbox or request, per directMessageStatus) unless
+    // they no longer take messages from me.
+    let directOther: MessageRecipient | undefined;
+    let directOtherStatus: "active" | "request" | null = null;
     if (me.kind === "direct") {
       const key = await db.selectFrom("conversation").select("direct_key").where("id", "=", convId)
         .executeTakeFirstOrThrow();
       const otherId = key.direct_key!.split(":").find((id) => id !== caller.id)!;
       if (await isBlockedBetween(caller.id, otherId)) return forbidden("You can't message this person");
-      directOther = await db.selectFrom("users").select(["id", "who_can_message"]).where("id", "=", otherId)
+      directOther = await db.selectFrom("users").select(MESSAGE_RULE_COLS).where("id", "=", otherId)
         .executeTakeFirst();
       if (!directOther) return forbidden("This account no longer exists");
+      directOtherStatus = messageable(await directMessageStatus(caller.id, directOther));
+      if (!directOtherStatus) {
+        const stillIn = await db.selectFrom("conversation_participant").select("user_id")
+          .where("conversation_id", "=", convId).where("user_id", "=", otherId).executeTakeFirst();
+        if (!stillIn) return forbidden("This person only takes messages from their followers");
+      }
     }
     if (me.status === "request") {
       // Replying to a request accepts it.
@@ -981,10 +994,9 @@ async function handler(req: Request): Promise<Response> {
 
     const int = (v: unknown) => (Number.isFinite(Number(v)) && Number(v) >= 0 ? Math.round(Number(v)) : null);
     const msg = await db.transaction().execute(async (trx) => {
-      if (directOther) {
-        const status = await directMessageStatus(caller.id, directOther);
+      if (directOther && directOtherStatus) {
         await trx.insertInto("conversation_participant")
-          .values({ conversation_id: convId, user_id: directOther.id, status: status ?? "request", added_by: caller.id })
+          .values({ conversation_id: convId, user_id: directOther.id, status: directOtherStatus, added_by: caller.id })
           .onConflict((oc) => oc.columns(["conversation_id", "user_id"]).doNothing())
           .execute();
       }

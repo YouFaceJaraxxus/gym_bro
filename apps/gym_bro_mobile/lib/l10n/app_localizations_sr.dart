@@ -4235,6 +4235,21 @@ class AppLocalizationsSr extends AppLocalizations {
       'Trenutno nema predloga. Prijavi se u teretani ili dodaj interesovanja na profil za bolje predloge.';
 
   @override
+  String get peopleNonFollowerMessages => 'Poruke od osoba koje te ne prate';
+
+  @override
+  String get peopleNonFollowerMessagesOff =>
+      'Samo pratioci koje si odobrio/la mogu da ti pišu.';
+
+  @override
+  String get peopleNonFollowerMessagesPrivate =>
+      'Osobe koje nisi odobrio/la kao pratioce mogu da ti pošalju zahtev za poruku.';
+
+  @override
+  String get peopleNonFollowerMessagesPublic =>
+      'Osobe koje te ne prate mogu direktno da ti pišu.';
+
+  @override
   String get peoplePosts => 'Objave';
 
   @override
@@ -4460,22 +4475,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get peopleViewProfile => 'Pogledaj profil';
-
-  @override
-  String get peopleWhoCanMessage => 'Ko može da mi piše';
-
-  @override
-  String get peopleWhoCanMessageHint =>
-      'Poruke svih ostalih stižu u zahteve za poruke.';
-
-  @override
-  String get peopleWhoEveryone => 'Svi';
-
-  @override
-  String get peopleWhoFollowing => 'Osobe koje pratim';
-
-  @override
-  String get peopleWhoFriends => 'Prijatelji';
 
   @override
   String get reactionAngry => 'Ljuto';
@@ -4742,11 +4741,6 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
-  String shellHey(String name) {
-    return 'Ćao, $name!';
-  }
-
-  @override
   String get shellHidePassword => 'Sakrij lozinku';
 
   @override
@@ -4957,17 +4951,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellMembersYouCoach => 'Članovi koje treniraš';
 
   @override
-  String get shellMembershipActive => 'Aktivna';
-
-  @override
-  String get shellMembershipLoadFailed => 'Učitavanje članarine nije uspelo';
-
-  @override
-  String shellMembershipValidUntil(String type, String date) {
-    return '$type · važi do $date';
-  }
-
-  @override
   String get shellMuteBilling => 'Plaćanja';
 
   @override
@@ -5029,6 +5012,9 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellMyMembership => 'Moja članarina';
 
   @override
+  String get shellMyMembershipSubtitle => 'Plan, plaćanje i računi';
+
+  @override
   String get shellMyOrders => 'Moje porudžbine';
 
   @override
@@ -5051,9 +5037,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellNoAccountSignUp => 'Nemaš nalog? Registruj se';
-
-  @override
-  String get shellNoActiveMembership => 'Nemaš aktivnu članarinu';
 
   @override
   String get shellNoBusinesses => 'Još nema biznisa';
@@ -5083,9 +5066,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellNoUsersFound => 'Nema pronađenih korisnika';
-
-  @override
-  String get shellNoneScheduled => 'Ništa nije zakazano';
 
   @override
   String get shellNotAVendor => 'Još nisi prodavac ni u jednoj prodavnici';
@@ -5124,10 +5104,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellOwnerAllInvoices => 'Sve fakture';
-
-  @override
-  String get shellOwnerNoGyms =>
-      'Još nemaš nijednu teretanu — dodaj je na kartici Biznisi.';
 
   @override
   String get shellPasswordChanged => 'Lozinka je promenjena';
@@ -5219,9 +5195,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellSendResetLink => 'Pošalji link za resetovanje';
-
-  @override
-  String get shellSessionInProgress => 'Trening u toku';
 
   @override
   String shellSessionStartedInProgress(String time) {
@@ -5457,16 +5430,10 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
-  String get shellUnavailable => 'Nedostupno';
-
-  @override
   String get shellUnitKilograms => 'Kilogrami';
 
   @override
   String get shellUnitPounds => 'Funte';
-
-  @override
-  String get shellUpcomingClasses => 'Predstojeći časovi';
 
   @override
   String get shellUserSearchAdd => 'Dodaj';
@@ -5488,21 +5455,10 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
-  String shellWelcomeBack(String name) {
-    return 'Dobro došao nazad, $name';
-  }
-
-  @override
   String get shellYourGym => 'Tvoja teretana';
 
   @override
   String get shellYourGyms => 'Tvoje teretane';
-
-  @override
-  String get shellYourShop => 'Tvoja prodavnica';
-
-  @override
-  String get shellYourShops => 'Tvoje prodavnice';
 
   @override
   String socialActiveAgo(String when) {
@@ -5666,6 +5622,34 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get trainingClassAbout => 'O času';
+
+  @override
+  String get trainingClassAdd => 'Dodaj';
+
+  @override
+  String get trainingClassAddPeople => 'Dodaj osobe';
+
+  @override
+  String get trainingClassAddPeopleEmpty =>
+      'Nema nikoga. Osoba mora biti član ove teretane ili da te prati.';
+
+  @override
+  String get trainingClassAddPeopleHint =>
+      'Članovi ove teretane i osobe koje te prate.';
+
+  @override
+  String get trainingClassAddPeopleSearch =>
+      'Pretraži po imenu ili korisničkom imenu';
+
+  @override
+  String trainingClassAddedPerson(String name) {
+    return 'Dodato: $name';
+  }
+
+  @override
+  String trainingClassAddedToWaitlist(String name) {
+    return 'Na listi čekanja: $name';
+  }
 
   @override
   String get trainingClassApplyToSeries => 'Primeni na ovaj i buduće časove';
@@ -5979,6 +5963,12 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get trainingClassPast => 'Prošli';
+
+  @override
+  String get trainingClassPersonFollower => 'Prati te';
+
+  @override
+  String get trainingClassPersonMember => 'Član';
 
   @override
   String get trainingClassRefresh => 'Osveži';
@@ -11836,6 +11826,21 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
       'Trenutno nema predloga. Prijavi se u teretani ili dodaj interesovanja na profil za bolje predloge.';
 
   @override
+  String get peopleNonFollowerMessages => 'Poruke od osoba koje te ne prate';
+
+  @override
+  String get peopleNonFollowerMessagesOff =>
+      'Samo pratioci koje si odobrio/la mogu da ti pišu.';
+
+  @override
+  String get peopleNonFollowerMessagesPrivate =>
+      'Osobe koje nisi odobrio/la kao pratioce mogu da ti pošalju zahtev za poruku.';
+
+  @override
+  String get peopleNonFollowerMessagesPublic =>
+      'Osobe koje te ne prate mogu direktno da ti pišu.';
+
+  @override
   String get peoplePosts => 'Objave';
 
   @override
@@ -12061,22 +12066,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get peopleViewProfile => 'Pogledaj profil';
-
-  @override
-  String get peopleWhoCanMessage => 'Ko može da mi piše';
-
-  @override
-  String get peopleWhoCanMessageHint =>
-      'Poruke svih ostalih stižu u zahteve za poruke.';
-
-  @override
-  String get peopleWhoEveryone => 'Svi';
-
-  @override
-  String get peopleWhoFollowing => 'Osobe koje pratim';
-
-  @override
-  String get peopleWhoFriends => 'Prijatelji';
 
   @override
   String get reactionAngry => 'Ljuto';
@@ -12343,11 +12332,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
-  String shellHey(String name) {
-    return 'Ćao, $name!';
-  }
-
-  @override
   String get shellHidePassword => 'Sakrij lozinku';
 
   @override
@@ -12558,17 +12542,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellMembersYouCoach => 'Članovi koje treniraš';
 
   @override
-  String get shellMembershipActive => 'Aktivna';
-
-  @override
-  String get shellMembershipLoadFailed => 'Učitavanje članarine nije uspelo';
-
-  @override
-  String shellMembershipValidUntil(String type, String date) {
-    return '$type · važi do $date';
-  }
-
-  @override
   String get shellMuteBilling => 'Plaćanja';
 
   @override
@@ -12630,6 +12603,9 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellMyMembership => 'Moja članarina';
 
   @override
+  String get shellMyMembershipSubtitle => 'Plan, plaćanje i računi';
+
+  @override
   String get shellMyOrders => 'Moje porudžbine';
 
   @override
@@ -12652,9 +12628,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellNoAccountSignUp => 'Nemaš nalog? Registruj se';
-
-  @override
-  String get shellNoActiveMembership => 'Nemaš aktivnu članarinu';
 
   @override
   String get shellNoBusinesses => 'Još nema biznisa';
@@ -12684,9 +12657,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellNoUsersFound => 'Nema pronađenih korisnika';
-
-  @override
-  String get shellNoneScheduled => 'Ništa nije zakazano';
 
   @override
   String get shellNotAVendor => 'Još nisi prodavac ni u jednoj prodavnici';
@@ -12725,10 +12695,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellOwnerAllInvoices => 'Sve fakture';
-
-  @override
-  String get shellOwnerNoGyms =>
-      'Još nemaš nijednu teretanu — dodaj je na kartici Biznisi.';
 
   @override
   String get shellPasswordChanged => 'Lozinka je promenjena';
@@ -12820,9 +12786,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellSendResetLink => 'Pošalji link za resetovanje';
-
-  @override
-  String get shellSessionInProgress => 'Trening u toku';
 
   @override
   String shellSessionStartedInProgress(String time) {
@@ -13058,16 +13021,10 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
-  String get shellUnavailable => 'Nedostupno';
-
-  @override
   String get shellUnitKilograms => 'Kilogrami';
 
   @override
   String get shellUnitPounds => 'Funte';
-
-  @override
-  String get shellUpcomingClasses => 'Predstojeći časovi';
 
   @override
   String get shellUserSearchAdd => 'Dodaj';
@@ -13089,21 +13046,10 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
-  String shellWelcomeBack(String name) {
-    return 'Dobro došao nazad, $name';
-  }
-
-  @override
   String get shellYourGym => 'Tvoja teretana';
 
   @override
   String get shellYourGyms => 'Tvoje teretane';
-
-  @override
-  String get shellYourShop => 'Tvoja prodavnica';
-
-  @override
-  String get shellYourShops => 'Tvoje prodavnice';
 
   @override
   String socialActiveAgo(String when) {
@@ -13267,6 +13213,34 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get trainingClassAbout => 'O času';
+
+  @override
+  String get trainingClassAdd => 'Dodaj';
+
+  @override
+  String get trainingClassAddPeople => 'Dodaj osobe';
+
+  @override
+  String get trainingClassAddPeopleEmpty =>
+      'Nema nikoga. Osoba mora biti član ove teretane ili da te prati.';
+
+  @override
+  String get trainingClassAddPeopleHint =>
+      'Članovi ove teretane i osobe koje te prate.';
+
+  @override
+  String get trainingClassAddPeopleSearch =>
+      'Pretraži po imenu ili korisničkom imenu';
+
+  @override
+  String trainingClassAddedPerson(String name) {
+    return 'Dodato: $name';
+  }
+
+  @override
+  String trainingClassAddedToWaitlist(String name) {
+    return 'Na listi čekanja: $name';
+  }
 
   @override
   String get trainingClassApplyToSeries => 'Primeni na ovaj i buduće časove';
@@ -13580,6 +13554,12 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get trainingClassPast => 'Prošli';
+
+  @override
+  String get trainingClassPersonFollower => 'Prati te';
+
+  @override
+  String get trainingClassPersonMember => 'Član';
 
   @override
   String get trainingClassRefresh => 'Osveži';

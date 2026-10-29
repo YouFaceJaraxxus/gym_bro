@@ -6985,6 +6985,30 @@ abstract class AppLocalizations {
   /// **'No suggestions right now. Check in at your gym or add interests to your profile to get better ones.'**
   String get peopleNoSuggestions;
 
+  /// No description provided for @peopleNonFollowerMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages from non-followers'**
+  String get peopleNonFollowerMessages;
+
+  /// No description provided for @peopleNonFollowerMessagesOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Only your approved followers can message you.'**
+  String get peopleNonFollowerMessagesOff;
+
+  /// No description provided for @peopleNonFollowerMessagesPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'People you haven\'t approved as followers can send you message requests.'**
+  String get peopleNonFollowerMessagesPrivate;
+
+  /// No description provided for @peopleNonFollowerMessagesPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'People who don\'t follow you can message you directly.'**
+  String get peopleNonFollowerMessagesPublic;
+
   /// No description provided for @peoplePosts.
   ///
   /// In en, this message translates to:
@@ -7344,36 +7368,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View profile'**
   String get peopleViewProfile;
-
-  /// No description provided for @peopleWhoCanMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Who can message me'**
-  String get peopleWhoCanMessage;
-
-  /// No description provided for @peopleWhoCanMessageHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Messages from anyone else land in your message requests.'**
-  String get peopleWhoCanMessageHint;
-
-  /// No description provided for @peopleWhoEveryone.
-  ///
-  /// In en, this message translates to:
-  /// **'Everyone'**
-  String get peopleWhoEveryone;
-
-  /// No description provided for @peopleWhoFollowing.
-  ///
-  /// In en, this message translates to:
-  /// **'People I follow'**
-  String get peopleWhoFollowing;
-
-  /// No description provided for @peopleWhoFriends.
-  ///
-  /// In en, this message translates to:
-  /// **'Friends'**
-  String get peopleWhoFriends;
 
   /// No description provided for @reactionAngry.
   ///
@@ -7825,12 +7819,6 @@ abstract class AppLocalizations {
   /// **'Hello, {name}'**
   String shellHello(String name);
 
-  /// No description provided for @shellHey.
-  ///
-  /// In en, this message translates to:
-  /// **'Hey, {name}!'**
-  String shellHey(String name);
-
   /// No description provided for @shellHidePassword.
   ///
   /// In en, this message translates to:
@@ -8179,24 +8167,6 @@ abstract class AppLocalizations {
   /// **'Members you coach'**
   String get shellMembersYouCoach;
 
-  /// No description provided for @shellMembershipActive.
-  ///
-  /// In en, this message translates to:
-  /// **'Active'**
-  String get shellMembershipActive;
-
-  /// No description provided for @shellMembershipLoadFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Couldn\'t load your membership'**
-  String get shellMembershipLoadFailed;
-
-  /// No description provided for @shellMembershipValidUntil.
-  ///
-  /// In en, this message translates to:
-  /// **'{type} · valid until {date}'**
-  String shellMembershipValidUntil(String type, String date);
-
   /// No description provided for @shellMuteBilling.
   ///
   /// In en, this message translates to:
@@ -8305,6 +8275,12 @@ abstract class AppLocalizations {
   /// **'My membership'**
   String get shellMyMembership;
 
+  /// No description provided for @shellMyMembershipSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan, billing and invoices'**
+  String get shellMyMembershipSubtitle;
+
   /// No description provided for @shellMyOrders.
   ///
   /// In en, this message translates to:
@@ -8352,12 +8328,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Don\'t have an account? Sign up'**
   String get shellNoAccountSignUp;
-
-  /// No description provided for @shellNoActiveMembership.
-  ///
-  /// In en, this message translates to:
-  /// **'No active membership'**
-  String get shellNoActiveMembership;
 
   /// No description provided for @shellNoBusinesses.
   ///
@@ -8407,12 +8377,6 @@ abstract class AppLocalizations {
   /// **'No users found'**
   String get shellNoUsersFound;
 
-  /// No description provided for @shellNoneScheduled.
-  ///
-  /// In en, this message translates to:
-  /// **'None scheduled'**
-  String get shellNoneScheduled;
-
   /// No description provided for @shellNotAVendor.
   ///
   /// In en, this message translates to:
@@ -8460,12 +8424,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All invoices'**
   String get shellOwnerAllInvoices;
-
-  /// No description provided for @shellOwnerNoGyms.
-  ///
-  /// In en, this message translates to:
-  /// **'You don\'t own any gyms yet — add one from the Businesses tab.'**
-  String get shellOwnerNoGyms;
 
   /// No description provided for @shellPasswordChanged.
   ///
@@ -8640,12 +8598,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send reset link'**
   String get shellSendResetLink;
-
-  /// No description provided for @shellSessionInProgress.
-  ///
-  /// In en, this message translates to:
-  /// **'Session in progress'**
-  String get shellSessionInProgress;
 
   /// No description provided for @shellSessionStartedInProgress.
   ///
@@ -8989,12 +8941,6 @@ abstract class AppLocalizations {
   /// **'Type {text} to confirm.'**
   String shellTypeToConfirm(String text);
 
-  /// No description provided for @shellUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Unavailable'**
-  String get shellUnavailable;
-
   /// No description provided for @shellUnitKilograms.
   ///
   /// In en, this message translates to:
@@ -9006,12 +8952,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pounds'**
   String get shellUnitPounds;
-
-  /// No description provided for @shellUpcomingClasses.
-  ///
-  /// In en, this message translates to:
-  /// **'Upcoming classes'**
-  String get shellUpcomingClasses;
 
   /// No description provided for @shellUserSearchAdd.
   ///
@@ -9043,12 +8983,6 @@ abstract class AppLocalizations {
   /// **'Welcome, {name}'**
   String shellWelcome(String name);
 
-  /// No description provided for @shellWelcomeBack.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome back, {name}'**
-  String shellWelcomeBack(String name);
-
   /// No description provided for @shellYourGym.
   ///
   /// In en, this message translates to:
@@ -9060,18 +8994,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your gyms'**
   String get shellYourGyms;
-
-  /// No description provided for @shellYourShop.
-  ///
-  /// In en, this message translates to:
-  /// **'Your shop'**
-  String get shellYourShop;
-
-  /// No description provided for @shellYourShops.
-  ///
-  /// In en, this message translates to:
-  /// **'Your shops'**
-  String get shellYourShops;
 
   /// No description provided for @socialActiveAgo.
   ///
@@ -9330,6 +9252,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About'**
   String get trainingClassAbout;
+
+  /// No description provided for @trainingClassAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get trainingClassAdd;
+
+  /// No description provided for @trainingClassAddPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Add people'**
+  String get trainingClassAddPeople;
+
+  /// No description provided for @trainingClassAddPeopleEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one found. People need to be members of this gym or follow you.'**
+  String get trainingClassAddPeopleEmpty;
+
+  /// No description provided for @trainingClassAddPeopleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Members of this gym and people who follow you.'**
+  String get trainingClassAddPeopleHint;
+
+  /// No description provided for @trainingClassAddPeopleSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or username'**
+  String get trainingClassAddPeopleSearch;
+
+  /// No description provided for @trainingClassAddedPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added'**
+  String trainingClassAddedPerson(String name);
+
+  /// No description provided for @trainingClassAddedToWaitlist.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added to the waitlist'**
+  String trainingClassAddedToWaitlist(String name);
 
   /// No description provided for @trainingClassApplyToSeries.
   ///
@@ -9828,6 +9792,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Past'**
   String get trainingClassPast;
+
+  /// No description provided for @trainingClassPersonFollower.
+  ///
+  /// In en, this message translates to:
+  /// **'Follows you'**
+  String get trainingClassPersonFollower;
+
+  /// No description provided for @trainingClassPersonMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get trainingClassPersonMember;
 
   /// No description provided for @trainingClassRefresh.
   ///

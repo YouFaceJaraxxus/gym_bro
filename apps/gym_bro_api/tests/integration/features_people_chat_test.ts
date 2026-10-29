@@ -68,8 +68,8 @@ Deno.test({
         check("edit bio and interests", edit.status === 200 && edit.data.bio === `Testing ${stamp}` && edit.data.interests.join() === "powerlifting,running", short(edit.data));
         const long = await call("PUT", "/social/me", liam.token, { bio: "x".repeat(301) });
         check("bio over 300 chars is 400", long.status === 400, `status ${long.status}`);
-        const badWho = await call("PUT", "/social/me", liam.token, { who_can_message: "nobody" });
-        check("unknown who_can_message is 400", badWho.status === 400, `status ${badWho.status}`);
+        const badToggle = await call("PUT", "/social/me", liam.token, { allow_non_follower_messages: "nobody" });
+        check("allow_non_follower_messages must be a boolean", badToggle.status === 400, `status ${badToggle.status}`);
 
         // Zoe is private. Without an accepted follow Liam sees her profile but not her posts.
         await call("DELETE", `/social/users/${zoe.profile.id}/follow`, liam.token);
@@ -292,14 +292,20 @@ Deno.test({
     await t.step("chat: message requests and groups", async () => {
       const convIds: string[] = [];
       try {
-        // Amelia only takes messages from friends: Liam's DM is a request.
+        // Amelia is private and only takes messages from approved followers.
+        const refused = await call("POST", "/chat/conversations", liam.token, { user_ids: [amelia.profile.id] });
+        if (refused.data?.id) convIds.push(refused.data.id);
+        check("a non-follower can't message her", refused.status === 400, `status ${refused.status}`);
+
+        // With non-follower messages allowed, Liam's DM to her private account is a request.
+        await call("PUT", "/social/me", amelia.token, { allow_non_follower_messages: true });
         const dm = await call("POST", "/chat/conversations", liam.token, { user_ids: [amelia.profile.id] });
         convIds.push(dm.data.id);
         await call("POST", `/chat/conversations/${dm.data.id}/messages`, liam.token, { body: "hi amelia" });
         const inbox = await call("GET", "/chat/conversations", amelia.token);
         const requests = await call("GET", "/chat/conversations?box=requests", amelia.token);
         check(
-          "DM from a non-friend lands in requests",
+          "DM from a non-follower lands in requests",
           !(inbox.data as any[]).some((c) => c.id === dm.data.id) && (requests.data as any[]).some((c) => c.id === dm.data.id && c.my_status === "request"),
           short(requests.data),
         );
@@ -333,6 +339,7 @@ Deno.test({
         await deleteNotifications(daniel.token, (n) => n.type === "group_added" && n.metadata?.conversation_id === group.data.id);
         await deleteNotifications(natalia.token, (n) => n.type === "group_added" && n.metadata?.conversation_id === group.data.id);
       } finally {
+        await call("PUT", "/social/me", amelia.token, { allow_non_follower_messages: false });
         for (const id of convIds) await sql(`DELETE FROM conversation WHERE id = $1`, [id]);
       }
       assertAll();

@@ -8,19 +8,17 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/auth_service.dart';
 import '../services/realtime_service.dart';
-import 'home/owner_home_page.dart';
 import 'home/owner_businesses_page.dart';
 import 'home/employee_members_page.dart';
-import 'home/member_home_page.dart';
-import 'home/trainer_home_page.dart';
 import 'home/employee_home_page.dart';
 import 'home/employee_trainer_home_page.dart';
 import 'home/super_user_home_page.dart';
 import 'home/owner_users_page.dart';
 import 'home/trainer_members_page.dart';
-import 'home/vendor_home_page.dart';
 import 'home/vendor_shop_page.dart';
 import '../widgets/offline_banner.dart';
+import '../widgets/social_widgets.dart';
+import 'home/home_widgets.dart';
 import 'classes/class_schedule_page.dart';
 import 'classes/trainer_classes_page.dart';
 import 'chat/chat_inbox_page.dart';
@@ -29,7 +27,6 @@ import 'notifications_page.dart';
 import 'people/discover_page.dart';
 import 'gym_hub_page.dart';
 import 'profile_page.dart';
-import 'membership_page.dart';
 
 // ── Per-role nav tab definitions ──────────────────────────────────────────────
 
@@ -38,7 +35,6 @@ import 'membership_page.dart';
 enum _Tab {
   home(Icons.home_outlined),
   businesses(Icons.business_outlined),
-  membership(Icons.card_membership_outlined),
   schedule(Icons.calendar_today_outlined),
   classes(Icons.sports_gymnastics_outlined),
   members(Icons.people_outline),
@@ -46,8 +42,7 @@ enum _Tab {
   users(Icons.manage_accounts_outlined),
   feed(Icons.dynamic_feed_outlined),
   discover(Icons.travel_explore),
-  gym(Icons.fitness_center),
-  profile(Icons.person_outline);
+  gym(Icons.fitness_center);
 
   const _Tab(this.icon);
 
@@ -56,7 +51,6 @@ enum _Tab {
   String label(AppLocalizations l10n) => switch (this) {
     _Tab.home => l10n.shellTabHome,
     _Tab.businesses => l10n.shellTabBusinesses,
-    _Tab.membership => l10n.shellTabMembership,
     _Tab.schedule => l10n.shellTabSchedule,
     _Tab.classes => l10n.shellTabClasses,
     _Tab.members => l10n.shellTabMembers,
@@ -65,28 +59,32 @@ enum _Tab {
     _Tab.feed => l10n.shellTabFeed,
     _Tab.discover => l10n.shellTabDiscover,
     _Tab.gym => l10n.shellTabGym,
-    _Tab.profile => l10n.shellTabProfile,
   };
 }
 
-// Shared tabs appended to every role's list.
-const _sharedTabs = <_Tab>[_Tab.feed, _Tab.discover, _Tab.gym, _Tab.profile];
+// Profile lives in the app bar, not in the tabs.
+//
+// Members, owners, trainers and vendors: Home is the feed, then the role's own
+// tabs, then the member tabs (Schedule, Discover, Gym). Owner stats sit on top
+// of Businesses; membership/billing is reached from Profile.
+const _memberEndTabs = <_Tab>[_Tab.schedule, _Tab.discover, _Tab.gym];
 
-const _ownerTabs = <_Tab>[_Tab.home, _Tab.businesses, ..._sharedTabs];
+const _memberTabs = <_Tab>[_Tab.home, ..._memberEndTabs];
 
-const _memberTabs = <_Tab>[
-  _Tab.home,
-  _Tab.membership,
-  _Tab.schedule,
-  ..._sharedTabs,
-];
+const _ownerTabs = <_Tab>[_Tab.home, _Tab.businesses, ..._memberEndTabs];
 
 const _trainerTabs = <_Tab>[
   _Tab.home,
   _Tab.classes,
   _Tab.members,
-  ..._sharedTabs,
+  ..._memberEndTabs,
 ];
+
+const _vendorTabs = <_Tab>[_Tab.home, _Tab.myShop, ..._memberEndTabs];
+
+// Employees, employee-trainers and super users keep a dashboard on Home and a
+// separate Feed tab.
+const _sharedTabs = <_Tab>[_Tab.feed, _Tab.discover, _Tab.gym];
 
 const _employeeTabs = <_Tab>[
   _Tab.home,
@@ -102,8 +100,6 @@ const _employeeTrainerTabs = <_Tab>[
   _Tab.schedule,
   ..._sharedTabs,
 ];
-
-const _vendorTabs = <_Tab>[_Tab.home, _Tab.myShop, ..._sharedTabs];
 
 const _superUserTabs = <_Tab>[
   _Tab.home,
@@ -242,6 +238,19 @@ class _HomePageState extends State<HomePage> {
     if (profile != null && mounted) _refreshUnreadCount(profile.id);
   }
 
+  Future<void> _openProfile() async {
+    await pushTabPage<void>(
+      context,
+      context.l10n.shellTabProfile,
+      ProfilePage(
+        profile: _profile!,
+        onUpdated: (updated) => setState(() => _profile = updated),
+      ),
+    );
+    final profile = _profile;
+    if (profile != null && mounted) _refreshUnreadCount(profile.id);
+  }
+
   /// Logs out, or (while impersonating) returns to the admin's account.
   Future<void> _logout() async {
     final stillSignedIn = await AuthManager.instance.logout();
@@ -305,7 +314,9 @@ class _HomePageState extends State<HomePage> {
             icon: Icons.chat_bubble_outline,
             count: _badges.unreadConversations + _badges.messageRequests,
             tooltip: _badges.unreadConversations + _badges.messageRequests > 0
-                ? l10n.shellChatsUnread(_badges.unreadConversations + _badges.messageRequests)
+                ? l10n.shellChatsUnread(
+                    _badges.unreadConversations + _badges.messageRequests,
+                  )
                 : l10n.shellChats,
             onPressed: _openChats,
           ),
@@ -354,12 +365,15 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
           IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: AuthManager.instance.isImpersonating
-                ? l10n.shellHomeReturnToAdmin
-                : l10n.shellHomeLogOut,
-            onPressed: _logout,
+            tooltip: l10n.shellTabProfile,
+            onPressed: _openProfile,
+            icon: UserAvatar(
+              url: profile.avatarUrl,
+              initials: _initials(profile),
+              radius: 14,
+            ),
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: Column(
@@ -379,7 +393,10 @@ class _HomePageState extends State<HomePage> {
           for (final tab in tabs)
             NavigationDestination(
               icon: tab == _Tab.discover && _badges.requests > 0
-                  ? Badge(label: Text('${_badges.requests}'), child: Icon(tab.icon))
+                  ? Badge(
+                      label: Text('${_badges.requests}'),
+                      child: Icon(tab.icon),
+                    )
                   : Icon(tab.icon),
               label: tab.label(l10n),
               tooltip: tab.label(l10n),
@@ -390,77 +407,37 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildBody(UserProfile profile, int index) {
-    // Tab 0 is always the role-specific home page.
-    if (index == 0) {
-      return switch (profile.role) {
-        UserRole.owner => OwnerHomePage(profile: profile),
-        UserRole.member => MemberHomePage(profile: profile),
-        UserRole.trainer => TrainerHomePage(profile: profile),
+    final role = profile.role;
+    return switch (_tabsForRole(role)[index]) {
+      // Home is the feed, except for the roles that keep a dashboard.
+      _Tab.home => switch (role) {
         UserRole.employee => EmployeeHomePage(profile: profile),
         UserRole.employeeTrainer => EmployeeTrainerHomePage(profile: profile),
-        UserRole.shopVendor => VendorHomePage(profile: profile),
         UserRole.superUser => SuperUserHomePage(profile: profile),
-      };
-    }
-
-    // Shop vendor "My Shop" tab.
-    if (profile.role == UserRole.shopVendor) {
-      if (index == 1) return VendorShopPage(profile: profile);
-    }
-
-    // Owner / super-user Businesses tab.
-    if (profile.role == UserRole.owner || profile.role == UserRole.superUser) {
-      if (index == 1) return const OwnerBusinessesPage();
-    }
-
-    // Super-user Users tab.
-    if (profile.role == UserRole.superUser) {
-      if (index == 2) return const OwnerUsersPage();
-    }
-
-    // Employee / employee-trainer Members tab (index 1 for both roles).
-    if (profile.role == UserRole.employee ||
-        profile.role == UserRole.employeeTrainer) {
-      if (index == 1) return EmployeeMembersPage(profile: profile);
-    }
-
-    // Member Membership + Schedule (bookable classes at their gyms).
-    if (profile.role == UserRole.member) {
-      if (index == 1) return MembershipPage(profile: profile);
-      if (index == 2) return const ClassSchedulePage();
-    }
-
-    // Employee Schedule.
-    if (profile.role == UserRole.employee) {
-      if (index == 2) return const ClassSchedulePage();
-    }
-
-    // Trainer Classes they teach + Members they coach.
-    if (profile.role == UserRole.trainer) {
-      if (index == 1) return const TrainerClassesPage();
-      if (index == 2) return TrainerMembersPage(profile: profile);
-    }
-
-    // Employee-trainer Classes they teach + the gym Schedule.
-    if (profile.role == UserRole.employeeTrainer) {
-      if (index == 2) return const TrainerClassesPage();
-      if (index == 3) return const ClassSchedulePage();
-    }
-
-    // Shared tabs, appended to every role's list.
-    final tabs = _tabsForRole(profile.role);
-    return switch (tabs[index]) {
+        _ => const FeedPage(),
+      },
+      // Owners get their stats on top; super users have them on Home.
+      _Tab.businesses => OwnerBusinessesPage(showStats: role == UserRole.owner),
+      _Tab.users => const OwnerUsersPage(),
+      _Tab.members =>
+        role == UserRole.trainer
+            ? TrainerMembersPage(profile: profile)
+            : EmployeeMembersPage(profile: profile),
+      _Tab.classes => const TrainerClassesPage(),
+      _Tab.schedule => const ClassSchedulePage(),
+      _Tab.myShop => VendorShopPage(profile: profile),
       _Tab.feed => const FeedPage(),
       _Tab.discover => const DiscoverPage(),
       _Tab.gym => GymHubPage(profile: profile),
-      _Tab.profile => ProfilePage(
-        profile: profile,
-        onUpdated: (updated) => setState(() => _profile = updated),
-      ),
-      // Every role's own tabs are handled above.
-      _ => const SizedBox.shrink(),
     };
   }
+}
+
+String _initials(UserProfile p) {
+  final initials =
+      '${p.name.isNotEmpty ? p.name[0] : ''}${p.lastName.isNotEmpty ? p.lastName[0] : ''}'
+          .toUpperCase();
+  return initials.isEmpty ? '?' : initials;
 }
 
 /// App bar icon with a small count badge (hidden at zero).

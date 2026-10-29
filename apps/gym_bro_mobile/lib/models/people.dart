@@ -150,23 +150,12 @@ class GymRef {
 }
 
 /// Who may message me directly (anyone else lands in message requests).
-enum WhoCanMessage {
-  everyone('everyone'),
-  following('following'),
-  friends('friends');
-
-  const WhoCanMessage(this.apiValue);
-  final String apiValue;
-
-  static WhoCanMessage parse(Object? v) =>
-      WhoCanMessage.values.firstWhere((w) => w.apiValue == v, orElse: () => WhoCanMessage.everyone);
-}
-
 /// My own privacy settings (GET /social/me only).
 class ProfileSettings {
   final bool isPrivate;
   final bool discoverable;
-  final WhoCanMessage whoCanMessage;
+  /// Off: only approved followers (and friends) can message me.
+  final bool allowNonFollowerMessages;
   final bool showActivityStatus;
   final bool hasLocation;
   final DateTime? locationUpdatedAt;
@@ -174,7 +163,7 @@ class ProfileSettings {
   const ProfileSettings({
     required this.isPrivate,
     required this.discoverable,
-    required this.whoCanMessage,
+    required this.allowNonFollowerMessages,
     required this.showActivityStatus,
     required this.hasLocation,
     this.locationUpdatedAt,
@@ -183,7 +172,7 @@ class ProfileSettings {
   factory ProfileSettings.fromJson(Map<String, dynamic> json) => ProfileSettings(
     isPrivate: json['is_private'] as bool? ?? false,
     discoverable: json['discoverable'] as bool? ?? true,
-    whoCanMessage: WhoCanMessage.parse(json['who_can_message']),
+    allowNonFollowerMessages: json['allow_non_follower_messages'] as bool? ?? true,
     showActivityStatus: json['show_activity_status'] as bool? ?? true,
     hasLocation: json['has_location'] as bool? ?? false,
     locationUpdatedAt: DateTime.tryParse(json['location_updated_at'] as String? ?? '')?.toLocal(),

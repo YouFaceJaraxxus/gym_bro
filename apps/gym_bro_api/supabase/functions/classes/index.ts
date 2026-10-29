@@ -11,6 +11,7 @@ import {
   requireCaller,
 } from "../_shared/auth.ts";
 import { notify } from "../_shared/notify.ts";
+import { displayName, isBlockedBetween, isFollowing } from "../_shared/social.ts";
 import type { BookingStatus, Database } from "../../types/schema/public.ts";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -33,11 +34,12 @@ class HttpError extends Error {
 // /classes/coaching-gyms                → { id: null, action: 'coaching_gyms' }
 // /classes/:id                          → { id, action: null }
 // /classes/:id/book                     → { id, action: 'book' }
+// /classes/:id/addable                  → { id, action: 'addable' }
 // /classes/:id/cancel-booking           → { id, action: 'cancel_booking' }
 // /classes/:id/bookings/:bookingId      → { id, action: 'booking', bookingId }
 // anything else                         → null (404)
 
-type Action = "coaching_gyms" | "book" | "cancel_booking" | "booking" | null;
+type Action = "coaching_gyms" | "book" | "addable" | "cancel_booking" | "booking" | null;
 
 function parsePath(pathname: string): { id: string | null; action: Action; bookingId?: string } | null {
   if (/^\/classes\/?$/.test(pathname)) return { id: null, action: null };
@@ -48,6 +50,9 @@ function parsePath(pathname: string): { id: string | null; action: Action; booki
 
   const book = pathname.match(/^\/classes\/([^/]+)\/book$/);
   if (book) return { id: book[1], action: "book" };
+
+  const addable = pathname.match(/^\/classes\/([^/]+)\/addable$/);
+  if (addable) return { id: addable[1], action: "addable" };
 
   const cancel = pathname.match(/^\/classes\/([^/]+)\/cancel-booking$/);
   if (cancel) return { id: cancel[1], action: "cancel_booking" };
@@ -351,9 +356,10 @@ async function handler(req: Request): Promise<Response> {
         if (!related.has(gymId)) return forbidden();
         where.push(sql`c.gym_id = ${gymId}`);
       } else {
-        // Classes a trainer teaches elsewhere stay visible to them too.
+        // Classes a trainer teaches elsewhere stay visible to them too, and
+        // so do classes a coach added a non-member (a follower) to.
         const ids = [...related];
-        where.push(sql`(c.gym_id = ANY(${ids}::uuid[]) OR c.trainer_id = ${caller.id})`);
+        where.push(sql`(c.gym_id = ANY(${ids}::uuid[]) OR c.trainer_id = ${caller.id} OR mb.id IS NOT NULL)`);
       }
     }
 
@@ -651,7 +657,49 @@ async function handler(req: Request): Promise<Response> {
     return json({ cancelled: cancelled.map((c) => c.id) });
   }
 
+  // ── GET /classes/:id/addable?q= ───────────────────────────────────────────────
+  // People a coach can add to the class: the gym's members plus the caller's
+  // approved followers (instant for public accounts), minus blocks.
+  // [{id, username, name, last_name, avatar_url, is_member, follows_you, booking_status}]
+  if (req.method === "GET" && id && action === "addable") {
+    const cls = await db.selectFrom("gym_class").select(["id", "gym_id"]).where("id", "=", id).executeTakeFirst();
+    if (!cls) return jsonError("Class not found", 404);
+    if (!(await canCoachAtGym(caller, cls.gym_id))) return forbidden();
+
+    const q = (url.searchParams.get("q") ?? "").trim().slice(0, 100);
+    const pattern = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+    const { rows } = await sql<{
+      id: string;
+      username: string;
+      name: string;
+      last_name: string;
+      avatar_url: string | null;
+      is_member: boolean;
+      follows_you: boolean;
+      booking_status: BookingStatus | null;
+    }>`
+      SELECT u.id, u.username, u.name, u.last_name, u.avatar_url,
+        EXISTS (SELECT 1 FROM member m WHERE m.user_id = u.id AND m.gym_id = ${cls.gym_id}) AS is_member,
+        EXISTS (SELECT 1 FROM follow f WHERE f.follower_id = u.id AND f.followee_id = ${caller.id}
+                AND f.status = 'accepted') AS follows_you,
+        cb.status AS booking_status
+      FROM users u
+      LEFT JOIN class_booking cb ON cb.class_id = ${id} AND cb.user_id = u.id AND cb.status <> 'cancelled'
+      WHERE u.id <> ${caller.id}
+        AND (
+          u.id IN (SELECT user_id FROM member WHERE gym_id = ${cls.gym_id})
+          OR u.id IN (SELECT follower_id FROM follow WHERE followee_id = ${caller.id} AND status = 'accepted')
+        )
+        AND NOT is_blocked_between(u.id, ${caller.id})
+        AND (${q} = '' OR CONCAT(u.name, ' ', u.last_name) ILIKE ${pattern} OR u.username ILIKE ${pattern})
+      ORDER BY u.name, u.last_name
+      LIMIT 50
+    `.execute(db);
+    return json(rows);
+  }
+
   // ── POST /classes/:id/book [{user_id}] ────────────────────────────────────────
+  // Coaches can add the gym's members or their own approved followers.
   if (req.method === "POST" && id && action === "book") {
     const body = await req.json().catch(() => ({}));
     const cls = await db.selectFrom("gym_class").selectAll().where("id", "=", id).executeTakeFirst();
@@ -663,7 +711,10 @@ async function handler(req: Request): Promise<Response> {
     if (typeof userId !== "string" || !UUID_RE.test(userId)) return jsonError("Invalid user_id", 400);
     if (userId !== caller.id) {
       if (!(await canCoachAtGym(caller, cls.gym_id))) return forbidden("Only staff can book for someone else");
-      if (!(await isMember(userId, cls.gym_id))) return jsonError("That user isn't a member of this gym", 400);
+      if (await isBlockedBetween(caller.id, userId)) return forbidden("You can't add this person");
+      if (!(await isMember(userId, cls.gym_id)) && !(await isFollowing(userId, caller.id))) {
+        return jsonError("Only members of this gym or your followers can be added", 400);
+      }
     } else if (!isSuperUser(caller) && !(await isMember(caller.id, cls.gym_id))) {
       return forbidden("Only members of this gym can book its classes");
     }
@@ -709,6 +760,19 @@ async function handler(req: Request): Promise<Response> {
           AND (created_at, id) <= (SELECT created_at, id FROM class_booking WHERE id = ${result.id})
       `.execute(db);
       waitlistPosition = pos;
+    }
+    if (userId !== caller.id) {
+      const [gymName, adder] = await Promise.all([
+        gymNameOf(cls.gym_id),
+        db.selectFrom("users").select(["name", "last_name"]).where("id", "=", caller.id).executeTakeFirstOrThrow(),
+      ]);
+      await notify([userId], {
+        type: "events",
+        title: result.status === "waitlisted" ? `Waitlisted: ${cls.title}` : `You're in: ${cls.title}`,
+        body: `${displayName(adder)} added you to ${cls.title} at ${gymName}` +
+          (result.status === "waitlisted" ? ` (waitlist #${waitlistPosition}).` : "."),
+        metadata: { class_id: cls.id, gym_id: cls.gym_id, gym_name: gymName },
+      });
     }
     return json({ ...result, waitlist_position: waitlistPosition }, 201);
   }

@@ -85,14 +85,6 @@
       }
     }
   },
-  "shellWelcomeBack": "Welcome back, {name}",
-  "@shellWelcomeBack": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "shellWelcome": "Welcome, {name}",
   "@shellWelcome": {
     "placeholders": {
@@ -109,7 +101,6 @@
       }
     }
   },
-  "shellOwnerNoGyms": "You don't own any gyms yet — add one from the Businesses tab.",
   "shellOwnerAllInvoices": "All invoices",
   "shellYourGym": "Your gym",
   "shellYourGyms": "Your gyms",
@@ -124,33 +115,8 @@
   },
   "shellInvoices": "Invoices",
   "shellScanCheckIns": "Scan check-ins",
-  "shellHey": "Hey, {name}!",
-  "@shellHey": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "shellMyMembership": "My membership",
-  "shellMembershipLoadFailed": "Couldn't load your membership",
-  "shellNoActiveMembership": "No active membership",
-  "shellMembershipActive": "Active",
-  "shellMembershipValidUntil": "{type} · valid until {date}",
-  "@shellMembershipValidUntil": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      },
-      "date": {
-        "type": "String"
-      }
-    }
-  },
-  "shellUpcomingClasses": "Upcoming classes",
-  "shellUnavailable": "Unavailable",
-  "shellSessionInProgress": "Session in progress",
-  "shellNoneScheduled": "None scheduled",
+  "shellMyMembershipSubtitle": "Plan, billing and invoices",
   "shellNoBusinesses": "No businesses yet",
   "shellGyms": "Gyms",
   "shellShops": "Shops",
@@ -200,8 +166,6 @@
       }
     }
   },
-  "shellYourShop": "Your shop",
-  "shellYourShops": "Your shops",
   "shellNotAVendor": "You're not a vendor at any shop yet",
   "shellOrdersForShop": "Orders · {shop}",
   "@shellOrdersForShop": {

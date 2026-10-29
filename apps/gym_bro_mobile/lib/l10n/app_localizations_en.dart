@@ -4197,6 +4197,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'No suggestions right now. Check in at your gym or add interests to your profile to get better ones.';
 
   @override
+  String get peopleNonFollowerMessages => 'Messages from non-followers';
+
+  @override
+  String get peopleNonFollowerMessagesOff =>
+      'Only your approved followers can message you.';
+
+  @override
+  String get peopleNonFollowerMessagesPrivate =>
+      'People you haven\'t approved as followers can send you message requests.';
+
+  @override
+  String get peopleNonFollowerMessagesPublic =>
+      'People who don\'t follow you can message you directly.';
+
+  @override
   String get peoplePosts => 'Posts';
 
   @override
@@ -4419,22 +4434,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get peopleViewProfile => 'View profile';
-
-  @override
-  String get peopleWhoCanMessage => 'Who can message me';
-
-  @override
-  String get peopleWhoCanMessageHint =>
-      'Messages from anyone else land in your message requests.';
-
-  @override
-  String get peopleWhoEveryone => 'Everyone';
-
-  @override
-  String get peopleWhoFollowing => 'People I follow';
-
-  @override
-  String get peopleWhoFriends => 'Friends';
 
   @override
   String get reactionAngry => 'Angry';
@@ -4698,11 +4697,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String shellHey(String name) {
-    return 'Hey, $name!';
-  }
-
-  @override
   String get shellHidePassword => 'Hide password';
 
   @override
@@ -4910,17 +4904,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellMembersYouCoach => 'Members you coach';
 
   @override
-  String get shellMembershipActive => 'Active';
-
-  @override
-  String get shellMembershipLoadFailed => 'Couldn\'t load your membership';
-
-  @override
-  String shellMembershipValidUntil(String type, String date) {
-    return '$type · valid until $date';
-  }
-
-  @override
   String get shellMuteBilling => 'Billing';
 
   @override
@@ -4984,6 +4967,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellMyMembership => 'My membership';
 
   @override
+  String get shellMyMembershipSubtitle => 'Plan, billing and invoices';
+
+  @override
   String get shellMyOrders => 'My orders';
 
   @override
@@ -5006,9 +4992,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellNoAccountSignUp => 'Don\'t have an account? Sign up';
-
-  @override
-  String get shellNoActiveMembership => 'No active membership';
 
   @override
   String get shellNoBusinesses => 'No businesses yet';
@@ -5037,9 +5020,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellNoUsersFound => 'No users found';
-
-  @override
-  String get shellNoneScheduled => 'None scheduled';
 
   @override
   String get shellNotAVendor => 'You\'re not a vendor at any shop yet';
@@ -5075,10 +5055,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellOwnerAllInvoices => 'All invoices';
-
-  @override
-  String get shellOwnerNoGyms =>
-      'You don\'t own any gyms yet — add one from the Businesses tab.';
 
   @override
   String get shellPasswordChanged => 'Password changed';
@@ -5171,9 +5147,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellSendResetLink => 'Send reset link';
-
-  @override
-  String get shellSessionInProgress => 'Session in progress';
 
   @override
   String shellSessionStartedInProgress(String time) {
@@ -5405,16 +5378,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get shellUnavailable => 'Unavailable';
-
-  @override
   String get shellUnitKilograms => 'Kilograms';
 
   @override
   String get shellUnitPounds => 'Pounds';
-
-  @override
-  String get shellUpcomingClasses => 'Upcoming classes';
 
   @override
   String get shellUserSearchAdd => 'Add';
@@ -5436,21 +5403,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String shellWelcomeBack(String name) {
-    return 'Welcome back, $name';
-  }
-
-  @override
   String get shellYourGym => 'Your gym';
 
   @override
   String get shellYourGyms => 'Your gyms';
-
-  @override
-  String get shellYourShop => 'Your shop';
-
-  @override
-  String get shellYourShops => 'Your shops';
 
   @override
   String socialActiveAgo(String when) {
@@ -5612,6 +5568,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trainingClassAbout => 'About';
+
+  @override
+  String get trainingClassAdd => 'Add';
+
+  @override
+  String get trainingClassAddPeople => 'Add people';
+
+  @override
+  String get trainingClassAddPeopleEmpty =>
+      'No one found. People need to be members of this gym or follow you.';
+
+  @override
+  String get trainingClassAddPeopleHint =>
+      'Members of this gym and people who follow you.';
+
+  @override
+  String get trainingClassAddPeopleSearch => 'Search by name or username';
+
+  @override
+  String trainingClassAddedPerson(String name) {
+    return '$name added';
+  }
+
+  @override
+  String trainingClassAddedToWaitlist(String name) {
+    return '$name added to the waitlist';
+  }
 
   @override
   String get trainingClassApplyToSeries => 'Apply to this and future classes';
@@ -5920,6 +5903,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trainingClassPast => 'Past';
+
+  @override
+  String get trainingClassPersonFollower => 'Follows you';
+
+  @override
+  String get trainingClassPersonMember => 'Member';
 
   @override
   String get trainingClassRefresh => 'Refresh';

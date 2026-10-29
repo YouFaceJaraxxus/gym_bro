@@ -307,7 +307,7 @@ Deno.test({
           short(harperMe?.settings),
         );
         const edit = await call("PUT", "/social/me", harper.token, {
-          who_can_message: "following",
+          allow_non_follower_messages: false,
           show_activity_status: false,
           discoverable: false,
           name: "  Harpo ",
@@ -321,14 +321,14 @@ Deno.test({
         const me = await call("GET", "/social/me", harper.token);
         check(
           "settings are saved",
-          me.data?.settings?.who_can_message === "following" && me.data.settings.discoverable === false &&
+          me.data?.settings?.allow_non_follower_messages === false && me.data.settings.discoverable === false &&
             me.data.settings.show_activity_status === false,
           short(me.data?.settings),
         );
         const seen = await call("GET", `/social/users/${H}`, isabel.token);
         check(
-          "others see the new name, no activity status, and that a DM would be a request",
-          seen.status === 200 && seen.data.name === "Harpo" && seen.data.last_active_at === null && seen.data.message_status === "request" &&
+          "others see the new name, no activity status, and that they can't message her",
+          seen.status === 200 && seen.data.name === "Harpo" && seen.data.last_active_at === null && seen.data.message_status === null &&
             seen.data.is_me === false,
           short(seen.data),
         );
@@ -377,7 +377,7 @@ Deno.test({
           bio: harperMe.bio,
           interests: harperMe.interests,
           avatar_url: harperMe.avatar_url,
-          who_can_message: harperMe.settings.who_can_message,
+          allow_non_follower_messages: harperMe.settings.allow_non_follower_messages,
           discoverable: harperMe.settings.discoverable,
           show_activity_status: harperMe.settings.show_activity_status,
         });

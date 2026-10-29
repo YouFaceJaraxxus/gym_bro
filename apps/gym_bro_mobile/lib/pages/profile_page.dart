@@ -5,6 +5,8 @@ import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/social_widgets.dart';
+import 'home/home_widgets.dart';
+import 'membership_page.dart';
 import 'people/blocked_users_page.dart';
 import 'people/edit_social_profile_page.dart';
 import 'people/people_list_page.dart';
@@ -14,8 +16,9 @@ import 'progress/progress_page.dart';
 import 'settings_page.dart';
 import 'shop/my_orders_page.dart';
 
-/// The "Profile" tab: my social card (avatar, bio, counts), requests and
-/// privacy, then progress, orders, settings and log out. Names, username and
+/// The profile screen (opened from the app bar avatar): my social card
+/// (avatar, bio, counts), requests and privacy, then membership (members),
+/// progress, orders, settings and log out. Names, username and
 /// avatar are edited in [EditSocialProfilePage].
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, required this.profile, this.onUpdated});
@@ -142,6 +145,14 @@ class _ProfilePageState extends State<ProfilePage> {
               onTap: () => _open(const BlockedUsersPage(), reload: true),
             ),
             const Divider(),
+            if (_profile.role == UserRole.member)
+              ListTile(
+                leading: const Icon(Icons.card_membership_outlined),
+                title: Text(l10n.shellMyMembership),
+                subtitle: Text(l10n.shellMyMembershipSubtitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => pushTabPage<void>(context, l10n.shellMyMembership, MembershipPage(profile: _profile)),
+              ),
             ListTile(
               leading: const Icon(Icons.show_chart),
               title: Text(l10n.shellMyProgress),

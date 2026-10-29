@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../services/auth_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/password_form_field.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({super.key});
@@ -65,10 +66,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 24),
-              TextFormField(
+              PasswordFormField(
                 controller: _passwordCtrl,
-                decoration: InputDecoration(labelText: l10n.shellNewPassword),
-                obscureText: true,
+                labelText: l10n.shellNewPassword,
                 validator: (v) {
                   if (v == null || v.isEmpty) return l10n.commonRequired;
                   if (v.length < 6) return l10n.shellAuthPasswordMin(6);
@@ -76,12 +76,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 },
               ),
               const SizedBox(height: 12),
-              TextFormField(
+              PasswordFormField(
                 controller: _confirmCtrl,
-                decoration: InputDecoration(
-                  labelText: l10n.shellConfirmPassword,
-                ),
-                obscureText: true,
+                labelText: l10n.shellConfirmPassword,
                 validator: (v) {
                   if (v == null || v.isEmpty) return l10n.commonRequired;
                   if (v != _passwordCtrl.text) {

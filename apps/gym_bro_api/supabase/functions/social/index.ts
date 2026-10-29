@@ -8,6 +8,7 @@ import {
   canSeeContentOf,
   directMessageStatus,
   displayName,
+  messageable,
   isBlockedBetween,
   parsePaging,
   PUBLIC_USER_COLS,
@@ -17,7 +18,7 @@ import {
   unreadMessageSql,
   type UserSummary,
 } from "../_shared/social.ts";
-import type { ReportReason, WhoCanMessage } from "../../types/schema/public.ts";
+import type { ReportReason } from "../../types/schema/public.ts";
 
 // People: profiles, follows, friends, blocks, reports, search and discovery.
 //
@@ -48,7 +49,6 @@ import type { ReportReason, WhoCanMessage } from "../../types/schema/public.ts";
 const BIO_MAX = 300;
 const INTEREST_MAX = 30;
 const INTERESTS_MAX = 10;
-const WHO_CAN_MESSAGE: readonly WhoCanMessage[] = ["everyone", "following", "friends"];
 const REPORT_REASONS: readonly ReportReason[] = ["spam", "harassment", "inappropriate", "impersonation", "other"];
 const USERNAME_RE = /^[a-zA-Z0-9._]{3,30}$/;
 
@@ -107,7 +107,7 @@ const PROFILE_COLS = [
   "bio",
   "interests",
   "is_private",
-  "who_can_message",
+  "allow_non_follower_messages",
   "show_activity_status",
   "last_active_at",
   "created_at",
@@ -123,7 +123,7 @@ type ProfileRow = {
   bio: string | null;
   interests: string[];
   is_private: boolean;
-  who_can_message: WhoCanMessage;
+  allow_non_follower_messages: boolean;
   show_activity_status: boolean;
   last_active_at: string | null;
   created_at: string;
@@ -202,7 +202,8 @@ async function buildProfile(caller: Caller, u: ProfileRow) {
     counts: c,
     relationship: rel,
     can_view_content: canView,
-    message_status: isMe ? null : await directMessageStatus(caller.id, u),
+    // 'active' (inbox) or 'request'; null when they can't be messaged.
+    message_status: isMe ? null : messageable(await directMessageStatus(caller.id, u)),
     mutual_friends: { count: mutual.total, preview: mutual.users },
     gyms: canView ? gyms : [],
     last_active_at: showActivity ? u.last_active_at : null,
@@ -446,7 +447,7 @@ async function handler(req: Request): Promise<Response> {
       settings: {
         is_private: u.is_private,
         discoverable: u.discoverable,
-        who_can_message: u.who_can_message,
+        allow_non_follower_messages: u.allow_non_follower_messages,
         show_activity_status: u.show_activity_status,
         has_location: location_lat !== null,
         location_updated_at: u.location_updated_at,
@@ -467,17 +468,11 @@ async function handler(req: Request): Promise<Response> {
       if (bio && bio.length > BIO_MAX) return jsonError(`bio is limited to ${BIO_MAX} characters`, 400);
       update.bio = bio;
     }
-    for (const key of ["is_private", "discoverable", "show_activity_status"] as const) {
+    for (const key of ["is_private", "discoverable", "show_activity_status", "allow_non_follower_messages"] as const) {
       if (key in body) {
         if (typeof body[key] !== "boolean") return jsonError(`${key} must be a boolean`, 400);
         update[key] = body[key];
       }
-    }
-    if ("who_can_message" in body) {
-      if (!WHO_CAN_MESSAGE.includes(body.who_can_message)) {
-        return jsonError(`who_can_message must be one of: ${WHO_CAN_MESSAGE.join(", ")}`, 400);
-      }
-      update.who_can_message = body.who_can_message;
     }
     if ("interests" in body) {
       if (!Array.isArray(body.interests) || body.interests.some((i: unknown) => typeof i !== "string")) {

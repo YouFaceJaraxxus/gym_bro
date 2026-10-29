@@ -554,7 +554,7 @@ type SeedSocialProfile = {
   interests: string[];
   is_private?: boolean;
   discoverable?: boolean;
-  who_can_message?: "everyone" | "following" | "friends";
+  allow_non_follower_messages?: boolean;
 };
 type SeedPersonalPost = {
   author: string;
@@ -3005,7 +3005,7 @@ for (const p of personas) {
     interests: profile.interests,
     is_private: profile.is_private ?? false,
     discoverable: profile.discoverable ?? true,
-    who_can_message: profile.who_can_message ?? "everyone",
+    allow_non_follower_messages: profile.allow_non_follower_messages ?? true,
     show_activity_status: rng.chance(0.85),
     last_active_at: iso(clampPast(NOW_MS - rng.int(2, 72 * 60) * MIN_MS)),
     location_lat: sharesLocation ? lat : null,

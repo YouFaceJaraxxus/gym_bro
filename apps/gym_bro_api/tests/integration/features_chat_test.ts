@@ -1,6 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 // Chat beyond the basics in features_people_chat_test.ts: conversation
-// validation, who_can_message ('following'), declining and re-opening
+// validation, who may message whom (private accounts, the followers-only
+// toggle, approved followers), declining and re-opening
 // message requests, leaving a direct chat, blocks inside an existing chat,
 // group roles (owner / admin / member, transfer, delete), moderation,
 // replies, edits and unsends, reaction switching, paging, read receipts,
@@ -13,9 +14,10 @@ import { deleteNotificationsSince, deleteNotificationsWhere, restorePair, snapsh
 
 const NOTES = new TextEncoder().encode("squat 5x5, bench 3x8\n");
 
-// Seeded people no other suite acts as. Everyone takes messages from anyone
-// except Ingrid (private, only from people she follows; Victor's follow
-// request to her is pending).
+// Seeded people no other suite acts as. All public and taking messages from
+// anyone, except Ingrid: private, and only takes messages from her approved
+// followers (allow_non_follower_messages off; Victor's follow request to her
+// is pending).
 Deno.test({
   name: "features: chat requests, groups, moderation and settings",
   ...suite,
@@ -59,7 +61,16 @@ Deno.test({
         const anon = await call("GET", "/chat/conversations");
         check("chat needs a signed-in user", anon.status === 401, `status ${anon.status}`);
 
-        // Ingrid only takes messages from people she follows: Victor's DM is a request.
+        // Ingrid only takes messages from approved followers: Victor can't write.
+        const closed = await call("GET", `/social/users/${G}`, victor.token);
+        check("her profile says Victor can't message her", closed.data?.message_status === null, short(closed.data?.message_status));
+        const refused = await call("POST", "/chat/conversations", victor.token, { user_ids: [G] });
+        if (refused.data?.id) convIds.push(refused.data.id);
+        check("…so starting a chat is refused", refused.status === 400, `status ${refused.status}`);
+
+        // With the toggle on, she's private: Victor's DM is a message request.
+        const open = await call("PUT", "/social/me", ingrid.token, { allow_non_follower_messages: true });
+        check("she takes messages from non-followers again", open.status === 200, `status ${open.status}`);
         const badgesBefore = (await call("GET", "/social/badges", ingrid.token)).data;
         const profile = await call("GET", `/social/users/${G}`, victor.token);
         check("her profile says a DM would be a request", profile.data?.message_status === "request", short(profile.data?.message_status));
@@ -96,15 +107,20 @@ Deno.test({
           short(victorSide.data?.members),
         );
 
-        // Once Ingrid follows Noah, his DM goes straight to her inbox.
-        const follow = await call("POST", `/social/users/${N}/follow`, ingrid.token);
-        check("Ingrid follows Noah", follow.data?.relationship?.following === "accepted", short(follow.data));
+        // Once she approves Noah's follow request, his DM goes straight to her inbox.
+        const follow = await call("POST", `/social/users/${G}/follow`, noah.token);
+        const approve = await call("POST", `/social/follow-requests/${N}/accept`, ingrid.token);
+        check(
+          "Noah's follow request is approved",
+          follow.data?.relationship?.following === "pending" && approve.data?.relationship?.followed_by === "accepted",
+          short(approve.data),
+        );
         const noahProfile = await call("GET", `/social/users/${G}`, noah.token);
         check("…so Noah's DM wouldn't be a request", noahProfile.data?.message_status === "active", short(noahProfile.data?.message_status));
         const dm2 = await call("POST", "/chat/conversations", noah.token, { user_ids: [G] });
         convIds.push(dm2.data?.id);
         await call("POST", `/chat/conversations/${dm2.data?.id}/messages`, noah.token, { body: `hey ${tag}` });
-        check("people she follows land in her inbox", (await inBox(ingrid.token, dm2.data?.id))?.my_status === "active");
+        check("approved followers land in her inbox", (await inBox(ingrid.token, dm2.data?.id))?.my_status === "active");
 
         // Direct chats have no title, members or delete-for-everyone.
         const rename = await call("PUT", `/chat/conversations/${dm2.data?.id}`, noah.token, { title: "x" });
@@ -149,6 +165,7 @@ Deno.test({
         const unblocked = await call("POST", `/chat/conversations/${dm2.data?.id}/messages`, ingrid.token, { body: "back again" });
         check("unblocking lets messages through again", unblocked.status === 201, `status ${unblocked.status}`);
       } finally {
+        await call("PUT", "/social/me", ingrid.token, { allow_non_follower_messages: false });
         await restorePair(G, N, snap);
         await deleteNotificationsSince([N, G], since, "user_id", [G, N]);
         for (const id of convIds.filter(Boolean)) await sql(`DELETE FROM conversation WHERE id = $1`, [id]);

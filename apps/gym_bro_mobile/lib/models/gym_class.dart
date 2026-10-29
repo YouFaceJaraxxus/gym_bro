@@ -52,6 +52,50 @@ enum BookingStatus {
       this == BookingStatus.noShow;
 }
 
+/// Someone a coach can add to a class (GET /classes/:id/addable): a member of
+/// the gym or one of the coach's approved followers.
+class AddablePerson {
+  final String id;
+  final String username;
+  final String name;
+  final String lastName;
+  final String? avatarUrl;
+  final bool isMember;
+  final bool followsYou;
+
+  /// Their current booking on the class, if any (never cancelled).
+  final BookingStatus? bookingStatus;
+
+  const AddablePerson({
+    required this.id,
+    required this.username,
+    required this.name,
+    required this.lastName,
+    this.avatarUrl,
+    required this.isMember,
+    required this.followsYou,
+    this.bookingStatus,
+  });
+
+  String get fullName => '$name $lastName'.trim();
+
+  String get initials {
+    final s = '${name.isNotEmpty ? name[0] : ''}${lastName.isNotEmpty ? lastName[0] : ''}'.toUpperCase();
+    return s.isEmpty ? '?' : s;
+  }
+
+  factory AddablePerson.fromJson(Map<String, dynamic> j) => AddablePerson(
+    id: j['id'] as String,
+    username: j['username'] as String? ?? '',
+    name: j['name'] as String? ?? '',
+    lastName: j['last_name'] as String? ?? '',
+    avatarUrl: j['avatar_url'] as String?,
+    isMember: j['is_member'] as bool? ?? false,
+    followsYou: j['follows_you'] as bool? ?? false,
+    bookingStatus: BookingStatus.tryParse(j['booking_status'] as String?),
+  );
+}
+
 /// One person's booking. Roster entries (from GET /classes/:id for coaches)
 /// carry name/avatar; booking responses carry classId and waitlistPosition.
 class ClassBooking {

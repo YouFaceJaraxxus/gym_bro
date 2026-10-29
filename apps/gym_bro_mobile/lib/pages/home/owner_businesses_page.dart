@@ -5,12 +5,18 @@ import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../business_form_page.dart';
 import '../gym_detail_page.dart';
+import '../invoices_page.dart';
 import '../owner_all_members_page.dart';
 import '../owner_all_staff_page.dart';
 import '../shop_detail_page.dart';
+import 'home_widgets.dart';
 
+/// The businesses the caller manages. With [showStats] (owners) the owner
+/// dashboard sits on top: live stats across their gyms and all invoices.
 class OwnerBusinessesPage extends StatefulWidget {
-  const OwnerBusinessesPage({super.key});
+  const OwnerBusinessesPage({super.key, this.showStats = false});
+
+  final bool showStats;
 
   @override
   State<OwnerBusinessesPage> createState() => _OwnerBusinessesPageState();
@@ -19,6 +25,8 @@ class OwnerBusinessesPage extends StatefulWidget {
 class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
   final _api = ApiService();
   List<Business> _businesses = [];
+  BusinessStats? _stats;
+  String? _statsError;
   bool _loading = true;
   String? _error;
 
@@ -35,10 +43,13 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
     });
     try {
       final token = await AuthManager.instance.getValidToken();
-      final businesses = await _api.getBusinesses(token);
+      final results = await Future.wait([
+        _api.getBusinesses(token),
+        if (widget.showStats) _loadStats(token),
+      ]);
       if (mounted) {
         setState(() {
-          _businesses = businesses;
+          _businesses = results[0] as List<Business>;
           _loading = false;
         });
       }
@@ -48,6 +59,25 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
           _error = e.toString().replaceFirst('Exception: ', '');
           _loading = false;
         });
+      }
+    }
+  }
+
+  /// Stats failing to load shouldn't hide the business list.
+  Future<void> _loadStats(String token) async {
+    try {
+      final stats = await _api.getBusinessStats(token);
+      if (mounted) {
+        setState(() {
+          _stats = stats;
+          _statsError = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(
+          () => _statsError = e.toString().replaceFirst('Exception: ', ''),
+        );
       }
     }
   }
@@ -115,6 +145,7 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
 
     final gyms = _businesses.where((b) => b.type == 'gym').toList();
     final shops = _businesses.where((b) => b.type == 'shop').toList();
+    final stats = _stats;
 
     return Stack(
       children: [
@@ -129,6 +160,31 @@ class _OwnerBusinessesPageState extends State<OwnerBusinessesPage> {
               bottom: 88,
             ),
             children: [
+              // ── Owner stats ───────────────────────────────────────────
+              if (widget.showStats) ...[
+                if (_statsError != null)
+                  HomeError(message: _statsError!, onRetry: _load),
+                if (stats != null && stats.gyms > 0) ...[
+                  BusinessStatsView(stats: stats, onChanged: _load),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              const InvoicesPage(initialStatus: null),
+                        ),
+                      );
+                      _load();
+                    },
+                    icon: const Icon(Icons.receipt_long_outlined),
+                    label: Text(context.l10n.shellOwnerAllInvoices),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ],
+
               // ── Quick-access row ──────────────────────────────────────
               Row(
                 children: [

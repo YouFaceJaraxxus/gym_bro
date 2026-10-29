@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
 // Classes (booking, waitlist, attendance, series, trainer assignment, listing
-// filters) and staff shifts (rota, reassignment, notifications), each checked
+// filters, coaches adding members or followers) and staff shifts (rota, reassignment, notifications), each checked
 // against staff of another gym too. Classes have no hard-delete endpoint, so
 // created rows are removed with SQL in `finally` (see _db.ts); shifts and
 // notifications go through the API.
@@ -16,7 +16,7 @@ import {
   signin,
   suite,
 } from "./_client.ts";
-import { deleteNotificationsWhere, sql } from "./_db.ts";
+import { deleteNotificationsSince, deleteNotificationsWhere, restorePair, snapshotPair, sql } from "./_db.ts";
 
 // Owner of Coastal Barbell Club: staff, but of another gym.
 const OTHER_GYM_OWNER = "andrew.foster@example.com";
@@ -727,6 +727,74 @@ Deno.test({
         for (const id of shiftIds) await call("DELETE", `/shifts/${id}`, owner.token);
         for (const s of [employee, trainer]) await deleteNotifications(s.token, (n) => shiftIds.includes(n.metadata?.shift_id));
         await deleteNotificationsWhere("shift_id", shiftIds);
+      }
+      assertAll();
+    });
+
+    await t.step("5. classes: coaches add gym members or their followers", async () => {
+      const created: string[] = [];
+      const T = trainer.profile.id as string;
+      const V = vendor.profile.id as string;
+      const snaps = [await snapshotPair(V, T), await snapshotPair(outsider.profile.id, T)];
+      const since = new Date(Date.now() - 60_000).toISOString();
+      try {
+        // Neither the vendor nor the other gym's owner is an Ironclad member.
+        await call("DELETE", `/social/users/${T}/follow`, vendor.token);
+        await call("DELETE", `/social/users/${T}/follow`, outsider.token);
+        const made = await call("POST", "/classes", trainer.token, {
+          gym_id: gym.id,
+          title: `Test Open Class ${stamp}`,
+          starts_at: futureAt(4, 12),
+          ends_at: futureAt(4, 13),
+          capacity: 5,
+        });
+        const cls = made.data?.[0];
+        if (cls?.id) created.push(cls.id);
+        check("trainer creates a class", made.status === 201 && !!cls?.id, short(made.data));
+
+        const notFollowing = await call("POST", `/classes/${cls.id}/book`, trainer.token, { user_id: V });
+        check("a non-member who doesn't follow the trainer can't be added", notFollowing.status === 400, short(notFollowing.data));
+
+        // The trainer's account is public, so the follow needs no approval.
+        const follow = await call("POST", `/social/users/${T}/follow`, vendor.token);
+        check("vendor follows the trainer instantly", follow.data?.relationship?.following === "accepted", short(follow.data));
+
+        const addable = (await call("GET", `/classes/${cls.id}/addable`, trainer.token)).data as any[];
+        const vendorRow = addable?.find((u) => u.id === V);
+        check(
+          "addable lists followers (not members) and members, but not non-followers",
+          vendorRow?.follows_you === true && vendorRow.is_member === false && vendorRow.booking_status === null &&
+            addable.some((u) => u.id === member.profile.id && u.is_member) && !addable.some((u) => u.id === outsider.profile.id),
+          short(vendorRow),
+        );
+        const searched = (await call("GET", `/classes/${cls.id}/addable?q=${encodeURIComponent(vendor.profile.username)}`, trainer.token))
+          .data as any[];
+        check("addable searches by username", searched?.length >= 1 && searched.every((u) => u.username.includes(vendor.profile.username)), short(searched));
+        const notCoach = await call("GET", `/classes/${cls.id}/addable`, member.token);
+        check("members can't list addable people", notCoach.status === 403, `status ${notCoach.status}`);
+
+        const add = await call("POST", `/classes/${cls.id}/book`, trainer.token, { user_id: V });
+        check("trainer adds a follower who isn't a member", add.status === 201 && add.data.status === "booked", short(add.data));
+        const notices = (await notificationsOf(vendor.token)).filter((n) => n.metadata?.class_id === cls.id);
+        check("the follower is notified", notices.some((n) => /You're in/.test(n.title)), short(notices));
+        const seen = await call("GET", `/classes/${cls.id}`, vendor.token);
+        check("…and can open the class", seen.status === 200 && seen.data.my_booking_status === "booked", short(seen.data));
+        const listed = (await call("GET", "/classes", vendor.token)).data as any[];
+        check("…and sees it in their schedule", listed?.some((c) => c.id === cls.id), `n=${listed?.length}`);
+        const selfBook = await call("POST", `/classes/${cls.id}/book`, outsider.token);
+        check("non-members still can't book themselves", selfBook.status === 403, `status ${selfBook.status}`);
+        const outsiderAdd = await call("POST", `/classes/${cls.id}/book`, outsider.token, { user_id: V });
+        check("another gym's staff can't add people", outsiderAdd.status === 403, `status ${outsiderAdd.status}`);
+        const leave = await call("POST", `/classes/${cls.id}/cancel-booking`, vendor.token);
+        check("the follower can drop out", leave.status === 200 && leave.data.status === "cancelled", short(leave.data));
+      } finally {
+        await deleteNotifications(vendor.token, (n) => created.includes(n.metadata?.class_id));
+        await deleteNotificationsWhere("class_id", created);
+        await sql(`DELETE FROM gym_class WHERE id = ANY($1::uuid[])`, [created]);
+        await restorePair(V, T, snaps[0]);
+        await restorePair(outsider.profile.id, T, snaps[1]);
+        // The trainer's "new follower" notice.
+        await deleteNotificationsSince([T], since, "user_id", [V]);
       }
       assertAll();
     });

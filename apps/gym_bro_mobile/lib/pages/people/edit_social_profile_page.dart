@@ -43,7 +43,7 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
   bool _isPrivate = false;
   bool _discoverable = true;
   bool _showActivity = true;
-  WhoCanMessage _whoCanMessage = WhoCanMessage.everyone;
+  bool _allowNonFollowerMessages = true;
   bool _hasLocation = false;
   DateTime? _locationUpdatedAt;
 
@@ -114,7 +114,7 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
     _isPrivate = s?.isPrivate ?? p.isPrivate;
     _discoverable = s?.discoverable ?? true;
     _showActivity = s?.showActivityStatus ?? true;
-    _whoCanMessage = s?.whoCanMessage ?? WhoCanMessage.everyone;
+    _allowNonFollowerMessages = s?.allowNonFollowerMessages ?? true;
     _hasLocation = s?.hasLocation ?? false;
     _locationUpdatedAt = s?.locationUpdatedAt;
   }
@@ -135,7 +135,8 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
       if (_isPrivate != (s?.isPrivate ?? p.isPrivate)) 'is_private': _isPrivate,
       if (_discoverable != (s?.discoverable ?? true)) 'discoverable': _discoverable,
       if (_showActivity != (s?.showActivityStatus ?? true)) 'show_activity_status': _showActivity,
-      if (_whoCanMessage != (s?.whoCanMessage ?? WhoCanMessage.everyone)) 'who_can_message': _whoCanMessage.apiValue,
+      if (_allowNonFollowerMessages != (s?.allowNonFollowerMessages ?? true))
+        'allow_non_follower_messages': _allowNonFollowerMessages,
     };
   }
 
@@ -314,7 +315,6 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
       return Center(child: PeopleErrorState(message: _loadError ?? '', onRetry: _load));
     }
     final cs = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
 
     return Form(
       key: _formKey,
@@ -393,29 +393,20 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
             subtitle: Text(l10n.peoplePrivateAccountHint),
             secondary: Icon(_isPrivate ? Icons.lock_outline : Icons.lock_open_outlined),
           ),
-          const SizedBox(height: 8),
-          Text(l10n.peopleWhoCanMessage, style: text.titleSmall),
-          Text(l10n.peopleWhoCanMessageHint, style: text.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-          RadioGroup<WhoCanMessage>(
-            groupValue: _whoCanMessage,
-            onChanged: (v) {
-              if (v != null && !_saving) setState(() => _whoCanMessage = v);
-            },
-            child: Column(
-              children: [
-                for (final w in WhoCanMessage.values)
-                  RadioListTile<WhoCanMessage>(
-                    value: w,
-                    contentPadding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                    title: Text(switch (w) {
-                      WhoCanMessage.everyone => l10n.peopleWhoEveryone,
-                      WhoCanMessage.following => l10n.peopleWhoFollowing,
-                      WhoCanMessage.friends => l10n.peopleWhoFriends,
-                    }),
-                  ),
-              ],
+          // Approved followers can always message; this decides everyone else.
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            value: _allowNonFollowerMessages,
+            onChanged: _saving ? null : (v) => setState(() => _allowNonFollowerMessages = v),
+            title: Text(l10n.peopleNonFollowerMessages),
+            subtitle: Text(
+              !_allowNonFollowerMessages
+                  ? l10n.peopleNonFollowerMessagesOff
+                  : _isPrivate
+                  ? l10n.peopleNonFollowerMessagesPrivate
+                  : l10n.peopleNonFollowerMessagesPublic,
             ),
+            secondary: const Icon(Icons.forum_outlined),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,

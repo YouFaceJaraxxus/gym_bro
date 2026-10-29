@@ -28,7 +28,7 @@ extension PeopleApi on ApiService {
     return PublicProfile.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
   }
 
-  /// Any of: bio, interests, is_private, discoverable, who_can_message,
+  /// Any of: bio, interests, is_private, discoverable, allow_non_follower_messages,
   /// show_activity_status, name, last_name, username, avatar_url.
   Future<PublicProfile> updateMyProfile(String token, Map<String, dynamic> changes) async {
     final r = await _client.put(Uri.parse('$_base/social/me'), headers: _headers(token), body: jsonEncode(changes));

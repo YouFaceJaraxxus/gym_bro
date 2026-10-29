@@ -1739,13 +1739,6 @@
       }
     }
   },
-  "@shellHey": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "@shellHomeNotificationsUnread": {
     "placeholders": {
       "count": {
@@ -1819,16 +1812,6 @@
     "placeholders": {
       "count": {
         "type": "int"
-      }
-    }
-  },
-  "@shellMembershipValidUntil": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      },
-      "date": {
-        "type": "String"
       }
     }
   },
@@ -1978,13 +1961,6 @@
       }
     }
   },
-  "@shellWelcomeBack": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "@socialActiveAgo": {
     "placeholders": {
       "when": {
@@ -2088,6 +2064,20 @@
       },
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "@trainingClassAddedPerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingClassAddedToWaitlist": {
+    "placeholders": {
+      "name": {
+        "type": "String"
       }
     }
   },
@@ -4002,6 +3992,10 @@
   "peopleNoPosts": "No posts yet",
   "peopleNoSentRequests": "No pending requests you've sent",
   "peopleNoSuggestions": "No suggestions right now. Check in at your gym or add interests to your profile to get better ones.",
+  "peopleNonFollowerMessages": "Messages from non-followers",
+  "peopleNonFollowerMessagesOff": "Only your approved followers can message you.",
+  "peopleNonFollowerMessagesPrivate": "People you haven't approved as followers can send you message requests.",
+  "peopleNonFollowerMessagesPublic": "People who don't follow you can message you directly.",
   "peoplePosts": "Posts",
   "peoplePrivacy": "Privacy",
   "peoplePrivacySubtitle": "Private account, messages, activity status",
@@ -4062,11 +4056,6 @@
   "peopleUsernameInvalid": "3–30 letters, numbers, dots or underscores",
   "peopleUsernameTaken": "That username is taken",
   "peopleViewProfile": "View profile",
-  "peopleWhoCanMessage": "Who can message me",
-  "peopleWhoCanMessageHint": "Messages from anyone else land in your message requests.",
-  "peopleWhoEveryone": "Everyone",
-  "peopleWhoFollowing": "People I follow",
-  "peopleWhoFriends": "Friends",
   "reactionAngry": "Angry",
   "reactionCelebrate": "Celebrate",
   "reactionClap": "Clap",
@@ -4142,7 +4131,6 @@
   "shellHaveAccountLogIn": "Already have an account? Log in",
   "shellHaveInviteCode": "Have an invite code?",
   "shellHello": "Hello, {name}",
-  "shellHey": "Hey, {name}!",
   "shellHidePassword": "Hide password",
   "shellHidePasswords": "Hide passwords",
   "shellHomeBackToLogin": "Back to login",
@@ -4201,9 +4189,6 @@
   "shellMarkAllRead": "Mark all read",
   "shellMemberCount": "{count, plural, =1{1 member} other{{count} members}}",
   "shellMembersYouCoach": "Members you coach",
-  "shellMembershipActive": "Active",
-  "shellMembershipLoadFailed": "Couldn't load your membership",
-  "shellMembershipValidUntil": "{type} · valid until {date}",
   "shellMuteBilling": "Billing",
   "shellMuteBillingDescription": "Invoices, payments and expiring memberships",
   "shellMuteClasses": "Classes",
@@ -4222,6 +4207,7 @@
   "shellMuteStaff": "Staff",
   "shellMuteStaffDescription": "Shifts and people joining your business",
   "shellMyMembership": "My membership",
+  "shellMyMembershipSubtitle": "Plan, billing and invoices",
   "shellMyOrders": "My orders",
   "shellMyOrdersSubtitle": "Shop orders and pickups",
   "shellMyProgress": "My progress",
@@ -4230,7 +4216,6 @@
   "shellNewPassword": "New password",
   "shellNewUserTitle": "New user",
   "shellNoAccountSignUp": "Don't have an account? Sign up",
-  "shellNoActiveMembership": "No active membership",
   "shellNoBusinesses": "No businesses yet",
   "shellNoCoachedMembers": "No members at the gyms you coach at yet",
   "shellNoLongerMember": "{name} is no longer a member",
@@ -4239,7 +4224,6 @@
   "shellNoSessionsToday": "No sessions with you today",
   "shellNoUsers": "No users yet",
   "shellNoUsersFound": "No users found",
-  "shellNoneScheduled": "None scheduled",
   "shellNotAVendor": "You're not a vendor at any shop yet",
   "shellNotAssignedToGym": "Not assigned to any gym yet",
   "shellNotificationUnread": "Unread",
@@ -4248,7 +4232,6 @@
   "shellOr": "or",
   "shellOrdersForShop": "Orders · {shop}",
   "shellOwnerAllInvoices": "All invoices",
-  "shellOwnerNoGyms": "You don't own any gyms yet — add one from the Businesses tab.",
   "shellPasswordChanged": "Password changed",
   "shellPasswordsDontMatch": "Passwords do not match",
   "shellPlatformOverview": "Platform overview",
@@ -4278,7 +4261,6 @@
   "shellSendLink": "Send link",
   "shellSendMePushesAbout": "Send me pushes about",
   "shellSendResetLink": "Send reset link",
-  "shellSessionInProgress": "Session in progress",
   "shellSessionStartedInProgress": "Started {time} · in progress",
   "shellSetNewPassword": "Set new password",
   "shellSettings": "Settings",
@@ -4336,20 +4318,15 @@
   "shellTimeNow": "now",
   "shellTodaysSessions": "Today's sessions",
   "shellTypeToConfirm": "Type {text} to confirm.",
-  "shellUnavailable": "Unavailable",
   "shellUnitKilograms": "Kilograms",
   "shellUnitPounds": "Pounds",
-  "shellUpcomingClasses": "Upcoming classes",
   "shellUserSearchAdd": "Add",
   "shellUserSearchAddLabel": "Add {name}",
   "shellUserSearchAdding": "Adding",
   "shellUserSearchHint": "Search by name or username",
   "shellWelcome": "Welcome, {name}",
-  "shellWelcomeBack": "Welcome back, {name}",
   "shellYourGym": "Your gym",
   "shellYourGyms": "Your gyms",
-  "shellYourShop": "Your shop",
-  "shellYourShops": "Your shops",
   "socialActiveAgo": "Active {when}",
   "socialActiveNow": "Active now",
   "socialCamera": "Camera",
@@ -4393,6 +4370,13 @@
   "trainingChartNoData": "No data in this range",
   "trainingChartSummary": "{series} chart, {count, plural, =1{1 data point} other{{count} data points}}, last value {value}",
   "trainingClassAbout": "About",
+  "trainingClassAdd": "Add",
+  "trainingClassAddPeople": "Add people",
+  "trainingClassAddPeopleEmpty": "No one found. People need to be members of this gym or follow you.",
+  "trainingClassAddPeopleHint": "Members of this gym and people who follow you.",
+  "trainingClassAddPeopleSearch": "Search by name or username",
+  "trainingClassAddedPerson": "{name} added",
+  "trainingClassAddedToWaitlist": "{name} added to the waitlist",
   "trainingClassApplyToSeries": "Apply to this and future classes",
   "trainingClassApplyToSeriesOff": "Only this class changes",
   "trainingClassApplyToSeriesOn": "Changes apply to every later class in this weekly series",
@@ -4476,6 +4460,8 @@
   "trainingClassNotifyOnChange": "People who booked are notified if the time or location changes.",
   "trainingClassOneOff": "One-off class",
   "trainingClassPast": "Past",
+  "trainingClassPersonFollower": "Follows you",
+  "trainingClassPersonMember": "Member",
   "trainingClassRefresh": "Refresh",
   "trainingClassRemove": "Remove",
   "trainingClassRemoveBookedMessage": "Their spot will go to the next person on the waitlist.",

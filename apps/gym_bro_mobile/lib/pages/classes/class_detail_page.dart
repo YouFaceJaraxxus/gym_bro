@@ -4,11 +4,12 @@ import '../../l10n/l10n.dart';
 import '../../models/gym_class.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import 'add_people_sheet.dart';
 import 'class_form_page.dart';
 import 'schedule_widgets.dart';
 
 /// One class: details and booking; for coaches also the roster with
-/// attendance, plus edit and cancel.
+/// attendance and adding people, plus edit and cancel.
 class ClassDetailPage extends StatefulWidget {
   const ClassDetailPage({super.key, required this.classId});
 
@@ -61,6 +62,12 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
     final changed = await toggleClassBooking(context, c);
     if (changed && mounted) await _load();
     if (mounted) setState(() => _bookingBusy = false);
+  }
+
+  Future<void> _addPeople() async {
+    final c = _class;
+    if (c == null) return;
+    if (await showAddPeopleSheet(context, c) && mounted) await _load();
   }
 
   Future<void> _edit() async {
@@ -344,6 +351,15 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
                 style: ts.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
         ],
       ),
+      if (!c.isCancelled && !c.hasStarted)
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            onPressed: _addPeople,
+            icon: const Icon(Icons.person_add_alt_1_outlined),
+            label: Text(l10n.trainingClassAddPeople),
+          ),
+        ),
       const SizedBox(height: 8),
       if (seated.isEmpty)
         Padding(

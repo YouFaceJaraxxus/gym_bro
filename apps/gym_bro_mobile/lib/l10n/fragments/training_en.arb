@@ -282,6 +282,29 @@
   "trainingClassMarkNoShow": "Mark no-show",
   "trainingClassMore": "More",
   "trainingClassRemoveFromClass": "Remove from class",
+  "trainingClassAddPeople": "Add people",
+  "trainingClassAddPeopleHint": "Members of this gym and people who follow you.",
+  "trainingClassAddPeopleSearch": "Search by name or username",
+  "trainingClassAddPeopleEmpty": "No one found. People need to be members of this gym or follow you.",
+  "trainingClassPersonMember": "Member",
+  "trainingClassPersonFollower": "Follows you",
+  "trainingClassAdd": "Add",
+  "trainingClassAddedPerson": "{name} added",
+  "@trainingClassAddedPerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingClassAddedToWaitlist": "{name} added to the waitlist",
+  "@trainingClassAddedToWaitlist": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "trainingClassStartInFuture": "Pick a start time in the future",
   "trainingClassUpdated": "Class updated",
   "trainingClassWeeklyCreated": "{count} weekly classes created",

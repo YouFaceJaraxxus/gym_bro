@@ -5473,7 +5473,7 @@
         "powerlifting"
       ],
       "is_private": true,
-      "who_can_message": "following"
+      "allow_non_follower_messages": false
     },
     "mayaflores": {
       "bio": "Climber who lifts. Denver born and raised 🏔️",
@@ -5539,7 +5539,7 @@
         "running"
       ],
       "is_private": true,
-      "who_can_message": "friends"
+      "allow_non_follower_messages": false
     },
     "gabrielsantos": {
       "bio": "Calisthenics park regular. Muscle-up or bust.",
