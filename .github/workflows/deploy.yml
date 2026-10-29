@@ -2,13 +2,19 @@ name: Deploy
 
 # Runs after CI passes on main, from a push (CI's path filters decide whether a
 # commit ships at all) or a manual CI run, or by hand from the Actions tab.
-# Order: database migrations → edge functions → Android APK, so a published app
-# never talks to an older API.
+# Order: edge functions → Android APK, so a published app never talks to an
+# older API.
+#
+# Database migrations are NOT applied here — run them by hand before merging
+# (DATABASE_URL=<prod pooler URL> ./scripts/migrate.sh in apps/gym_bro_api).
+# The deploy only lists pending ones and warns, since functions that need a
+# newer schema will fail until it's applied.
 #
 # Secrets (Settings → Environments → "production"):
 #   PROD_DATABASE_URL       Session pooler URL (port 5432) of the hosted project,
 #                           password %-encoded. Runners are IPv4-only, so it must
-#                           be the pooler host, not db.<ref>.supabase.co.
+#                           be the pooler host, not db.<ref>.supabase.co. Only
+#                           read (migration status), never migrated.
 #   SUPABASE_ACCESS_TOKEN   Personal access token (supabase.com/dashboard/account/tokens).
 #   ANDROID_KEYSTORE_B64    Optional: base64 of the upload keystore (.jks).
 #   ANDROID_KEYSTORE_PASSWORD  Goes with the keystore. Without a keystore the APK
@@ -29,7 +35,7 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Queue deploys; never cancel one halfway through a migration.
+# Queue deploys; never cancel one halfway through a functions deploy.
 concurrency:
   group: deploy-production
   cancel-in-progress: false
@@ -45,7 +51,7 @@ env:
 
 jobs:
   backend:
-    name: Backend (migrations, edge functions)
+    name: Backend (edge functions)
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' &&
@@ -93,17 +99,20 @@ jobs:
             exit 1
           fi
 
-      - name: Apply migrations
+      # Read-only: migrations are applied by hand, never by the deploy.
+      - name: Check migrations
         env:
           DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
         run: |
           command -v psql >/dev/null || { sudo apt-get update -q && sudo apt-get install -yq postgresql-client; }
           ./scripts/migrate.sh --status | tee /tmp/migrate-status.txt
+          { grep -E '^\s*pending' /tmp/migrate-status.txt || true; } | while read -r _ file _; do
+            echo "::warning::Migration $file is not applied to production — run ./scripts/migrate.sh against prod by hand."
+          done
           # migrate.sh never re-runs an applied file, so an edit to one doesn't reach prod.
-          grep 'file changed since it was applied' /tmp/migrate-status.txt | while read -r line; do
+          { grep 'file changed since it was applied' /tmp/migrate-status.txt || true; } | while read -r line; do
             echo "::warning::$line — edits to applied migrations are not re-run; put the change in a new file."
           done
-          ./scripts/migrate.sh
 
       # POSTGRES_URL must not be in this environment: config.toml reads it via
       # env(), and the CLI could push the value to the hosted project's secrets.
