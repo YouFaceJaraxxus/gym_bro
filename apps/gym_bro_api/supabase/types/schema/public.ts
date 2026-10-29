@@ -979,6 +979,24 @@ export interface MediaUploadTable {
   mime_type: string;
   created_at: Generated<string>;
   claimed_at: string | null;
+  draft_id: Generated<string | null>;
+}
+
+export type DraftKind =
+  | "post" | "business_post" | "exercise" | "training" | "routine"
+  | "recipe" | "food_item" | "daily_meal_plan" | "meal_plan";
+
+export interface DraftTable {
+  id: Generated<string>;
+  user_id: string;
+  kind: DraftKind;
+  scope_id: string | null;
+  title: string | null;
+  thumbnail_url: string | null;
+  data: Generated<Record<string, unknown>>;
+  media: Generated<unknown[]>;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
 }
 
 export interface CheckInTable {
@@ -1084,6 +1102,7 @@ export interface Database {
   message_attachment: MessageAttachmentTable;
   message_reaction: MessageReactionTable;
   media_upload: MediaUploadTable;
+  draft: DraftTable;
   check_in: CheckInTable;
   food_log: FoodLogTable;
 }

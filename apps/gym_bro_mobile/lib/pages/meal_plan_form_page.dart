@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
+import '../config.dart';
 import '../l10n/l10n.dart';
+import '../models/draft.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../theme.dart';
+import '../widgets/drafts.dart';
 import '../widgets/image_upload_field.dart';
 import 'nutrition/nutrition_widgets.dart';
 
 class MealPlanFormPage extends StatefulWidget {
   final MealPlan? plan;
 
-  const MealPlanFormPage({super.key, this.plan});
+  /// A saved draft to continue (new plans only).
+  final Draft? draft;
+
+  const MealPlanFormPage({super.key, this.plan, this.draft});
 
   @override
   State<MealPlanFormPage> createState() => _MealPlanFormPageState();
 }
 
-class _MealPlanFormPageState extends State<MealPlanFormPage> {
+class _MealPlanFormPageState extends State<MealPlanFormPage>
+    with DraftableForm {
   final _formKey = GlobalKey<FormState>();
   final _api = ApiService();
 
@@ -35,9 +42,97 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
 
   bool get _isEditing => widget.plan != null;
 
+  // ── Drafts ──────────────────────────────────────────────────────────────────
+
+  @override
+  DraftKind get draftKind => DraftKind.mealPlan;
+  @override
+  Draft? get initialDraft => widget.draft;
+  @override
+  bool get draftsEnabled => !_isEditing;
+  @override
+  bool get hasDraftContent =>
+      _name.text.trim().isNotEmpty ||
+      _description.text.trim().isNotEmpty ||
+      _images.any((i) => i.urlController.text.trim().isNotEmpty) ||
+      _schedule.isNotEmpty;
+  @override
+  String? draftTitle() => _name.text;
+  @override
+  String? draftThumbnailUrl() {
+    final images =
+        _images.where((i) => i.urlController.text.trim().isNotEmpty).toList();
+    if (images.isEmpty) return null;
+    final thumb =
+        images.firstWhere((i) => i.isThumbnail, orElse: () => images.first);
+    return AppConfig.resolveUrl(thumb.urlController.text.trim());
+  }
+  @override
+  Map<String, dynamic> draftData() => {
+        'name': _name.text,
+        'description': _description.text,
+        'num_weeks': _numWeeks,
+        'is_public': _isPublic,
+        'images': [
+          for (final img in _images)
+            {'url': img.urlController.text, 'is_thumbnail': img.isThumbnail},
+        ],
+        // Days past a shortened duration are kept, as on screen until save.
+        'days': [
+          for (final MapEntry(key: (week, day), value: d) in _schedule.entries)
+            {
+              'week_number': week,
+              'day_of_week': day,
+              'daily_meal_plan_id': d.dailyMealPlanId,
+              'daily_meal_plan_name': d.dailyMealPlanName,
+              'kcal_total': d.kcalTotal,
+              'note': d.note,
+            },
+        ],
+      };
+
+  void _restoreDraft(Map<String, dynamic> d) {
+    String text(Object? v) => v is String ? v : '';
+    int? integer(Object? v) => v == null ? null : int.tryParse(v.toString());
+    _name = TextEditingController(text: text(d['name']));
+    _description = TextEditingController(text: text(d['description']));
+    _isPublic = d['is_public'] is bool ? d['is_public'] as bool : false;
+    final weeks = integer(d['num_weeks']) ?? 1;
+    _numWeeks = weeks < 1 ? 1 : (weeks > 4 ? 4 : weeks);
+    for (final img in _draftMaps(d['images'])) {
+      _images.add(_ImageDraft(
+        urlController: TextEditingController(text: text(img['url'])),
+        isThumbnail: img['is_thumbnail'] == true,
+      ));
+    }
+    for (final day in _draftMaps(d['days'])) {
+      final week = integer(day['week_number']);
+      final dow = integer(day['day_of_week']);
+      final id = day['daily_meal_plan_id'];
+      if (week == null || week < 1 || dow == null || dow < 1 || dow > 7) {
+        continue;
+      }
+      if (id is! String || id.isEmpty) continue;
+      final kcal = day['kcal_total'];
+      _schedule[(week, dow)] = _DayDraft(
+        dailyMealPlanId: id,
+        dailyMealPlanName: day['daily_meal_plan_name'] is String
+            ? day['daily_meal_plan_name'] as String
+            : null,
+        kcalTotal: kcal == null ? null : double.tryParse(kcal.toString()),
+        note: day['note'] is String ? day['note'] as String : null,
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    final draft = widget.draft?.data;
+    if (draft != null && !_isEditing) {
+      _restoreDraft(draft);
+      return;
+    }
     final p = widget.plan;
     _name = TextEditingController(text: p?.name ?? '');
     _description = TextEditingController(text: p?.description ?? '');
@@ -159,6 +254,7 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
         result = await _api.updateMealPlan(token, widget.plan!.id, data);
       } else {
         result = await _api.createMealPlan(token, data);
+        await draftPublished();
       }
       if (mounted) Navigator.pop(context, result);
     } catch (e) {
@@ -180,184 +276,189 @@ class _MealPlanFormPageState extends State<MealPlanFormPage> {
     final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
     final locale = Localizations.localeOf(context).toString();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? l10n.nutritionEditMealPlanTitle : l10n.nutritionNewMealPlanTitle),
-        actions: [
-          if (_saving)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
+    final banner = draftBanner(context);
+    return draftPopScope(
+      busy: _saving,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_isEditing ? l10n.nutritionEditMealPlanTitle : l10n.nutritionNewMealPlanTitle),
+          actions: [
+            if (_saving)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
+            else
+              TextButton(onPressed: _save, child: Text(l10n.commonSave)),
+          ],
+        ),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (banner != null) ...[banner, const SizedBox(height: 16)],
+              // ── Basic ─────────────────────────────────────────────────────
+              TextFormField(
+                controller: _name,
+                decoration: InputDecoration(labelText: l10n.nutritionNameRequiredLabel),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
               ),
-            )
-          else
-            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // ── Basic ─────────────────────────────────────────────────────
-            TextFormField(
-              controller: _name,
-              decoration: InputDecoration(labelText: l10n.nutritionNameRequiredLabel),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
-            ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _description,
-              decoration: InputDecoration(labelText: l10n.nutritionDescription),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _description,
+                decoration: InputDecoration(labelText: l10n.nutritionDescription),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 20),
 
-            // numWeeks segmented button
-            Text(l10n.nutritionDuration,
-                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
-            const SizedBox(height: 8),
-            SegmentedButton<int>(
-              segments: [
-                for (final w in const [1, 2, 3, 4])
-                  ButtonSegment(value: w, label: Text(l10n.nutritionWeeksShort(w))),
-              ],
-              selected: {_numWeeks},
-              onSelectionChanged: (s) {
-                if (s.isNotEmpty) setState(() => _numWeeks = s.first);
-              },
-            ),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              title: Text(l10n.nutritionPublic),
-              subtitle: Text(l10n.nutritionVisibleToAllUsers),
-              value: _isPublic,
-              onChanged: (v) => setState(() => _isPublic = v),
-              contentPadding: EdgeInsets.zero,
-            ),
+              // numWeeks segmented button
+              Text(l10n.nutritionDuration,
+                  style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+              const SizedBox(height: 8),
+              SegmentedButton<int>(
+                segments: [
+                  for (final w in const [1, 2, 3, 4])
+                    ButtonSegment(value: w, label: Text(l10n.nutritionWeeksShort(w))),
+                ],
+                selected: {_numWeeks},
+                onSelectionChanged: (s) {
+                  if (s.isNotEmpty) setState(() => _numWeeks = s.first);
+                },
+              ),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                title: Text(l10n.nutritionPublic),
+                subtitle: Text(l10n.nutritionVisibleToAllUsers),
+                value: _isPublic,
+                onChanged: (v) => setState(() => _isPublic = v),
+                contentPadding: EdgeInsets.zero,
+              ),
 
-            // ── Images ────────────────────────────────────────────────────
-            const SizedBox(height: 20),
-            Text(l10n.nutritionImages,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            ..._images.asMap().entries.map((entry) {
-              final i = entry.key;
-              final img = entry.value;
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: img.urlController,
-                          decoration: InputDecoration(
-                            hintText: l10n.nutritionImageUrl,
-                            border: InputBorder.none,
-                            isDense: true,
+              // ── Images ────────────────────────────────────────────────────
+              const SizedBox(height: 20),
+              Text(l10n.nutritionImages,
+                  style:
+                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              ..._images.asMap().entries.map((entry) {
+                final i = entry.key;
+                final img = entry.value;
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: img.urlController,
+                            decoration: InputDecoration(
+                              hintText: l10n.nutritionImageUrl,
+                              border: InputBorder.none,
+                              isDense: true,
+                            ),
                           ),
                         ),
-                      ),
-                      IconButton(
-                        tooltip: l10n.nutritionUploadPhoto,
-                        icon: const Icon(Icons.upload_outlined, size: 20),
-                        onPressed: () => pickAndUploadImage(
-                          context: context,
-                          bucket: 'media',
-                          folder: 'meal-plans',
-                          onUploaded: (url) => setState(() => img.urlController.text = url),
-                          onUploadingChanged: (_) {},
+                        IconButton(
+                          tooltip: l10n.nutritionUploadPhoto,
+                          icon: const Icon(Icons.upload_outlined, size: 20),
+                          onPressed: () => pickAndUploadImage(
+                            context: context,
+                            bucket: 'media',
+                            folder: 'meal-plans',
+                            onUploaded: (url) => setState(() => img.urlController.text = url),
+                            onUploadingChanged: (_) {},
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        tooltip: img.isThumbnail
-                            ? l10n.nutritionThumbnail
-                            : l10n.nutritionSetAsThumbnail,
-                        isSelected: img.isThumbnail,
-                        icon: Icon(
-                          img.isThumbnail
-                              ? Icons.star
-                              : Icons.star_border_outlined,
-                          color: img.isThumbnail
-                              ? context.appColors.warning
-                              : cs.onSurfaceVariant,
-                          size: 20,
+                        IconButton(
+                          tooltip: img.isThumbnail
+                              ? l10n.nutritionThumbnail
+                              : l10n.nutritionSetAsThumbnail,
+                          isSelected: img.isThumbnail,
+                          icon: Icon(
+                            img.isThumbnail
+                                ? Icons.star
+                                : Icons.star_border_outlined,
+                            color: img.isThumbnail
+                                ? context.appColors.warning
+                                : cs.onSurfaceVariant,
+                            size: 20,
+                          ),
+                          onPressed: () => _setThumbnail(i),
                         ),
-                        onPressed: () => _setThumbnail(i),
-                      ),
-                      IconButton(
-                        tooltip: l10n.nutritionRemoveImage,
-                        icon: Icon(Icons.close,
-                            size: 18, color: cs.error),
-                        onPressed: () => _removeImage(i),
-                      ),
-                    ],
+                        IconButton(
+                          tooltip: l10n.nutritionRemoveImage,
+                          icon: Icon(Icons.close,
+                              size: 18, color: cs.error),
+                          onPressed: () => _removeImage(i),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }),
-            OutlinedButton.icon(
-              onPressed: _addImage,
-              icon: const Icon(Icons.add),
-              label: Text(l10n.nutritionAddImage),
-            ),
+                );
+              }),
+              OutlinedButton.icon(
+                onPressed: _addImage,
+                icon: const Icon(Icons.add),
+                label: Text(l10n.nutritionAddImage),
+              ),
 
-            // ── Schedule ──────────────────────────────────────────────────
-            const SizedBox(height: 24),
-            Text(l10n.nutritionSchedule,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            ...List.generate(_numWeeks, (wi) {
-              final weekNum = wi + 1;
-              return Card(
-                margin: const EdgeInsets.only(bottom: 10),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
-                child: ExpansionTile(
-                  title: Text(l10n.nutritionWeekNumber(weekNum),
-                      style:
-                          const TextStyle(fontWeight: FontWeight.w600)),
-                  children: List.generate(7, (di) {
-                    final dayOfWeek = di + 1;
-                    final label = shortWeekdayName(dayOfWeek, locale);
-                    final draft = _schedule[(weekNum, dayOfWeek)];
-                    return ListTile(
-                      dense: true,
-                      leading: SizedBox(
-                        width: 36,
-                        child: Text(label,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 13)),
-                      ),
-                      title: draft?.dailyMealPlanName != null
-                          ? Text(draft!.dailyMealPlanName!)
-                          : Text(l10n.nutritionUnassigned,
-                              style: TextStyle(color: cs.onSurfaceVariant)),
-                      trailing: IconButton(
-                        tooltip: l10n.nutritionChooseDailyPlanFor(
-                            l10n.nutritionWeekNumber(weekNum), label),
-                        icon: const Icon(Icons.edit_outlined, size: 18),
-                        onPressed: () =>
-                            _pickDailyPlan(weekNum, dayOfWeek),
-                      ),
-                    );
-                  }),
-                ),
-              );
-            }),
-            const SizedBox(height: 40),
-          ],
+              // ── Schedule ──────────────────────────────────────────────────
+              const SizedBox(height: 24),
+              Text(l10n.nutritionSchedule,
+                  style:
+                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              ...List.generate(_numWeeks, (wi) {
+                final weekNum = wi + 1;
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
+                  child: ExpansionTile(
+                    title: Text(l10n.nutritionWeekNumber(weekNum),
+                        style:
+                            const TextStyle(fontWeight: FontWeight.w600)),
+                    children: List.generate(7, (di) {
+                      final dayOfWeek = di + 1;
+                      final label = shortWeekdayName(dayOfWeek, locale);
+                      final draft = _schedule[(weekNum, dayOfWeek)];
+                      return ListTile(
+                        dense: true,
+                        leading: SizedBox(
+                          width: 36,
+                          child: Text(label,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13)),
+                        ),
+                        title: draft?.dailyMealPlanName != null
+                            ? Text(draft!.dailyMealPlanName!)
+                            : Text(l10n.nutritionUnassigned,
+                                style: TextStyle(color: cs.onSurfaceVariant)),
+                        trailing: IconButton(
+                          tooltip: l10n.nutritionChooseDailyPlanFor(
+                              l10n.nutritionWeekNumber(weekNum), label),
+                          icon: const Icon(Icons.edit_outlined, size: 18),
+                          onPressed: () =>
+                              _pickDailyPlan(weekNum, dayOfWeek),
+                        ),
+                      );
+                    }),
+                  ),
+                );
+              }),
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );
@@ -386,6 +487,10 @@ class _ImageDraft {
 
   _ImageDraft({required this.urlController, this.isThumbnail = false});
 }
+
+Iterable<Map<String, dynamic>> _draftMaps(Object? raw) => raw is List
+    ? raw.whereType<Map>().map((m) => Map<String, dynamic>.from(m))
+    : const [];
 
 class _DailyPlanPickResult {
   final DailyMealPlan? plan;

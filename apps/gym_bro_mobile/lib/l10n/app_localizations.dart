@@ -4579,6 +4579,150 @@ abstract class AppLocalizations {
   /// **'Your classes'**
   String get customersYourClasses;
 
+  /// No description provided for @draftBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get draftBadge;
+
+  /// No description provided for @draftChooseSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue a draft or start from scratch.'**
+  String get draftChooseSubtitle;
+
+  /// No description provided for @draftChooseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your drafts'**
+  String get draftChooseTitle;
+
+  /// No description provided for @draftDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete draft'**
+  String get draftDelete;
+
+  /// No description provided for @draftDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this draft?'**
+  String get draftDeleteTitle;
+
+  /// No description provided for @draftDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft deleted'**
+  String get draftDeleted;
+
+  /// No description provided for @draftDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get draftDiscard;
+
+  /// No description provided for @draftDiscardChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes'**
+  String get draftDiscardChanges;
+
+  /// No description provided for @draftEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited {when}'**
+  String draftEdited(String when);
+
+  /// No description provided for @draftEditingBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re editing a draft. Publishing it removes the draft.'**
+  String get draftEditingBanner;
+
+  /// No description provided for @draftKeepEditing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get draftKeepEditing;
+
+  /// No description provided for @draftMediaCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo or video} other{{count} photos and videos}}'**
+  String draftMediaCount(int count);
+
+  /// No description provided for @draftOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the draft: {error}'**
+  String draftOpenFailed(String error);
+
+  /// No description provided for @draftOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening draft…'**
+  String get draftOpening;
+
+  /// No description provided for @draftSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft'**
+  String get draftSave;
+
+  /// No description provided for @draftSaveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up where you left off later. Drafts are private — only you can see them.'**
+  String get draftSaveBody;
+
+  /// No description provided for @draftSaveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get draftSaveChanges;
+
+  /// No description provided for @draftSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the draft: {error}'**
+  String draftSaveFailed(String error);
+
+  /// No description provided for @draftSaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as a draft?'**
+  String get draftSaveTitle;
+
+  /// No description provided for @draftSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft saved'**
+  String get draftSaved;
+
+  /// No description provided for @draftSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving draft…'**
+  String get draftSaving;
+
+  /// No description provided for @draftStartNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Start new'**
+  String get draftStartNew;
+
+  /// No description provided for @draftUntitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled draft'**
+  String get draftUntitled;
+
+  /// No description provided for @draftUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes to this draft?'**
+  String get draftUpdateTitle;
+
   /// No description provided for @feedAddMedia.
   ///
   /// In en, this message translates to:
@@ -4998,6 +5142,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Write a reply…'**
   String get feedWriteReplyHint;
+
+  /// No description provided for @mediaAdjustBrightness.
+  ///
+  /// In en, this message translates to:
+  /// **'Brightness'**
+  String get mediaAdjustBrightness;
+
+  /// No description provided for @mediaAdjustContrast.
+  ///
+  /// In en, this message translates to:
+  /// **'Contrast'**
+  String get mediaAdjustContrast;
+
+  /// No description provided for @mediaAdjustFade.
+  ///
+  /// In en, this message translates to:
+  /// **'Fade'**
+  String get mediaAdjustFade;
+
+  /// No description provided for @mediaAdjustSaturation.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturation'**
+  String get mediaAdjustSaturation;
+
+  /// No description provided for @mediaAdjustTint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tint'**
+  String get mediaAdjustTint;
+
+  /// No description provided for @mediaAdjustVignette.
+  ///
+  /// In en, this message translates to:
+  /// **'Vignette'**
+  String get mediaAdjustVignette;
+
+  /// No description provided for @mediaAdjustWarmth.
+  ///
+  /// In en, this message translates to:
+  /// **'Warmth'**
+  String get mediaAdjustWarmth;
+
+  /// No description provided for @mediaBackToTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to tools'**
+  String get mediaBackToTools;
+
+  /// No description provided for @mediaBatchNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters and adjustments here apply to all {count} items and replace their own. Videos are trimmed one by one.'**
+  String mediaBatchNote(int count);
+
+  /// No description provided for @mediaCantEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'This file can\'t be edited.'**
+  String get mediaCantEdit;
+
+  /// No description provided for @mediaDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get mediaDone;
+
+  /// No description provided for @mediaEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get mediaEdit;
+
+  /// No description provided for @mediaEditAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit all'**
+  String get mediaEditAll;
+
+  /// No description provided for @mediaEditAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit all ({count})'**
+  String mediaEditAllTitle(int count);
+
+  /// No description provided for @mediaEditFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t apply the edits. Try again, or reset them.'**
+  String get mediaEditFailed;
+
+  /// No description provided for @mediaEditItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit item {index}'**
+  String mediaEditItem(int index);
+
+  /// No description provided for @mediaEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get mediaEditTitle;
+
+  /// No description provided for @mediaEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited'**
+  String get mediaEdited;
+
+  /// No description provided for @mediaFilterArctic.
+  ///
+  /// In en, this message translates to:
+  /// **'Arctic'**
+  String get mediaFilterArctic;
+
+  /// No description provided for @mediaFilterDramatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Dramatic'**
+  String get mediaFilterDramatic;
+
+  /// No description provided for @mediaFilterGolden.
+  ///
+  /// In en, this message translates to:
+  /// **'Golden'**
+  String get mediaFilterGolden;
+
+  /// No description provided for @mediaFilterMatte.
+  ///
+  /// In en, this message translates to:
+  /// **'Matte'**
+  String get mediaFilterMatte;
+
+  /// No description provided for @mediaFilterMono.
+  ///
+  /// In en, this message translates to:
+  /// **'Mono'**
+  String get mediaFilterMono;
+
+  /// No description provided for @mediaFilterNoir.
+  ///
+  /// In en, this message translates to:
+  /// **'Noir'**
+  String get mediaFilterNoir;
+
+  /// No description provided for @mediaFilterNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get mediaFilterNormal;
+
+  /// No description provided for @mediaFilterPunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Punch'**
+  String get mediaFilterPunch;
+
+  /// No description provided for @mediaFilterRose.
+  ///
+  /// In en, this message translates to:
+  /// **'Rose'**
+  String get mediaFilterRose;
+
+  /// No description provided for @mediaFilterSepia.
+  ///
+  /// In en, this message translates to:
+  /// **'Sepia'**
+  String get mediaFilterSepia;
+
+  /// No description provided for @mediaFilterStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength'**
+  String get mediaFilterStrength;
+
+  /// No description provided for @mediaFilterVintage.
+  ///
+  /// In en, this message translates to:
+  /// **'Vintage'**
+  String get mediaFilterVintage;
+
+  /// No description provided for @mediaFilterVivid.
+  ///
+  /// In en, this message translates to:
+  /// **'Vivid'**
+  String get mediaFilterVivid;
+
+  /// No description provided for @mediaHoldToCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Press and hold to see the original'**
+  String get mediaHoldToCompare;
+
+  /// No description provided for @mediaOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get mediaOriginal;
+
+  /// No description provided for @mediaProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Applying edits {index} of {count}…'**
+  String mediaProcessing(int index, int count);
+
+  /// No description provided for @mediaReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get mediaReset;
+
+  /// No description provided for @mediaResetAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset all edits'**
+  String get mediaResetAll;
+
+  /// No description provided for @mediaTabAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust'**
+  String get mediaTabAdjust;
+
+  /// No description provided for @mediaTabFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get mediaTabFilter;
+
+  /// No description provided for @mediaTabTrim.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim'**
+  String get mediaTabTrim;
+
+  /// No description provided for @mediaTrimEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim end'**
+  String get mediaTrimEnd;
+
+  /// No description provided for @mediaTrimPickVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a video to trim'**
+  String get mediaTrimPickVideo;
+
+  /// No description provided for @mediaTrimStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim start'**
+  String get mediaTrimStart;
+
+  /// No description provided for @mediaTrimSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end} · {length}'**
+  String mediaTrimSummary(String start, String end, String length);
+
+  /// No description provided for @mediaTrimWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Trimmed clip, drag to move'**
+  String get mediaTrimWindow;
+
+  /// No description provided for @mediaUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get mediaUndo;
+
+  /// No description provided for @mediaVideoNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Video {index}'**
+  String mediaVideoNumber(int index);
 
   /// No description provided for @nutritionAdd.
   ///

@@ -37,6 +37,16 @@ Deno.test({
     assertAll();
     const member2 = await signin(otherRow.email);
 
+    // The employee doubles as a trainer here: someone else a class can be
+    // handed to, and a person with several staff roles. The seed doesn't make
+    // them one, so add the row (and take it away again at the end).
+    const trainerRows = (await call("GET", `/trainers?gym_id=${gym.id}`, owner.token)).data as any[];
+    const addedTrainer = trainerRows?.some((r) => r.user_id === employee.profile.id)
+      ? null
+      : await call("POST", "/trainers", owner.token, { user_id: employee.profile.id, gym_id: gym.id });
+    check("the employee is also a trainer", !addedTrainer || addedTrainer.status === 201, short(addedTrainer?.data));
+    assertAll();
+
     await t.step("1. classes: create, book, waitlist, attendance, series cancel", async () => {
       const created: string[] = [];
       try {
@@ -801,5 +811,7 @@ Deno.test({
       }
       assertAll();
     });
+
+    if (addedTrainer?.data?.id) await call("DELETE", `/trainers/${addedTrainer.data.id}`, owner.token);
   },
 });

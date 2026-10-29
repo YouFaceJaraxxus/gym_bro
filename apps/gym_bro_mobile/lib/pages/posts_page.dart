@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
+import '../models/draft.dart';
 import '../models/post.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/drafts.dart';
 import '../widgets/image_upload_field.dart';
 import '../widgets/post_card.dart';
 
@@ -114,9 +116,11 @@ class _PostsPageState extends State<PostsPage> {
   }
 
   Future<void> _openCreatePost() async {
-    final created = await Navigator.push<Post>(
+    final created = await openCreateWithDrafts<Post>(
       context,
-      MaterialPageRoute(builder: (_) => _PostFormPage(businessId: widget.businessId)),
+      kind: DraftKind.businessPost,
+      scopeId: widget.businessId,
+      builder: (draft) => _PostFormPage(businessId: widget.businessId, draft: draft),
     );
     if (created != null && mounted) {
       setState(() => _posts = [created, ..._posts.where((p) => p.id != created.id)]);
@@ -221,15 +225,18 @@ class _PostsPageState extends State<PostsPage> {
 
 /// Create a post, or edit [post]'s text and images when given.
 class _PostFormPage extends StatefulWidget {
-  const _PostFormPage({required this.businessId, this.post});
+  const _PostFormPage({required this.businessId, this.post, this.draft});
   final String businessId;
   final Post? post;
+
+  /// A saved draft to continue (new posts only).
+  final Draft? draft;
 
   @override
   State<_PostFormPage> createState() => _PostFormPageState();
 }
 
-class _PostFormPageState extends State<_PostFormPage> {
+class _PostFormPageState extends State<_PostFormPage> with DraftableForm {
   final _api = ApiService();
   late final TextEditingController _contentCtrl;
   late final List<String> _imageUrls;
@@ -239,9 +246,42 @@ class _PostFormPageState extends State<_PostFormPage> {
 
   bool get _isEditing => widget.post != null;
 
+  // ── Drafts ──────────────────────────────────────────────────────────────────
+
+  @override
+  DraftKind get draftKind => DraftKind.businessPost;
+  @override
+  Draft? get initialDraft => widget.draft;
+  @override
+  bool get draftsEnabled => !_isEditing;
+  @override
+  String? get draftScopeId => widget.businessId;
+  @override
+  bool get hasDraftContent => _contentCtrl.text.trim().isNotEmpty || _imageUrls.isNotEmpty;
+  @override
+  String? draftTitle() => _contentCtrl.text;
+  @override
+  String? draftThumbnailUrl() => _imageUrls.firstOrNull;
+  @override
+  Map<String, dynamic> draftData() => {
+        'content': _contentCtrl.text,
+        'image_urls': [..._imageUrls],
+      };
+
   @override
   void initState() {
     super.initState();
+    final draft = widget.draft?.data;
+    if (draft != null && !_isEditing) {
+      final content = draft['content'];
+      final images = draft['image_urls'];
+      _contentCtrl = TextEditingController(text: content is String ? content : '');
+      _imageUrls = [
+        for (final url in images is List ? images : const [])
+          if (url is String && url.isNotEmpty) url,
+      ];
+      return;
+    }
     _contentCtrl = TextEditingController(text: widget.post?.content ?? '');
     final images = [...?widget.post?.images]
       ..sort((a, b) => a.position.compareTo(b.position));
@@ -296,6 +336,7 @@ class _PostFormPageState extends State<_PostFormPage> {
           'content': _contentCtrl.text.trim(),
           'images': images,
         });
+        await draftPublished();
       }
       if (mounted) Navigator.pop(context, saved);
     } catch (e) {
@@ -311,132 +352,137 @@ class _PostFormPageState extends State<_PostFormPage> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(title: Text(_isEditing ? l10n.nutritionEditPostTitle : l10n.nutritionNewPost)),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(
-              height: 110,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  ..._imageUrls.asMap().entries.map((e) => Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.network(
-                                e.value,
-                                semanticLabel: l10n.nutritionPostPhotoOf(e.key + 1, _imageUrls.length),
-                                width: 110,
-                                height: 110,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stack) => Container(
+    final banner = draftBanner(context);
+    return draftPopScope(
+      busy: _saving,
+      child: Scaffold(
+        appBar: AppBar(title: Text(_isEditing ? l10n.nutritionEditPostTitle : l10n.nutritionNewPost)),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (banner != null) ...[banner, const SizedBox(height: 16)],
+              SizedBox(
+                height: 110,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    ..._imageUrls.asMap().entries.map((e) => Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  e.value,
+                                  semanticLabel: l10n.nutritionPostPhotoOf(e.key + 1, _imageUrls.length),
                                   width: 110,
                                   height: 110,
-                                  color: cs.surfaceContainerHighest,
-                                  child: const Icon(Icons.broken_image_outlined),
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stack) => Container(
+                                    width: 110,
+                                    height: 110,
+                                    color: cs.surfaceContainerHighest,
+                                    child: const Icon(Icons.broken_image_outlined),
+                                  ),
                                 ),
                               ),
-                            ),
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              child: Semantics(
-                                button: true,
-                                label: l10n.nutritionRemovePhoto,
-                                child: InkWell(
-                                  customBorder: const CircleBorder(),
-                                  onTap: () =>
-                                      setState(() => _imageUrls.removeAt(e.key)),
-                                  // 48 dp hit area around the small badge.
-                                  child: SizedBox(
-                                    width: 48,
-                                    height: 48,
-                                    child: Align(
-                                      alignment: Alignment.topRight,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4),
-                                        child: CircleAvatar(
-                                          radius: 12,
-                                          backgroundColor: cs.inverseSurface.withValues(alpha: 0.7),
-                                          child: Icon(Icons.close,
-                                              size: 14, color: cs.onInverseSurface),
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: Semantics(
+                                  button: true,
+                                  label: l10n.nutritionRemovePhoto,
+                                  child: InkWell(
+                                    customBorder: const CircleBorder(),
+                                    onTap: () =>
+                                        setState(() => _imageUrls.removeAt(e.key)),
+                                    // 48 dp hit area around the small badge.
+                                    child: SizedBox(
+                                      width: 48,
+                                      height: 48,
+                                      child: Align(
+                                        alignment: Alignment.topRight,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4),
+                                          child: CircleAvatar(
+                                            radius: 12,
+                                            backgroundColor: cs.inverseSurface.withValues(alpha: 0.7),
+                                            child: Icon(Icons.close,
+                                                size: 14, color: cs.onInverseSurface),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                        )),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: _uploading || _saving ? null : _addPhoto,
+                      child: Container(
+                        width: 110,
+                        height: 110,
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      )),
-                  InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: _uploading || _saving ? null : _addPhoto,
-                    child: Container(
-                      width: 110,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: _uploading
-                          ? const Center(
-                              child: SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                        child: _uploading
+                            ? const Center(
+                                child: SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.add_photo_alternate_outlined,
+                                      color: cs.onSurfaceVariant),
+                                  const SizedBox(height: 4),
+                                  Text(l10n.nutritionAddPhoto,
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: cs.onSurfaceVariant)),
+                                ],
                               ),
-                            )
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.add_photo_alternate_outlined,
-                                    color: cs.onSurfaceVariant),
-                                const SizedBox(height: 4),
-                                Text(l10n.nutritionAddPhoto,
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: cs.onSurfaceVariant)),
-                              ],
-                            ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _contentCtrl,
-              decoration: InputDecoration(
-                labelText: l10n.nutritionShareHint,
-                alignLabelWithHint: true,
+              const SizedBox(height: 16),
+              TextField(
+                controller: _contentCtrl,
+                decoration: InputDecoration(
+                  labelText: l10n.nutritionShareHint,
+                  alignLabelWithHint: true,
+                ),
+                maxLines: 6,
+                maxLength: kCaptionMaxLength,
               ),
-              maxLines: 6,
-              maxLength: kCaptionMaxLength,
-            ),
-            if (_error != null) ...[
-              const SizedBox(height: 12),
-              Text(_error!, style: TextStyle(color: cs.error)),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                Text(_error!, style: TextStyle(color: cs.error)),
+              ],
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: _saving || _uploading ? null : _submit,
+                child: _saving
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(_isEditing ? l10n.commonSave : l10n.nutritionPostAction),
+              ),
             ],
-            const SizedBox(height: 20),
-            FilledButton(
-              onPressed: _saving || _uploading ? null : _submit,
-              child: _saving
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(_isEditing ? l10n.commonSave : l10n.nutritionPostAction),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -2837,6 +2837,94 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customersYourClasses => 'Your classes';
 
   @override
+  String get draftBadge => 'Draft';
+
+  @override
+  String get draftChooseSubtitle => 'Continue a draft or start from scratch.';
+
+  @override
+  String get draftChooseTitle => 'Your drafts';
+
+  @override
+  String get draftDelete => 'Delete draft';
+
+  @override
+  String get draftDeleteTitle => 'Delete this draft?';
+
+  @override
+  String get draftDeleted => 'Draft deleted';
+
+  @override
+  String get draftDiscard => 'Discard';
+
+  @override
+  String get draftDiscardChanges => 'Discard changes';
+
+  @override
+  String draftEdited(String when) {
+    return 'Edited $when';
+  }
+
+  @override
+  String get draftEditingBanner =>
+      'You\'re editing a draft. Publishing it removes the draft.';
+
+  @override
+  String get draftKeepEditing => 'Keep editing';
+
+  @override
+  String draftMediaCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos and videos',
+      one: '1 photo or video',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String draftOpenFailed(String error) {
+    return 'Couldn\'t open the draft: $error';
+  }
+
+  @override
+  String get draftOpening => 'Opening draft…';
+
+  @override
+  String get draftSave => 'Save draft';
+
+  @override
+  String get draftSaveBody =>
+      'Pick up where you left off later. Drafts are private — only you can see them.';
+
+  @override
+  String get draftSaveChanges => 'Save changes';
+
+  @override
+  String draftSaveFailed(String error) {
+    return 'Couldn\'t save the draft: $error';
+  }
+
+  @override
+  String get draftSaveTitle => 'Save as a draft?';
+
+  @override
+  String get draftSaved => 'Draft saved';
+
+  @override
+  String get draftSaving => 'Saving draft…';
+
+  @override
+  String get draftStartNew => 'Start new';
+
+  @override
+  String get draftUntitled => 'Untitled draft';
+
+  @override
+  String get draftUpdateTitle => 'Save changes to this draft?';
+
+  @override
   String get feedAddMedia => 'Add photos or videos';
 
   @override
@@ -3078,6 +3166,157 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedWriteReplyHint => 'Write a reply…';
+
+  @override
+  String get mediaAdjustBrightness => 'Brightness';
+
+  @override
+  String get mediaAdjustContrast => 'Contrast';
+
+  @override
+  String get mediaAdjustFade => 'Fade';
+
+  @override
+  String get mediaAdjustSaturation => 'Saturation';
+
+  @override
+  String get mediaAdjustTint => 'Tint';
+
+  @override
+  String get mediaAdjustVignette => 'Vignette';
+
+  @override
+  String get mediaAdjustWarmth => 'Warmth';
+
+  @override
+  String get mediaBackToTools => 'Back to tools';
+
+  @override
+  String mediaBatchNote(int count) {
+    return 'Filters and adjustments here apply to all $count items and replace their own. Videos are trimmed one by one.';
+  }
+
+  @override
+  String get mediaCantEdit => 'This file can\'t be edited.';
+
+  @override
+  String get mediaDone => 'Done';
+
+  @override
+  String get mediaEdit => 'Edit';
+
+  @override
+  String get mediaEditAll => 'Edit all';
+
+  @override
+  String mediaEditAllTitle(int count) {
+    return 'Edit all ($count)';
+  }
+
+  @override
+  String get mediaEditFailed =>
+      'Couldn\'t apply the edits. Try again, or reset them.';
+
+  @override
+  String mediaEditItem(int index) {
+    return 'Edit item $index';
+  }
+
+  @override
+  String get mediaEditTitle => 'Edit';
+
+  @override
+  String get mediaEdited => 'Edited';
+
+  @override
+  String get mediaFilterArctic => 'Arctic';
+
+  @override
+  String get mediaFilterDramatic => 'Dramatic';
+
+  @override
+  String get mediaFilterGolden => 'Golden';
+
+  @override
+  String get mediaFilterMatte => 'Matte';
+
+  @override
+  String get mediaFilterMono => 'Mono';
+
+  @override
+  String get mediaFilterNoir => 'Noir';
+
+  @override
+  String get mediaFilterNormal => 'Normal';
+
+  @override
+  String get mediaFilterPunch => 'Punch';
+
+  @override
+  String get mediaFilterRose => 'Rose';
+
+  @override
+  String get mediaFilterSepia => 'Sepia';
+
+  @override
+  String get mediaFilterStrength => 'Strength';
+
+  @override
+  String get mediaFilterVintage => 'Vintage';
+
+  @override
+  String get mediaFilterVivid => 'Vivid';
+
+  @override
+  String get mediaHoldToCompare => 'Press and hold to see the original';
+
+  @override
+  String get mediaOriginal => 'Original';
+
+  @override
+  String mediaProcessing(int index, int count) {
+    return 'Applying edits $index of $count…';
+  }
+
+  @override
+  String get mediaReset => 'Reset';
+
+  @override
+  String get mediaResetAll => 'Reset all edits';
+
+  @override
+  String get mediaTabAdjust => 'Adjust';
+
+  @override
+  String get mediaTabFilter => 'Filter';
+
+  @override
+  String get mediaTabTrim => 'Trim';
+
+  @override
+  String get mediaTrimEnd => 'Trim end';
+
+  @override
+  String get mediaTrimPickVideo => 'Pick a video to trim';
+
+  @override
+  String get mediaTrimStart => 'Trim start';
+
+  @override
+  String mediaTrimSummary(String start, String end, String length) {
+    return '$start – $end · $length';
+  }
+
+  @override
+  String get mediaTrimWindow => 'Trimmed clip, drag to move';
+
+  @override
+  String get mediaUndo => 'Undo';
+
+  @override
+  String mediaVideoNumber(int index) {
+    return 'Video $index';
+  }
 
   @override
   String get nutritionAdd => 'Add';

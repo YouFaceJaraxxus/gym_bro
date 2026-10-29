@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/l10n.dart';
+import '../../media_editor/edited_media_view.dart';
+import '../../media_editor/editable_media.dart';
+import '../../media_editor/media_editor_page.dart';
 import '../../models/chat.dart';
 import '../../services/media_upload.dart';
 import '../../widgets/social_widgets.dart';
@@ -14,8 +17,9 @@ const kMaxChatAttachments = 10;
 class ChatComposer extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
-  final List<PickedMedia> files;
-  final ValueChanged<List<PickedMedia>> onFilesChanged;
+  /// Picked files; photos and videos can be edited before sending.
+  final List<EditableMedia> files;
+  final ValueChanged<List<EditableMedia>> onFilesChanged;
   final ValueChanged<String> onChanged;
   final VoidCallback onSend;
 
@@ -40,7 +44,12 @@ class ChatComposer extends StatelessWidget {
   Future<void> _add(BuildContext context, Future<List<PickedMedia>> picking) async {
     final picked = await picking;
     if (picked.isEmpty) return;
-    onFilesChanged([...files, ...picked].take(kMaxChatAttachments).toList());
+    onFilesChanged([...files, ...picked.map(EditableMedia.new)].take(kMaxChatAttachments).toList());
+  }
+
+  Future<void> _edit(BuildContext context, EditableMedia media) async {
+    await MediaEditorPage.edit(context, media);
+    onFilesChanged([...files]);
   }
 
   @override
@@ -64,6 +73,7 @@ class ChatComposer extends StatelessWidget {
                 separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, i) => _PickedThumb(
                   media: files[i],
+                  onEdit: files[i].canEdit ? () => _edit(context, files[i]) : null,
                   onRemove: () => onFilesChanged([...files]..removeAt(i)),
                 ),
               ),
@@ -178,36 +188,65 @@ class ComposerContextBar extends StatelessWidget {
 }
 
 class _PickedThumb extends StatelessWidget {
-  final PickedMedia media;
+  final EditableMedia media;
+
+  /// Opens the editor (photos and videos).
+  final VoidCallback? onEdit;
   final VoidCallback onRemove;
 
-  const _PickedThumb({required this.media, required this.onRemove});
+  const _PickedThumb({required this.media, this.onEdit, required this.onRemove});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final Widget body = switch (media.type) {
-      AttachmentType.image => Image.file(media.file, fit: BoxFit.cover, cacheWidth: 200),
+    final picked = media.original;
+    final edit = media.edit;
+    final durationMs = picked.durationMs == null
+        ? null
+        : (edit.trimEnd?.inMilliseconds ?? picked.durationMs!) - (edit.trimStart?.inMilliseconds ?? 0);
+    final Widget content = switch (picked.type) {
+      AttachmentType.image => EditedImage(media: media, fit: BoxFit.cover, cacheWidth: 200),
       AttachmentType.video => Container(
         color: Colors.black,
         alignment: Alignment.center,
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           const Icon(Icons.videocam_rounded, color: Colors.white),
-          if (media.durationMs != null)
-            Text(formatDuration(media.durationMs!), style: const TextStyle(color: Colors.white, fontSize: 11)),
+          if (durationMs != null)
+            Text(formatDuration(durationMs), style: const TextStyle(color: Colors.white, fontSize: 11)),
         ]),
       ),
       _ => Container(
         color: cs.surfaceContainerHigh,
         padding: const EdgeInsets.all(6),
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(fileIconFor(media.mimeType, media.fileName), color: cs.onSurfaceVariant),
+          Icon(fileIconFor(picked.mimeType, picked.fileName), color: cs.onSurfaceVariant),
           const SizedBox(height: 2),
-          Text(media.fileName, maxLines: 1, overflow: TextOverflow.ellipsis, style: tt.labelSmall),
+          Text(picked.fileName, maxLines: 1, overflow: TextOverflow.ellipsis, style: tt.labelSmall),
         ]),
       ),
     };
+    final body = onEdit == null
+        ? content
+        : Semantics(
+            button: true,
+            label: context.l10n.mediaEdit,
+            child: GestureDetector(
+              onTap: onEdit,
+              child: Stack(fit: StackFit.expand, children: [
+                content,
+                Positioned(
+                  left: 4,
+                  bottom: 4,
+                  child: CircleAvatar(
+                    radius: 9,
+                    backgroundColor: Colors.black54,
+                    child: Icon(edit.isIdentity ? Icons.tune : Icons.auto_fix_high, size: 11, color: Colors.white),
+                  ),
+                ),
+              ]),
+            ),
+          );
     return SizedBox(
       width: 64,
       height: 64,

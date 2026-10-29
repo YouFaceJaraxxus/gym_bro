@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../models/draft.dart';
+import '../widgets/drafts.dart';
 import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../services/api_service.dart';
@@ -113,9 +115,10 @@ class _ExercisesPageState extends State<ExercisesPage> {
             tooltip: l10n.trainingExerciseNewTitle,
             icon: const Icon(Icons.add),
             onPressed: () async {
-              final created = await Navigator.push<Exercise>(
+              final created = await openCreateWithDrafts<Exercise>(
                 context,
-                MaterialPageRoute(builder: (_) => const ExerciseFormPage()),
+                kind: DraftKind.exercise,
+                builder: (draft) => ExerciseFormPage(draft: draft),
               );
               if (created != null) _load(reset: true);
             },

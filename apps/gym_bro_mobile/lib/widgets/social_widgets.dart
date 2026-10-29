@@ -421,6 +421,8 @@ Future<List<PickedMedia>> pickMediaFrom(MediaSource source, {bool multiple = tru
 
 /// Reads pixel size (images) or size + duration (videos) so bubbles and
 /// grids can reserve space before the file loads.
+Future<PickedMedia> readMediaDimensions(PickedMedia m) => _withDimensions(m);
+
 Future<PickedMedia> _withDimensions(PickedMedia m) async {
   try {
     if (m.mimeType.startsWith('image/')) {

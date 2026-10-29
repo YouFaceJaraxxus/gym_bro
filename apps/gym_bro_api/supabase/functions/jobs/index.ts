@@ -124,12 +124,14 @@ async function sendClassReminders(): Promise<{ classes: number; notifications: n
 
 /**
  * Deletes upload slots (and their files) that were never attached to a
- * message or post within a day — abandoned sends, closed apps.
+ * message or post within a day — abandoned sends, closed apps. Media held
+ * by a draft stays until the draft is published or deleted.
  */
 async function sweepAbandonedUploads(): Promise<number> {
   const stale = await db
     .deleteFrom("media_upload")
     .where("claimed_at", "is", null)
+    .where("draft_id", "is", null)
     .where(sql<boolean>`created_at < NOW() - INTERVAL '24 hours'`)
     .returning(["bucket", "storage_path"])
     .execute();

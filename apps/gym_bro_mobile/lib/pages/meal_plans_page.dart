@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/l10n.dart';
+import '../models/draft.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/drafts.dart';
 import '../widgets/meal_plan_assign.dart';
 import 'food_item_detail_page.dart';
 import 'food_item_form_page.dart';
@@ -81,28 +83,31 @@ class _MealPlansPageState extends State<MealPlansPage>
             onSelected: (v) async {
               switch (v) {
                 case 'food':
-                  await Navigator.push(
+                  await openCreateWithDrafts<FoodItem>(
                     context,
-                    MaterialPageRoute(builder: (_) => const FoodItemFormPage()),
+                    kind: DraftKind.foodItem,
+                    builder: (draft) => FoodItemFormPage(draft: draft),
                   );
                   if (mounted) setState(() => _foodV++);
                 case 'recipe':
-                  await Navigator.push(
+                  await openCreateWithDrafts<Recipe>(
                     context,
-                    MaterialPageRoute(builder: (_) => const RecipeFormPage()),
+                    kind: DraftKind.recipe,
+                    builder: (draft) => RecipeFormPage(draft: draft),
                   );
                   if (mounted) setState(() => _recipeV++);
                 case 'daily':
-                  await Navigator.push(
+                  await openCreateWithDrafts<DailyMealPlan>(
                     context,
-                    MaterialPageRoute(
-                        builder: (_) => const DailyMealPlanFormPage()),
+                    kind: DraftKind.dailyMealPlan,
+                    builder: (draft) => DailyMealPlanFormPage(draft: draft),
                   );
                   if (mounted) setState(() => _dailyV++);
                 case 'plan':
-                  final created = await Navigator.push<MealPlan>(
+                  final created = await openCreateWithDrafts<MealPlan>(
                     context,
-                    MaterialPageRoute(builder: (_) => const MealPlanFormPage()),
+                    kind: DraftKind.mealPlan,
+                    builder: (draft) => MealPlanFormPage(draft: draft),
                   );
                   if (created != null && mounted) setState(() => _planV++);
               }

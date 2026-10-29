@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
+import '../models/draft.dart';
 import '../models/exercise.dart';
 import '../models/training.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/drafts.dart';
 import '../widgets/exercise_picker_sheet.dart';
 import '../widgets/image_upload_field.dart';
 
@@ -11,13 +13,16 @@ import '../widgets/image_upload_field.dart';
 class TrainingFormPage extends StatefulWidget {
   final Training? training;
 
-  const TrainingFormPage({super.key, this.training});
+  /// A saved draft to continue (new trainings only).
+  final Draft? draft;
+
+  const TrainingFormPage({super.key, this.training, this.draft});
 
   @override
   State<TrainingFormPage> createState() => _TrainingFormPageState();
 }
 
-class _TrainingFormPageState extends State<TrainingFormPage> {
+class _TrainingFormPageState extends State<TrainingFormPage> with DraftableForm {
   final _formKey = GlobalKey<FormState>();
   final _api = ApiService();
 
@@ -34,9 +39,47 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
 
   bool get _isEditing => widget.training != null;
 
+  // ── Drafts ──────────────────────────────────────────────────────────────────
+
+  @override
+  DraftKind get draftKind => DraftKind.training;
+  @override
+  Draft? get initialDraft => widget.draft;
+  @override
+  bool get draftsEnabled => !_isEditing;
+  @override
+  bool get hasDraftContent =>
+      [_name, _description, _notes].any((c) => c.text.trim().isNotEmpty) ||
+      _thumbnailUrl != null ||
+      _sets.isNotEmpty;
+  @override
+  String? draftTitle() => _name.text;
+  @override
+  String? draftThumbnailUrl() => _thumbnailUrl;
+  @override
+  Map<String, dynamic> draftData() => {
+        'name': _name.text,
+        'description': _description.text,
+        'notes': _notes.text,
+        'is_public': _isPublic,
+        'thumbnail_url': _thumbnailUrl,
+        'sets': _sets.map((s) => s.toDraftJson()).toList(),
+      };
+
   @override
   void initState() {
     super.initState();
+    final draft = widget.draft?.data;
+    if (draft != null && !_isEditing) {
+      _name = TextEditingController(text: _draftStr(draft['name']) ?? '');
+      _description = TextEditingController(text: _draftStr(draft['description']) ?? '');
+      _notes = TextEditingController(text: _draftStr(draft['notes']) ?? '');
+      _isPublic = draft['is_public'] == true;
+      final thumb = _draftStr(draft['thumbnail_url']);
+      _thumbnailUrl = thumb?.isNotEmpty == true ? thumb : null;
+      _sets.addAll(_draftMaps(draft['sets']).map(_SetDraft.fromDraftJson));
+      return;
+    }
     final t = widget.training;
     _name = TextEditingController(text: t?.name ?? '');
     _description = TextEditingController(text: t?.description ?? '');
@@ -80,6 +123,7 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
         result = await _api.updateTraining(token, widget.training!.id, data);
       } else {
         result = await _api.createTraining(token, data);
+        await draftPublished();
       }
       if (mounted) Navigator.pop(context, result);
     } catch (e) {
@@ -106,91 +150,141 @@ class _TrainingFormPageState extends State<TrainingFormPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? l10n.trainingPlanEditTitle : l10n.trainingWorkoutsNewTraining),
-        actions: [
-          if (_saving)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-            )
-          else
-            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            ImagePickerField(
-              imageUrl: _thumbnailUrl,
-              folder: 'trainings',
-              label: l10n.trainingPlanAddCoverPhoto,
-              onUploaded: (url) => setState(() => _thumbnailUrl = url),
-            ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _name,
-              decoration: InputDecoration(labelText: l10n.trainingPlanNameLabel),
-              validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
-            ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _description,
-              decoration: InputDecoration(labelText: l10n.trainingPlanDescriptionLabel),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _notes,
-              decoration: InputDecoration(labelText: l10n.trainingPlanNotes),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              title: Text(l10n.trainingPlanPublic),
-              subtitle: Text(l10n.trainingPlanPublicSubtitle),
-              value: _isPublic,
-              onChanged: (v) => setState(() => _isPublic = v),
-              contentPadding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 20),
-            Text(l10n.trainingPlanSets,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            ReorderableListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _sets.length,
-              onReorder: (oldIndex, newIndex) {
-                setState(() {
-                  if (newIndex > oldIndex) newIndex--;
-                  final item = _sets.removeAt(oldIndex);
-                  _sets.insert(newIndex, item);
-                });
-              },
-              itemBuilder: (context, i) {
-                return _SetDraftCard(
-                  key: ValueKey(_sets[i].id),
-                  draft: _sets[i],
-                  index: i,
-                  onChanged: () => setState(() {}),
-                  onRemove: () => _removeSet(i),
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: _addSet,
-              icon: const Icon(Icons.add),
-              label: Text(l10n.trainingPlanAddSet),
-            ),
-            const SizedBox(height: 40),
+    final banner = draftBanner(context);
+    return draftPopScope(
+      busy: _saving,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_isEditing ? l10n.trainingPlanEditTitle : l10n.trainingWorkoutsNewTraining),
+          actions: [
+            if (_saving)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+              )
+            else
+              TextButton(onPressed: _save, child: Text(l10n.commonSave)),
           ],
         ),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (banner != null) ...[banner, const SizedBox(height: 16)],
+              ImagePickerField(
+                imageUrl: _thumbnailUrl,
+                folder: 'trainings',
+                label: l10n.trainingPlanAddCoverPhoto,
+                onUploaded: (url) => setState(() => _thumbnailUrl = url),
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _name,
+                decoration: InputDecoration(labelText: l10n.trainingPlanNameLabel),
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _description,
+                decoration: InputDecoration(labelText: l10n.trainingPlanDescriptionLabel),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _notes,
+                decoration: InputDecoration(labelText: l10n.trainingPlanNotes),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                title: Text(l10n.trainingPlanPublic),
+                subtitle: Text(l10n.trainingPlanPublicSubtitle),
+                value: _isPublic,
+                onChanged: (v) => setState(() => _isPublic = v),
+                contentPadding: EdgeInsets.zero,
+              ),
+              const SizedBox(height: 20),
+              Text(l10n.trainingPlanSets,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              ReorderableListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _sets.length,
+                onReorder: (oldIndex, newIndex) {
+                  setState(() {
+                    if (newIndex > oldIndex) newIndex--;
+                    final item = _sets.removeAt(oldIndex);
+                    _sets.insert(newIndex, item);
+                  });
+                },
+                itemBuilder: (context, i) {
+                  return _SetDraftCard(
+                    key: ValueKey(_sets[i].id),
+                    draft: _sets[i],
+                    index: i,
+                    onChanged: () => setState(() {}),
+                    onRemove: () => _removeSet(i),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: _addSet,
+                icon: const Icon(Icons.add),
+                label: Text(l10n.trainingPlanAddSet),
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+}
+
+// ── Saved-draft JSON (drafts may come from an older app version) ─────────────
+
+String? _draftStr(Object? v) => v is String ? v : null;
+
+int? _draftInt(Object? v) => v is num ? v.toInt() : int.tryParse('${v ?? ''}');
+
+double? _draftDouble(Object? v) => v is num ? v.toDouble() : double.tryParse('${v ?? ''}');
+
+List<Map<String, dynamic>> _draftMaps(Object? v) => [
+      if (v is List)
+        for (final m in v)
+          if (m is Map) Map<String, dynamic>.from(m),
+    ];
+
+/// The picked exercise as saved on a draft ([Exercise.toJson] plus dates);
+/// null when there's no usable id.
+Exercise? _exerciseFromDraft(Object? raw) {
+  if (raw is! Map) return null;
+  final m = Map<String, dynamic>.from(raw);
+  final id = _draftStr(m['id']);
+  if (id == null || id.isEmpty) return null;
+  final name = _draftStr(m['name']) ?? '';
+  try {
+    final epoch = DateTime.fromMillisecondsSinceEpoch(0).toIso8601String();
+    return Exercise.fromJson({
+      ...m,
+      'name': name,
+      'created_at': _draftStr(m['created_at']) ?? epoch,
+      'updated_at': _draftStr(m['updated_at']) ?? epoch,
+    });
+  } catch (_) {
+    // Odd optional fields: the id and name are all this form needs.
+    final epoch = DateTime.fromMillisecondsSinceEpoch(0);
+    return Exercise(
+      id: id,
+      name: name,
+      primaryMuscles: const [],
+      secondaryMuscles: const [],
+      isPublic: true,
+      createdAt: epoch,
+      updatedAt: epoch,
     );
   }
 }
@@ -219,6 +313,14 @@ class _DropDraft {
         weightKg: d.weightKg,
         side: d.side,
         note: d.note,
+      );
+
+  factory _DropDraft.fromDraftJson(Map<String, dynamic> m) => _DropDraft(
+        repType: RepType.fromApiValue(_draftStr(m['rep_type']) ?? ''),
+        repCount: m.containsKey('rep_count') ? _draftInt(m['rep_count']) : 10,
+        weightKg: _draftDouble(m['weight_kg']),
+        side: BodySide.fromApiValue(_draftStr(m['side']) ?? ''),
+        note: _draftStr(m['note']),
       );
 
   Map<String, dynamic> toJson() => {
@@ -254,6 +356,17 @@ class _ExerciseDraft {
         drops: e.drops.map(_DropDraft.fromModel).toList(),
       );
 
+  factory _ExerciseDraft.fromDraftJson(Map<String, dynamic> m) {
+    final drops = _draftMaps(m['drops']).map(_DropDraft.fromDraftJson).toList();
+    return _ExerciseDraft(
+      exercise: _exerciseFromDraft(m['exercise']),
+      isAlternating: m['is_alternating'] == true,
+      restBetweenDropsSeconds: _draftInt(m['rest_between_drops_seconds']),
+      note: _draftStr(m['note']),
+      drops: drops.isEmpty ? null : drops,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'exercise_id': exercise?.id,
         'is_alternating': isAlternating,
@@ -261,6 +374,25 @@ class _ExerciseDraft {
         'note': note,
         'drops': drops.map((d) => d.toJson()).toList(),
       };
+
+  /// Like [toJson], but keeps rows with no exercise picked yet and the
+  /// exercise itself, so the form can be restored without fetching it.
+  Map<String, dynamic> toDraftJson() {
+    final ex = exercise;
+    return {
+      'exercise': ex == null
+          ? null
+          : {
+              ...ex.toJson(),
+              'created_at': ex.createdAt.toIso8601String(),
+              'updated_at': ex.updatedAt.toIso8601String(),
+            },
+      'is_alternating': isAlternating,
+      'rest_between_drops_seconds': restBetweenDropsSeconds,
+      'note': note,
+      'drops': drops.map((d) => d.toJson()).toList(),
+    };
+  }
 }
 
 class _SetDraft {
@@ -284,6 +416,16 @@ class _SetDraft {
         exercises: s.exercises.map(_ExerciseDraft.fromModel).toList(),
       );
 
+  factory _SetDraft.fromDraftJson(Map<String, dynamic> m) {
+    final exercises = _draftMaps(m['exercises']).map(_ExerciseDraft.fromDraftJson).toList();
+    return _SetDraft(
+      type: WorkoutSetType.fromApiValue(_draftStr(m['type']) ?? ''),
+      restSeconds: _draftInt(m['rest_seconds']),
+      note: _draftStr(m['note']),
+      exercises: exercises.isEmpty ? null : exercises,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'type': type.apiValue,
         'rest_seconds': restSeconds,
@@ -292,6 +434,13 @@ class _SetDraft {
             .where((e) => e.exercise != null)
             .map((e) => e.toJson())
             .toList(),
+      };
+
+  Map<String, dynamic> toDraftJson() => {
+        'type': type.apiValue,
+        'rest_seconds': restSeconds,
+        'note': note,
+        'exercises': exercises.map((e) => e.toDraftJson()).toList(),
       };
 }
 

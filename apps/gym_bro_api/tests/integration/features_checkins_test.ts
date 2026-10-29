@@ -21,7 +21,7 @@ Deno.test({
       signin("priya.nair@example.com"), // Ironclad employee (and trainer)
       signin("elena.vasquez@example.com"), // Ironclad trainer only: not front desk
       signin("victor.huang@example.com"), // Ironclad member, active Basic membership
-      signin("grace.okafor@example.com"), // Ironclad member, expired membership
+      signin("natalia.petrova@example.com"), // Ironclad member, membership ended 19 days before seeding
       signin("jordan.park@example.com"), // Coastal Barbell Club employee
     ]);
     const gyms = (await call("GET", "/businesses", owner.token)).data as any[];

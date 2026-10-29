@@ -1094,6 +1094,34 @@
       }
     }
   },
+  "@draftEdited": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@draftMediaCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@draftOpenFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@draftSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "@feedMediaIndex": {
     "placeholders": {
       "index": {
@@ -1159,6 +1187,57 @@
         "type": "int"
       },
       "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@mediaBatchNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@mediaEditAllTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@mediaEditItem": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "@mediaProcessing": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@mediaTrimSummary": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      },
+      "length": {
+        "type": "String"
+      }
+    }
+  },
+  "@mediaVideoNumber": {
+    "placeholders": {
+      "index": {
         "type": "int"
       }
     }
@@ -3783,6 +3862,30 @@
   "customersStatusPending": "Invite pending",
   "customersViewProfile": "View profile",
   "customersYourClasses": "Your classes",
+  "draftBadge": "Draft",
+  "draftChooseSubtitle": "Continue a draft or start from scratch.",
+  "draftChooseTitle": "Your drafts",
+  "draftDelete": "Delete draft",
+  "draftDeleteTitle": "Delete this draft?",
+  "draftDeleted": "Draft deleted",
+  "draftDiscard": "Discard",
+  "draftDiscardChanges": "Discard changes",
+  "draftEdited": "Edited {when}",
+  "draftEditingBanner": "You're editing a draft. Publishing it removes the draft.",
+  "draftKeepEditing": "Keep editing",
+  "draftMediaCount": "{count, plural, =1{1 photo or video} other{{count} photos and videos}}",
+  "draftOpenFailed": "Couldn't open the draft: {error}",
+  "draftOpening": "Opening draft…",
+  "draftSave": "Save draft",
+  "draftSaveBody": "Pick up where you left off later. Drafts are private — only you can see them.",
+  "draftSaveChanges": "Save changes",
+  "draftSaveFailed": "Couldn't save the draft: {error}",
+  "draftSaveTitle": "Save as a draft?",
+  "draftSaved": "Draft saved",
+  "draftSaving": "Saving draft…",
+  "draftStartNew": "Start new",
+  "draftUntitled": "Untitled draft",
+  "draftUpdateTitle": "Save changes to this draft?",
   "feedAddMedia": "Add photos or videos",
   "feedAddMore": "Add",
   "feedAllComments": "Back to all comments",
@@ -3853,6 +3956,52 @@
   "feedVisibilityPublic": "Public",
   "feedVisibilityPublicHint": "Anyone can see this post",
   "feedWriteReplyHint": "Write a reply…",
+  "mediaAdjustBrightness": "Brightness",
+  "mediaAdjustContrast": "Contrast",
+  "mediaAdjustFade": "Fade",
+  "mediaAdjustSaturation": "Saturation",
+  "mediaAdjustTint": "Tint",
+  "mediaAdjustVignette": "Vignette",
+  "mediaAdjustWarmth": "Warmth",
+  "mediaBackToTools": "Back to tools",
+  "mediaBatchNote": "Filters and adjustments here apply to all {count} items and replace their own. Videos are trimmed one by one.",
+  "mediaCantEdit": "This file can't be edited.",
+  "mediaDone": "Done",
+  "mediaEdit": "Edit",
+  "mediaEditAll": "Edit all",
+  "mediaEditAllTitle": "Edit all ({count})",
+  "mediaEditFailed": "Couldn't apply the edits. Try again, or reset them.",
+  "mediaEditItem": "Edit item {index}",
+  "mediaEditTitle": "Edit",
+  "mediaEdited": "Edited",
+  "mediaFilterArctic": "Arctic",
+  "mediaFilterDramatic": "Dramatic",
+  "mediaFilterGolden": "Golden",
+  "mediaFilterMatte": "Matte",
+  "mediaFilterMono": "Mono",
+  "mediaFilterNoir": "Noir",
+  "mediaFilterNormal": "Normal",
+  "mediaFilterPunch": "Punch",
+  "mediaFilterRose": "Rose",
+  "mediaFilterSepia": "Sepia",
+  "mediaFilterStrength": "Strength",
+  "mediaFilterVintage": "Vintage",
+  "mediaFilterVivid": "Vivid",
+  "mediaHoldToCompare": "Press and hold to see the original",
+  "mediaOriginal": "Original",
+  "mediaProcessing": "Applying edits {index} of {count}…",
+  "mediaReset": "Reset",
+  "mediaResetAll": "Reset all edits",
+  "mediaTabAdjust": "Adjust",
+  "mediaTabFilter": "Filter",
+  "mediaTabTrim": "Trim",
+  "mediaTrimEnd": "Trim end",
+  "mediaTrimPickVideo": "Pick a video to trim",
+  "mediaTrimStart": "Trim start",
+  "mediaTrimSummary": "{start} – {end} · {length}",
+  "mediaTrimWindow": "Trimmed clip, drag to move",
+  "mediaUndo": "Undo",
+  "mediaVideoNumber": "Video {index}",
   "nutritionAdd": "Add",
   "nutritionAddFoodItem": "Add food item",
   "nutritionAddFoodTitle": "Add food",

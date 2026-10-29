@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../config.dart';
 import '../l10n/l10n.dart';
+import '../models/draft.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../theme.dart';
+import '../widgets/drafts.dart';
 import '../widgets/image_upload_field.dart';
 import 'nutrition/nutrition_widgets.dart';
 
 class RecipeFormPage extends StatefulWidget {
   final Recipe? recipe;
 
-  const RecipeFormPage({super.key, this.recipe});
+  /// A saved draft to continue (new recipes only).
+  final Draft? draft;
+
+  const RecipeFormPage({super.key, this.recipe, this.draft});
 
   @override
   State<RecipeFormPage> createState() => _RecipeFormPageState();
 }
 
-class _RecipeFormPageState extends State<RecipeFormPage> {
+class _RecipeFormPageState extends State<RecipeFormPage> with DraftableForm {
   final _formKey = GlobalKey<FormState>();
   final _api = ApiService();
 
@@ -44,9 +50,116 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
 
   bool get _isEditing => widget.recipe != null;
 
+  // ── Drafts ──────────────────────────────────────────────────────────────────
+
+  @override
+  DraftKind get draftKind => DraftKind.recipe;
+  @override
+  Draft? get initialDraft => widget.draft;
+  @override
+  bool get draftsEnabled => !_isEditing;
+  @override
+  bool get hasDraftContent {
+    bool filled(TextEditingController c) => c.text.trim().isNotEmpty;
+    return [_name, _description, _prepTime, _cookTime].any(filled) ||
+        (filled(_servings) && _servings.text.trim() != '1') ||
+        _images.any((i) => filled(i.urlController)) ||
+        _ingredients.isNotEmpty ||
+        _steps.any((s) => filled(s.instructionController) || filled(s.imageUrlController)) ||
+        _videos.any((v) => filled(v.urlController) || filled(v.titleController));
+  }
+  @override
+  String? draftTitle() => _name.text;
+  @override
+  String? draftThumbnailUrl() {
+    final urls = [
+      for (final i in _images)
+        if (i.urlController.text.trim().isNotEmpty) (url: i.urlController.text.trim(), thumb: i.isThumbnail),
+    ];
+    if (urls.isEmpty) return null;
+    return AppConfig.resolveUrl(urls.firstWhere((u) => u.thumb, orElse: () => urls.first).url);
+  }
+  @override
+  Map<String, dynamic> draftData() => {
+        'name': _name.text,
+        'description': _description.text,
+        'servings': _servings.text,
+        'prep_time_minutes': _prepTime.text,
+        'cook_time_minutes': _cookTime.text,
+        'is_public': _isPublic,
+        'images': [
+          for (final i in _images) {'url': i.urlController.text, 'is_thumbnail': i.isThumbnail},
+        ],
+        'ingredients': [
+          for (final i in _ingredients)
+            {
+              'food_item_id': i.foodItemId,
+              'food_item_name': i.foodItemName,
+              'serving_unit': i.servingUnit.apiValue,
+              // Kept so the per-serving macros work without refetching.
+              'food_item': i.foodItem == null ? null : _foodItemToDraft(i.foodItem!),
+              'quantity': i.quantityController.text,
+              'note': i.noteController.text,
+            },
+        ],
+        'steps': [
+          for (final s in _steps) {'instruction': s.instructionController.text, 'image_url': s.imageUrlController.text},
+        ],
+        'videos': [
+          for (final v in _videos) {'url': v.urlController.text, 'title': v.titleController.text},
+        ],
+      };
+
+  void _restoreDraft(Map<String, dynamic> d) {
+    _name = TextEditingController(text: _draftText(d['name']));
+    _description = TextEditingController(text: _draftText(d['description']));
+    _servings = TextEditingController(text: _draftText(d['servings'], '1'));
+    _prepTime = TextEditingController(text: _draftText(d['prep_time_minutes']));
+    _cookTime = TextEditingController(text: _draftText(d['cook_time_minutes']));
+    _isPublic = d['is_public'] is bool ? d['is_public'] as bool : false;
+    for (final img in _draftMaps(d['images'])) {
+      _images.add(_ImageDraft(
+        urlController: TextEditingController(text: _draftText(img['url'])),
+        isThumbnail: img['is_thumbnail'] == true,
+      ));
+    }
+    for (final ing in _draftMaps(d['ingredients'])) {
+      final id = ing['food_item_id'];
+      if (id is! String || id.isEmpty) continue;
+      final food = _foodItemFromDraft(ing['food_item']);
+      _ingredients.add(_IngredientDraft(
+        foodItemId: id,
+        foodItemName: ing['food_item_name'] is String ? ing['food_item_name'] as String : (food?.name ?? id),
+        servingUnit: ing['serving_unit'] is String
+            ? ServingUnit.fromApiValue(ing['serving_unit'] as String)
+            : (food?.servingUnit ?? ServingUnit.g),
+        foodItem: food,
+        quantityController: TextEditingController(text: _draftText(ing['quantity'])),
+        noteController: TextEditingController(text: _draftText(ing['note'])),
+      ));
+    }
+    for (final step in _draftMaps(d['steps'])) {
+      _steps.add(_StepDraft(
+        instructionController: TextEditingController(text: _draftText(step['instruction'])),
+        imageUrlController: TextEditingController(text: _draftText(step['image_url'])),
+      ));
+    }
+    for (final v in _draftMaps(d['videos'])) {
+      _videos.add(_VideoDraft(
+        urlController: TextEditingController(text: _draftText(v['url'])),
+        titleController: TextEditingController(text: _draftText(v['title'])),
+      ));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    final draft = widget.draft?.data;
+    if (draft != null && !_isEditing) {
+      _restoreDraft(draft);
+      return;
+    }
     final r = widget.recipe;
     _name = TextEditingController(text: r?.name ?? '');
     _description = TextEditingController(text: r?.description ?? '');
@@ -232,6 +345,7 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
         result = await _api.updateRecipe(token, widget.recipe!.id, data);
       } else {
         result = await _api.createRecipe(token, data);
+        await draftPublished();
       }
       if (mounted) Navigator.pop(context, result);
     } catch (e) {
@@ -256,307 +370,338 @@ class _RecipeFormPageState extends State<RecipeFormPage> {
     final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
     final macroColors = MacroColors.of(context);
+    final banner = draftBanner(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? l10n.nutritionEditRecipeTitle : l10n.nutritionNewRecipeTitle),
-        actions: [
-          if (_saving)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-            )
-          else
-            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // ── Basic info ───────────────────────────────────────────────────
-            _SectionHeader(l10n.nutritionBasicInfo),
-            const SizedBox(height: 10),
-            TextFormField(
-              controller: _name,
-              decoration: InputDecoration(labelText: l10n.nutritionRecipeNameRequiredLabel),
-              validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
-            ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _description,
-              decoration: InputDecoration(labelText: l10n.nutritionDescription),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _servings,
-              decoration: InputDecoration(labelText: l10n.nutritionServingsRequiredLabel),
-              keyboardType: TextInputType.number,
-              onChanged: (_) => setState(() {}),
-              validator: (v) {
-                final n = int.tryParse(v?.trim() ?? '');
-                if (n == null || n < 1) return l10n.nutritionEnterValidNumber;
-                return null;
-              },
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _prepTime,
-                    decoration: InputDecoration(labelText: l10n.nutritionPrepMinLabel),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _cookTime,
-                    decoration: InputDecoration(labelText: l10n.nutritionCookMinLabel),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              title: Text(l10n.nutritionPublic),
-              subtitle: Text(l10n.nutritionVisibleToAllUsers),
-              value: _isPublic,
-              onChanged: (v) => setState(() => _isPublic = v),
-              contentPadding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 24),
-
-            // ── Images ───────────────────────────────────────────────────────
-            _SectionHeader(l10n.nutritionImages),
-            const SizedBox(height: 10),
-            ..._images.asMap().entries.map((e) {
-              final i = e.key;
-              final img = e.value;
-              return Card(
-                key: ValueKey('img_$i'),
-                margin: const EdgeInsets.only(bottom: 10),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: img.urlController,
-                          decoration: InputDecoration(labelText: l10n.nutritionImageUrl, border: InputBorder.none),
-                          keyboardType: TextInputType.url,
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: l10n.nutritionUploadPhoto,
-                        icon: const Icon(Icons.upload_outlined),
-                        onPressed: () => pickAndUploadImage(
-                          context: context,
-                          bucket: 'media',
-                          folder: 'recipes',
-                          onUploaded: (url) => setState(() => img.urlController.text = url),
-                          onUploadingChanged: (_) {},
-                        ),
-                      ),
-                      // Thumbnail selector
-                      IconButton(
-                        tooltip: img.isThumbnail ? l10n.nutritionThumbnail : l10n.nutritionSetAsThumbnail,
-                        isSelected: img.isThumbnail,
-                        icon: Icon(
-                          img.isThumbnail ? Icons.star : Icons.star_border,
-                          color: img.isThumbnail ? context.appColors.warning : cs.onSurfaceVariant,
-                        ),
-                        onPressed: () => _setThumbnail(i),
-                      ),
-                      IconButton(
-                        tooltip: l10n.nutritionRemoveImage,
-                        icon: Icon(Icons.close, color: cs.error),
-                        onPressed: () => setState(() {
-                          _images[i].dispose();
-                          _images.removeAt(i);
-                        }),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-            TextButton.icon(
-              onPressed: () => setState(() => _images.add(_ImageDraft(
-                    urlController: TextEditingController(),
-                    isThumbnail: _images.isEmpty,
-                  ))),
-              icon: const Icon(Icons.add, size: 18),
-              label: Text(l10n.nutritionAddImage),
-            ),
-            const SizedBox(height: 24),
-
-            // ── Ingredients ─────────────────────────────────────────────────
-            _SectionHeader(l10n.nutritionIngredients),
-            const SizedBox(height: 10),
-            if (_ingredients.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  l10n.nutritionNoIngredientsYet,
-                  style: TextStyle(color: cs.onSurfaceVariant, fontStyle: FontStyle.italic),
-                ),
+    return draftPopScope(
+      busy: _saving,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_isEditing ? l10n.nutritionEditRecipeTitle : l10n.nutritionNewRecipeTitle),
+          actions: [
+            if (_saving)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
               )
             else
-              ReorderableListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _ingredients.length,
-                onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    if (newIndex > oldIndex) newIndex--;
-                    final item = _ingredients.removeAt(oldIndex);
-                    _ingredients.insert(newIndex, item);
-                  });
-                },
-                itemBuilder: (context, i) {
-                  final ing = _ingredients[i];
-                  return _IngredientTile(
-                    key: ValueKey('ing_$i'),
-                    draft: ing,
-                    index: i,
-                    onChanged: () => setState(() {}),
-                    onRemove: () => setState(() {
-                      _ingredients[i].dispose();
-                      _ingredients.removeAt(i);
-                    }),
-                  );
-                },
-              ),
-            TextButton.icon(
-              onPressed: _openFoodPicker,
-              icon: const Icon(Icons.add, size: 18),
-              label: Text(l10n.nutritionAddIngredient),
-            ),
-            const SizedBox(height: 24),
-
-            // ── Steps ────────────────────────────────────────────────────────
-            _SectionHeader(l10n.nutritionSteps),
-            const SizedBox(height: 10),
-            if (_steps.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  l10n.nutritionNoStepsYet,
-                  style: TextStyle(color: cs.onSurfaceVariant, fontStyle: FontStyle.italic),
-                ),
-              )
-            else
-              ReorderableListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _steps.length,
-                onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    if (newIndex > oldIndex) newIndex--;
-                    final item = _steps.removeAt(oldIndex);
-                    _steps.insert(newIndex, item);
-                  });
-                },
-                itemBuilder: (context, i) {
-                  final step = _steps[i];
-                  return _StepTile(
-                    key: ValueKey('step_$i'),
-                    draft: step,
-                    stepNumber: i + 1,
-                    onRemove: () => setState(() {
-                      _steps[i].dispose();
-                      _steps.removeAt(i);
-                    }),
-                  );
-                },
-              ),
-            TextButton.icon(
-              onPressed: () => setState(() => _steps.add(_StepDraft(
-                    instructionController: TextEditingController(),
-                    imageUrlController: TextEditingController(),
-                  ))),
-              icon: const Icon(Icons.add, size: 18),
-              label: Text(l10n.nutritionAddStep),
-            ),
-            const SizedBox(height: 24),
-
-            // ── Videos ───────────────────────────────────────────────────────
-            _SectionHeader(l10n.nutritionVideos),
-            const SizedBox(height: 10),
-            ..._videos.asMap().entries.map((e) {
-              final i = e.key;
-              final v = e.value;
-              return Card(
-                key: ValueKey('vid_$i'),
-                margin: const EdgeInsets.only(bottom: 10),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          children: [
-                            TextFormField(
-                              controller: v.urlController,
-                              decoration: InputDecoration(labelText: l10n.nutritionVideoUrl, border: InputBorder.none),
-                              keyboardType: TextInputType.url,
-                            ),
-                            TextFormField(
-                              controller: v.titleController,
-                              decoration: InputDecoration(labelText: l10n.nutritionTitleOptional, border: InputBorder.none),
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: l10n.nutritionRemoveVideo,
-                        icon: Icon(Icons.close, color: cs.error),
-                        onPressed: () => setState(() {
-                          _videos[i].dispose();
-                          _videos.removeAt(i);
-                        }),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-            TextButton.icon(
-              onPressed: () => setState(() => _videos.add(_VideoDraft(
-                    urlController: TextEditingController(),
-                    titleController: TextEditingController(),
-                  ))),
-              icon: const Icon(Icons.add, size: 18),
-              label: Text(l10n.nutritionAddVideo),
-            ),
-            const SizedBox(height: 24),
-
-            // ── Macro summary ────────────────────────────────────────────────
-            _SectionHeader(l10n.nutritionComputedPerServing),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(child: _MacroReadout(label: l10n.nutritionKcal, value: macros.kcal, color: macroColors.kcal)),
-                const SizedBox(width: 6),
-                Expanded(child: _MacroReadout(label: l10n.nutritionProtein, value: macros.protein, color: macroColors.protein, unit: 'g')),
-                const SizedBox(width: 6),
-                Expanded(child: _MacroReadout(label: l10n.nutritionCarbsShort, value: macros.carb, color: macroColors.carb, unit: 'g')),
-                const SizedBox(width: 6),
-                Expanded(child: _MacroReadout(label: l10n.nutritionFat, value: macros.fat, color: macroColors.fat, unit: 'g')),
-              ],
-            ),
-            const SizedBox(height: 40),
+              TextButton(onPressed: _save, child: Text(l10n.commonSave)),
           ],
+        ),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (banner != null) ...[banner, const SizedBox(height: 16)],
+              // ── Basic info ───────────────────────────────────────────────────
+              _SectionHeader(l10n.nutritionBasicInfo),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _name,
+                decoration: InputDecoration(labelText: l10n.nutritionRecipeNameRequiredLabel),
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _description,
+                decoration: InputDecoration(labelText: l10n.nutritionDescription),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _servings,
+                decoration: InputDecoration(labelText: l10n.nutritionServingsRequiredLabel),
+                keyboardType: TextInputType.number,
+                onChanged: (_) => setState(() {}),
+                validator: (v) {
+                  final n = int.tryParse(v?.trim() ?? '');
+                  if (n == null || n < 1) return l10n.nutritionEnterValidNumber;
+                  return null;
+                },
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _prepTime,
+                      decoration: InputDecoration(labelText: l10n.nutritionPrepMinLabel),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _cookTime,
+                      decoration: InputDecoration(labelText: l10n.nutritionCookMinLabel),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                title: Text(l10n.nutritionPublic),
+                subtitle: Text(l10n.nutritionVisibleToAllUsers),
+                value: _isPublic,
+                onChanged: (v) => setState(() => _isPublic = v),
+                contentPadding: EdgeInsets.zero,
+              ),
+              const SizedBox(height: 24),
+
+              // ── Images ───────────────────────────────────────────────────────
+              _SectionHeader(l10n.nutritionImages),
+              const SizedBox(height: 10),
+              ..._images.asMap().entries.map((e) {
+                final i = e.key;
+                final img = e.value;
+                return Card(
+                  key: ValueKey('img_$i'),
+                  margin: const EdgeInsets.only(bottom: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: img.urlController,
+                            decoration: InputDecoration(labelText: l10n.nutritionImageUrl, border: InputBorder.none),
+                            keyboardType: TextInputType.url,
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: l10n.nutritionUploadPhoto,
+                          icon: const Icon(Icons.upload_outlined),
+                          onPressed: () => pickAndUploadImage(
+                            context: context,
+                            bucket: 'media',
+                            folder: 'recipes',
+                            onUploaded: (url) => setState(() => img.urlController.text = url),
+                            onUploadingChanged: (_) {},
+                          ),
+                        ),
+                        // Thumbnail selector
+                        IconButton(
+                          tooltip: img.isThumbnail ? l10n.nutritionThumbnail : l10n.nutritionSetAsThumbnail,
+                          isSelected: img.isThumbnail,
+                          icon: Icon(
+                            img.isThumbnail ? Icons.star : Icons.star_border,
+                            color: img.isThumbnail ? context.appColors.warning : cs.onSurfaceVariant,
+                          ),
+                          onPressed: () => _setThumbnail(i),
+                        ),
+                        IconButton(
+                          tooltip: l10n.nutritionRemoveImage,
+                          icon: Icon(Icons.close, color: cs.error),
+                          onPressed: () => setState(() {
+                            _images[i].dispose();
+                            _images.removeAt(i);
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              TextButton.icon(
+                onPressed: () => setState(() => _images.add(_ImageDraft(
+                      urlController: TextEditingController(),
+                      isThumbnail: _images.isEmpty,
+                    ))),
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(l10n.nutritionAddImage),
+              ),
+              const SizedBox(height: 24),
+
+              // ── Ingredients ─────────────────────────────────────────────────
+              _SectionHeader(l10n.nutritionIngredients),
+              const SizedBox(height: 10),
+              if (_ingredients.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    l10n.nutritionNoIngredientsYet,
+                    style: TextStyle(color: cs.onSurfaceVariant, fontStyle: FontStyle.italic),
+                  ),
+                )
+              else
+                ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _ingredients.length,
+                  onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      if (newIndex > oldIndex) newIndex--;
+                      final item = _ingredients.removeAt(oldIndex);
+                      _ingredients.insert(newIndex, item);
+                    });
+                  },
+                  itemBuilder: (context, i) {
+                    final ing = _ingredients[i];
+                    return _IngredientTile(
+                      key: ValueKey('ing_$i'),
+                      draft: ing,
+                      index: i,
+                      onChanged: () => setState(() {}),
+                      onRemove: () => setState(() {
+                        _ingredients[i].dispose();
+                        _ingredients.removeAt(i);
+                      }),
+                    );
+                  },
+                ),
+              TextButton.icon(
+                onPressed: _openFoodPicker,
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(l10n.nutritionAddIngredient),
+              ),
+              const SizedBox(height: 24),
+
+              // ── Steps ────────────────────────────────────────────────────────
+              _SectionHeader(l10n.nutritionSteps),
+              const SizedBox(height: 10),
+              if (_steps.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    l10n.nutritionNoStepsYet,
+                    style: TextStyle(color: cs.onSurfaceVariant, fontStyle: FontStyle.italic),
+                  ),
+                )
+              else
+                ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _steps.length,
+                  onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      if (newIndex > oldIndex) newIndex--;
+                      final item = _steps.removeAt(oldIndex);
+                      _steps.insert(newIndex, item);
+                    });
+                  },
+                  itemBuilder: (context, i) {
+                    final step = _steps[i];
+                    return _StepTile(
+                      key: ValueKey('step_$i'),
+                      draft: step,
+                      stepNumber: i + 1,
+                      onRemove: () => setState(() {
+                        _steps[i].dispose();
+                        _steps.removeAt(i);
+                      }),
+                    );
+                  },
+                ),
+              TextButton.icon(
+                onPressed: () => setState(() => _steps.add(_StepDraft(
+                      instructionController: TextEditingController(),
+                      imageUrlController: TextEditingController(),
+                    ))),
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(l10n.nutritionAddStep),
+              ),
+              const SizedBox(height: 24),
+
+              // ── Videos ───────────────────────────────────────────────────────
+              _SectionHeader(l10n.nutritionVideos),
+              const SizedBox(height: 10),
+              ..._videos.asMap().entries.map((e) {
+                final i = e.key;
+                final v = e.value;
+                return Card(
+                  key: ValueKey('vid_$i'),
+                  margin: const EdgeInsets.only(bottom: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                controller: v.urlController,
+                                decoration: InputDecoration(labelText: l10n.nutritionVideoUrl, border: InputBorder.none),
+                                keyboardType: TextInputType.url,
+                              ),
+                              TextFormField(
+                                controller: v.titleController,
+                                decoration: InputDecoration(labelText: l10n.nutritionTitleOptional, border: InputBorder.none),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: l10n.nutritionRemoveVideo,
+                          icon: Icon(Icons.close, color: cs.error),
+                          onPressed: () => setState(() {
+                            _videos[i].dispose();
+                            _videos.removeAt(i);
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              TextButton.icon(
+                onPressed: () => setState(() => _videos.add(_VideoDraft(
+                      urlController: TextEditingController(),
+                      titleController: TextEditingController(),
+                    ))),
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(l10n.nutritionAddVideo),
+              ),
+              const SizedBox(height: 24),
+
+              // ── Macro summary ────────────────────────────────────────────────
+              _SectionHeader(l10n.nutritionComputedPerServing),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(child: _MacroReadout(label: l10n.nutritionKcal, value: macros.kcal, color: macroColors.kcal)),
+                  const SizedBox(width: 6),
+                  Expanded(child: _MacroReadout(label: l10n.nutritionProtein, value: macros.protein, color: macroColors.protein, unit: 'g')),
+                  const SizedBox(width: 6),
+                  Expanded(child: _MacroReadout(label: l10n.nutritionCarbsShort, value: macros.carb, color: macroColors.carb, unit: 'g')),
+                  const SizedBox(width: 6),
+                  Expanded(child: _MacroReadout(label: l10n.nutritionFat, value: macros.fat, color: macroColors.fat, unit: 'g')),
+                ],
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );
+  }
+}
+
+// ── Saved-draft (server) helpers ──────────────────────────────────────────────
+// Drafts may come from an older app version: every key is optional.
+
+String _draftText(Object? v, [String fallback = '']) => v is String ? v : (v is num ? '$v' : fallback);
+
+Iterable<Map<String, dynamic>> _draftMaps(Object? raw) =>
+    raw is List ? raw.whereType<Map>().map((m) => Map<String, dynamic>.from(m)) : const [];
+
+Map<String, dynamic> _foodItemToDraft(FoodItem f) => {
+      ...f.toJson(),
+      'id': f.id,
+      'author_id': f.authorId,
+      'is_system': f.isSystem,
+      'created_at': f.createdAt.toIso8601String(),
+      'updated_at': f.updatedAt.toIso8601String(),
+    };
+
+FoodItem? _foodItemFromDraft(Object? raw) {
+  if (raw is! Map) return null;
+  try {
+    return FoodItem.fromJson(Map<String, dynamic>.from(raw));
+  } catch (_) {
+    return null;
   }
 }
 

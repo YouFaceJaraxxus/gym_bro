@@ -2831,6 +2831,95 @@ class AppLocalizationsSr extends AppLocalizations {
   String get customersYourClasses => 'Tvoji časovi';
 
   @override
+  String get draftBadge => 'Nacrt';
+
+  @override
+  String get draftChooseSubtitle => 'Nastavi nacrt ili počni ispočetka.';
+
+  @override
+  String get draftChooseTitle => 'Tvoji nacrti';
+
+  @override
+  String get draftDelete => 'Obriši nacrt';
+
+  @override
+  String get draftDeleteTitle => 'Obrisati ovaj nacrt?';
+
+  @override
+  String get draftDeleted => 'Nacrt je obrisan';
+
+  @override
+  String get draftDiscard => 'Odbaci';
+
+  @override
+  String get draftDiscardChanges => 'Odbaci izmene';
+
+  @override
+  String draftEdited(String when) {
+    return 'Izmenjeno $when';
+  }
+
+  @override
+  String get draftEditingBanner =>
+      'Uređuješ nacrt. Kada ga objaviš, nacrt se briše.';
+
+  @override
+  String get draftKeepEditing => 'Nastavi uređivanje';
+
+  @override
+  String draftMediaCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fotografija i videa',
+      few: '$count fotografije i videa',
+      one: '1 fotografija ili video',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String draftOpenFailed(String error) {
+    return 'Nacrt nije otvoren: $error';
+  }
+
+  @override
+  String get draftOpening => 'Otvaranje nacrta…';
+
+  @override
+  String get draftSave => 'Sačuvaj nacrt';
+
+  @override
+  String get draftSaveBody =>
+      'Nastavi kasnije tamo gde si stao. Nacrti su privatni — samo ih ti vidiš.';
+
+  @override
+  String get draftSaveChanges => 'Sačuvaj izmene';
+
+  @override
+  String draftSaveFailed(String error) {
+    return 'Nacrt nije sačuvan: $error';
+  }
+
+  @override
+  String get draftSaveTitle => 'Sačuvati kao nacrt?';
+
+  @override
+  String get draftSaved => 'Nacrt je sačuvan';
+
+  @override
+  String get draftSaving => 'Čuvanje nacrta…';
+
+  @override
+  String get draftStartNew => 'Počni novo';
+
+  @override
+  String get draftUntitled => 'Nacrt bez naslova';
+
+  @override
+  String get draftUpdateTitle => 'Sačuvati izmene nacrta?';
+
+  @override
   String get feedAddMedia => 'Dodaj fotografije ili video';
 
   @override
@@ -3074,6 +3163,157 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get feedWriteReplyHint => 'Napiši odgovor…';
+
+  @override
+  String get mediaAdjustBrightness => 'Osvetljenost';
+
+  @override
+  String get mediaAdjustContrast => 'Kontrast';
+
+  @override
+  String get mediaAdjustFade => 'Izbledelost';
+
+  @override
+  String get mediaAdjustSaturation => 'Zasićenost';
+
+  @override
+  String get mediaAdjustTint => 'Nijansa';
+
+  @override
+  String get mediaAdjustVignette => 'Vinjeta';
+
+  @override
+  String get mediaAdjustWarmth => 'Toplina';
+
+  @override
+  String get mediaBackToTools => 'Nazad na alate';
+
+  @override
+  String mediaBatchNote(int count) {
+    return 'Filteri i podešavanja ovde važe za svih $count stavki i zamenjuju njihove sopstvene. Video snimci se skraćuju pojedinačno.';
+  }
+
+  @override
+  String get mediaCantEdit => 'Ovaj fajl ne može da se menja.';
+
+  @override
+  String get mediaDone => 'Gotovo';
+
+  @override
+  String get mediaEdit => 'Izmeni';
+
+  @override
+  String get mediaEditAll => 'Izmeni sve';
+
+  @override
+  String mediaEditAllTitle(int count) {
+    return 'Izmeni sve ($count)';
+  }
+
+  @override
+  String get mediaEditFailed =>
+      'Izmene nisu primenjene. Pokušaj ponovo ili ih resetuj.';
+
+  @override
+  String mediaEditItem(int index) {
+    return 'Izmeni stavku $index';
+  }
+
+  @override
+  String get mediaEditTitle => 'Izmeni';
+
+  @override
+  String get mediaEdited => 'Izmenjeno';
+
+  @override
+  String get mediaFilterArctic => 'Arktik';
+
+  @override
+  String get mediaFilterDramatic => 'Dramatično';
+
+  @override
+  String get mediaFilterGolden => 'Zlatno';
+
+  @override
+  String get mediaFilterMatte => 'Mat';
+
+  @override
+  String get mediaFilterMono => 'Mono';
+
+  @override
+  String get mediaFilterNoir => 'Noar';
+
+  @override
+  String get mediaFilterNormal => 'Normalno';
+
+  @override
+  String get mediaFilterPunch => 'Snažno';
+
+  @override
+  String get mediaFilterRose => 'Roze';
+
+  @override
+  String get mediaFilterSepia => 'Sepija';
+
+  @override
+  String get mediaFilterStrength => 'Jačina';
+
+  @override
+  String get mediaFilterVintage => 'Vintidž';
+
+  @override
+  String get mediaFilterVivid => 'Živo';
+
+  @override
+  String get mediaHoldToCompare => 'Pritisni i drži da vidiš original';
+
+  @override
+  String get mediaOriginal => 'Original';
+
+  @override
+  String mediaProcessing(int index, int count) {
+    return 'Primena izmena $index od $count…';
+  }
+
+  @override
+  String get mediaReset => 'Resetuj';
+
+  @override
+  String get mediaResetAll => 'Resetuj sve izmene';
+
+  @override
+  String get mediaTabAdjust => 'Podešavanja';
+
+  @override
+  String get mediaTabFilter => 'Filter';
+
+  @override
+  String get mediaTabTrim => 'Skrati';
+
+  @override
+  String get mediaTrimEnd => 'Kraj isečka';
+
+  @override
+  String get mediaTrimPickVideo => 'Izaberi video za skraćivanje';
+
+  @override
+  String get mediaTrimStart => 'Početak isečka';
+
+  @override
+  String mediaTrimSummary(String start, String end, String length) {
+    return '$start – $end · $length';
+  }
+
+  @override
+  String get mediaTrimWindow => 'Isečak, prevuci da ga pomeriš';
+
+  @override
+  String get mediaUndo => 'Poništi';
+
+  @override
+  String mediaVideoNumber(int index) {
+    return 'Video $index';
+  }
 
   @override
   String get nutritionAdd => 'Dodaj';
@@ -10983,6 +11223,95 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get customersYourClasses => 'Tvoji časovi';
 
   @override
+  String get draftBadge => 'Nacrt';
+
+  @override
+  String get draftChooseSubtitle => 'Nastavi nacrt ili počni ispočetka.';
+
+  @override
+  String get draftChooseTitle => 'Tvoji nacrti';
+
+  @override
+  String get draftDelete => 'Obriši nacrt';
+
+  @override
+  String get draftDeleteTitle => 'Obrisati ovaj nacrt?';
+
+  @override
+  String get draftDeleted => 'Nacrt je obrisan';
+
+  @override
+  String get draftDiscard => 'Odbaci';
+
+  @override
+  String get draftDiscardChanges => 'Odbaci izmene';
+
+  @override
+  String draftEdited(String when) {
+    return 'Izmenjeno $when';
+  }
+
+  @override
+  String get draftEditingBanner =>
+      'Uređuješ nacrt. Kada ga objaviš, nacrt se briše.';
+
+  @override
+  String get draftKeepEditing => 'Nastavi uređivanje';
+
+  @override
+  String draftMediaCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fotografija i videa',
+      few: '$count fotografije i videa',
+      one: '1 fotografija ili video',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String draftOpenFailed(String error) {
+    return 'Nacrt nije otvoren: $error';
+  }
+
+  @override
+  String get draftOpening => 'Otvaranje nacrta…';
+
+  @override
+  String get draftSave => 'Sačuvaj nacrt';
+
+  @override
+  String get draftSaveBody =>
+      'Nastavi kasnije tamo gde si stao. Nacrti su privatni — samo ih ti vidiš.';
+
+  @override
+  String get draftSaveChanges => 'Sačuvaj izmene';
+
+  @override
+  String draftSaveFailed(String error) {
+    return 'Nacrt nije sačuvan: $error';
+  }
+
+  @override
+  String get draftSaveTitle => 'Sačuvati kao nacrt?';
+
+  @override
+  String get draftSaved => 'Nacrt je sačuvan';
+
+  @override
+  String get draftSaving => 'Čuvanje nacrta…';
+
+  @override
+  String get draftStartNew => 'Počni novo';
+
+  @override
+  String get draftUntitled => 'Nacrt bez naslova';
+
+  @override
+  String get draftUpdateTitle => 'Sačuvati izmene nacrta?';
+
+  @override
   String get feedAddMedia => 'Dodaj fotografije ili video';
 
   @override
@@ -11226,6 +11555,157 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get feedWriteReplyHint => 'Napiši odgovor…';
+
+  @override
+  String get mediaAdjustBrightness => 'Osvetljenost';
+
+  @override
+  String get mediaAdjustContrast => 'Kontrast';
+
+  @override
+  String get mediaAdjustFade => 'Izbledelost';
+
+  @override
+  String get mediaAdjustSaturation => 'Zasićenost';
+
+  @override
+  String get mediaAdjustTint => 'Nijansa';
+
+  @override
+  String get mediaAdjustVignette => 'Vinjeta';
+
+  @override
+  String get mediaAdjustWarmth => 'Toplina';
+
+  @override
+  String get mediaBackToTools => 'Nazad na alate';
+
+  @override
+  String mediaBatchNote(int count) {
+    return 'Filteri i podešavanja ovde važe za svih $count stavki i zamenjuju njihove sopstvene. Video snimci se skraćuju pojedinačno.';
+  }
+
+  @override
+  String get mediaCantEdit => 'Ovaj fajl ne može da se menja.';
+
+  @override
+  String get mediaDone => 'Gotovo';
+
+  @override
+  String get mediaEdit => 'Izmeni';
+
+  @override
+  String get mediaEditAll => 'Izmeni sve';
+
+  @override
+  String mediaEditAllTitle(int count) {
+    return 'Izmeni sve ($count)';
+  }
+
+  @override
+  String get mediaEditFailed =>
+      'Izmene nisu primenjene. Pokušaj ponovo ili ih resetuj.';
+
+  @override
+  String mediaEditItem(int index) {
+    return 'Izmeni stavku $index';
+  }
+
+  @override
+  String get mediaEditTitle => 'Izmeni';
+
+  @override
+  String get mediaEdited => 'Izmenjeno';
+
+  @override
+  String get mediaFilterArctic => 'Arktik';
+
+  @override
+  String get mediaFilterDramatic => 'Dramatično';
+
+  @override
+  String get mediaFilterGolden => 'Zlatno';
+
+  @override
+  String get mediaFilterMatte => 'Mat';
+
+  @override
+  String get mediaFilterMono => 'Mono';
+
+  @override
+  String get mediaFilterNoir => 'Noar';
+
+  @override
+  String get mediaFilterNormal => 'Normalno';
+
+  @override
+  String get mediaFilterPunch => 'Snažno';
+
+  @override
+  String get mediaFilterRose => 'Roze';
+
+  @override
+  String get mediaFilterSepia => 'Sepija';
+
+  @override
+  String get mediaFilterStrength => 'Jačina';
+
+  @override
+  String get mediaFilterVintage => 'Vintidž';
+
+  @override
+  String get mediaFilterVivid => 'Živo';
+
+  @override
+  String get mediaHoldToCompare => 'Pritisni i drži da vidiš original';
+
+  @override
+  String get mediaOriginal => 'Original';
+
+  @override
+  String mediaProcessing(int index, int count) {
+    return 'Primena izmena $index od $count…';
+  }
+
+  @override
+  String get mediaReset => 'Resetuj';
+
+  @override
+  String get mediaResetAll => 'Resetuj sve izmene';
+
+  @override
+  String get mediaTabAdjust => 'Podešavanja';
+
+  @override
+  String get mediaTabFilter => 'Filter';
+
+  @override
+  String get mediaTabTrim => 'Skrati';
+
+  @override
+  String get mediaTrimEnd => 'Kraj isečka';
+
+  @override
+  String get mediaTrimPickVideo => 'Izaberi video za skraćivanje';
+
+  @override
+  String get mediaTrimStart => 'Početak isečka';
+
+  @override
+  String mediaTrimSummary(String start, String end, String length) {
+    return '$start – $end · $length';
+  }
+
+  @override
+  String get mediaTrimWindow => 'Isečak, prevuci da ga pomeriš';
+
+  @override
+  String get mediaUndo => 'Poništi';
+
+  @override
+  String mediaVideoNumber(int index) {
+    return 'Video $index';
+  }
 
   @override
   String get nutritionAdd => 'Dodaj';

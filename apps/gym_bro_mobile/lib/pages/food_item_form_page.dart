@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
+import '../models/draft.dart';
 import '../models/food_log.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/drafts.dart';
 
 class FoodItemFormPage extends StatefulWidget {
   final FoodItem? foodItem;
@@ -11,13 +13,16 @@ class FoodItemFormPage extends StatefulWidget {
   /// Prefills the barcode field (e.g. after an unknown barcode scan).
   final String? initialBarcode;
 
-  const FoodItemFormPage({super.key, this.foodItem, this.initialBarcode});
+  /// A saved draft to continue (new food items only).
+  final Draft? draft;
+
+  const FoodItemFormPage({super.key, this.foodItem, this.initialBarcode, this.draft});
 
   @override
   State<FoodItemFormPage> createState() => _FoodItemFormPageState();
 }
 
-class _FoodItemFormPageState extends State<FoodItemFormPage> {
+class _FoodItemFormPageState extends State<FoodItemFormPage> with DraftableForm {
   final _formKey = GlobalKey<FormState>();
   final _api = ApiService();
 
@@ -48,9 +53,99 @@ class _FoodItemFormPageState extends State<FoodItemFormPage> {
 
   bool get _isEditing => widget.foodItem != null;
 
+  // ── Drafts ──────────────────────────────────────────────────────────────────
+
+  @override
+  DraftKind get draftKind => DraftKind.foodItem;
+  @override
+  Draft? get initialDraft => widget.draft;
+  @override
+  bool get draftsEnabled => !_isEditing;
+  @override
+  bool get hasDraftContent =>
+      [_name, _brand].any((c) => c.text.trim().isNotEmpty) ||
+      // A barcode handed over by the scanner isn't something the user typed.
+      _barcode.text.trim() != (widget.initialBarcode ?? '').trim() ||
+      [_kcal, _protein, _carb, _fat, _fiber].any((c) => c.text.trim().isNotEmpty && _parseNum(c.text) != 0) ||
+      _foodSubtype != null ||
+      _drinkSubtype != null ||
+      _spiceSubtype != null ||
+      _vitamins.isNotEmpty ||
+      _minerals.isNotEmpty;
+  @override
+  String? draftTitle() => _name.text;
+  @override
+  Map<String, dynamic> draftData() => {
+        'name': _name.text,
+        'brand': _brand.text,
+        'barcode': _barcode.text,
+        'kcal_per_100': _kcal.text,
+        'protein_per_100': _protein.text,
+        'carb_per_100': _carb.text,
+        'fat_per_100': _fat.text,
+        'fiber_per_100': _fiber.text,
+        'type': _type.apiValue,
+        'food_subtype': _foodSubtype?.apiValue,
+        'drink_subtype': _drinkSubtype?.apiValue,
+        'spice_subtype': _spiceSubtype?.apiValue,
+        'serving_unit': _servingUnit.apiValue,
+        'is_public': _isPublic,
+        // Names/symbols too, so the list renders before the nutrient reference loads.
+        'vitamins': [for (final v in _vitamins) {...v.toJson(), 'vitamin': v.vitamin?.toJson()}],
+        'minerals': [for (final m in _minerals) {...m.toJson(), 'mineral': m.mineral?.toJson()}],
+      };
+
+  void _restoreDraft(Map<String, dynamic> d) {
+    _name = TextEditingController(text: _draftText(d['name']));
+    _brand = TextEditingController(text: _draftText(d['brand']));
+    _barcode = TextEditingController(text: _draftText(d['barcode']));
+    _kcal = TextEditingController(text: _draftText(d['kcal_per_100'], '0'));
+    _protein = TextEditingController(text: _draftText(d['protein_per_100'], '0'));
+    _carb = TextEditingController(text: _draftText(d['carb_per_100'], '0'));
+    _fat = TextEditingController(text: _draftText(d['fat_per_100'], '0'));
+    _fiber = TextEditingController(text: _draftText(d['fiber_per_100'], '0'));
+    final type = d['type'] is String ? FoodItemType.fromApiValue(d['type'] as String) : null;
+    _type = type ?? FoodItemType.food;
+    // Only the subtype list that belongs to the type is shown (and validated).
+    String? sub(String key) => d[key] is String ? d[key] as String : null;
+    _foodSubtype = _type == FoodItemType.food && sub('food_subtype') != null ? FoodSubtype.fromApiValue(sub('food_subtype')!) : null;
+    _drinkSubtype = _type == FoodItemType.drink && sub('drink_subtype') != null ? DrinkSubtype.fromApiValue(sub('drink_subtype')!) : null;
+    _spiceSubtype = _type == FoodItemType.spice && sub('spice_subtype') != null ? SpiceSubtype.fromApiValue(sub('spice_subtype')!) : null;
+    _servingUnit = d['serving_unit'] is String
+        ? ServingUnit.fromApiValue(d['serving_unit'] as String)
+        : (_type == FoodItemType.drink ? ServingUnit.ml : ServingUnit.g);
+    _isPublic = d['is_public'] is bool ? d['is_public'] as bool : true;
+    _vitamins = [
+      for (final v in _draftMaps(d['vitamins']))
+        if (v['vitamin_id'] is String && _draftNum(v['amount_per_100']) != null)
+          FoodItemVitamin(
+            vitaminId: v['vitamin_id'] as String,
+            vitamin: _draftNutrientRef(v['vitamin'], (id, name, symbol, unit) => Vitamin(id: id, name: name, symbol: symbol, defaultUnit: unit)),
+            amountPer100: _draftNum(v['amount_per_100'])!,
+            unit: v['unit'] is String ? v['unit'] as String : null,
+          ),
+    ];
+    _minerals = [
+      for (final m in _draftMaps(d['minerals']))
+        if (m['mineral_id'] is String && _draftNum(m['amount_per_100']) != null)
+          FoodItemMineral(
+            mineralId: m['mineral_id'] as String,
+            mineral: _draftNutrientRef(m['mineral'], (id, name, symbol, unit) => Mineral(id: id, name: name, symbol: symbol, defaultUnit: unit)),
+            amountPer100: _draftNum(m['amount_per_100'])!,
+            unit: m['unit'] is String ? m['unit'] as String : null,
+          ),
+    ];
+  }
+
   @override
   void initState() {
     super.initState();
+    final draft = widget.draft?.data;
+    if (draft != null && !_isEditing) {
+      _restoreDraft(draft);
+      _loadNutrients();
+      return;
+    }
     final item = widget.foodItem;
     _name = TextEditingController(text: item?.name ?? '');
     _brand = TextEditingController(text: item?.brand ?? '');
@@ -187,6 +282,7 @@ class _FoodItemFormPageState extends State<FoodItemFormPage> {
         result = await _api.updateFoodItem(token, widget.foodItem!.id, data);
       } else {
         result = await _api.createFoodItem(token, data);
+        await draftPublished();
       }
       if (mounted) Navigator.pop(context, result);
     } catch (e) {
@@ -318,107 +414,112 @@ class _FoodItemFormPageState extends State<FoodItemFormPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? l10n.nutritionEditFoodItemTitle : l10n.nutritionNewFoodItemTitle),
-        actions: [
-          if (_saving)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            )
-          else
-            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // ── Basic info ─────────────────────────────────────────────────
-            TextFormField(
-              controller: _name,
-              decoration: InputDecoration(labelText: l10n.nutritionNameRequiredLabel),
-              textCapitalization: TextCapitalization.sentences,
-              validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _brand,
-              decoration: InputDecoration(labelText: l10n.nutritionBrandOptional),
-              textCapitalization: TextCapitalization.words,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _barcode,
-              decoration: InputDecoration(
-                labelText: l10n.nutritionBarcodeOptional,
-                hintText: 'EAN / UPC',
-              ),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 24),
-
-            // ── Type ───────────────────────────────────────────────────────
-            Text(l10n.nutritionType, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-            const SizedBox(height: 8),
-            SegmentedButton<FoodItemType>(
-              segments: FoodItemType.values
-                  .map((t) => ButtonSegment(value: t, label: Text(t.label(l10n))))
-                  .toList(),
-              selected: {_type},
-              onSelectionChanged: (s) => _onTypeChanged(s.first),
-            ),
-            const SizedBox(height: 16),
-
-            // ── Subtype ────────────────────────────────────────────────────
-            _buildSubtypeDropdown(),
-            const SizedBox(height: 16),
-
-            // ── Serving unit ───────────────────────────────────────────────
-            Text(l10n.nutritionServingUnit, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-            const SizedBox(height: 8),
-            SegmentedButton<ServingUnit>(
-              segments: ServingUnit.values
-                  .map((u) => ButtonSegment(value: u, label: Text(u.displayName)))
-                  .toList(),
-              selected: {_servingUnit},
-              onSelectionChanged: (s) => setState(() => _servingUnit = s.first),
-            ),
-            const SizedBox(height: 24),
-
-            // ── Macros ─────────────────────────────────────────────────────
-            Text(l10n.nutritionMacronutrients, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-            const SizedBox(height: 12),
-            _MacroField(controller: _kcal, label: l10n.nutritionLabelWithUnit(l10n.nutritionCalories, 'kcal')),
-            const SizedBox(height: 12),
-            _MacroField(controller: _protein, label: l10n.nutritionLabelWithUnit(l10n.nutritionProtein, 'g')),
-            const SizedBox(height: 12),
-            _MacroField(controller: _carb, label: l10n.nutritionLabelWithUnit(l10n.nutritionCarbs, 'g')),
-            const SizedBox(height: 12),
-            _MacroField(controller: _fat, label: l10n.nutritionLabelWithUnit(l10n.nutritionFat, 'g')),
-            const SizedBox(height: 12),
-            _MacroField(controller: _fiber, label: l10n.nutritionLabelWithUnit(l10n.nutritionFiber, 'g')),
-            const SizedBox(height: 24),
-
-            // ── Micronutrients ─────────────────────────────────────────────
-            _buildMicronutrients(context),
-            const SizedBox(height: 20),
-
-            // ── Visibility ─────────────────────────────────────────────────
-            SwitchListTile(
-              title: Text(l10n.nutritionPublic),
-              subtitle: Text(l10n.nutritionVisibleToAllUsers),
-              value: _isPublic,
-              onChanged: (v) => setState(() => _isPublic = v),
-              contentPadding: EdgeInsets.zero,
-            ),
+    final banner = draftBanner(context);
+    return draftPopScope(
+      busy: _saving,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_isEditing ? l10n.nutritionEditFoodItemTitle : l10n.nutritionNewFoodItemTitle),
+          actions: [
+            if (_saving)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
+            else
+              TextButton(onPressed: _save, child: Text(l10n.commonSave)),
           ],
+        ),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (banner != null) ...[banner, const SizedBox(height: 16)],
+              // ── Basic info ─────────────────────────────────────────────────
+              TextFormField(
+                controller: _name,
+                decoration: InputDecoration(labelText: l10n.nutritionNameRequiredLabel),
+                textCapitalization: TextCapitalization.sentences,
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _brand,
+                decoration: InputDecoration(labelText: l10n.nutritionBrandOptional),
+                textCapitalization: TextCapitalization.words,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _barcode,
+                decoration: InputDecoration(
+                  labelText: l10n.nutritionBarcodeOptional,
+                  hintText: 'EAN / UPC',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 24),
+
+              // ── Type ───────────────────────────────────────────────────────
+              Text(l10n.nutritionType, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 8),
+              SegmentedButton<FoodItemType>(
+                segments: FoodItemType.values
+                    .map((t) => ButtonSegment(value: t, label: Text(t.label(l10n))))
+                    .toList(),
+                selected: {_type},
+                onSelectionChanged: (s) => _onTypeChanged(s.first),
+              ),
+              const SizedBox(height: 16),
+
+              // ── Subtype ────────────────────────────────────────────────────
+              _buildSubtypeDropdown(),
+              const SizedBox(height: 16),
+
+              // ── Serving unit ───────────────────────────────────────────────
+              Text(l10n.nutritionServingUnit, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 8),
+              SegmentedButton<ServingUnit>(
+                segments: ServingUnit.values
+                    .map((u) => ButtonSegment(value: u, label: Text(u.displayName)))
+                    .toList(),
+                selected: {_servingUnit},
+                onSelectionChanged: (s) => setState(() => _servingUnit = s.first),
+              ),
+              const SizedBox(height: 24),
+
+              // ── Macros ─────────────────────────────────────────────────────
+              Text(l10n.nutritionMacronutrients, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 12),
+              _MacroField(controller: _kcal, label: l10n.nutritionLabelWithUnit(l10n.nutritionCalories, 'kcal')),
+              const SizedBox(height: 12),
+              _MacroField(controller: _protein, label: l10n.nutritionLabelWithUnit(l10n.nutritionProtein, 'g')),
+              const SizedBox(height: 12),
+              _MacroField(controller: _carb, label: l10n.nutritionLabelWithUnit(l10n.nutritionCarbs, 'g')),
+              const SizedBox(height: 12),
+              _MacroField(controller: _fat, label: l10n.nutritionLabelWithUnit(l10n.nutritionFat, 'g')),
+              const SizedBox(height: 12),
+              _MacroField(controller: _fiber, label: l10n.nutritionLabelWithUnit(l10n.nutritionFiber, 'g')),
+              const SizedBox(height: 24),
+
+              // ── Micronutrients ─────────────────────────────────────────────
+              _buildMicronutrients(context),
+              const SizedBox(height: 20),
+
+              // ── Visibility ─────────────────────────────────────────────────
+              SwitchListTile(
+                title: Text(l10n.nutritionPublic),
+                subtitle: Text(l10n.nutritionVisibleToAllUsers),
+                value: _isPublic,
+                onChanged: (v) => setState(() => _isPublic = v),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -450,6 +551,25 @@ class _MacroField extends StatelessWidget {
 
 /// Accepts both "1.5" and "1,5" (Serbian decimal comma).
 double? _parseNum(String v) => double.tryParse(v.trim().replaceAll(',', '.'));
+
+// ── Draft restore helpers (drafts may come from an older app version) ─────────
+
+String _draftText(Object? v, [String fallback = '']) => v is String ? v : (v is num ? '$v' : fallback);
+
+double? _draftNum(Object? v) => v == null ? null : double.tryParse(v.toString());
+
+Iterable<Map<String, dynamic>> _draftMaps(Object? raw) =>
+    raw is List ? raw.whereType<Map>().map((m) => Map<String, dynamic>.from(m)) : const [];
+
+T? _draftNutrientRef<T>(Object? raw, T Function(String id, String name, String? symbol, String defaultUnit) build) {
+  if (raw is! Map || raw['id'] is! String || raw['name'] is! String) return null;
+  return build(
+    raw['id'] as String,
+    raw['name'] as String,
+    raw['symbol'] is String ? raw['symbol'] as String : null,
+    raw['default_unit'] is String ? raw['default_unit'] as String : 'mg',
+  );
+}
 
 // ── Micronutrient dialog ──────────────────────────────────────────────────────
 
