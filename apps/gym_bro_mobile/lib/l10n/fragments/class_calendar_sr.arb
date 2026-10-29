@@ -1,0 +1,15 @@
+{
+  "classCalendarDayLabel": "{day}, {count, plural, =0{nema časova} one{{count} čas} few{{count} časa} other{{count} časova}}",
+  "classCalendarNothingOnDay": "Nema časova ovog dana",
+  "classCalendarBookedOf": "Rezervisano {booked} od {capacity}",
+  "classCalendarWaitlistShort": "+{count} čeka",
+  "classCalendarOnlyMine": "Samo moji",
+  "classCalendarInvites": "{count, plural, one{{count} poziv} few{{count} poziva} other{{count} poziva}}",
+  "classCalendarTrainerInvite": "{name} želi da te trenira",
+  "classCalendarTrainerInviteHint": "Prihvati da bi mogao/la da ti planira časove i treninge.",
+  "classCalendarAccept": "Prihvati",
+  "classCalendarDecline": "Odbij",
+  "classCalendarJoined": "Upisan/a si: {title}. Termini su u tvom rasporedu.",
+  "classCalendarInviteDeclined": "Poziv odbijen",
+  "classCalendarTrainerAccepted": "{name} je sada tvoj trener"
+}

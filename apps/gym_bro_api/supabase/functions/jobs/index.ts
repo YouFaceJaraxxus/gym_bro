@@ -3,6 +3,7 @@ import { db } from "../_shared/config.ts";
 import { json, jsonError } from "../_shared/auth.ts";
 import { notify, optionalSecret } from "../_shared/notify.ts";
 import { removeObjects } from "../_shared/media.ts";
+import { topUpSeries } from "../_shared/class_series.ts";
 
 // Scheduled maintenance, called by pg_cron every 15 minutes (see
 // sql/cron.sql) with the shared CRON_SECRET in the x-cron-secret header.
@@ -162,12 +163,16 @@ Deno.serve(async (req: Request) => {
       const class_reminders = await sendClassReminders();
       step = "sweep_uploads";
       const abandoned_uploads_removed = await sweepAbandonedUploads();
+      step = "class_sessions";
+      // Keeps every class timetable 90 days ahead.
+      const class_sessions_created = await topUpSeries(500);
 
       return json({
         memberships_expired,
         expiring_notifications,
         class_reminders,
         abandoned_uploads_removed,
+        class_sessions_created,
         duration_ms: Date.now() - started,
       });
     } catch (err) {

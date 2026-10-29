@@ -14,7 +14,6 @@ import 'home/employee_home_page.dart';
 import 'home/employee_trainer_home_page.dart';
 import 'home/super_user_home_page.dart';
 import 'home/owner_users_page.dart';
-import 'home/trainer_members_page.dart';
 import 'home/vendor_shop_page.dart';
 import '../widgets/offline_banner.dart';
 import '../widgets/social_widgets.dart';
@@ -73,12 +72,8 @@ const _memberTabs = <_Tab>[_Tab.home, ..._memberEndTabs];
 
 const _ownerTabs = <_Tab>[_Tab.home, _Tab.businesses, ..._memberEndTabs];
 
-const _trainerTabs = <_Tab>[
-  _Tab.home,
-  _Tab.classes,
-  _Tab.members,
-  ..._memberEndTabs,
-];
+// Customers live inside Classes (its third tab), so trainers have no Members tab.
+const _trainerTabs = <_Tab>[_Tab.home, _Tab.classes, ..._memberEndTabs];
 
 const _vendorTabs = <_Tab>[_Tab.home, _Tab.myShop, ..._memberEndTabs];
 
@@ -419,10 +414,7 @@ class _HomePageState extends State<HomePage> {
       // Owners get their stats on top; super users have them on Home.
       _Tab.businesses => OwnerBusinessesPage(showStats: role == UserRole.owner),
       _Tab.users => const OwnerUsersPage(),
-      _Tab.members =>
-        role == UserRole.trainer
-            ? TrainerMembersPage(profile: profile)
-            : EmployeeMembersPage(profile: profile),
+      _Tab.members => EmployeeMembersPage(profile: profile),
       _Tab.classes => const TrainerClassesPage(),
       _Tab.schedule => const ClassSchedulePage(),
       _Tab.myShop => VendorShopPage(profile: profile),

@@ -170,7 +170,12 @@ class GymClass {
   /// Local time.
   final DateTime endsAt;
   final int capacity;
+
+  /// The class (timetable) this session belongs to; every session has one.
   final String? seriesId;
+
+  /// True when the session's class repeats (a one-off has a series too).
+  final bool isRecurring;
   final DateTime? cancelledAt;
   final String? createdBy;
   final String gymName;
@@ -199,6 +204,7 @@ class GymClass {
     required this.endsAt,
     required this.capacity,
     this.seriesId,
+    this.isRecurring = false,
     this.cancelledAt,
     this.createdBy,
     required this.gymName,
@@ -214,7 +220,7 @@ class GymClass {
   });
 
   bool get isCancelled => cancelledAt != null;
-  bool get isSeries => seriesId != null;
+  bool get isSeries => isRecurring;
   bool get hasStarted => !startsAt.isAfter(DateTime.now());
   bool get isPast => !endsAt.isAfter(DateTime.now());
   bool get isFull => bookedCount >= capacity;
@@ -237,6 +243,8 @@ class GymClass {
     endsAt: _date(j['ends_at']),
     capacity: _int(j['capacity'], 1),
     seriesId: j['series_id'] as String?,
+    // Older API responses only had series_id for repeating classes.
+    isRecurring: (j['is_recurring'] as bool?) ?? j['series_id'] != null,
     cancelledAt: _dateOrNull(j['cancelled_at']),
     createdBy: j['created_by'] as String?,
     gymName: j['gym_name'] as String? ?? '',

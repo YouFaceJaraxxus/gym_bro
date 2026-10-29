@@ -12,7 +12,8 @@
 -- Every 15 minutes it POSTs to the `jobs` function, which:
 --   • marks memberships whose to_date has passed as inactive,
 --   • sends `membership_expiring` notifications (7 days ahead, once per membership),
---   • sends `class_reminder` notifications for classes starting within 75 minutes.
+--   • sends `class_reminder` notifications for classes starting within 75 minutes,
+--   • tops up class timetables so sessions exist 90 days ahead.
 -- The function answers 503 not_configured while CRON_SECRET is unset and 401
 -- on a wrong secret. Responses land in net._http_response for debugging:
 --   SELECT id, status_code, content FROM net._http_response ORDER BY id DESC LIMIT 5;

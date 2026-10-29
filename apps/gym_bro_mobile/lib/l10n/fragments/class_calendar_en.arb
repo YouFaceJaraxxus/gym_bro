@@ -1,0 +1,70 @@
+{
+  "classCalendarDayLabel": "{day}, {count, plural, =0{no classes} =1{1 class} other{{count} classes}}",
+  "@classCalendarDayLabel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classCalendarNothingOnDay": "No classes on this day",
+  "classCalendarBookedOf": "{booked} of {capacity} booked",
+  "@classCalendarBookedOf": {
+    "placeholders": {
+      "booked": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "classCalendarWaitlistShort": "+{count} waiting",
+  "@classCalendarWaitlistShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classCalendarOnlyMine": "Only mine",
+  "classCalendarInvites": "{count, plural, =1{1 invite} other{{count} invites}}",
+  "@classCalendarInvites": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classCalendarTrainerInvite": "{name} wants to train you",
+  "@classCalendarTrainerInvite": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classCalendarTrainerInviteHint": "Accept to let them plan your classes and workouts.",
+  "classCalendarAccept": "Accept",
+  "classCalendarDecline": "Decline",
+  "classCalendarJoined": "You're in: {title}. Its sessions are in your schedule.",
+  "@classCalendarJoined": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "classCalendarInviteDeclined": "Invite declined",
+  "classCalendarTrainerAccepted": "{name} is now your trainer",
+  "@classCalendarTrainerAccepted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
+}

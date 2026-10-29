@@ -1,0 +1,11 @@
+{
+  "trainerClassesTabCalendar": "Calendar",
+  "trainerClassesTabClasses": "Classes",
+  "trainerClassesTabCustomers": "Customers",
+  "trainerClassesPickerSearch": "Search by name or username",
+  "trainerClassesPickerEmpty": "No one found. You can add your followers, members of gyms where you coach, and your customers.",
+  "trainerClassesPickerFollower": "Follows you",
+  "trainerClassesPickerMember": "Member",
+  "trainerClassesPickerCustomer": "Customer",
+  "trainerClassesPickerCustomerPending": "Invite pending"
+}

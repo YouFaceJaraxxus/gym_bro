@@ -1,0 +1,200 @@
+{
+  "classSeriesNew": "New class",
+  "classSeriesEdit": "Edit class",
+  "classSeriesEmptyTitle": "No classes yet",
+  "classSeriesEmptyMessage": "Create a class with its timetable. Its sessions show up in your calendar 90 days ahead.",
+  "classSeriesCreateOne": "Create a class",
+  "classSeriesStateActive": "Active",
+  "classSeriesStatePaused": "Paused",
+  "classSeriesStateEnded": "Ended",
+  "classSeriesOnceOn": "Once on {date}",
+  "@classSeriesOnceOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "classSeriesEveryDay": "Every day",
+  "classSeriesInClass": "{count, plural, =1{1 in the class} other{{count} in the class}}",
+  "@classSeriesInClass": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classSeriesInvitedCount": "{count, plural, =1{1 invited} other{{count} invited}}",
+  "@classSeriesInvitedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classSeriesUpcomingCount": "{count, plural, =1{1 upcoming} other{{count} upcoming}}",
+  "@classSeriesUpcomingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classSeriesDoneCount": "{count, plural, =1{1 done} other{{count} done}}",
+  "@classSeriesDoneCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classSeriesNext": "Next: {when}",
+  "@classSeriesNext": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "classSeriesNoUpcoming": "No upcoming sessions",
+  "classSeriesSpots": "{count, plural, =1{1 spot per session} other{{count} spots per session}}",
+  "@classSeriesSpots": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "classSeriesGym": "Gym",
+  "classSeriesTrainer": "Trainer",
+  "classSeriesNoTrainer": "No trainer",
+  "classSeriesYou": "You",
+  "classSeriesNameYou": "{name} (you)",
+  "@classSeriesNameYou": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classSeriesTitle": "Title",
+  "classSeriesTitleHint": "e.g. Morning HIIT",
+  "classSeriesTitleRequired": "Give the class a title",
+  "classSeriesDescription": "Description (optional)",
+  "classSeriesLocation": "Location (optional)",
+  "classSeriesLocationHint": "e.g. Studio A",
+  "classSeriesCapacity": "Spots per session",
+  "classSeriesCapacityInvalid": "Between 1 and 1000",
+  "classSeriesDuration": "Length (minutes)",
+  "classSeriesDurationInvalid": "Between 5 and 1440 minutes",
+  "classSeriesRepeat": "Repeats",
+  "classSeriesRepeatOnce": "Once",
+  "classSeriesRepeatDaily": "Daily",
+  "classSeriesRepeatWeekly": "Weekly",
+  "classSeriesWeekdays": "On these days",
+  "classSeriesPickWeekday": "Pick at least one day",
+  "classSeriesTimes": "Start times",
+  "classSeriesTimesHint": "Add every time it runs in a day.",
+  "classSeriesAddTime": "Add time",
+  "classSeriesTimesRequired": "Add at least one start time",
+  "classSeriesTimesMax": "Up to 12 start times a day",
+  "classSeriesRemoveTime": "Remove {time}",
+  "@classSeriesRemoveTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "classSeriesDate": "Date",
+  "classSeriesStarts": "Starts",
+  "classSeriesEnds": "Ends",
+  "classSeriesNoEndDate": "No end date",
+  "classSeriesNoEndDateHint": "Keeps going. Sessions appear 90 days ahead.",
+  "classSeriesSetEndDate": "Set an end date",
+  "classSeriesClearEndDate": "Remove the end date",
+  "classSeriesEndBeforeStart": "The end date can't be before the start",
+  "classSeriesTimezone": "Times are in {zone}",
+  "@classSeriesTimezone": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "classSeriesSave": "Save",
+  "classSeriesCreate": "Create class",
+  "classSeriesCreated": "Class created",
+  "classSeriesSaved": "Class updated",
+  "classSeriesNoGyms": "No gyms to teach at",
+  "classSeriesNoGymsMessage": "Once a gym adds you as a trainer, you can create classes there.",
+  "classSeriesTimetableChangeTitle": "Change the timetable?",
+  "classSeriesTimetableChangeMessage": "Upcoming sessions that no longer fit are cancelled, and the people booked into them are told. New sessions are added for everyone in the class.",
+  "classSeriesTimetableChangeConfirm": "Change it",
+  "classSeriesTimetable": "Timetable",
+  "classSeriesActive": "Active",
+  "classSeriesActiveHint": "New sessions keep coming.",
+  "classSeriesPausedHint": "No sessions while paused.",
+  "classSeriesPauseTitle": "Pause this class?",
+  "classSeriesPauseMessage": "Upcoming sessions are cancelled and the people booked into them are told. Resuming brings them back.",
+  "classSeriesPause": "Pause",
+  "classSeriesPausedDone": "Class paused",
+  "classSeriesResumedDone": "Class resumed",
+  "classSeriesUpcomingSessions": "Upcoming sessions",
+  "classSeriesNoSessionsSoon": "No sessions in the next two weeks.",
+  "classSeriesPeople": "People",
+  "classSeriesInvite": "Invite",
+  "classSeriesInviteTitle": "Invite to {title}",
+  "@classSeriesInviteTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "classSeriesInviteHint": "They accept the invite, then every session lands in their schedule.",
+  "classSeriesInviteSent": "Invite sent to {name}",
+  "@classSeriesInviteSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classSeriesStatusAccepted": "In the class",
+  "classSeriesStatusPending": "Invited",
+  "classSeriesStatusDeclined": "Declined",
+  "classSeriesInviteAgain": "Invite again",
+  "classSeriesRemove": "Remove from class",
+  "classSeriesCancelInvite": "Cancel invite",
+  "classSeriesRemoveTitle": "Remove {name}?",
+  "@classSeriesRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classSeriesRemoveMessage": "Their upcoming sessions of this class are cancelled.",
+  "classSeriesCancelInviteTitle": "Cancel the invite to {name}?",
+  "@classSeriesCancelInviteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classSeriesCancelInviteMessage": "They won't be able to accept it anymore.",
+  "classSeriesRemoved": "{name} removed",
+  "@classSeriesRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "classSeriesNoPeople": "No one yet. Invite your customers, followers or members of the gym.",
+  "classSeriesOpenTimetable": "Class timetable",
+  "classSeriesOpenTimetableHint": "Every session, the people in it and invites",
+  "classSeriesMore": "More"
+}

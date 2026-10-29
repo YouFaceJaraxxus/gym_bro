@@ -1975,7 +1975,9 @@ report("user settings", added);
 // and the next two weeks. Past classes have attended/no-show bookings and the
 // reminder the jobs cron would have sent; upcoming ones have bookings, a
 // full one has a waitlist, and one was cancelled (members told via `events`).
-// Guard: a gym that already has a series with the template's title is skipped.
+// Each template is an open-ended weekly class_series (the API tops the rest
+// of its 90 days up on first read). Guard: a gym that already has a series
+// with the template's title is skipped.
 
 let classesAdded = 0;
 let bookingsAdded = 0;
@@ -1988,16 +1990,34 @@ for (const t of classTemplates) {
     continue;
   }
   const exists = await db
-    .selectFrom("gym_class")
+    .selectFrom("class_series")
     .select("id")
     .where("gym_id", "=", gymId)
     .where("title", "=", t.title)
-    .where("series_id", "is not", null)
     .executeTakeFirst();
   if (exists) continue;
 
   const tz = tzOf(t.gym);
   const todayLocal = localYmd(NOW_MS, tz);
+  const seriesStart = addDays(todayLocal, -14);
+  const { id: seriesId } = await db.insertInto("class_series").values({
+    gym_id: gymId,
+    trainer_id: trainerUserId,
+    title: t.title,
+    description: t.description,
+    location: t.location,
+    capacity: t.capacity,
+    duration_minutes: t.duration_minutes,
+    repeat: "weekly",
+    weekdays: [...t.weekdays].sort(),
+    times: [t.start],
+    timezone: tz,
+    starts_on: seriesStart,
+    ends_on: null,
+    generated_until: addDays(todayLocal, 13),
+    created_by: trainerUserId,
+    created_at: iso(clampPast(zonedTime(seriesStart, t.start, tz) - 7 * DAY_MS, 60)),
+  }).returning("id").executeTakeFirstOrThrow();
   const members = (memberUsernamesByGym.get(t.gym) ?? []).map((u) => ({ username: u, id: uid(u) }));
 
   for (const weekday of t.weekdays) {
@@ -2006,7 +2026,6 @@ for (const t of classTemplates) {
     const firstStart = zonedTime(days[0], t.start, tz);
     const seriesCreatedMs = clampPast(firstStart - 7 * DAY_MS, 60);
     const nextIdx = days.findIndex((d) => zonedTime(d, t.start, tz) > NOW_MS);
-    const seriesId = days.length > 1 ? crypto.randomUUID() : null; // like the API's repeat_weeks
 
     const inserted = await db
       .insertInto("gym_class")
@@ -2022,6 +2041,7 @@ for (const t of classTemplates) {
           ends_at: iso(startMs + t.duration_minutes * MIN_MS),
           capacity: t.capacity,
           series_id: seriesId,
+          slot_at: iso(startMs),
           cancelled_at: null,
           // The cron reminds an hour before; past classes were already reminded.
           reminder_sent_at: startMs <= NOW_MS ? iso(startMs - HOUR_MS) : null,

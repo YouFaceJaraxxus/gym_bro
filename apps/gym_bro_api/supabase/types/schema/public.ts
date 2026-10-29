@@ -741,12 +741,59 @@ export interface GymClassTable {
   starts_at: string;
   ends_at: string;
   capacity: number;
-  series_id: string | null;
+  series_id: string;
+  // The slot the session was generated for; unchanged when one session moves.
+  slot_at: string;
+  // Cancelled by a timetable change rather than by hand; may come back.
+  retired: Generated<boolean>;
   cancelled_at: string | null;
   reminder_sent_at: string | null;
   created_by: string | null;
   created_at: Generated<string>;
   updated_at: Generated<string>;
+}
+
+export type ClassRepeat = "none" | "daily" | "weekly";
+export type EnrollmentStatus = "pending" | "accepted" | "declined";
+export type CustomerStatus = "pending" | "accepted";
+
+export interface ClassSeriesTable {
+  id: Generated<string>;
+  gym_id: string;
+  trainer_id: string | null;
+  title: string;
+  description: string | null;
+  location: string | null;
+  capacity: number;
+  duration_minutes: number;
+  repeat: ClassRepeat;
+  weekdays: Generated<number[]>; // ISO 1 = Monday … 7 = Sunday
+  times: string[]; // "HH:MM:SS" local start times
+  timezone: string;
+  starts_on: string;
+  ends_on: string | null;
+  active: Generated<boolean>;
+  generated_until: string | null;
+  created_by: string | null;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface ClassEnrollmentTable {
+  series_id: string;
+  user_id: string;
+  status: Generated<EnrollmentStatus>;
+  invited_by: string | null;
+  created_at: Generated<string>;
+  responded_at: string | null;
+}
+
+export interface TrainerCustomerTable {
+  trainer_id: string;
+  user_id: string;
+  status: Generated<CustomerStatus>;
+  created_at: Generated<string>;
+  accepted_at: string | null;
 }
 
 export interface ClassBookingTable {
@@ -1016,6 +1063,9 @@ export interface Database {
   admin_audit_log: AdminAuditLogTable;
   payment: PaymentTable;
   gym_class: GymClassTable;
+  class_series: ClassSeriesTable;
+  class_enrollment: ClassEnrollmentTable;
+  trainer_customer: TrainerCustomerTable;
   class_booking: ClassBookingTable;
   staff_shift: StaffShiftTable;
   body_measurement: BodyMeasurementTable;

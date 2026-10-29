@@ -1626,6 +1626,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get businessShopYourCart => 'Your cart';
 
   @override
+  String get calendarCancelled => 'Cancelled';
+
+  @override
+  String calendarDayLabel(String day, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+      zero: 'nothing scheduled',
+    );
+    return '$day, $_temp0';
+  }
+
+  @override
+  String get calendarDone => 'Done';
+
+  @override
+  String get calendarGoToToday => 'Go to today';
+
+  @override
+  String calendarNextDay(String range) {
+    return '$range (+1 day)';
+  }
+
+  @override
+  String get calendarNextWeek => 'Next week';
+
+  @override
+  String get calendarNothingOnDay => 'Nothing on this day';
+
+  @override
+  String calendarNow(String time) {
+    return 'Now, $time';
+  }
+
+  @override
+  String get calendarPreviousWeek => 'Previous week';
+
+  @override
   String get chatAccept => 'Accept';
 
   @override
@@ -2187,6 +2227,423 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatYouObject => 'you';
 
   @override
+  String get classCalendarAccept => 'Accept';
+
+  @override
+  String classCalendarBookedOf(int booked, int capacity) {
+    return '$booked of $capacity booked';
+  }
+
+  @override
+  String classCalendarDayLabel(String day, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count classes',
+      one: '1 class',
+      zero: 'no classes',
+    );
+    return '$day, $_temp0';
+  }
+
+  @override
+  String get classCalendarDecline => 'Decline';
+
+  @override
+  String get classCalendarInviteDeclined => 'Invite declined';
+
+  @override
+  String classCalendarInvites(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count invites',
+      one: '1 invite',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String classCalendarJoined(String title) {
+    return 'You\'re in: $title. Its sessions are in your schedule.';
+  }
+
+  @override
+  String get classCalendarNothingOnDay => 'No classes on this day';
+
+  @override
+  String get classCalendarOnlyMine => 'Only mine';
+
+  @override
+  String classCalendarTrainerAccepted(String name) {
+    return '$name is now your trainer';
+  }
+
+  @override
+  String classCalendarTrainerInvite(String name) {
+    return '$name wants to train you';
+  }
+
+  @override
+  String get classCalendarTrainerInviteHint =>
+      'Accept to let them plan your classes and workouts.';
+
+  @override
+  String classCalendarWaitlistShort(int count) {
+    return '+$count waiting';
+  }
+
+  @override
+  String get classSeriesActive => 'Active';
+
+  @override
+  String get classSeriesActiveHint => 'New sessions keep coming.';
+
+  @override
+  String get classSeriesAddTime => 'Add time';
+
+  @override
+  String get classSeriesCancelInvite => 'Cancel invite';
+
+  @override
+  String get classSeriesCancelInviteMessage =>
+      'They won\'t be able to accept it anymore.';
+
+  @override
+  String classSeriesCancelInviteTitle(String name) {
+    return 'Cancel the invite to $name?';
+  }
+
+  @override
+  String get classSeriesCapacity => 'Spots per session';
+
+  @override
+  String get classSeriesCapacityInvalid => 'Between 1 and 1000';
+
+  @override
+  String get classSeriesClearEndDate => 'Remove the end date';
+
+  @override
+  String get classSeriesCreate => 'Create class';
+
+  @override
+  String get classSeriesCreateOne => 'Create a class';
+
+  @override
+  String get classSeriesCreated => 'Class created';
+
+  @override
+  String get classSeriesDate => 'Date';
+
+  @override
+  String get classSeriesDescription => 'Description (optional)';
+
+  @override
+  String classSeriesDoneCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count done',
+      one: '1 done',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classSeriesDuration => 'Length (minutes)';
+
+  @override
+  String get classSeriesDurationInvalid => 'Between 5 and 1440 minutes';
+
+  @override
+  String get classSeriesEdit => 'Edit class';
+
+  @override
+  String get classSeriesEmptyMessage =>
+      'Create a class with its timetable. Its sessions show up in your calendar 90 days ahead.';
+
+  @override
+  String get classSeriesEmptyTitle => 'No classes yet';
+
+  @override
+  String get classSeriesEndBeforeStart =>
+      'The end date can\'t be before the start';
+
+  @override
+  String get classSeriesEnds => 'Ends';
+
+  @override
+  String get classSeriesEveryDay => 'Every day';
+
+  @override
+  String get classSeriesGym => 'Gym';
+
+  @override
+  String classSeriesInClass(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count in the class',
+      one: '1 in the class',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classSeriesInvite => 'Invite';
+
+  @override
+  String get classSeriesInviteAgain => 'Invite again';
+
+  @override
+  String get classSeriesInviteHint =>
+      'They accept the invite, then every session lands in their schedule.';
+
+  @override
+  String classSeriesInviteSent(String name) {
+    return 'Invite sent to $name';
+  }
+
+  @override
+  String classSeriesInviteTitle(String title) {
+    return 'Invite to $title';
+  }
+
+  @override
+  String classSeriesInvitedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count invited',
+      one: '1 invited',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classSeriesLocation => 'Location (optional)';
+
+  @override
+  String get classSeriesLocationHint => 'e.g. Studio A';
+
+  @override
+  String get classSeriesMore => 'More';
+
+  @override
+  String classSeriesNameYou(String name) {
+    return '$name (you)';
+  }
+
+  @override
+  String get classSeriesNew => 'New class';
+
+  @override
+  String classSeriesNext(String when) {
+    return 'Next: $when';
+  }
+
+  @override
+  String get classSeriesNoEndDate => 'No end date';
+
+  @override
+  String get classSeriesNoEndDateHint =>
+      'Keeps going. Sessions appear 90 days ahead.';
+
+  @override
+  String get classSeriesNoGyms => 'No gyms to teach at';
+
+  @override
+  String get classSeriesNoGymsMessage =>
+      'Once a gym adds you as a trainer, you can create classes there.';
+
+  @override
+  String get classSeriesNoPeople =>
+      'No one yet. Invite your customers, followers or members of the gym.';
+
+  @override
+  String get classSeriesNoSessionsSoon => 'No sessions in the next two weeks.';
+
+  @override
+  String get classSeriesNoTrainer => 'No trainer';
+
+  @override
+  String get classSeriesNoUpcoming => 'No upcoming sessions';
+
+  @override
+  String classSeriesOnceOn(String date) {
+    return 'Once on $date';
+  }
+
+  @override
+  String get classSeriesOpenTimetable => 'Class timetable';
+
+  @override
+  String get classSeriesOpenTimetableHint =>
+      'Every session, the people in it and invites';
+
+  @override
+  String get classSeriesPause => 'Pause';
+
+  @override
+  String get classSeriesPauseMessage =>
+      'Upcoming sessions are cancelled and the people booked into them are told. Resuming brings them back.';
+
+  @override
+  String get classSeriesPauseTitle => 'Pause this class?';
+
+  @override
+  String get classSeriesPausedDone => 'Class paused';
+
+  @override
+  String get classSeriesPausedHint => 'No sessions while paused.';
+
+  @override
+  String get classSeriesPeople => 'People';
+
+  @override
+  String get classSeriesPickWeekday => 'Pick at least one day';
+
+  @override
+  String get classSeriesRemove => 'Remove from class';
+
+  @override
+  String get classSeriesRemoveMessage =>
+      'Their upcoming sessions of this class are cancelled.';
+
+  @override
+  String classSeriesRemoveTime(String time) {
+    return 'Remove $time';
+  }
+
+  @override
+  String classSeriesRemoveTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String classSeriesRemoved(String name) {
+    return '$name removed';
+  }
+
+  @override
+  String get classSeriesRepeat => 'Repeats';
+
+  @override
+  String get classSeriesRepeatDaily => 'Daily';
+
+  @override
+  String get classSeriesRepeatOnce => 'Once';
+
+  @override
+  String get classSeriesRepeatWeekly => 'Weekly';
+
+  @override
+  String get classSeriesResumedDone => 'Class resumed';
+
+  @override
+  String get classSeriesSave => 'Save';
+
+  @override
+  String get classSeriesSaved => 'Class updated';
+
+  @override
+  String get classSeriesSetEndDate => 'Set an end date';
+
+  @override
+  String classSeriesSpots(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count spots per session',
+      one: '1 spot per session',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classSeriesStarts => 'Starts';
+
+  @override
+  String get classSeriesStateActive => 'Active';
+
+  @override
+  String get classSeriesStateEnded => 'Ended';
+
+  @override
+  String get classSeriesStatePaused => 'Paused';
+
+  @override
+  String get classSeriesStatusAccepted => 'In the class';
+
+  @override
+  String get classSeriesStatusDeclined => 'Declined';
+
+  @override
+  String get classSeriesStatusPending => 'Invited';
+
+  @override
+  String get classSeriesTimes => 'Start times';
+
+  @override
+  String get classSeriesTimesHint => 'Add every time it runs in a day.';
+
+  @override
+  String get classSeriesTimesMax => 'Up to 12 start times a day';
+
+  @override
+  String get classSeriesTimesRequired => 'Add at least one start time';
+
+  @override
+  String get classSeriesTimetable => 'Timetable';
+
+  @override
+  String get classSeriesTimetableChangeConfirm => 'Change it';
+
+  @override
+  String get classSeriesTimetableChangeMessage =>
+      'Upcoming sessions that no longer fit are cancelled, and the people booked into them are told. New sessions are added for everyone in the class.';
+
+  @override
+  String get classSeriesTimetableChangeTitle => 'Change the timetable?';
+
+  @override
+  String classSeriesTimezone(String zone) {
+    return 'Times are in $zone';
+  }
+
+  @override
+  String get classSeriesTitle => 'Title';
+
+  @override
+  String get classSeriesTitleHint => 'e.g. Morning HIIT';
+
+  @override
+  String get classSeriesTitleRequired => 'Give the class a title';
+
+  @override
+  String get classSeriesTrainer => 'Trainer';
+
+  @override
+  String classSeriesUpcomingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count upcoming',
+      one: '1 upcoming',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get classSeriesUpcomingSessions => 'Upcoming sessions';
+
+  @override
+  String get classSeriesWeekdays => 'On these days';
+
+  @override
+  String get classSeriesYou => 'You';
+
+  @override
   String get commonBack => 'Back';
 
   @override
@@ -2233,6 +2690,151 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonYes => 'Yes';
+
+  @override
+  String get customersAdd => 'Add customer';
+
+  @override
+  String get customersAddPickerHint =>
+      'Your followers, members of gyms where you coach, and people you\'ve invited before.';
+
+  @override
+  String get customersAddPickerTitle => 'Add a customer';
+
+  @override
+  String customersAdded(String name) {
+    return '$name was invited to be your customer';
+  }
+
+  @override
+  String get customersCancelInvite => 'Cancel invite';
+
+  @override
+  String get customersChooseClassesHint =>
+      'Optional. They accept each class invite themselves, and you can change this later.';
+
+  @override
+  String customersChooseClassesTitle(String name) {
+    return 'Invite $name to classes?';
+  }
+
+  @override
+  String get customersClassDeclined => 'Declined';
+
+  @override
+  String get customersClassIn => 'In the class';
+
+  @override
+  String get customersClassInvited => 'Invited';
+
+  @override
+  String get customersClassPaused => 'Paused';
+
+  @override
+  String get customersEmptyMessage =>
+      'Add your followers or members of gyms where you coach. Anyone you invite to a class shows up here too.';
+
+  @override
+  String get customersEmptyTitle => 'No customers yet';
+
+  @override
+  String get customersInvite => 'Invite';
+
+  @override
+  String get customersInviteCancelled => 'Invite cancelled';
+
+  @override
+  String customersInviteToClasses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Invite to $count classes',
+      one: 'Invite to 1 class',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get customersInvited => 'Invite sent';
+
+  @override
+  String get customersJustAdd => 'Just add';
+
+  @override
+  String get customersNoActiveClasses =>
+      'You have no active classes to invite them to yet.';
+
+  @override
+  String get customersNoClasses =>
+      'You don\'t run any classes yet. Create one in the Classes tab.';
+
+  @override
+  String get customersNoMatches => 'No customers match your search';
+
+  @override
+  String get customersNotFound => 'This person is no longer your customer.';
+
+  @override
+  String get customersNotInClass => 'Not in this class';
+
+  @override
+  String get customersProgress => 'Progress';
+
+  @override
+  String get customersProgressLocked =>
+      'Available once they accept your invite';
+
+  @override
+  String get customersProgressSubtitle =>
+      'Workouts, lifts and body measurements';
+
+  @override
+  String get customersRemove => 'Remove';
+
+  @override
+  String get customersRemoveCustomer => 'Remove customer';
+
+  @override
+  String get customersRemoveCustomerMessage =>
+      'They\'re also taken off your classes and their upcoming sessions are cancelled. You won\'t be able to see their progress anymore.';
+
+  @override
+  String customersRemoveCustomerTitle(String name) {
+    return 'Remove $name?';
+  }
+
+  @override
+  String get customersRemoveFromClass => 'Remove from class';
+
+  @override
+  String get customersRemoveFromClassMessage =>
+      'Their upcoming sessions of this class are cancelled and they\'re told about it.';
+
+  @override
+  String customersRemoveFromClassTitle(String title) {
+    return 'Remove from $title?';
+  }
+
+  @override
+  String get customersRemoved => 'Customer removed';
+
+  @override
+  String get customersRemovedFromClass => 'Removed from the class';
+
+  @override
+  String get customersSearch => 'Search customers';
+
+  @override
+  String get customersStatusAccepted => 'Customer';
+
+  @override
+  String get customersStatusPending => 'Invite pending';
+
+  @override
+  String get customersViewProfile => 'View profile';
+
+  @override
+  String get customersYourClasses => 'Your classes';
 
   @override
   String get feedAddMedia => 'Add photos or videos';
@@ -5449,6 +6051,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get socialUploadFailed => 'Upload failed. Try again.';
 
   @override
+  String get trainerClassesPickerCustomer => 'Customer';
+
+  @override
+  String get trainerClassesPickerCustomerPending => 'Invite pending';
+
+  @override
+  String get trainerClassesPickerEmpty =>
+      'No one found. You can add your followers, members of gyms where you coach, and your customers.';
+
+  @override
+  String get trainerClassesPickerFollower => 'Follows you';
+
+  @override
+  String get trainerClassesPickerMember => 'Member';
+
+  @override
+  String get trainerClassesPickerSearch => 'Search by name or username';
+
+  @override
+  String get trainerClassesTabCalendar => 'Calendar';
+
+  @override
+  String get trainerClassesTabClasses => 'Classes';
+
+  @override
+  String get trainerClassesTabCustomers => 'Customers';
+
+  @override
   String get trainingAssignAction => 'Assign';
 
   @override
@@ -5636,9 +6266,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trainingClassBookingCancelled => 'Booking cancelled';
 
   @override
-  String get trainingClassBrowse => 'Browse classes';
-
-  @override
   String get trainingClassCancelBooking => 'Cancel booking';
 
   @override
@@ -5766,9 +6393,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trainingClassJoinWaitlist => 'Join waitlist';
 
   @override
-  String get trainingClassJumpToNext => 'Jump to next class';
-
-  @override
   String get trainingClassKeep => 'Keep';
 
   @override
@@ -5804,14 +6428,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trainingClassMore => 'More';
 
   @override
-  String get trainingClassMyBookings => 'My bookings';
-
-  @override
-  String trainingClassMyBookingsCount(int count) {
-    return 'My bookings ($count)';
-  }
-
-  @override
   String get trainingClassMyClasses => 'My classes';
 
   @override
@@ -5821,18 +6437,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trainingClassNew => 'New class';
-
-  @override
-  String trainingClassNextClass(String title, String day, String time) {
-    return 'Next class: $title, $day at $time.';
-  }
-
-  @override
-  String get trainingClassNoBookings => 'No bookings yet';
-
-  @override
-  String get trainingClassNoBookingsMessage =>
-      'Classes you book or join the waitlist for show up here.';
 
   @override
   String get trainingClassNoBookingsYet => 'No one has booked yet';
@@ -5869,13 +6473,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trainingClassNobodyBooked => 'Nobody has booked yet.';
 
   @override
-  String get trainingClassNoneScheduled => 'No classes scheduled';
-
-  @override
-  String get trainingClassNoneScheduledMessage =>
-      'Your gyms haven\'t scheduled any classes for the next two weeks. Check back soon.';
-
-  @override
   String get trainingClassNoneThisWeek => 'No classes this week';
 
   @override
@@ -5888,11 +6485,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trainingClassNotSignedIn => 'Not signed in';
-
-  @override
-  String trainingClassNothingOn(String day) {
-    return 'Nothing on $day';
-  }
 
   @override
   String get trainingClassNotifyOnChange =>
@@ -5909,9 +6501,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trainingClassPersonMember => 'Member';
-
-  @override
-  String get trainingClassRefresh => 'Refresh';
 
   @override
   String get trainingClassRemove => 'Remove';

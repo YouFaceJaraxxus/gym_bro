@@ -159,6 +159,11 @@ export async function gymIdForMembership(membershipId: string): Promise<string |
  */
 export async function coachesUser(caller: Caller, userId: string): Promise<boolean> {
   if (isSuperUser(caller)) return true;
+  // Customers who accepted the caller as their trainer.
+  const customer = await db.selectFrom("trainer_customer").select("user_id")
+    .where("trainer_id", "=", caller.id).where("user_id", "=", userId).where("status", "=", "accepted")
+    .executeTakeFirst();
+  if (customer) return true;
   const gyms = await db
     .selectFrom("member")
     .select("gym_id")

@@ -213,7 +213,8 @@ Deno.test({
         await deleteNotifications(member.token, (n) => created.includes(n.metadata?.class_id));
         await deleteNotifications(member2.token, (n) => created.includes(n.metadata?.class_id));
         await deleteNotificationsWhere("class_id", created);
-        await sql(`DELETE FROM gym_class WHERE id = ANY($1::uuid[])`, [created]);
+        // Deleting the class deletes its sessions.
+        await sql(`DELETE FROM class_series WHERE id IN (SELECT series_id FROM gym_class WHERE id = ANY($1::uuid[]))`, [created]);
       }
       assertAll();
     });
@@ -562,7 +563,8 @@ Deno.test({
       } finally {
         for (const s of [member, member2, superU]) await deleteNotifications(s.token, (n) => created.includes(n.metadata?.class_id));
         await deleteNotificationsWhere("class_id", created);
-        await sql(`DELETE FROM gym_class WHERE id = ANY($1::uuid[])`, [created]);
+        // Deleting the class deletes its sessions.
+        await sql(`DELETE FROM class_series WHERE id IN (SELECT series_id FROM gym_class WHERE id = ANY($1::uuid[]))`, [created]);
       }
       assertAll();
     });
@@ -790,7 +792,8 @@ Deno.test({
       } finally {
         await deleteNotifications(vendor.token, (n) => created.includes(n.metadata?.class_id));
         await deleteNotificationsWhere("class_id", created);
-        await sql(`DELETE FROM gym_class WHERE id = ANY($1::uuid[])`, [created]);
+        // Deleting the class deletes its sessions.
+        await sql(`DELETE FROM class_series WHERE id IN (SELECT series_id FROM gym_class WHERE id = ANY($1::uuid[]))`, [created]);
         await restorePair(V, T, snaps[0]);
         await restorePair(outsider.profile.id, T, snaps[1]);
         // The trainer's "new follower" notice.
