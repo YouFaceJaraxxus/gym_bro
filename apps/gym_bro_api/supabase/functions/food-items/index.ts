@@ -209,6 +209,20 @@ async function fetchFoodItemDetail(id: string) {
   };
 }
 
+/** Per-100 macros and vitamin/mineral amounts can't be negative. */
+function validateNutrients(fields: Record<string, unknown>, vitamins: unknown, minerals: unknown): string | null {
+  for (const key of MACRO_FIELDS) {
+    if (fields[key] != null && Number(fields[key]) < 0) return `${key} can't be negative`;
+  }
+  for (const list of [vitamins, minerals]) {
+    if (!Array.isArray(list)) continue;
+    if (list.some((x) => x?.amount_per_100 != null && Number(x.amount_per_100) < 0)) {
+      return "amount_per_100 can't be negative";
+    }
+  }
+  return null;
+}
+
 // ── Replace nested vitamins/minerals (always inside a transaction) ───────────
 
 // deno-lint-ignore no-explicit-any
@@ -574,6 +588,12 @@ async function handler(req: Request): Promise<Response> {
 
     const subtypeError = validateSubtypes(type, food_subtype, drink_subtype, spice_subtype);
     if (subtypeError) return jsonError(subtypeError, 400);
+    const nutrientError = validateNutrients(
+      { kcal_per_100, protein_per_100, carb_per_100, fat_per_100, fiber_per_100 },
+      vitamins,
+      minerals,
+    );
+    if (nutrientError) return jsonError(nutrientError, 400);
 
     const insert: FoodItemInsert = {
       name,
@@ -649,6 +669,8 @@ async function handler(req: Request): Promise<Response> {
     if ("serving_unit" in fields && !VALID_SERVING_UNITS.includes(fields.serving_unit as ServingUnit)) {
       return jsonError("serving_unit must be one of: g, ml", 400);
     }
+    const nutrientError = validateNutrients(fields, vitamins, minerals);
+    if (nutrientError) return jsonError(nutrientError, 400);
 
     const update = { ...fields, updated_at: new Date().toISOString() } as FoodItemUpdate;
     await db.transaction().execute(async (trx) => {

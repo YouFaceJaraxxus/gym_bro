@@ -35,10 +35,12 @@ class HttpError extends Error {
 // /classes/:id/book                     → { id, action: 'book' }
 // /classes/:id/cancel-booking           → { id, action: 'cancel_booking' }
 // /classes/:id/bookings/:bookingId      → { id, action: 'booking', bookingId }
+// anything else                         → null (404)
 
 type Action = "coaching_gyms" | "book" | "cancel_booking" | "booking" | null;
 
-function parsePath(pathname: string): { id: string | null; action: Action; bookingId?: string } {
+function parsePath(pathname: string): { id: string | null; action: Action; bookingId?: string } | null {
+  if (/^\/classes\/?$/.test(pathname)) return { id: null, action: null };
   if (/^\/classes\/coaching-gyms\/?$/.test(pathname)) return { id: null, action: "coaching_gyms" };
 
   const booking = pathname.match(/^\/classes\/([^/]+)\/bookings\/([^/]+)$/);
@@ -53,7 +55,7 @@ function parsePath(pathname: string): { id: string | null; action: Action; booki
   const single = pathname.match(/^\/classes\/([^/]+)$/);
   if (single) return { id: single[1], action: null };
 
-  return { id: null, action: null };
+  return null;
 }
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
@@ -273,7 +275,9 @@ async function handler(req: Request): Promise<Response> {
   if (response) return response;
 
   const url = new URL(req.url);
-  const { id, action, bookingId } = parsePath(url.pathname);
+  const route = parsePath(url.pathname);
+  if (!route) return jsonError("Not found", 404);
+  const { id, action, bookingId } = route;
   if (id && !UUID_RE.test(id)) return jsonError("Class not found", 404);
   if (bookingId && !UUID_RE.test(bookingId)) return jsonError("Booking not found", 404);
 

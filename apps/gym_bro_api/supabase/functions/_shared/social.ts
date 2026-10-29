@@ -199,6 +199,20 @@ export async function directMessageStatus(
   return "request";
 }
 
+/**
+ * SQL condition: message `m` counts as unread for `userId`, whose participant
+ * row is `p` in conversation `c`. Shared by the inbox's unread_count and the
+ * unread_conversations badge so they always agree.
+ */
+export function unreadMessageSql(userId: string) {
+  return sql<boolean>`m.created_at > COALESCE(p.last_read_at, '-infinity')
+    AND m.created_at > COALESCE(p.cleared_at, '-infinity')
+    AND (c.kind = 'direct' OR m.created_at >= p.joined_at)
+    AND m.kind <> 'system'
+    AND m.deleted_at IS NULL
+    AND (m.sender_id IS NULL OR m.sender_id <> ${userId})`;
+}
+
 /** Marks the user active now (at most one write per minute). */
 export async function touchActivity(userId: string): Promise<void> {
   try {

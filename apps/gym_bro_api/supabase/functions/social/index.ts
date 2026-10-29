@@ -14,6 +14,7 @@ import {
   relationship,
   relationships,
   touchActivity,
+  unreadMessageSql,
   type UserSummary,
 } from "../_shared/social.ts";
 import type { ReportReason, WhoCanMessage } from "../../types/schema/public.ts";
@@ -558,10 +559,8 @@ async function handler(req: Request): Promise<Response> {
         (SELECT count(*)::int FROM friendship WHERE addressee_id = ${caller.id} AND status = 'pending') AS friend_requests,
         (SELECT count(*)::int FROM conversation_participant p JOIN conversation c ON c.id = p.conversation_id
           WHERE p.user_id = ${caller.id} AND p.status = 'active' AND p.archived_at IS NULL
-            AND EXISTS (SELECT 1 FROM message m WHERE m.conversation_id = c.id
-              AND m.created_at > COALESCE(p.last_read_at, p.joined_at - INTERVAL '1 second')
-              AND m.created_at > COALESCE(p.cleared_at, '-infinity')
-              AND (m.sender_id IS NULL OR m.sender_id <> ${caller.id}))) AS unread_conversations,
+            AND EXISTS (SELECT 1 FROM message m
+              WHERE m.conversation_id = c.id AND ${unreadMessageSql(caller.id)})) AS unread_conversations,
         (SELECT count(*)::int FROM conversation_participant
           WHERE user_id = ${caller.id} AND status = 'request') AS message_requests,
         (SELECT count(*)::int FROM notification WHERE user_id = ${caller.id} AND NOT is_read) AS unread_notifications
@@ -787,7 +786,11 @@ async function handler(req: Request): Promise<Response> {
       if (!msg) return jsonError("Message not found", 404);
       targetUserId = msg.sender_id;
     }
-    if (targetUserId && !UUID_RE.test(targetUserId)) return jsonError("User not found", 404);
+    if (targetUserId) {
+      if (!UUID_RE.test(targetUserId)) return jsonError("User not found", 404);
+      const target = await db.selectFrom("users").select("id").where("id", "=", targetUserId).executeTakeFirst();
+      if (!target) return jsonError("User not found", 404);
+    }
     const report = await db.insertInto("user_report").values({
       reporter_id: caller.id,
       target_user_id: targetUserId,

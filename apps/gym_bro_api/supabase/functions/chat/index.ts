@@ -19,6 +19,7 @@ import {
   isReaction,
   REACTION_EMOJI,
   touchActivity,
+  unreadMessageSql,
   type UserSummary,
   userSummaries,
 } from "../_shared/social.ts";
@@ -274,13 +275,7 @@ async function listConversations(
     SELECT c.id, c.kind, c.title, c.description, c.avatar_url, c.created_by, c.created_at, c.last_message_at,
            p.role, p.status, p.muted_until, p.archived_at, p.last_read_at,
            (SELECT count(*)::int FROM message m
-             WHERE m.conversation_id = c.id
-               AND m.created_at > COALESCE(p.last_read_at, '-infinity')
-               AND m.created_at > COALESCE(p.cleared_at, '-infinity')
-               AND (c.kind = 'direct' OR m.created_at >= p.joined_at)
-               AND m.kind <> 'system'
-               AND m.deleted_at IS NULL
-               AND (m.sender_id IS NULL OR m.sender_id <> ${caller.id})) AS unread_count,
+             WHERE m.conversation_id = c.id AND ${unreadMessageSql(caller.id)}) AS unread_count,
            (SELECT count(*)::int FROM conversation_participant x WHERE x.conversation_id = c.id) AS participant_count,
            lm.msg AS last_message,
            lm.media_type AS last_media_type
@@ -305,7 +300,8 @@ async function listConversations(
           OR (${box} = 'archived' AND p.status = 'active' AND p.archived_at IS NOT NULL)
           OR (${box} = 'inbox' AND p.status = 'active' AND p.archived_at IS NULL
               -- an empty direct chat I didn't start isn't shown yet
-              AND (c.kind = 'group' OR lm.msg IS NOT NULL OR c.created_by = ${caller.id}))))
+              -- (nor one I started and then left)
+              AND (c.kind = 'group' OR lm.msg IS NOT NULL OR (c.created_by = ${caller.id} AND p.cleared_at IS NULL)))))
     ORDER BY c.last_message_at DESC, c.id
     LIMIT ${opts.limit ?? 30} OFFSET ${opts.offset ?? 0}
   `.execute(db);
@@ -900,21 +896,23 @@ async function handler(req: Request): Promise<Response> {
     const beforeId = url.searchParams.get("before_id");
     const afterId = url.searchParams.get("after_id");
     const cursorId = beforeId ?? afterId;
-    let cursor: { created_at: string; id: string } | undefined;
+    let cursor: { id: string } | undefined;
     if (cursorId) {
       if (!UUID_RE.test(cursorId)) return jsonError("Invalid cursor", 400);
-      cursor = await db.selectFrom("message").select(["created_at", "id"]).where("id", "=", cursorId)
+      cursor = await db.selectFrom("message").select("id").where("id", "=", cursorId)
         .where("conversation_id", "=", convId).executeTakeFirst();
       if (!cursor) return jsonError("Cursor message not found", 404);
     }
+    // Compare against the cursor row in SQL: its created_at has microseconds a JS Date would drop.
+    const cursorRow = cursor && sql`(SELECT cm.created_at, cm.id FROM message cm WHERE cm.id = ${cursor.id}::uuid)`;
     const from = visibleFrom(me);
     let q = db.selectFrom("message").select(MESSAGE_COLS).where("conversation_id", "=", convId)
       .where("created_at", ">", from);
     if (cursor && beforeId) {
-      q = q.where(sql<boolean>`(created_at, id) < (${cursor.created_at}::timestamptz, ${cursor.id}::uuid)`)
+      q = q.where(sql<boolean>`(created_at, id) < ${cursorRow}`)
         .orderBy("created_at", "desc").orderBy("id", "desc");
     } else if (cursor && afterId) {
-      q = q.where(sql<boolean>`(created_at, id) > (${cursor.created_at}::timestamptz, ${cursor.id}::uuid)`)
+      q = q.where(sql<boolean>`(created_at, id) > ${cursorRow}`)
         .orderBy("created_at", "asc").orderBy("id", "asc");
     } else {
       q = q.orderBy("created_at", "desc").orderBy("id", "desc");

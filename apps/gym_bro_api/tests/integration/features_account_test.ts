@@ -1,15 +1,18 @@
-// Settings, push device registration, scheduled jobs and super-user
-// impersonation. Seeded users' emails and passwords are never changed;
-// settings are restored and test device tokens / audit rows removed.
+// deno-lint-ignore-file no-explicit-any
+// Settings, push device registration, scheduled jobs, super-user
+// impersonation, and the user directory (lookups, profile reads/edits).
+// Seeded users' emails and passwords are never changed; settings and the one
+// edited display name are restored and test device tokens / audit rows removed.
+// (Sign-up, invites, sessions and account deletion: auth_flows_test.ts.)
 import { ANON, call, checker, FN, seededUsers, short, suite } from "./_client.ts";
 import { sql } from "./_db.ts";
 
 Deno.test({
-  name: "features: settings, devices, jobs, impersonation",
+  name: "features: settings, devices, jobs, impersonation, user directory",
   ...suite,
   async fn(t) {
     const { check, assertAll } = checker();
-    const { member, trainer, superU } = await seededUsers();
+    const { member, owner, trainer, employee, superU, vendor } = await seededUsers();
     const stamp = Date.now();
 
     await t.step("10. settings, devices, jobs, impersonation", async () => {
@@ -142,6 +145,67 @@ Deno.test({
           [superU.profile.id, startedAt],
         );
       }
+      assertAll();
+    });
+
+    await t.step("11. user directory: lookups, profile reads and edits, unknown routes", async () => {
+      const all = await call("GET", "/users", superU.token);
+      check(
+        "super user lists every user (full columns)",
+        all.status === 200 && (all.data as any[]).some((u) => u.id === member.profile.id && u.email === member.profile.email && "auth_id" in u),
+        `status ${all.status} n=${(all.data as any[])?.length}`,
+      );
+      const upper = await call("GET", `/users?email=${encodeURIComponent(member.profile.email.toUpperCase())}`, employee.token);
+      const hit = (upper.data as any[])?.[0];
+      check(
+        "staff email lookup ignores case and returns public columns + email",
+        upper.status === 200 && (upper.data as any[]).length === 1 && hit.id === member.profile.id && hit.email === member.profile.email && !("auth_id" in hit),
+        `status ${upper.status} ${short(upper.data)}`,
+      );
+      const superLookup = await call("GET", `/users?email=${encodeURIComponent(member.profile.email)}`, superU.token);
+      check("super user lookup includes auth_id", superLookup.status === 200 && !!superLookup.data?.[0]?.auth_id, short(superLookup.data));
+      const vendorLookup = await call("GET", `/users?email=${encodeURIComponent(member.profile.email)}`, vendor.token);
+      check("shop vendors (shop staff) may look users up by email", vendorLookup.status === 200 && vendorLookup.data?.[0]?.id === member.profile.id, `status ${vendorLookup.status}`);
+      const none = await call("GET", `/users?email=it-nobody-${stamp}@example.com`, owner.token);
+      check("lookup of an unknown email is []", none.status === 200 && (none.data as any[]).length === 0, short(none.data));
+
+      const staffRead = await call("GET", `/users/${member.profile.id}`, employee.token);
+      check("gym staff reading their member gets the email", staffRead.status === 200 && staffRead.data.email === member.profile.email, short(staffRead.data));
+      const coachRead = await call("GET", `/users/${member.profile.id}`, trainer.token);
+      check("a trainer (not front-desk staff) gets the public profile only", coachRead.status === 200 && !("email" in coachRead.data), short(coachRead.data));
+      const unknown = await call("GET", `/users/${crypto.randomUUID()}`, member.token);
+      check("unknown user id is 404", unknown.status === 404, `status ${unknown.status}`);
+      const malformed = await call("GET", "/users/not-a-uuid", member.token);
+      check("malformed user id is 404", malformed.status === 404, `status ${malformed.status}`);
+
+      const empty = await call("PUT", `/users/${member.profile.id}`, member.token, {});
+      check("profile PUT with an empty body is 400", empty.status === 400, `status ${empty.status}`);
+      const onlyIgnored = await call("PUT", `/users/${member.profile.id}`, member.token, { id: member.profile.id, created_at: "x" });
+      check("profile PUT with only read-only keys is 400 nothing to update", onlyIgnored.status === 400, `status ${onlyIgnored.status}`);
+      const ownEmail = await call("PUT", `/users/${member.profile.id}`, member.token, { email: `it-${stamp}@example.com` });
+      check("users can't change their own email through PUT", ownEmail.status === 403, `status ${ownEmail.status}`);
+      const takenName = await call("PUT", `/users/${member.profile.id}`, member.token, { username: owner.profile.username });
+      check("taking someone else's username is 409", takenName.status === 409, `status ${takenName.status}`);
+      const badRole = await call("PUT", `/users/${member.profile.id}`, superU.token, { role: "wizard" });
+      check("super user setting an unknown role is 400", badRole.status === 400, `status ${badRole.status}`);
+      const ghost = await call("PUT", `/users/${crypto.randomUUID()}`, superU.token, { name: "x" });
+      check("super user editing an unknown user is 404", ghost.status === 404, `status ${ghost.status}`);
+      try {
+        const edit = await call("PUT", `/users/${member.profile.id}`, superU.token, { name: `It${stamp}` });
+        check("super user edits someone's display name", edit.status === 200 && edit.data.name === `It${stamp}` && edit.data.email === member.profile.email, short(edit.data));
+        const seen = await call("GET", `/users/${member.profile.id}`, trainer.token);
+        check("the edit is visible to others", seen.data?.name === `It${stamp}`, short(seen.data));
+      } finally {
+        const restore = await call("PUT", `/users/${member.profile.id}`, superU.token, { name: member.profile.name });
+        check("display name restored", restore.status === 200 && restore.data.name === member.profile.name, `status ${restore.status}`);
+      }
+
+      const patch = await call("PATCH", "/users/me", member.token, {});
+      check("unknown /users route is 404", patch.status === 404, `status ${patch.status}`);
+      const anonMe = await call("GET", "/users/me");
+      check("GET /users/me needs a session", anonMe.status === 401, `status ${anonMe.status}`);
+      const jobsOther = await call("POST", "/jobs/other");
+      check("unknown /jobs route is 404", jobsOther.status === 404, `status ${jobsOther.status}`);
       assertAll();
     });
   },

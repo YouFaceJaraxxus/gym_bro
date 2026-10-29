@@ -711,12 +711,20 @@ async function handler(req: Request): Promise<Response> {
     if (visibility !== undefined && (existing.business_id || !VISIBILITIES.includes(visibility))) {
       return jsonError("visibility must be public or followers (personal posts only)", 400);
     }
-    if (typeof content === "string" && content.length > CAPTION_MAX_LENGTH) {
+    // Same rules as POST: a personal caption is trimmed and the post keeps a
+    // caption or media; a business post always needs content.
+    const text = typeof content === "string" && !existing.business_id ? content.trim() : content;
+    if (typeof text === "string" && text.length > CAPTION_MAX_LENGTH) {
       return jsonError(`Captions are limited to ${CAPTION_MAX_LENGTH} characters`, 400);
+    }
+    if (content !== undefined && !text) {
+      if (existing.business_id) return jsonError("content is required", 400);
+      const media = await db.selectFrom("post_image").select("id").where("post_id", "=", route.id).executeTakeFirst();
+      if (!media) return jsonError("A post needs a caption or media", 400);
     }
     await db.transaction().execute(async (trx) => {
       await trx.updateTable("post").set({
-        ...(content !== undefined && { content }),
+        ...(content !== undefined && { content: text }),
         ...(visibility !== undefined && { visibility }),
         updated_at: new Date().toISOString(),
       }).where("id", "=", route.id).execute();

@@ -20,11 +20,13 @@ class HttpError extends Error {
 // /shifts          → { id: null, staff: false }
 // /shifts/staff    → { id: null, staff: true }
 // /shifts/:id      → { id, staff: false }
+// anything else    → null (404)
 
-function parsePath(pathname: string): { id: string | null; staff: boolean } {
+function parsePath(pathname: string): { id: string | null; staff: boolean } | null {
+  if (/^\/shifts\/?$/.test(pathname)) return { id: null, staff: false };
   if (/^\/shifts\/staff\/?$/.test(pathname)) return { id: null, staff: true };
   const single = pathname.match(/^\/shifts\/([^/]+)$/);
-  return { id: single ? single[1] : null, staff: false };
+  return single ? { id: single[1], staff: false } : null;
 }
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
@@ -137,7 +139,9 @@ async function handler(req: Request): Promise<Response> {
   if (response) return response;
 
   const url = new URL(req.url);
-  const { id, staff } = parsePath(url.pathname);
+  const route = parsePath(url.pathname);
+  if (!route) return jsonError("Not found", 404);
+  const { id, staff } = route;
   if (id && !UUID_RE.test(id)) return jsonError("Shift not found", 404);
 
   // ── GET /shifts/staff?gym_id= ─────────────────────────────────────────────────

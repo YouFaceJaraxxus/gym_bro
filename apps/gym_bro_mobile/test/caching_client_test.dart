@@ -50,6 +50,9 @@ void main() {
       cacheDirectory: () async => Directory('${tmp.path}/cache'),
       connectivity: connectivity,
     );
+    // Runs before tearDown deletes the cache directory: a cache write still in
+    // flight would otherwise race the deletion ("Directory not empty").
+    addTearDown(client.flush);
     return (client: client, setOnline: (v) => online = v, seen: seen);
   }
 

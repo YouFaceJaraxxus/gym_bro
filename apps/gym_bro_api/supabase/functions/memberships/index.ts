@@ -3,10 +3,13 @@ import { db } from "../_shared/config.ts";
 import {
   canStaffGym,
   forbidden,
+  gymIdForMembership,
   gymIdForMembershipType,
+  isSuperUser,
   json,
   jsonError,
   requireCaller,
+  staffedGymIds,
 } from "../_shared/auth.ts";
 import { businessName, notify } from "../_shared/notify.ts";
 import type { MembershipInsert, MembershipUpdate } from "../../types/schema/public.ts";
@@ -136,6 +139,8 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── GET /memberships — optional ?user_id=, ?is_active=, ?gym_id= filters ─────
+  // Super users see everything; everyone else sees memberships of gyms they
+  // staff plus their own. Filters narrow that set further.
   if (req.method === "GET" && !id) {
     await expireLapsedMemberships();
 
@@ -143,9 +148,19 @@ Deno.serve(async (req: Request) => {
     const gymId = url.searchParams.get("gym_id");
     const isActiveParam = url.searchParams.get("is_active");
 
-    if (userId) await notifyExpiringSoon(userId);
-
     let query = db.selectFrom("membership").selectAll();
+    if (!isSuperUser(caller)) {
+      query = query.where((eb) =>
+        eb.or([
+          eb(
+            "current_membership_type_id",
+            "in",
+            db.selectFrom("gym_membership_type").select("id").where("gym_id", "in", staffedGymIds(caller)),
+          ),
+          eb("user_id", "=", caller.id),
+        ])
+      );
+    }
     if (userId) query = query.where("user_id", "=", userId);
     if (gymId) {
       query = query.where(
@@ -157,7 +172,10 @@ Deno.serve(async (req: Request) => {
     if (isActiveParam != null) {
       query = query.where("is_active", "=", isActiveParam === "true");
     }
-    return json(await query.execute());
+    const rows = await query.execute();
+    // Only the member or staff who can see their memberships trigger the warning.
+    if (userId && (userId === caller.id || rows.length > 0)) await notifyExpiringSoon(userId);
+    return json(rows);
   }
 
   // ── GET /memberships/:id ──────────────────────────────────────────────────────
@@ -169,6 +187,10 @@ Deno.serve(async (req: Request) => {
       .where("id", "=", id)
       .executeTakeFirst();
     if (!row) return jsonError("Membership not found", 404);
+    if (row.user_id !== caller.id) {
+      const gymId = await gymIdForMembership(id);
+      if (!gymId || !(await canStaffGym(caller, gymId))) return forbidden();
+    }
     return json(row);
   }
 

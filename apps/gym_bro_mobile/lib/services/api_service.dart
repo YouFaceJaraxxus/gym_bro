@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import '../models/app_notification.dart';
@@ -48,17 +49,25 @@ final _base = AppConfig.apiBaseUrl;
 
 class ApiService {
   ApiService() {
-    OfflineSupport.ensureStarted(tokenProvider: _sessionToken);
+    if (debugClientOverride == null) {
+      OfflineSupport.ensureStarted(tokenProvider: _sessionToken);
+    }
   }
 
   /// Token for replaying queued offline writes; null when signed out.
   static Future<String?> _sessionToken() async =>
       AuthManager.instance.hasSession ? AuthManager.instance.getValidToken() : null;
 
+  /// Replaces the HTTP client of every ApiService (tests: a `MockClient`).
+  /// Read on each request, so long-lived services pick it up too. While set,
+  /// the offline machinery (connectivity, outbox replay) isn't started.
+  @visibleForTesting
+  static http.Client? debugClientOverride;
+
   /// Shared by every ApiService: 20 s timeouts, on-disk GET cache used as an
   /// offline fallback (responses carry `x-gymbro-offline: 1`), connectivity
   /// reporting. See lib/services/offline/caching_client.dart.
-  final http.Client _client = CachingClient.shared;
+  http.Client get _client => debugClientOverride ?? CachingClient.shared;
 
   Map<String, String> _headers(String token) => {
         'Content-Type': 'application/json',

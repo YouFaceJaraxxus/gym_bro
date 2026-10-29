@@ -114,3 +114,27 @@ export async function seededUsers() {
   const gym = gyms.find((b) => b.type === "gym" && b.name === IRONCLAD) ?? gyms.find((b) => b.type === "gym");
   return { member, owner, trainer, employee, superU, vendor, gym };
 }
+
+/** A 1×1 PNG, for upload tests. */
+export const PNG = Uint8Array.from(
+  atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="),
+  (c) => c.charCodeAt(0),
+);
+
+/** Uploads bytes through a slot from an /uploads endpoint; returns the storage status. */
+export async function uploadTo(slot: any, bytes: Uint8Array<ArrayBuffer>, type: string): Promise<number> {
+  const res = await fetch(`${API}${slot.upload_url}`, {
+    method: "PUT",
+    headers: { "Content-Type": type, "x-upsert": "false" },
+    body: bytes,
+  });
+  await res.body?.cancel();
+  return res.status;
+}
+
+/** GETs a relative storage URL (signed or public); returns the status. */
+export async function fetchStatus(relativeUrl: string): Promise<number> {
+  const res = await fetch(`${API}${relativeUrl}`);
+  await res.body?.cancel();
+  return res.status;
+}

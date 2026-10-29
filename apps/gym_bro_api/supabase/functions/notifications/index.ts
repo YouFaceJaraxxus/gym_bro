@@ -2,7 +2,7 @@ import type { Kysely } from "npm:kysely@^0.27";
 import { db } from "../_shared/config.ts";
 import { forbidden, isSuperUser, json, jsonError, requireCaller } from "../_shared/auth.ts";
 import { businessName, gymOwnerIds, notify, shopOwnerIds } from "../_shared/notify.ts";
-import { assignRole, pgCode } from "../_shared/roles.ts";
+import { pgCode, reconcileRoles } from "../_shared/roles.ts";
 import type {
   Database,
   NotificationInsert,
@@ -10,6 +10,8 @@ import type {
 } from "../../types/schema/public.ts";
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function parseId(pathname: string): string | null {
   const match = pathname.match(/^\/notifications\/([^/]+)$/);
@@ -87,6 +89,8 @@ Deno.serve(async (req: Request) => {
 
   const url = new URL(req.url);
   const actionMatch = parseAction(url.pathname);
+  // A malformed id can't match a notification (and would make Postgres throw).
+  if (actionMatch && !UUID_RE.test(actionMatch.id)) return jsonError("Notification not found", 404);
 
   // ── POST /notifications/mark-all-read — matched before /:id ───────────────────
   if (req.method === "POST" && url.pathname === "/notifications/mark-all-read") {
@@ -137,7 +141,7 @@ Deno.serve(async (req: Request) => {
             .values({ user_id: caller.id, gym_id: gymId })
             .onConflict((oc) => oc.columns(["user_id", "gym_id"]).doNothing())
             .execute();
-          await assignRole(trx, caller.id, "employee");
+          await reconcileRoles(trx, [caller.id]);
         } else {
           // employee_trainer: find or create the trainer row first
           let trainerRow = await trx
@@ -158,7 +162,7 @@ Deno.serve(async (req: Request) => {
             .values({ user_id: caller.id, gym_id: gymId, trainer_id: trainerRow.id })
             .onConflict((oc) => oc.columns(["user_id", "gym_id"]).doNothing())
             .execute();
-          await assignRole(trx, caller.id, "employee_trainer");
+          await reconcileRoles(trx, [caller.id]);
         }
       });
       if (!updated) return jsonError("This invite is no longer valid", 409);
@@ -190,7 +194,7 @@ Deno.serve(async (req: Request) => {
           .values({ user_id: caller.id, shop_id: shopId })
           .onConflict((oc) => oc.columns(["user_id", "shop_id"]).doNothing())
           .execute();
-        await assignRole(trx, caller.id, "shop_vendor");
+        await reconcileRoles(trx, [caller.id]);
       });
       if (!updated) return jsonError("This invite is no longer valid", 409);
 
@@ -239,6 +243,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const id = parseId(url.pathname);
+  if (id && !UUID_RE.test(id)) return jsonError("Notification not found", 404);
 
   // ── POST /notifications — super user only (the server creates notifications) ─
   if (req.method === "POST" && !id) {

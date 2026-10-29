@@ -8,57 +8,21 @@
 // Pinned: deno.json has no lockfile, and a newer realtime client than the
 // local stack's realtime server joins private channels but never gets broadcasts.
 import { createClient, type RealtimeChannel } from "jsr:@supabase/supabase-js@2.100.1";
-import { ANON, API, call, checker, deleteNotifications, notificationsOf, short, signin, suite } from "./_client.ts";
-import { sql } from "./_db.ts";
-
-// A 1×1 PNG.
-const PNG = Uint8Array.from(
-  atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="),
-  (c) => c.charCodeAt(0),
-);
-
-/** Uploads bytes through a slot from an /uploads endpoint. */
-async function uploadTo(slot: any, bytes: Uint8Array<ArrayBuffer>, type: string): Promise<number> {
-  const res = await fetch(`${API}${slot.upload_url}`, {
-    method: "PUT",
-    headers: { "Content-Type": type, "x-upsert": "false" },
-    body: bytes,
-  });
-  await res.body?.cancel();
-  return res.status;
-}
-
-async function fetchStatus(relativeUrl: string): Promise<number> {
-  const res = await fetch(`${API}${relativeUrl}`);
-  await res.body?.cancel();
-  return res.status;
-}
-
-type PairSnapshot = { follows: any[]; friendships: any[]; blocks: any[] };
-
-/** Follow / friendship / block rows between two users, to put back after a test. */
-async function snapshotPair(a: string, b: string): Promise<PairSnapshot> {
-  const pair = [a, b];
-  return {
-    follows: (await sql(`SELECT * FROM follow WHERE follower_id = ANY($1) AND followee_id = ANY($1)`, [pair])) ?? [],
-    friendships: (await sql(`SELECT * FROM friendship WHERE requester_id = ANY($1) AND addressee_id = ANY($1)`, [pair])) ?? [],
-    blocks: (await sql(`SELECT * FROM user_block WHERE blocker_id = ANY($1) AND blocked_id = ANY($1)`, [pair])) ?? [],
-  };
-}
-
-async function restorePair(a: string, b: string, s: PairSnapshot) {
-  const pair = [a, b];
-  await sql(`DELETE FROM follow WHERE follower_id = ANY($1) AND followee_id = ANY($1)`, [pair]);
-  await sql(`DELETE FROM friendship WHERE requester_id = ANY($1) AND addressee_id = ANY($1)`, [pair]);
-  await sql(`DELETE FROM user_block WHERE blocker_id = ANY($1) AND blocked_id = ANY($1)`, [pair]);
-  for (const f of s.follows) {
-    await sql(`INSERT INTO follow VALUES ($1,$2,$3,$4,$5)`, [f.follower_id, f.followee_id, f.status, f.created_at, f.accepted_at]);
-  }
-  for (const f of s.friendships) {
-    await sql(`INSERT INTO friendship VALUES ($1,$2,$3,$4,$5)`, [f.requester_id, f.addressee_id, f.status, f.created_at, f.accepted_at]);
-  }
-  for (const r of s.blocks) await sql(`INSERT INTO user_block VALUES ($1,$2,$3)`, [r.blocker_id, r.blocked_id, r.created_at]);
-}
+import {
+  ANON,
+  API,
+  call,
+  checker,
+  deleteNotifications,
+  fetchStatus,
+  notificationsOf,
+  PNG,
+  short,
+  signin,
+  suite,
+  uploadTo,
+} from "./_client.ts";
+import { restorePair, snapshotPair, sql } from "./_db.ts";
 
 /** Subscribes to a private realtime channel; resolves with the final status. */
 function subscribe(token: string, topic: string, events: string[], onEvent: (event: string, payload: any) => void) {

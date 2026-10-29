@@ -32,12 +32,7 @@ Deno.serve(async (req: Request) => {
           .values({ user_id, shop_id })
           .returningAll()
           .executeTakeFirstOrThrow();
-        await trx
-          .updateTable("users")
-          .set({ role: "owner" })
-          .where("id", "=", user_id)
-          .where("role", "!=", "super_user")
-          .execute();
+        await reconcileRoles(trx, [user_id]);
         return inserted;
       });
       return json(row, 201);

@@ -1,6 +1,18 @@
 import '../config.dart';
 import '../l10n/app_localizations.dart';
 
+/// Muscle api values from a `primary_muscles` / `secondary_muscles` field: a
+/// JSON list, or a Postgres array literal like `{delts_front,triceps_all}`
+/// (what older API versions sent, possibly still in the offline cache).
+List<String> muscleValues(Object? raw) {
+  if (raw is List) return raw.map((v) => v.toString()).toList();
+  if (raw is String && raw.startsWith('{') && raw.endsWith('}')) {
+    final inner = raw.substring(1, raw.length - 1);
+    return inner.isEmpty ? [] : inner.split(',').map((v) => v.replaceAll('"', '').trim()).toList();
+  }
+  return [];
+}
+
 enum MuscleGroup {
   // Chest
   chestAll,
@@ -244,13 +256,10 @@ class Exercise {
   String? get displayImageUrl => imageUrl == null ? null : AppConfig.resolveUrl(imageUrl!);
 
   factory Exercise.fromJson(Map<String, dynamic> json) {
-    List<MuscleGroup> parseMuscles(dynamic raw) {
-      if (raw is! List) return [];
-      return raw
-          .map((v) => MuscleGroup.fromApiValue(v.toString()))
-          .whereType<MuscleGroup>()
-          .toList();
-    }
+    List<MuscleGroup> parseMuscles(dynamic raw) => muscleValues(raw)
+        .map(MuscleGroup.fromApiValue)
+        .whereType<MuscleGroup>()
+        .toList();
 
     return Exercise(
       id: json['id'] as String,

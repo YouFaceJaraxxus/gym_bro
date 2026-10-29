@@ -268,7 +268,7 @@ async function handler(req: Request): Promise<Response> {
   if (req.method === "PUT" && id) {
     const existing = await db
       .selectFrom("routine")
-      .select(["id", "author_id"])
+      .select(["id", "author_id", "schedule_type", "num_weeks"])
       .where("id", "=", id)
       .executeTakeFirst();
     if (!existing) return jsonError("Routine not found", 404);
@@ -280,6 +280,16 @@ async function handler(req: Request): Promise<Response> {
       name, description, notes, is_public,
       schedule_type, num_weeks, images, trainings,
     } = body ?? {};
+
+    // Same rule as POST, against the routine as it will be after the update.
+    const finalType = VALID_SCHEDULE_TYPES.includes(schedule_type) ? schedule_type : existing.schedule_type;
+    const finalWeeks = num_weeks !== undefined ? num_weeks : existing.num_weeks;
+    if (
+      (schedule_type !== undefined || num_weeks !== undefined) &&
+      finalType === "fixed_weeks" && (!finalWeeks || finalWeeks < 1)
+    ) {
+      return jsonError("num_weeks must be >= 1 for fixed_weeks routines", 400);
+    }
 
     const update: RoutineUpdate = {
       ...(name !== undefined && { name }),

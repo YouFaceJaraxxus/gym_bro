@@ -109,6 +109,22 @@ function authFetch(path: string, body: unknown): Promise<Response> {
   });
 }
 
+/**
+ * Sets the password of the user behind `accessToken` with GoTrue's own
+ * endpoint. auth.admin.updateUserById would sign out every session, including
+ * the one the app is using; this keeps it (GoTrue ends the others). Returns an
+ * error message, or null on success.
+ */
+async function setOwnPassword(accessToken: string, password: string): Promise<string | null> {
+  const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", apikey: supabaseAnonKey, Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify({ password }),
+  });
+  if (res.ok) return null;
+  return authErrorMessage(await res.json().catch(() => null), "Could not set the password");
+}
+
 function inviteRedirect(): string {
   return Deno.env.get("APP_INVITE_REDIRECT_URL") ?? "gymbroo://auth/callback";
 }
@@ -400,6 +416,17 @@ Deno.serve(async (req: Request) => {
         .executeTakeFirstOrThrow();
     }
 
+    // admin.createUser never emails anyone: ask GoTrue for the confirmation
+    // email, whose link opens the app signed in. A send failure doesn't undo
+    // the signup (POST /users/forgot-password also confirms the address).
+    if (!superCaller) {
+      const sent = await authFetch(`/resend?redirect_to=${encodeURIComponent(inviteRedirect())}`, {
+        type: "signup",
+        email,
+      });
+      if (!sent.ok) console.error(`signup: confirmation email to ${email} failed (${sent.status}): ${await sent.text()}`);
+    }
+
     return json({ message: "Check your email to verify your account.", user, role_assignment }, 201);
   }
 
@@ -539,12 +566,15 @@ Deno.serve(async (req: Request) => {
     }
     const session = verifyRaw as unknown as AuthSession;
 
-    // 2. Set the chosen password and confirm the email on the auth user.
-    const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(
+    // 2. Confirm the email on the auth user and set the chosen password with
+    //    the new session, which stays valid for the app.
+    const { error: confirmErr } = await supabaseAdmin.auth.admin.updateUserById(
       session.user.id,
-      { password, email_confirm: true },
+      { email_confirm: true },
     );
-    if (updateErr) return jsonError(updateErr.message, 400);
+    if (confirmErr) return jsonError(confirmErr.message, 400);
+    const passwordErr = await setOwnPassword(session.access_token, password);
+    if (passwordErr) return jsonError(passwordErr, 400);
 
     // 3. Return the session alongside the public profile.
     const profile = await db
@@ -630,11 +660,10 @@ Deno.serve(async (req: Request) => {
     if (!password) return jsonError("password is required", 400);
     if (password.length < 6) return jsonError("Password must be at least 6 characters", 400);
 
-    const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(
-      user.id,
-      { password },
-    );
-    if (updateErr) return jsonError(updateErr.message, 400);
+    // The recovery session stays signed in (the app continues to /home).
+    const token = req.headers.get("Authorization")!.replace(/^Bearer\s+/i, "");
+    const passwordErr = await setOwnPassword(token, password);
+    if (passwordErr) return jsonError(passwordErr, 400);
 
     return json({ success: true });
   }
@@ -658,11 +687,9 @@ Deno.serve(async (req: Request) => {
     });
     if (!check.ok) return jsonError("Current password is incorrect", 400);
 
-    const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(
-      user.id,
-      { password: new_password },
-    );
-    if (updateErr) return jsonError(updateErr.message, 400);
+    const token = req.headers.get("Authorization")!.replace(/^Bearer\s+/i, "");
+    const passwordErr = await setOwnPassword(token, new_password);
+    if (passwordErr) return jsonError(passwordErr, 400);
 
     return json({ success: true });
   }

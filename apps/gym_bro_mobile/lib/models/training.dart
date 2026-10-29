@@ -287,8 +287,11 @@ class Training {
   final List<TrainingImage> images;
   final List<TrainingSet> sets;
   final TrainingImage? thumbnail;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+
+  /// Null for the summary embedded in a routine (`{id, name, description,
+  /// is_public}`), which carries no timestamps.
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   const Training({
     required this.id,
@@ -300,8 +303,8 @@ class Training {
     required this.images,
     required this.sets,
     this.thumbnail,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory Training.fromJson(Map<String, dynamic> json) {
@@ -323,8 +326,8 @@ class Training {
           .map((s) => TrainingSet.fromJson(s as Map<String, dynamic>))
           .toList(),
       thumbnail: rawThumb != null ? TrainingImage.fromJson(rawThumb) : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? ''),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),
     );
   }
 
