@@ -632,6 +632,30 @@
       }
     }
   },
+  "@calendarDayLabel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@calendarNextDay": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "@calendarNow": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "@chatAddCount": {
     "placeholders": {
       "count": {
@@ -875,6 +899,229 @@
       }
     }
   },
+  "@classCalendarBookedOf": {
+    "placeholders": {
+      "booked": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
+  "@classCalendarDayLabel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@classCalendarInvites": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@classCalendarJoined": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@classCalendarTrainerAccepted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@classCalendarTrainerInvite": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@classCalendarWaitlistShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@classSeriesCancelInviteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@classSeriesDoneCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@classSeriesInClass": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@classSeriesInviteSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@classSeriesInviteTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@classSeriesInvitedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@classSeriesNameYou": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@classSeriesNext": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@classSeriesOnceOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@classSeriesRemoveTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@classSeriesRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@classSeriesRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@classSeriesSpots": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@classSeriesTimezone": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "@classSeriesUpcomingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@customersAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@customersChooseClassesTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@customersInviteToClasses": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@customersRemoveCustomerTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@customersRemoveFromClassTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@draftEdited": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@draftMediaCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@draftOpenFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@draftSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "@feedMediaIndex": {
     "placeholders": {
       "index": {
@@ -940,6 +1187,57 @@
         "type": "int"
       },
       "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@mediaBatchNote": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@mediaEditAllTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@mediaEditItem": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "@mediaProcessing": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@mediaTrimSummary": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      },
+      "length": {
+        "type": "String"
+      }
+    }
+  },
+  "@mediaVideoNumber": {
+    "placeholders": {
+      "index": {
         "type": "int"
       }
     }
@@ -1739,13 +2037,6 @@
       }
     }
   },
-  "@shellHey": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "@shellHomeNotificationsUnread": {
     "placeholders": {
       "count": {
@@ -1819,16 +2110,6 @@
     "placeholders": {
       "count": {
         "type": "int"
-      }
-    }
-  },
-  "@shellMembershipValidUntil": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      },
-      "date": {
-        "type": "String"
       }
     }
   },
@@ -1978,13 +2259,6 @@
       }
     }
   },
-  "@shellWelcomeBack": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "@socialActiveAgo": {
     "placeholders": {
       "when": {
@@ -2091,6 +2365,20 @@
       }
     }
   },
+  "@trainingClassAddedPerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@trainingClassAddedToWaitlist": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@trainingClassAttendedOf": {
     "placeholders": {
       "attended": {
@@ -2174,29 +2462,9 @@
       }
     }
   },
-  "@trainingClassMyBookingsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "@trainingClassNameYou": {
     "placeholders": {
       "name": {
-        "type": "String"
-      }
-    }
-  },
-  "@trainingClassNextClass": {
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "day": {
-        "type": "String"
-      },
-      "time": {
         "type": "String"
       }
     }
@@ -2205,13 +2473,6 @@
     "placeholders": {
       "days": {
         "type": "int"
-      }
-    }
-  },
-  "@trainingClassNothingOn": {
-    "placeholders": {
-      "day": {
-        "type": "String"
       }
     }
   },
@@ -2855,6 +3116,69 @@
       }
     }
   },
+  "@workoutLogCalendarSemantics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutLogMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@workoutLogReplaceMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutLogSetCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@workoutLogSetNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@workoutLogSlotLabel": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutPickerLastLogged": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutTrainingCopyName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutTrainingCopySaved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "appTitle": "Gym Bro",
   "businessCheckInAllTime": "All time",
   "businessCheckInAttendanceTitle": "Attendance",
@@ -3286,6 +3610,15 @@
   "businessShopTimelinePlaced": "Order placed",
   "businessShopTotal": "Total",
   "businessShopYourCart": "Your cart",
+  "calendarCancelled": "Cancelled",
+  "calendarDayLabel": "{day}, {count, plural, =0{nothing scheduled} =1{1 item} other{{count} items}}",
+  "calendarDone": "Done",
+  "calendarGoToToday": "Go to today",
+  "calendarNextDay": "{range} (+1 day)",
+  "calendarNextWeek": "Next week",
+  "calendarNothingOnDay": "Nothing on this day",
+  "calendarNow": "Now, {time}",
+  "calendarPreviousWeek": "Previous week",
   "chatAccept": "Accept",
   "chatAddCount": "{count, plural, =1{Add 1 person} other{Add {count} people}}",
   "chatAddPeople": "Add people",
@@ -3430,6 +3763,112 @@
   "chatYesterday": "Yesterday",
   "chatYou": "You",
   "chatYouObject": "you",
+  "classCalendarAccept": "Accept",
+  "classCalendarBookedOf": "{booked} of {capacity} booked",
+  "classCalendarDayLabel": "{day}, {count, plural, =0{no classes} =1{1 class} other{{count} classes}}",
+  "classCalendarDecline": "Decline",
+  "classCalendarInviteDeclined": "Invite declined",
+  "classCalendarInvites": "{count, plural, =1{1 invite} other{{count} invites}}",
+  "classCalendarJoined": "You're in: {title}. Its sessions are in your schedule.",
+  "classCalendarNothingOnDay": "No classes on this day",
+  "classCalendarOnlyMine": "Only mine",
+  "classCalendarTrainerAccepted": "{name} is now your trainer",
+  "classCalendarTrainerInvite": "{name} wants to train you",
+  "classCalendarTrainerInviteHint": "Accept to let them plan your classes and workouts.",
+  "classCalendarWaitlistShort": "+{count} waiting",
+  "classSeriesActive": "Active",
+  "classSeriesActiveHint": "New sessions keep coming.",
+  "classSeriesAddTime": "Add time",
+  "classSeriesCancelInvite": "Cancel invite",
+  "classSeriesCancelInviteMessage": "They won't be able to accept it anymore.",
+  "classSeriesCancelInviteTitle": "Cancel the invite to {name}?",
+  "classSeriesCapacity": "Spots per session",
+  "classSeriesCapacityInvalid": "Between 1 and 1000",
+  "classSeriesClearEndDate": "Remove the end date",
+  "classSeriesCreate": "Create class",
+  "classSeriesCreateOne": "Create a class",
+  "classSeriesCreated": "Class created",
+  "classSeriesDate": "Date",
+  "classSeriesDescription": "Description (optional)",
+  "classSeriesDoneCount": "{count, plural, =1{1 done} other{{count} done}}",
+  "classSeriesDuration": "Length (minutes)",
+  "classSeriesDurationInvalid": "Between 5 and 1440 minutes",
+  "classSeriesEdit": "Edit class",
+  "classSeriesEmptyMessage": "Create a class with its timetable. Its sessions show up in your calendar 90 days ahead.",
+  "classSeriesEmptyTitle": "No classes yet",
+  "classSeriesEndBeforeStart": "The end date can't be before the start",
+  "classSeriesEnds": "Ends",
+  "classSeriesEveryDay": "Every day",
+  "classSeriesGym": "Gym",
+  "classSeriesInClass": "{count, plural, =1{1 in the class} other{{count} in the class}}",
+  "classSeriesInvite": "Invite",
+  "classSeriesInviteAgain": "Invite again",
+  "classSeriesInviteHint": "They accept the invite, then every session lands in their schedule.",
+  "classSeriesInviteSent": "Invite sent to {name}",
+  "classSeriesInviteTitle": "Invite to {title}",
+  "classSeriesInvitedCount": "{count, plural, =1{1 invited} other{{count} invited}}",
+  "classSeriesLocation": "Location (optional)",
+  "classSeriesLocationHint": "e.g. Studio A",
+  "classSeriesMore": "More",
+  "classSeriesNameYou": "{name} (you)",
+  "classSeriesNew": "New class",
+  "classSeriesNext": "Next: {when}",
+  "classSeriesNoEndDate": "No end date",
+  "classSeriesNoEndDateHint": "Keeps going. Sessions appear 90 days ahead.",
+  "classSeriesNoGyms": "No gyms to teach at",
+  "classSeriesNoGymsMessage": "Once a gym adds you as a trainer, you can create classes there.",
+  "classSeriesNoPeople": "No one yet. Invite your customers, followers or members of the gym.",
+  "classSeriesNoSessionsSoon": "No sessions in the next two weeks.",
+  "classSeriesNoTrainer": "No trainer",
+  "classSeriesNoUpcoming": "No upcoming sessions",
+  "classSeriesOnceOn": "Once on {date}",
+  "classSeriesOpenTimetable": "Class timetable",
+  "classSeriesOpenTimetableHint": "Every session, the people in it and invites",
+  "classSeriesPause": "Pause",
+  "classSeriesPauseMessage": "Upcoming sessions are cancelled and the people booked into them are told. Resuming brings them back.",
+  "classSeriesPauseTitle": "Pause this class?",
+  "classSeriesPausedDone": "Class paused",
+  "classSeriesPausedHint": "No sessions while paused.",
+  "classSeriesPeople": "People",
+  "classSeriesPickWeekday": "Pick at least one day",
+  "classSeriesRemove": "Remove from class",
+  "classSeriesRemoveMessage": "Their upcoming sessions of this class are cancelled.",
+  "classSeriesRemoveTime": "Remove {time}",
+  "classSeriesRemoveTitle": "Remove {name}?",
+  "classSeriesRemoved": "{name} removed",
+  "classSeriesRepeat": "Repeats",
+  "classSeriesRepeatDaily": "Daily",
+  "classSeriesRepeatOnce": "Once",
+  "classSeriesRepeatWeekly": "Weekly",
+  "classSeriesResumedDone": "Class resumed",
+  "classSeriesSave": "Save",
+  "classSeriesSaved": "Class updated",
+  "classSeriesSetEndDate": "Set an end date",
+  "classSeriesSpots": "{count, plural, =1{1 spot per session} other{{count} spots per session}}",
+  "classSeriesStarts": "Starts",
+  "classSeriesStateActive": "Active",
+  "classSeriesStateEnded": "Ended",
+  "classSeriesStatePaused": "Paused",
+  "classSeriesStatusAccepted": "In the class",
+  "classSeriesStatusDeclined": "Declined",
+  "classSeriesStatusPending": "Invited",
+  "classSeriesTimes": "Start times",
+  "classSeriesTimesHint": "Add every time it runs in a day.",
+  "classSeriesTimesMax": "Up to 12 start times a day",
+  "classSeriesTimesRequired": "Add at least one start time",
+  "classSeriesTimetable": "Timetable",
+  "classSeriesTimetableChangeConfirm": "Change it",
+  "classSeriesTimetableChangeMessage": "Upcoming sessions that no longer fit are cancelled, and the people booked into them are told. New sessions are added for everyone in the class.",
+  "classSeriesTimetableChangeTitle": "Change the timetable?",
+  "classSeriesTimezone": "Times are in {zone}",
+  "classSeriesTitle": "Title",
+  "classSeriesTitleHint": "e.g. Morning HIIT",
+  "classSeriesTitleRequired": "Give the class a title",
+  "classSeriesTrainer": "Trainer",
+  "classSeriesUpcomingCount": "{count, plural, =1{1 upcoming} other{{count} upcoming}}",
+  "classSeriesUpcomingSessions": "Upcoming sessions",
+  "classSeriesWeekdays": "On these days",
+  "classSeriesYou": "You",
   "commonBack": "Back",
   "commonCancel": "Cancel",
   "commonClose": "Close",
@@ -3446,6 +3885,70 @@
   "commonSomethingWentWrong": "Something went wrong",
   "commonToday": "Today",
   "commonYes": "Yes",
+  "customersAdd": "Add customer",
+  "customersAddPickerHint": "Your followers, members of gyms where you coach, and people you've invited before.",
+  "customersAddPickerTitle": "Add a customer",
+  "customersAdded": "{name} was invited to be your customer",
+  "customersCancelInvite": "Cancel invite",
+  "customersChooseClassesHint": "Optional. They accept each class invite themselves, and you can change this later.",
+  "customersChooseClassesTitle": "Invite {name} to classes?",
+  "customersClassDeclined": "Declined",
+  "customersClassIn": "In the class",
+  "customersClassInvited": "Invited",
+  "customersClassPaused": "Paused",
+  "customersEmptyMessage": "Add your followers or members of gyms where you coach. Anyone you invite to a class shows up here too.",
+  "customersEmptyTitle": "No customers yet",
+  "customersInvite": "Invite",
+  "customersInviteCancelled": "Invite cancelled",
+  "customersInviteToClasses": "{count, plural, =1{Invite to 1 class} other{Invite to {count} classes}}",
+  "customersInvited": "Invite sent",
+  "customersJustAdd": "Just add",
+  "customersNoActiveClasses": "You have no active classes to invite them to yet.",
+  "customersNoClasses": "You don't run any classes yet. Create one in the Classes tab.",
+  "customersNoMatches": "No customers match your search",
+  "customersNotFound": "This person is no longer your customer.",
+  "customersNotInClass": "Not in this class",
+  "customersProgress": "Progress",
+  "customersProgressLocked": "Available once they accept your invite",
+  "customersProgressSubtitle": "Workouts, lifts and body measurements",
+  "customersRemove": "Remove",
+  "customersRemoveCustomer": "Remove customer",
+  "customersRemoveCustomerMessage": "They're also taken off your classes and their upcoming sessions are cancelled. You won't be able to see their progress anymore.",
+  "customersRemoveCustomerTitle": "Remove {name}?",
+  "customersRemoveFromClass": "Remove from class",
+  "customersRemoveFromClassMessage": "Their upcoming sessions of this class are cancelled and they're told about it.",
+  "customersRemoveFromClassTitle": "Remove from {title}?",
+  "customersRemoved": "Customer removed",
+  "customersRemovedFromClass": "Removed from the class",
+  "customersSearch": "Search customers",
+  "customersStatusAccepted": "Customer",
+  "customersStatusPending": "Invite pending",
+  "customersViewProfile": "View profile",
+  "customersYourClasses": "Your classes",
+  "draftBadge": "Draft",
+  "draftChooseSubtitle": "Continue a draft or start from scratch.",
+  "draftChooseTitle": "Your drafts",
+  "draftDelete": "Delete draft",
+  "draftDeleteTitle": "Delete this draft?",
+  "draftDeleted": "Draft deleted",
+  "draftDiscard": "Discard",
+  "draftDiscardChanges": "Discard changes",
+  "draftEdited": "Edited {when}",
+  "draftEditingBanner": "You're editing a draft. Publishing it removes the draft.",
+  "draftKeepEditing": "Keep editing",
+  "draftMediaCount": "{count, plural, =1{1 photo or video} other{{count} photos and videos}}",
+  "draftOpenFailed": "Couldn't open the draft: {error}",
+  "draftOpening": "Opening draft…",
+  "draftSave": "Save draft",
+  "draftSaveBody": "Pick up where you left off later. Drafts are private — only you can see them.",
+  "draftSaveChanges": "Save changes",
+  "draftSaveFailed": "Couldn't save the draft: {error}",
+  "draftSaveTitle": "Save as a draft?",
+  "draftSaved": "Draft saved",
+  "draftSaving": "Saving draft…",
+  "draftStartNew": "Start new",
+  "draftUntitled": "Untitled draft",
+  "draftUpdateTitle": "Save changes to this draft?",
   "feedAddMedia": "Add photos or videos",
   "feedAddMore": "Add",
   "feedAllComments": "Back to all comments",
@@ -3516,6 +4019,52 @@
   "feedVisibilityPublic": "Public",
   "feedVisibilityPublicHint": "Anyone can see this post",
   "feedWriteReplyHint": "Write a reply…",
+  "mediaAdjustBrightness": "Brightness",
+  "mediaAdjustContrast": "Contrast",
+  "mediaAdjustFade": "Fade",
+  "mediaAdjustSaturation": "Saturation",
+  "mediaAdjustTint": "Tint",
+  "mediaAdjustVignette": "Vignette",
+  "mediaAdjustWarmth": "Warmth",
+  "mediaBackToTools": "Back to tools",
+  "mediaBatchNote": "Filters and adjustments here apply to all {count} items and replace their own. Videos are trimmed one by one.",
+  "mediaCantEdit": "This file can't be edited.",
+  "mediaDone": "Done",
+  "mediaEdit": "Edit",
+  "mediaEditAll": "Edit all",
+  "mediaEditAllTitle": "Edit all ({count})",
+  "mediaEditFailed": "Couldn't apply the edits. Try again, or reset them.",
+  "mediaEditItem": "Edit item {index}",
+  "mediaEditTitle": "Edit",
+  "mediaEdited": "Edited",
+  "mediaFilterArctic": "Arctic",
+  "mediaFilterDramatic": "Dramatic",
+  "mediaFilterGolden": "Golden",
+  "mediaFilterMatte": "Matte",
+  "mediaFilterMono": "Mono",
+  "mediaFilterNoir": "Noir",
+  "mediaFilterNormal": "Normal",
+  "mediaFilterPunch": "Punch",
+  "mediaFilterRose": "Rose",
+  "mediaFilterSepia": "Sepia",
+  "mediaFilterStrength": "Strength",
+  "mediaFilterVintage": "Vintage",
+  "mediaFilterVivid": "Vivid",
+  "mediaHoldToCompare": "Press and hold to see the original",
+  "mediaOriginal": "Original",
+  "mediaProcessing": "Applying edits {index} of {count}…",
+  "mediaReset": "Reset",
+  "mediaResetAll": "Reset all edits",
+  "mediaTabAdjust": "Adjust",
+  "mediaTabFilter": "Filter",
+  "mediaTabTrim": "Trim",
+  "mediaTrimEnd": "Trim end",
+  "mediaTrimPickVideo": "Pick a video to trim",
+  "mediaTrimStart": "Trim start",
+  "mediaTrimSummary": "{start} – {end} · {length}",
+  "mediaTrimWindow": "Trimmed clip, drag to move",
+  "mediaUndo": "Undo",
+  "mediaVideoNumber": "Video {index}",
   "nutritionAdd": "Add",
   "nutritionAddFoodItem": "Add food item",
   "nutritionAddFoodTitle": "Add food",
@@ -4002,6 +4551,10 @@
   "peopleNoPosts": "No posts yet",
   "peopleNoSentRequests": "No pending requests you've sent",
   "peopleNoSuggestions": "No suggestions right now. Check in at your gym or add interests to your profile to get better ones.",
+  "peopleNonFollowerMessages": "Messages from non-followers",
+  "peopleNonFollowerMessagesOff": "Only your approved followers can message you.",
+  "peopleNonFollowerMessagesPrivate": "People you haven't approved as followers can send you message requests.",
+  "peopleNonFollowerMessagesPublic": "People who don't follow you can message you directly.",
   "peoplePosts": "Posts",
   "peoplePrivacy": "Privacy",
   "peoplePrivacySubtitle": "Private account, messages, activity status",
@@ -4062,11 +4615,6 @@
   "peopleUsernameInvalid": "3–30 letters, numbers, dots or underscores",
   "peopleUsernameTaken": "That username is taken",
   "peopleViewProfile": "View profile",
-  "peopleWhoCanMessage": "Who can message me",
-  "peopleWhoCanMessageHint": "Messages from anyone else land in your message requests.",
-  "peopleWhoEveryone": "Everyone",
-  "peopleWhoFollowing": "People I follow",
-  "peopleWhoFriends": "Friends",
   "reactionAngry": "Angry",
   "reactionCelebrate": "Celebrate",
   "reactionClap": "Clap",
@@ -4142,7 +4690,6 @@
   "shellHaveAccountLogIn": "Already have an account? Log in",
   "shellHaveInviteCode": "Have an invite code?",
   "shellHello": "Hello, {name}",
-  "shellHey": "Hey, {name}!",
   "shellHidePassword": "Hide password",
   "shellHidePasswords": "Hide passwords",
   "shellHomeBackToLogin": "Back to login",
@@ -4201,9 +4748,6 @@
   "shellMarkAllRead": "Mark all read",
   "shellMemberCount": "{count, plural, =1{1 member} other{{count} members}}",
   "shellMembersYouCoach": "Members you coach",
-  "shellMembershipActive": "Active",
-  "shellMembershipLoadFailed": "Couldn't load your membership",
-  "shellMembershipValidUntil": "{type} · valid until {date}",
   "shellMuteBilling": "Billing",
   "shellMuteBillingDescription": "Invoices, payments and expiring memberships",
   "shellMuteClasses": "Classes",
@@ -4222,6 +4766,7 @@
   "shellMuteStaff": "Staff",
   "shellMuteStaffDescription": "Shifts and people joining your business",
   "shellMyMembership": "My membership",
+  "shellMyMembershipSubtitle": "Plan, billing and invoices",
   "shellMyOrders": "My orders",
   "shellMyOrdersSubtitle": "Shop orders and pickups",
   "shellMyProgress": "My progress",
@@ -4230,7 +4775,6 @@
   "shellNewPassword": "New password",
   "shellNewUserTitle": "New user",
   "shellNoAccountSignUp": "Don't have an account? Sign up",
-  "shellNoActiveMembership": "No active membership",
   "shellNoBusinesses": "No businesses yet",
   "shellNoCoachedMembers": "No members at the gyms you coach at yet",
   "shellNoLongerMember": "{name} is no longer a member",
@@ -4239,7 +4783,6 @@
   "shellNoSessionsToday": "No sessions with you today",
   "shellNoUsers": "No users yet",
   "shellNoUsersFound": "No users found",
-  "shellNoneScheduled": "None scheduled",
   "shellNotAVendor": "You're not a vendor at any shop yet",
   "shellNotAssignedToGym": "Not assigned to any gym yet",
   "shellNotificationUnread": "Unread",
@@ -4248,7 +4791,6 @@
   "shellOr": "or",
   "shellOrdersForShop": "Orders · {shop}",
   "shellOwnerAllInvoices": "All invoices",
-  "shellOwnerNoGyms": "You don't own any gyms yet — add one from the Businesses tab.",
   "shellPasswordChanged": "Password changed",
   "shellPasswordsDontMatch": "Passwords do not match",
   "shellPlatformOverview": "Platform overview",
@@ -4278,7 +4820,6 @@
   "shellSendLink": "Send link",
   "shellSendMePushesAbout": "Send me pushes about",
   "shellSendResetLink": "Send reset link",
-  "shellSessionInProgress": "Session in progress",
   "shellSessionStartedInProgress": "Started {time} · in progress",
   "shellSetNewPassword": "Set new password",
   "shellSettings": "Settings",
@@ -4336,20 +4877,15 @@
   "shellTimeNow": "now",
   "shellTodaysSessions": "Today's sessions",
   "shellTypeToConfirm": "Type {text} to confirm.",
-  "shellUnavailable": "Unavailable",
   "shellUnitKilograms": "Kilograms",
   "shellUnitPounds": "Pounds",
-  "shellUpcomingClasses": "Upcoming classes",
   "shellUserSearchAdd": "Add",
   "shellUserSearchAddLabel": "Add {name}",
   "shellUserSearchAdding": "Adding",
   "shellUserSearchHint": "Search by name or username",
   "shellWelcome": "Welcome, {name}",
-  "shellWelcomeBack": "Welcome back, {name}",
   "shellYourGym": "Your gym",
   "shellYourGyms": "Your gyms",
-  "shellYourShop": "Your shop",
-  "shellYourShops": "Your shops",
   "socialActiveAgo": "Active {when}",
   "socialActiveNow": "Active now",
   "socialCamera": "Camera",
@@ -4362,6 +4898,15 @@
   "socialTyping": "{name} is typing…",
   "socialTypingSeveral": "Several people are typing…",
   "socialUploadFailed": "Upload failed. Try again.",
+  "trainerClassesPickerCustomer": "Customer",
+  "trainerClassesPickerCustomerPending": "Invite pending",
+  "trainerClassesPickerEmpty": "No one found. You can add your followers, members of gyms where you coach, and your customers.",
+  "trainerClassesPickerFollower": "Follows you",
+  "trainerClassesPickerMember": "Member",
+  "trainerClassesPickerSearch": "Search by name or username",
+  "trainerClassesTabCalendar": "Calendar",
+  "trainerClassesTabClasses": "Classes",
+  "trainerClassesTabCustomers": "Customers",
   "trainingAssignAction": "Assign",
   "trainingAssignAssignedOn": "Assigned {date}",
   "trainingAssignClearDates": "Clear dates",
@@ -4393,6 +4938,13 @@
   "trainingChartNoData": "No data in this range",
   "trainingChartSummary": "{series} chart, {count, plural, =1{1 data point} other{{count} data points}}, last value {value}",
   "trainingClassAbout": "About",
+  "trainingClassAdd": "Add",
+  "trainingClassAddPeople": "Add people",
+  "trainingClassAddPeopleEmpty": "No one found. People need to be members of this gym or follow you.",
+  "trainingClassAddPeopleHint": "Members of this gym and people who follow you.",
+  "trainingClassAddPeopleSearch": "Search by name or username",
+  "trainingClassAddedPerson": "{name} added",
+  "trainingClassAddedToWaitlist": "{name} added to the waitlist",
   "trainingClassApplyToSeries": "Apply to this and future classes",
   "trainingClassApplyToSeriesOff": "Only this class changes",
   "trainingClassApplyToSeriesOn": "Changes apply to every later class in this weekly series",
@@ -4403,7 +4955,6 @@
   "trainingClassBookedFor": "You're booked for {title}",
   "trainingClassBookedOf": "{booked}/{capacity} booked",
   "trainingClassBookingCancelled": "Booking cancelled",
-  "trainingClassBrowse": "Browse classes",
   "trainingClassCancelBooking": "Cancel booking",
   "trainingClassCancelBookingMessage": "Your spot in {title} will be given to the next person on the waitlist.",
   "trainingClassCancelBookingQuestion": "Cancel booking?",
@@ -4436,7 +4987,6 @@
   "trainingClassGym": "Gym",
   "trainingClassInProgress": "This class is in progress.",
   "trainingClassJoinWaitlist": "Join waitlist",
-  "trainingClassJumpToNext": "Jump to next class",
   "trainingClassKeep": "Keep",
   "trainingClassKeepClass": "Keep class",
   "trainingClassLeaveWaitlist": "Leave waitlist",
@@ -4448,14 +4998,9 @@
   "trainingClassMarkNoShow": "Mark no-show",
   "trainingClassMember": "Member",
   "trainingClassMore": "More",
-  "trainingClassMyBookings": "My bookings",
-  "trainingClassMyBookingsCount": "My bookings ({count})",
   "trainingClassMyClasses": "My classes",
   "trainingClassNameYou": "{name} (you)",
   "trainingClassNew": "New class",
-  "trainingClassNextClass": "Next class: {title}, {day} at {time}.",
-  "trainingClassNoBookings": "No bookings yet",
-  "trainingClassNoBookingsMessage": "Classes you book or join the waitlist for show up here.",
   "trainingClassNoBookingsYet": "No one has booked yet",
   "trainingClassNoGyms": "No gyms to schedule at",
   "trainingClassNoGymsMessage": "You can create classes at gyms where you are a trainer, staff member or owner.",
@@ -4466,17 +5011,15 @@
   "trainingClassNoUpcoming": "No upcoming classes",
   "trainingClassNoUpcomingMessage": "Schedule a one-off class or a weekly series and members can book it.",
   "trainingClassNobodyBooked": "Nobody has booked yet.",
-  "trainingClassNoneScheduled": "No classes scheduled",
-  "trainingClassNoneScheduledMessage": "Your gyms haven't scheduled any classes for the next two weeks. Check back soon.",
   "trainingClassNoneThisWeek": "No classes this week",
   "trainingClassNoneThisWeekCreate": "Create a class or a weekly series for members to book.",
   "trainingClassNoneThisWeekMessage": "Nothing has been scheduled for this week yet.",
   "trainingClassNotSignedIn": "Not signed in",
-  "trainingClassNothingOn": "Nothing on {day}",
   "trainingClassNotifyOnChange": "People who booked are notified if the time or location changes.",
   "trainingClassOneOff": "One-off class",
   "trainingClassPast": "Past",
-  "trainingClassRefresh": "Refresh",
+  "trainingClassPersonFollower": "Follows you",
+  "trainingClassPersonMember": "Member",
   "trainingClassRemove": "Remove",
   "trainingClassRemoveBookedMessage": "Their spot will go to the next person on the waitlist.",
   "trainingClassRemoveFromClass": "Remove from class",
@@ -4916,5 +5459,56 @@
   "trainingWorkoutsTabRoutines": "Routines",
   "trainingWorkoutsTabTrainings": "Trainings",
   "trainingWorkoutsTitle": "Workouts",
-  "trainingWorkoutsToMeEmpty": "No routines assigned to you yet.\nYour coach's assignments show up here."
+  "trainingWorkoutsToMeEmpty": "No routines assigned to you yet.\nYour coach's assignments show up here.",
+  "workoutLogAddExercise": "Add exercise",
+  "workoutLogAddToTrainings": "Add to trainings",
+  "workoutLogAddToTrainingsMessage": "Save these exercises, sets and weights as a training so you can log or start it again in one tap.",
+  "workoutLogAddToTrainingsTitle": "Add to your trainings?",
+  "workoutLogCalendarDone": "Workout",
+  "workoutLogCalendarSemantics": "Workout: {title}",
+  "workoutLogChooseTraining": "Choose a training (optional)",
+  "workoutLogClearTraining": "Don't follow a training",
+  "workoutLogDate": "Date",
+  "workoutLogDuration": "Duration",
+  "workoutLogExercises": "Exercises",
+  "workoutLogFutureError": "The start time can't be in the future.",
+  "workoutLogFutureSlot": "You can log a workout once it has started.",
+  "workoutLogMinutes": "{minutes} min",
+  "workoutLogMissingRepsError": "Enter the reps for every set, or switch it to failure.",
+  "workoutLogNoExercisesError": "Add at least one exercise.",
+  "workoutLogNoExercisesHint": "Add the exercises you did, or pick a training above.",
+  "workoutLogNotNow": "Not now",
+  "workoutLogPickTraining": "What did you train?",
+  "workoutLogRemoveSet": "Remove this set",
+  "workoutLogRepeatSet": "Repeat this set",
+  "workoutLogReplace": "Replace",
+  "workoutLogReplaceMessage": "The exercises you entered will be replaced with the ones from {name}.",
+  "workoutLogReplaceTitle": "Replace exercises?",
+  "workoutLogReps": "Reps",
+  "workoutLogSaved": "Workout logged",
+  "workoutLogScheduleEmptyDay": "Nothing on this day. Tap an hour to log a workout.",
+  "workoutLogSetCount": "{count, plural, =1{1 set} other{{count} sets}}",
+  "workoutLogSetNumber": "Set {number}",
+  "workoutLogSlotLabel": "{time}, log a workout",
+  "workoutLogStart": "Start",
+  "workoutLogTitle": "Log workout",
+  "workoutLogTraining": "Training",
+  "workoutLogTrainingHelper": "Pick one to fill in its exercises, or add them yourself below.",
+  "workoutPickerAssigned": "From your coach",
+  "workoutPickerLastLogged": "Last logged {date}",
+  "workoutPickerLibrary": "All trainings",
+  "workoutPickerNoResults": "No trainings found",
+  "workoutPickerRecent": "Logged before",
+  "workoutPickerSearchHint": "Search trainings",
+  "workoutTrainingCopyName": "{name} (copy)",
+  "workoutTrainingCopySaved": "Saved “{name}” to your trainings",
+  "workoutTrainingInNoRoutine": "Not in any of your routines",
+  "workoutTrainingLockedMessage": "This training has logged sessions, and they show its exercises, so the sets can't be changed. You can still edit its name, photo, notes, visibility and routines.",
+  "workoutTrainingNoRoutines": "You haven't created any routines yet",
+  "workoutTrainingRoutines": "Routines",
+  "workoutTrainingRoutinesDone": "Done",
+  "workoutTrainingRoutinesHint": "Your routines this training is part of. New ones get it at the end; set its week and day in the routine.",
+  "workoutTrainingRoutinesLoading": "Loading your routines…",
+  "workoutTrainingRoutinesUnavailable": "Couldn't load your routines",
+  "workoutTrainingSaveAsCopy": "Save as a new training"
 }

@@ -1,8 +1,9 @@
 // deno-lint-ignore-file no-explicit-any
-// Write flows (ported from the flows smoke script). Everything it creates or
-// changes is restored/deleted, in `finally` blocks so a failing check never
-// leaves test data behind.
-import { call, checker, short, signin, suite } from "./_client.ts";
+// Write flows (ported from the flows smoke script) plus an end-to-end gym
+// lifecycle: price → join → sell → invoice → pay → check in → delete.
+// Everything it creates or changes is restored/deleted, in `finally` blocks so
+// a failing check never leaves test data behind.
+import { call, checker, dayFromToday, deleteNotifications, short, signin, suite } from "./_client.ts";
 
 Deno.test({
   name: "write flows",
@@ -133,21 +134,52 @@ Deno.test({
       assertAll();
     });
 
-    await t.step("throwaway business: owner creates then deletes", async () => {
-      const stamp = Date.now();
-      const biz = await call("POST", "/businesses", owner.token, { name: `Flow Gym ${stamp}`, location: "Test", type: "gym", working_hours_from: "06:00", working_hours_to: "22:00", working_weekdays: [1, 2, 3, 4, 5] });
+    await t.step("throwaway gym: price, join, sell, invoice, pay, check in, delete", async () => {
+      const name = `Flow Gym ${Date.now()}`;
+      const biz = await call("POST", "/businesses", owner.token, { name, location: "Test", type: "gym", working_hours_from: "06:00", working_hours_to: "22:00", working_weekdays: [1, 2, 3, 4, 5] });
       check("owner creates a gym", biz.status === 201, short(biz.data));
       const bizId = biz.data.id ?? biz.data.business?.id;
       let deleted = false;
       try {
-        await call("POST", "/gym-membership-types", owner.token, { name: "Flow", monthly_cost: 10, gym_id: bizId });
+        const type = await call("POST", "/gym-membership-types", owner.token, { name: "Flow", monthly_cost: 10, gym_id: bizId });
+        check("owner prices a membership", type.status === 201, short(type.data));
+        const join = await call("POST", "/members", owner.token, { gym_id: bizId, user_id: member.profile.id });
+        check("owner adds the member", join.status === 201, short(join.data));
+        const sold = await call("POST", "/memberships", owner.token, {
+          user_id: member.profile.id, current_membership_type_id: type.data.id, from_date: dayFromToday(0), to_date: dayFromToday(30),
+        });
+        check("owner sells a membership", sold.status === 201, short(sold.data));
+        const inv = await call("POST", "/membership-invoices", owner.token, { membership_id: sold.data.id });
+        check("owner issues the first invoice at the monthly price", inv.status === 201 && Number(inv.data.amount) === 10, short(inv.data));
+
+        const mine = await call("GET", `/memberships?user_id=${member.profile.id}&gym_id=${bizId}&is_active=true`, member.token);
+        check("member sees the active membership", (mine.data as any[])?.some((m) => m.id === sold.data.id), short(mine.data));
+        const unpaid = await call("GET", `/membership-invoices?user_id=${member.profile.id}&status=unpaid`, member.token);
+        check("member sees the unpaid invoice", (unpaid.data as any[])?.some((i) => i.id === inv.data.id && i.gym_name === name), `status ${unpaid.status}`);
+        await call("PUT", `/membership-invoices/${inv.data.id}`, owner.token, { status: "paid" });
+        const paid = await call("GET", `/membership-invoices/${inv.data.id}`, member.token);
+        check("member sees it paid at the desk", paid.data?.status === "paid" && !!paid.data.paid_at, short(paid.data));
+
+        const tok = await call("GET", `/check-ins/token?gym_id=${bizId}`, member.token);
+        const scan = await call("POST", "/check-ins", owner.token, { token: tok.data?.token, gym_id: bizId });
+        check("member checks in at the new gym", scan.status === 201 && scan.data.member?.id === member.profile.id, short(scan.data));
+
         const memberDelBiz = await call("DELETE", `/businesses/${bizId}`, member.token);
         check("member can't delete the gym", memberDelBiz.status === 403, `status ${memberDelBiz.status}`);
         const delBiz = await call("DELETE", `/businesses/${bizId}`, owner.token);
         deleted = delBiz.status === 204;
         check("owner deletes the gym", delBiz.status === 204, `status ${delBiz.status} ${short(delBiz.data)}`);
+        check("its membership type is gone", (await call("GET", `/gym-membership-types/${type.data.id}`, owner.token)).status === 404);
+        check("the member's membership is gone", (await call("GET", `/memberships/${sold.data.id}`, member.token)).status === 404);
+        check("the member's invoice is gone", (await call("GET", `/membership-invoices/${inv.data.id}`, member.token)).status === 404);
+        const gyms = await call("GET", `/members?user_id=${member.profile.id}`, member.token);
+        check("the member is no longer listed at it", !(gyms.data as any[]).some((m) => m.gym_id === bizId), short(gyms.data));
+        const history = await call("GET", "/check-ins?mine=true", member.token);
+        check("its check-ins are gone", !(history.data as any[]).some((c) => c.gym_id === bizId), `status ${history.status}`);
       } finally {
         if (!deleted && bizId) await call("DELETE", `/businesses/${bizId}`, owner.token);
+        // Every notice the flow caused names the gym.
+        for (const s of [member, owner]) await deleteNotifications(s.token, (n) => `${n.title} ${n.body}`.includes(name));
       }
       assertAll();
     });

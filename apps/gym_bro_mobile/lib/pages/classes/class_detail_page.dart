@@ -4,11 +4,13 @@ import '../../l10n/l10n.dart';
 import '../../models/gym_class.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import 'add_people_sheet.dart';
 import 'class_form_page.dart';
 import 'schedule_widgets.dart';
+import 'series_detail_page.dart';
 
 /// One class: details and booking; for coaches also the roster with
-/// attendance, plus edit and cancel.
+/// attendance and adding people, plus edit and cancel.
 class ClassDetailPage extends StatefulWidget {
   const ClassDetailPage({super.key, required this.classId});
 
@@ -61,6 +63,20 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
     final changed = await toggleClassBooking(context, c);
     if (changed && mounted) await _load();
     if (mounted) setState(() => _bookingBusy = false);
+  }
+
+  Future<void> _openTimetable(String seriesId) async {
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(builder: (_) => SeriesDetailPage(seriesId: seriesId)),
+    );
+    if (mounted) _load();
+  }
+
+  Future<void> _addPeople() async {
+    final c = _class;
+    if (c == null) return;
+    if (await showAddPeopleSheet(context, c) && mounted) await _load();
   }
 
   Future<void> _edit() async {
@@ -118,7 +134,9 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
           if (!c.isSeries)
             FilledButton(
               style: FilledButton.styleFrom(
-                  backgroundColor: cs.error, foregroundColor: cs.onError),
+                backgroundColor: cs.error,
+                foregroundColor: cs.onError,
+              ),
               onPressed: () => Navigator.pop(ctx, false),
               child: Text(l10n.trainingClassCancelClass),
             ),
@@ -131,10 +149,15 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
     try {
       final token = await AuthManager.instance.getValidToken();
       await _api.cancelClass(token, c.id, series: series);
-      messenger.showSnackBar(SnackBar(
-          content: Text(series
-              ? l10n.trainingClassClassesCancelled
-              : l10n.trainingClassClassCancelled)));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            series
+                ? l10n.trainingClassClassesCancelled
+                : l10n.trainingClassClassCancelled,
+          ),
+        ),
+      );
       _load();
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(errorText(e))));
@@ -175,7 +198,8 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
     final ok = await confirmDialog(
       context,
       title: l10n.trainingClassRemoveQuestion(
-          b.fullName.isEmpty ? l10n.trainingClassMember : b.fullName),
+        b.fullName.isEmpty ? l10n.trainingClassMember : b.fullName,
+      ),
       message: b.status == BookingStatus.waitlisted
           ? l10n.trainingClassRemoveWaitlistMessage
           : l10n.trainingClassRemoveBookedMessage,
@@ -243,8 +267,10 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
             color: cs.errorContainer,
             child: ListTile(
               leading: Icon(Icons.event_busy, color: cs.onErrorContainer),
-              title: Text(l10n.trainingClassWasCancelled,
-                  style: TextStyle(color: cs.onErrorContainer)),
+              title: Text(
+                l10n.trainingClassWasCancelled,
+                style: TextStyle(color: cs.onErrorContainer),
+              ),
             ),
           ),
         Text(c.title, style: ts.headlineSmall),
@@ -253,7 +279,9 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
           Align(
             alignment: Alignment.centerLeft,
             child: BookingStatusChip(
-                status: c.myBookingStatus!, position: c.myWaitlistPosition),
+              status: c.myBookingStatus!,
+              position: c.myWaitlistPosition,
+            ),
           ),
         ],
         const SizedBox(height: 12),
@@ -261,11 +289,16 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
           margin: EdgeInsets.zero,
           child: Column(
             children: [
-              _info(Icons.calendar_today_outlined,
-                  DateFormat.yMMMMEEEEd(localeOf(context)).format(c.startsAt),
-                  formatDayLabel(context, c.startsAt)),
-              _info(Icons.schedule, formatTimeRange(context, c.startsAt, c.endsAt),
-                  formatDuration(context, c.duration)),
+              _info(
+                Icons.calendar_today_outlined,
+                DateFormat.yMMMMEEEEd(localeOf(context)).format(c.startsAt),
+                formatDayLabel(context, c.startsAt),
+              ),
+              _info(
+                Icons.schedule,
+                formatTimeRange(context, c.startsAt, c.endsAt),
+                formatDuration(context, c.duration),
+              ),
               _info(Icons.fitness_center, c.gymName, c.location),
               if (c.trainerName != null)
                 ListTile(
@@ -275,17 +308,37 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
                     foregroundImage: c.trainerAvatarUrl != null
                         ? NetworkImage(c.trainerAvatarUrl!)
                         : null,
-                    child: Icon(Icons.person,
-                        size: 16, color: cs.onSecondaryContainer),
+                    child: Icon(
+                      Icons.person,
+                      size: 16,
+                      color: cs.onSecondaryContainer,
+                    ),
                   ),
                   title: Text(c.trainerName!),
                   subtitle: Text(l10n.trainingStaffRoleTrainer),
                 ),
               if (c.isSeries)
-                _info(Icons.repeat, l10n.trainingClassWeekly, l10n.trainingClassWeeklySeries),
+                _info(
+                  Icons.repeat,
+                  l10n.trainingClassWeekly,
+                  l10n.trainingClassWeeklySeries,
+                ),
             ],
           ),
         ),
+        if (c.canCoach && c.seriesId != null) ...[
+          const SizedBox(height: 8),
+          Card(
+            margin: EdgeInsets.zero,
+            child: ListTile(
+              leading: const Icon(Icons.event_repeat),
+              title: Text(l10n.classSeriesOpenTimetable),
+              subtitle: Text(l10n.classSeriesOpenTimetableHint),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _openTimetable(c.seriesId!),
+            ),
+          ),
+        ],
         if (c.description != null) ...[
           const SizedBox(height: 16),
           Text(l10n.trainingClassAbout, style: ts.titleMedium),
@@ -320,30 +373,46 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
   }
 
   Widget _info(IconData icon, String title, String? subtitle) => ListTile(
-        leading: Icon(icon),
-        title: Text(title),
-        subtitle: subtitle != null ? Text(subtitle) : null,
-      );
+    leading: Icon(icon),
+    title: Text(title),
+    subtitle: subtitle != null ? Text(subtitle) : null,
+  );
 
   List<Widget> _buildRoster(GymClass c) {
     final ts = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final seated = c.bookings!.where((b) => b.status.takesSeat).toList();
-    final waitlist =
-        c.bookings!.where((b) => b.status == BookingStatus.waitlisted).toList();
-    final attended = seated.where((b) => b.status == BookingStatus.attended).length;
+    final waitlist = c.bookings!
+        .where((b) => b.status == BookingStatus.waitlisted)
+        .toList();
+    final attended = seated
+        .where((b) => b.status == BookingStatus.attended)
+        .length;
 
     return [
       const SizedBox(height: 28),
       Row(
         children: [
-          Expanded(child: Text(l10n.trainingClassRoster, style: ts.titleMedium)),
+          Expanded(
+            child: Text(l10n.trainingClassRoster, style: ts.titleMedium),
+          ),
           if (seated.isNotEmpty)
-            Text(l10n.trainingClassAttendedOf(attended, seated.length),
-                style: ts.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
+            Text(
+              l10n.trainingClassAttendedOf(attended, seated.length),
+              style: ts.labelMedium?.copyWith(color: cs.onSurfaceVariant),
+            ),
         ],
       ),
+      if (!c.isCancelled && !c.hasStarted)
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: TextButton.icon(
+            onPressed: _addPeople,
+            icon: const Icon(Icons.person_add_alt_1_outlined),
+            label: Text(l10n.trainingClassAddPeople),
+          ),
+        ),
       const SizedBox(height: 8),
       if (seated.isEmpty)
         Padding(
@@ -352,21 +421,24 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
             children: [
               Icon(Icons.group_outlined, color: cs.onSurfaceVariant),
               const SizedBox(width: 8),
-              Text(l10n.trainingClassNoBookingsYet,
-                  style: TextStyle(color: cs.onSurfaceVariant)),
+              Text(
+                l10n.trainingClassNoBookingsYet,
+                style: TextStyle(color: cs.onSurfaceVariant),
+              ),
             ],
           ),
         )
       else
         Card(
           margin: EdgeInsets.zero,
-          child: Column(
-            children: [for (final b in seated) _rosterRow(c, b)],
-          ),
+          child: Column(children: [for (final b in seated) _rosterRow(c, b)]),
         ),
       if (waitlist.isNotEmpty) ...[
         const SizedBox(height: 20),
-        Text(l10n.trainingClassWaitlistCount(waitlist.length), style: ts.titleMedium),
+        Text(
+          l10n.trainingClassWaitlistCount(waitlist.length),
+          style: ts.titleMedium,
+        ),
         const SizedBox(height: 8),
         Card(
           margin: EdgeInsets.zero,
@@ -385,25 +457,33 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
     final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final busy = _rowBusy.contains(b.id);
-    final canRemove = !c.isCancelled &&
+    final canRemove =
+        !c.isCancelled &&
         !c.hasStarted &&
-        (b.status == BookingStatus.booked || b.status == BookingStatus.waitlisted);
+        (b.status == BookingStatus.booked ||
+            b.status == BookingStatus.waitlisted);
     final canMark = !c.isCancelled && b.status.takesSeat;
 
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: cs.primaryContainer,
-        foregroundImage: b.avatarUrl != null ? NetworkImage(b.avatarUrl!) : null,
+        foregroundImage: b.avatarUrl != null
+            ? NetworkImage(b.avatarUrl!)
+            : null,
         child: Text(b.initials, style: TextStyle(color: cs.onPrimaryContainer)),
       ),
       title: Text(b.fullName.isEmpty ? l10n.trainingClassMember : b.fullName),
       subtitle: position != null
           ? Text(l10n.trainingClassWaitlistPosition(position))
-          : Text(b.status == BookingStatus.booked
-              ? l10n.trainingClassBookedAt(DateFormat.MMMd(localeOf(context))
-                  .add_jm()
-                  .format(b.createdAt))
-              : b.status.label(l10n)),
+          : Text(
+              b.status == BookingStatus.booked
+                  ? l10n.trainingClassBookedAt(
+                      DateFormat.MMMd(
+                        localeOf(context),
+                      ).add_jm().format(b.createdAt),
+                    )
+                  : b.status.label(l10n),
+            ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -421,7 +501,8 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
                       b,
                       b.status == BookingStatus.attended
                           ? BookingStatus.booked
-                          : BookingStatus.attended),
+                          : BookingStatus.attended,
+                    ),
             ),
             IconButton(
               tooltip: b.status == BookingStatus.noShow
@@ -436,7 +517,8 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
                       b,
                       b.status == BookingStatus.noShow
                           ? BookingStatus.booked
-                          : BookingStatus.noShow),
+                          : BookingStatus.noShow,
+                    ),
             ),
           ],
           if (canRemove)
@@ -446,7 +528,9 @@ class _ClassDetailPageState extends State<ClassDetailPage> {
               onSelected: (_) => _removeBooking(b),
               itemBuilder: (_) => [
                 PopupMenuItem(
-                    value: 'remove', child: Text(l10n.trainingClassRemoveFromClass)),
+                  value: 'remove',
+                  child: Text(l10n.trainingClassRemoveFromClass),
+                ),
               ],
             ),
         ],

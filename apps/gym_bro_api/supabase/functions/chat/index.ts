@@ -17,12 +17,16 @@ import {
   displayName,
   isBlockedBetween,
   isReaction,
+  MESSAGE_RULE_COLS,
+  messageable,
+  type MessageRecipient,
   REACTION_EMOJI,
   touchActivity,
+  unreadMessageSql,
   type UserSummary,
   userSummaries,
 } from "../_shared/social.ts";
-import type { Database, ParticipantRole, ParticipantStatus, WhoCanMessage } from "../../types/schema/public.ts";
+import type { Database, ParticipantRole, ParticipantStatus } from "../../types/schema/public.ts";
 
 // Direct and group chat.
 //
@@ -274,13 +278,7 @@ async function listConversations(
     SELECT c.id, c.kind, c.title, c.description, c.avatar_url, c.created_by, c.created_at, c.last_message_at,
            p.role, p.status, p.muted_until, p.archived_at, p.last_read_at,
            (SELECT count(*)::int FROM message m
-             WHERE m.conversation_id = c.id
-               AND m.created_at > COALESCE(p.last_read_at, '-infinity')
-               AND m.created_at > COALESCE(p.cleared_at, '-infinity')
-               AND (c.kind = 'direct' OR m.created_at >= p.joined_at)
-               AND m.kind <> 'system'
-               AND m.deleted_at IS NULL
-               AND (m.sender_id IS NULL OR m.sender_id <> ${caller.id})) AS unread_count,
+             WHERE m.conversation_id = c.id AND ${unreadMessageSql(caller.id)}) AS unread_count,
            (SELECT count(*)::int FROM conversation_participant x WHERE x.conversation_id = c.id) AS participant_count,
            lm.msg AS last_message,
            lm.media_type AS last_media_type
@@ -305,7 +303,8 @@ async function listConversations(
           OR (${box} = 'archived' AND p.status = 'active' AND p.archived_at IS NOT NULL)
           OR (${box} = 'inbox' AND p.status = 'active' AND p.archived_at IS NULL
               -- an empty direct chat I didn't start isn't shown yet
-              AND (c.kind = 'group' OR lm.msg IS NOT NULL OR c.created_by = ${caller.id}))))
+              -- (nor one I started and then left)
+              AND (c.kind = 'group' OR lm.msg IS NOT NULL OR (c.created_by = ${caller.id} AND p.cleared_at IS NULL)))))
     ORDER BY c.last_message_at DESC, c.id
     LIMIT ${opts.limit ?? 30} OFFSET ${opts.offset ?? 0}
   `.execute(db);
@@ -427,20 +426,22 @@ async function announce(conversationId: string, messages: MessageRow[]) {
 // ── Adding people ─────────────────────────────────────────────────────────────
 
 /**
- * Validates people to add: they exist, aren't blocked either way, and get
- * status 'active' if they let `adder` message them, else 'request'.
+ * Validates people to add: they exist, `adder` may message them (see
+ * directMessageStatus), and gets each one's status: 'active' or 'request'.
  */
 async function resolveInvitees(adder: Caller, userIds: string[]) {
   const unique = [...new Set(userIds)].filter((id) => id !== adder.id);
   if (unique.some((id) => !UUID_RE.test(id))) return { error: "user_ids must be user ids" };
   const users = unique.length
-    ? await db.selectFrom("users").select(["id", "who_can_message"]).where("id", "in", unique).execute()
+    ? await db.selectFrom("users").select(MESSAGE_RULE_COLS).where("id", "in", unique).execute()
     : [];
   if (users.length !== unique.length) return { error: "Some users don't exist" };
   const out: { id: string; status: ParticipantStatus }[] = [];
   for (const u of users) {
-    const status = await directMessageStatus(adder.id, u as { id: string; who_can_message: WhoCanMessage });
-    if (!status) return { error: "You can't add someone who blocked you or whom you blocked" };
+    const rule = await directMessageStatus(adder.id, u);
+    if (rule === "blocked") return { error: "You can't add someone who blocked you or whom you blocked" };
+    const status = messageable(rule);
+    if (!status) return { error: "Some of these people only take messages from their followers" };
     out.push({ id: u.id, status });
   }
   return { invitees: out };
@@ -900,21 +901,23 @@ async function handler(req: Request): Promise<Response> {
     const beforeId = url.searchParams.get("before_id");
     const afterId = url.searchParams.get("after_id");
     const cursorId = beforeId ?? afterId;
-    let cursor: { created_at: string; id: string } | undefined;
+    let cursor: { id: string } | undefined;
     if (cursorId) {
       if (!UUID_RE.test(cursorId)) return jsonError("Invalid cursor", 400);
-      cursor = await db.selectFrom("message").select(["created_at", "id"]).where("id", "=", cursorId)
+      cursor = await db.selectFrom("message").select("id").where("id", "=", cursorId)
         .where("conversation_id", "=", convId).executeTakeFirst();
       if (!cursor) return jsonError("Cursor message not found", 404);
     }
+    // Compare against the cursor row in SQL: its created_at has microseconds a JS Date would drop.
+    const cursorRow = cursor && sql`(SELECT cm.created_at, cm.id FROM message cm WHERE cm.id = ${cursor.id}::uuid)`;
     const from = visibleFrom(me);
     let q = db.selectFrom("message").select(MESSAGE_COLS).where("conversation_id", "=", convId)
       .where("created_at", ">", from);
     if (cursor && beforeId) {
-      q = q.where(sql<boolean>`(created_at, id) < (${cursor.created_at}::timestamptz, ${cursor.id}::uuid)`)
+      q = q.where(sql<boolean>`(created_at, id) < ${cursorRow}`)
         .orderBy("created_at", "desc").orderBy("id", "desc");
     } else if (cursor && afterId) {
-      q = q.where(sql<boolean>`(created_at, id) > (${cursor.created_at}::timestamptz, ${cursor.id}::uuid)`)
+      q = q.where(sql<boolean>`(created_at, id) > ${cursorRow}`)
         .orderBy("created_at", "asc").orderBy("id", "asc");
     } else {
       q = q.orderBy("created_at", "desc").orderBy("id", "desc");
@@ -950,16 +953,24 @@ async function handler(req: Request): Promise<Response> {
     }
 
     // Direct chats: blocked either way → no sending; a recipient who left or
-    // declined is re-added (as a request if they don't let me message them).
-    let directOther: { id: string; who_can_message: WhoCanMessage } | undefined;
+    // declined is re-added (inbox or request, per directMessageStatus) unless
+    // they no longer take messages from me.
+    let directOther: MessageRecipient | undefined;
+    let directOtherStatus: "active" | "request" | null = null;
     if (me.kind === "direct") {
       const key = await db.selectFrom("conversation").select("direct_key").where("id", "=", convId)
         .executeTakeFirstOrThrow();
       const otherId = key.direct_key!.split(":").find((id) => id !== caller.id)!;
       if (await isBlockedBetween(caller.id, otherId)) return forbidden("You can't message this person");
-      directOther = await db.selectFrom("users").select(["id", "who_can_message"]).where("id", "=", otherId)
+      directOther = await db.selectFrom("users").select(MESSAGE_RULE_COLS).where("id", "=", otherId)
         .executeTakeFirst();
       if (!directOther) return forbidden("This account no longer exists");
+      directOtherStatus = messageable(await directMessageStatus(caller.id, directOther));
+      if (!directOtherStatus) {
+        const stillIn = await db.selectFrom("conversation_participant").select("user_id")
+          .where("conversation_id", "=", convId).where("user_id", "=", otherId).executeTakeFirst();
+        if (!stillIn) return forbidden("This person only takes messages from their followers");
+      }
     }
     if (me.status === "request") {
       // Replying to a request accepts it.
@@ -983,10 +994,9 @@ async function handler(req: Request): Promise<Response> {
 
     const int = (v: unknown) => (Number.isFinite(Number(v)) && Number(v) >= 0 ? Math.round(Number(v)) : null);
     const msg = await db.transaction().execute(async (trx) => {
-      if (directOther) {
-        const status = await directMessageStatus(caller.id, directOther);
+      if (directOther && directOtherStatus) {
         await trx.insertInto("conversation_participant")
-          .values({ conversation_id: convId, user_id: directOther.id, status: status ?? "request", added_by: caller.id })
+          .values({ conversation_id: convId, user_id: directOther.id, status: directOtherStatus, added_by: caller.id })
           .onConflict((oc) => oc.columns(["conversation_id", "user_id"]).doNothing())
           .execute();
       }

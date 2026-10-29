@@ -93,6 +93,16 @@ export async function canCoachAtGym(caller: Caller, gymId: string): Promise<bool
   return hasRow("trainer", caller.id, gymId);
 }
 
+/** Gyms where the caller is owner, employee or employee-trainer (a subquery). */
+export function staffedGymIds(caller: Caller) {
+  return db
+    .selectFrom("gym_owner")
+    .select("gym_id")
+    .where("user_id", "=", caller.id)
+    .union(db.selectFrom("employee").select("gym_id").where("user_id", "=", caller.id))
+    .union(db.selectFrom("employee_trainer").select("gym_id").where("user_id", "=", caller.id));
+}
+
 /** Owner of the shop, or super user. */
 export async function canManageShop(caller: Caller, shopId: string): Promise<boolean> {
   if (isSuperUser(caller)) return true;
@@ -149,6 +159,11 @@ export async function gymIdForMembership(membershipId: string): Promise<string |
  */
 export async function coachesUser(caller: Caller, userId: string): Promise<boolean> {
   if (isSuperUser(caller)) return true;
+  // Customers who accepted the caller as their trainer.
+  const customer = await db.selectFrom("trainer_customer").select("user_id")
+    .where("trainer_id", "=", caller.id).where("user_id", "=", userId).where("status", "=", "accepted")
+    .executeTakeFirst();
+  if (customer) return true;
   const gyms = await db
     .selectFrom("member")
     .select("gym_id")

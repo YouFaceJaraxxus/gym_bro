@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
 import '../config.dart';
 import '../l10n/l10n.dart';
+import '../models/draft.dart';
 import '../models/exercise.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../theme.dart';
+import '../widgets/drafts.dart';
 import '../widgets/image_upload_field.dart';
 import '../widgets/muscle_diagram.dart';
 
 class ExerciseFormPage extends StatefulWidget {
   final Exercise? exercise;
 
-  const ExerciseFormPage({super.key, this.exercise});
+  /// A saved draft to continue (new exercises only).
+  final Draft? draft;
+
+  const ExerciseFormPage({super.key, this.exercise, this.draft});
 
   @override
   State<ExerciseFormPage> createState() => _ExerciseFormPageState();
 }
 
-class _ExerciseFormPageState extends State<ExerciseFormPage> {
+class _ExerciseFormPageState extends State<ExerciseFormPage>
+    with DraftableForm {
   final _formKey = GlobalKey<FormState>();
   final _api = ApiService();
 
@@ -34,9 +40,64 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
 
   bool get _isEditing => widget.exercise != null;
 
+  // ── Drafts ──────────────────────────────────────────────────────────────────
+
+  @override
+  DraftKind get draftKind => DraftKind.exercise;
+  @override
+  Draft? get initialDraft => widget.draft;
+  @override
+  bool get draftsEnabled => !_isEditing;
+  @override
+  bool get hasDraftContent =>
+      [
+        _name,
+        _description,
+        _note,
+        _imageUrl,
+        _videoUrl,
+      ].any((c) => c.text.trim().isNotEmpty) ||
+      _primaryMuscles.isNotEmpty ||
+      _secondaryMuscles.isNotEmpty;
+  @override
+  String? draftTitle() => _name.text;
+  @override
+  String? draftThumbnailUrl() => _imageUrl.text.trim().isEmpty
+      ? null
+      : AppConfig.resolveUrl(_imageUrl.text.trim());
+  @override
+  Map<String, dynamic> draftData() => {
+    'name': _name.text,
+    'description': _description.text,
+    'note': _note.text,
+    'image_url': _imageUrl.text,
+    'video_url': _videoUrl.text,
+    'primary_muscles': _primaryMuscles.map((m) => m.apiValue).toList(),
+    'secondary_muscles': _secondaryMuscles.map((m) => m.apiValue).toList(),
+    'is_public': _isPublic,
+  };
+
   @override
   void initState() {
     super.initState();
+    final draft = widget.draft?.data;
+    if (draft != null && !_isEditing) {
+      _name = TextEditingController(text: draft['name'] as String? ?? '');
+      _description = TextEditingController(
+        text: draft['description'] as String? ?? '',
+      );
+      _note = TextEditingController(text: draft['note'] as String? ?? '');
+      _imageUrl = TextEditingController(
+        text: draft['image_url'] as String? ?? '',
+      );
+      _videoUrl = TextEditingController(
+        text: draft['video_url'] as String? ?? '',
+      );
+      _primaryMuscles.addAll(_muscles(draft['primary_muscles']));
+      _secondaryMuscles.addAll(_muscles(draft['secondary_muscles']));
+      _isPublic = draft['is_public'] as bool? ?? true;
+      return;
+    }
     final ex = widget.exercise;
     _name = TextEditingController(text: ex?.name ?? '');
     _description = TextEditingController(text: ex?.description ?? '');
@@ -49,6 +110,10 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
       _isPublic = ex.isPublic;
     }
   }
+
+  static Iterable<MuscleGroup> _muscles(Object? raw) => [
+    for (final v in (raw as List? ?? const [])) ?MuscleGroup.fromApiValue('$v'),
+  ];
 
   @override
   void dispose() {
@@ -87,6 +152,7 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
         result = await _api.updateExercise(token, widget.exercise!.id, data);
       } else {
         result = await _api.createExercise(token, data);
+        await draftPublished();
       }
       if (mounted) Navigator.pop(context, result);
     } catch (e) {
@@ -138,114 +204,122 @@ class _ExerciseFormPageState extends State<ExerciseFormPage> {
     final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
     final app = context.appColors;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _isEditing
-              ? l10n.trainingExerciseEditTitle
-              : l10n.trainingExerciseNewTitle,
-        ),
-        actions: [
-          if (_saving)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            )
-          else
-            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextFormField(
-              controller: _name,
-              decoration: InputDecoration(
-                labelText: l10n.trainingExerciseNameLabel,
-              ),
-              validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _description,
-              decoration: InputDecoration(
-                labelText: l10n.trainingPlanDescriptionLabel,
-              ),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _note,
-              decoration: InputDecoration(
-                labelText: l10n.trainingAssignNoteLabel,
-              ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 16),
-            ImagePickerField(
-              imageUrl: _imageUrl.text.isEmpty ? null : AppConfig.resolveUrl(_imageUrl.text),
-              folder: 'exercises',
-              label: l10n.trainingExerciseAddPhoto,
-              onUploaded: (url) => setState(() => _imageUrl.text = url),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _videoUrl,
-              decoration: InputDecoration(
-                labelText: l10n.trainingExerciseVideoUrl,
-              ),
-              keyboardType: TextInputType.url,
-            ),
-            const SizedBox(height: 24),
-
-            // Muscle diagram preview
-            if (_primaryMuscles.isNotEmpty) ...[
-              Center(
-                child: MuscleDiagram(
-                  primaryMuscles: _primaryMuscles,
-                  secondaryMuscles: _secondaryMuscles,
-                  size: 180,
+    final banner = draftBanner(context);
+    return draftPopScope(
+      busy: _saving,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            _isEditing
+                ? l10n.trainingExerciseEditTitle
+                : l10n.trainingExerciseNewTitle,
+          ),
+          actions: [
+            if (_saving)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 ),
+              )
+            else
+              TextButton(onPressed: _save, child: Text(l10n.commonSave)),
+          ],
+        ),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (banner != null) ...[banner, const SizedBox(height: 16)],
+              TextFormField(
+                controller: _name,
+                decoration: InputDecoration(
+                  labelText: l10n.trainingExerciseNameLabel,
+                ),
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? l10n.commonRequired
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _description,
+                decoration: InputDecoration(
+                  labelText: l10n.trainingPlanDescriptionLabel,
+                ),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _note,
+                decoration: InputDecoration(
+                  labelText: l10n.trainingAssignNoteLabel,
+                ),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 16),
+              ImagePickerField(
+                imageUrl: _imageUrl.text.isEmpty
+                    ? null
+                    : AppConfig.resolveUrl(_imageUrl.text),
+                folder: 'exercises',
+                label: l10n.trainingExerciseAddPhoto,
+                onUploaded: (url) => setState(() => _imageUrl.text = url),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _videoUrl,
+                decoration: InputDecoration(
+                  labelText: l10n.trainingExerciseVideoUrl,
+                ),
+                keyboardType: TextInputType.url,
+              ),
+              const SizedBox(height: 24),
+
+              // Muscle diagram preview
+              if (_primaryMuscles.isNotEmpty) ...[
+                Center(
+                  child: MuscleDiagram(
+                    primaryMuscles: _primaryMuscles,
+                    secondaryMuscles: _secondaryMuscles,
+                    size: 180,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Center(child: MuscleDiagramLegend()),
+                const SizedBox(height: 16),
+              ],
+
+              _MusclePickerTile(
+                label: l10n.trainingExercisePrimaryMuscles,
+                muscles: _primaryMuscles,
+                background: cs.errorContainer,
+                foreground: cs.onErrorContainer,
+                border: cs.error,
+                onTap: () => _pickMuscles(true),
               ),
               const SizedBox(height: 8),
-              const Center(child: MuscleDiagramLegend()),
+              _MusclePickerTile(
+                label: l10n.trainingExerciseSecondaryMuscles,
+                muscles: _secondaryMuscles,
+                background: app.warningContainer,
+                foreground: app.onWarningContainer,
+                border: app.warning,
+                onTap: () => _pickMuscles(false),
+              ),
               const SizedBox(height: 16),
+
+              SwitchListTile(
+                title: Text(l10n.trainingPlanPublic),
+                subtitle: Text(l10n.trainingPlanPublicSubtitle),
+                value: _isPublic,
+                onChanged: (v) => setState(() => _isPublic = v),
+                contentPadding: EdgeInsets.zero,
+              ),
             ],
-
-            _MusclePickerTile(
-              label: l10n.trainingExercisePrimaryMuscles,
-              muscles: _primaryMuscles,
-              background: cs.errorContainer,
-              foreground: cs.onErrorContainer,
-              border: cs.error,
-              onTap: () => _pickMuscles(true),
-            ),
-            const SizedBox(height: 8),
-            _MusclePickerTile(
-              label: l10n.trainingExerciseSecondaryMuscles,
-              muscles: _secondaryMuscles,
-              background: app.warningContainer,
-              foreground: app.onWarningContainer,
-              border: app.warning,
-              onTap: () => _pickMuscles(false),
-            ),
-            const SizedBox(height: 16),
-
-            SwitchListTile(
-              title: Text(l10n.trainingPlanPublic),
-              subtitle: Text(l10n.trainingPlanPublicSubtitle),
-              value: _isPublic,
-              onChanged: (v) => setState(() => _isPublic = v),
-              contentPadding: EdgeInsets.zero,
-            ),
-          ],
+          ),
         ),
       ),
     );

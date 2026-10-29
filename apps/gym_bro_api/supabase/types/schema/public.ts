@@ -94,7 +94,6 @@ export type ConversationKind = "direct" | "group";
 export type ParticipantRole = "owner" | "admin" | "member";
 export type ParticipantStatus = "active" | "request";
 export type MessageKind = "text" | "media" | "system";
-export type WhoCanMessage = "everyone" | "following" | "friends"; // following = people I follow
 export type PostVisibility = "public" | "followers";
 export type ReportReason = "spam" | "harassment" | "inappropriate" | "impersonation" | "other";
 export type MediaBucket = "chat-media" | "user-media";
@@ -176,7 +175,8 @@ export interface UsersTable {
   is_private: Generated<boolean>;
   discoverable: Generated<boolean>;
   interests: Generated<string[]>;
-  who_can_message: Generated<WhoCanMessage>;
+  // Off: people who aren't approved followers (or friends) can't message at all.
+  allow_non_follower_messages: Generated<boolean>;
   show_activity_status: Generated<boolean>;
   last_active_at: Generated<string | null>;
   // Rounded to ~1 km; never returned to other users.
@@ -741,12 +741,59 @@ export interface GymClassTable {
   starts_at: string;
   ends_at: string;
   capacity: number;
-  series_id: string | null;
+  series_id: string;
+  // The slot the session was generated for; unchanged when one session moves.
+  slot_at: string;
+  // Cancelled by a timetable change rather than by hand; may come back.
+  retired: Generated<boolean>;
   cancelled_at: string | null;
   reminder_sent_at: string | null;
   created_by: string | null;
   created_at: Generated<string>;
   updated_at: Generated<string>;
+}
+
+export type ClassRepeat = "none" | "daily" | "weekly";
+export type EnrollmentStatus = "pending" | "accepted" | "declined";
+export type CustomerStatus = "pending" | "accepted";
+
+export interface ClassSeriesTable {
+  id: Generated<string>;
+  gym_id: string;
+  trainer_id: string | null;
+  title: string;
+  description: string | null;
+  location: string | null;
+  capacity: number;
+  duration_minutes: number;
+  repeat: ClassRepeat;
+  weekdays: Generated<number[]>; // ISO 1 = Monday … 7 = Sunday
+  times: string[]; // "HH:MM:SS" local start times
+  timezone: string;
+  starts_on: string;
+  ends_on: string | null;
+  active: Generated<boolean>;
+  generated_until: string | null;
+  created_by: string | null;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface ClassEnrollmentTable {
+  series_id: string;
+  user_id: string;
+  status: Generated<EnrollmentStatus>;
+  invited_by: string | null;
+  created_at: Generated<string>;
+  responded_at: string | null;
+}
+
+export interface TrainerCustomerTable {
+  trainer_id: string;
+  user_id: string;
+  status: Generated<CustomerStatus>;
+  created_at: Generated<string>;
+  accepted_at: string | null;
 }
 
 export interface ClassBookingTable {
@@ -932,6 +979,24 @@ export interface MediaUploadTable {
   mime_type: string;
   created_at: Generated<string>;
   claimed_at: string | null;
+  draft_id: Generated<string | null>;
+}
+
+export type DraftKind =
+  | "post" | "business_post" | "exercise" | "training" | "routine"
+  | "recipe" | "food_item" | "daily_meal_plan" | "meal_plan";
+
+export interface DraftTable {
+  id: Generated<string>;
+  user_id: string;
+  kind: DraftKind;
+  scope_id: string | null;
+  title: string | null;
+  thumbnail_url: string | null;
+  data: Generated<Record<string, unknown>>;
+  media: Generated<unknown[]>;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
 }
 
 export interface CheckInTable {
@@ -1016,6 +1081,9 @@ export interface Database {
   admin_audit_log: AdminAuditLogTable;
   payment: PaymentTable;
   gym_class: GymClassTable;
+  class_series: ClassSeriesTable;
+  class_enrollment: ClassEnrollmentTable;
+  trainer_customer: TrainerCustomerTable;
   class_booking: ClassBookingTable;
   staff_shift: StaffShiftTable;
   body_measurement: BodyMeasurementTable;
@@ -1034,6 +1102,7 @@ export interface Database {
   message_attachment: MessageAttachmentTable;
   message_reaction: MessageReactionTable;
   media_upload: MediaUploadTable;
+  draft: DraftTable;
   check_in: CheckInTable;
   food_log: FoodLogTable;
 }

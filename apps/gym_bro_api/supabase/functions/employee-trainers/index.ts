@@ -1,6 +1,6 @@
 import { db } from "../_shared/config.ts";
 import { canCoachAtGym, canManageGym, forbidden, json, jsonError, redactEmails, requireCaller } from "../_shared/auth.ts";
-import { pgCode, assignRole, reconcileRoles } from "../_shared/roles.ts";
+import { pgCode, reconcileRoles } from "../_shared/roles.ts";
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -60,7 +60,7 @@ Deno.serve(async (req: Request) => {
           .values({ user_id, gym_id, trainer_id: trainerRow.id })
           .returningAll()
           .executeTakeFirstOrThrow();
-        await assignRole(trx, user_id, "employee_trainer");
+        await reconcileRoles(trx, [user_id]);
         return inserted;
       });
       return json(row, 201);

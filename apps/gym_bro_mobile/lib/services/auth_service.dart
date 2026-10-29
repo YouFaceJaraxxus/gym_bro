@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:http/http.dart' as http;
 import '../config.dart';
 
@@ -6,7 +7,13 @@ import '../config.dart';
 final _baseUrl = '${AppConfig.apiBaseUrl}/users';
 
 class AuthService {
-  final _client = http.Client();
+  /// Replaces the HTTP client of every AuthService (tests: a `MockClient`).
+  /// Read on each request, so `AuthManager`'s long-lived instance picks it up.
+  @visibleForTesting
+  static http.Client? debugClientOverride;
+
+  final _ownClient = http.Client();
+  http.Client get _client => debugClientOverride ?? _ownClient;
 
   /// Signs up a new user. Returns `{ message, user }` on success (201); the
   /// user must confirm their email before signing in — no session is returned.
@@ -68,11 +75,7 @@ class AuthService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    if (response.statusCode >= 400) {
-      throw Exception(data['error'] ?? 'Sign in failed');
-    }
-    return data;
+    return _decode(response, 'Sign in failed');
   }
 
   /// Verifies the 6-digit OTP from an invite email and sets the user's password.
@@ -87,11 +90,7 @@ class AuthService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'token': token, 'password': password}),
     );
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    if (response.statusCode >= 400) {
-      throw Exception(data['error'] ?? 'Verification failed');
-    }
-    return data;
+    return _decode(response, 'Verification failed');
   }
 
   Future<Map<String, dynamic>> refresh(String refreshToken) async {
@@ -100,11 +99,7 @@ class AuthService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'refresh_token': refreshToken}),
     );
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
-    if (response.statusCode >= 400) {
-      throw Exception(data['error'] ?? 'Token refresh failed');
-    }
-    return data;
+    return _decode(response, 'Token refresh failed');
   }
 
   Future<void> forgotPassword(String email) async {
@@ -113,10 +108,7 @@ class AuthService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email}),
     );
-    if (response.statusCode >= 400) {
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-      throw Exception(data['error'] ?? 'Failed to send reset email');
-    }
+    _decode(response, 'Failed to send reset email');
   }
 
   Future<void> resetPassword({
@@ -131,10 +123,7 @@ class AuthService {
       },
       body: jsonEncode({'password': password}),
     );
-    if (response.statusCode >= 400) {
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-      throw Exception(data['error'] ?? 'Password reset failed');
-    }
+    _decode(response, 'Password reset failed');
   }
 
   /// Exchanges a Google ID token for a session (POST /users/google). Creates
@@ -163,12 +152,42 @@ class AuthService {
       Uri.parse('$_baseUrl/test'),
       headers: {'Authorization': 'Bearer $accessToken'},
     );
-    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    return _decode(response, 'Request failed');
+  }
+
+  /// The JSON body of [response]. A 4xx/5xx throws [AuthRequestException]
+  /// with the API's `error`, else `[fallback] (<status>)` — also when the body
+  /// isn't JSON (e.g. a gateway's HTML error page).
+  Map<String, dynamic> _decode(http.Response response, String fallback) {
+    Map<String, dynamic> data;
+    try {
+      data = jsonDecode(response.body) as Map<String, dynamic>;
+    } on FormatException {
+      data = {};
+    }
     if (response.statusCode >= 400) {
-      throw Exception(data['error'] ?? 'Request failed (${response.statusCode})');
+      throw AuthRequestException(
+        data['error'] as String? ?? '$fallback (${response.statusCode})',
+        statusCode: response.statusCode,
+      );
     }
     return data;
   }
+}
+
+/// A failed auth request, with the HTTP status so callers can tell a rejected
+/// credential (4xx) from a server-side outage (5xx).
+class AuthRequestException implements Exception {
+  final String message;
+  final int statusCode;
+
+  const AuthRequestException(this.message, {required this.statusCode});
+
+  /// The server (or a gateway in front of it) failed; nothing was rejected.
+  bool get isServerError => statusCode >= 500;
+
+  @override
+  String toString() => message;
 }
 
 /// Signup failure with the API's machine-readable `code`

@@ -44,13 +44,7 @@ Deno.serve(async (req: Request) => {
           .values({ user_id, gym_id })
           .returningAll()
           .executeTakeFirstOrThrow();
-        // Don't downgrade front-desk staff to plain trainer.
-        await trx
-          .updateTable("users")
-          .set({ role: "trainer" })
-          .where("id", "=", user_id)
-          .where("role", "=", "member")
-          .execute();
+        await reconcileRoles(trx, [user_id]);
         return inserted;
       });
       return json(row, 201);

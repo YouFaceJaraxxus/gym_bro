@@ -1,6 +1,6 @@
 import { sql } from "npm:kysely@^0.27";
 import { db } from "./config.ts";
-import type { ReactionType, WhoCanMessage } from "../../types/schema/public.ts";
+import type { ReactionType } from "../../types/schema/public.ts";
 
 // Social graph rules shared by the social, chat and posts functions.
 //
@@ -184,19 +184,46 @@ export async function canSeeContentOf(
   return viewerId ? await isFollowing(viewerId, owner.id) : false;
 }
 
+/** The recipient columns {@link directMessageStatus} needs. */
+export const MESSAGE_RULE_COLS = ["id", "is_private", "allow_non_follower_messages"] as const;
+
+export type MessageRecipient = { id: string; is_private: boolean; allow_non_follower_messages: boolean };
+
 /**
- * Whether a direct message from `senderId` lands in `recipient`'s inbox
- * ('active') or in their message requests ('request'). Blocked → null.
+ * Where a direct message from `senderId` lands for `recipient`:
+ * - 'active': their inbox. Approved followers and friends always; anyone
+ *   else when the account is public.
+ * - 'request': their message requests (a private account, sender isn't an
+ *   approved follower).
+ * - 'blocked': either one blocked the other.
+ * - 'followers_only': the recipient doesn't take messages from non-followers.
  */
 export async function directMessageStatus(
   senderId: string,
-  recipient: { id: string; who_can_message: WhoCanMessage },
-): Promise<"active" | "request" | null> {
-  if (await isBlockedBetween(senderId, recipient.id)) return null;
-  if (recipient.who_can_message === "everyone") return "active";
-  if (await areFriends(senderId, recipient.id)) return "active";
-  if (recipient.who_can_message === "following" && (await isFollowing(recipient.id, senderId))) return "active";
-  return "request";
+  recipient: MessageRecipient,
+): Promise<"active" | "request" | "blocked" | "followers_only"> {
+  if (await isBlockedBetween(senderId, recipient.id)) return "blocked";
+  if ((await isFollowing(senderId, recipient.id)) || (await areFriends(senderId, recipient.id))) return "active";
+  if (!recipient.allow_non_follower_messages) return "followers_only";
+  return recipient.is_private ? "request" : "active";
+}
+
+/** The participant status a message would get, or null when it can't be sent. */
+export const messageable = (s: Awaited<ReturnType<typeof directMessageStatus>>): "active" | "request" | null =>
+  s === "active" || s === "request" ? s : null;
+
+/**
+ * SQL condition: message `m` counts as unread for `userId`, whose participant
+ * row is `p` in conversation `c`. Shared by the inbox's unread_count and the
+ * unread_conversations badge so they always agree.
+ */
+export function unreadMessageSql(userId: string) {
+  return sql<boolean>`m.created_at > COALESCE(p.last_read_at, '-infinity')
+    AND m.created_at > COALESCE(p.cleared_at, '-infinity')
+    AND (c.kind = 'direct' OR m.created_at >= p.joined_at)
+    AND m.kind <> 'system'
+    AND m.deleted_at IS NULL
+    AND (m.sender_id IS NULL OR m.sender_id <> ${userId})`;
 }
 
 /** Marks the user active now (at most one write per minute). */

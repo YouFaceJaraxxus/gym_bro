@@ -282,6 +282,29 @@
   "trainingClassMarkNoShow": "Mark no-show",
   "trainingClassMore": "More",
   "trainingClassRemoveFromClass": "Remove from class",
+  "trainingClassAddPeople": "Add people",
+  "trainingClassAddPeopleHint": "Members of this gym and people who follow you.",
+  "trainingClassAddPeopleSearch": "Search by name or username",
+  "trainingClassAddPeopleEmpty": "No one found. People need to be members of this gym or follow you.",
+  "trainingClassPersonMember": "Member",
+  "trainingClassPersonFollower": "Follows you",
+  "trainingClassAdd": "Add",
+  "trainingClassAddedPerson": "{name} added",
+  "@trainingClassAddedPerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "trainingClassAddedToWaitlist": "{name} added to the waitlist",
+  "@trainingClassAddedToWaitlist": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "trainingClassStartInFuture": "Pick a start time in the future",
   "trainingClassUpdated": "Class updated",
   "trainingClassWeeklyCreated": "{count} weekly classes created",
@@ -364,44 +387,6 @@
   "trainingClassSaveChanges": "Save changes",
   "trainingClassCreate": "Create class",
   "trainingClassClasses": "Classes",
-  "trainingClassRefresh": "Refresh",
-  "trainingClassMyBookings": "My bookings",
-  "trainingClassMyBookingsCount": "My bookings ({count})",
-  "@trainingClassMyBookingsCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "trainingClassNoneScheduled": "No classes scheduled",
-  "trainingClassNoneScheduledMessage": "Your gyms haven't scheduled any classes for the next two weeks. Check back soon.",
-  "trainingClassNothingOn": "Nothing on {day}",
-  "@trainingClassNothingOn": {
-    "placeholders": {
-      "day": {
-        "type": "String"
-      }
-    }
-  },
-  "trainingClassNextClass": "Next class: {title}, {day} at {time}.",
-  "@trainingClassNextClass": {
-    "placeholders": {
-      "title": {
-        "type": "String"
-      },
-      "day": {
-        "type": "String"
-      },
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "trainingClassJumpToNext": "Jump to next class",
-  "trainingClassNoBookings": "No bookings yet",
-  "trainingClassNoBookingsMessage": "Classes you book or join the waitlist for show up here.",
-  "trainingClassBrowse": "Browse classes",
   "trainingScheduleTitle": "Schedule",
   "trainingShiftShifts": "Shifts",
   "trainingClassNoneThisWeek": "No classes this week",

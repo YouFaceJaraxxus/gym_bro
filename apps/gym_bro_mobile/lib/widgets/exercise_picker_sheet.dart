@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 
+const _kDebounce = Duration(milliseconds: 350);
+
 /// Opens a searchable bottom sheet of exercises and returns the picked one
-/// (or null when dismissed).
+/// (or null when dismissed). Results update as you type (debounced).
 Future<Exercise?> showExercisePicker(BuildContext context) {
   return showModalBottomSheet<Exercise>(
     context: context,
@@ -27,21 +31,35 @@ class _ExercisePickerSheetState extends State<ExercisePickerSheet> {
   List<Exercise> _exercises = [];
   bool _loading = true;
   String? _error;
+  Timer? _debounce;
+  String _activeQuery = '';
 
   @override
   void initState() {
     super.initState();
+    _search.addListener(_onTextChanged);
     _load();
   }
 
   @override
   void dispose() {
+    _debounce?.cancel();
+    _search.removeListener(_onTextChanged);
     _search.dispose();
     super.dispose();
   }
 
+  void _onTextChanged() {
+    if (_search.text.trim() == _activeQuery) return;
+    _debounce?.cancel();
+    _debounce = Timer(_kDebounce, _load);
+  }
+
   Future<void> _load() async {
+    _debounce?.cancel();
+    final query = _search.text.trim();
     setState(() {
+      _activeQuery = query;
       _loading = true;
       _error = null;
     });
@@ -49,16 +67,16 @@ class _ExercisePickerSheetState extends State<ExercisePickerSheet> {
       final token = await AuthManager.instance.getValidToken();
       final results = await _api.getExercises(
         token,
-        name: _search.text.trim().isEmpty ? null : _search.text.trim(),
+        name: query.isEmpty ? null : query,
         pageSize: 50,
       );
-      if (!mounted) return;
+      if (!mounted || query != _activeQuery) return;
       setState(() {
         _exercises = results;
         _loading = false;
       });
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted || query != _activeQuery) return;
       setState(() {
         _error = e.toString();
         _loading = false;
@@ -137,16 +155,8 @@ class _ExercisePickerSheetState extends State<ExercisePickerSheet> {
       maxChildSize: 0.95,
       builder: (context, scroll) => Column(
         children: [
-          const SizedBox(height: 12),
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                borderRadius: BorderRadius.circular(2)),
-          ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: TextField(
               controller: _search,
               autofocus: true,

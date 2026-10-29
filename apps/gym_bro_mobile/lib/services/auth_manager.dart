@@ -54,9 +54,9 @@ class AuthManager {
       try {
         await _doRefresh();
       } catch (e) {
-        // Offline at startup: keep the session and show cached data. The
-        // refresh is retried on the next API call.
-        if (isNetworkError(e)) {
+        // Offline (or the server is down) at startup: keep the session and
+        // show cached data. The refresh is retried on the next API call.
+        if (_isTransient(e)) {
           _onSignedIn();
           return true;
         }
@@ -86,9 +86,10 @@ class AuthManager {
       try {
         await _doRefresh();
       } catch (e) {
-        // Offline: hand back the stale token so the request can still be
-        // answered from the offline cache. Real auth failures propagate.
-        if (!isNetworkError(e)) rethrow;
+        // Offline or a server outage: hand back the stale token so the request
+        // can still be answered from the offline cache. Real auth failures
+        // (the refresh token was rejected) propagate.
+        if (!_isTransient(e)) rethrow;
       }
     }
     return _accessToken!;
@@ -240,6 +241,11 @@ class AuthManager {
       debugPrint('Push registration failed: $e');
     }));
   }
+
+  /// Failures that say nothing about the session itself: no network, or the
+  /// server / its gateway failing (5xx).
+  bool _isTransient(Object e) =>
+      isNetworkError(e) || (e is AuthRequestException && e.isServerError);
 
   bool _isExpired() {
     if (_expiresAt == null) return true;

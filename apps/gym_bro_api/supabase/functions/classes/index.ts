@@ -1,4 +1,4 @@
-import { type Kysely, type RawBuilder, sql } from "npm:kysely@^0.27";
+import { type RawBuilder, sql } from "npm:kysely@^0.27";
 import { db } from "../_shared/config.ts";
 import {
   type Caller,
@@ -11,7 +11,16 @@ import {
   requireCaller,
 } from "../_shared/auth.ts";
 import { notify } from "../_shared/notify.ts";
-import type { BookingStatus, Database } from "../../types/schema/public.ts";
+import { displayName, isBlockedBetween, isFollowing } from "../_shared/social.ts";
+import {
+  gymNameOf,
+  isAcceptedCustomer,
+  isTimezone,
+  notifyPromoted,
+  promoteWaitlist,
+  topUpSeries,
+} from "../_shared/class_series.ts";
+import type { BookingStatus } from "../../types/schema/public.ts";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -33,12 +42,15 @@ class HttpError extends Error {
 // /classes/coaching-gyms                → { id: null, action: 'coaching_gyms' }
 // /classes/:id                          → { id, action: null }
 // /classes/:id/book                     → { id, action: 'book' }
+// /classes/:id/addable                  → { id, action: 'addable' }
 // /classes/:id/cancel-booking           → { id, action: 'cancel_booking' }
 // /classes/:id/bookings/:bookingId      → { id, action: 'booking', bookingId }
+// anything else                         → null (404)
 
-type Action = "coaching_gyms" | "book" | "cancel_booking" | "booking" | null;
+type Action = "coaching_gyms" | "book" | "addable" | "cancel_booking" | "booking" | null;
 
-function parsePath(pathname: string): { id: string | null; action: Action; bookingId?: string } {
+function parsePath(pathname: string): { id: string | null; action: Action; bookingId?: string } | null {
+  if (/^\/classes\/?$/.test(pathname)) return { id: null, action: null };
   if (/^\/classes\/coaching-gyms\/?$/.test(pathname)) return { id: null, action: "coaching_gyms" };
 
   const booking = pathname.match(/^\/classes\/([^/]+)\/bookings\/([^/]+)$/);
@@ -47,13 +59,16 @@ function parsePath(pathname: string): { id: string | null; action: Action; booki
   const book = pathname.match(/^\/classes\/([^/]+)\/book$/);
   if (book) return { id: book[1], action: "book" };
 
+  const addable = pathname.match(/^\/classes\/([^/]+)\/addable$/);
+  if (addable) return { id: addable[1], action: "addable" };
+
   const cancel = pathname.match(/^\/classes\/([^/]+)\/cancel-booking$/);
   if (cancel) return { id: cancel[1], action: "cancel_booking" };
 
   const single = pathname.match(/^\/classes\/([^/]+)$/);
   if (single) return { id: single[1], action: null };
 
-  return { id: null, action: null };
+  return null;
 }
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
@@ -142,6 +157,7 @@ type ClassRow = {
   my_booking_id: string | null;
   my_booking_status: BookingStatus | null;
   my_waitlist_position: number | null;
+  is_recurring: boolean;
   can_coach?: boolean;
 };
 
@@ -158,6 +174,7 @@ async function selectClasses(callerId: string, where: RawBuilder<unknown>[]): Pr
         WHERE x.class_id = c.id AND x.status IN ('booked', 'attended', 'no_show')) AS booked_count,
       (SELECT COUNT(*)::int FROM class_booking x
         WHERE x.class_id = c.id AND x.status = 'waitlisted') AS waitlist_count,
+      cs.repeat <> 'none' AS is_recurring,
       mb.id AS my_booking_id,
       mb.status AS my_booking_status,
       CASE WHEN mb.status = 'waitlisted' THEN
@@ -167,6 +184,7 @@ async function selectClasses(callerId: string, where: RawBuilder<unknown>[]): Pr
       END AS my_waitlist_position
     FROM gym_class c
     JOIN business b ON b.id = c.gym_id
+    JOIN class_series cs ON cs.id = c.series_id
     LEFT JOIN users t ON t.id = c.trainer_id
     LEFT JOIN class_booking mb
       ON mb.class_id = c.id AND mb.user_id = ${callerId} AND mb.status <> 'cancelled'
@@ -205,47 +223,6 @@ async function attendeesByUser(classIds: string[], statuses: BookingStatus[]): P
   return result;
 }
 
-/**
- * Promotes the earliest waitlisted bookings while seats are free. Must run in
- * a transaction that already holds a lock on the class row. Returns the
- * promoted user ids.
- */
-async function promoteWaitlist(trx: Kysely<Database>, classId: string, capacity: number): Promise<string[]> {
-  const { rows: [{ taken }] } = await sql<{ taken: number }>`
-    SELECT COUNT(*)::int AS taken FROM class_booking
-    WHERE class_id = ${classId} AND status IN ('booked', 'attended', 'no_show')
-  `.execute(trx);
-  const free = capacity - taken;
-  if (free <= 0) return [];
-  const { rows } = await sql<{ user_id: string }>`
-    UPDATE class_booking SET status = 'booked', updated_at = NOW()
-    WHERE id IN (
-      SELECT id FROM class_booking
-      WHERE class_id = ${classId} AND status = 'waitlisted'
-      ORDER BY created_at, id
-      LIMIT ${free}
-    )
-    RETURNING user_id
-  `.execute(trx);
-  return rows.map((r) => r.user_id);
-}
-
-async function notifyPromoted(userIds: string[], cls: { id: string; gym_id: string; title: string }) {
-  if (userIds.length === 0) return;
-  const gymName = await gymNameOf(cls.gym_id);
-  await notify(userIds, {
-    type: "events",
-    title: `You're in: ${cls.title}`,
-    body: `A spot opened up and you've been moved off the waitlist for ${cls.title} at ${gymName}.`,
-    metadata: { class_id: cls.id, gym_id: cls.gym_id, gym_name: gymName },
-  });
-}
-
-async function gymNameOf(gymId: string): Promise<string> {
-  const row = await db.selectFrom("business").select("name").where("id", "=", gymId).executeTakeFirst();
-  return row?.name ?? "your gym";
-}
-
 // ── Postgres error mapping ────────────────────────────────────────────────────
 
 function pgErrorResponse(e: unknown): Response {
@@ -273,7 +250,9 @@ async function handler(req: Request): Promise<Response> {
   if (response) return response;
 
   const url = new URL(req.url);
-  const { id, action, bookingId } = parsePath(url.pathname);
+  const route = parsePath(url.pathname);
+  if (!route) return jsonError("Not found", 404);
+  const { id, action, bookingId } = route;
   if (id && !UUID_RE.test(id)) return jsonError("Class not found", 404);
   if (bookingId && !UUID_RE.test(bookingId)) return jsonError("Booking not found", 404);
 
@@ -316,6 +295,8 @@ async function handler(req: Request): Promise<Response> {
   // ── GET /classes ──────────────────────────────────────────────────────────────
   // ?gym_id= &from= &to= &trainer_id= &mine=true &include_cancelled=true
   if (req.method === "GET" && !id) {
+    // Keeps timetables 90 days ahead even when the jobs cron isn't set up.
+    await topUpSeries();
     const gymId = url.searchParams.get("gym_id");
     const trainerId = url.searchParams.get("trainer_id");
     const mine = url.searchParams.get("mine") === "true";
@@ -347,9 +328,10 @@ async function handler(req: Request): Promise<Response> {
         if (!related.has(gymId)) return forbidden();
         where.push(sql`c.gym_id = ${gymId}`);
       } else {
-        // Classes a trainer teaches elsewhere stay visible to them too.
+        // Classes a trainer teaches elsewhere stay visible to them too, and
+        // so do classes a coach added a non-member (a follower) to.
         const ids = [...related];
-        where.push(sql`(c.gym_id = ANY(${ids}::uuid[]) OR c.trainer_id = ${caller.id})`);
+        where.push(sql`(c.gym_id = ANY(${ids}::uuid[]) OR c.trainer_id = ${caller.id} OR mb.id IS NOT NULL)`);
       }
     }
 
@@ -390,7 +372,9 @@ async function handler(req: Request): Promise<Response> {
   }
 
   // ── POST /classes ─────────────────────────────────────────────────────────────
-  // {gym_id, title, description?, location?, starts_at, ends_at, capacity, trainer_id?, repeat_weeks?}
+  // {gym_id, title, description?, location?, starts_at, ends_at, capacity, trainer_id?, repeat_weeks?, timezone?}
+  // One session, or the same slot weekly for repeat_weeks weeks, as a bounded
+  // class_series (open-ended timetables go through /class-series).
   if (req.method === "POST" && !id) {
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== "object") return jsonError("Invalid JSON body", 400);
@@ -408,6 +392,14 @@ async function handler(req: Request): Promise<Response> {
     if (!Number.isInteger(repeatWeeks) || repeatWeeks < 1 || repeatWeeks > 12) {
       return jsonError("repeat_weeks must be between 1 and 12", 400);
     }
+    const durationMinutes = Math.round((endsAt.getTime() - startsAt.getTime()) / 60_000);
+    if (durationMinutes < 5 || durationMinutes > 1440) {
+      return jsonError("A class lasts between 5 minutes and 24 hours", 400);
+    }
+    if (body.timezone !== undefined && !(await isTimezone(body.timezone))) {
+      return jsonError("timezone must be an IANA timezone name", 400);
+    }
+    const timezone: string = body.timezone ?? "UTC";
     if (!(await canCoachAtGym(caller, gym_id))) return forbidden();
 
     let trainerId: string | null = null;
@@ -427,24 +419,46 @@ async function handler(req: Request): Promise<Response> {
       trainerId = caller.id;
     }
 
-    const seriesId = repeatWeeks > 1 ? crypto.randomUUID() : null;
-    const values = Array.from({ length: repeatWeeks }, (_, i) => ({
-      gym_id,
-      trainer_id: trainerId,
-      title,
-      description: trimOrNull(body.description),
-      location: trimOrNull(body.location),
-      starts_at: new Date(startsAt.getTime() + i * 7 * DAY_MS).toISOString(),
-      ends_at: new Date(endsAt.getTime() + i * 7 * DAY_MS).toISOString(),
-      capacity,
-      series_id: seriesId,
-      created_by: caller.id,
-    }));
-
-    const inserted = await db.transaction().execute((trx) =>
-      trx.insertInto("gym_class").values(values).returning("id").execute()
-    );
-    const ids = inserted.map((r) => r.id);
+    const ids = await db.transaction().execute(async (trx) => {
+      const { rows: [local] } = await sql<{ day: string; last_day: string; time: string; dow: number }>`
+        SELECT to_char(l, 'YYYY-MM-DD') AS day,
+               to_char(l::date + ${7 * (repeatWeeks - 1)}::int, 'YYYY-MM-DD') AS last_day,
+               to_char(l, 'HH24:MI:SS') AS time,
+               EXTRACT(ISODOW FROM l)::int AS dow
+        FROM (SELECT ${startsAt.toISOString()}::timestamptz AT TIME ZONE ${timezone} AS l) x
+      `.execute(trx);
+      const series = await trx.insertInto("class_series").values({
+        gym_id,
+        trainer_id: trainerId,
+        title,
+        description: trimOrNull(body.description),
+        location: trimOrNull(body.location),
+        capacity,
+        duration_minutes: durationMinutes,
+        repeat: repeatWeeks > 1 ? "weekly" : "none",
+        weekdays: repeatWeeks > 1 ? [local.dow] : [],
+        times: [local.time],
+        timezone,
+        starts_on: local.day,
+        ends_on: local.last_day,
+        generated_until: local.last_day,
+        created_by: caller.id,
+      }).returning("id").executeTakeFirstOrThrow();
+      // Weekly in local time, so a daylight-saving change keeps the clock time.
+      const { rows } = await sql<{ id: string }>`
+        INSERT INTO gym_class (gym_id, trainer_id, title, description, location, starts_at, ends_at, slot_at,
+                               capacity, series_id, created_by)
+        SELECT s.gym_id, s.trainer_id, s.title, s.description, s.location,
+               x.slot, x.slot + make_interval(mins => s.duration_minutes), x.slot, s.capacity, s.id, s.created_by
+        FROM class_series s,
+          (SELECT ((s2.starts_on + 7 * i) + s2.times[1]) AT TIME ZONE s2.timezone AS slot
+           FROM class_series s2, generate_series(0, ${repeatWeeks - 1}::int) AS i WHERE s2.id = ${series.id}) x
+        WHERE s.id = ${series.id}
+        ORDER BY x.slot
+        RETURNING id
+      `.execute(trx);
+      return rows.map((r) => r.id);
+    });
     const rows = await selectClasses(caller.id, [sql`c.id = ANY(${ids}::uuid[])`]);
     return json(rows.map((r) => ({ ...r, can_coach: true })), 201);
   }
@@ -517,7 +531,11 @@ async function handler(req: Request): Promise<Response> {
       endDelta = startDelta; // moving the start keeps the duration
     }
 
-    const applyToSeries = body.apply_to_series === true && !!existing.series_id;
+    const series = await db.selectFrom("class_series").select(["repeat", "timezone"])
+      .where("id", "=", existing.series_id).executeTakeFirstOrThrow();
+    const applyToSeries = body.apply_to_series === true && series.repeat !== "none";
+    // The timetable follows edits to every upcoming session, or to a one-off.
+    const syncTemplate = applyToSeries || series.repeat === "none";
 
     const outcome = await db.transaction().execute(async (trx) => {
       const targets = applyToSeries
@@ -555,6 +573,7 @@ async function handler(req: Request): Promise<Response> {
             ...patch,
             starts_at: start.toISOString(),
             ends_at: end.toISOString(),
+            ...(syncTemplate ? { slot_at: start.toISOString() } : {}),
             updated_at: sql<string>`NOW()`,
             // A moved class gets a fresh reminder.
             ...(startDelta !== 0 ? { reminder_sent_at: null } : {}),
@@ -568,6 +587,31 @@ async function handler(req: Request): Promise<Response> {
         if (patch.capacity !== undefined) {
           const ids = await promoteWaitlist(trx, t.id, patch.capacity);
           if (ids.length) promoted.set(t.id, ids);
+        }
+      }
+
+      if (syncTemplate) {
+        await trx.updateTable("class_series").set({ ...patch, updated_at: sql<string>`NOW()` })
+          .where("id", "=", existing.series_id).execute();
+        const newStart = new Date(oldStart.getTime() + startDelta).toISOString();
+        if (series.repeat === "none") {
+          await sql`
+            UPDATE class_series SET
+              starts_on = (${newStart}::timestamptz AT TIME ZONE timezone)::date,
+              ends_on = (${newStart}::timestamptz AT TIME ZONE timezone)::date,
+              generated_until = (${newStart}::timestamptz AT TIME ZONE timezone)::date,
+              times = ARRAY[(${newStart}::timestamptz AT TIME ZONE timezone)::time],
+              duration_minutes = LEAST(1440, GREATEST(5, duration_minutes + ${Math.round((endDelta - startDelta) / 60_000)}::int))
+            WHERE id = ${existing.series_id}
+          `.execute(trx);
+        } else if (startDelta !== 0 || endDelta !== 0) {
+          await sql`
+            UPDATE class_series SET
+              times = ARRAY(SELECT DISTINCT (t + make_interval(secs => ${startDelta / 1000}::double precision))::time
+                            FROM unnest(times) t ORDER BY 1),
+              duration_minutes = LEAST(1440, GREATEST(5, duration_minutes + ${Math.round((endDelta - startDelta) / 60_000)}::int))
+            WHERE id = ${existing.series_id}
+          `.execute(trx);
         }
       }
       return { changed, promoted };
@@ -613,15 +657,28 @@ async function handler(req: Request): Promise<Response> {
       return forbidden("Trainers can only cancel their own classes");
     }
 
-    const series = url.searchParams.get("series") === "true" && !!existing.series_id;
+    const seriesRow = await db.selectFrom("class_series").select("repeat")
+      .where("id", "=", existing.series_id).executeTakeFirstOrThrow();
+    const series = url.searchParams.get("series") === "true" && seriesRow.repeat !== "none";
     let query = db
       .updateTable("gym_class")
       .set({ cancelled_at: sql<string>`NOW()`, updated_at: sql<string>`NOW()` })
       .where("cancelled_at", "is", null);
     query = series
-      ? query.where("series_id", "=", existing.series_id!).where("starts_at", ">=", existing.starts_at)
+      ? query.where("series_id", "=", existing.series_id).where("starts_at", ">=", existing.starts_at)
       : query.where("id", "=", id);
     const cancelled = await query.returning(["id", "starts_at"]).execute();
+    if (series || seriesRow.repeat === "none") {
+      // The timetable ends the day before (or stops, from its first day on).
+      await sql`
+        UPDATE class_series SET
+          active = active AND (${existing.starts_at}::timestamptz AT TIME ZONE timezone)::date > starts_on,
+          ends_on = CASE WHEN (${existing.starts_at}::timestamptz AT TIME ZONE timezone)::date > starts_on
+                         THEN (${existing.starts_at}::timestamptz AT TIME ZONE timezone)::date - 1 ELSE ends_on END,
+          updated_at = NOW()
+        WHERE id = ${existing.series_id}
+      `.execute(db);
+    }
 
     const now = Date.now();
     const upcoming = cancelled.filter((c) => new Date(c.starts_at).getTime() > now).map((c) => c.id);
@@ -647,7 +704,49 @@ async function handler(req: Request): Promise<Response> {
     return json({ cancelled: cancelled.map((c) => c.id) });
   }
 
+  // ── GET /classes/:id/addable?q= ───────────────────────────────────────────────
+  // People a coach can add to the class: the gym's members plus the caller's
+  // approved followers (instant for public accounts), minus blocks.
+  // [{id, username, name, last_name, avatar_url, is_member, follows_you, booking_status}]
+  if (req.method === "GET" && id && action === "addable") {
+    const cls = await db.selectFrom("gym_class").select(["id", "gym_id"]).where("id", "=", id).executeTakeFirst();
+    if (!cls) return jsonError("Class not found", 404);
+    if (!(await canCoachAtGym(caller, cls.gym_id))) return forbidden();
+
+    const q = (url.searchParams.get("q") ?? "").trim().slice(0, 100);
+    const pattern = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+    const { rows } = await sql<{
+      id: string;
+      username: string;
+      name: string;
+      last_name: string;
+      avatar_url: string | null;
+      is_member: boolean;
+      follows_you: boolean;
+      booking_status: BookingStatus | null;
+    }>`
+      SELECT u.id, u.username, u.name, u.last_name, u.avatar_url,
+        EXISTS (SELECT 1 FROM member m WHERE m.user_id = u.id AND m.gym_id = ${cls.gym_id}) AS is_member,
+        EXISTS (SELECT 1 FROM follow f WHERE f.follower_id = u.id AND f.followee_id = ${caller.id}
+                AND f.status = 'accepted') AS follows_you,
+        cb.status AS booking_status
+      FROM users u
+      LEFT JOIN class_booking cb ON cb.class_id = ${id} AND cb.user_id = u.id AND cb.status <> 'cancelled'
+      WHERE u.id <> ${caller.id}
+        AND (
+          u.id IN (SELECT user_id FROM member WHERE gym_id = ${cls.gym_id})
+          OR u.id IN (SELECT follower_id FROM follow WHERE followee_id = ${caller.id} AND status = 'accepted')
+        )
+        AND NOT is_blocked_between(u.id, ${caller.id})
+        AND (${q} = '' OR CONCAT(u.name, ' ', u.last_name) ILIKE ${pattern} OR u.username ILIKE ${pattern})
+      ORDER BY u.name, u.last_name
+      LIMIT 50
+    `.execute(db);
+    return json(rows);
+  }
+
   // ── POST /classes/:id/book [{user_id}] ────────────────────────────────────────
+  // Coaches can add the gym's members or their own approved followers.
   if (req.method === "POST" && id && action === "book") {
     const body = await req.json().catch(() => ({}));
     const cls = await db.selectFrom("gym_class").selectAll().where("id", "=", id).executeTakeFirst();
@@ -659,7 +758,13 @@ async function handler(req: Request): Promise<Response> {
     if (typeof userId !== "string" || !UUID_RE.test(userId)) return jsonError("Invalid user_id", 400);
     if (userId !== caller.id) {
       if (!(await canCoachAtGym(caller, cls.gym_id))) return forbidden("Only staff can book for someone else");
-      if (!(await isMember(userId, cls.gym_id))) return jsonError("That user isn't a member of this gym", 400);
+      if (await isBlockedBetween(caller.id, userId)) return forbidden("You can't add this person");
+      if (
+        !(await isMember(userId, cls.gym_id)) && !(await isFollowing(userId, caller.id)) &&
+        !(await isAcceptedCustomer(caller.id, userId))
+      ) {
+        return jsonError("Only members of this gym, your followers or your customers can be added", 400);
+      }
     } else if (!isSuperUser(caller) && !(await isMember(caller.id, cls.gym_id))) {
       return forbidden("Only members of this gym can book its classes");
     }
@@ -705,6 +810,19 @@ async function handler(req: Request): Promise<Response> {
           AND (created_at, id) <= (SELECT created_at, id FROM class_booking WHERE id = ${result.id})
       `.execute(db);
       waitlistPosition = pos;
+    }
+    if (userId !== caller.id) {
+      const [gymName, adder] = await Promise.all([
+        gymNameOf(cls.gym_id),
+        db.selectFrom("users").select(["name", "last_name"]).where("id", "=", caller.id).executeTakeFirstOrThrow(),
+      ]);
+      await notify([userId], {
+        type: "events",
+        title: result.status === "waitlisted" ? `Waitlisted: ${cls.title}` : `You're in: ${cls.title}`,
+        body: `${displayName(adder)} added you to ${cls.title} at ${gymName}` +
+          (result.status === "waitlisted" ? ` (waitlist #${waitlistPosition}).` : "."),
+        metadata: { class_id: cls.id, gym_id: cls.gym_id, gym_name: gymName },
+      });
     }
     return json({ ...result, waitlist_position: waitlistPosition }, 201);
   }

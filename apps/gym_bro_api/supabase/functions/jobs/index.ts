@@ -3,6 +3,7 @@ import { db } from "../_shared/config.ts";
 import { json, jsonError } from "../_shared/auth.ts";
 import { notify, optionalSecret } from "../_shared/notify.ts";
 import { removeObjects } from "../_shared/media.ts";
+import { topUpSeries } from "../_shared/class_series.ts";
 
 // Scheduled maintenance, called by pg_cron every 15 minutes (see
 // sql/cron.sql) with the shared CRON_SECRET in the x-cron-secret header.
@@ -123,12 +124,14 @@ async function sendClassReminders(): Promise<{ classes: number; notifications: n
 
 /**
  * Deletes upload slots (and their files) that were never attached to a
- * message or post within a day — abandoned sends, closed apps.
+ * message or post within a day — abandoned sends, closed apps. Media held
+ * by a draft stays until the draft is published or deleted.
  */
 async function sweepAbandonedUploads(): Promise<number> {
   const stale = await db
     .deleteFrom("media_upload")
     .where("claimed_at", "is", null)
+    .where("draft_id", "is", null)
     .where(sql<boolean>`created_at < NOW() - INTERVAL '24 hours'`)
     .returning(["bucket", "storage_path"])
     .execute();
@@ -162,12 +165,16 @@ Deno.serve(async (req: Request) => {
       const class_reminders = await sendClassReminders();
       step = "sweep_uploads";
       const abandoned_uploads_removed = await sweepAbandonedUploads();
+      step = "class_sessions";
+      // Keeps every class timetable 90 days ahead.
+      const class_sessions_created = await topUpSeries(500);
 
       return json({
         memberships_expired,
         expiring_notifications,
         class_reminders,
         abandoned_uploads_removed,
+        class_sessions_created,
         duration_ms: Date.now() - started,
       });
     } catch (err) {

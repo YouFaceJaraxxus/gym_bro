@@ -94,7 +94,7 @@ extension ClassesApi on ApiService {
   }
 
   /// POST /classes/:id/book — books a seat or joins the waitlist when full.
-  /// Staff can pass [userId] to book on a member's behalf.
+  /// Coaches can pass [userId] to add a gym member or one of their followers.
   Future<ClassBooking> bookClass(String token, String classId,
       {String? userId}) async {
     final r = await _client.post(
@@ -104,6 +104,22 @@ extension ClassesApi on ApiService {
     );
     _check(r);
     return ClassBooking.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// GET /classes/:id/addable — people a coach can add: the gym's members and
+  /// the caller's approved followers, filtered by name or username [query].
+  Future<List<AddablePerson>> getAddablePeople(String token, String classId,
+      {String query = ''}) async {
+    final q = query.trim();
+    final r = await _client.get(
+      Uri.parse('$_base/classes/$classId/addable')
+          .replace(queryParameters: q.isEmpty ? null : {'q': q}),
+      headers: _headers(token),
+    );
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => AddablePerson.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   /// POST /classes/:id/cancel-booking — cancels a booking or leaves the

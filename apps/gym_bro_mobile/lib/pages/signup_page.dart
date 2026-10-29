@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../services/auth_service.dart';
 import '../widgets/google_sign_in_button.dart';
+import '../widgets/password_form_field.dart';
 import 'verify_invite_page.dart';
 
 class SignupPage extends StatefulWidget {
@@ -144,10 +145,9 @@ class _SignupPageState extends State<SignupPage> {
                     : null,
               ),
               const SizedBox(height: 12),
-              TextFormField(
+              PasswordFormField(
                 controller: _passwordCtrl,
-                decoration: InputDecoration(labelText: l10n.shellAuthPassword),
-                obscureText: true,
+                labelText: l10n.shellAuthPassword,
                 validator: (v) => (v == null || v.length < 6)
                     ? l10n.shellAuthPasswordMin(6)
                     : null,

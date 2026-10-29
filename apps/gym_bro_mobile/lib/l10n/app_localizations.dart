@@ -2689,6 +2689,60 @@ abstract class AppLocalizations {
   /// **'Your cart'**
   String get businessShopYourCart;
 
+  /// No description provided for @calendarCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get calendarCancelled;
+
+  /// No description provided for @calendarDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}, {count, plural, =0{nothing scheduled} =1{1 item} other{{count} items}}'**
+  String calendarDayLabel(String day, int count);
+
+  /// No description provided for @calendarDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get calendarDone;
+
+  /// No description provided for @calendarGoToToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to today'**
+  String get calendarGoToToday;
+
+  /// No description provided for @calendarNextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{range} (+1 day)'**
+  String calendarNextDay(String range);
+
+  /// No description provided for @calendarNextWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Next week'**
+  String get calendarNextWeek;
+
+  /// No description provided for @calendarNothingOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on this day'**
+  String get calendarNothingOnDay;
+
+  /// No description provided for @calendarNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Now, {time}'**
+  String calendarNow(String time);
+
+  /// No description provided for @calendarPreviousWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous week'**
+  String get calendarPreviousWeek;
+
   /// No description provided for @chatAccept.
   ///
   /// In en, this message translates to:
@@ -3553,6 +3607,642 @@ abstract class AppLocalizations {
   /// **'you'**
   String get chatYouObject;
 
+  /// No description provided for @classCalendarAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get classCalendarAccept;
+
+  /// No description provided for @classCalendarBookedOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{booked} of {capacity} booked'**
+  String classCalendarBookedOf(int booked, int capacity);
+
+  /// No description provided for @classCalendarDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}, {count, plural, =0{no classes} =1{1 class} other{{count} classes}}'**
+  String classCalendarDayLabel(String day, int count);
+
+  /// No description provided for @classCalendarDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get classCalendarDecline;
+
+  /// No description provided for @classCalendarInviteDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite declined'**
+  String get classCalendarInviteDeclined;
+
+  /// No description provided for @classCalendarInvites.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 invite} other{{count} invites}}'**
+  String classCalendarInvites(int count);
+
+  /// No description provided for @classCalendarJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re in: {title}. Its sessions are in your schedule.'**
+  String classCalendarJoined(String title);
+
+  /// No description provided for @classCalendarNothingOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No classes on this day'**
+  String get classCalendarNothingOnDay;
+
+  /// No description provided for @classCalendarOnlyMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Only mine'**
+  String get classCalendarOnlyMine;
+
+  /// No description provided for @classCalendarTrainerAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is now your trainer'**
+  String classCalendarTrainerAccepted(String name);
+
+  /// No description provided for @classCalendarTrainerInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} wants to train you'**
+  String classCalendarTrainerInvite(String name);
+
+  /// No description provided for @classCalendarTrainerInviteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept to let them plan your classes and workouts.'**
+  String get classCalendarTrainerInviteHint;
+
+  /// No description provided for @classCalendarWaitlistShort.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} waiting'**
+  String classCalendarWaitlistShort(int count);
+
+  /// No description provided for @classSeriesActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get classSeriesActive;
+
+  /// No description provided for @classSeriesActiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'New sessions keep coming.'**
+  String get classSeriesActiveHint;
+
+  /// No description provided for @classSeriesAddTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Add time'**
+  String get classSeriesAddTime;
+
+  /// No description provided for @classSeriesCancelInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel invite'**
+  String get classSeriesCancelInvite;
+
+  /// No description provided for @classSeriesCancelInviteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'They won\'t be able to accept it anymore.'**
+  String get classSeriesCancelInviteMessage;
+
+  /// No description provided for @classSeriesCancelInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the invite to {name}?'**
+  String classSeriesCancelInviteTitle(String name);
+
+  /// No description provided for @classSeriesCapacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Spots per session'**
+  String get classSeriesCapacity;
+
+  /// No description provided for @classSeriesCapacityInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Between 1 and 1000'**
+  String get classSeriesCapacityInvalid;
+
+  /// No description provided for @classSeriesClearEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the end date'**
+  String get classSeriesClearEndDate;
+
+  /// No description provided for @classSeriesCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create class'**
+  String get classSeriesCreate;
+
+  /// No description provided for @classSeriesCreateOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a class'**
+  String get classSeriesCreateOne;
+
+  /// No description provided for @classSeriesCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Class created'**
+  String get classSeriesCreated;
+
+  /// No description provided for @classSeriesDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get classSeriesDate;
+
+  /// No description provided for @classSeriesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get classSeriesDescription;
+
+  /// No description provided for @classSeriesDoneCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 done} other{{count} done}}'**
+  String classSeriesDoneCount(int count);
+
+  /// No description provided for @classSeriesDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Length (minutes)'**
+  String get classSeriesDuration;
+
+  /// No description provided for @classSeriesDurationInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Between 5 and 1440 minutes'**
+  String get classSeriesDurationInvalid;
+
+  /// No description provided for @classSeriesEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit class'**
+  String get classSeriesEdit;
+
+  /// No description provided for @classSeriesEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a class with its timetable. Its sessions show up in your calendar 90 days ahead.'**
+  String get classSeriesEmptyMessage;
+
+  /// No description provided for @classSeriesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No classes yet'**
+  String get classSeriesEmptyTitle;
+
+  /// No description provided for @classSeriesEndBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date can\'t be before the start'**
+  String get classSeriesEndBeforeStart;
+
+  /// No description provided for @classSeriesEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get classSeriesEnds;
+
+  /// No description provided for @classSeriesEveryDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get classSeriesEveryDay;
+
+  /// No description provided for @classSeriesGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym'**
+  String get classSeriesGym;
+
+  /// No description provided for @classSeriesInClass.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 in the class} other{{count} in the class}}'**
+  String classSeriesInClass(int count);
+
+  /// No description provided for @classSeriesInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get classSeriesInvite;
+
+  /// No description provided for @classSeriesInviteAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite again'**
+  String get classSeriesInviteAgain;
+
+  /// No description provided for @classSeriesInviteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They accept the invite, then every session lands in their schedule.'**
+  String get classSeriesInviteHint;
+
+  /// No description provided for @classSeriesInviteSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite sent to {name}'**
+  String classSeriesInviteSent(String name);
+
+  /// No description provided for @classSeriesInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite to {title}'**
+  String classSeriesInviteTitle(String title);
+
+  /// No description provided for @classSeriesInvitedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 invited} other{{count} invited}}'**
+  String classSeriesInvitedCount(int count);
+
+  /// No description provided for @classSeriesLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location (optional)'**
+  String get classSeriesLocation;
+
+  /// No description provided for @classSeriesLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Studio A'**
+  String get classSeriesLocationHint;
+
+  /// No description provided for @classSeriesMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get classSeriesMore;
+
+  /// No description provided for @classSeriesNameYou.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (you)'**
+  String classSeriesNameYou(String name);
+
+  /// No description provided for @classSeriesNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New class'**
+  String get classSeriesNew;
+
+  /// No description provided for @classSeriesNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {when}'**
+  String classSeriesNext(String when);
+
+  /// No description provided for @classSeriesNoEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No end date'**
+  String get classSeriesNoEndDate;
+
+  /// No description provided for @classSeriesNoEndDateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps going. Sessions appear 90 days ahead.'**
+  String get classSeriesNoEndDateHint;
+
+  /// No description provided for @classSeriesNoGyms.
+  ///
+  /// In en, this message translates to:
+  /// **'No gyms to teach at'**
+  String get classSeriesNoGyms;
+
+  /// No description provided for @classSeriesNoGymsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Once a gym adds you as a trainer, you can create classes there.'**
+  String get classSeriesNoGymsMessage;
+
+  /// No description provided for @classSeriesNoPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'No one yet. Invite your customers, followers or members of the gym.'**
+  String get classSeriesNoPeople;
+
+  /// No description provided for @classSeriesNoSessionsSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions in the next two weeks.'**
+  String get classSeriesNoSessionsSoon;
+
+  /// No description provided for @classSeriesNoTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'No trainer'**
+  String get classSeriesNoTrainer;
+
+  /// No description provided for @classSeriesNoUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming sessions'**
+  String get classSeriesNoUpcoming;
+
+  /// No description provided for @classSeriesOnceOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Once on {date}'**
+  String classSeriesOnceOn(String date);
+
+  /// No description provided for @classSeriesOpenTimetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Class timetable'**
+  String get classSeriesOpenTimetable;
+
+  /// No description provided for @classSeriesOpenTimetableHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every session, the people in it and invites'**
+  String get classSeriesOpenTimetableHint;
+
+  /// No description provided for @classSeriesPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get classSeriesPause;
+
+  /// No description provided for @classSeriesPauseMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming sessions are cancelled and the people booked into them are told. Resuming brings them back.'**
+  String get classSeriesPauseMessage;
+
+  /// No description provided for @classSeriesPauseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause this class?'**
+  String get classSeriesPauseTitle;
+
+  /// No description provided for @classSeriesPausedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Class paused'**
+  String get classSeriesPausedDone;
+
+  /// No description provided for @classSeriesPausedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions while paused.'**
+  String get classSeriesPausedHint;
+
+  /// No description provided for @classSeriesPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get classSeriesPeople;
+
+  /// No description provided for @classSeriesPickWeekday.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one day'**
+  String get classSeriesPickWeekday;
+
+  /// No description provided for @classSeriesRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from class'**
+  String get classSeriesRemove;
+
+  /// No description provided for @classSeriesRemoveMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Their upcoming sessions of this class are cancelled.'**
+  String get classSeriesRemoveMessage;
+
+  /// No description provided for @classSeriesRemoveTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {time}'**
+  String classSeriesRemoveTime(String time);
+
+  /// No description provided for @classSeriesRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String classSeriesRemoveTitle(String name);
+
+  /// No description provided for @classSeriesRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} removed'**
+  String classSeriesRemoved(String name);
+
+  /// No description provided for @classSeriesRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats'**
+  String get classSeriesRepeat;
+
+  /// No description provided for @classSeriesRepeatDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get classSeriesRepeatDaily;
+
+  /// No description provided for @classSeriesRepeatOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Once'**
+  String get classSeriesRepeatOnce;
+
+  /// No description provided for @classSeriesRepeatWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get classSeriesRepeatWeekly;
+
+  /// No description provided for @classSeriesResumedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Class resumed'**
+  String get classSeriesResumedDone;
+
+  /// No description provided for @classSeriesSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get classSeriesSave;
+
+  /// No description provided for @classSeriesSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Class updated'**
+  String get classSeriesSaved;
+
+  /// No description provided for @classSeriesSetEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Set an end date'**
+  String get classSeriesSetEndDate;
+
+  /// No description provided for @classSeriesSpots.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 spot per session} other{{count} spots per session}}'**
+  String classSeriesSpots(int count);
+
+  /// No description provided for @classSeriesStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get classSeriesStarts;
+
+  /// No description provided for @classSeriesStateActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get classSeriesStateActive;
+
+  /// No description provided for @classSeriesStateEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get classSeriesStateEnded;
+
+  /// No description provided for @classSeriesStatePaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get classSeriesStatePaused;
+
+  /// No description provided for @classSeriesStatusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'In the class'**
+  String get classSeriesStatusAccepted;
+
+  /// No description provided for @classSeriesStatusDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get classSeriesStatusDeclined;
+
+  /// No description provided for @classSeriesStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get classSeriesStatusPending;
+
+  /// No description provided for @classSeriesTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Start times'**
+  String get classSeriesTimes;
+
+  /// No description provided for @classSeriesTimesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add every time it runs in a day.'**
+  String get classSeriesTimesHint;
+
+  /// No description provided for @classSeriesTimesMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 12 start times a day'**
+  String get classSeriesTimesMax;
+
+  /// No description provided for @classSeriesTimesRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one start time'**
+  String get classSeriesTimesRequired;
+
+  /// No description provided for @classSeriesTimetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Timetable'**
+  String get classSeriesTimetable;
+
+  /// No description provided for @classSeriesTimetableChangeConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Change it'**
+  String get classSeriesTimetableChangeConfirm;
+
+  /// No description provided for @classSeriesTimetableChangeMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming sessions that no longer fit are cancelled, and the people booked into them are told. New sessions are added for everyone in the class.'**
+  String get classSeriesTimetableChangeMessage;
+
+  /// No description provided for @classSeriesTimetableChangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the timetable?'**
+  String get classSeriesTimetableChangeTitle;
+
+  /// No description provided for @classSeriesTimezone.
+  ///
+  /// In en, this message translates to:
+  /// **'Times are in {zone}'**
+  String classSeriesTimezone(String zone);
+
+  /// No description provided for @classSeriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get classSeriesTitle;
+
+  /// No description provided for @classSeriesTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Morning HIIT'**
+  String get classSeriesTitleHint;
+
+  /// No description provided for @classSeriesTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Give the class a title'**
+  String get classSeriesTitleRequired;
+
+  /// No description provided for @classSeriesTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainer'**
+  String get classSeriesTrainer;
+
+  /// No description provided for @classSeriesUpcomingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 upcoming} other{{count} upcoming}}'**
+  String classSeriesUpcomingCount(int count);
+
+  /// No description provided for @classSeriesUpcomingSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming sessions'**
+  String get classSeriesUpcomingSessions;
+
+  /// No description provided for @classSeriesWeekdays.
+  ///
+  /// In en, this message translates to:
+  /// **'On these days'**
+  String get classSeriesWeekdays;
+
+  /// No description provided for @classSeriesYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get classSeriesYou;
+
   /// No description provided for @commonBack.
   ///
   /// In en, this message translates to:
@@ -3648,6 +4338,390 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yes'**
   String get commonYes;
+
+  /// No description provided for @customersAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add customer'**
+  String get customersAdd;
+
+  /// No description provided for @customersAddPickerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your followers, members of gyms where you coach, and people you\'ve invited before.'**
+  String get customersAddPickerHint;
+
+  /// No description provided for @customersAddPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a customer'**
+  String get customersAddPickerTitle;
+
+  /// No description provided for @customersAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} was invited to be your customer'**
+  String customersAdded(String name);
+
+  /// No description provided for @customersCancelInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel invite'**
+  String get customersCancelInvite;
+
+  /// No description provided for @customersChooseClassesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. They accept each class invite themselves, and you can change this later.'**
+  String get customersChooseClassesHint;
+
+  /// No description provided for @customersChooseClassesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite {name} to classes?'**
+  String customersChooseClassesTitle(String name);
+
+  /// No description provided for @customersClassDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get customersClassDeclined;
+
+  /// No description provided for @customersClassIn.
+  ///
+  /// In en, this message translates to:
+  /// **'In the class'**
+  String get customersClassIn;
+
+  /// No description provided for @customersClassInvited.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited'**
+  String get customersClassInvited;
+
+  /// No description provided for @customersClassPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get customersClassPaused;
+
+  /// No description provided for @customersEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your followers or members of gyms where you coach. Anyone you invite to a class shows up here too.'**
+  String get customersEmptyMessage;
+
+  /// No description provided for @customersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No customers yet'**
+  String get customersEmptyTitle;
+
+  /// No description provided for @customersInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get customersInvite;
+
+  /// No description provided for @customersInviteCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite cancelled'**
+  String get customersInviteCancelled;
+
+  /// No description provided for @customersInviteToClasses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Invite to 1 class} other{Invite to {count} classes}}'**
+  String customersInviteToClasses(int count);
+
+  /// No description provided for @customersInvited.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite sent'**
+  String get customersInvited;
+
+  /// No description provided for @customersJustAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Just add'**
+  String get customersJustAdd;
+
+  /// No description provided for @customersNoActiveClasses.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no active classes to invite them to yet.'**
+  String get customersNoActiveClasses;
+
+  /// No description provided for @customersNoClasses.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t run any classes yet. Create one in the Classes tab.'**
+  String get customersNoClasses;
+
+  /// No description provided for @customersNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No customers match your search'**
+  String get customersNoMatches;
+
+  /// No description provided for @customersNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This person is no longer your customer.'**
+  String get customersNotFound;
+
+  /// No description provided for @customersNotInClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in this class'**
+  String get customersNotInClass;
+
+  /// No description provided for @customersProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get customersProgress;
+
+  /// No description provided for @customersProgressLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Available once they accept your invite'**
+  String get customersProgressLocked;
+
+  /// No description provided for @customersProgressSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts, lifts and body measurements'**
+  String get customersProgressSubtitle;
+
+  /// No description provided for @customersRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get customersRemove;
+
+  /// No description provided for @customersRemoveCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove customer'**
+  String get customersRemoveCustomer;
+
+  /// No description provided for @customersRemoveCustomerMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'They\'re also taken off your classes and their upcoming sessions are cancelled. You won\'t be able to see their progress anymore.'**
+  String get customersRemoveCustomerMessage;
+
+  /// No description provided for @customersRemoveCustomerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String customersRemoveCustomerTitle(String name);
+
+  /// No description provided for @customersRemoveFromClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from class'**
+  String get customersRemoveFromClass;
+
+  /// No description provided for @customersRemoveFromClassMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Their upcoming sessions of this class are cancelled and they\'re told about it.'**
+  String get customersRemoveFromClassMessage;
+
+  /// No description provided for @customersRemoveFromClassTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from {title}?'**
+  String customersRemoveFromClassTitle(String title);
+
+  /// No description provided for @customersRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer removed'**
+  String get customersRemoved;
+
+  /// No description provided for @customersRemovedFromClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from the class'**
+  String get customersRemovedFromClass;
+
+  /// No description provided for @customersSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search customers'**
+  String get customersSearch;
+
+  /// No description provided for @customersStatusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get customersStatusAccepted;
+
+  /// No description provided for @customersStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite pending'**
+  String get customersStatusPending;
+
+  /// No description provided for @customersViewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'View profile'**
+  String get customersViewProfile;
+
+  /// No description provided for @customersYourClasses.
+  ///
+  /// In en, this message translates to:
+  /// **'Your classes'**
+  String get customersYourClasses;
+
+  /// No description provided for @draftBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get draftBadge;
+
+  /// No description provided for @draftChooseSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue a draft or start from scratch.'**
+  String get draftChooseSubtitle;
+
+  /// No description provided for @draftChooseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your drafts'**
+  String get draftChooseTitle;
+
+  /// No description provided for @draftDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete draft'**
+  String get draftDelete;
+
+  /// No description provided for @draftDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this draft?'**
+  String get draftDeleteTitle;
+
+  /// No description provided for @draftDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft deleted'**
+  String get draftDeleted;
+
+  /// No description provided for @draftDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get draftDiscard;
+
+  /// No description provided for @draftDiscardChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes'**
+  String get draftDiscardChanges;
+
+  /// No description provided for @draftEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited {when}'**
+  String draftEdited(String when);
+
+  /// No description provided for @draftEditingBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re editing a draft. Publishing it removes the draft.'**
+  String get draftEditingBanner;
+
+  /// No description provided for @draftKeepEditing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get draftKeepEditing;
+
+  /// No description provided for @draftMediaCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo or video} other{{count} photos and videos}}'**
+  String draftMediaCount(int count);
+
+  /// No description provided for @draftOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the draft: {error}'**
+  String draftOpenFailed(String error);
+
+  /// No description provided for @draftOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening draft…'**
+  String get draftOpening;
+
+  /// No description provided for @draftSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save draft'**
+  String get draftSave;
+
+  /// No description provided for @draftSaveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick up where you left off later. Drafts are private — only you can see them.'**
+  String get draftSaveBody;
+
+  /// No description provided for @draftSaveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get draftSaveChanges;
+
+  /// No description provided for @draftSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the draft: {error}'**
+  String draftSaveFailed(String error);
+
+  /// No description provided for @draftSaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as a draft?'**
+  String get draftSaveTitle;
+
+  /// No description provided for @draftSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft saved'**
+  String get draftSaved;
+
+  /// No description provided for @draftSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving draft…'**
+  String get draftSaving;
+
+  /// No description provided for @draftStartNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Start new'**
+  String get draftStartNew;
+
+  /// No description provided for @draftUntitled.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled draft'**
+  String get draftUntitled;
+
+  /// No description provided for @draftUpdateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes to this draft?'**
+  String get draftUpdateTitle;
 
   /// No description provided for @feedAddMedia.
   ///
@@ -4068,6 +5142,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Write a reply…'**
   String get feedWriteReplyHint;
+
+  /// No description provided for @mediaAdjustBrightness.
+  ///
+  /// In en, this message translates to:
+  /// **'Brightness'**
+  String get mediaAdjustBrightness;
+
+  /// No description provided for @mediaAdjustContrast.
+  ///
+  /// In en, this message translates to:
+  /// **'Contrast'**
+  String get mediaAdjustContrast;
+
+  /// No description provided for @mediaAdjustFade.
+  ///
+  /// In en, this message translates to:
+  /// **'Fade'**
+  String get mediaAdjustFade;
+
+  /// No description provided for @mediaAdjustSaturation.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturation'**
+  String get mediaAdjustSaturation;
+
+  /// No description provided for @mediaAdjustTint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tint'**
+  String get mediaAdjustTint;
+
+  /// No description provided for @mediaAdjustVignette.
+  ///
+  /// In en, this message translates to:
+  /// **'Vignette'**
+  String get mediaAdjustVignette;
+
+  /// No description provided for @mediaAdjustWarmth.
+  ///
+  /// In en, this message translates to:
+  /// **'Warmth'**
+  String get mediaAdjustWarmth;
+
+  /// No description provided for @mediaBackToTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to tools'**
+  String get mediaBackToTools;
+
+  /// No description provided for @mediaBatchNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters and adjustments here apply to all {count} items and replace their own. Videos are trimmed one by one.'**
+  String mediaBatchNote(int count);
+
+  /// No description provided for @mediaCantEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'This file can\'t be edited.'**
+  String get mediaCantEdit;
+
+  /// No description provided for @mediaDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get mediaDone;
+
+  /// No description provided for @mediaEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get mediaEdit;
+
+  /// No description provided for @mediaEditAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit all'**
+  String get mediaEditAll;
+
+  /// No description provided for @mediaEditAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit all ({count})'**
+  String mediaEditAllTitle(int count);
+
+  /// No description provided for @mediaEditFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t apply the edits. Try again, or reset them.'**
+  String get mediaEditFailed;
+
+  /// No description provided for @mediaEditItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit item {index}'**
+  String mediaEditItem(int index);
+
+  /// No description provided for @mediaEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get mediaEditTitle;
+
+  /// No description provided for @mediaEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited'**
+  String get mediaEdited;
+
+  /// No description provided for @mediaFilterArctic.
+  ///
+  /// In en, this message translates to:
+  /// **'Arctic'**
+  String get mediaFilterArctic;
+
+  /// No description provided for @mediaFilterDramatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Dramatic'**
+  String get mediaFilterDramatic;
+
+  /// No description provided for @mediaFilterGolden.
+  ///
+  /// In en, this message translates to:
+  /// **'Golden'**
+  String get mediaFilterGolden;
+
+  /// No description provided for @mediaFilterMatte.
+  ///
+  /// In en, this message translates to:
+  /// **'Matte'**
+  String get mediaFilterMatte;
+
+  /// No description provided for @mediaFilterMono.
+  ///
+  /// In en, this message translates to:
+  /// **'Mono'**
+  String get mediaFilterMono;
+
+  /// No description provided for @mediaFilterNoir.
+  ///
+  /// In en, this message translates to:
+  /// **'Noir'**
+  String get mediaFilterNoir;
+
+  /// No description provided for @mediaFilterNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get mediaFilterNormal;
+
+  /// No description provided for @mediaFilterPunch.
+  ///
+  /// In en, this message translates to:
+  /// **'Punch'**
+  String get mediaFilterPunch;
+
+  /// No description provided for @mediaFilterRose.
+  ///
+  /// In en, this message translates to:
+  /// **'Rose'**
+  String get mediaFilterRose;
+
+  /// No description provided for @mediaFilterSepia.
+  ///
+  /// In en, this message translates to:
+  /// **'Sepia'**
+  String get mediaFilterSepia;
+
+  /// No description provided for @mediaFilterStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength'**
+  String get mediaFilterStrength;
+
+  /// No description provided for @mediaFilterVintage.
+  ///
+  /// In en, this message translates to:
+  /// **'Vintage'**
+  String get mediaFilterVintage;
+
+  /// No description provided for @mediaFilterVivid.
+  ///
+  /// In en, this message translates to:
+  /// **'Vivid'**
+  String get mediaFilterVivid;
+
+  /// No description provided for @mediaHoldToCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Press and hold to see the original'**
+  String get mediaHoldToCompare;
+
+  /// No description provided for @mediaOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get mediaOriginal;
+
+  /// No description provided for @mediaProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Applying edits {index} of {count}…'**
+  String mediaProcessing(int index, int count);
+
+  /// No description provided for @mediaReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get mediaReset;
+
+  /// No description provided for @mediaResetAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset all edits'**
+  String get mediaResetAll;
+
+  /// No description provided for @mediaTabAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust'**
+  String get mediaTabAdjust;
+
+  /// No description provided for @mediaTabFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get mediaTabFilter;
+
+  /// No description provided for @mediaTabTrim.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim'**
+  String get mediaTabTrim;
+
+  /// No description provided for @mediaTrimEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim end'**
+  String get mediaTrimEnd;
+
+  /// No description provided for @mediaTrimPickVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a video to trim'**
+  String get mediaTrimPickVideo;
+
+  /// No description provided for @mediaTrimStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Trim start'**
+  String get mediaTrimStart;
+
+  /// No description provided for @mediaTrimSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end} · {length}'**
+  String mediaTrimSummary(String start, String end, String length);
+
+  /// No description provided for @mediaTrimWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Trimmed clip, drag to move'**
+  String get mediaTrimWindow;
+
+  /// No description provided for @mediaUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get mediaUndo;
+
+  /// No description provided for @mediaVideoNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Video {index}'**
+  String mediaVideoNumber(int index);
 
   /// No description provided for @nutritionAdd.
   ///
@@ -6985,6 +8335,30 @@ abstract class AppLocalizations {
   /// **'No suggestions right now. Check in at your gym or add interests to your profile to get better ones.'**
   String get peopleNoSuggestions;
 
+  /// No description provided for @peopleNonFollowerMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages from non-followers'**
+  String get peopleNonFollowerMessages;
+
+  /// No description provided for @peopleNonFollowerMessagesOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Only your approved followers can message you.'**
+  String get peopleNonFollowerMessagesOff;
+
+  /// No description provided for @peopleNonFollowerMessagesPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'People you haven\'t approved as followers can send you message requests.'**
+  String get peopleNonFollowerMessagesPrivate;
+
+  /// No description provided for @peopleNonFollowerMessagesPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'People who don\'t follow you can message you directly.'**
+  String get peopleNonFollowerMessagesPublic;
+
   /// No description provided for @peoplePosts.
   ///
   /// In en, this message translates to:
@@ -7344,36 +8718,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View profile'**
   String get peopleViewProfile;
-
-  /// No description provided for @peopleWhoCanMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Who can message me'**
-  String get peopleWhoCanMessage;
-
-  /// No description provided for @peopleWhoCanMessageHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Messages from anyone else land in your message requests.'**
-  String get peopleWhoCanMessageHint;
-
-  /// No description provided for @peopleWhoEveryone.
-  ///
-  /// In en, this message translates to:
-  /// **'Everyone'**
-  String get peopleWhoEveryone;
-
-  /// No description provided for @peopleWhoFollowing.
-  ///
-  /// In en, this message translates to:
-  /// **'People I follow'**
-  String get peopleWhoFollowing;
-
-  /// No description provided for @peopleWhoFriends.
-  ///
-  /// In en, this message translates to:
-  /// **'Friends'**
-  String get peopleWhoFriends;
 
   /// No description provided for @reactionAngry.
   ///
@@ -7825,12 +9169,6 @@ abstract class AppLocalizations {
   /// **'Hello, {name}'**
   String shellHello(String name);
 
-  /// No description provided for @shellHey.
-  ///
-  /// In en, this message translates to:
-  /// **'Hey, {name}!'**
-  String shellHey(String name);
-
   /// No description provided for @shellHidePassword.
   ///
   /// In en, this message translates to:
@@ -8179,24 +9517,6 @@ abstract class AppLocalizations {
   /// **'Members you coach'**
   String get shellMembersYouCoach;
 
-  /// No description provided for @shellMembershipActive.
-  ///
-  /// In en, this message translates to:
-  /// **'Active'**
-  String get shellMembershipActive;
-
-  /// No description provided for @shellMembershipLoadFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Couldn\'t load your membership'**
-  String get shellMembershipLoadFailed;
-
-  /// No description provided for @shellMembershipValidUntil.
-  ///
-  /// In en, this message translates to:
-  /// **'{type} · valid until {date}'**
-  String shellMembershipValidUntil(String type, String date);
-
   /// No description provided for @shellMuteBilling.
   ///
   /// In en, this message translates to:
@@ -8305,6 +9625,12 @@ abstract class AppLocalizations {
   /// **'My membership'**
   String get shellMyMembership;
 
+  /// No description provided for @shellMyMembershipSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan, billing and invoices'**
+  String get shellMyMembershipSubtitle;
+
   /// No description provided for @shellMyOrders.
   ///
   /// In en, this message translates to:
@@ -8352,12 +9678,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Don\'t have an account? Sign up'**
   String get shellNoAccountSignUp;
-
-  /// No description provided for @shellNoActiveMembership.
-  ///
-  /// In en, this message translates to:
-  /// **'No active membership'**
-  String get shellNoActiveMembership;
 
   /// No description provided for @shellNoBusinesses.
   ///
@@ -8407,12 +9727,6 @@ abstract class AppLocalizations {
   /// **'No users found'**
   String get shellNoUsersFound;
 
-  /// No description provided for @shellNoneScheduled.
-  ///
-  /// In en, this message translates to:
-  /// **'None scheduled'**
-  String get shellNoneScheduled;
-
   /// No description provided for @shellNotAVendor.
   ///
   /// In en, this message translates to:
@@ -8460,12 +9774,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All invoices'**
   String get shellOwnerAllInvoices;
-
-  /// No description provided for @shellOwnerNoGyms.
-  ///
-  /// In en, this message translates to:
-  /// **'You don\'t own any gyms yet — add one from the Businesses tab.'**
-  String get shellOwnerNoGyms;
 
   /// No description provided for @shellPasswordChanged.
   ///
@@ -8640,12 +9948,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send reset link'**
   String get shellSendResetLink;
-
-  /// No description provided for @shellSessionInProgress.
-  ///
-  /// In en, this message translates to:
-  /// **'Session in progress'**
-  String get shellSessionInProgress;
 
   /// No description provided for @shellSessionStartedInProgress.
   ///
@@ -8989,12 +10291,6 @@ abstract class AppLocalizations {
   /// **'Type {text} to confirm.'**
   String shellTypeToConfirm(String text);
 
-  /// No description provided for @shellUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Unavailable'**
-  String get shellUnavailable;
-
   /// No description provided for @shellUnitKilograms.
   ///
   /// In en, this message translates to:
@@ -9006,12 +10302,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pounds'**
   String get shellUnitPounds;
-
-  /// No description provided for @shellUpcomingClasses.
-  ///
-  /// In en, this message translates to:
-  /// **'Upcoming classes'**
-  String get shellUpcomingClasses;
 
   /// No description provided for @shellUserSearchAdd.
   ///
@@ -9043,12 +10333,6 @@ abstract class AppLocalizations {
   /// **'Welcome, {name}'**
   String shellWelcome(String name);
 
-  /// No description provided for @shellWelcomeBack.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome back, {name}'**
-  String shellWelcomeBack(String name);
-
   /// No description provided for @shellYourGym.
   ///
   /// In en, this message translates to:
@@ -9060,18 +10344,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your gyms'**
   String get shellYourGyms;
-
-  /// No description provided for @shellYourShop.
-  ///
-  /// In en, this message translates to:
-  /// **'Your shop'**
-  String get shellYourShop;
-
-  /// No description provided for @shellYourShops.
-  ///
-  /// In en, this message translates to:
-  /// **'Your shops'**
-  String get shellYourShops;
 
   /// No description provided for @socialActiveAgo.
   ///
@@ -9144,6 +10416,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upload failed. Try again.'**
   String get socialUploadFailed;
+
+  /// No description provided for @trainerClassesPickerCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get trainerClassesPickerCustomer;
+
+  /// No description provided for @trainerClassesPickerCustomerPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite pending'**
+  String get trainerClassesPickerCustomerPending;
+
+  /// No description provided for @trainerClassesPickerEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one found. You can add your followers, members of gyms where you coach, and your customers.'**
+  String get trainerClassesPickerEmpty;
+
+  /// No description provided for @trainerClassesPickerFollower.
+  ///
+  /// In en, this message translates to:
+  /// **'Follows you'**
+  String get trainerClassesPickerFollower;
+
+  /// No description provided for @trainerClassesPickerMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get trainerClassesPickerMember;
+
+  /// No description provided for @trainerClassesPickerSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or username'**
+  String get trainerClassesPickerSearch;
+
+  /// No description provided for @trainerClassesTabCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get trainerClassesTabCalendar;
+
+  /// No description provided for @trainerClassesTabClasses.
+  ///
+  /// In en, this message translates to:
+  /// **'Classes'**
+  String get trainerClassesTabClasses;
+
+  /// No description provided for @trainerClassesTabCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get trainerClassesTabCustomers;
 
   /// No description provided for @trainingAssignAction.
   ///
@@ -9331,6 +10657,48 @@ abstract class AppLocalizations {
   /// **'About'**
   String get trainingClassAbout;
 
+  /// No description provided for @trainingClassAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get trainingClassAdd;
+
+  /// No description provided for @trainingClassAddPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Add people'**
+  String get trainingClassAddPeople;
+
+  /// No description provided for @trainingClassAddPeopleEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one found. People need to be members of this gym or follow you.'**
+  String get trainingClassAddPeopleEmpty;
+
+  /// No description provided for @trainingClassAddPeopleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Members of this gym and people who follow you.'**
+  String get trainingClassAddPeopleHint;
+
+  /// No description provided for @trainingClassAddPeopleSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or username'**
+  String get trainingClassAddPeopleSearch;
+
+  /// No description provided for @trainingClassAddedPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added'**
+  String trainingClassAddedPerson(String name);
+
+  /// No description provided for @trainingClassAddedToWaitlist.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added to the waitlist'**
+  String trainingClassAddedToWaitlist(String name);
+
   /// No description provided for @trainingClassApplyToSeries.
   ///
   /// In en, this message translates to:
@@ -9390,12 +10758,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Booking cancelled'**
   String get trainingClassBookingCancelled;
-
-  /// No description provided for @trainingClassBrowse.
-  ///
-  /// In en, this message translates to:
-  /// **'Browse classes'**
-  String get trainingClassBrowse;
 
   /// No description provided for @trainingClassCancelBooking.
   ///
@@ -9589,12 +10951,6 @@ abstract class AppLocalizations {
   /// **'Join waitlist'**
   String get trainingClassJoinWaitlist;
 
-  /// No description provided for @trainingClassJumpToNext.
-  ///
-  /// In en, this message translates to:
-  /// **'Jump to next class'**
-  String get trainingClassJumpToNext;
-
   /// No description provided for @trainingClassKeep.
   ///
   /// In en, this message translates to:
@@ -9661,18 +11017,6 @@ abstract class AppLocalizations {
   /// **'More'**
   String get trainingClassMore;
 
-  /// No description provided for @trainingClassMyBookings.
-  ///
-  /// In en, this message translates to:
-  /// **'My bookings'**
-  String get trainingClassMyBookings;
-
-  /// No description provided for @trainingClassMyBookingsCount.
-  ///
-  /// In en, this message translates to:
-  /// **'My bookings ({count})'**
-  String trainingClassMyBookingsCount(int count);
-
   /// No description provided for @trainingClassMyClasses.
   ///
   /// In en, this message translates to:
@@ -9690,24 +11034,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New class'**
   String get trainingClassNew;
-
-  /// No description provided for @trainingClassNextClass.
-  ///
-  /// In en, this message translates to:
-  /// **'Next class: {title}, {day} at {time}.'**
-  String trainingClassNextClass(String title, String day, String time);
-
-  /// No description provided for @trainingClassNoBookings.
-  ///
-  /// In en, this message translates to:
-  /// **'No bookings yet'**
-  String get trainingClassNoBookings;
-
-  /// No description provided for @trainingClassNoBookingsMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Classes you book or join the waitlist for show up here.'**
-  String get trainingClassNoBookingsMessage;
 
   /// No description provided for @trainingClassNoBookingsYet.
   ///
@@ -9769,18 +11095,6 @@ abstract class AppLocalizations {
   /// **'Nobody has booked yet.'**
   String get trainingClassNobodyBooked;
 
-  /// No description provided for @trainingClassNoneScheduled.
-  ///
-  /// In en, this message translates to:
-  /// **'No classes scheduled'**
-  String get trainingClassNoneScheduled;
-
-  /// No description provided for @trainingClassNoneScheduledMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Your gyms haven\'t scheduled any classes for the next two weeks. Check back soon.'**
-  String get trainingClassNoneScheduledMessage;
-
   /// No description provided for @trainingClassNoneThisWeek.
   ///
   /// In en, this message translates to:
@@ -9805,12 +11119,6 @@ abstract class AppLocalizations {
   /// **'Not signed in'**
   String get trainingClassNotSignedIn;
 
-  /// No description provided for @trainingClassNothingOn.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing on {day}'**
-  String trainingClassNothingOn(String day);
-
   /// No description provided for @trainingClassNotifyOnChange.
   ///
   /// In en, this message translates to:
@@ -9829,11 +11137,17 @@ abstract class AppLocalizations {
   /// **'Past'**
   String get trainingClassPast;
 
-  /// No description provided for @trainingClassRefresh.
+  /// No description provided for @trainingClassPersonFollower.
   ///
   /// In en, this message translates to:
-  /// **'Refresh'**
-  String get trainingClassRefresh;
+  /// **'Follows you'**
+  String get trainingClassPersonFollower;
+
+  /// No description provided for @trainingClassPersonMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get trainingClassPersonMember;
 
   /// No description provided for @trainingClassRemove.
   ///
@@ -12478,6 +13792,312 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No routines assigned to you yet.\nYour coach\'s assignments show up here.'**
   String get trainingWorkoutsToMeEmpty;
+
+  /// No description provided for @workoutLogAddExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exercise'**
+  String get workoutLogAddExercise;
+
+  /// No description provided for @workoutLogAddToTrainings.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to trainings'**
+  String get workoutLogAddToTrainings;
+
+  /// No description provided for @workoutLogAddToTrainingsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Save these exercises, sets and weights as a training so you can log or start it again in one tap.'**
+  String get workoutLogAddToTrainingsMessage;
+
+  /// No description provided for @workoutLogAddToTrainingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to your trainings?'**
+  String get workoutLogAddToTrainingsTitle;
+
+  /// No description provided for @workoutLogCalendarDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout'**
+  String get workoutLogCalendarDone;
+
+  /// No description provided for @workoutLogCalendarSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout: {title}'**
+  String workoutLogCalendarSemantics(String title);
+
+  /// No description provided for @workoutLogChooseTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a training (optional)'**
+  String get workoutLogChooseTraining;
+
+  /// No description provided for @workoutLogClearTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t follow a training'**
+  String get workoutLogClearTraining;
+
+  /// No description provided for @workoutLogDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get workoutLogDate;
+
+  /// No description provided for @workoutLogDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get workoutLogDuration;
+
+  /// No description provided for @workoutLogExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises'**
+  String get workoutLogExercises;
+
+  /// No description provided for @workoutLogFutureError.
+  ///
+  /// In en, this message translates to:
+  /// **'The start time can\'t be in the future.'**
+  String get workoutLogFutureError;
+
+  /// No description provided for @workoutLogFutureSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'You can log a workout once it has started.'**
+  String get workoutLogFutureSlot;
+
+  /// No description provided for @workoutLogMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String workoutLogMinutes(int minutes);
+
+  /// No description provided for @workoutLogMissingRepsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the reps for every set, or switch it to failure.'**
+  String get workoutLogMissingRepsError;
+
+  /// No description provided for @workoutLogNoExercisesError.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one exercise.'**
+  String get workoutLogNoExercisesError;
+
+  /// No description provided for @workoutLogNoExercisesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the exercises you did, or pick a training above.'**
+  String get workoutLogNoExercisesHint;
+
+  /// No description provided for @workoutLogNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get workoutLogNotNow;
+
+  /// No description provided for @workoutLogPickTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'What did you train?'**
+  String get workoutLogPickTraining;
+
+  /// No description provided for @workoutLogRemoveSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this set'**
+  String get workoutLogRemoveSet;
+
+  /// No description provided for @workoutLogRepeatSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat this set'**
+  String get workoutLogRepeatSet;
+
+  /// No description provided for @workoutLogReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get workoutLogReplace;
+
+  /// No description provided for @workoutLogReplaceMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The exercises you entered will be replaced with the ones from {name}.'**
+  String workoutLogReplaceMessage(String name);
+
+  /// No description provided for @workoutLogReplaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace exercises?'**
+  String get workoutLogReplaceTitle;
+
+  /// No description provided for @workoutLogReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps'**
+  String get workoutLogReps;
+
+  /// No description provided for @workoutLogSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout logged'**
+  String get workoutLogSaved;
+
+  /// No description provided for @workoutLogScheduleEmptyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on this day. Tap an hour to log a workout.'**
+  String get workoutLogScheduleEmptyDay;
+
+  /// No description provided for @workoutLogSetCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 set} other{{count} sets}}'**
+  String workoutLogSetCount(int count);
+
+  /// No description provided for @workoutLogSetNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {number}'**
+  String workoutLogSetNumber(int number);
+
+  /// No description provided for @workoutLogSlotLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{time}, log a workout'**
+  String workoutLogSlotLabel(String time);
+
+  /// No description provided for @workoutLogStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get workoutLogStart;
+
+  /// No description provided for @workoutLogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log workout'**
+  String get workoutLogTitle;
+
+  /// No description provided for @workoutLogTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get workoutLogTraining;
+
+  /// No description provided for @workoutLogTrainingHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one to fill in its exercises, or add them yourself below.'**
+  String get workoutLogTrainingHelper;
+
+  /// No description provided for @workoutPickerAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'From your coach'**
+  String get workoutPickerAssigned;
+
+  /// No description provided for @workoutPickerLastLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Last logged {date}'**
+  String workoutPickerLastLogged(String date);
+
+  /// No description provided for @workoutPickerLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'All trainings'**
+  String get workoutPickerLibrary;
+
+  /// No description provided for @workoutPickerNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No trainings found'**
+  String get workoutPickerNoResults;
+
+  /// No description provided for @workoutPickerRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged before'**
+  String get workoutPickerRecent;
+
+  /// No description provided for @workoutPickerSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search trainings'**
+  String get workoutPickerSearchHint;
+
+  /// No description provided for @workoutTrainingCopyName.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (copy)'**
+  String workoutTrainingCopyName(String name);
+
+  /// No description provided for @workoutTrainingCopySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved “{name}” to your trainings'**
+  String workoutTrainingCopySaved(String name);
+
+  /// No description provided for @workoutTrainingInNoRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in any of your routines'**
+  String get workoutTrainingInNoRoutine;
+
+  /// No description provided for @workoutTrainingLockedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This training has logged sessions, and they show its exercises, so the sets can\'t be changed. You can still edit its name, photo, notes, visibility and routines.'**
+  String get workoutTrainingLockedMessage;
+
+  /// No description provided for @workoutTrainingNoRoutines.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t created any routines yet'**
+  String get workoutTrainingNoRoutines;
+
+  /// No description provided for @workoutTrainingRoutines.
+  ///
+  /// In en, this message translates to:
+  /// **'Routines'**
+  String get workoutTrainingRoutines;
+
+  /// No description provided for @workoutTrainingRoutinesDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get workoutTrainingRoutinesDone;
+
+  /// No description provided for @workoutTrainingRoutinesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your routines this training is part of. New ones get it at the end; set its week and day in the routine.'**
+  String get workoutTrainingRoutinesHint;
+
+  /// No description provided for @workoutTrainingRoutinesLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your routines…'**
+  String get workoutTrainingRoutinesLoading;
+
+  /// No description provided for @workoutTrainingRoutinesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your routines'**
+  String get workoutTrainingRoutinesUnavailable;
+
+  /// No description provided for @workoutTrainingSaveAsCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as a new training'**
+  String get workoutTrainingSaveAsCopy;
 }
 
 class _AppLocalizationsDelegate

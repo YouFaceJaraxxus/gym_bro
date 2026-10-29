@@ -1,0 +1,35 @@
+{
+  "calendarGoToToday": "Go to today",
+  "calendarPreviousWeek": "Previous week",
+  "calendarNextWeek": "Next week",
+  "calendarDayLabel": "{day}, {count, plural, =0{nothing scheduled} =1{1 item} other{{count} items}}",
+  "@calendarDayLabel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarNothingOnDay": "Nothing on this day",
+  "calendarNow": "Now, {time}",
+  "@calendarNow": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarNextDay": "{range} (+1 day)",
+  "@calendarNextDay": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarCancelled": "Cancelled",
+  "calendarDone": "Done"
+}

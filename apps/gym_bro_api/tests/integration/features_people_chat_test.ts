@@ -8,57 +8,21 @@
 // Pinned: deno.json has no lockfile, and a newer realtime client than the
 // local stack's realtime server joins private channels but never gets broadcasts.
 import { createClient, type RealtimeChannel } from "jsr:@supabase/supabase-js@2.100.1";
-import { ANON, API, call, checker, deleteNotifications, notificationsOf, short, signin, suite } from "./_client.ts";
-import { sql } from "./_db.ts";
-
-// A 1×1 PNG.
-const PNG = Uint8Array.from(
-  atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="),
-  (c) => c.charCodeAt(0),
-);
-
-/** Uploads bytes through a slot from an /uploads endpoint. */
-async function uploadTo(slot: any, bytes: Uint8Array<ArrayBuffer>, type: string): Promise<number> {
-  const res = await fetch(`${API}${slot.upload_url}`, {
-    method: "PUT",
-    headers: { "Content-Type": type, "x-upsert": "false" },
-    body: bytes,
-  });
-  await res.body?.cancel();
-  return res.status;
-}
-
-async function fetchStatus(relativeUrl: string): Promise<number> {
-  const res = await fetch(`${API}${relativeUrl}`);
-  await res.body?.cancel();
-  return res.status;
-}
-
-type PairSnapshot = { follows: any[]; friendships: any[]; blocks: any[] };
-
-/** Follow / friendship / block rows between two users, to put back after a test. */
-async function snapshotPair(a: string, b: string): Promise<PairSnapshot> {
-  const pair = [a, b];
-  return {
-    follows: (await sql(`SELECT * FROM follow WHERE follower_id = ANY($1) AND followee_id = ANY($1)`, [pair])) ?? [],
-    friendships: (await sql(`SELECT * FROM friendship WHERE requester_id = ANY($1) AND addressee_id = ANY($1)`, [pair])) ?? [],
-    blocks: (await sql(`SELECT * FROM user_block WHERE blocker_id = ANY($1) AND blocked_id = ANY($1)`, [pair])) ?? [],
-  };
-}
-
-async function restorePair(a: string, b: string, s: PairSnapshot) {
-  const pair = [a, b];
-  await sql(`DELETE FROM follow WHERE follower_id = ANY($1) AND followee_id = ANY($1)`, [pair]);
-  await sql(`DELETE FROM friendship WHERE requester_id = ANY($1) AND addressee_id = ANY($1)`, [pair]);
-  await sql(`DELETE FROM user_block WHERE blocker_id = ANY($1) AND blocked_id = ANY($1)`, [pair]);
-  for (const f of s.follows) {
-    await sql(`INSERT INTO follow VALUES ($1,$2,$3,$4,$5)`, [f.follower_id, f.followee_id, f.status, f.created_at, f.accepted_at]);
-  }
-  for (const f of s.friendships) {
-    await sql(`INSERT INTO friendship VALUES ($1,$2,$3,$4,$5)`, [f.requester_id, f.addressee_id, f.status, f.created_at, f.accepted_at]);
-  }
-  for (const r of s.blocks) await sql(`INSERT INTO user_block VALUES ($1,$2,$3)`, [r.blocker_id, r.blocked_id, r.created_at]);
-}
+import {
+  ANON,
+  API,
+  call,
+  checker,
+  deleteNotifications,
+  fetchStatus,
+  notificationsOf,
+  PNG,
+  short,
+  signin,
+  suite,
+  uploadTo,
+} from "./_client.ts";
+import { restorePair, snapshotPair, sql } from "./_db.ts";
 
 /** Subscribes to a private realtime channel; resolves with the final status. */
 function subscribe(token: string, topic: string, events: string[], onEvent: (event: string, payload: any) => void) {
@@ -104,8 +68,8 @@ Deno.test({
         check("edit bio and interests", edit.status === 200 && edit.data.bio === `Testing ${stamp}` && edit.data.interests.join() === "powerlifting,running", short(edit.data));
         const long = await call("PUT", "/social/me", liam.token, { bio: "x".repeat(301) });
         check("bio over 300 chars is 400", long.status === 400, `status ${long.status}`);
-        const badWho = await call("PUT", "/social/me", liam.token, { who_can_message: "nobody" });
-        check("unknown who_can_message is 400", badWho.status === 400, `status ${badWho.status}`);
+        const badToggle = await call("PUT", "/social/me", liam.token, { allow_non_follower_messages: "nobody" });
+        check("allow_non_follower_messages must be a boolean", badToggle.status === 400, `status ${badToggle.status}`);
 
         // Zoe is private. Without an accepted follow Liam sees her profile but not her posts.
         await call("DELETE", `/social/users/${zoe.profile.id}/follow`, liam.token);
@@ -328,14 +292,20 @@ Deno.test({
     await t.step("chat: message requests and groups", async () => {
       const convIds: string[] = [];
       try {
-        // Amelia only takes messages from friends: Liam's DM is a request.
+        // Amelia is private and only takes messages from approved followers.
+        const refused = await call("POST", "/chat/conversations", liam.token, { user_ids: [amelia.profile.id] });
+        if (refused.data?.id) convIds.push(refused.data.id);
+        check("a non-follower can't message her", refused.status === 400, `status ${refused.status}`);
+
+        // With non-follower messages allowed, Liam's DM to her private account is a request.
+        await call("PUT", "/social/me", amelia.token, { allow_non_follower_messages: true });
         const dm = await call("POST", "/chat/conversations", liam.token, { user_ids: [amelia.profile.id] });
         convIds.push(dm.data.id);
         await call("POST", `/chat/conversations/${dm.data.id}/messages`, liam.token, { body: "hi amelia" });
         const inbox = await call("GET", "/chat/conversations", amelia.token);
         const requests = await call("GET", "/chat/conversations?box=requests", amelia.token);
         check(
-          "DM from a non-friend lands in requests",
+          "DM from a non-follower lands in requests",
           !(inbox.data as any[]).some((c) => c.id === dm.data.id) && (requests.data as any[]).some((c) => c.id === dm.data.id && c.my_status === "request"),
           short(requests.data),
         );
@@ -369,6 +339,7 @@ Deno.test({
         await deleteNotifications(daniel.token, (n) => n.type === "group_added" && n.metadata?.conversation_id === group.data.id);
         await deleteNotifications(natalia.token, (n) => n.type === "group_added" && n.metadata?.conversation_id === group.data.id);
       } finally {
+        await call("PUT", "/social/me", amelia.token, { allow_non_follower_messages: false });
         for (const id of convIds) await sql(`DELETE FROM conversation WHERE id = $1`, [id]);
       }
       assertAll();

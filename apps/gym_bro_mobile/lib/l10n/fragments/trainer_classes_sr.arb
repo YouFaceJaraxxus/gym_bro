@@ -1,0 +1,11 @@
+{
+  "trainerClassesTabCalendar": "Kalendar",
+  "trainerClassesTabClasses": "Časovi",
+  "trainerClassesTabCustomers": "Klijenti",
+  "trainerClassesPickerSearch": "Pretraži po imenu ili korisničkom imenu",
+  "trainerClassesPickerEmpty": "Nema nikoga. Možeš da dodaš svoje pratioce, članove teretana u kojima treniraš i svoje klijente.",
+  "trainerClassesPickerFollower": "Prati te",
+  "trainerClassesPickerMember": "Član",
+  "trainerClassesPickerCustomer": "Klijent",
+  "trainerClassesPickerCustomerPending": "Poziv na čekanju"
+}

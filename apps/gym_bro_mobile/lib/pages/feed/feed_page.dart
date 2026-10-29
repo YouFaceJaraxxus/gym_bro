@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/l10n.dart';
+import '../../models/draft.dart';
 import '../../models/post.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../widgets/drafts.dart';
 import '../../widgets/post_card.dart';
 import '../../widgets/social_widgets.dart';
 import 'create_post_page.dart';
@@ -142,8 +144,11 @@ class _FeedPageState extends State<FeedPage> {
   Future<void> _create({bool pick = false}) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = context.l10n;
-    final created = await Navigator.of(context).push<Post>(
-      MaterialPageRoute(fullscreenDialog: true, builder: (_) => CreatePostPage(pickOnOpen: pick)),
+    final created = await openCreateWithDrafts<Post>(
+      context,
+      kind: DraftKind.post,
+      fullscreenDialog: true,
+      builder: (draft) => CreatePostPage(pickOnOpen: pick && draft == null, draft: draft),
     );
     if (created == null || !mounted) return;
     final home = _feeds[false]!;

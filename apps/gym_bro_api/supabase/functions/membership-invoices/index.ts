@@ -1,12 +1,12 @@
 import { db } from "../_shared/config.ts";
 import {
-  type Caller,
   canStaffGym,
   forbidden,
   isSuperUser,
   json,
   jsonError,
   requireCaller,
+  staffedGymIds,
 } from "../_shared/auth.ts";
 import { notify } from "../_shared/notify.ts";
 import type { InvoiceStatus, MembershipInvoiceInsert } from "../../types/schema/public.ts";
@@ -46,16 +46,6 @@ function invoiceQuery() {
       "b.name as gym_name",
       "t.name as membership_type_name",
     ]);
-}
-
-/** Gyms where the caller is owner, employee or employee-trainer. */
-function staffedGymIds(caller: Caller) {
-  return db
-    .selectFrom("gym_owner")
-    .select("gym_id")
-    .where("user_id", "=", caller.id)
-    .union(db.selectFrom("employee").select("gym_id").where("user_id", "=", caller.id))
-    .union(db.selectFrom("employee_trainer").select("gym_id").where("user_id", "=", caller.id));
 }
 
 /** The gym an invoice belongs to (through its membership type). */

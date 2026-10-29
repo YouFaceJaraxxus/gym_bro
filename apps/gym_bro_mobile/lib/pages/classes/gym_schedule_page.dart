@@ -5,13 +5,17 @@ import '../../models/staff_shift.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import 'class_detail_page.dart';
-import 'class_form_page.dart';
+import 'series_form_page.dart';
 import 'schedule_widgets.dart';
 import 'shift_form_page.dart';
 
 /// Manager/staff view of one gym: classes and staff shifts, week by week.
 class GymSchedulePage extends StatelessWidget {
-  const GymSchedulePage({super.key, required this.gymId, required this.gymName});
+  const GymSchedulePage({
+    super.key,
+    required this.gymId,
+    required this.gymName,
+  });
 
   final String gymId;
   final String gymName;
@@ -32,8 +36,14 @@ class GymSchedulePage extends StatelessWidget {
           ),
           bottom: TabBar(
             tabs: [
-              Tab(icon: const Icon(Icons.event), text: l10n.trainingClassClasses),
-              Tab(icon: const Icon(Icons.badge_outlined), text: l10n.trainingShiftShifts),
+              Tab(
+                icon: const Icon(Icons.event),
+                text: l10n.trainingClassClasses,
+              ),
+              Tab(
+                icon: const Icon(Icons.badge_outlined),
+                text: l10n.trainingShiftShifts,
+              ),
             ],
           ),
         ),
@@ -124,7 +134,8 @@ class _GymClassesTabState extends State<_GymClassesTab>
     final saved = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-          builder: (_) => ClassFormPage(initialGymId: widget.gymId)),
+        builder: (_) => SeriesFormPage(initialGymId: widget.gymId),
+      ),
     );
     if (saved == true && mounted) _load();
   }
@@ -192,17 +203,23 @@ class _GymClassesTabState extends State<_GymClassesTab>
     final groups = groupByDay(_classes, (c) => c.startsAt);
     final children = <Widget>[];
     for (final entry in groups.entries) {
-      children.add(DayHeader(entry.key,
-          trailing: l10n.trainingClassCount(entry.value.length)));
+      children.add(
+        DayHeader(
+          entry.key,
+          trailing: l10n.trainingClassCount(entry.value.length),
+        ),
+      );
       for (final c in entry.value) {
-        children.add(ClassCard(
-          key: ValueKey(c.id),
-          gymClass: c,
-          busy: _busy.contains(c.id),
-          onTap: () => _open(c),
-          onBook: () => _toggleBooking(c),
-          onCancel: () => _toggleBooking(c),
-        ));
+        children.add(
+          ClassCard(
+            key: ValueKey(c.id),
+            gymClass: c,
+            busy: _busy.contains(c.id),
+            onTap: () => _open(c),
+            onBook: () => _toggleBooking(c),
+            onCancel: () => _toggleBooking(c),
+          ),
+        );
       }
     }
     return ListView(
@@ -308,7 +325,9 @@ class _GymShiftsTabState extends State<_GymShiftsTab>
   DateTime _defaultDay() {
     final today = dateOnly(DateTime.now());
     final end = _weekStart.add(const Duration(days: 7));
-    return !today.isBefore(_weekStart) && today.isBefore(end) ? today : _weekStart;
+    return !today.isBefore(_weekStart) && today.isBefore(end)
+        ? today
+        : _weekStart;
   }
 
   Future<void> _delete(StaffShift s) async {
@@ -317,7 +336,9 @@ class _GymShiftsTabState extends State<_GymShiftsTab>
       context,
       title: l10n.trainingShiftDeleteQuestion,
       message: l10n.trainingShiftDeleteMessage(
-          s.fullName, formatDayLabel(context, s.startsAt)),
+        s.fullName,
+        formatDayLabel(context, s.startsAt),
+      ),
       confirmLabel: l10n.commonDelete,
       destructive: true,
     );
@@ -326,7 +347,9 @@ class _GymShiftsTabState extends State<_GymShiftsTab>
     try {
       final token = await AuthManager.instance.getValidToken();
       await _api.deleteShift(token, s.id);
-      messenger.showSnackBar(SnackBar(content: Text(l10n.trainingShiftDeleted)));
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.trainingShiftDeleted)),
+      );
       _load();
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(errorText(e))));
@@ -385,31 +408,41 @@ class _GymShiftsTabState extends State<_GymShiftsTab>
     for (var i = 0; i < 7; i++) {
       final day = dateOnly(_weekStart.add(Duration(days: i)));
       final dayShifts = groups[day] ?? const <StaffShift>[];
-      children.add(Row(
-        children: [
-          Expanded(
-            child: DayHeader(day,
+      children.add(
+        Row(
+          children: [
+            Expanded(
+              child: DayHeader(
+                day,
                 trailing: dayShifts.isEmpty
                     ? null
-                    : l10n.trainingShiftCount(dayShifts.length)),
-          ),
-          if (_canManage)
-            Padding(
-              padding: const EdgeInsets.only(right: 8, top: 12),
-              child: IconButton(
-                tooltip: l10n.trainingShiftAddOn(formatDayLabel(context, day)),
-                icon: const Icon(Icons.add, size: 20),
-                onPressed: () => _openForm(day: day),
+                    : l10n.trainingShiftCount(dayShifts.length),
               ),
             ),
-        ],
-      ));
+            if (_canManage)
+              Padding(
+                padding: const EdgeInsets.only(right: 8, top: 12),
+                child: IconButton(
+                  tooltip: l10n.trainingShiftAddOn(
+                    formatDayLabel(context, day),
+                  ),
+                  icon: const Icon(Icons.add, size: 20),
+                  onPressed: () => _openForm(day: day),
+                ),
+              ),
+          ],
+        ),
+      );
       if (dayShifts.isEmpty) {
-        children.add(Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-          child: Text(l10n.trainingShiftNone,
-              style: TextStyle(color: cs.onSurfaceVariant)),
-        ));
+        children.add(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            child: Text(
+              l10n.trainingShiftNone,
+              style: TextStyle(color: cs.onSurfaceVariant),
+            ),
+          ),
+        );
       } else {
         children.addAll(dayShifts.map(_shiftTile));
       }
@@ -433,7 +466,9 @@ class _GymShiftsTabState extends State<_GymShiftsTab>
         onTap: _canManage ? () => _openForm(existing: s) : null,
         leading: CircleAvatar(
           backgroundColor: cs.primaryContainer,
-          foregroundImage: s.avatarUrl != null ? NetworkImage(s.avatarUrl!) : null,
+          foregroundImage: s.avatarUrl != null
+              ? NetworkImage(s.avatarUrl!)
+              : null,
           child: Text(
             '${s.name.isNotEmpty ? s.name[0] : ''}${s.lastName.isNotEmpty ? s.lastName[0] : ''}'
                 .toUpperCase(),
@@ -443,17 +478,19 @@ class _GymShiftsTabState extends State<_GymShiftsTab>
         title: Row(
           children: [
             Flexible(
-                child: Text(mine ? l10n.trainingClassNameYou(s.fullName) : s.fullName)),
-            if (s.isNow) ...[
-              const SizedBox(width: 8),
-              const NowPill(),
-            ],
+              child: Text(
+                mine ? l10n.trainingClassNameYou(s.fullName) : s.fullName,
+              ),
+            ),
+            if (s.isNow) ...[const SizedBox(width: 8), const NowPill()],
           ],
         ),
-        subtitle: Text([
-          '${formatTimeRange(context, s.startsAt, s.endsAt)} · ${formatDuration(context, s.duration)}',
-          if (s.note != null) s.note!,
-        ].join('\n')),
+        subtitle: Text(
+          [
+            '${formatTimeRange(context, s.startsAt, s.endsAt)} · ${formatDuration(context, s.duration)}',
+            if (s.note != null) s.note!,
+          ].join('\n'),
+        ),
         isThreeLine: s.note != null,
         trailing: _canManage
             ? PopupMenuButton<String>(
@@ -462,7 +499,10 @@ class _GymShiftsTabState extends State<_GymShiftsTab>
                     v == 'edit' ? _openForm(existing: s) : _delete(s),
                 itemBuilder: (_) => [
                   PopupMenuItem(value: 'edit', child: Text(l10n.commonEdit)),
-                  PopupMenuItem(value: 'delete', child: Text(l10n.commonDelete)),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Text(l10n.commonDelete),
+                  ),
                 ],
               )
             : null,

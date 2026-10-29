@@ -287,8 +287,18 @@ class Training {
   final List<TrainingImage> images;
   final List<TrainingSet> sets;
   final TrainingImage? thumbnail;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+
+  /// Detail only: true once a session used this training. Its sets are then
+  /// frozen (past sessions point at them); only the details stay editable.
+  final bool hasSessions;
+
+  /// Detail only: which of the caller's own routines include this training.
+  final List<String> routineIds;
+
+  /// Null for the summary embedded in a routine (`{id, name, description,
+  /// is_public}`), which carries no timestamps.
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   const Training({
     required this.id,
@@ -300,8 +310,10 @@ class Training {
     required this.images,
     required this.sets,
     this.thumbnail,
-    required this.createdAt,
-    required this.updatedAt,
+    this.hasSessions = false,
+    this.routineIds = const [],
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory Training.fromJson(Map<String, dynamic> json) {
@@ -323,8 +335,10 @@ class Training {
           .map((s) => TrainingSet.fromJson(s as Map<String, dynamic>))
           .toList(),
       thumbnail: rawThumb != null ? TrainingImage.fromJson(rawThumb) : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      hasSessions: json['has_sessions'] as bool? ?? false,
+      routineIds: (json['routine_ids'] as List<dynamic>? ?? []).cast<String>(),
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? ''),
+      updatedAt: DateTime.tryParse(json['updated_at'] as String? ?? ''),
     );
   }
 
@@ -346,4 +360,61 @@ class Training {
         .expand((e) => e.exercise?.primaryMuscles ?? <MuscleGroup>[])
         .toSet();
   }
+}
+
+// ── Log suggestions ───────────────────────────────────────────────────────────
+
+/// A training offered when logging a workout, with why it's offered.
+class TrainingSuggestion {
+  final Training training;
+
+  /// Set for trainings the user logged before.
+  final DateTime? lastUsedAt;
+
+  /// Set for trainings from a routine a coach assigned.
+  final String? routineName;
+  final String? assignedByName;
+
+  const TrainingSuggestion({
+    required this.training,
+    this.lastUsedAt,
+    this.routineName,
+    this.assignedByName,
+  });
+
+  factory TrainingSuggestion.fromJson(Map<String, dynamic> json) =>
+      TrainingSuggestion(
+        training: Training.fromJson(json),
+        lastUsedAt: DateTime.tryParse(json['last_used_at'] as String? ?? ''),
+        routineName: json['routine_name'] as String?,
+        assignedByName: json['assigned_by_name'] as String?,
+      );
+}
+
+/// GET /trainings/suggestions: used before, then assigned by a coach, then
+/// the rest of the user's and public trainings — never the same one twice.
+class TrainingSuggestions {
+  final List<TrainingSuggestion> recent;
+  final List<TrainingSuggestion> assigned;
+  final List<TrainingSuggestion> library;
+
+  const TrainingSuggestions({
+    required this.recent,
+    required this.assigned,
+    required this.library,
+  });
+
+  factory TrainingSuggestions.fromJson(Map<String, dynamic> json) {
+    List<TrainingSuggestion> list(String key) =>
+        (json[key] as List<dynamic>? ?? [])
+            .map((e) => TrainingSuggestion.fromJson(e as Map<String, dynamic>))
+            .toList();
+    return TrainingSuggestions(
+      recent: list('recent'),
+      assigned: list('assigned'),
+      library: list('library'),
+    );
+  }
+
+  bool get isEmpty => recent.isEmpty && assigned.isEmpty && library.isEmpty;
 }

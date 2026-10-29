@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
+import '../models/draft.dart';
 import '../models/food_log.dart' show fmtAmount;
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/drafts.dart';
 import 'nutrition/nutrition_widgets.dart';
 
 class DailyMealPlanFormPage extends StatefulWidget {
   final DailyMealPlan? plan;
 
-  const DailyMealPlanFormPage({super.key, this.plan});
+  /// A saved draft to continue (new plans only).
+  final Draft? draft;
+
+  const DailyMealPlanFormPage({super.key, this.plan, this.draft});
 
   @override
   State<DailyMealPlanFormPage> createState() => _DailyMealPlanFormPageState();
 }
 
-class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
+class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> with DraftableForm {
   final _formKey = GlobalKey<FormState>();
   final _api = ApiService();
 
@@ -36,9 +41,46 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
   double get _totalCarb => _slots.fold(0, (s, slot) => s + slot.carbTotal);
   double get _totalFat => _slots.fold(0, (s, slot) => s + slot.fatTotal);
 
+  // ── drafts ───────────────────────────────────────────────────────────────────
+
+  @override
+  DraftKind get draftKind => DraftKind.dailyMealPlan;
+  @override
+  Draft? get initialDraft => widget.draft;
+  @override
+  bool get draftsEnabled => !_isEditing;
+  @override
+  bool get hasDraftContent =>
+      _name.text.trim().isNotEmpty || _description.text.trim().isNotEmpty || _slots.isNotEmpty;
+  @override
+  String? draftTitle() => _name.text;
+  @override
+  Map<String, dynamic> draftData() => {
+        'name': _name.text,
+        'description': _description.text,
+        'is_public': _isPublic,
+        'slots': [for (final slot in _slots) slot.toDraftJson()],
+      };
+
+  void _restoreDraft(Map<String, dynamic> d) {
+    _name = TextEditingController(text: _draftText(d['name']));
+    _description = TextEditingController(text: _draftText(d['description']));
+    _isPublic = d['is_public'] is bool ? d['is_public'] as bool : false;
+    for (final raw in _draftMaps(d['slots'])) {
+      final slot = _SlotDraft.fromDraftJson(raw, position: _slots.length);
+      // One slot per meal type, as the slot picker enforces.
+      if (slot != null && !_slots.any((s) => s.slotType == slot.slotType)) _slots.add(slot);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    final draft = widget.draft?.data;
+    if (draft != null && !_isEditing) {
+      _restoreDraft(draft);
+      return;
+    }
     final p = widget.plan;
     _name = TextEditingController(text: p?.name ?? '');
     _description = TextEditingController(text: p?.description ?? '');
@@ -138,6 +180,7 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
         result = await _api.updateDailyMealPlan(token, widget.plan!.id, data);
       } else {
         result = await _api.createDailyMealPlan(token, data);
+        await draftPublished();
       }
       if (mounted) Navigator.pop(context, result);
     } catch (e) {
@@ -256,83 +299,88 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? l10n.nutritionEditDailyPlanTitle : l10n.nutritionNewDailyPlanTitle),
-        actions: [
-          if (_saving)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-            )
-          else
-            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // ── Basic fields ────────────────────────────────────────────────
-            TextFormField(
-              controller: _name,
-              decoration: InputDecoration(labelText: l10n.nutritionPlanNameRequiredLabel),
-              validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
-            ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _description,
-              decoration: InputDecoration(labelText: l10n.nutritionDescription),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              title: Text(l10n.nutritionPublic),
-              subtitle: Text(l10n.nutritionVisibleToAllUsers),
-              value: _isPublic,
-              onChanged: (v) => setState(() => _isPublic = v),
-              contentPadding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 20),
-
-            // ── Slots ───────────────────────────────────────────────────────
-            Text(l10n.nutritionMealSlots, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-
-            ..._slots.asMap().entries.map((entry) {
-              final si = entry.key;
-              final slot = entry.value;
-              return _SlotCard(
-                key: ValueKey('slot_$si'),
-                slot: slot,
-                onChanged: () => setState(() {}),
-                onRemove: () => setState(() => _slots.removeAt(si)),
-                onAddFoodItem: () => _addFoodItem(si),
-                onAddRecipe: () => _addRecipe(si),
-                onRemoveEntry: (ei) => setState(() => slot.entries.removeAt(ei)),
-              );
-            }),
-
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _addSlot,
-              icon: const Icon(Icons.add),
-              label: Text(l10n.nutritionAddSlot),
-            ),
-            const SizedBox(height: 28),
-
-            // ── Macro totals ────────────────────────────────────────────────
-            Text(l10n.nutritionTotals, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            _TotalsCard(
-              kcal: _totalKcal,
-              protein: _totalProtein,
-              carb: _totalCarb,
-              fat: _totalFat,
-            ),
-            const SizedBox(height: 40),
+    final banner = draftBanner(context);
+    return draftPopScope(
+      busy: _saving,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_isEditing ? l10n.nutritionEditDailyPlanTitle : l10n.nutritionNewDailyPlanTitle),
+          actions: [
+            if (_saving)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+              )
+            else
+              TextButton(onPressed: _save, child: Text(l10n.commonSave)),
           ],
+        ),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (banner != null) ...[banner, const SizedBox(height: 16)],
+              // ── Basic fields ────────────────────────────────────────────────
+              TextFormField(
+                controller: _name,
+                decoration: InputDecoration(labelText: l10n.nutritionPlanNameRequiredLabel),
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _description,
+                decoration: InputDecoration(labelText: l10n.nutritionDescription),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                title: Text(l10n.nutritionPublic),
+                subtitle: Text(l10n.nutritionVisibleToAllUsers),
+                value: _isPublic,
+                onChanged: (v) => setState(() => _isPublic = v),
+                contentPadding: EdgeInsets.zero,
+              ),
+              const SizedBox(height: 20),
+
+              // ── Slots ───────────────────────────────────────────────────────
+              Text(l10n.nutritionMealSlots, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 12),
+
+              ..._slots.asMap().entries.map((entry) {
+                final si = entry.key;
+                final slot = entry.value;
+                return _SlotCard(
+                  key: ValueKey('slot_$si'),
+                  slot: slot,
+                  onChanged: () => setState(() {}),
+                  onRemove: () => setState(() => _slots.removeAt(si)),
+                  onAddFoodItem: () => _addFoodItem(si),
+                  onAddRecipe: () => _addRecipe(si),
+                  onRemoveEntry: (ei) => setState(() => slot.entries.removeAt(ei)),
+                );
+              }),
+
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: _addSlot,
+                icon: const Icon(Icons.add),
+                label: Text(l10n.nutritionAddSlot),
+              ),
+              const SizedBox(height: 28),
+
+              // ── Macro totals ────────────────────────────────────────────────
+              Text(l10n.nutritionTotals, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              _TotalsCard(
+                kcal: _totalKcal,
+                protein: _totalProtein,
+                carb: _totalCarb,
+                fat: _totalFat,
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );
@@ -353,6 +401,29 @@ class _SlotDraft {
     this.note,
     List<_EntryDraft>? entries,
   }) : entries = entries ?? [];
+
+  Map<String, dynamic> toDraftJson() => {
+        'slot_type': slotType.apiValue,
+        'note': note,
+        'entries': [for (final e in entries) e.toDraftJson()],
+      };
+
+  /// Null when the slot type is unknown (e.g. removed in a newer version).
+  static _SlotDraft? fromDraftJson(Map<String, dynamic> json, {required int position}) {
+    final type = json['slot_type'] is String ? MealSlotType.fromApiValue(json['slot_type'] as String) : null;
+    if (type == null) return null;
+    final entries = <_EntryDraft>[];
+    for (final raw in _draftMaps(json['entries'])) {
+      final entry = _EntryDraft.fromDraftJson(raw, position: entries.length);
+      if (entry != null) entries.add(entry);
+    }
+    return _SlotDraft(
+      slotType: type,
+      position: position,
+      note: json['note'] is String ? json['note'] as String : null,
+      entries: entries,
+    );
+  }
 
   double get kcalTotal => entries.fold(0, (s, e) => s + e.kcal);
   double get proteinTotal => entries.fold(0, (s, e) => s + e.protein);
@@ -447,6 +518,61 @@ class _EntryDraft {
         position: position,
       );
 
+  Map<String, dynamic> toDraftJson() => {
+        'food_item_id': foodItemId,
+        'food_item_name': foodItemName,
+        'food_item_unit': foodItemUnit?.apiValue,
+        'food_item_kcal_per_100': foodItemKcalPer100,
+        'food_item_protein_per_100': foodItemProteinPer100,
+        'food_item_carb_per_100': foodItemCarbPer100,
+        'food_item_fat_per_100': foodItemFatPer100,
+        'recipe_id': recipeId,
+        'recipe_name': recipeName,
+        'recipe_kcal_per_serving': recipeKcalPerServing,
+        'recipe_protein_per_serving': recipeProteinPerServing,
+        'recipe_carb_per_serving': recipeCarbPerServing,
+        'recipe_fat_per_serving': recipeFatPerServing,
+        'quantity': quantity,
+        'servings': servings,
+        'note': note,
+      };
+
+  /// Null when the entry references neither a food item nor a recipe.
+  static _EntryDraft? fromDraftJson(Map<String, dynamic> json, {required int position}) {
+    String? str(String key) => json[key] is String && (json[key] as String).isNotEmpty ? json[key] as String : null;
+    double? dbl(String key) => json[key] == null ? null : double.tryParse(json[key].toString());
+    final foodItemId = str('food_item_id');
+    final recipeId = str('recipe_id');
+    if (foodItemId != null) {
+      return _EntryDraft(
+        foodItemId: foodItemId,
+        foodItemName: str('food_item_name'),
+        foodItemUnit: str('food_item_unit') == null ? null : ServingUnit.fromApiValue(str('food_item_unit')!),
+        foodItemKcalPer100: dbl('food_item_kcal_per_100'),
+        foodItemProteinPer100: dbl('food_item_protein_per_100'),
+        foodItemCarbPer100: dbl('food_item_carb_per_100'),
+        foodItemFatPer100: dbl('food_item_fat_per_100'),
+        quantity: dbl('quantity'),
+        note: str('note'),
+        position: position,
+      );
+    }
+    if (recipeId != null) {
+      return _EntryDraft(
+        recipeId: recipeId,
+        recipeName: str('recipe_name'),
+        recipeKcalPerServing: dbl('recipe_kcal_per_serving'),
+        recipeProteinPerServing: dbl('recipe_protein_per_serving'),
+        recipeCarbPerServing: dbl('recipe_carb_per_serving'),
+        recipeFatPerServing: dbl('recipe_fat_per_serving'),
+        servings: dbl('servings') ?? 1.0,
+        note: str('note'),
+        position: position,
+      );
+    }
+    return null;
+  }
+
   bool get isFoodItem => foodItemId != null;
 
   String displayName(AppLocalizations l10n) =>
@@ -500,6 +626,14 @@ class _EntryDraft {
     return 0;
   }
 }
+
+// ── Saved-draft (server) helpers ──────────────────────────────────────────────
+// Drafts may come from an older app version: every key is optional.
+
+String _draftText(Object? v, [String fallback = '']) => v is String ? v : (v is num ? '$v' : fallback);
+
+Iterable<Map<String, dynamic>> _draftMaps(Object? raw) =>
+    raw is List ? raw.whereType<Map>().map((m) => Map<String, dynamic>.from(m)) : const [];
 
 // ── Slot card widget ──────────────────────────────────────────────────────────
 

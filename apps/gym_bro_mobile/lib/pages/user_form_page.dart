@@ -3,6 +3,7 @@ import '../l10n/l10n.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/password_form_field.dart';
 
 class UserFormPage extends StatefulWidget {
   const UserFormPage({super.key, this.user});
@@ -203,12 +204,9 @@ class _UserFormPageState extends State<UserFormPage> {
               ),
               if (!_isEditing) ...[
                 const SizedBox(height: 12),
-                TextFormField(
+                PasswordFormField(
                   controller: _passwordCtrl,
-                  decoration: InputDecoration(
-                    labelText: l10n.shellAuthPassword,
-                  ),
-                  obscureText: true,
+                  labelText: l10n.shellAuthPassword,
                   validator: (v) => (v == null || v.length < 6)
                       ? l10n.shellAuthPasswordMin(6)
                       : null,

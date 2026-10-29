@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import 'package:image_picker/image_picker.dart';
+import '../media_editor/editable_media.dart';
+import '../media_editor/media_editor_page.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../services/media_upload.dart';
+import 'social_widgets.dart' show readMediaDimensions;
 
-/// Opens a camera/gallery picker, uploads the chosen image via the `uploads`
-/// edge function, and reports progress/result through the callbacks. Useful
+/// Opens a camera/gallery picker, then the photo editor, uploads the
+/// (edited) image via the `uploads` edge function, and reports progress/result through the callbacks. Useful
 /// for wiring an upload action into custom UI (e.g. an icon button inside a
 /// list row) without using the [AvatarPicker]/[ImagePickerField] widgets.
 Future<void> pickAndUploadImage({
@@ -23,7 +27,8 @@ Future<void> pickAndUploadImage({
 );
 
 /// Shared picker for uploading an image via the `uploads` edge function.
-/// Handles picking (camera/gallery), uploading, loading state, and errors.
+/// Handles picking (camera/gallery), editing, uploading, loading state, and
+/// errors.
 /// Calls [onUploaded] with the resulting public URL on success.
 class _ImagePickerButton {
   static Future<void> pick({
@@ -62,14 +67,25 @@ class _ImagePickerButton {
     );
     if (picked == null) return;
 
+    // Filters and adjustments before upload; Done (or back) keeps them.
+    final media = EditableMedia(
+      await readMediaDimensions(
+        await PickedMedia.fromPath(picked.path, name: picked.name),
+      ),
+    );
+    if (media.canEdit && context.mounted) {
+      await MediaEditorPage.edit(context, media);
+    }
+
     onUploadingChanged(true);
     try {
-      final bytes = await picked.readAsBytes();
+      final file = await media.export();
+      final bytes = await file.file.readAsBytes();
       final token = await AuthManager.instance.getValidToken();
       final url = await ApiService().uploadImage(
         token,
         bytes: bytes,
-        filename: picked.name,
+        filename: file.fileName,
         bucket: bucket,
         folder: folder,
       );

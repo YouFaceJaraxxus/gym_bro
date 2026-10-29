@@ -2,7 +2,7 @@ import type { Kysely } from "npm:kysely@^0.27";
 import { db, supabaseAdmin } from "../_shared/config.ts";
 import { canCoachAtGym, canManageGym, forbidden, json, jsonError, redactEmails, requireCaller } from "../_shared/auth.ts";
 import type { Database, UserInsert } from "../../types/schema/public.ts";
-import { pgCode, assignRole, reconcileRoles } from "../_shared/roles.ts";
+import { pgCode, reconcileRoles } from "../_shared/roles.ts";
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -52,7 +52,7 @@ async function insertStaffRow(
       .values({ user_id: userId, gym_id: gymId })
       .returningAll()
       .executeTakeFirstOrThrow();
-    await assignRole(trx, userId, "employee");
+    await reconcileRoles(trx, [userId]);
     return row;
   }
 
@@ -74,7 +74,7 @@ async function insertStaffRow(
     .values({ user_id: userId, gym_id: gymId, trainer_id: trainerRow.id })
     .returningAll()
     .executeTakeFirstOrThrow();
-  await assignRole(trx, userId, "employee_trainer");
+  await reconcileRoles(trx, [userId]);
   return row;
 }
 

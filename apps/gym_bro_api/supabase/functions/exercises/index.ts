@@ -15,6 +15,7 @@ import type {
   MuscleGroup,
 } from "../../types/schema/public.ts";
 
+// muscle_group[] isn't parsed by the pg driver (it arrives as "{a,b}"); text[] is.
 const COLS = [
   "id",
   "name",
@@ -23,8 +24,8 @@ const COLS = [
   "image_url",
   "video_url",
   "author_id",
-  "primary_muscles",
-  "secondary_muscles",
+  sql<MuscleGroup[]>`primary_muscles::text[]`.as("primary_muscles"),
+  sql<MuscleGroup[]>`secondary_muscles::text[]`.as("secondary_muscles"),
   "is_public",
   "created_at",
   "updated_at",

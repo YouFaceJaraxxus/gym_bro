@@ -296,6 +296,7 @@ Deno.serve(async (req: Request) => {
         await trx.insertInto("shop").values({ id: biz.id }).execute();
         await trx.insertInto("shop_owner").values({ user_id: caller.id, shop_id: biz.id }).execute();
       }
+      await reconcileRoles(trx, [caller.id]);
       return biz;
     });
 

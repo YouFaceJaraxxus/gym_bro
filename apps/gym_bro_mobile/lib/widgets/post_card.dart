@@ -74,10 +74,15 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
   int _reactSeq = 0;
   bool _deleting = false;
 
-  late final AnimationController _heart = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 800),
-  );
+  // Created up front: a lazy controller first built in dispose() would look
+  // up its ticker on a deactivated element.
+  late final AnimationController _heart;
+
+  @override
+  void initState() {
+    super.initState();
+    _heart = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+  }
 
   @override
   void didUpdateWidget(PostCard old) {

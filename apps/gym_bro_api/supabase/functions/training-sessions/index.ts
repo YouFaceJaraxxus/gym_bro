@@ -31,6 +31,11 @@ const COMMENT_COUNT = sql<number>`(
   SELECT COUNT(*)::int FROM session_comment sc WHERE sc.session_id = training_session.id
 )`.as("comment_count");
 
+/** The followed training's name; null for free sessions or a deleted training. */
+const TRAINING_NAME = sql<string | null>`(
+  SELECT t.name FROM training t WHERE t.id = training_session.training_id
+)`.as("training_name");
+
 /** The trainer's display name ("Elena Vasquez"); null when there's no trainer. */
 const TRAINER_NAME = sql<string | null>`(
   SELECT NULLIF(TRIM(u.name || ' ' || u.last_name), '') FROM users u WHERE u.id = training_session.trainer_id
@@ -70,6 +75,21 @@ function toDropInserts(setLogId: string, drops: DropPayload[]): SessionDropLogIn
     side: VALID_SIDES.includes(d.side!) ? d.side! : "both",
     note: d.note ?? null,
   }));
+}
+
+type SetPayload = {
+  training_set_id?: string;
+  exercise_id?: string;
+  position?: number;
+  note?: string;
+  drops?: DropPayload[];
+};
+
+/** Parses an ISO timestamp; null when missing or unparseable. */
+function parseInstant(v: unknown): Date | null {
+  if (typeof v !== "string") return null;
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? null : d;
 }
 
 // ── Path helpers ──────────────────────────────────────────────────────────────
@@ -151,7 +171,7 @@ async function fetchSetLogWithDrops(setLogId: string, executor: Kysely<Database>
 async function fetchSessionDetail(sessionId: string) {
   const session = await db
     .selectFrom("training_session")
-    .select([...SESSION_COLS, COMMENT_COUNT, TRAINER_NAME])
+    .select([...SESSION_COLS, COMMENT_COUNT, TRAINER_NAME, TRAINING_NAME])
     .where("id", "=", sessionId)
     .executeTakeFirst();
 
@@ -298,7 +318,7 @@ async function handler(req: Request): Promise<Response> {
     const page = parseInt(url.searchParams.get("page") ?? "0");
     const pageSize = Math.min(parseInt(url.searchParams.get("page_size") ?? "20"), 100);
 
-    let query = db.selectFrom("training_session").select([...SESSION_COLS, COMMENT_COUNT, TRAINER_NAME]);
+    let query = db.selectFrom("training_session").select([...SESSION_COLS, COMMENT_COUNT, TRAINER_NAME, TRAINING_NAME]);
 
     if (trainerId) {
       // "Classes I'm running" view — only the trainer themself or super_user may read it.
@@ -314,6 +334,15 @@ async function handler(req: Request): Promise<Response> {
     }
 
     if (trainingId) query = query.where("training_id", "=", trainingId);
+
+    // Calendar weeks: sessions starting in [from, to).
+    for (const [param, op] of [["from", ">="], ["to", "<"]] as const) {
+      const raw = url.searchParams.get(param);
+      if (raw === null) continue;
+      const at = parseInstant(raw);
+      if (!at) return jsonError(`${param} must be an ISO timestamp`, 400);
+      query = query.where("started_at", op, at.toISOString());
+    }
 
     const sessions = await query
       .orderBy("started_at", "desc")
@@ -332,10 +361,30 @@ async function handler(req: Request): Promise<Response> {
     return json(detail);
   }
 
-  // ── POST /training-sessions — start a new session ─────────────────────────────
+  // ── POST /training-sessions — start a session, or log a finished one ─────────
+  // Body: { training_id?, trainer_id?, notes? } starts one now. Logging one
+  // after the fact (e.g. from a calendar slot) adds { started_at, ended_at,
+  // sets: [{ training_set_id?, exercise_id?, position?, note?, drops }] }
+  // and returns the full detail; no PR detection for back-dated logs.
   if (req.method === "POST" && !id) {
     const body = await req.json().catch(() => null);
-    const { training_id, trainer_id, notes } = body ?? {};
+    const { training_id, trainer_id, notes, started_at, ended_at, sets } = body ?? {};
+
+    const startedAt = started_at == null ? null : parseInstant(started_at);
+    const endedAt = ended_at == null ? null : parseInstant(ended_at);
+    if (started_at != null && !startedAt) return jsonError("started_at must be an ISO timestamp", 400);
+    if (ended_at != null && !endedAt) return jsonError("ended_at must be an ISO timestamp", 400);
+    if (startedAt && startedAt.getTime() > Date.now() + 5 * 60_000) {
+      return jsonError("started_at can't be in the future", 400);
+    }
+    if (endedAt && endedAt.getTime() < (startedAt ?? new Date()).getTime()) {
+      return jsonError("ended_at must be after started_at", 400);
+    }
+    if (sets !== undefined && !Array.isArray(sets)) return jsonError("sets must be an array", 400);
+    const setPayloads = (sets ?? []) as SetPayload[];
+    if (setPayloads.some((s) => !s || typeof s !== "object" || (!s.training_set_id && !s.exercise_id))) {
+      return jsonError("Each set needs a training_set_id or an exercise_id", 400);
+    }
 
     if (trainer_id) {
       const [trainer, employeeTrainer] = await Promise.all([
@@ -352,15 +401,46 @@ async function handler(req: Request): Promise<Response> {
       training_id: training_id ?? null,
       trainer_id: trainer_id ?? null,
       notes: notes ?? null,
+      ...(startedAt && { started_at: startedAt.toISOString() }),
+      ...(endedAt && { ended_at: endedAt.toISOString() }),
     };
 
-    const session = await db
-      .insertInto("training_session")
-      .values(insert)
-      .returning(SESSION_COLS)
-      .executeTakeFirstOrThrow();
+    if (!startedAt && !endedAt && !setPayloads.length) {
+      const session = await db
+        .insertInto("training_session")
+        .values(insert)
+        .returning(SESSION_COLS)
+        .executeTakeFirstOrThrow();
+      return json({ ...session, comment_count: 0 }, 201);
+    }
 
-    return json({ ...session, comment_count: 0 }, 201);
+    const sessionId = await db.transaction().execute(async (trx) => {
+      const session = await trx
+        .insertInto("training_session")
+        .values(insert)
+        .returning(["id"])
+        .executeTakeFirstOrThrow();
+      for (const [i, s] of setPayloads.entries()) {
+        const setLogInsert: SessionSetLogInsert = {
+          session_id: session.id,
+          training_set_id: s.training_set_id ?? null,
+          exercise_id: s.exercise_id ?? null,
+          position: s.position ?? i,
+          note: s.note ?? null,
+        };
+        const setLog = await trx
+          .insertInto("session_set_log")
+          .values(setLogInsert)
+          .returning(["id"])
+          .executeTakeFirstOrThrow();
+        if (Array.isArray(s.drops) && s.drops.length) {
+          await trx.insertInto("session_drop_log").values(toDropInserts(setLog.id, s.drops)).execute();
+        }
+      }
+      return session.id;
+    });
+
+    return json(await fetchSessionDetail(sessionId), 201);
   }
 
   // ── PUT /training-sessions/:id — update session (end time, notes) ─────────────
@@ -384,7 +464,7 @@ async function handler(req: Request): Promise<Response> {
       .updateTable("training_session")
       .set(update)
       .where("id", "=", id)
-      .returning([...SESSION_COLS, COMMENT_COUNT, TRAINER_NAME])
+      .returning([...SESSION_COLS, COMMENT_COUNT, TRAINER_NAME, TRAINING_NAME])
       .executeTakeFirst();
 
     return json(updated);

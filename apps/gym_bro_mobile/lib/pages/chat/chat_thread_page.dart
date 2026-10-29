@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../l10n/l10n.dart';
+import '../../media_editor/editable_media.dart';
 import '../../models/chat.dart';
 import '../../models/people.dart';
 import '../../models/reaction.dart';
@@ -25,11 +26,18 @@ import 'shared_media_page.dart';
 /// A message being sent: its files, per-file progress and the storage paths
 /// already uploaded (so a retry only re-sends what's missing).
 class _Outgoing {
-  _Outgoing({required this.clientId, this.body, required this.files, this.replyToId})
-    : progress = ValueNotifier(List<double>.filled(files.length, 0));
+  _Outgoing({required this.clientId, this.body, required this.media, this.replyToId})
+    : files = [for (final m in media) m.original],
+      progress = ValueNotifier(List<double>.filled(media.length, 0));
 
   final String clientId;
   final String? body;
+
+  /// What was picked, with its edits.
+  final List<EditableMedia> media;
+
+  /// The files to show and upload: the originals, swapped for edited
+  /// copies once those are rendered.
   final List<PickedMedia> files;
   final String? replyToId;
   final ValueNotifier<List<double>> progress;
@@ -69,7 +77,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
   final _readAt = <String, DateTime>{};
   final _keys = <String, GlobalKey>{};
   final _expanded = <String>{};
-  List<PickedMedia> _files = const [];
+  List<EditableMedia> _files = const [];
   ChatMessage? _replyTo;
   ChatMessage? _editing;
   String? _highlightId;
@@ -428,7 +436,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
     if (text.isEmpty && _files.isEmpty) return;
     final clientId = newChatClientId();
     final reply = _replyTo;
-    final out = _Outgoing(clientId: clientId, body: text.isEmpty ? null : text, files: List.of(_files), replyToId: reply?.id);
+    final out = _Outgoing(clientId: clientId, body: text.isEmpty ? null : text, media: List.of(_files), replyToId: reply?.id);
     _outgoing[clientId] = out;
     final optimistic = ChatMessage(
       id: 'local-$clientId',
@@ -468,8 +476,9 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
       var token = await AuthManager.instance.getValidToken();
       final attachments = <OutgoingAttachment>[];
       for (var i = 0; i < out.files.length; i++) {
-        final f = out.files[i];
         var path = out.paths[i];
+        if (path == null) out.files[i] = await out.media[i].export();
+        final f = out.files[i];
         if (path == null) {
           final slot = await _api.requestChatUpload(token, _id, mimeType: f.mimeType, sizeBytes: f.sizeBytes, fileName: f.fileName);
           await uploadFileToSlot(slot, f, onProgress: (p) {

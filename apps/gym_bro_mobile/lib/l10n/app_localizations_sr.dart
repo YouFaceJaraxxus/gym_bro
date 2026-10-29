@@ -1646,6 +1646,47 @@ class AppLocalizationsSr extends AppLocalizations {
   String get businessShopYourCart => 'Tvoja korpa';
 
   @override
+  String get calendarCancelled => 'Otkazano';
+
+  @override
+  String calendarDayLabel(String day, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stavki',
+      few: '$count stavke',
+      one: '$count stavka',
+      zero: 'ništa zakazano',
+    );
+    return '$day, $_temp0';
+  }
+
+  @override
+  String get calendarDone => 'Završeno';
+
+  @override
+  String get calendarGoToToday => 'Idi na danas';
+
+  @override
+  String calendarNextDay(String range) {
+    return '$range (+1 dan)';
+  }
+
+  @override
+  String get calendarNextWeek => 'Sledeća nedelja';
+
+  @override
+  String get calendarNothingOnDay => 'Ništa ovog dana';
+
+  @override
+  String calendarNow(String time) {
+    return 'Sada, $time';
+  }
+
+  @override
+  String get calendarPreviousWeek => 'Prethodna nedelja';
+
+  @override
   String get chatAccept => 'Prihvati';
 
   @override
@@ -2210,6 +2251,394 @@ class AppLocalizationsSr extends AppLocalizations {
   String get chatYouObject => 'vas';
 
   @override
+  String get classCalendarAccept => 'Prihvati';
+
+  @override
+  String classCalendarBookedOf(int booked, int capacity) {
+    return 'Rezervisano $booked od $capacity';
+  }
+
+  @override
+  String classCalendarDayLabel(String day, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count časova',
+      few: '$count časa',
+      one: '$count čas',
+      zero: 'nema časova',
+    );
+    return '$day, $_temp0';
+  }
+
+  @override
+  String get classCalendarDecline => 'Odbij';
+
+  @override
+  String get classCalendarInviteDeclined => 'Poziv odbijen';
+
+  @override
+  String classCalendarInvites(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count poziva',
+      few: '$count poziva',
+      one: '$count poziv',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String classCalendarJoined(String title) {
+    return 'Upisan/a si: $title. Termini su u tvom rasporedu.';
+  }
+
+  @override
+  String get classCalendarNothingOnDay => 'Nema časova ovog dana';
+
+  @override
+  String get classCalendarOnlyMine => 'Samo moji';
+
+  @override
+  String classCalendarTrainerAccepted(String name) {
+    return '$name je sada tvoj trener';
+  }
+
+  @override
+  String classCalendarTrainerInvite(String name) {
+    return '$name želi da te trenira';
+  }
+
+  @override
+  String get classCalendarTrainerInviteHint =>
+      'Prihvati da bi mogao/la da ti planira časove i treninge.';
+
+  @override
+  String classCalendarWaitlistShort(int count) {
+    return '+$count čeka';
+  }
+
+  @override
+  String get classSeriesActive => 'Aktivan';
+
+  @override
+  String get classSeriesActiveHint => 'Novi termini se stalno dodaju.';
+
+  @override
+  String get classSeriesAddTime => 'Dodaj vreme';
+
+  @override
+  String get classSeriesCancelInvite => 'Otkaži poziv';
+
+  @override
+  String get classSeriesCancelInviteMessage => 'Više neće moći da ga prihvate.';
+
+  @override
+  String classSeriesCancelInviteTitle(String name) {
+    return 'Otkazati poziv za: $name?';
+  }
+
+  @override
+  String get classSeriesCapacity => 'Mesta po terminu';
+
+  @override
+  String get classSeriesCapacityInvalid => 'Između 1 i 1000';
+
+  @override
+  String get classSeriesClearEndDate => 'Ukloni datum završetka';
+
+  @override
+  String get classSeriesCreate => 'Napravi čas';
+
+  @override
+  String get classSeriesCreateOne => 'Napravi čas';
+
+  @override
+  String get classSeriesCreated => 'Čas je napravljen';
+
+  @override
+  String get classSeriesDate => 'Datum';
+
+  @override
+  String get classSeriesDescription => 'Opis (opciono)';
+
+  @override
+  String classSeriesDoneCount(int count) {
+    return 'Održano: $count';
+  }
+
+  @override
+  String get classSeriesDuration => 'Trajanje (minuti)';
+
+  @override
+  String get classSeriesDurationInvalid => 'Između 5 i 1440 minuta';
+
+  @override
+  String get classSeriesEdit => 'Izmeni čas';
+
+  @override
+  String get classSeriesEmptyMessage =>
+      'Napravi čas sa rasporedom. Njegovi termini se pojavljuju u tvom kalendaru 90 dana unapred.';
+
+  @override
+  String get classSeriesEmptyTitle => 'Još nema časova';
+
+  @override
+  String get classSeriesEndBeforeStart =>
+      'Datum završetka ne može biti pre početka';
+
+  @override
+  String get classSeriesEnds => 'Završava se';
+
+  @override
+  String get classSeriesEveryDay => 'Svaki dan';
+
+  @override
+  String get classSeriesGym => 'Teretana';
+
+  @override
+  String classSeriesInClass(int count) {
+    return 'U času: $count';
+  }
+
+  @override
+  String get classSeriesInvite => 'Pozovi';
+
+  @override
+  String get classSeriesInviteAgain => 'Pozovi ponovo';
+
+  @override
+  String get classSeriesInviteHint =>
+      'Kad prihvate poziv, svi termini im se pojavljuju u rasporedu.';
+
+  @override
+  String classSeriesInviteSent(String name) {
+    return 'Poziv je poslat: $name';
+  }
+
+  @override
+  String classSeriesInviteTitle(String title) {
+    return 'Poziv na čas $title';
+  }
+
+  @override
+  String classSeriesInvitedCount(int count) {
+    return 'Pozvano: $count';
+  }
+
+  @override
+  String get classSeriesLocation => 'Mesto (opciono)';
+
+  @override
+  String get classSeriesLocationHint => 'npr. Sala A';
+
+  @override
+  String get classSeriesMore => 'Još';
+
+  @override
+  String classSeriesNameYou(String name) {
+    return '$name (ti)';
+  }
+
+  @override
+  String get classSeriesNew => 'Novi čas';
+
+  @override
+  String classSeriesNext(String when) {
+    return 'Sledeći: $when';
+  }
+
+  @override
+  String get classSeriesNoEndDate => 'Bez datuma završetka';
+
+  @override
+  String get classSeriesNoEndDateHint =>
+      'Traje dok ga ne zaustaviš. Termini se pojavljuju 90 dana unapred.';
+
+  @override
+  String get classSeriesNoGyms => 'Nema teretana u kojima treniraš';
+
+  @override
+  String get classSeriesNoGymsMessage =>
+      'Kada te teretana doda kao trenera, moći ćeš tamo da praviš časove.';
+
+  @override
+  String get classSeriesNoPeople =>
+      'Još nikoga. Pozovi svoje klijente, pratioce ili članove teretane.';
+
+  @override
+  String get classSeriesNoSessionsSoon => 'Nema termina u naredne dve nedelje.';
+
+  @override
+  String get classSeriesNoTrainer => 'Bez trenera';
+
+  @override
+  String get classSeriesNoUpcoming => 'Nema predstojećih termina';
+
+  @override
+  String classSeriesOnceOn(String date) {
+    return 'Jednom, $date';
+  }
+
+  @override
+  String get classSeriesOpenTimetable => 'Raspored časa';
+
+  @override
+  String get classSeriesOpenTimetableHint => 'Svi termini, osobe i pozivi';
+
+  @override
+  String get classSeriesPause => 'Pauziraj';
+
+  @override
+  String get classSeriesPauseMessage =>
+      'Predstojeći termini se otkazuju, a prijavljene osobe dobijaju obaveštenje. Kad ga ponovo pokreneš, termini se vraćaju.';
+
+  @override
+  String get classSeriesPauseTitle => 'Pauzirati ovaj čas?';
+
+  @override
+  String get classSeriesPausedDone => 'Čas je pauziran';
+
+  @override
+  String get classSeriesPausedHint => 'Dok je pauziran, nema termina.';
+
+  @override
+  String get classSeriesPeople => 'Osobe';
+
+  @override
+  String get classSeriesPickWeekday => 'Izaberi bar jedan dan';
+
+  @override
+  String get classSeriesRemove => 'Ukloni sa časa';
+
+  @override
+  String get classSeriesRemoveMessage =>
+      'Njihovi predstojeći termini ovog časa se otkazuju.';
+
+  @override
+  String classSeriesRemoveTime(String time) {
+    return 'Ukloni $time';
+  }
+
+  @override
+  String classSeriesRemoveTitle(String name) {
+    return 'Ukloniti: $name?';
+  }
+
+  @override
+  String classSeriesRemoved(String name) {
+    return 'Uklonjeno: $name';
+  }
+
+  @override
+  String get classSeriesRepeat => 'Ponavljanje';
+
+  @override
+  String get classSeriesRepeatDaily => 'Dnevno';
+
+  @override
+  String get classSeriesRepeatOnce => 'Jednom';
+
+  @override
+  String get classSeriesRepeatWeekly => 'Nedeljno';
+
+  @override
+  String get classSeriesResumedDone => 'Čas je ponovo aktivan';
+
+  @override
+  String get classSeriesSave => 'Sačuvaj';
+
+  @override
+  String get classSeriesSaved => 'Čas je izmenjen';
+
+  @override
+  String get classSeriesSetEndDate => 'Postavi datum završetka';
+
+  @override
+  String classSeriesSpots(int count) {
+    return 'Mesta po terminu: $count';
+  }
+
+  @override
+  String get classSeriesStarts => 'Počinje';
+
+  @override
+  String get classSeriesStateActive => 'Aktivan';
+
+  @override
+  String get classSeriesStateEnded => 'Završen';
+
+  @override
+  String get classSeriesStatePaused => 'Pauziran';
+
+  @override
+  String get classSeriesStatusAccepted => 'U času';
+
+  @override
+  String get classSeriesStatusDeclined => 'Odbio/la';
+
+  @override
+  String get classSeriesStatusPending => 'Pozvan/a';
+
+  @override
+  String get classSeriesTimes => 'Vremena početka';
+
+  @override
+  String get classSeriesTimesHint =>
+      'Dodaj svako vreme kada se čas održava tokom dana.';
+
+  @override
+  String get classSeriesTimesMax => 'Najviše 12 vremena početka dnevno';
+
+  @override
+  String get classSeriesTimesRequired => 'Dodaj bar jedno vreme početka';
+
+  @override
+  String get classSeriesTimetable => 'Raspored';
+
+  @override
+  String get classSeriesTimetableChangeConfirm => 'Promeni';
+
+  @override
+  String get classSeriesTimetableChangeMessage =>
+      'Predstojeći termini koji se više ne uklapaju se otkazuju, a prijavljene osobe dobijaju obaveštenje. Novi termini se dodaju svima u času.';
+
+  @override
+  String get classSeriesTimetableChangeTitle => 'Promeniti raspored?';
+
+  @override
+  String classSeriesTimezone(String zone) {
+    return 'Vremena su po zoni $zone';
+  }
+
+  @override
+  String get classSeriesTitle => 'Naziv';
+
+  @override
+  String get classSeriesTitleHint => 'npr. Jutarnji HIIT';
+
+  @override
+  String get classSeriesTitleRequired => 'Daj času naziv';
+
+  @override
+  String get classSeriesTrainer => 'Trener';
+
+  @override
+  String classSeriesUpcomingCount(int count) {
+    return 'Predstoji: $count';
+  }
+
+  @override
+  String get classSeriesUpcomingSessions => 'Predstojeći termini';
+
+  @override
+  String get classSeriesWeekdays => 'Ovim danima';
+
+  @override
+  String get classSeriesYou => 'Ti';
+
+  @override
   String get commonBack => 'Nazad';
 
   @override
@@ -2256,6 +2685,239 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get commonYes => 'Da';
+
+  @override
+  String get customersAdd => 'Dodaj klijenta';
+
+  @override
+  String get customersAddPickerHint =>
+      'Tvoji pratioci, članovi teretana u kojima treniraš i osobe koje si ranije pozvao/la.';
+
+  @override
+  String get customersAddPickerTitle => 'Dodaj klijenta';
+
+  @override
+  String customersAdded(String name) {
+    return '$name je pozvan/a da ti bude klijent';
+  }
+
+  @override
+  String get customersCancelInvite => 'Otkaži poziv';
+
+  @override
+  String get customersChooseClassesHint =>
+      'Nije obavezno. Svaki poziv na čas prihvataju sami, a ovo možeš kasnije da promeniš.';
+
+  @override
+  String customersChooseClassesTitle(String name) {
+    return 'Pozovi $name na časove?';
+  }
+
+  @override
+  String get customersClassDeclined => 'Odbio/la';
+
+  @override
+  String get customersClassIn => 'Na času';
+
+  @override
+  String get customersClassInvited => 'Pozvan/a';
+
+  @override
+  String get customersClassPaused => 'Pauziran';
+
+  @override
+  String get customersEmptyMessage =>
+      'Dodaj svoje pratioce ili članove teretana u kojima treniraš. Svako koga pozoveš na čas pojaviće se i ovde.';
+
+  @override
+  String get customersEmptyTitle => 'Još nema klijenata';
+
+  @override
+  String get customersInvite => 'Pozovi';
+
+  @override
+  String get customersInviteCancelled => 'Poziv je otkazan';
+
+  @override
+  String customersInviteToClasses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pozovi na $count časova',
+      few: 'Pozovi na $count časa',
+      one: 'Pozovi na 1 čas',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get customersInvited => 'Poziv je poslat';
+
+  @override
+  String get customersJustAdd => 'Samo dodaj';
+
+  @override
+  String get customersNoActiveClasses =>
+      'Još nemaš aktivnih časova na koje možeš da ih pozoveš.';
+
+  @override
+  String get customersNoClasses =>
+      'Još ne vodiš nijedan čas. Napravi ga na kartici Časovi.';
+
+  @override
+  String get customersNoMatches => 'Nijedan klijent ne odgovara pretrazi';
+
+  @override
+  String get customersNotFound => 'Ova osoba više nije tvoj klijent.';
+
+  @override
+  String get customersNotInClass => 'Nije na ovom času';
+
+  @override
+  String get customersProgress => 'Napredak';
+
+  @override
+  String get customersProgressLocked => 'Dostupno kada prihvate tvoj poziv';
+
+  @override
+  String get customersProgressSubtitle => 'Treninzi, dizanja i mere tela';
+
+  @override
+  String get customersRemove => 'Ukloni';
+
+  @override
+  String get customersRemoveCustomer => 'Ukloni klijenta';
+
+  @override
+  String get customersRemoveCustomerMessage =>
+      'Biće uklonjen/a i sa tvojih časova, a predstojeći termini se otkazuju. Više nećeš moći da vidiš njihov napredak.';
+
+  @override
+  String customersRemoveCustomerTitle(String name) {
+    return 'Ukloniti $name?';
+  }
+
+  @override
+  String get customersRemoveFromClass => 'Ukloni sa časa';
+
+  @override
+  String get customersRemoveFromClassMessage =>
+      'Njihovi predstojeći termini ovog časa se otkazuju i dobijaju obaveštenje o tome.';
+
+  @override
+  String customersRemoveFromClassTitle(String title) {
+    return 'Ukloniti sa časa $title?';
+  }
+
+  @override
+  String get customersRemoved => 'Klijent je uklonjen';
+
+  @override
+  String get customersRemovedFromClass => 'Uklonjen/a sa časa';
+
+  @override
+  String get customersSearch => 'Pretraži klijente';
+
+  @override
+  String get customersStatusAccepted => 'Klijent';
+
+  @override
+  String get customersStatusPending => 'Poziv na čekanju';
+
+  @override
+  String get customersViewProfile => 'Pogledaj profil';
+
+  @override
+  String get customersYourClasses => 'Tvoji časovi';
+
+  @override
+  String get draftBadge => 'Nacrt';
+
+  @override
+  String get draftChooseSubtitle => 'Nastavi nacrt ili počni ispočetka.';
+
+  @override
+  String get draftChooseTitle => 'Tvoji nacrti';
+
+  @override
+  String get draftDelete => 'Obriši nacrt';
+
+  @override
+  String get draftDeleteTitle => 'Obrisati ovaj nacrt?';
+
+  @override
+  String get draftDeleted => 'Nacrt je obrisan';
+
+  @override
+  String get draftDiscard => 'Odbaci';
+
+  @override
+  String get draftDiscardChanges => 'Odbaci izmene';
+
+  @override
+  String draftEdited(String when) {
+    return 'Izmenjeno $when';
+  }
+
+  @override
+  String get draftEditingBanner =>
+      'Uređuješ nacrt. Kada ga objaviš, nacrt se briše.';
+
+  @override
+  String get draftKeepEditing => 'Nastavi uređivanje';
+
+  @override
+  String draftMediaCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fotografija i videa',
+      few: '$count fotografije i videa',
+      one: '1 fotografija ili video',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String draftOpenFailed(String error) {
+    return 'Nacrt nije otvoren: $error';
+  }
+
+  @override
+  String get draftOpening => 'Otvaranje nacrta…';
+
+  @override
+  String get draftSave => 'Sačuvaj nacrt';
+
+  @override
+  String get draftSaveBody =>
+      'Nastavi kasnije tamo gde si stao. Nacrti su privatni — samo ih ti vidiš.';
+
+  @override
+  String get draftSaveChanges => 'Sačuvaj izmene';
+
+  @override
+  String draftSaveFailed(String error) {
+    return 'Nacrt nije sačuvan: $error';
+  }
+
+  @override
+  String get draftSaveTitle => 'Sačuvati kao nacrt?';
+
+  @override
+  String get draftSaved => 'Nacrt je sačuvan';
+
+  @override
+  String get draftSaving => 'Čuvanje nacrta…';
+
+  @override
+  String get draftStartNew => 'Počni novo';
+
+  @override
+  String get draftUntitled => 'Nacrt bez naslova';
+
+  @override
+  String get draftUpdateTitle => 'Sačuvati izmene nacrta?';
 
   @override
   String get feedAddMedia => 'Dodaj fotografije ili video';
@@ -2501,6 +3163,157 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get feedWriteReplyHint => 'Napiši odgovor…';
+
+  @override
+  String get mediaAdjustBrightness => 'Osvetljenost';
+
+  @override
+  String get mediaAdjustContrast => 'Kontrast';
+
+  @override
+  String get mediaAdjustFade => 'Izbledelost';
+
+  @override
+  String get mediaAdjustSaturation => 'Zasićenost';
+
+  @override
+  String get mediaAdjustTint => 'Nijansa';
+
+  @override
+  String get mediaAdjustVignette => 'Vinjeta';
+
+  @override
+  String get mediaAdjustWarmth => 'Toplina';
+
+  @override
+  String get mediaBackToTools => 'Nazad na alate';
+
+  @override
+  String mediaBatchNote(int count) {
+    return 'Filteri i podešavanja ovde važe za svih $count stavki i zamenjuju njihove sopstvene. Video snimci se skraćuju pojedinačno.';
+  }
+
+  @override
+  String get mediaCantEdit => 'Ovaj fajl ne može da se menja.';
+
+  @override
+  String get mediaDone => 'Gotovo';
+
+  @override
+  String get mediaEdit => 'Izmeni';
+
+  @override
+  String get mediaEditAll => 'Izmeni sve';
+
+  @override
+  String mediaEditAllTitle(int count) {
+    return 'Izmeni sve ($count)';
+  }
+
+  @override
+  String get mediaEditFailed =>
+      'Izmene nisu primenjene. Pokušaj ponovo ili ih resetuj.';
+
+  @override
+  String mediaEditItem(int index) {
+    return 'Izmeni stavku $index';
+  }
+
+  @override
+  String get mediaEditTitle => 'Izmeni';
+
+  @override
+  String get mediaEdited => 'Izmenjeno';
+
+  @override
+  String get mediaFilterArctic => 'Arktik';
+
+  @override
+  String get mediaFilterDramatic => 'Dramatično';
+
+  @override
+  String get mediaFilterGolden => 'Zlatno';
+
+  @override
+  String get mediaFilterMatte => 'Mat';
+
+  @override
+  String get mediaFilterMono => 'Mono';
+
+  @override
+  String get mediaFilterNoir => 'Noar';
+
+  @override
+  String get mediaFilterNormal => 'Normalno';
+
+  @override
+  String get mediaFilterPunch => 'Snažno';
+
+  @override
+  String get mediaFilterRose => 'Roze';
+
+  @override
+  String get mediaFilterSepia => 'Sepija';
+
+  @override
+  String get mediaFilterStrength => 'Jačina';
+
+  @override
+  String get mediaFilterVintage => 'Vintidž';
+
+  @override
+  String get mediaFilterVivid => 'Živo';
+
+  @override
+  String get mediaHoldToCompare => 'Pritisni i drži da vidiš original';
+
+  @override
+  String get mediaOriginal => 'Original';
+
+  @override
+  String mediaProcessing(int index, int count) {
+    return 'Primena izmena $index od $count…';
+  }
+
+  @override
+  String get mediaReset => 'Resetuj';
+
+  @override
+  String get mediaResetAll => 'Resetuj sve izmene';
+
+  @override
+  String get mediaTabAdjust => 'Podešavanja';
+
+  @override
+  String get mediaTabFilter => 'Filter';
+
+  @override
+  String get mediaTabTrim => 'Skrati';
+
+  @override
+  String get mediaTrimEnd => 'Kraj isečka';
+
+  @override
+  String get mediaTrimPickVideo => 'Izaberi video za skraćivanje';
+
+  @override
+  String get mediaTrimStart => 'Početak isečka';
+
+  @override
+  String mediaTrimSummary(String start, String end, String length) {
+    return '$start – $end · $length';
+  }
+
+  @override
+  String get mediaTrimWindow => 'Isečak, prevuci da ga pomeriš';
+
+  @override
+  String get mediaUndo => 'Poništi';
+
+  @override
+  String mediaVideoNumber(int index) {
+    return 'Video $index';
+  }
 
   @override
   String get nutritionAdd => 'Dodaj';
@@ -4235,6 +5048,21 @@ class AppLocalizationsSr extends AppLocalizations {
       'Trenutno nema predloga. Prijavi se u teretani ili dodaj interesovanja na profil za bolje predloge.';
 
   @override
+  String get peopleNonFollowerMessages => 'Poruke od osoba koje te ne prate';
+
+  @override
+  String get peopleNonFollowerMessagesOff =>
+      'Samo pratioci koje si odobrio/la mogu da ti pišu.';
+
+  @override
+  String get peopleNonFollowerMessagesPrivate =>
+      'Osobe koje nisi odobrio/la kao pratioce mogu da ti pošalju zahtev za poruku.';
+
+  @override
+  String get peopleNonFollowerMessagesPublic =>
+      'Osobe koje te ne prate mogu direktno da ti pišu.';
+
+  @override
   String get peoplePosts => 'Objave';
 
   @override
@@ -4460,22 +5288,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get peopleViewProfile => 'Pogledaj profil';
-
-  @override
-  String get peopleWhoCanMessage => 'Ko može da mi piše';
-
-  @override
-  String get peopleWhoCanMessageHint =>
-      'Poruke svih ostalih stižu u zahteve za poruke.';
-
-  @override
-  String get peopleWhoEveryone => 'Svi';
-
-  @override
-  String get peopleWhoFollowing => 'Osobe koje pratim';
-
-  @override
-  String get peopleWhoFriends => 'Prijatelji';
 
   @override
   String get reactionAngry => 'Ljuto';
@@ -4742,11 +5554,6 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
-  String shellHey(String name) {
-    return 'Ćao, $name!';
-  }
-
-  @override
   String get shellHidePassword => 'Sakrij lozinku';
 
   @override
@@ -4957,17 +5764,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellMembersYouCoach => 'Članovi koje treniraš';
 
   @override
-  String get shellMembershipActive => 'Aktivna';
-
-  @override
-  String get shellMembershipLoadFailed => 'Učitavanje članarine nije uspelo';
-
-  @override
-  String shellMembershipValidUntil(String type, String date) {
-    return '$type · važi do $date';
-  }
-
-  @override
   String get shellMuteBilling => 'Plaćanja';
 
   @override
@@ -5029,6 +5825,9 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellMyMembership => 'Moja članarina';
 
   @override
+  String get shellMyMembershipSubtitle => 'Plan, plaćanje i računi';
+
+  @override
   String get shellMyOrders => 'Moje porudžbine';
 
   @override
@@ -5051,9 +5850,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellNoAccountSignUp => 'Nemaš nalog? Registruj se';
-
-  @override
-  String get shellNoActiveMembership => 'Nemaš aktivnu članarinu';
 
   @override
   String get shellNoBusinesses => 'Još nema biznisa';
@@ -5083,9 +5879,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellNoUsersFound => 'Nema pronađenih korisnika';
-
-  @override
-  String get shellNoneScheduled => 'Ništa nije zakazano';
 
   @override
   String get shellNotAVendor => 'Još nisi prodavac ni u jednoj prodavnici';
@@ -5124,10 +5917,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellOwnerAllInvoices => 'Sve fakture';
-
-  @override
-  String get shellOwnerNoGyms =>
-      'Još nemaš nijednu teretanu — dodaj je na kartici Biznisi.';
 
   @override
   String get shellPasswordChanged => 'Lozinka je promenjena';
@@ -5219,9 +6008,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellSendResetLink => 'Pošalji link za resetovanje';
-
-  @override
-  String get shellSessionInProgress => 'Trening u toku';
 
   @override
   String shellSessionStartedInProgress(String time) {
@@ -5457,16 +6243,10 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
-  String get shellUnavailable => 'Nedostupno';
-
-  @override
   String get shellUnitKilograms => 'Kilogrami';
 
   @override
   String get shellUnitPounds => 'Funte';
-
-  @override
-  String get shellUpcomingClasses => 'Predstojeći časovi';
 
   @override
   String get shellUserSearchAdd => 'Dodaj';
@@ -5488,21 +6268,10 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
-  String shellWelcomeBack(String name) {
-    return 'Dobro došao nazad, $name';
-  }
-
-  @override
   String get shellYourGym => 'Tvoja teretana';
 
   @override
   String get shellYourGyms => 'Tvoje teretane';
-
-  @override
-  String get shellYourShop => 'Tvoja prodavnica';
-
-  @override
-  String get shellYourShops => 'Tvoje prodavnice';
 
   @override
   String socialActiveAgo(String when) {
@@ -5543,6 +6312,35 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get socialUploadFailed => 'Otpremanje nije uspelo. Pokušajte ponovo.';
+
+  @override
+  String get trainerClassesPickerCustomer => 'Klijent';
+
+  @override
+  String get trainerClassesPickerCustomerPending => 'Poziv na čekanju';
+
+  @override
+  String get trainerClassesPickerEmpty =>
+      'Nema nikoga. Možeš da dodaš svoje pratioce, članove teretana u kojima treniraš i svoje klijente.';
+
+  @override
+  String get trainerClassesPickerFollower => 'Prati te';
+
+  @override
+  String get trainerClassesPickerMember => 'Član';
+
+  @override
+  String get trainerClassesPickerSearch =>
+      'Pretraži po imenu ili korisničkom imenu';
+
+  @override
+  String get trainerClassesTabCalendar => 'Kalendar';
+
+  @override
+  String get trainerClassesTabClasses => 'Časovi';
+
+  @override
+  String get trainerClassesTabCustomers => 'Klijenti';
 
   @override
   String get trainingAssignAction => 'Dodeli';
@@ -5668,6 +6466,34 @@ class AppLocalizationsSr extends AppLocalizations {
   String get trainingClassAbout => 'O času';
 
   @override
+  String get trainingClassAdd => 'Dodaj';
+
+  @override
+  String get trainingClassAddPeople => 'Dodaj osobe';
+
+  @override
+  String get trainingClassAddPeopleEmpty =>
+      'Nema nikoga. Osoba mora biti član ove teretane ili da te prati.';
+
+  @override
+  String get trainingClassAddPeopleHint =>
+      'Članovi ove teretane i osobe koje te prate.';
+
+  @override
+  String get trainingClassAddPeopleSearch =>
+      'Pretraži po imenu ili korisničkom imenu';
+
+  @override
+  String trainingClassAddedPerson(String name) {
+    return 'Dodato: $name';
+  }
+
+  @override
+  String trainingClassAddedToWaitlist(String name) {
+    return 'Na listi čekanja: $name';
+  }
+
+  @override
   String get trainingClassApplyToSeries => 'Primeni na ovaj i buduće časove';
 
   @override
@@ -5706,9 +6532,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get trainingClassBookingCancelled => 'Rezervacija je otkazana';
-
-  @override
-  String get trainingClassBrowse => 'Pregledaj časove';
 
   @override
   String get trainingClassCancelBooking => 'Otkaži rezervaciju';
@@ -5842,9 +6665,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get trainingClassJoinWaitlist => 'Na listu čekanja';
 
   @override
-  String get trainingClassJumpToNext => 'Idi na sledeći čas';
-
-  @override
   String get trainingClassKeep => 'Zadrži';
 
   @override
@@ -5880,14 +6700,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get trainingClassMore => 'Još';
 
   @override
-  String get trainingClassMyBookings => 'Moje rezervacije';
-
-  @override
-  String trainingClassMyBookingsCount(int count) {
-    return 'Moje rezervacije ($count)';
-  }
-
-  @override
   String get trainingClassMyClasses => 'Moji časovi';
 
   @override
@@ -5897,18 +6709,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get trainingClassNew => 'Novi čas';
-
-  @override
-  String trainingClassNextClass(String title, String day, String time) {
-    return 'Sledeći čas: $title, $day u $time.';
-  }
-
-  @override
-  String get trainingClassNoBookings => 'Još nemaš rezervacija';
-
-  @override
-  String get trainingClassNoBookingsMessage =>
-      'Ovde se prikazuju časovi koje rezervišeš ili za koje si na listi čekanja.';
 
   @override
   String get trainingClassNoBookingsYet => 'Još niko nije rezervisao';
@@ -5945,13 +6745,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get trainingClassNobodyBooked => 'Još niko nije rezervisao.';
 
   @override
-  String get trainingClassNoneScheduled => 'Nema zakazanih časova';
-
-  @override
-  String get trainingClassNoneScheduledMessage =>
-      'Tvoje teretane nisu zakazale časove za naredne dve nedelje. Proveri ponovo uskoro.';
-
-  @override
   String get trainingClassNoneThisWeek => 'Nema časova ove nedelje';
 
   @override
@@ -5966,11 +6759,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get trainingClassNotSignedIn => 'Nisi prijavljen/a';
 
   @override
-  String trainingClassNothingOn(String day) {
-    return 'Nema časova — $day';
-  }
-
-  @override
   String get trainingClassNotifyOnChange =>
       'Oni koji su rezervisali biće obavešteni ako se promeni vreme ili lokacija.';
 
@@ -5981,7 +6769,10 @@ class AppLocalizationsSr extends AppLocalizations {
   String get trainingClassPast => 'Prošli';
 
   @override
-  String get trainingClassRefresh => 'Osveži';
+  String get trainingClassPersonFollower => 'Prati te';
+
+  @override
+  String get trainingClassPersonMember => 'Član';
 
   @override
   String get trainingClassRemove => 'Ukloni';
@@ -7603,6 +8394,192 @@ class AppLocalizationsSr extends AppLocalizations {
   @override
   String get trainingWorkoutsToMeEmpty =>
       'Još ti nije dodeljen nijedan program.\nOvde se prikazuju programi koje ti dodeli trener.';
+
+  @override
+  String get workoutLogAddExercise => 'Dodaj vežbu';
+
+  @override
+  String get workoutLogAddToTrainings => 'Dodaj u treninge';
+
+  @override
+  String get workoutLogAddToTrainingsMessage =>
+      'Sačuvaj ove vežbe, serije i težine kao trening da bi ga sledeći put upisao/la ili započeo/la jednim dodirom.';
+
+  @override
+  String get workoutLogAddToTrainingsTitle => 'Dodati u tvoje treninge?';
+
+  @override
+  String get workoutLogCalendarDone => 'Trening';
+
+  @override
+  String workoutLogCalendarSemantics(String title) {
+    return 'Trening: $title';
+  }
+
+  @override
+  String get workoutLogChooseTraining => 'Izaberi trening (nije obavezno)';
+
+  @override
+  String get workoutLogClearTraining => 'Bez treninga';
+
+  @override
+  String get workoutLogDate => 'Datum';
+
+  @override
+  String get workoutLogDuration => 'Trajanje';
+
+  @override
+  String get workoutLogExercises => 'Vežbe';
+
+  @override
+  String get workoutLogFutureError =>
+      'Vreme početka ne može biti u budućnosti.';
+
+  @override
+  String get workoutLogFutureSlot => 'Trening možeš da upišeš kad počne.';
+
+  @override
+  String workoutLogMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get workoutLogMissingRepsError =>
+      'Unesi broj ponavljanja za svaku seriju ili je prebaci na otkaz.';
+
+  @override
+  String get workoutLogNoExercisesError => 'Dodaj bar jednu vežbu.';
+
+  @override
+  String get workoutLogNoExercisesHint =>
+      'Dodaj vežbe koje si radio/la ili izaberi trening iznad.';
+
+  @override
+  String get workoutLogNotNow => 'Ne sada';
+
+  @override
+  String get workoutLogPickTraining => 'Šta si trenirao/la?';
+
+  @override
+  String get workoutLogRemoveSet => 'Ukloni ovu seriju';
+
+  @override
+  String get workoutLogRepeatSet => 'Ponovi ovu seriju';
+
+  @override
+  String get workoutLogReplace => 'Zameni';
+
+  @override
+  String workoutLogReplaceMessage(String name) {
+    return 'Vežbe koje si uneo/la biće zamenjene vežbama iz treninga $name.';
+  }
+
+  @override
+  String get workoutLogReplaceTitle => 'Zameniti vežbe?';
+
+  @override
+  String get workoutLogReps => 'Ponavljanja';
+
+  @override
+  String get workoutLogSaved => 'Trening je upisan';
+
+  @override
+  String get workoutLogScheduleEmptyDay =>
+      'Ništa za ovaj dan. Dodirni sat da upišeš trening.';
+
+  @override
+  String workoutLogSetCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count serija',
+      few: '$count serije',
+      one: '$count serija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String workoutLogSetNumber(int number) {
+    return 'Serija $number';
+  }
+
+  @override
+  String workoutLogSlotLabel(String time) {
+    return '$time, upiši trening';
+  }
+
+  @override
+  String get workoutLogStart => 'Početak';
+
+  @override
+  String get workoutLogTitle => 'Upiši trening';
+
+  @override
+  String get workoutLogTraining => 'Trening';
+
+  @override
+  String get workoutLogTrainingHelper =>
+      'Izaberi trening da popuniš njegove vežbe ili ih dodaj ispod.';
+
+  @override
+  String get workoutPickerAssigned => 'Od tvog trenera';
+
+  @override
+  String workoutPickerLastLogged(String date) {
+    return 'Poslednji put $date';
+  }
+
+  @override
+  String get workoutPickerLibrary => 'Svi treninzi';
+
+  @override
+  String get workoutPickerNoResults => 'Nema pronađenih treninga';
+
+  @override
+  String get workoutPickerRecent => 'Već odrađeni';
+
+  @override
+  String get workoutPickerSearchHint => 'Pretraži treninge';
+
+  @override
+  String workoutTrainingCopyName(String name) {
+    return '$name (kopija)';
+  }
+
+  @override
+  String workoutTrainingCopySaved(String name) {
+    return '„$name” je sačuvan u tvojim treninzima';
+  }
+
+  @override
+  String get workoutTrainingInNoRoutine => 'Nije ni u jednoj tvojoj rutini';
+
+  @override
+  String get workoutTrainingLockedMessage =>
+      'Ovaj trening već ima upisane sesije koje prikazuju njegove vežbe, pa se serije ne mogu menjati. I dalje možeš da menjaš naziv, fotografiju, beleške, vidljivost i rutine.';
+
+  @override
+  String get workoutTrainingNoRoutines => 'Još nisi napravio/la nijednu rutinu';
+
+  @override
+  String get workoutTrainingRoutines => 'Rutine';
+
+  @override
+  String get workoutTrainingRoutinesDone => 'Gotovo';
+
+  @override
+  String get workoutTrainingRoutinesHint =>
+      'Tvoje rutine koje sadrže ovaj trening. U nove se dodaje na kraj; nedelju i dan podesi u rutini.';
+
+  @override
+  String get workoutTrainingRoutinesLoading => 'Učitavanje tvojih rutina…';
+
+  @override
+  String get workoutTrainingRoutinesUnavailable => 'Rutine nije moguće učitati';
+
+  @override
+  String get workoutTrainingSaveAsCopy => 'Sačuvaj kao novi trening';
 }
 
 /// The translations for Serbian, using the Latin script (`sr_Latn`).
@@ -9247,6 +10224,47 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get businessShopYourCart => 'Tvoja korpa';
 
   @override
+  String get calendarCancelled => 'Otkazano';
+
+  @override
+  String calendarDayLabel(String day, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stavki',
+      few: '$count stavke',
+      one: '$count stavka',
+      zero: 'ništa zakazano',
+    );
+    return '$day, $_temp0';
+  }
+
+  @override
+  String get calendarDone => 'Završeno';
+
+  @override
+  String get calendarGoToToday => 'Idi na danas';
+
+  @override
+  String calendarNextDay(String range) {
+    return '$range (+1 dan)';
+  }
+
+  @override
+  String get calendarNextWeek => 'Sledeća nedelja';
+
+  @override
+  String get calendarNothingOnDay => 'Ništa ovog dana';
+
+  @override
+  String calendarNow(String time) {
+    return 'Sada, $time';
+  }
+
+  @override
+  String get calendarPreviousWeek => 'Prethodna nedelja';
+
+  @override
   String get chatAccept => 'Prihvati';
 
   @override
@@ -9811,6 +10829,394 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get chatYouObject => 'vas';
 
   @override
+  String get classCalendarAccept => 'Prihvati';
+
+  @override
+  String classCalendarBookedOf(int booked, int capacity) {
+    return 'Rezervisano $booked od $capacity';
+  }
+
+  @override
+  String classCalendarDayLabel(String day, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count časova',
+      few: '$count časa',
+      one: '$count čas',
+      zero: 'nema časova',
+    );
+    return '$day, $_temp0';
+  }
+
+  @override
+  String get classCalendarDecline => 'Odbij';
+
+  @override
+  String get classCalendarInviteDeclined => 'Poziv odbijen';
+
+  @override
+  String classCalendarInvites(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count poziva',
+      few: '$count poziva',
+      one: '$count poziv',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String classCalendarJoined(String title) {
+    return 'Upisan/a si: $title. Termini su u tvom rasporedu.';
+  }
+
+  @override
+  String get classCalendarNothingOnDay => 'Nema časova ovog dana';
+
+  @override
+  String get classCalendarOnlyMine => 'Samo moji';
+
+  @override
+  String classCalendarTrainerAccepted(String name) {
+    return '$name je sada tvoj trener';
+  }
+
+  @override
+  String classCalendarTrainerInvite(String name) {
+    return '$name želi da te trenira';
+  }
+
+  @override
+  String get classCalendarTrainerInviteHint =>
+      'Prihvati da bi mogao/la da ti planira časove i treninge.';
+
+  @override
+  String classCalendarWaitlistShort(int count) {
+    return '+$count čeka';
+  }
+
+  @override
+  String get classSeriesActive => 'Aktivan';
+
+  @override
+  String get classSeriesActiveHint => 'Novi termini se stalno dodaju.';
+
+  @override
+  String get classSeriesAddTime => 'Dodaj vreme';
+
+  @override
+  String get classSeriesCancelInvite => 'Otkaži poziv';
+
+  @override
+  String get classSeriesCancelInviteMessage => 'Više neće moći da ga prihvate.';
+
+  @override
+  String classSeriesCancelInviteTitle(String name) {
+    return 'Otkazati poziv za: $name?';
+  }
+
+  @override
+  String get classSeriesCapacity => 'Mesta po terminu';
+
+  @override
+  String get classSeriesCapacityInvalid => 'Između 1 i 1000';
+
+  @override
+  String get classSeriesClearEndDate => 'Ukloni datum završetka';
+
+  @override
+  String get classSeriesCreate => 'Napravi čas';
+
+  @override
+  String get classSeriesCreateOne => 'Napravi čas';
+
+  @override
+  String get classSeriesCreated => 'Čas je napravljen';
+
+  @override
+  String get classSeriesDate => 'Datum';
+
+  @override
+  String get classSeriesDescription => 'Opis (opciono)';
+
+  @override
+  String classSeriesDoneCount(int count) {
+    return 'Održano: $count';
+  }
+
+  @override
+  String get classSeriesDuration => 'Trajanje (minuti)';
+
+  @override
+  String get classSeriesDurationInvalid => 'Između 5 i 1440 minuta';
+
+  @override
+  String get classSeriesEdit => 'Izmeni čas';
+
+  @override
+  String get classSeriesEmptyMessage =>
+      'Napravi čas sa rasporedom. Njegovi termini se pojavljuju u tvom kalendaru 90 dana unapred.';
+
+  @override
+  String get classSeriesEmptyTitle => 'Još nema časova';
+
+  @override
+  String get classSeriesEndBeforeStart =>
+      'Datum završetka ne može biti pre početka';
+
+  @override
+  String get classSeriesEnds => 'Završava se';
+
+  @override
+  String get classSeriesEveryDay => 'Svaki dan';
+
+  @override
+  String get classSeriesGym => 'Teretana';
+
+  @override
+  String classSeriesInClass(int count) {
+    return 'U času: $count';
+  }
+
+  @override
+  String get classSeriesInvite => 'Pozovi';
+
+  @override
+  String get classSeriesInviteAgain => 'Pozovi ponovo';
+
+  @override
+  String get classSeriesInviteHint =>
+      'Kad prihvate poziv, svi termini im se pojavljuju u rasporedu.';
+
+  @override
+  String classSeriesInviteSent(String name) {
+    return 'Poziv je poslat: $name';
+  }
+
+  @override
+  String classSeriesInviteTitle(String title) {
+    return 'Poziv na čas $title';
+  }
+
+  @override
+  String classSeriesInvitedCount(int count) {
+    return 'Pozvano: $count';
+  }
+
+  @override
+  String get classSeriesLocation => 'Mesto (opciono)';
+
+  @override
+  String get classSeriesLocationHint => 'npr. Sala A';
+
+  @override
+  String get classSeriesMore => 'Još';
+
+  @override
+  String classSeriesNameYou(String name) {
+    return '$name (ti)';
+  }
+
+  @override
+  String get classSeriesNew => 'Novi čas';
+
+  @override
+  String classSeriesNext(String when) {
+    return 'Sledeći: $when';
+  }
+
+  @override
+  String get classSeriesNoEndDate => 'Bez datuma završetka';
+
+  @override
+  String get classSeriesNoEndDateHint =>
+      'Traje dok ga ne zaustaviš. Termini se pojavljuju 90 dana unapred.';
+
+  @override
+  String get classSeriesNoGyms => 'Nema teretana u kojima treniraš';
+
+  @override
+  String get classSeriesNoGymsMessage =>
+      'Kada te teretana doda kao trenera, moći ćeš tamo da praviš časove.';
+
+  @override
+  String get classSeriesNoPeople =>
+      'Još nikoga. Pozovi svoje klijente, pratioce ili članove teretane.';
+
+  @override
+  String get classSeriesNoSessionsSoon => 'Nema termina u naredne dve nedelje.';
+
+  @override
+  String get classSeriesNoTrainer => 'Bez trenera';
+
+  @override
+  String get classSeriesNoUpcoming => 'Nema predstojećih termina';
+
+  @override
+  String classSeriesOnceOn(String date) {
+    return 'Jednom, $date';
+  }
+
+  @override
+  String get classSeriesOpenTimetable => 'Raspored časa';
+
+  @override
+  String get classSeriesOpenTimetableHint => 'Svi termini, osobe i pozivi';
+
+  @override
+  String get classSeriesPause => 'Pauziraj';
+
+  @override
+  String get classSeriesPauseMessage =>
+      'Predstojeći termini se otkazuju, a prijavljene osobe dobijaju obaveštenje. Kad ga ponovo pokreneš, termini se vraćaju.';
+
+  @override
+  String get classSeriesPauseTitle => 'Pauzirati ovaj čas?';
+
+  @override
+  String get classSeriesPausedDone => 'Čas je pauziran';
+
+  @override
+  String get classSeriesPausedHint => 'Dok je pauziran, nema termina.';
+
+  @override
+  String get classSeriesPeople => 'Osobe';
+
+  @override
+  String get classSeriesPickWeekday => 'Izaberi bar jedan dan';
+
+  @override
+  String get classSeriesRemove => 'Ukloni sa časa';
+
+  @override
+  String get classSeriesRemoveMessage =>
+      'Njihovi predstojeći termini ovog časa se otkazuju.';
+
+  @override
+  String classSeriesRemoveTime(String time) {
+    return 'Ukloni $time';
+  }
+
+  @override
+  String classSeriesRemoveTitle(String name) {
+    return 'Ukloniti: $name?';
+  }
+
+  @override
+  String classSeriesRemoved(String name) {
+    return 'Uklonjeno: $name';
+  }
+
+  @override
+  String get classSeriesRepeat => 'Ponavljanje';
+
+  @override
+  String get classSeriesRepeatDaily => 'Dnevno';
+
+  @override
+  String get classSeriesRepeatOnce => 'Jednom';
+
+  @override
+  String get classSeriesRepeatWeekly => 'Nedeljno';
+
+  @override
+  String get classSeriesResumedDone => 'Čas je ponovo aktivan';
+
+  @override
+  String get classSeriesSave => 'Sačuvaj';
+
+  @override
+  String get classSeriesSaved => 'Čas je izmenjen';
+
+  @override
+  String get classSeriesSetEndDate => 'Postavi datum završetka';
+
+  @override
+  String classSeriesSpots(int count) {
+    return 'Mesta po terminu: $count';
+  }
+
+  @override
+  String get classSeriesStarts => 'Počinje';
+
+  @override
+  String get classSeriesStateActive => 'Aktivan';
+
+  @override
+  String get classSeriesStateEnded => 'Završen';
+
+  @override
+  String get classSeriesStatePaused => 'Pauziran';
+
+  @override
+  String get classSeriesStatusAccepted => 'U času';
+
+  @override
+  String get classSeriesStatusDeclined => 'Odbio/la';
+
+  @override
+  String get classSeriesStatusPending => 'Pozvan/a';
+
+  @override
+  String get classSeriesTimes => 'Vremena početka';
+
+  @override
+  String get classSeriesTimesHint =>
+      'Dodaj svako vreme kada se čas održava tokom dana.';
+
+  @override
+  String get classSeriesTimesMax => 'Najviše 12 vremena početka dnevno';
+
+  @override
+  String get classSeriesTimesRequired => 'Dodaj bar jedno vreme početka';
+
+  @override
+  String get classSeriesTimetable => 'Raspored';
+
+  @override
+  String get classSeriesTimetableChangeConfirm => 'Promeni';
+
+  @override
+  String get classSeriesTimetableChangeMessage =>
+      'Predstojeći termini koji se više ne uklapaju se otkazuju, a prijavljene osobe dobijaju obaveštenje. Novi termini se dodaju svima u času.';
+
+  @override
+  String get classSeriesTimetableChangeTitle => 'Promeniti raspored?';
+
+  @override
+  String classSeriesTimezone(String zone) {
+    return 'Vremena su po zoni $zone';
+  }
+
+  @override
+  String get classSeriesTitle => 'Naziv';
+
+  @override
+  String get classSeriesTitleHint => 'npr. Jutarnji HIIT';
+
+  @override
+  String get classSeriesTitleRequired => 'Daj času naziv';
+
+  @override
+  String get classSeriesTrainer => 'Trener';
+
+  @override
+  String classSeriesUpcomingCount(int count) {
+    return 'Predstoji: $count';
+  }
+
+  @override
+  String get classSeriesUpcomingSessions => 'Predstojeći termini';
+
+  @override
+  String get classSeriesWeekdays => 'Ovim danima';
+
+  @override
+  String get classSeriesYou => 'Ti';
+
+  @override
   String get commonBack => 'Nazad';
 
   @override
@@ -9857,6 +11263,239 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get commonYes => 'Da';
+
+  @override
+  String get customersAdd => 'Dodaj klijenta';
+
+  @override
+  String get customersAddPickerHint =>
+      'Tvoji pratioci, članovi teretana u kojima treniraš i osobe koje si ranije pozvao/la.';
+
+  @override
+  String get customersAddPickerTitle => 'Dodaj klijenta';
+
+  @override
+  String customersAdded(String name) {
+    return '$name je pozvan/a da ti bude klijent';
+  }
+
+  @override
+  String get customersCancelInvite => 'Otkaži poziv';
+
+  @override
+  String get customersChooseClassesHint =>
+      'Nije obavezno. Svaki poziv na čas prihvataju sami, a ovo možeš kasnije da promeniš.';
+
+  @override
+  String customersChooseClassesTitle(String name) {
+    return 'Pozovi $name na časove?';
+  }
+
+  @override
+  String get customersClassDeclined => 'Odbio/la';
+
+  @override
+  String get customersClassIn => 'Na času';
+
+  @override
+  String get customersClassInvited => 'Pozvan/a';
+
+  @override
+  String get customersClassPaused => 'Pauziran';
+
+  @override
+  String get customersEmptyMessage =>
+      'Dodaj svoje pratioce ili članove teretana u kojima treniraš. Svako koga pozoveš na čas pojaviće se i ovde.';
+
+  @override
+  String get customersEmptyTitle => 'Još nema klijenata';
+
+  @override
+  String get customersInvite => 'Pozovi';
+
+  @override
+  String get customersInviteCancelled => 'Poziv je otkazan';
+
+  @override
+  String customersInviteToClasses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pozovi na $count časova',
+      few: 'Pozovi na $count časa',
+      one: 'Pozovi na 1 čas',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get customersInvited => 'Poziv je poslat';
+
+  @override
+  String get customersJustAdd => 'Samo dodaj';
+
+  @override
+  String get customersNoActiveClasses =>
+      'Još nemaš aktivnih časova na koje možeš da ih pozoveš.';
+
+  @override
+  String get customersNoClasses =>
+      'Još ne vodiš nijedan čas. Napravi ga na kartici Časovi.';
+
+  @override
+  String get customersNoMatches => 'Nijedan klijent ne odgovara pretrazi';
+
+  @override
+  String get customersNotFound => 'Ova osoba više nije tvoj klijent.';
+
+  @override
+  String get customersNotInClass => 'Nije na ovom času';
+
+  @override
+  String get customersProgress => 'Napredak';
+
+  @override
+  String get customersProgressLocked => 'Dostupno kada prihvate tvoj poziv';
+
+  @override
+  String get customersProgressSubtitle => 'Treninzi, dizanja i mere tela';
+
+  @override
+  String get customersRemove => 'Ukloni';
+
+  @override
+  String get customersRemoveCustomer => 'Ukloni klijenta';
+
+  @override
+  String get customersRemoveCustomerMessage =>
+      'Biće uklonjen/a i sa tvojih časova, a predstojeći termini se otkazuju. Više nećeš moći da vidiš njihov napredak.';
+
+  @override
+  String customersRemoveCustomerTitle(String name) {
+    return 'Ukloniti $name?';
+  }
+
+  @override
+  String get customersRemoveFromClass => 'Ukloni sa časa';
+
+  @override
+  String get customersRemoveFromClassMessage =>
+      'Njihovi predstojeći termini ovog časa se otkazuju i dobijaju obaveštenje o tome.';
+
+  @override
+  String customersRemoveFromClassTitle(String title) {
+    return 'Ukloniti sa časa $title?';
+  }
+
+  @override
+  String get customersRemoved => 'Klijent je uklonjen';
+
+  @override
+  String get customersRemovedFromClass => 'Uklonjen/a sa časa';
+
+  @override
+  String get customersSearch => 'Pretraži klijente';
+
+  @override
+  String get customersStatusAccepted => 'Klijent';
+
+  @override
+  String get customersStatusPending => 'Poziv na čekanju';
+
+  @override
+  String get customersViewProfile => 'Pogledaj profil';
+
+  @override
+  String get customersYourClasses => 'Tvoji časovi';
+
+  @override
+  String get draftBadge => 'Nacrt';
+
+  @override
+  String get draftChooseSubtitle => 'Nastavi nacrt ili počni ispočetka.';
+
+  @override
+  String get draftChooseTitle => 'Tvoji nacrti';
+
+  @override
+  String get draftDelete => 'Obriši nacrt';
+
+  @override
+  String get draftDeleteTitle => 'Obrisati ovaj nacrt?';
+
+  @override
+  String get draftDeleted => 'Nacrt je obrisan';
+
+  @override
+  String get draftDiscard => 'Odbaci';
+
+  @override
+  String get draftDiscardChanges => 'Odbaci izmene';
+
+  @override
+  String draftEdited(String when) {
+    return 'Izmenjeno $when';
+  }
+
+  @override
+  String get draftEditingBanner =>
+      'Uređuješ nacrt. Kada ga objaviš, nacrt se briše.';
+
+  @override
+  String get draftKeepEditing => 'Nastavi uređivanje';
+
+  @override
+  String draftMediaCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fotografija i videa',
+      few: '$count fotografije i videa',
+      one: '1 fotografija ili video',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String draftOpenFailed(String error) {
+    return 'Nacrt nije otvoren: $error';
+  }
+
+  @override
+  String get draftOpening => 'Otvaranje nacrta…';
+
+  @override
+  String get draftSave => 'Sačuvaj nacrt';
+
+  @override
+  String get draftSaveBody =>
+      'Nastavi kasnije tamo gde si stao. Nacrti su privatni — samo ih ti vidiš.';
+
+  @override
+  String get draftSaveChanges => 'Sačuvaj izmene';
+
+  @override
+  String draftSaveFailed(String error) {
+    return 'Nacrt nije sačuvan: $error';
+  }
+
+  @override
+  String get draftSaveTitle => 'Sačuvati kao nacrt?';
+
+  @override
+  String get draftSaved => 'Nacrt je sačuvan';
+
+  @override
+  String get draftSaving => 'Čuvanje nacrta…';
+
+  @override
+  String get draftStartNew => 'Počni novo';
+
+  @override
+  String get draftUntitled => 'Nacrt bez naslova';
+
+  @override
+  String get draftUpdateTitle => 'Sačuvati izmene nacrta?';
 
   @override
   String get feedAddMedia => 'Dodaj fotografije ili video';
@@ -10102,6 +11741,157 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get feedWriteReplyHint => 'Napiši odgovor…';
+
+  @override
+  String get mediaAdjustBrightness => 'Osvetljenost';
+
+  @override
+  String get mediaAdjustContrast => 'Kontrast';
+
+  @override
+  String get mediaAdjustFade => 'Izbledelost';
+
+  @override
+  String get mediaAdjustSaturation => 'Zasićenost';
+
+  @override
+  String get mediaAdjustTint => 'Nijansa';
+
+  @override
+  String get mediaAdjustVignette => 'Vinjeta';
+
+  @override
+  String get mediaAdjustWarmth => 'Toplina';
+
+  @override
+  String get mediaBackToTools => 'Nazad na alate';
+
+  @override
+  String mediaBatchNote(int count) {
+    return 'Filteri i podešavanja ovde važe za svih $count stavki i zamenjuju njihove sopstvene. Video snimci se skraćuju pojedinačno.';
+  }
+
+  @override
+  String get mediaCantEdit => 'Ovaj fajl ne može da se menja.';
+
+  @override
+  String get mediaDone => 'Gotovo';
+
+  @override
+  String get mediaEdit => 'Izmeni';
+
+  @override
+  String get mediaEditAll => 'Izmeni sve';
+
+  @override
+  String mediaEditAllTitle(int count) {
+    return 'Izmeni sve ($count)';
+  }
+
+  @override
+  String get mediaEditFailed =>
+      'Izmene nisu primenjene. Pokušaj ponovo ili ih resetuj.';
+
+  @override
+  String mediaEditItem(int index) {
+    return 'Izmeni stavku $index';
+  }
+
+  @override
+  String get mediaEditTitle => 'Izmeni';
+
+  @override
+  String get mediaEdited => 'Izmenjeno';
+
+  @override
+  String get mediaFilterArctic => 'Arktik';
+
+  @override
+  String get mediaFilterDramatic => 'Dramatično';
+
+  @override
+  String get mediaFilterGolden => 'Zlatno';
+
+  @override
+  String get mediaFilterMatte => 'Mat';
+
+  @override
+  String get mediaFilterMono => 'Mono';
+
+  @override
+  String get mediaFilterNoir => 'Noar';
+
+  @override
+  String get mediaFilterNormal => 'Normalno';
+
+  @override
+  String get mediaFilterPunch => 'Snažno';
+
+  @override
+  String get mediaFilterRose => 'Roze';
+
+  @override
+  String get mediaFilterSepia => 'Sepija';
+
+  @override
+  String get mediaFilterStrength => 'Jačina';
+
+  @override
+  String get mediaFilterVintage => 'Vintidž';
+
+  @override
+  String get mediaFilterVivid => 'Živo';
+
+  @override
+  String get mediaHoldToCompare => 'Pritisni i drži da vidiš original';
+
+  @override
+  String get mediaOriginal => 'Original';
+
+  @override
+  String mediaProcessing(int index, int count) {
+    return 'Primena izmena $index od $count…';
+  }
+
+  @override
+  String get mediaReset => 'Resetuj';
+
+  @override
+  String get mediaResetAll => 'Resetuj sve izmene';
+
+  @override
+  String get mediaTabAdjust => 'Podešavanja';
+
+  @override
+  String get mediaTabFilter => 'Filter';
+
+  @override
+  String get mediaTabTrim => 'Skrati';
+
+  @override
+  String get mediaTrimEnd => 'Kraj isečka';
+
+  @override
+  String get mediaTrimPickVideo => 'Izaberi video za skraćivanje';
+
+  @override
+  String get mediaTrimStart => 'Početak isečka';
+
+  @override
+  String mediaTrimSummary(String start, String end, String length) {
+    return '$start – $end · $length';
+  }
+
+  @override
+  String get mediaTrimWindow => 'Isečak, prevuci da ga pomeriš';
+
+  @override
+  String get mediaUndo => 'Poništi';
+
+  @override
+  String mediaVideoNumber(int index) {
+    return 'Video $index';
+  }
 
   @override
   String get nutritionAdd => 'Dodaj';
@@ -11836,6 +13626,21 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
       'Trenutno nema predloga. Prijavi se u teretani ili dodaj interesovanja na profil za bolje predloge.';
 
   @override
+  String get peopleNonFollowerMessages => 'Poruke od osoba koje te ne prate';
+
+  @override
+  String get peopleNonFollowerMessagesOff =>
+      'Samo pratioci koje si odobrio/la mogu da ti pišu.';
+
+  @override
+  String get peopleNonFollowerMessagesPrivate =>
+      'Osobe koje nisi odobrio/la kao pratioce mogu da ti pošalju zahtev za poruku.';
+
+  @override
+  String get peopleNonFollowerMessagesPublic =>
+      'Osobe koje te ne prate mogu direktno da ti pišu.';
+
+  @override
   String get peoplePosts => 'Objave';
 
   @override
@@ -12061,22 +13866,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get peopleViewProfile => 'Pogledaj profil';
-
-  @override
-  String get peopleWhoCanMessage => 'Ko može da mi piše';
-
-  @override
-  String get peopleWhoCanMessageHint =>
-      'Poruke svih ostalih stižu u zahteve za poruke.';
-
-  @override
-  String get peopleWhoEveryone => 'Svi';
-
-  @override
-  String get peopleWhoFollowing => 'Osobe koje pratim';
-
-  @override
-  String get peopleWhoFriends => 'Prijatelji';
 
   @override
   String get reactionAngry => 'Ljuto';
@@ -12343,11 +14132,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
-  String shellHey(String name) {
-    return 'Ćao, $name!';
-  }
-
-  @override
   String get shellHidePassword => 'Sakrij lozinku';
 
   @override
@@ -12558,17 +14342,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellMembersYouCoach => 'Članovi koje treniraš';
 
   @override
-  String get shellMembershipActive => 'Aktivna';
-
-  @override
-  String get shellMembershipLoadFailed => 'Učitavanje članarine nije uspelo';
-
-  @override
-  String shellMembershipValidUntil(String type, String date) {
-    return '$type · važi do $date';
-  }
-
-  @override
   String get shellMuteBilling => 'Plaćanja';
 
   @override
@@ -12630,6 +14403,9 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellMyMembership => 'Moja članarina';
 
   @override
+  String get shellMyMembershipSubtitle => 'Plan, plaćanje i računi';
+
+  @override
   String get shellMyOrders => 'Moje porudžbine';
 
   @override
@@ -12652,9 +14428,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellNoAccountSignUp => 'Nemaš nalog? Registruj se';
-
-  @override
-  String get shellNoActiveMembership => 'Nemaš aktivnu članarinu';
 
   @override
   String get shellNoBusinesses => 'Još nema biznisa';
@@ -12684,9 +14457,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellNoUsersFound => 'Nema pronađenih korisnika';
-
-  @override
-  String get shellNoneScheduled => 'Ništa nije zakazano';
 
   @override
   String get shellNotAVendor => 'Još nisi prodavac ni u jednoj prodavnici';
@@ -12725,10 +14495,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellOwnerAllInvoices => 'Sve fakture';
-
-  @override
-  String get shellOwnerNoGyms =>
-      'Još nemaš nijednu teretanu — dodaj je na kartici Biznisi.';
 
   @override
   String get shellPasswordChanged => 'Lozinka je promenjena';
@@ -12820,9 +14586,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellSendResetLink => 'Pošalji link za resetovanje';
-
-  @override
-  String get shellSessionInProgress => 'Trening u toku';
 
   @override
   String shellSessionStartedInProgress(String time) {
@@ -13058,16 +14821,10 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
-  String get shellUnavailable => 'Nedostupno';
-
-  @override
   String get shellUnitKilograms => 'Kilogrami';
 
   @override
   String get shellUnitPounds => 'Funte';
-
-  @override
-  String get shellUpcomingClasses => 'Predstojeći časovi';
 
   @override
   String get shellUserSearchAdd => 'Dodaj';
@@ -13089,21 +14846,10 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
-  String shellWelcomeBack(String name) {
-    return 'Dobro došao nazad, $name';
-  }
-
-  @override
   String get shellYourGym => 'Tvoja teretana';
 
   @override
   String get shellYourGyms => 'Tvoje teretane';
-
-  @override
-  String get shellYourShop => 'Tvoja prodavnica';
-
-  @override
-  String get shellYourShops => 'Tvoje prodavnice';
 
   @override
   String socialActiveAgo(String when) {
@@ -13144,6 +14890,35 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get socialUploadFailed => 'Otpremanje nije uspelo. Pokušajte ponovo.';
+
+  @override
+  String get trainerClassesPickerCustomer => 'Klijent';
+
+  @override
+  String get trainerClassesPickerCustomerPending => 'Poziv na čekanju';
+
+  @override
+  String get trainerClassesPickerEmpty =>
+      'Nema nikoga. Možeš da dodaš svoje pratioce, članove teretana u kojima treniraš i svoje klijente.';
+
+  @override
+  String get trainerClassesPickerFollower => 'Prati te';
+
+  @override
+  String get trainerClassesPickerMember => 'Član';
+
+  @override
+  String get trainerClassesPickerSearch =>
+      'Pretraži po imenu ili korisničkom imenu';
+
+  @override
+  String get trainerClassesTabCalendar => 'Kalendar';
+
+  @override
+  String get trainerClassesTabClasses => 'Časovi';
+
+  @override
+  String get trainerClassesTabCustomers => 'Klijenti';
 
   @override
   String get trainingAssignAction => 'Dodeli';
@@ -13269,6 +15044,34 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get trainingClassAbout => 'O času';
 
   @override
+  String get trainingClassAdd => 'Dodaj';
+
+  @override
+  String get trainingClassAddPeople => 'Dodaj osobe';
+
+  @override
+  String get trainingClassAddPeopleEmpty =>
+      'Nema nikoga. Osoba mora biti član ove teretane ili da te prati.';
+
+  @override
+  String get trainingClassAddPeopleHint =>
+      'Članovi ove teretane i osobe koje te prate.';
+
+  @override
+  String get trainingClassAddPeopleSearch =>
+      'Pretraži po imenu ili korisničkom imenu';
+
+  @override
+  String trainingClassAddedPerson(String name) {
+    return 'Dodato: $name';
+  }
+
+  @override
+  String trainingClassAddedToWaitlist(String name) {
+    return 'Na listi čekanja: $name';
+  }
+
+  @override
   String get trainingClassApplyToSeries => 'Primeni na ovaj i buduće časove';
 
   @override
@@ -13307,9 +15110,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get trainingClassBookingCancelled => 'Rezervacija je otkazana';
-
-  @override
-  String get trainingClassBrowse => 'Pregledaj časove';
 
   @override
   String get trainingClassCancelBooking => 'Otkaži rezervaciju';
@@ -13443,9 +15243,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get trainingClassJoinWaitlist => 'Na listu čekanja';
 
   @override
-  String get trainingClassJumpToNext => 'Idi na sledeći čas';
-
-  @override
   String get trainingClassKeep => 'Zadrži';
 
   @override
@@ -13481,14 +15278,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get trainingClassMore => 'Još';
 
   @override
-  String get trainingClassMyBookings => 'Moje rezervacije';
-
-  @override
-  String trainingClassMyBookingsCount(int count) {
-    return 'Moje rezervacije ($count)';
-  }
-
-  @override
   String get trainingClassMyClasses => 'Moji časovi';
 
   @override
@@ -13498,18 +15287,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get trainingClassNew => 'Novi čas';
-
-  @override
-  String trainingClassNextClass(String title, String day, String time) {
-    return 'Sledeći čas: $title, $day u $time.';
-  }
-
-  @override
-  String get trainingClassNoBookings => 'Još nemaš rezervacija';
-
-  @override
-  String get trainingClassNoBookingsMessage =>
-      'Ovde se prikazuju časovi koje rezervišeš ili za koje si na listi čekanja.';
 
   @override
   String get trainingClassNoBookingsYet => 'Još niko nije rezervisao';
@@ -13546,13 +15323,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get trainingClassNobodyBooked => 'Još niko nije rezervisao.';
 
   @override
-  String get trainingClassNoneScheduled => 'Nema zakazanih časova';
-
-  @override
-  String get trainingClassNoneScheduledMessage =>
-      'Tvoje teretane nisu zakazale časove za naredne dve nedelje. Proveri ponovo uskoro.';
-
-  @override
   String get trainingClassNoneThisWeek => 'Nema časova ove nedelje';
 
   @override
@@ -13567,11 +15337,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get trainingClassNotSignedIn => 'Nisi prijavljen/a';
 
   @override
-  String trainingClassNothingOn(String day) {
-    return 'Nema časova — $day';
-  }
-
-  @override
   String get trainingClassNotifyOnChange =>
       'Oni koji su rezervisali biće obavešteni ako se promeni vreme ili lokacija.';
 
@@ -13582,7 +15347,10 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get trainingClassPast => 'Prošli';
 
   @override
-  String get trainingClassRefresh => 'Osveži';
+  String get trainingClassPersonFollower => 'Prati te';
+
+  @override
+  String get trainingClassPersonMember => 'Član';
 
   @override
   String get trainingClassRemove => 'Ukloni';
@@ -15204,4 +16972,190 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   @override
   String get trainingWorkoutsToMeEmpty =>
       'Još ti nije dodeljen nijedan program.\nOvde se prikazuju programi koje ti dodeli trener.';
+
+  @override
+  String get workoutLogAddExercise => 'Dodaj vežbu';
+
+  @override
+  String get workoutLogAddToTrainings => 'Dodaj u treninge';
+
+  @override
+  String get workoutLogAddToTrainingsMessage =>
+      'Sačuvaj ove vežbe, serije i težine kao trening da bi ga sledeći put upisao/la ili započeo/la jednim dodirom.';
+
+  @override
+  String get workoutLogAddToTrainingsTitle => 'Dodati u tvoje treninge?';
+
+  @override
+  String get workoutLogCalendarDone => 'Trening';
+
+  @override
+  String workoutLogCalendarSemantics(String title) {
+    return 'Trening: $title';
+  }
+
+  @override
+  String get workoutLogChooseTraining => 'Izaberi trening (nije obavezno)';
+
+  @override
+  String get workoutLogClearTraining => 'Bez treninga';
+
+  @override
+  String get workoutLogDate => 'Datum';
+
+  @override
+  String get workoutLogDuration => 'Trajanje';
+
+  @override
+  String get workoutLogExercises => 'Vežbe';
+
+  @override
+  String get workoutLogFutureError =>
+      'Vreme početka ne može biti u budućnosti.';
+
+  @override
+  String get workoutLogFutureSlot => 'Trening možeš da upišeš kad počne.';
+
+  @override
+  String workoutLogMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get workoutLogMissingRepsError =>
+      'Unesi broj ponavljanja za svaku seriju ili je prebaci na otkaz.';
+
+  @override
+  String get workoutLogNoExercisesError => 'Dodaj bar jednu vežbu.';
+
+  @override
+  String get workoutLogNoExercisesHint =>
+      'Dodaj vežbe koje si radio/la ili izaberi trening iznad.';
+
+  @override
+  String get workoutLogNotNow => 'Ne sada';
+
+  @override
+  String get workoutLogPickTraining => 'Šta si trenirao/la?';
+
+  @override
+  String get workoutLogRemoveSet => 'Ukloni ovu seriju';
+
+  @override
+  String get workoutLogRepeatSet => 'Ponovi ovu seriju';
+
+  @override
+  String get workoutLogReplace => 'Zameni';
+
+  @override
+  String workoutLogReplaceMessage(String name) {
+    return 'Vežbe koje si uneo/la biće zamenjene vežbama iz treninga $name.';
+  }
+
+  @override
+  String get workoutLogReplaceTitle => 'Zameniti vežbe?';
+
+  @override
+  String get workoutLogReps => 'Ponavljanja';
+
+  @override
+  String get workoutLogSaved => 'Trening je upisan';
+
+  @override
+  String get workoutLogScheduleEmptyDay =>
+      'Ništa za ovaj dan. Dodirni sat da upišeš trening.';
+
+  @override
+  String workoutLogSetCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count serija',
+      few: '$count serije',
+      one: '$count serija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String workoutLogSetNumber(int number) {
+    return 'Serija $number';
+  }
+
+  @override
+  String workoutLogSlotLabel(String time) {
+    return '$time, upiši trening';
+  }
+
+  @override
+  String get workoutLogStart => 'Početak';
+
+  @override
+  String get workoutLogTitle => 'Upiši trening';
+
+  @override
+  String get workoutLogTraining => 'Trening';
+
+  @override
+  String get workoutLogTrainingHelper =>
+      'Izaberi trening da popuniš njegove vežbe ili ih dodaj ispod.';
+
+  @override
+  String get workoutPickerAssigned => 'Od tvog trenera';
+
+  @override
+  String workoutPickerLastLogged(String date) {
+    return 'Poslednji put $date';
+  }
+
+  @override
+  String get workoutPickerLibrary => 'Svi treninzi';
+
+  @override
+  String get workoutPickerNoResults => 'Nema pronađenih treninga';
+
+  @override
+  String get workoutPickerRecent => 'Već odrađeni';
+
+  @override
+  String get workoutPickerSearchHint => 'Pretraži treninge';
+
+  @override
+  String workoutTrainingCopyName(String name) {
+    return '$name (kopija)';
+  }
+
+  @override
+  String workoutTrainingCopySaved(String name) {
+    return '„$name” je sačuvan u tvojim treninzima';
+  }
+
+  @override
+  String get workoutTrainingInNoRoutine => 'Nije ni u jednoj tvojoj rutini';
+
+  @override
+  String get workoutTrainingLockedMessage =>
+      'Ovaj trening već ima upisane sesije koje prikazuju njegove vežbe, pa se serije ne mogu menjati. I dalje možeš da menjaš naziv, fotografiju, beleške, vidljivost i rutine.';
+
+  @override
+  String get workoutTrainingNoRoutines => 'Još nisi napravio/la nijednu rutinu';
+
+  @override
+  String get workoutTrainingRoutines => 'Rutine';
+
+  @override
+  String get workoutTrainingRoutinesDone => 'Gotovo';
+
+  @override
+  String get workoutTrainingRoutinesHint =>
+      'Tvoje rutine koje sadrže ovaj trening. U nove se dodaje na kraj; nedelju i dan podesi u rutini.';
+
+  @override
+  String get workoutTrainingRoutinesLoading => 'Učitavanje tvojih rutina…';
+
+  @override
+  String get workoutTrainingRoutinesUnavailable => 'Rutine nije moguće učitati';
+
+  @override
+  String get workoutTrainingSaveAsCopy => 'Sačuvaj kao novi trening';
 }

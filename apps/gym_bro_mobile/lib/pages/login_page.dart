@@ -3,6 +3,7 @@ import '../l10n/l10n.dart';
 import '../services/auth_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/google_sign_in_button.dart';
+import '../widgets/password_form_field.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -74,11 +75,10 @@ class _LoginPageState extends State<LoginPage> {
                     : null,
               ),
               const SizedBox(height: 12),
-              TextFormField(
+              PasswordFormField(
                 controller: _passwordCtrl,
-                decoration: InputDecoration(labelText: l10n.shellAuthPassword),
+                labelText: l10n.shellAuthPassword,
                 autofillHints: const [AutofillHints.password],
-                obscureText: true,
                 validator: (v) =>
                     (v == null || v.isEmpty) ? l10n.commonRequired : null,
               ),

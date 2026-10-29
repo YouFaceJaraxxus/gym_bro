@@ -1,0 +1,77 @@
+{
+  "customersSearch": "Search customers",
+  "customersAdd": "Add customer",
+  "customersAddPickerTitle": "Add a customer",
+  "customersAddPickerHint": "Your followers, members of gyms where you coach, and people you've invited before.",
+  "customersStatusAccepted": "Customer",
+  "customersStatusPending": "Invite pending",
+  "customersClassIn": "In the class",
+  "customersClassInvited": "Invited",
+  "customersClassDeclined": "Declined",
+  "customersClassPaused": "Paused",
+  "customersEmptyTitle": "No customers yet",
+  "customersEmptyMessage": "Add your followers or members of gyms where you coach. Anyone you invite to a class shows up here too.",
+  "customersNoMatches": "No customers match your search",
+  "customersChooseClassesTitle": "Invite {name} to classes?",
+  "@customersChooseClassesTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customersChooseClassesHint": "Optional. They accept each class invite themselves, and you can change this later.",
+  "customersNoActiveClasses": "You have no active classes to invite them to yet.",
+  "customersJustAdd": "Just add",
+  "customersInviteToClasses": "{count, plural, =1{Invite to 1 class} other{Invite to {count} classes}}",
+  "@customersInviteToClasses": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "customersAdded": "{name} was invited to be your customer",
+  "@customersAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customersProgress": "Progress",
+  "customersProgressSubtitle": "Workouts, lifts and body measurements",
+  "customersProgressLocked": "Available once they accept your invite",
+  "customersViewProfile": "View profile",
+  "customersYourClasses": "Your classes",
+  "customersNoClasses": "You don't run any classes yet. Create one in the Classes tab.",
+  "customersNotInClass": "Not in this class",
+  "customersInvite": "Invite",
+  "customersCancelInvite": "Cancel invite",
+  "customersRemoveFromClass": "Remove from class",
+  "customersRemoveFromClassTitle": "Remove from {title}?",
+  "@customersRemoveFromClassTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "customersRemoveFromClassMessage": "Their upcoming sessions of this class are cancelled and they're told about it.",
+  "customersRemove": "Remove",
+  "customersInvited": "Invite sent",
+  "customersInviteCancelled": "Invite cancelled",
+  "customersRemovedFromClass": "Removed from the class",
+  "customersRemoveCustomer": "Remove customer",
+  "customersRemoveCustomerTitle": "Remove {name}?",
+  "@customersRemoveCustomerTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "customersRemoveCustomerMessage": "They're also taken off your classes and their upcoming sessions are cancelled. You won't be able to see their progress anymore.",
+  "customersRemoved": "Customer removed",
+  "customersNotFound": "This person is no longer your customer."
+}

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import '../models/app_notification.dart';
@@ -17,6 +18,7 @@ import '../models/user_settings.dart';
 import '../models/payment.dart';
 import '../models/order.dart';
 import '../models/gym_class.dart';
+import '../models/class_series.dart';
 import '../models/staff_shift.dart';
 import '../models/progress.dart';
 import '../models/coaching.dart';
@@ -24,6 +26,7 @@ import '../models/social.dart';
 import '../models/check_in.dart';
 import '../models/food_log.dart';
 import '../models/chat.dart';
+import '../models/draft.dart';
 import '../models/people.dart';
 import '../models/reaction.dart';
 import '../config.dart';
@@ -34,6 +37,7 @@ part 'api/account_api.dart';
 part 'api/payments_api.dart';
 part 'api/orders_api.dart';
 part 'api/classes_api.dart';
+part 'api/class_series_api.dart';
 part 'api/shifts_api.dart';
 part 'api/progress_api.dart';
 part 'api/coaching_api.dart';
@@ -42,23 +46,32 @@ part 'api/checkins_api.dart';
 part 'api/food_logs_api.dart';
 part 'api/people_api.dart';
 part 'api/chat_api.dart';
+part 'api/drafts_api.dart';
 
 // Set with --dart-define=API_BASE_URL=... (see lib/config.dart / README.md).
 final _base = AppConfig.apiBaseUrl;
 
 class ApiService {
   ApiService() {
-    OfflineSupport.ensureStarted(tokenProvider: _sessionToken);
+    if (debugClientOverride == null) {
+      OfflineSupport.ensureStarted(tokenProvider: _sessionToken);
+    }
   }
 
   /// Token for replaying queued offline writes; null when signed out.
   static Future<String?> _sessionToken() async =>
       AuthManager.instance.hasSession ? AuthManager.instance.getValidToken() : null;
 
+  /// Replaces the HTTP client of every ApiService (tests: a `MockClient`).
+  /// Read on each request, so long-lived services pick it up too. While set,
+  /// the offline machinery (connectivity, outbox replay) isn't started.
+  @visibleForTesting
+  static http.Client? debugClientOverride;
+
   /// Shared by every ApiService: 20 s timeouts, on-disk GET cache used as an
   /// offline fallback (responses carry `x-gymbro-offline: 1`), connectivity
   /// reporting. See lib/services/offline/caching_client.dart.
-  final http.Client _client = CachingClient.shared;
+  http.Client get _client => debugClientOverride ?? CachingClient.shared;
 
   Map<String, String> _headers(String token) => {
         'Content-Type': 'application/json',
@@ -716,6 +729,22 @@ class ApiService {
         .toList();
   }
 
+  /// What to offer when logging a workout; [name] filters every section.
+  Future<TrainingSuggestions> getTrainingSuggestions(
+    String token, {
+    String? name,
+    int limit = 10,
+  }) async {
+    final params = <String>['limit=$limit'];
+    if (name != null && name.isNotEmpty) params.add('name=${Uri.encodeComponent(name)}');
+    final r = await _client.get(
+      Uri.parse('$_base/trainings/suggestions?${params.join('&')}'),
+      headers: _headers(token),
+    );
+    _check(r);
+    return TrainingSuggestions.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
   Future<Training> getTraining(String token, String id) async {
     final r = await _client.get(
       Uri.parse('$_base/trainings/$id'),
@@ -824,6 +853,8 @@ class ApiService {
     String? userId,
     String? trainerId,
     String? trainingId,
+    DateTime? from,
+    DateTime? to,
     int page = 0,
     int pageSize = 20,
   }) async {
@@ -834,6 +865,8 @@ class ApiService {
     if (userId != null) params.add('user_id=$userId');
     if (trainerId != null) params.add('trainer_id=$trainerId');
     if (trainingId != null) params.add('training_id=$trainingId');
+    if (from != null) params.add('from=${Uri.encodeComponent(from.toUtc().toIso8601String())}');
+    if (to != null) params.add('to=${Uri.encodeComponent(to.toUtc().toIso8601String())}');
     final r = await _client.get(
       Uri.parse('$_base/training-sessions?${params.join('&')}'),
       headers: _headers(token),
@@ -867,6 +900,22 @@ class ApiService {
         'trainer_id': trainerId,
         'notes': notes,
       }),
+    );
+    _check(r);
+    return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// Logs a finished session in one go (e.g. from a calendar slot): [data]
+  /// has started_at, ended_at, training_id?, notes? and sets (each with
+  /// training_set_id? / exercise_id and drops). Returns the full detail.
+  Future<TrainingSession> logPastTrainingSession(
+    String token,
+    Map<String, dynamic> data,
+  ) async {
+    final r = await _client.post(
+      Uri.parse('$_base/training-sessions'),
+      headers: _headers(token),
+      body: jsonEncode(data),
     );
     _check(r);
     return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../models/coaching.dart';
+import '../models/draft.dart';
 import '../models/training.dart';
 import '../models/routine.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/drafts.dart';
 import '../widgets/routine_assign.dart';
 import 'training_detail_page.dart';
 import 'training_form_page.dart';
@@ -59,14 +61,16 @@ class _WorkoutsPageState extends State<WorkoutsPage>
             icon: const Icon(Icons.add),
             onSelected: (v) async {
               if (v == 'training') {
-                await Navigator.push(
+                await openCreateWithDrafts<Training>(
                   context,
-                  MaterialPageRoute(builder: (_) => const TrainingFormPage()),
+                  kind: DraftKind.training,
+                  builder: (draft) => TrainingFormPage(draft: draft),
                 );
               } else {
-                await Navigator.push(
+                await openCreateWithDrafts<Routine>(
                   context,
-                  MaterialPageRoute(builder: (_) => const RoutineFormPage()),
+                  kind: DraftKind.routine,
+                  builder: (draft) => RoutineFormPage(draft: draft),
                 );
               }
             },

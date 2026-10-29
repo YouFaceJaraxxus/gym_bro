@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/l10n.dart';
+import '../models/draft.dart';
 import '../models/routine.dart';
-import '../models/training.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/drafts.dart';
 import '../widgets/image_upload_field.dart';
+import '../widgets/training_picker_sheet.dart';
 
 class RoutineFormPage extends StatefulWidget {
   final Routine? routine;
 
-  const RoutineFormPage({super.key, this.routine});
+  /// A saved draft to continue (new routines only).
+  final Draft? draft;
+
+  const RoutineFormPage({super.key, this.routine, this.draft});
 
   @override
   State<RoutineFormPage> createState() => _RoutineFormPageState();
 }
 
-class _RoutineFormPageState extends State<RoutineFormPage> {
+class _RoutineFormPageState extends State<RoutineFormPage> with DraftableForm {
   final _formKey = GlobalKey<FormState>();
   final _api = ApiService();
 
@@ -34,9 +39,83 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
 
   bool get _isEditing => widget.routine != null;
 
+  // ── Drafts ──────────────────────────────────────────────────────────────────
+
+  @override
+  DraftKind get draftKind => DraftKind.routine;
+  @override
+  Draft? get initialDraft => widget.draft;
+  @override
+  bool get draftsEnabled => !_isEditing;
+  @override
+  bool get hasDraftContent =>
+      [_name, _description, _notes, _numWeeks].any((c) => c.text.trim().isNotEmpty) ||
+      _thumbnailUrl != null ||
+      _entries.isNotEmpty;
+  @override
+  String? draftTitle() => _name.text;
+  @override
+  String? draftThumbnailUrl() => _thumbnailUrl;
+  @override
+  Map<String, dynamic> draftData() => {
+        'name': _name.text,
+        'description': _description.text,
+        'notes': _notes.text,
+        'num_weeks': _numWeeks.text,
+        'is_public': _isPublic,
+        'schedule_type': _scheduleType.apiValue,
+        'thumbnail_url': _thumbnailUrl,
+        'trainings': [
+          for (final e in _entries)
+            {
+              'training_id': e.trainingId,
+              'training_name': e.trainingName,
+              'week_number': e.weekNumber,
+              'day_of_week': e.dayOfWeek,
+              'note': e.note,
+            },
+        ],
+      };
+
+  void _restoreDraft(Map<String, dynamic> draft) {
+    String? str(Object? v) => v is String ? v : null;
+    int? integer(Object? v) => v is num ? v.toInt() : int.tryParse('${v ?? ''}');
+    _name = TextEditingController(text: str(draft['name']) ?? '');
+    _description = TextEditingController(text: str(draft['description']) ?? '');
+    _notes = TextEditingController(text: str(draft['notes']) ?? '');
+    _numWeeks = TextEditingController(text: str(draft['num_weeks']) ?? '${integer(draft['num_weeks']) ?? ''}');
+    _isPublic = draft['is_public'] == true;
+    _scheduleType = RoutineScheduleType.fromApiValue(str(draft['schedule_type']) ?? '');
+    final thumb = str(draft['thumbnail_url']);
+    _thumbnailUrl = thumb?.isNotEmpty == true ? thumb : null;
+    // The week dropdown only offers 1..numWeeks (as the list renders it).
+    final numWeeks = int.tryParse(_numWeeks.text) ?? 1;
+    final raw = draft['trainings'];
+    for (final t in raw is List ? raw : const []) {
+      if (t is! Map) continue;
+      final id = str(t['training_id']);
+      if (id == null || id.isEmpty) continue;
+      final week = integer(t['week_number']);
+      final day = integer(t['day_of_week']);
+      _entries.add(_RoutineTrainingDraft(
+        trainingId: id,
+        trainingName: str(t['training_name']),
+        weekNumber: week != null && week >= 1 && week <= numWeeks ? week : null,
+        dayOfWeek: day != null && day >= 1 && day <= 7 ? day : null,
+        position: _entries.length,
+        note: str(t['note']),
+      ));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    final draft = widget.draft?.data;
+    if (draft != null && !_isEditing) {
+      _restoreDraft(draft);
+      return;
+    }
     final r = widget.routine;
     _name = TextEditingController(text: r?.name ?? '');
     _description = TextEditingController(text: r?.description ?? '');
@@ -69,15 +148,11 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
   }
 
   Future<void> _pickTraining() async {
-    final result = await showModalBottomSheet<Map<String, dynamic>>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => const _TrainingPickerSheet(),
-    );
-    if (result != null && mounted) {
+    final picked = (await showTrainingPicker(context))?.training;
+    if (picked != null && mounted) {
       setState(() => _entries.add(_RoutineTrainingDraft(
-            trainingId: result['id'] as String,
-            trainingName: result['name'] as String,
+            trainingId: picked.id,
+            trainingName: picked.name,
           )));
     }
   }
@@ -120,6 +195,7 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
         result = await _api.updateRoutine(token, widget.routine!.id, data);
       } else {
         result = await _api.createRoutine(token, data);
+        await draftPublished();
       }
       if (mounted) Navigator.pop(context, result);
     } catch (e) {
@@ -139,144 +215,149 @@ class _RoutineFormPageState extends State<RoutineFormPage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? l10n.trainingRoutineEditTitle : l10n.trainingWorkoutsNewRoutine),
-        actions: [
-          if (_saving)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-            )
-          else
-            TextButton(onPressed: _save, child: Text(l10n.commonSave)),
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            ImagePickerField(
-              imageUrl: _thumbnailUrl,
-              folder: 'routines',
-              label: l10n.trainingPlanAddCoverPhoto,
-              onUploaded: (url) => setState(() => _thumbnailUrl = url),
-            ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _name,
-              decoration: InputDecoration(labelText: l10n.trainingRoutineNameLabel),
-              validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
-            ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _description,
-              decoration: InputDecoration(labelText: l10n.trainingPlanDescriptionLabel),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _notes,
-              decoration: InputDecoration(labelText: l10n.trainingPlanNotes),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 14),
-            SwitchListTile(
-              title: Text(l10n.trainingPlanPublic),
-              subtitle: Text(l10n.trainingPlanPublicSubtitle),
-              value: _isPublic,
-              onChanged: (v) => setState(() => _isPublic = v),
-              contentPadding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 16),
-
-            // Schedule type
-            Text(l10n.trainingRoutineScheduleType,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            SegmentedButton<RoutineScheduleType>(
-              segments: [
-                ButtonSegment(
-                    value: RoutineScheduleType.wildcard,
-                    label: Text(RoutineScheduleType.wildcard.label(l10n))),
-                ButtonSegment(
-                    value: RoutineScheduleType.fixedWeeks,
-                    label: Text(RoutineScheduleType.fixedWeeks.label(l10n))),
-              ],
-              selected: {_scheduleType},
-              onSelectionChanged: (s) => setState(() => _scheduleType = s.first),
-            ),
-
-            if (_scheduleType == RoutineScheduleType.fixedWeeks) ...[
-              const SizedBox(height: 14),
-              TextFormField(
-                controller: _numWeeks,
-                decoration: InputDecoration(
-                  labelText: l10n.trainingRoutineNumWeeksLabel,
-                  hintText: l10n.trainingRoutineNumWeeksHint,
-                ),
-                keyboardType: TextInputType.number,
-                validator: (v) {
-                  if (_scheduleType != RoutineScheduleType.fixedWeeks) return null;
-                  final n = int.tryParse(v ?? '');
-                  if (n == null || n < 1) return l10n.trainingRoutineInvalidNumber;
-                  return null;
-                },
-              ),
-            ],
-
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(l10n.trainingWorkoutsTabTrainings,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                TextButton.icon(
-                  onPressed: _pickTraining,
-                  icon: const Icon(Icons.add, size: 18),
-                  label: Text(l10n.trainingRoutineAdd),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-
-            if (_entries.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Center(
-                  child: Text(l10n.trainingRoutineNoTrainingsAdded,
-                      style: TextStyle(color: cs.onSurfaceVariant)),
-                ),
+    final banner = draftBanner(context);
+    return draftPopScope(
+      busy: _saving,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_isEditing ? l10n.trainingRoutineEditTitle : l10n.trainingWorkoutsNewRoutine),
+          actions: [
+            if (_saving)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
               )
             else
-              ReorderableListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _entries.length,
-                onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    if (newIndex > oldIndex) newIndex--;
-                    final item = _entries.removeAt(oldIndex);
-                    _entries.insert(newIndex, item);
-                  });
-                },
-                itemBuilder: (context, i) {
-                  final entry = _entries[i];
-                  return _TrainingEntryTile(
-                    key: ValueKey('${entry.trainingId}_$i'),
-                    entry: entry,
-                    index: i,
-                    scheduleType: _scheduleType,
-                    numWeeks: int.tryParse(_numWeeks.text) ?? 1,
-                    onChanged: () => setState(() {}),
-                    onRemove: () => setState(() => _entries.removeAt(i)),
-                  );
-                },
+              TextButton(onPressed: _save, child: Text(l10n.commonSave)),
+          ],
+        ),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (banner != null) ...[banner, const SizedBox(height: 16)],
+              ImagePickerField(
+                imageUrl: _thumbnailUrl,
+                folder: 'routines',
+                label: l10n.trainingPlanAddCoverPhoto,
+                onUploaded: (url) => setState(() => _thumbnailUrl = url),
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _name,
+                decoration: InputDecoration(labelText: l10n.trainingRoutineNameLabel),
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.commonRequired : null,
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _description,
+                decoration: InputDecoration(labelText: l10n.trainingPlanDescriptionLabel),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _notes,
+                decoration: InputDecoration(labelText: l10n.trainingPlanNotes),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 14),
+              SwitchListTile(
+                title: Text(l10n.trainingPlanPublic),
+                subtitle: Text(l10n.trainingPlanPublicSubtitle),
+                value: _isPublic,
+                onChanged: (v) => setState(() => _isPublic = v),
+                contentPadding: EdgeInsets.zero,
+              ),
+              const SizedBox(height: 16),
+
+              // Schedule type
+              Text(l10n.trainingRoutineScheduleType,
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              SegmentedButton<RoutineScheduleType>(
+                segments: [
+                  ButtonSegment(
+                      value: RoutineScheduleType.wildcard,
+                      label: Text(RoutineScheduleType.wildcard.label(l10n))),
+                  ButtonSegment(
+                      value: RoutineScheduleType.fixedWeeks,
+                      label: Text(RoutineScheduleType.fixedWeeks.label(l10n))),
+                ],
+                selected: {_scheduleType},
+                onSelectionChanged: (s) => setState(() => _scheduleType = s.first),
               ),
 
-            const SizedBox(height: 40),
-          ],
+              if (_scheduleType == RoutineScheduleType.fixedWeeks) ...[
+                const SizedBox(height: 14),
+                TextFormField(
+                  controller: _numWeeks,
+                  decoration: InputDecoration(
+                    labelText: l10n.trainingRoutineNumWeeksLabel,
+                    hintText: l10n.trainingRoutineNumWeeksHint,
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (v) {
+                    if (_scheduleType != RoutineScheduleType.fixedWeeks) return null;
+                    final n = int.tryParse(v ?? '');
+                    if (n == null || n < 1) return l10n.trainingRoutineInvalidNumber;
+                    return null;
+                  },
+                ),
+              ],
+
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(l10n.trainingWorkoutsTabTrainings,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  TextButton.icon(
+                    onPressed: _pickTraining,
+                    icon: const Icon(Icons.add, size: 18),
+                    label: Text(l10n.trainingRoutineAdd),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              if (_entries.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Center(
+                    child: Text(l10n.trainingRoutineNoTrainingsAdded,
+                        style: TextStyle(color: cs.onSurfaceVariant)),
+                  ),
+                )
+              else
+                ReorderableListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _entries.length,
+                  onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      if (newIndex > oldIndex) newIndex--;
+                      final item = _entries.removeAt(oldIndex);
+                      _entries.insert(newIndex, item);
+                    });
+                  },
+                  itemBuilder: (context, i) {
+                    final entry = _entries[i];
+                    return _TrainingEntryTile(
+                      key: ValueKey('${entry.trainingId}_$i'),
+                      entry: entry,
+                      index: i,
+                      scheduleType: _scheduleType,
+                      numWeeks: int.tryParse(_numWeeks.text) ?? 1,
+                      onChanged: () => setState(() {}),
+                      onRemove: () => setState(() => _entries.removeAt(i)),
+                    );
+                  },
+                ),
+
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );
@@ -389,94 +470,6 @@ class _TrainingEntryTile extends StatelessWidget {
           icon: Icon(Icons.close, color: cs.error),
           onPressed: onRemove,
         ),
-      ),
-    );
-  }
-}
-
-// ── Training picker sheet ─────────────────────────────────────────────────────
-
-class _TrainingPickerSheet extends StatefulWidget {
-  const _TrainingPickerSheet();
-
-  @override
-  State<_TrainingPickerSheet> createState() => _TrainingPickerSheetState();
-}
-
-class _TrainingPickerSheetState extends State<_TrainingPickerSheet> {
-  final _api = ApiService();
-  final _search = TextEditingController();
-  List<Training> _trainings = [];
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    setState(() => _loading = true);
-    try {
-      final token = await AuthManager.instance.getValidToken();
-      final results = await _api.getTrainings(token, name: _search.text.trim().isEmpty ? null : _search.text.trim(), pageSize: 50);
-      setState(() {
-        _trainings = results;
-        _loading = false;
-      });
-    } catch (e) {
-      setState(() => _loading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.65,
-      maxChildSize: 0.95,
-      builder: (context, scroll) => Column(
-        children: [
-          const SizedBox(height: 12),
-          Container(
-            width: 40, height: 4,
-            decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.outlineVariant,
-                borderRadius: BorderRadius.circular(2)),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: TextField(
-              controller: _search,
-              decoration: InputDecoration(
-                hintText: context.l10n.trainingRoutineSearchTrainingsHint,
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-              ),
-              onSubmitted: (_) => _load(),
-            ),
-          ),
-          if (_loading)
-            const Expanded(child: Center(child: CircularProgressIndicator()))
-          else
-            Expanded(
-              child: ListView.builder(
-                controller: scroll,
-                itemCount: _trainings.length,
-                itemBuilder: (context, i) {
-                  final t = _trainings[i];
-                  return ListTile(
-                    title: Text(t.name),
-                    subtitle: t.description != null
-                        ? Text(t.description!, maxLines: 1, overflow: TextOverflow.ellipsis)
-                        : null,
-                    onTap: () => Navigator.pop(context, {'id': t.id, 'name': t.name}),
-                  );
-                },
-              ),
-            ),
-        ],
       ),
     );
   }

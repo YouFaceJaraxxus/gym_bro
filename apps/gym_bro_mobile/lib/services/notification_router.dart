@@ -4,6 +4,8 @@ import '../l10n/l10n.dart';
 import '../models/user_profile.dart';
 import '../pages/chat/chat_launcher.dart';
 import '../pages/classes/class_detail_page.dart';
+import '../pages/classes/class_schedule_page.dart';
+import '../pages/classes/trainer_classes_page.dart';
 import '../pages/feed/post_detail_page.dart';
 import '../pages/classes/my_shifts_page.dart';
 import '../pages/gym_detail_page.dart';
@@ -60,7 +62,19 @@ class NotificationRouter {
       case 'class_reminder':
       case 'events':
         final classId = str('class_id');
-        if (classId != null) await push(ClassDetailPage(classId: classId));
+        switch (str('kind')) {
+          // Invites and timetable changes: the schedule, invites on top.
+          case 'class_invite' || 'customer_invite' || 'class_timetable' || 'class_removed':
+            await push(Scaffold(appBar: AppBar(title: Text(l10n.shellTabSchedule)), body: const ClassSchedulePage()));
+          // Someone took the trainer up on an invite: their customers.
+          case 'class_joined' || 'customer_accepted':
+            await push(Scaffold(
+              appBar: AppBar(title: Text(l10n.shellTabClasses)),
+              body: const TrainerClassesPage(initialTab: 2),
+            ));
+          default:
+            if (classId != null) await push(ClassDetailPage(classId: classId));
+        }
 
       case 'shift_assigned':
         await push(const MyShiftsPage());

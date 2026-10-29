@@ -130,6 +130,9 @@ class TrainingSession {
   final String? trainerId;
   final String? trainerName;
   final String? trainingId;
+
+  /// The followed training's name (lists and detail); null for free sessions.
+  final String? trainingName;
   final DateTime startedAt;
   final DateTime? endedAt;
   final String? notes;
@@ -144,6 +147,7 @@ class TrainingSession {
     this.trainerId,
     this.trainerName,
     this.trainingId,
+    this.trainingName,
     required this.startedAt,
     this.endedAt,
     this.notes,
@@ -161,6 +165,7 @@ class TrainingSession {
       trainerId: json['trainer_id'] as String?,
       trainerName: json['trainer_name'] as String?,
       trainingId: json['training_id'] as String?,
+      trainingName: json['training_name'] as String?,
       startedAt: DateTime.parse(json['started_at'] as String),
       endedAt: json['ended_at'] == null
           ? null

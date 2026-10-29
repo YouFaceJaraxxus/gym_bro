@@ -4,7 +4,7 @@ import '../../models/user_profile.dart';
 import '../../widgets/my_shifts_card.dart';
 import 'employee_home_page.dart';
 import 'home_widgets.dart';
-import 'trainer_home_page.dart';
+import 'trainer_today_section.dart';
 
 /// Employee-trainer home: today's coaching sessions plus the gyms they staff.
 class EmployeeTrainerHomePage extends StatefulWidget {

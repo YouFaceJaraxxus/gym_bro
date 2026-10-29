@@ -4,6 +4,8 @@
 // Postgres numerics may arrive as strings, so every number goes through
 // [_toDouble] / [_toInt].
 
+import 'exercise.dart' show muscleValues;
+
 double? _toDouble(dynamic v) =>
     v == null ? null : double.tryParse(v.toString());
 
@@ -122,9 +124,7 @@ class ExerciseProgress {
       ExerciseProgress(
         id: json['id'] as String,
         name: json['name'] as String? ?? 'Exercise',
-        primaryMuscles: (json['primary_muscles'] as List<dynamic>? ?? [])
-            .map((e) => e.toString())
-            .toList(),
+        primaryMuscles: muscleValues(json['primary_muscles']),
         sessionCount: _toInt(json['session_count']),
         lastPerformed: _toDate(json['last_performed']),
         bestWeightKg: _toDouble(json['best_weight_kg']),
@@ -215,9 +215,7 @@ class ExerciseProgressDetail {
     return ExerciseProgressDetail(
       exerciseId: ex['id'] as String? ?? '',
       exerciseName: ex['name'] as String? ?? 'Exercise',
-      primaryMuscles: (ex['primary_muscles'] as List<dynamic>? ?? [])
-          .map((e) => e.toString())
-          .toList(),
+      primaryMuscles: muscleValues(ex['primary_muscles']),
       series: (json['series'] as List<dynamic>? ?? [])
           .map((e) => ExerciseSeriesPoint.fromJson(e as Map<String, dynamic>))
           .toList(),

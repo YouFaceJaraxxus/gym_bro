@@ -1,0 +1,11 @@
+{
+  "calendarGoToToday": "Idi na danas",
+  "calendarPreviousWeek": "Prethodna nedelja",
+  "calendarNextWeek": "Sledeća nedelja",
+  "calendarDayLabel": "{day}, {count, plural, =0{ništa zakazano} one{{count} stavka} few{{count} stavke} other{{count} stavki}}",
+  "calendarNothingOnDay": "Ništa ovog dana",
+  "calendarNow": "Sada, {time}",
+  "calendarNextDay": "{range} (+1 dan)",
+  "calendarCancelled": "Otkazano",
+  "calendarDone": "Završeno"
+}
