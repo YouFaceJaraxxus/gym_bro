@@ -7,6 +7,7 @@ import '../widgets/muscle_diagram.dart';
 import '../widgets/open_url.dart';
 import '../widgets/social_widgets.dart';
 import 'exercise_form_page.dart';
+import '../widgets/share_post.dart';
 
 class ExerciseDetailPage extends StatefulWidget {
   final Exercise exercise;
@@ -73,6 +74,7 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
       appBar: AppBar(
         title: Text(_exercise.name),
         actions: [
+          SharePostButton(target: exerciseShareTarget(_exercise)),
           if (isOwner) ...[
             IconButton(
               tooltip: l10n.commonEdit,

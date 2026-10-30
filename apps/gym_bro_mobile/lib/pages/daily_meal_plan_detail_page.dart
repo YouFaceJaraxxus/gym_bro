@@ -5,6 +5,7 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'daily_meal_plan_form_page.dart';
 import 'nutrition/nutrition_widgets.dart';
+import '../widgets/share_post.dart';
 
 class DailyMealPlanDetailPage extends StatefulWidget {
   final String dailyMealPlanId;
@@ -110,6 +111,7 @@ class _DailyMealPlanDetailPageState extends State<DailyMealPlanDetailPage> {
       appBar: AppBar(
         title: Text(plan.name),
         actions: [
+          SharePostButton(target: dailyMealPlanShareTarget(plan)),
           if (isOwner) ...[
             IconButton(
               tooltip: l10n.commonEdit,

@@ -8,6 +8,7 @@ import '../theme.dart';
 import '../widgets/open_url.dart';
 import 'nutrition/nutrition_widgets.dart';
 import 'recipe_form_page.dart';
+import '../widgets/share_post.dart';
 
 class RecipeDetailPage extends StatefulWidget {
   final String recipeId;
@@ -114,6 +115,7 @@ class _RecipeDetailPageState extends State<RecipeDetailPage> {
       appBar: AppBar(
         title: Text(item.name),
         actions: [
+          SharePostButton(target: recipeShareTarget(item)),
           if (isOwner) ...[
             IconButton(
               tooltip: l10n.commonEdit,

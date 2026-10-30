@@ -8,6 +8,7 @@ import '../services/auth_manager.dart';
 import '../theme.dart';
 import '../widgets/routine_assign.dart';
 import 'routine_form_page.dart';
+import '../widgets/share_post.dart';
 
 class RoutineDetailPage extends StatefulWidget {
   final String routineId;
@@ -133,6 +134,7 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
       appBar: AppBar(
         title: Text(routine.name),
         actions: [
+          SharePostButton(target: routineShareTarget(routine)),
           if (isOwner) ...[
             IconButton(
               tooltip: l10n.trainingRoutineEditTooltip,

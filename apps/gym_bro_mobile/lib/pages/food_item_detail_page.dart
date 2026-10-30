@@ -7,6 +7,7 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'food_item_form_page.dart';
 import 'nutrition/nutrition_widgets.dart';
+import '../widgets/share_post.dart';
 
 class FoodItemDetailPage extends StatefulWidget {
   final String foodItemId;
@@ -164,6 +165,7 @@ class _FoodItemDetailPageState extends State<FoodItemDetailPage> {
       appBar: AppBar(
         title: Text(item.name),
         actions: [
+          SharePostButton(target: foodItemShareTarget(item)),
           if (isOwner) ...[
             IconButton(
               tooltip: l10n.commonEdit,

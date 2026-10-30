@@ -1,0 +1,182 @@
+{
+  "planCalendarPlanned": "Planned",
+  "planCalendarDone": "Done",
+  "planCalendarSkipped": "Skipped",
+  "planWorkoutFallback": "Workout",
+  "planMealFallback": "Meal",
+  "planCalendarWorkoutSemantics": "Workout: {title}",
+  "@planCalendarWorkoutSemantics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "planCalendarMealSemantics": "Meal: {title}",
+  "@planCalendarMealSemantics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "planMealItemsKcal": "{count, plural, =1{1 item} other{{count} items}} · {kcal} kcal",
+  "@planMealItemsKcal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "planSlotLabel": "{time}, log a workout or a meal",
+  "@planSlotLabel": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "planScheduleEmptyDay": "Nothing on this day. Tap an hour to log a workout or a meal.",
+  "planScheduleHubSubtitle": "Your classes, workouts and meals",
+  "planLogWorkout": "Log workout",
+  "planLogWorkoutHint": "Exercises, sets and weights",
+  "planLogMeal": "Log meal",
+  "planLogMealHint": "{slot} · add food or a recipe",
+  "@planLogMealHint": {
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "planFromSource": "From {name}",
+  "@planFromSource": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planEditedBadge": "Edited",
+  "planExercises": "Exercises",
+  "planNoExercises": "No exercises in this training.",
+  "planPlannedItems": "Planned",
+  "planLoggedItems": "Logged",
+  "planNoItems": "Nothing is planned for this meal.",
+  "planTotal": "Total",
+  "planConfirm": "Confirm as planned",
+  "planLogDifferently": "Log differently",
+  "planSkip": "Skip",
+  "planUnskip": "Put back on the plan",
+  "planOpenWorkout": "Open workout",
+  "planAddFood": "Add food",
+  "planOpenDiary": "Open food diary",
+  "planConfirmedWorkout": "Workout logged as planned",
+  "planConfirmedMeal": "Meal logged as planned",
+  "planSkippedSnack": "Skipped",
+  "planRestoredSnack": "Back on your plan",
+  "planEditWorkoutTitle": "Edit planned workout",
+  "planEditMealTitle": "Edit planned meal",
+  "planEditDate": "Date",
+  "planEditTime": "Start",
+  "planEditDuration": "Duration",
+  "planEditTraining": "Training",
+  "planEditNote": "Note",
+  "planEnrolStartRoutine": "Start this routine",
+  "planEnrolStartPlan": "Start this meal plan",
+  "planEnrolAssignMember": "Assign to a member",
+  "planEnrolRoutineHint": "Its workouts go on your Schedule on their days, at the time you choose.",
+  "planEnrolMealHint": "Each day's meals go on your Schedule at their usual times.",
+  "planEnrolWildcardHint": "This routine has no fixed days, so nothing is added to your Schedule — pick one of its trainings whenever you work out.",
+  "planEnrolNoCalendar": "No fixed days, so not on your Schedule",
+  "planEnrolDialogTitle": "Start {name}",
+  "@planEnrolDialogTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planEnrolManageTitle": "Manage {name}",
+  "@planEnrolManageTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planEnrolStartDate": "Starts",
+  "planEnrolEndDate": "Ends",
+  "planEnrolNoEnd": "No end date",
+  "planEnrolClearEnd": "Remove end date",
+  "planEnrolWorkoutTime": "Workout time",
+  "planEnrolNote": "Note (optional)",
+  "planEnrolStart": "Start",
+  "planEnrolStarted": "You started {name}",
+  "@planEnrolStarted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planEnrolUpdated": "Saved",
+  "planEnrolledRoutine": "You're following this routine",
+  "planEnrolledPlan": "You're following this meal plan",
+  "planEnrolSince": "Since {date}",
+  "@planEnrolSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planEnrolUntil": "until {date}",
+  "@planEnrolUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planEnrolWorkoutsAt": "Workouts at {time}",
+  "@planEnrolWorkoutsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "planEnrolAssignedBy": "Assigned by {name}",
+  "@planEnrolAssignedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planEnrolOpenSchedule": "Schedule",
+  "planEnrolManage": "Manage",
+  "planEnrolLeave": "Leave",
+  "planEnrolLeaveTitle": "Leave {name}?",
+  "@planEnrolLeaveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planEnrolLeaveRoutineBody": "Its planned workouts are removed from your Schedule. Workouts you've logged stay.",
+  "planEnrolLeavePlanBody": "Its planned meals are removed from your Schedule. Food you've logged stays.",
+  "planEnrolLeft": "You left {name}",
+  "@planEnrolLeft": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
+}

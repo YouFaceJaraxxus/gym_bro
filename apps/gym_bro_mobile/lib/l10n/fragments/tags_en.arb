@@ -1,0 +1,62 @@
+{
+  "tagsKindGym": "Gym",
+  "tagsKindShop": "Shop",
+  "tagsKindProduct": "Product",
+  "tagsOpenFailed": "Couldn't open {name}",
+  "@tagsOpenFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tagsTaggedPeople": "{count, plural, =1{1 person tagged} other{{count} people tagged}}",
+  "@tagsTaggedPeople": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tagsLimit": "Up to {count} people per photo",
+  "@tagsLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tagsTitle": "Tag people",
+  "tagsTitleOf": "Tag people · {index}/{count}",
+  "@tagsTitleOf": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tagsTapToTag": "Tap the photo to tag people",
+  "tagsDragHint": "Drag a name to move it, tap the photo to tag someone else",
+  "tagsRemovePerson": "Remove {name}",
+  "@tagsRemovePerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tagsSearchPeople": "Search people",
+  "tagsNoPeople": "No people found",
+  "tagsDone": "Done",
+  "tagsSaved": "Tags updated",
+  "tagsRemoveMe": "Remove me from this post",
+  "tagsRemoveMeTitle": "Remove yourself?",
+  "tagsRemoveMeBody": "You'll no longer be tagged on this post's photos, and it won't show on your profile's Tagged tab.",
+  "tagsRemovedMe": "You were removed from this post",
+  "tagsTabTagged": "Tagged",
+  "tagsNoTagged": "No posts tagged yet",
+  "tagsNoTaggedMe": "When people tag you in photos or mention you, the posts show up here."
+}

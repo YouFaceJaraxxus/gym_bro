@@ -7,6 +7,7 @@ import '../theme.dart';
 import '../widgets/muscle_diagram.dart';
 import 'training_form_page.dart';
 import 'session_log_page.dart';
+import '../widgets/share_post.dart';
 
 class TrainingDetailPage extends StatefulWidget {
   final String trainingId;
@@ -114,6 +115,7 @@ class _TrainingDetailPageState extends State<TrainingDetailPage> {
       appBar: AppBar(
         title: Text(training.name),
         actions: [
+          SharePostButton(target: trainingShareTarget(training)),
           if (isOwner) ...[
             IconButton(
               tooltip: l10n.commonEdit,

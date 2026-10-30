@@ -7,6 +7,7 @@ import '../services/auth_manager.dart';
 import '../widgets/meal_plan_assign.dart';
 import 'daily_meal_plan_detail_page.dart';
 import 'meal_plan_form_page.dart';
+import '../widgets/share_post.dart';
 
 /// Full meal plan: weeks → days → daily plans. Pops with `true` when the plan
 /// was edited or deleted so lists can refresh.
@@ -179,6 +180,7 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
       appBar: AppBar(
         title: Text(plan.name),
         actions: [
+          SharePostButton(target: mealPlanShareTarget(plan)),
           IconButton(
             tooltip: l10n.nutritionAssign,
             icon: const Icon(Icons.person_add_alt_1_outlined),
