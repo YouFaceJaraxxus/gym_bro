@@ -1,0 +1,68 @@
+{
+  "storyYourStory": "Your story",
+  "storyAddTooltip": "Add to your story",
+  "storyNew": "New story",
+  "storyPosted": "Added to your story",
+  "storyTrayUnseen": "{name}'s story, not seen yet",
+  "@storyTrayUnseen": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "storyTraySeen": "{name}'s story",
+  "@storyTraySeen": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "storySendMessageHint": "Send message",
+  "storySend": "Send",
+  "storyLike": "Like",
+  "storyUnlike": "Unlike",
+  "storySendTo": "Send to…",
+  "storyMore": "More",
+  "storyClose": "Close",
+  "storyDelete": "Delete story",
+  "storyDeleteConfirmTitle": "Delete this story?",
+  "storyDeleteConfirmBody": "It will be removed from your story and your archive.",
+  "storyDeleted": "Story deleted",
+  "storyActivityCount": "{count, plural, =0{Activity} =1{1 view} other{{count} views}}",
+  "@storyActivityCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "storyViewsCount": "{count, plural, =0{No views yet} =1{1 view} other{{count} views}}",
+  "@storyViewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "storyNoViewers": "No one has seen this story yet",
+  "storyQuickReactions": "Quick reactions",
+  "storyReactionSent": "Reaction sent",
+  "storyReplySent": "Reply sent",
+  "storyUnavailable": "This story is no longer available",
+  "storyLoadFailed": "Couldn't load stories",
+  "storyArchivedLabel": "Archived",
+  "storyComposerTitle": "New story",
+  "storyComposerTextHint": "Type something…",
+  "storyComposerCaptionHint": "Add a caption…",
+  "storyComposerPickMedia": "Photo or video",
+  "storyComposerEdit": "Edit",
+  "storyComposerRemoveMedia": "Remove photo or video",
+  "storyComposerBackground": "Background colour",
+  "storyComposerShare": "Share to story",
+  "storyComposerPosting": "Sharing…",
+  "storyComposerEmpty": "Add a photo, a video or some text",
+  "storyComposerDiscardTitle": "Discard this story?",
+  "storyComposerDiscard": "Discard"
+}

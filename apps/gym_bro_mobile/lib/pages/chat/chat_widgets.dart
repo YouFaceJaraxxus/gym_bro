@@ -8,6 +8,7 @@ import '../../l10n/l10n.dart';
 import '../../models/chat.dart';
 import '../../models/people.dart';
 import '../../services/auth_manager.dart';
+import '../../widgets/shared_content_card.dart';
 import '../../widgets/social_widgets.dart';
 
 /// Small building blocks shared by the chat screens: avatars, badges,
@@ -167,13 +168,20 @@ String systemEventText(
     );
   }
   final raw = m.preview ?? '';
-  final text = switch ((m.kind, raw)) {
+  var text = switch ((m.kind, raw)) {
     ('media', 'image') => l10n.chatMediaPhoto,
     ('media', 'video') => l10n.chatMediaVideo,
     ('media', 'audio') => l10n.chatMediaAudio,
     ('media', 'file') => l10n.chatMediaFile,
     _ => raw.replaceAll('\n', ' '),
   };
+  if (m.storyMode == 'reaction') {
+    text = l10n.sharedStoryReactedPreview(raw);
+  } else if (m.storyMode == 'reply') {
+    text = l10n.sharedStoryRepliedPreview(text);
+  } else if (raw.isEmpty && m.shareKind != null) {
+    text = sharedPreviewText(l10n, m.shareKind!);
+  }
   if (m.senderId == me) return (text: l10n.chatPreviewYou(text), italic: false);
   if (c.isGroup && m.senderName != null) return (text: l10n.chatPreviewSender(m.senderName!, text), italic: false);
   return (text: text, italic: false);

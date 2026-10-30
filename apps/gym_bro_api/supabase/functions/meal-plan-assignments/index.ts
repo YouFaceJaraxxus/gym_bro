@@ -9,6 +9,7 @@ import {
   requireCaller,
 } from "../_shared/auth.ts";
 import { notify } from "../_shared/notify.ts";
+import { forgetUntouchedEntries, readTimezone } from "../_shared/plans.ts";
 import type { MealPlanAssignmentInsert } from "../../types/schema/public.ts";
 
 const ASSIGNMENT_COLS = [
@@ -19,6 +20,7 @@ const ASSIGNMENT_COLS = [
   "start_date",
   "end_date",
   "note",
+  "timezone",
   "created_at",
 ] as const;
 
@@ -143,6 +145,9 @@ async function handler(req: Request): Promise<Response> {
   if (req.method === "POST" && !id) {
     const body = await req.json().catch(() => null);
     const { meal_plan_id, user_id, start_date, end_date, note } = body ?? {};
+    // The zone planned meals are put on the calendar in.
+    const timezone = readTimezone(body?.timezone);
+    if (timezone instanceof Response) return timezone;
 
     if (!meal_plan_id || !user_id) {
       return jsonError("meal_plan_id and user_id are required", 400);
@@ -173,6 +178,7 @@ async function handler(req: Request): Promise<Response> {
       start_date: start_date ?? null,
       end_date: end_date ?? null,
       note: note ?? null,
+      timezone: timezone ?? null,
     };
 
     const assignment = await db
@@ -193,6 +199,47 @@ async function handler(req: Request): Promise<Response> {
 
     const [row] = await withDetails([assignment]);
     return json(row, 201);
+  }
+
+  // ── PUT /meal-plan-assignments/:id {start_date?, end_date?, note?, timezone?} ──
+  // Assigner, target or super. Planned meals still to come that weren't edited
+  // or logged are regenerated.
+  if (req.method === "PUT" && id) {
+    const existing = await db
+      .selectFrom("meal_plan_assignment")
+      .select(["assigned_by_id", "user_id"])
+      .where("id", "=", id)
+      .executeTakeFirst();
+    if (!existing) return jsonError("Meal plan assignment not found", 404);
+    const allowed = existing.user_id === caller.id || existing.assigned_by_id === caller.id || isSuperUser(caller);
+    if (!allowed) return forbidden();
+
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object") return jsonError("Body must be an object", 400);
+    for (const k of ["start_date", "end_date"] as const) {
+      const v = body[k];
+      if (v !== undefined && v !== null && (typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v))) {
+        return jsonError(`${k} must be YYYY-MM-DD`, 400);
+      }
+    }
+    const timezone = readTimezone(body.timezone);
+    if (timezone instanceof Response) return timezone;
+    const update = {
+      ...(body.start_date !== undefined && { start_date: body.start_date }),
+      ...(body.end_date !== undefined && { end_date: body.end_date }),
+      ...(body.note !== undefined && { note: body.note || null }),
+      ...(timezone !== undefined && { timezone }),
+    };
+    if (!Object.keys(update).length) return jsonError("Nothing to update", 400);
+
+    const assignment = await db.transaction().execute(async (trx) => {
+      const row = await trx.updateTable("meal_plan_assignment").set(update).where("id", "=", id)
+        .returning(ASSIGNMENT_COLS).executeTakeFirstOrThrow();
+      await forgetUntouchedEntries(trx, { mealPlanAssignmentId: id });
+      return row;
+    });
+    const [row] = await withDetails([assignment]);
+    return json(row);
   }
 
   // ── DELETE /meal-plan-assignments/:id ─────────────────────────────────────────

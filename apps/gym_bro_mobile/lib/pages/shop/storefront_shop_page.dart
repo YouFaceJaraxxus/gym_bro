@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/l10n.dart';
 import '../../models/payment.dart';
+import '../../models/post.dart';
+import '../../models/shared_content.dart';
 import '../../models/shop_item.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/quantity_input.dart';
+import '../../widgets/share_sheet.dart';
 import 'cart_service.dart';
 import 'cart_sheet.dart';
 import 'order_widgets.dart';
@@ -16,10 +19,14 @@ class StorefrontShopPage extends StatefulWidget {
     super.key,
     required this.shopId,
     required this.shopName,
+    this.initialItemId,
   });
 
   final String shopId;
   final String shopName;
+
+  /// A product to open once loaded (e.g. from a mention).
+  final String? initialItemId;
 
   @override
   State<StorefrontShopPage> createState() => _StorefrontShopPageState();
@@ -35,6 +42,7 @@ class _StorefrontShopPageState extends State<StorefrontShopPage> {
   String _query = '';
   bool _loading = true;
   String? _error;
+  bool _openedInitial = false;
 
   @override
   void initState() {
@@ -77,6 +85,12 @@ class _StorefrontShopPageState extends State<StorefrontShopPage> {
           _config = results[1] as PaymentsConfig;
           _loading = false;
         });
+        final initial = widget.initialItemId;
+        if (initial != null && !_openedInitial) {
+          _openedInitial = true;
+          final item = items.where((i) => i.id == initial).firstOrNull;
+          if (item != null) WidgetsBinding.instance.addPostFrameCallback((_) => mounted ? _openItem(item) : null);
+        }
         if (removed.isNotEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -138,6 +152,11 @@ class _StorefrontShopPageState extends State<StorefrontShopPage> {
           appBar: AppBar(
             title: Text(widget.shopName),
             actions: [
+              IconButton(
+                tooltip: l10n.shareBusinessAction,
+                icon: const Icon(Icons.send_outlined),
+                onPressed: () => showShareSheet(context, ShareRequest.of(ShareKind.business, widget.shopId, title: widget.shopName)),
+              ),
               IconButton(
                 tooltip: l10n.businessShopCart,
                 onPressed: _openCart,
@@ -473,6 +492,21 @@ class _ItemSheetState extends State<_ItemSheet> {
                 Text(
                   item.type.label(l10n),
                   style: tt.labelMedium?.copyWith(color: cs.outline),
+                ),
+                const Spacer(),
+                IconButton(
+                  tooltip: l10n.shareProductAction,
+                  visualDensity: VisualDensity.compact,
+                  icon: const Icon(Icons.send_outlined, size: 20),
+                  onPressed: () => showShareSheet(
+                    context,
+                    ShareRequest.of(
+                      ShareKind.shopItem,
+                      item.id,
+                      title: item.name,
+                      preview: PostAttachment({'image_url': ?item.imageUrl}),
+                    ),
+                  ),
                 ),
               ],
             ),

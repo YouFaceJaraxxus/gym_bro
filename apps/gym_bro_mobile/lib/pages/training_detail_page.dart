@@ -5,9 +5,9 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../theme.dart';
 import '../widgets/muscle_diagram.dart';
+import '../widgets/share_post.dart';
 import 'training_form_page.dart';
 import 'session_log_page.dart';
-import '../widgets/share_post.dart';
 
 class TrainingDetailPage extends StatefulWidget {
   final String trainingId;

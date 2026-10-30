@@ -136,6 +136,9 @@ class TrainingSession {
   final DateTime startedAt;
   final DateTime? endedAt;
   final String? notes;
+
+  /// The planned workout (plan entry) this session logs, if any.
+  final String? planEntryId;
   final List<SessionSetLog> setLogs;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -151,6 +154,7 @@ class TrainingSession {
     required this.startedAt,
     this.endedAt,
     this.notes,
+    this.planEntryId,
     required this.setLogs,
     required this.createdAt,
     required this.updatedAt,
@@ -171,6 +175,7 @@ class TrainingSession {
           ? null
           : DateTime.parse(json['ended_at'] as String),
       notes: json['notes'] as String?,
+      planEntryId: json['plan_entry_id'] as String?,
       setLogs: rawLogs
           .map((l) => SessionSetLog.fromJson(l as Map<String, dynamic>))
           .toList(),

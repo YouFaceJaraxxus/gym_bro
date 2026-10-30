@@ -12,6 +12,99 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Gym Bro';
 
   @override
+  String archiveDayLabel(String day, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+      zero: 'nothing',
+    );
+    return '$day, $_temp0';
+  }
+
+  @override
+  String get archiveLoadFailed => 'Couldn\'t load your archive';
+
+  @override
+  String get archiveNextMonth => 'Next month';
+
+  @override
+  String archiveNoPosts(String month) {
+    return 'No archived posts from $month';
+  }
+
+  @override
+  String archiveNoStories(String month) {
+    return 'No stories in $month';
+  }
+
+  @override
+  String archiveNothingOnDay(String day) {
+    return 'Nothing on $day';
+  }
+
+  @override
+  String get archiveOnlyYou => 'Only you can see your archive.';
+
+  @override
+  String get archivePostAction => 'Archive';
+
+  @override
+  String get archivePostArchived => 'Post archived. Only you can see it now.';
+
+  @override
+  String get archivePostBanner => 'Archived — only you can see this post';
+
+  @override
+  String get archivePostRestored => 'Your post is back on your profile';
+
+  @override
+  String get archivePostUnarchive => 'Show on profile';
+
+  @override
+  String get archivePostsHint =>
+      'Archived posts are hidden from your profile and feed until you show them again.';
+
+  @override
+  String get archivePrevMonth => 'Previous month';
+
+  @override
+  String get archiveStoriesHint => 'Stories stay here after their 24 hours.';
+
+  @override
+  String get archiveStoryLive => 'Live';
+
+  @override
+  String get archiveStoryShared => 'Shared in a story';
+
+  @override
+  String get archiveStoryText => 'Text story';
+
+  @override
+  String get archiveSubtitle => 'Your stories and archived posts';
+
+  @override
+  String get archiveTabPosts => 'Posts';
+
+  @override
+  String get archiveTabStories => 'Stories';
+
+  @override
+  String get archiveTitle => 'Archive';
+
+  @override
+  String get archiveViewCalendar => 'Calendar';
+
+  @override
+  String get archiveViewList => 'List';
+
+  @override
+  String archiveWholeMonth(String month) {
+    return 'All of $month';
+  }
+
+  @override
   String get businessCheckInAllTime => 'All time';
 
   @override
@@ -5277,6 +5370,422 @@ class AppLocalizationsEn extends AppLocalizations {
   String get peopleViewProfile => 'View profile';
 
   @override
+  String get planAddFood => 'Add food';
+
+  @override
+  String get planCalendarDone => 'Done';
+
+  @override
+  String planCalendarMealSemantics(String title) {
+    return 'Meal: $title';
+  }
+
+  @override
+  String get planCalendarPlanned => 'Planned';
+
+  @override
+  String get planCalendarSkipped => 'Skipped';
+
+  @override
+  String planCalendarWorkoutSemantics(String title) {
+    return 'Workout: $title';
+  }
+
+  @override
+  String get planConfirm => 'Confirm as planned';
+
+  @override
+  String get planConfirmedMeal => 'Meal logged as planned';
+
+  @override
+  String get planConfirmedWorkout => 'Workout logged as planned';
+
+  @override
+  String get planEditDate => 'Date';
+
+  @override
+  String get planEditDuration => 'Duration';
+
+  @override
+  String get planEditMealTitle => 'Edit planned meal';
+
+  @override
+  String get planEditNote => 'Note';
+
+  @override
+  String get planEditTime => 'Start';
+
+  @override
+  String get planEditTraining => 'Training';
+
+  @override
+  String get planEditWorkoutTitle => 'Edit planned workout';
+
+  @override
+  String get planEditedBadge => 'Edited';
+
+  @override
+  String get planEnrolAssignMember => 'Assign to a member';
+
+  @override
+  String planEnrolAssignedBy(String name) {
+    return 'Assigned by $name';
+  }
+
+  @override
+  String get planEnrolClearEnd => 'Remove end date';
+
+  @override
+  String planEnrolDialogTitle(String name) {
+    return 'Start $name';
+  }
+
+  @override
+  String get planEnrolEndDate => 'Ends';
+
+  @override
+  String get planEnrolLeave => 'Leave';
+
+  @override
+  String get planEnrolLeavePlanBody =>
+      'Its planned meals are removed from your Schedule. Food you\'ve logged stays.';
+
+  @override
+  String get planEnrolLeaveRoutineBody =>
+      'Its planned workouts are removed from your Schedule. Workouts you\'ve logged stay.';
+
+  @override
+  String planEnrolLeaveTitle(String name) {
+    return 'Leave $name?';
+  }
+
+  @override
+  String planEnrolLeft(String name) {
+    return 'You left $name';
+  }
+
+  @override
+  String get planEnrolManage => 'Manage';
+
+  @override
+  String planEnrolManageTitle(String name) {
+    return 'Manage $name';
+  }
+
+  @override
+  String get planEnrolMealHint =>
+      'Each day\'s meals go on your Schedule at their usual times.';
+
+  @override
+  String get planEnrolNoCalendar => 'No fixed days, so not on your Schedule';
+
+  @override
+  String get planEnrolNoEnd => 'No end date';
+
+  @override
+  String get planEnrolNote => 'Note (optional)';
+
+  @override
+  String get planEnrolOpenSchedule => 'Schedule';
+
+  @override
+  String get planEnrolRoutineHint =>
+      'Its workouts go on your Schedule on their days, at the time you choose.';
+
+  @override
+  String planEnrolSince(String date) {
+    return 'Since $date';
+  }
+
+  @override
+  String get planEnrolStart => 'Start';
+
+  @override
+  String get planEnrolStartDate => 'Starts';
+
+  @override
+  String get planEnrolStartPlan => 'Start this meal plan';
+
+  @override
+  String get planEnrolStartRoutine => 'Start this routine';
+
+  @override
+  String planEnrolStarted(String name) {
+    return 'You started $name';
+  }
+
+  @override
+  String planEnrolUntil(String date) {
+    return 'until $date';
+  }
+
+  @override
+  String get planEnrolUpdated => 'Saved';
+
+  @override
+  String get planEnrolWildcardHint =>
+      'This routine has no fixed days, so nothing is added to your Schedule — pick one of its trainings whenever you work out.';
+
+  @override
+  String get planEnrolWorkoutTime => 'Workout time';
+
+  @override
+  String planEnrolWorkoutsAt(String time) {
+    return 'Workouts at $time';
+  }
+
+  @override
+  String get planEnrolledPlan => 'You\'re following this meal plan';
+
+  @override
+  String get planEnrolledRoutine => 'You\'re following this routine';
+
+  @override
+  String get planExercises => 'Exercises';
+
+  @override
+  String planFromSource(String name) {
+    return 'From $name';
+  }
+
+  @override
+  String get planLogDifferently => 'Log differently';
+
+  @override
+  String get planLogMeal => 'Log meal';
+
+  @override
+  String planLogMealHint(String slot) {
+    return '$slot · add food or a recipe';
+  }
+
+  @override
+  String get planLogWorkout => 'Log workout';
+
+  @override
+  String get planLogWorkoutHint => 'Exercises, sets and weights';
+
+  @override
+  String get planLoggedItems => 'Logged';
+
+  @override
+  String get planMealFallback => 'Meal';
+
+  @override
+  String planMealItemsKcal(int count, int kcal) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0 · $kcal kcal';
+  }
+
+  @override
+  String get planNoExercises => 'No exercises in this training.';
+
+  @override
+  String get planNoItems => 'Nothing is planned for this meal.';
+
+  @override
+  String get planOpenDiary => 'Open food diary';
+
+  @override
+  String get planOpenWorkout => 'Open workout';
+
+  @override
+  String get planPlannedItems => 'Planned';
+
+  @override
+  String get planRestoredSnack => 'Back on your plan';
+
+  @override
+  String get planScheduleEmptyDay =>
+      'Nothing on this day. Tap an hour to log a workout or a meal.';
+
+  @override
+  String get planScheduleHubSubtitle => 'Your classes, workouts and meals';
+
+  @override
+  String get planSkip => 'Skip';
+
+  @override
+  String get planSkippedSnack => 'Skipped';
+
+  @override
+  String planSlotLabel(String time) {
+    return '$time, log a workout or a meal';
+  }
+
+  @override
+  String get planTotal => 'Total';
+
+  @override
+  String get planUnskip => 'Put back on the plan';
+
+  @override
+  String get planWorkoutFallback => 'Workout';
+
+  @override
+  String get postShareAction => 'Share as post';
+
+  @override
+  String postShareBestReps(int reps) {
+    return 'best $reps reps';
+  }
+
+  @override
+  String postShareBestSet(String weight, int reps) {
+    return 'best $weight × $reps';
+  }
+
+  @override
+  String get postShareCaptionHint => 'Say something about it…';
+
+  @override
+  String postShareDaysPlanned(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days planned',
+      one: '1 day planned',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String postShareExercises(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercises',
+      one: '1 exercise',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postShareFutureBlocked =>
+      'You can share this once it has happened';
+
+  @override
+  String postShareMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String postShareMoreItems(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String postSharePer100(String unit) {
+    return 'per 100 $unit';
+  }
+
+  @override
+  String get postSharePerDay => 'per day';
+
+  @override
+  String get postSharePerServing => 'per serving';
+
+  @override
+  String get postSharePosted => 'Shared to your feed';
+
+  @override
+  String get postShareRemove => 'Don\'t share this';
+
+  @override
+  String postShareServings(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count servings',
+      one: '1 serving',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String postShareSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sets',
+      one: '1 set',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postShareShareAction => 'Share';
+
+  @override
+  String get postShareSharing => 'Sharing';
+
+  @override
+  String get postShareSourceUnavailable => 'This isn\'t available anymore';
+
+  @override
+  String get postShareTypeDailyMealPlan => 'Day plan';
+
+  @override
+  String get postShareTypeExercise => 'Exercise';
+
+  @override
+  String get postShareTypeFoodItem => 'Food';
+
+  @override
+  String get postShareTypeGeneric => 'Post';
+
+  @override
+  String get postShareTypeMeal => 'Meal';
+
+  @override
+  String get postShareTypeMealPlan => 'Meal program';
+
+  @override
+  String get postShareTypeRecipe => 'Recipe';
+
+  @override
+  String get postShareTypeRoutine => 'Workout program';
+
+  @override
+  String get postShareTypeTraining => 'Workout';
+
+  @override
+  String get postShareTypeWorkout => 'Workout';
+
+  @override
+  String postShareWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks',
+      one: '1 week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postShareWorkoutFinished => 'Workout finished';
+
+  @override
+  String get postShareWorkoutLogged => 'Workout logged';
+
+  @override
+  String postShareWorkouts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count workouts',
+      one: '1 workout',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get reactionAngry => 'Angry';
 
   @override
@@ -5331,6 +5840,235 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLanguageSystem => 'System default';
+
+  @override
+  String get shareBusinessAction => 'Share';
+
+  @override
+  String get shareProductAction => 'Share product';
+
+  @override
+  String get shareProfileAction => 'Share profile';
+
+  @override
+  String get shareSendAction => 'Send';
+
+  @override
+  String get shareSheetAddToStory => 'Add to story';
+
+  @override
+  String shareSheetFailed(String error) {
+    return 'Couldn\'t send: $error';
+  }
+
+  @override
+  String shareSheetGroupMembers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count members',
+      one: '1 member',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shareSheetLoadFailed => 'Couldn\'t load your chats';
+
+  @override
+  String get shareSheetMessageHint => 'Write a message…';
+
+  @override
+  String get shareSheetNoChats =>
+      'No chats yet — search for someone to send this to.';
+
+  @override
+  String get shareSheetNoResults => 'No one found';
+
+  @override
+  String get shareSheetPeople => 'People';
+
+  @override
+  String get shareSheetRecent => 'Recent chats';
+
+  @override
+  String get shareSheetSearchHint => 'Search people';
+
+  @override
+  String get shareSheetSend => 'Send';
+
+  @override
+  String shareSheetSendTo(int count) {
+    return 'Send to $count';
+  }
+
+  @override
+  String shareSheetSent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Sent to $count chats',
+      one: 'Sent',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shareSheetShareAsPost => 'Share as post';
+
+  @override
+  String shareSheetSomeFailed(String names) {
+    return 'Couldn\'t send to $names';
+  }
+
+  @override
+  String get shareSheetTitle => 'Share';
+
+  @override
+  String get sharedExpiredStoryBody => 'Stories are only visible for 24 hours.';
+
+  @override
+  String get sharedExpiredStoryTitle => 'Story expired';
+
+  @override
+  String get sharedKindGym => 'Gym';
+
+  @override
+  String get sharedKindPost => 'Post';
+
+  @override
+  String get sharedKindProduct => 'Product';
+
+  @override
+  String get sharedKindProfile => 'Profile';
+
+  @override
+  String get sharedKindShop => 'Shop';
+
+  @override
+  String get sharedKindStory => 'Story';
+
+  @override
+  String get sharedLoading => 'Loading…';
+
+  @override
+  String sharedPostOf(String name) {
+    return '$name\'s post';
+  }
+
+  @override
+  String get sharedPreviewBusiness => 'Shared a page';
+
+  @override
+  String get sharedPreviewDayPlan => 'Shared a day plan';
+
+  @override
+  String get sharedPreviewExercise => 'Shared an exercise';
+
+  @override
+  String get sharedPreviewFood => 'Shared a food';
+
+  @override
+  String get sharedPreviewMeal => 'Shared a meal';
+
+  @override
+  String get sharedPreviewMealPlan => 'Shared a meal program';
+
+  @override
+  String get sharedPreviewPost => 'Shared a post';
+
+  @override
+  String get sharedPreviewProduct => 'Shared a product';
+
+  @override
+  String get sharedPreviewProfile => 'Shared a profile';
+
+  @override
+  String get sharedPreviewRecipe => 'Shared a recipe';
+
+  @override
+  String get sharedPreviewRoutine => 'Shared a workout program';
+
+  @override
+  String get sharedPreviewStory => 'Shared a story';
+
+  @override
+  String get sharedPreviewWorkout => 'Shared a workout';
+
+  @override
+  String get sharedPrivateChip => 'Private account';
+
+  @override
+  String get sharedPrivateItemBody =>
+      'Only its author and people it\'s shared with can see it.';
+
+  @override
+  String sharedPrivateItemTitle(String kind) {
+    return '$kind is private';
+  }
+
+  @override
+  String get sharedPrivatePostBody =>
+      'Only approved followers can see this post.';
+
+  @override
+  String get sharedPrivatePostTitle => 'This account is private';
+
+  @override
+  String get sharedPrivateStoryBody =>
+      'Only approved followers can see this story.';
+
+  @override
+  String get sharedPrivateStoryTitle => 'This story is private';
+
+  @override
+  String get sharedStoryExpiredShort => 'Story expired';
+
+  @override
+  String get sharedStoryGoneShort => 'Story unavailable';
+
+  @override
+  String sharedStoryOf(String name) {
+    return '$name\'s story';
+  }
+
+  @override
+  String sharedStoryReactedPreview(String emoji) {
+    return 'Reacted $emoji to a story';
+  }
+
+  @override
+  String get sharedStoryReactedTheirs => 'You reacted to their story';
+
+  @override
+  String get sharedStoryReactedYours => 'Reacted to your story';
+
+  @override
+  String sharedStoryRepliedPreview(String text) {
+    return 'Replied to a story: $text';
+  }
+
+  @override
+  String get sharedStoryRepliedTheirs => 'You replied to their story';
+
+  @override
+  String get sharedStoryRepliedYours => 'Replied to your story';
+
+  @override
+  String get sharedUnavailableAccountTitle => 'Account unavailable';
+
+  @override
+  String get sharedUnavailableBody =>
+      'This content was removed or you can no longer see it.';
+
+  @override
+  String get sharedUnavailablePostTitle => 'Post unavailable';
+
+  @override
+  String get sharedUnavailableStoryTitle => 'Story unavailable';
+
+  @override
+  String get sharedUnavailableTitle => 'No longer available';
 
   @override
   String get shellActivateAccount => 'Activate account';
@@ -6288,6 +7026,228 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get socialUploadFailed => 'Upload failed. Try again.';
+
+  @override
+  String storyActivityCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count views',
+      one: '1 view',
+      zero: 'Activity',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get storyAddTooltip => 'Add to your story';
+
+  @override
+  String get storyArchivedLabel => 'Archived';
+
+  @override
+  String get storyClose => 'Close';
+
+  @override
+  String get storyComposerBackground => 'Background colour';
+
+  @override
+  String get storyComposerCaptionHint => 'Add a caption…';
+
+  @override
+  String get storyComposerDiscard => 'Discard';
+
+  @override
+  String get storyComposerDiscardTitle => 'Discard this story?';
+
+  @override
+  String get storyComposerEdit => 'Edit';
+
+  @override
+  String get storyComposerEmpty => 'Add a photo, a video or some text';
+
+  @override
+  String get storyComposerPickMedia => 'Photo or video';
+
+  @override
+  String get storyComposerPosting => 'Sharing…';
+
+  @override
+  String get storyComposerRemoveMedia => 'Remove photo or video';
+
+  @override
+  String get storyComposerShare => 'Share to story';
+
+  @override
+  String get storyComposerTextHint => 'Type something…';
+
+  @override
+  String get storyComposerTitle => 'New story';
+
+  @override
+  String get storyDelete => 'Delete story';
+
+  @override
+  String get storyDeleteConfirmBody =>
+      'It will be removed from your story and your archive.';
+
+  @override
+  String get storyDeleteConfirmTitle => 'Delete this story?';
+
+  @override
+  String get storyDeleted => 'Story deleted';
+
+  @override
+  String get storyLike => 'Like';
+
+  @override
+  String get storyLoadFailed => 'Couldn\'t load stories';
+
+  @override
+  String get storyMore => 'More';
+
+  @override
+  String get storyNew => 'New story';
+
+  @override
+  String get storyNoViewers => 'No one has seen this story yet';
+
+  @override
+  String get storyPosted => 'Added to your story';
+
+  @override
+  String get storyQuickReactions => 'Quick reactions';
+
+  @override
+  String get storyReactionSent => 'Reaction sent';
+
+  @override
+  String get storyReplySent => 'Reply sent';
+
+  @override
+  String get storySend => 'Send';
+
+  @override
+  String get storySendMessageHint => 'Send message';
+
+  @override
+  String get storySendTo => 'Send to…';
+
+  @override
+  String storyTraySeen(String name) {
+    return '$name\'s story';
+  }
+
+  @override
+  String storyTrayUnseen(String name) {
+    return '$name\'s story, not seen yet';
+  }
+
+  @override
+  String get storyUnavailable => 'This story is no longer available';
+
+  @override
+  String get storyUnlike => 'Unlike';
+
+  @override
+  String storyViewsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count views',
+      one: '1 view',
+      zero: 'No views yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get storyYourStory => 'Your story';
+
+  @override
+  String get tagsDone => 'Done';
+
+  @override
+  String get tagsDragHint =>
+      'Drag a name to move it, tap the photo to tag someone else';
+
+  @override
+  String get tagsKindGym => 'Gym';
+
+  @override
+  String get tagsKindProduct => 'Product';
+
+  @override
+  String get tagsKindShop => 'Shop';
+
+  @override
+  String tagsLimit(int count) {
+    return 'Up to $count people per photo';
+  }
+
+  @override
+  String get tagsNoPeople => 'No people found';
+
+  @override
+  String get tagsNoTagged => 'No posts tagged yet';
+
+  @override
+  String get tagsNoTaggedMe =>
+      'When people tag you in photos or mention you, the posts show up here.';
+
+  @override
+  String tagsOpenFailed(String name) {
+    return 'Couldn\'t open $name';
+  }
+
+  @override
+  String get tagsRemoveMe => 'Remove me from this post';
+
+  @override
+  String get tagsRemoveMeBody =>
+      'You\'ll no longer be tagged on this post\'s photos, and it won\'t show on your profile\'s Tagged tab.';
+
+  @override
+  String get tagsRemoveMeTitle => 'Remove yourself?';
+
+  @override
+  String tagsRemovePerson(String name) {
+    return 'Remove $name';
+  }
+
+  @override
+  String get tagsRemovedMe => 'You were removed from this post';
+
+  @override
+  String get tagsSaved => 'Tags updated';
+
+  @override
+  String get tagsSearchPeople => 'Search people';
+
+  @override
+  String get tagsTabTagged => 'Tagged';
+
+  @override
+  String tagsTaggedPeople(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people tagged',
+      one: '1 person tagged',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tagsTapToTag => 'Tap the photo to tag people';
+
+  @override
+  String get tagsTitle => 'Tag people';
+
+  @override
+  String tagsTitleOf(int index, int count) {
+    return 'Tag people · $index/$count';
+  }
 
   @override
   String get trainerClassesPickerCustomer => 'Customer';

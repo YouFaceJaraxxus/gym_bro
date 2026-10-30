@@ -987,8 +987,8 @@ Deno.serve(async (req: Request) => {
       return jsonError("This account owns a gym or shop. Delete those businesses first.", 409);
     }
 
-    // Personal posts go with the account (business posts stay, authorless),
-    // and so do the private files behind them.
+    // Personal posts and stories go with the account (business posts stay,
+    // authorless), and so do the private files behind them.
     const personalMedia = await db.selectFrom("post_image")
       .innerJoin("post", "post.id", "post_image.post_id")
       .select("post_image.storage_path")
@@ -996,6 +996,8 @@ Deno.serve(async (req: Request) => {
       .where("post.business_id", "is", null)
       .where("post_image.storage_path", "is not", null)
       .execute();
+    const storyMedia = await db.selectFrom("story").select("storage_path")
+      .where("author_id", "=", id).where("storage_path", "is not", null).execute();
     const pendingUploads = await db.selectFrom("media_upload").select(["bucket", "storage_path"])
       .where("uploader_id", "=", id).where("claimed_at", "is", null).execute();
 
@@ -1017,6 +1019,7 @@ Deno.serve(async (req: Request) => {
 
     await removeObjects("user-media", [
       ...personalMedia.map((m) => m.storage_path!),
+      ...storyMedia.map((m) => m.storage_path!),
       ...pendingUploads.filter((u) => u.bucket === "user-media").map((u) => u.storage_path),
     ]);
     await removeObjects("chat-media", pendingUploads.filter((u) => u.bucket === "chat-media").map((u) => u.storage_path));

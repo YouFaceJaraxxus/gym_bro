@@ -5,9 +5,10 @@ import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/meal_plan_assign.dart';
+import '../widgets/plan_enrolment.dart';
+import '../widgets/share_post.dart';
 import 'daily_meal_plan_detail_page.dart';
 import 'meal_plan_form_page.dart';
-import '../widgets/share_post.dart';
 
 /// Full meal plan: weeks → days → daily plans. Pops with `true` when the plan
 /// was edited or deleted so lists can refresh.
@@ -26,6 +27,9 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
   bool _loading = true;
   String? _error;
   bool _changed = false;
+
+  /// Bumped to reload the enrolment card (e.g. a coach assigned it to themself).
+  int _enrolVersion = 0;
 
   @override
   void initState() {
@@ -109,7 +113,12 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
     final plan = _plan;
     if (plan == null) return;
     final ok = await showAssignMealPlanFlow(context, plan: plan);
-    if (ok) _changed = true;
+    if (ok && mounted) {
+      setState(() {
+        _changed = true;
+        _enrolVersion++;
+      });
+    }
   }
 
   void _openDay(MealPlanDay day) {
@@ -169,6 +178,10 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
     final isAuthor =
         profile != null && plan.authorId != null && profile.id == plan.authorId;
     final canEdit = isSuper || (isAuthor && !plan.isSystem);
+    // Anyone can start a public plan (or their own) themselves; coaches can
+    // also assign it to members they coach.
+    final canEnrol = plan.isPublic || isAuthor || isSuper;
+    final canAssign = canEnrol && isCoachRole(profile?.role);
 
     final plannedDays = plan.days.where((d) => d.dailyMealPlan != null).toList();
     double avg(double Function(DailyMealPlan d) f) => plannedDays.isEmpty
@@ -181,11 +194,12 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
         title: Text(plan.name),
         actions: [
           SharePostButton(target: mealPlanShareTarget(plan)),
-          IconButton(
-            tooltip: l10n.nutritionAssign,
-            icon: const Icon(Icons.person_add_alt_1_outlined),
-            onPressed: _assign,
-          ),
+          if (canAssign)
+            IconButton(
+              tooltip: l10n.planEnrolAssignMember,
+              icon: const Icon(Icons.person_add_alt_1_outlined),
+              onPressed: _assign,
+            ),
           if (canEdit) ...[
             IconButton(
               tooltip: l10n.commonEdit,
@@ -200,11 +214,13 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
           ],
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _assign,
-        icon: const Icon(Icons.assignment_ind_outlined),
-        label: Text(l10n.nutritionAssign),
-      ),
+      floatingActionButton: canAssign
+          ? FloatingActionButton.extended(
+              onPressed: _assign,
+              icon: const Icon(Icons.assignment_ind_outlined),
+              label: Text(l10n.planEnrolAssignMember),
+            )
+          : null,
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
@@ -280,6 +296,16 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
               const SizedBox(height: 16),
               Text(plan.description!),
             ],
+
+            EnrolmentCard(
+              key: ValueKey('enrol-$_enrolVersion'),
+              kind: EnrolKind.mealPlan,
+              targetId: plan.id,
+              name: plan.name,
+              canEnrol: canEnrol,
+              scheduled: true,
+              onChanged: () => _changed = true,
+            ),
 
             // Average macros
             if (plannedDays.isNotEmpty) ...[

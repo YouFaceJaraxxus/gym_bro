@@ -113,7 +113,7 @@ async function handler(req: Request): Promise<Response> {
         COUNT(*)::int                                                         AS sessions_total,
         MAX(started_at)                                                       AS last_session_at
       FROM training_session
-      WHERE user_id = ${userId}
+      WHERE user_id = ${userId} AND started_at <= NOW() -- not ones logged ahead of time
     `.execute(db);
 
     const volume = await sql<{ volume_30d_kg: number }>`
@@ -130,7 +130,7 @@ async function handler(req: Request): Promise<Response> {
       WITH w AS (
         SELECT DISTINCT date_trunc('week', started_at AT TIME ZONE 'UTC')::date AS wk
           FROM training_session
-         WHERE user_id = ${userId}
+         WHERE user_id = ${userId} AND started_at <= NOW()
       ),
       r AS (
         SELECT wk, wk + ((ROW_NUMBER() OVER (ORDER BY wk DESC) - 1) * 7)::int AS grp FROM w

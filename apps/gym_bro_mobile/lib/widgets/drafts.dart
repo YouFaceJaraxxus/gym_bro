@@ -16,14 +16,41 @@ import '../services/auth_manager.dart';
 // A create screen opts in with [DraftableForm] and is opened through
 // [openCreateWithDrafts].
 
+/// Kinds whose create flow is opening or open. Drafts load before anything
+/// shows, so a second tap meanwhile (e.g. a double tap on a slow network)
+/// would otherwise stack a second create screen on the first.
+final _opening = <DraftKind>{};
+
 /// Opens a create screen built by [builder], first offering the user's
 /// drafts of [kind] (if any) — "Start new" passes null, picking one passes
-/// the loaded draft. Returns what the screen pops with.
+/// the loaded draft. Returns what the screen pops with; null right away when
+/// a create screen of [kind] is already opening or open.
 Future<T?> openCreateWithDrafts<T>(
   BuildContext context, {
   required DraftKind kind,
   String? scopeId,
   bool fullscreenDialog = false,
+  required Widget Function(Draft? draft) builder,
+}) async {
+  if (!_opening.add(kind)) return null;
+  try {
+    return await _openCreateWithDrafts<T>(
+      context,
+      kind: kind,
+      scopeId: scopeId,
+      fullscreenDialog: fullscreenDialog,
+      builder: builder,
+    );
+  } finally {
+    _opening.remove(kind);
+  }
+}
+
+Future<T?> _openCreateWithDrafts<T>(
+  BuildContext context, {
+  required DraftKind kind,
+  String? scopeId,
+  required bool fullscreenDialog,
   required Widget Function(Draft? draft) builder,
 }) async {
   final navigator = Navigator.of(context);

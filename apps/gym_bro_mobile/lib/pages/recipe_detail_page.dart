@@ -6,9 +6,9 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../theme.dart';
 import '../widgets/open_url.dart';
+import '../widgets/share_post.dart';
 import 'nutrition/nutrition_widgets.dart';
 import 'recipe_form_page.dart';
-import '../widgets/share_post.dart';
 
 class RecipeDetailPage extends StatefulWidget {
   final String recipeId;

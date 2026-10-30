@@ -2,6 +2,7 @@
 import '../config.dart';
 import 'people.dart';
 import 'reaction.dart';
+import 'shared_content.dart';
 
 /// Nested maps from a realtime payload may be untyped; normalize them.
 Map<String, dynamic>? _map(Object? v) => v is Map ? Map<String, dynamic>.from(v) : null;
@@ -42,6 +43,12 @@ class LastMessagePreview {
   /// Text, or the media type ('image', 'video', 'audio', 'file') for an
   /// attachment-only message; null for unsent or system messages.
   final String? preview;
+
+  /// What it shares (no text: "Shared a post"); null when nothing.
+  final ShareKind? shareKind;
+
+  /// 'reply' / 'reaction' when it answers a story.
+  final String? storyMode;
   final Map<String, dynamic> metadata;
   final DateTime createdAt;
   final bool deleted;
@@ -52,6 +59,8 @@ class LastMessagePreview {
     this.senderName,
     required this.kind,
     this.preview,
+    this.shareKind,
+    this.storyMode,
     this.metadata = const {},
     required this.createdAt,
     this.deleted = false,
@@ -63,6 +72,8 @@ class LastMessagePreview {
     senderName: json['sender_name'] as String?,
     kind: json['kind'] as String? ?? 'text',
     preview: json['preview'] as String?,
+    shareKind: ShareKind.tryParse(json['share_kind']),
+    storyMode: json['story_mode'] as String?,
     metadata: _map(json['metadata']) ?? const {},
     createdAt: DateTime.parse(json['created_at'] as String).toLocal(),
     deleted: json['deleted'] as bool? ?? false,
@@ -309,6 +320,12 @@ class ChatMessage {
   final List<ChatAttachment> attachments;
   final List<MessageReaction> reactions;
 
+  /// Something shared (a post, profile, workout, …), resolved for me.
+  final SharedContent? share;
+
+  /// Set when it replies / reacts to a story.
+  final StoryReplyInfo? storyReply;
+
   /// Local-only: an optimistic message still being sent / that failed.
   final bool pending;
   final bool failed;
@@ -328,11 +345,18 @@ class ChatMessage {
     this.deletedAt,
     this.attachments = const [],
     this.reactions = const [],
+    this.share,
+    this.storyReply,
     this.pending = false,
     this.failed = false,
   });
 
   bool get isSystem => kind == 'system';
+
+  /// Arrived over realtime with a share not resolved for me yet: fetch it
+  /// (GET /chat/messages/:id) before showing a preview.
+  bool get needsResolve =>
+      !isDeleted && ((share != null && !share!.isResolved) || (storyReply != null && !storyReply!.story.isResolved));
   bool get isDeleted => deletedAt != null;
 
   ReactionType? reactionOf(String userId) {
@@ -366,9 +390,17 @@ class ChatMessage {
         })
         .whereType<MessageReaction>()
         .toList(),
+    share: SharedContent.maybeFromJson(json['share']),
+    storyReply: StoryReplyInfo.maybeFromJson(json['story_reply']),
   );
 
-  ChatMessage copyWith({bool? pending, bool? failed, List<MessageReaction>? reactions}) => ChatMessage(
+  ChatMessage copyWith({
+    bool? pending,
+    bool? failed,
+    List<MessageReaction>? reactions,
+    SharedContent? share,
+    StoryReplyInfo? storyReply,
+  }) => ChatMessage(
     id: id,
     conversationId: conversationId,
     senderId: senderId,
@@ -383,6 +415,8 @@ class ChatMessage {
     deletedAt: deletedAt,
     attachments: attachments,
     reactions: reactions ?? this.reactions,
+    share: share ?? this.share,
+    storyReply: storyReply ?? this.storyReply,
     pending: pending ?? this.pending,
     failed: failed ?? this.failed,
   );

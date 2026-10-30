@@ -76,7 +76,10 @@ export type NotificationType =
   | "chat_message"
   | "group_added"
   | "post_reaction"
-  | "comment_reply";
+  | "comment_reply"
+  | "mention"
+  | "photo_tag"
+  | "story_reaction";
 
 export type ReactionType =
   | "like"
@@ -95,6 +98,36 @@ export type ParticipantRole = "owner" | "admin" | "member";
 export type ParticipantStatus = "active" | "request";
 export type MessageKind = "text" | "media" | "system";
 export type PostVisibility = "public" | "followers";
+export type PostType =
+  | "generic"
+  | "workout"
+  | "meal"
+  | "exercise"
+  | "training"
+  | "routine"
+  | "recipe"
+  | "food_item"
+  | "daily_meal_plan"
+  | "meal_plan";
+export type PostTagKind = "user" | "business" | "shop_item";
+// What a chat message can share; stories take all but people, businesses and stories.
+export type ShareKind =
+  | "post"
+  | "story"
+  | "user"
+  | "business"
+  | "shop_item"
+  | "workout"
+  | "meal"
+  | "exercise"
+  | "training"
+  | "routine"
+  | "recipe"
+  | "food_item"
+  | "daily_meal_plan"
+  | "meal_plan";
+export type StoryMode = "reply" | "reaction";
+export type PlanEntryKind = "workout" | "meal";
 export type ReportReason = "spam" | "harassment" | "inappropriate" | "impersonation" | "other";
 export type MediaBucket = "chat-media" | "user-media";
 
@@ -439,6 +472,8 @@ export interface TrainingSessionTable {
   started_at: Generated<string>;
   ended_at: string | null;
   notes: string | null;
+  // The planned workout this session confirmed.
+  plan_entry_id: string | null;
   created_at: Generated<string>;
   updated_at: Generated<string>;
 }
@@ -645,6 +680,8 @@ export interface MealPlanAssignmentTable {
   start_date: string | null; // DATE as ISO string
   end_date: string | null;
   note: string | null;
+  // IANA zone plan entries are generated in (null: the caller's at read time).
+  timezone: string | null;
   created_at: Generated<string>;
 }
 
@@ -657,6 +694,13 @@ export interface PostTable {
   author_id: string | null;
   content: string;
   visibility: Generated<PostVisibility>;
+  post_type: Generated<PostType>;
+  // What the post shares (null for generic and meal posts).
+  ref_id: string | null;
+  // Server-built snapshot of the shared thing; null for generic posts.
+  attachment: unknown | null;
+  // Hidden from everyone but the author while set.
+  archived_at: string | null;
   created_at: Generated<string>;
   updated_at: Generated<string>;
 }
@@ -834,6 +878,8 @@ export interface RoutineAssignmentTable {
   start_date: string | null;
   end_date: string | null;
   note: string | null;
+  timezone: string | null;
+  workout_time: Generated<string>; // TIME 'HH:MM:SS'
   created_at: Generated<string>;
 }
 
@@ -949,6 +995,13 @@ export interface MessageTable {
   created_at: Generated<string>;
   edited_at: string | null;
   deleted_at: string | null;
+  share_kind: ShareKind | null;
+  share_ref_id: string | null;
+  // Workout / meal shares: the server-built summary.
+  share_snapshot: unknown | null;
+  // A reply or emoji reaction to this story (null once the story is deleted).
+  story_id: string | null;
+  story_mode: StoryMode | null;
 }
 
 export interface MessageAttachmentTable {
@@ -1023,6 +1076,77 @@ export interface FoodLogTable {
   fat: Generated<Numeric>;
   fiber: Generated<Numeric>;
   note: string | null;
+  eaten_at: string | null;
+  plan_entry_id: string | null;
+  created_at: Generated<string>;
+}
+
+// A planned workout or meal on someone's calendar (from an assignment).
+export interface PlanEntryTable {
+  id: Generated<string>;
+  user_id: string;
+  kind: PlanEntryKind;
+  routine_assignment_id: string | null;
+  meal_plan_assignment_id: string | null;
+  slot_key: string;
+  plan_date: string;
+  starts_at: string;
+  duration_minutes: Generated<number>;
+  training_id: string | null;
+  daily_meal_plan_id: string | null;
+  meal_slot: MealSlotType | null;
+  note: string | null;
+  skipped: Generated<boolean>;
+  edited: Generated<boolean>;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+// A mention (caption or comment) or a person pinned on a photo.
+export interface PostTagTable {
+  id: Generated<string>;
+  post_id: string;
+  post_image_id: string | null;
+  comment_id: string | null;
+  kind: PostTagKind;
+  user_id: string | null;
+  business_id: string | null;
+  shop_item_id: string | null;
+  x: number | null;
+  y: number | null;
+  created_by: string | null;
+  created_at: Generated<string>;
+}
+
+export interface StoryTable {
+  id: Generated<string>;
+  author_id: string;
+  storage_path: string | null;
+  media_type: "image" | "video" | null;
+  mime_type: string | null;
+  width: number | null;
+  height: number | null;
+  duration_ms: number | null;
+  caption: string | null;
+  // "#rrggbb" behind a text or shared-item story.
+  background: string | null;
+  share_kind: Exclude<ShareKind, "story" | "user" | "business"> | null;
+  share_ref_id: string | null;
+  share_snapshot: unknown | null;
+  created_at: Generated<string>;
+  expires_at: Generated<string>;
+}
+
+export interface StoryViewTable {
+  story_id: string;
+  viewer_id: string;
+  viewed_at: Generated<string>;
+}
+
+export interface StoryReactionTable {
+  story_id: string;
+  user_id: string;
+  reaction: ReactionType;
   created_at: Generated<string>;
 }
 
@@ -1105,6 +1229,11 @@ export interface Database {
   draft: DraftTable;
   check_in: CheckInTable;
   food_log: FoodLogTable;
+  plan_entry: PlanEntryTable;
+  post_tag: PostTagTable;
+  story: StoryTable;
+  story_view: StoryViewTable;
+  story_reaction: StoryReactionTable;
 }
 
 // ── CRUD helpers ──────────────────────────────────────────────────────────────

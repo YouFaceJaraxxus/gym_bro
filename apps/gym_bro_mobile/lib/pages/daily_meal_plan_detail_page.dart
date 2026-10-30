@@ -3,9 +3,9 @@ import '../l10n/l10n.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/share_post.dart';
 import 'daily_meal_plan_form_page.dart';
 import 'nutrition/nutrition_widgets.dart';
-import '../widgets/share_post.dart';
 
 class DailyMealPlanDetailPage extends StatefulWidget {
   final String dailyMealPlanId;

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import '../../l10n/l10n.dart';
 import '../../models/food_log.dart';
 import '../../models/meal_plan.dart';
+import '../../models/shared_content.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../widgets/share_post.dart';
+import '../../widgets/share_sheet.dart';
 import 'add_food_log_page.dart';
 import 'nutrition_widgets.dart';
 
@@ -13,7 +16,10 @@ class FoodDiaryPage extends StatefulWidget {
   final String? userId;
   final String? displayName;
 
-  const FoodDiaryPage({super.key, this.userId, this.displayName});
+  /// The day shown first (default: today).
+  final DateTime? initialDate;
+
+  const FoodDiaryPage({super.key, this.userId, this.displayName, this.initialDate});
 
   @override
   State<FoodDiaryPage> createState() => _FoodDiaryPageState();
@@ -29,7 +35,7 @@ const _defaultSlots = {
 
 class _FoodDiaryPageState extends State<FoodDiaryPage> {
   final _api = ApiService();
-  DateTime _date = dateOnly(DateTime.now());
+  late DateTime _date = dateOnly(widget.initialDate ?? DateTime.now());
   List<FoodLog> _logs = [];
   FoodLogSummary? _summary;
   bool _loading = true;
@@ -341,6 +347,10 @@ class _FoodDiaryPageState extends State<FoodDiaryPage> {
                 onDelete: _delete,
                 onDismissed: _onDismissed,
                 onLogPlanned: _busy ? null : () => _logPlanned(slot: slot),
+                onShare: () => showShareSheet(
+                  context,
+                  ShareRequest.fromTarget(mealShareTarget(_date, slot, _logs.where((l) => l.slotType == slot).toList())),
+                ),
               ),
         ],
       ),
@@ -493,6 +503,9 @@ class _SlotSection extends StatelessWidget {
   final void Function(FoodLog) onDismissed;
   final VoidCallback? onLogPlanned;
 
+  /// "Share as post" (my own diary, once something is logged).
+  final VoidCallback? onShare;
+
   const _SlotSection({
     required this.slot,
     required this.logs,
@@ -503,6 +516,7 @@ class _SlotSection extends StatelessWidget {
     required this.onDelete,
     required this.onDismissed,
     required this.onLogPlanned,
+    this.onShare,
   });
 
   @override
@@ -523,6 +537,13 @@ class _SlotSection extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(child: Text(slot.label(l10n), style: text.titleMedium)),
+                if (!readOnly && logs.isNotEmpty && onShare != null)
+                  IconButton(
+                    tooltip: l10n.postShareAction,
+                    icon: const Icon(Icons.ios_share, size: 20),
+                    visualDensity: VisualDensity.compact,
+                    onPressed: onShare,
+                  ),
                 if (logs.isNotEmpty)
                   Text(l10n.nutritionKcalValue(total.kcal.round()),
                       style: text.labelLarge?.copyWith(color: cs.onSurfaceVariant)),

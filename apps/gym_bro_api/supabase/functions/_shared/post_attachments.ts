@@ -49,12 +49,16 @@ const visible = (caller: Caller, row: { is_public: boolean; author_id: string | 
 /**
  * The ref_id and attachment for a post of [type] sharing [body.ref_id]
  * (or [body.meal] = { log_date, slot_type } for a meal); a Response on error.
+ * [opts.trusted] skips the library visibility check, for a caller whose
+ * access was already established another way (see _shared/shares.ts).
  */
 export async function buildAttachment(
   caller: Caller,
   type: PostType,
   body: { ref_id?: unknown; meal?: unknown },
+  opts: { trusted?: boolean } = {},
 ): Promise<Built | Response> {
+  const ok = (allowed: boolean) => opts.trusted || allowed;
   const refId = typeof body.ref_id === "string" ? body.ref_id : null;
   if (type !== "meal" && !refId) return jsonError("ref_id is required for this post type", 400);
   try {
@@ -67,7 +71,7 @@ export async function buildAttachment(
         const x = await db.selectFrom("exercise")
           .select(["id", "name", "description", "image_url", "primary_muscles", "secondary_muscles", "is_public", "author_id"])
           .where("id", "=", refId!).executeTakeFirst();
-        if (!x || !visible(caller, x)) return notFound("Exercise");
+        if (!x || !ok(visible(caller, x))) return notFound("Exercise");
         return {
           ref_id: x.id,
           attachment: {
@@ -82,7 +86,7 @@ export async function buildAttachment(
       case "training": {
         const t = await db.selectFrom("training").select(["id", "name", "description", "is_public", "author_id"])
           .where("id", "=", refId!).executeTakeFirst();
-        if (!t || !visible(caller, t)) return notFound("Workout");
+        if (!t || !ok(visible(caller, t))) return notFound("Workout");
         const { rows: [c] } = await sql<{ exercise_count: number; set_count: number }>`
           SELECT count(DISTINCT tse.exercise_id)::int AS exercise_count, count(DISTINCT ts.id)::int AS set_count
             FROM training_set ts LEFT JOIN training_set_exercise tse ON tse.training_set_id = ts.id
@@ -102,7 +106,7 @@ export async function buildAttachment(
         const r = await db.selectFrom("routine")
           .select(["id", "name", "description", "is_public", "author_id", "schedule_type", "num_weeks"])
           .where("id", "=", refId!).executeTakeFirst();
-        if (!r || !visible(caller, r)) return notFound("Routine");
+        if (!r || !ok(visible(caller, r))) return notFound("Routine");
         const { rows: [c] } = await sql<{ n: number }>`
           SELECT count(DISTINCT training_id)::int AS n FROM routine_training WHERE routine_id = ${r.id}`.execute(db);
         return {
@@ -122,7 +126,7 @@ export async function buildAttachment(
           .select(["id", "name", "description", "is_public", "is_system", "author_id", "servings",
             "kcal_per_serving", "protein_per_serving", "carb_per_serving", "fat_per_serving"])
           .where("id", "=", refId!).executeTakeFirst();
-        if (!r || !(await canSeeRecipe(caller, r))) return notFound("Recipe");
+        if (!r || !(opts.trusted || await canSeeRecipe(caller, r))) return notFound("Recipe");
         const img = await db.selectFrom("recipe_image").select("url").where("recipe_id", "=", r.id)
           .orderBy("position").executeTakeFirst();
         return {
@@ -144,7 +148,7 @@ export async function buildAttachment(
           .select(["id", "name", "brand", "is_public", "is_system", "author_id", "serving_unit",
             "kcal_per_100", "protein_per_100", "carb_per_100", "fat_per_100"])
           .where("id", "=", refId!).executeTakeFirst();
-        if (!f || !(await canSeeFoodItem(caller, f))) return notFound("Food item");
+        if (!f || !(opts.trusted || await canSeeFoodItem(caller, f))) return notFound("Food item");
         return {
           ref_id: f.id,
           attachment: {
@@ -163,7 +167,7 @@ export async function buildAttachment(
           .select(["id", "name", "description", "is_public", "is_system", "author_id",
             "kcal_total", "protein_total", "carb_total", "fat_total"])
           .where("id", "=", refId!).executeTakeFirst();
-        if (!d || !(d.is_system || visible(caller, d))) return notFound("Day plan");
+        if (!d || !ok(d.is_system || visible(caller, d))) return notFound("Day plan");
         return {
           ref_id: d.id,
           attachment: {
@@ -180,7 +184,7 @@ export async function buildAttachment(
         const m = await db.selectFrom("meal_plan")
           .select(["id", "name", "description", "is_public", "is_system", "author_id", "num_weeks"])
           .where("id", "=", refId!).executeTakeFirst();
-        if (!m || !(m.is_system || visible(caller, m))) return notFound("Meal plan");
+        if (!m || !ok(m.is_system || visible(caller, m))) return notFound("Meal plan");
         const { rows: [c] } = await sql<{ n: number }>`
           SELECT count(*)::int AS n FROM meal_plan_day WHERE meal_plan_id = ${m.id}`.execute(db);
         return {

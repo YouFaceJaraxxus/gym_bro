@@ -211,6 +211,11 @@ class PublicProfile {
   /// Only on my own profile.
   final ProfileSettings? settings;
 
+  /// Their live stories I can see, and whether any are unwatched (the
+  /// coloured ring around the avatar).
+  final int storyCount;
+  final bool hasUnseenStory;
+
   const PublicProfile({
     required this.id,
     required this.username,
@@ -232,9 +237,13 @@ class PublicProfile {
     this.lastActiveAt,
     this.createdAt,
     this.settings,
+    this.storyCount = 0,
+    this.hasUnseenStory = false,
   });
 
   String get fullName => '$name $lastName'.trim();
+
+  bool get hasStory => storyCount > 0;
 
   PersonSummary get summary =>
       PersonSummary(id: id, username: username, name: name, lastName: lastName, avatarUrl: avatarUrl, bio: bio, isPrivate: isPrivate, relationship: relationship);
@@ -266,6 +275,8 @@ class PublicProfile {
       settings: json['settings'] is Map<String, dynamic>
           ? ProfileSettings.fromJson(json['settings'] as Map<String, dynamic>)
           : null,
+      storyCount: json['story_count'] as int? ?? 0,
+      hasUnseenStory: json['has_unseen_story'] as bool? ?? false,
     );
   }
 }

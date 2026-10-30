@@ -6,6 +6,7 @@ import '../models/app_notification.dart';
 import '../models/business.dart';
 import '../models/exercise.dart';
 import '../models/meal_plan.dart';
+import '../models/mention.dart';
 import '../models/membership.dart';
 import '../models/post.dart';
 import '../models/routine.dart';
@@ -28,7 +29,10 @@ import '../models/food_log.dart';
 import '../models/chat.dart';
 import '../models/draft.dart';
 import '../models/people.dart';
+import '../models/plan_entry.dart';
 import '../models/reaction.dart';
+import '../models/shared_content.dart';
+import '../models/story.dart';
 import '../config.dart';
 import 'auth_manager.dart';
 import 'offline/offline_support.dart';
@@ -47,6 +51,9 @@ part 'api/food_logs_api.dart';
 part 'api/people_api.dart';
 part 'api/chat_api.dart';
 part 'api/drafts_api.dart';
+part 'api/plans_api.dart';
+part 'api/post_tags_api.dart';
+part 'api/stories_api.dart';
 
 // Set with --dart-define=API_BASE_URL=... (see lib/config.dart / README.md).
 final _base = AppConfig.apiBaseUrl;

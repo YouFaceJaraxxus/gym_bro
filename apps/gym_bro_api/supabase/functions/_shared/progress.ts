@@ -8,7 +8,8 @@ import { sql } from "npm:kysely@^0.27";
 //   3. the planned set's only exercise        (set log → training_set with a
 //      single training_set_exercise row; ambiguous supersets stay NULL).
 //
-// Each row: session_id, started_at, set_log_id, exercise_id, rep_type, reps,
+// Only sessions that have started count (a session can be logged ahead of
+// time). Each row: session_id, started_at, set_log_id, exercise_id, rep_type, reps,
 // weight_kg, e1rm (Epley, count reps ≥ 1 with a weight), volume_kg
 // (weight × reps for count sets), counted_reps.
 
@@ -48,6 +49,7 @@ export function userDropRows(userId: string) {
     LEFT JOIN training_set_drop tsd     ON tsd.id = dl.training_set_drop_id
     LEFT JOIN training_set_exercise tse ON tse.id = tsd.training_set_exercise_id
     WHERE ts.user_id = ${userId}
+      AND ts.started_at <= NOW() -- sessions logged ahead of time haven't happened yet
   `;
 }
 

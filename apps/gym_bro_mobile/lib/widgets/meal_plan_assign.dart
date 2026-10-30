@@ -6,6 +6,7 @@ import '../models/meal_plan.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'plan_enrolment.dart';
 
 // Shared meal-plan assignment flows used by MealPlanDetailPage,
 // MealPlansPage and MemberProgressPage.
@@ -97,8 +98,9 @@ Future<List<CoachableMember>> loadCoachableMembers(
   return list;
 }
 
-/// From a meal plan: choose "Myself" or a coached member, pick an optional
-/// start date, then create the assignment. Returns true when one was created.
+/// From a meal plan: choose "Myself" (the self-enrol dialog) or a coached
+/// member, pick an optional start date, then create the assignment. Returns
+/// true when one was created.
 Future<bool> showAssignMealPlanFlow(
   BuildContext context, {
   required MealPlan plan,
@@ -109,6 +111,7 @@ Future<bool> showAssignMealPlanFlow(
     builder: (_) => const _AssignTargetSheet(),
   );
   if (target == null || !context.mounted) return false;
+  if (target.name == null) return showSelfEnrolMealPlan(context, plan: plan);
   return _confirmAndAssign(
     context,
     planId: plan.id,

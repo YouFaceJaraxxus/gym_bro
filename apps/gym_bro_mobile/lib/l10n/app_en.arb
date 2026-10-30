@@ -1,5 +1,43 @@
 {
   "@@locale": "en",
+  "@archiveDayLabel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@archiveNoPosts": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "@archiveNoStories": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "@archiveNothingOnDay": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "@archiveWholeMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
   "@businessCheckInCameraStartFailed": {
     "placeholders": {
       "code": {
@@ -1974,10 +2012,268 @@
       }
     }
   },
+  "@planCalendarMealSemantics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@planCalendarWorkoutSemantics": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@planEnrolAssignedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@planEnrolDialogTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@planEnrolLeaveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@planEnrolLeft": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@planEnrolManageTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@planEnrolSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@planEnrolStarted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@planEnrolUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@planEnrolWorkoutsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@planFromSource": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@planLogMealHint": {
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "@planMealItemsKcal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "@planSlotLabel": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@postShareBestReps": {
+    "placeholders": {
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "@postShareBestSet": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "@postShareDaysPlanned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@postShareExercises": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@postShareMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@postShareMoreItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@postSharePer100": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "@postShareServings": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@postShareSets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@postShareWeeks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@postShareWorkouts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@reactionCount": {
     "placeholders": {
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "@shareSheetFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@shareSheetGroupMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shareSheetSendTo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shareSheetSent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@shareSheetSomeFailed": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "@sharedPostOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@sharedPrivateItemTitle": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "@sharedStoryOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@sharedStoryReactedPreview": {
+    "placeholders": {
+      "emoji": {
+        "type": "String"
+      }
+    }
+  },
+  "@sharedStoryRepliedPreview": {
+    "placeholders": {
+      "text": {
+        "type": "String"
       }
     }
   },
@@ -2270,6 +2566,72 @@
     "placeholders": {
       "name": {
         "type": "String"
+      }
+    }
+  },
+  "@storyActivityCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@storyTraySeen": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@storyTrayUnseen": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@storyViewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@tagsLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@tagsOpenFailed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@tagsRemovePerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@tagsTaggedPeople": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@tagsTitleOf": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
       }
     }
   },
@@ -3180,6 +3542,31 @@
     }
   },
   "appTitle": "Gym Bro",
+  "archiveDayLabel": "{day}, {count, plural, =0{nothing} =1{1 item} other{{count} items}}",
+  "archiveLoadFailed": "Couldn't load your archive",
+  "archiveNextMonth": "Next month",
+  "archiveNoPosts": "No archived posts from {month}",
+  "archiveNoStories": "No stories in {month}",
+  "archiveNothingOnDay": "Nothing on {day}",
+  "archiveOnlyYou": "Only you can see your archive.",
+  "archivePostAction": "Archive",
+  "archivePostArchived": "Post archived. Only you can see it now.",
+  "archivePostBanner": "Archived — only you can see this post",
+  "archivePostRestored": "Your post is back on your profile",
+  "archivePostUnarchive": "Show on profile",
+  "archivePostsHint": "Archived posts are hidden from your profile and feed until you show them again.",
+  "archivePrevMonth": "Previous month",
+  "archiveStoriesHint": "Stories stay here after their 24 hours.",
+  "archiveStoryLive": "Live",
+  "archiveStoryShared": "Shared in a story",
+  "archiveStoryText": "Text story",
+  "archiveSubtitle": "Your stories and archived posts",
+  "archiveTabPosts": "Posts",
+  "archiveTabStories": "Stories",
+  "archiveTitle": "Archive",
+  "archiveViewCalendar": "Calendar",
+  "archiveViewList": "List",
+  "archiveWholeMonth": "All of {month}",
   "businessCheckInAllTime": "All time",
   "businessCheckInAttendanceTitle": "Attendance",
   "businessCheckInBusiestHours": "Busiest hours",
@@ -4615,6 +5002,111 @@
   "peopleUsernameInvalid": "3–30 letters, numbers, dots or underscores",
   "peopleUsernameTaken": "That username is taken",
   "peopleViewProfile": "View profile",
+  "planAddFood": "Add food",
+  "planCalendarDone": "Done",
+  "planCalendarMealSemantics": "Meal: {title}",
+  "planCalendarPlanned": "Planned",
+  "planCalendarSkipped": "Skipped",
+  "planCalendarWorkoutSemantics": "Workout: {title}",
+  "planConfirm": "Confirm as planned",
+  "planConfirmedMeal": "Meal logged as planned",
+  "planConfirmedWorkout": "Workout logged as planned",
+  "planEditDate": "Date",
+  "planEditDuration": "Duration",
+  "planEditMealTitle": "Edit planned meal",
+  "planEditNote": "Note",
+  "planEditTime": "Start",
+  "planEditTraining": "Training",
+  "planEditWorkoutTitle": "Edit planned workout",
+  "planEditedBadge": "Edited",
+  "planEnrolAssignMember": "Assign to a member",
+  "planEnrolAssignedBy": "Assigned by {name}",
+  "planEnrolClearEnd": "Remove end date",
+  "planEnrolDialogTitle": "Start {name}",
+  "planEnrolEndDate": "Ends",
+  "planEnrolLeave": "Leave",
+  "planEnrolLeavePlanBody": "Its planned meals are removed from your Schedule. Food you've logged stays.",
+  "planEnrolLeaveRoutineBody": "Its planned workouts are removed from your Schedule. Workouts you've logged stay.",
+  "planEnrolLeaveTitle": "Leave {name}?",
+  "planEnrolLeft": "You left {name}",
+  "planEnrolManage": "Manage",
+  "planEnrolManageTitle": "Manage {name}",
+  "planEnrolMealHint": "Each day's meals go on your Schedule at their usual times.",
+  "planEnrolNoCalendar": "No fixed days, so not on your Schedule",
+  "planEnrolNoEnd": "No end date",
+  "planEnrolNote": "Note (optional)",
+  "planEnrolOpenSchedule": "Schedule",
+  "planEnrolRoutineHint": "Its workouts go on your Schedule on their days, at the time you choose.",
+  "planEnrolSince": "Since {date}",
+  "planEnrolStart": "Start",
+  "planEnrolStartDate": "Starts",
+  "planEnrolStartPlan": "Start this meal plan",
+  "planEnrolStartRoutine": "Start this routine",
+  "planEnrolStarted": "You started {name}",
+  "planEnrolUntil": "until {date}",
+  "planEnrolUpdated": "Saved",
+  "planEnrolWildcardHint": "This routine has no fixed days, so nothing is added to your Schedule — pick one of its trainings whenever you work out.",
+  "planEnrolWorkoutTime": "Workout time",
+  "planEnrolWorkoutsAt": "Workouts at {time}",
+  "planEnrolledPlan": "You're following this meal plan",
+  "planEnrolledRoutine": "You're following this routine",
+  "planExercises": "Exercises",
+  "planFromSource": "From {name}",
+  "planLogDifferently": "Log differently",
+  "planLogMeal": "Log meal",
+  "planLogMealHint": "{slot} · add food or a recipe",
+  "planLogWorkout": "Log workout",
+  "planLogWorkoutHint": "Exercises, sets and weights",
+  "planLoggedItems": "Logged",
+  "planMealFallback": "Meal",
+  "planMealItemsKcal": "{count, plural, =1{1 item} other{{count} items}} · {kcal} kcal",
+  "planNoExercises": "No exercises in this training.",
+  "planNoItems": "Nothing is planned for this meal.",
+  "planOpenDiary": "Open food diary",
+  "planOpenWorkout": "Open workout",
+  "planPlannedItems": "Planned",
+  "planRestoredSnack": "Back on your plan",
+  "planScheduleEmptyDay": "Nothing on this day. Tap an hour to log a workout or a meal.",
+  "planScheduleHubSubtitle": "Your classes, workouts and meals",
+  "planSkip": "Skip",
+  "planSkippedSnack": "Skipped",
+  "planSlotLabel": "{time}, log a workout or a meal",
+  "planTotal": "Total",
+  "planUnskip": "Put back on the plan",
+  "planWorkoutFallback": "Workout",
+  "postShareAction": "Share as post",
+  "postShareBestReps": "best {reps} reps",
+  "postShareBestSet": "best {weight} × {reps}",
+  "postShareCaptionHint": "Say something about it…",
+  "postShareDaysPlanned": "{count, plural, =1{1 day planned} other{{count} days planned}}",
+  "postShareExercises": "{count, plural, =1{1 exercise} other{{count} exercises}}",
+  "postShareFutureBlocked": "You can share this once it has happened",
+  "postShareMinutes": "{count} min",
+  "postShareMoreItems": "+{count} more",
+  "postSharePer100": "per 100 {unit}",
+  "postSharePerDay": "per day",
+  "postSharePerServing": "per serving",
+  "postSharePosted": "Shared to your feed",
+  "postShareRemove": "Don't share this",
+  "postShareServings": "{count, plural, =1{1 serving} other{{count} servings}}",
+  "postShareSets": "{count, plural, =1{1 set} other{{count} sets}}",
+  "postShareShareAction": "Share",
+  "postShareSharing": "Sharing",
+  "postShareSourceUnavailable": "This isn't available anymore",
+  "postShareTypeDailyMealPlan": "Day plan",
+  "postShareTypeExercise": "Exercise",
+  "postShareTypeFoodItem": "Food",
+  "postShareTypeGeneric": "Post",
+  "postShareTypeMeal": "Meal",
+  "postShareTypeMealPlan": "Meal program",
+  "postShareTypeRecipe": "Recipe",
+  "postShareTypeRoutine": "Workout program",
+  "postShareTypeTraining": "Workout",
+  "postShareTypeWorkout": "Workout",
+  "postShareWeeks": "{count, plural, =1{1 week} other{{count} weeks}}",
+  "postShareWorkoutFinished": "Workout finished",
+  "postShareWorkoutLogged": "Workout logged",
+  "postShareWorkouts": "{count, plural, =1{1 workout} other{{count} workouts}}",
   "reactionAngry": "Angry",
   "reactionCelebrate": "Celebrate",
   "reactionClap": "Clap",
@@ -4631,6 +5123,70 @@
   "settingsLanguageEnglish": "English",
   "settingsLanguageSerbian": "Srpski",
   "settingsLanguageSystem": "System default",
+  "shareBusinessAction": "Share",
+  "shareProductAction": "Share product",
+  "shareProfileAction": "Share profile",
+  "shareSendAction": "Send",
+  "shareSheetAddToStory": "Add to story",
+  "shareSheetFailed": "Couldn't send: {error}",
+  "shareSheetGroupMembers": "{count, plural, =1{1 member} other{{count} members}}",
+  "shareSheetLoadFailed": "Couldn't load your chats",
+  "shareSheetMessageHint": "Write a message…",
+  "shareSheetNoChats": "No chats yet — search for someone to send this to.",
+  "shareSheetNoResults": "No one found",
+  "shareSheetPeople": "People",
+  "shareSheetRecent": "Recent chats",
+  "shareSheetSearchHint": "Search people",
+  "shareSheetSend": "Send",
+  "shareSheetSendTo": "Send to {count}",
+  "shareSheetSent": "{count, plural, =1{Sent} other{Sent to {count} chats}}",
+  "shareSheetShareAsPost": "Share as post",
+  "shareSheetSomeFailed": "Couldn't send to {names}",
+  "shareSheetTitle": "Share",
+  "sharedExpiredStoryBody": "Stories are only visible for 24 hours.",
+  "sharedExpiredStoryTitle": "Story expired",
+  "sharedKindGym": "Gym",
+  "sharedKindPost": "Post",
+  "sharedKindProduct": "Product",
+  "sharedKindProfile": "Profile",
+  "sharedKindShop": "Shop",
+  "sharedKindStory": "Story",
+  "sharedLoading": "Loading…",
+  "sharedPostOf": "{name}'s post",
+  "sharedPreviewBusiness": "Shared a page",
+  "sharedPreviewDayPlan": "Shared a day plan",
+  "sharedPreviewExercise": "Shared an exercise",
+  "sharedPreviewFood": "Shared a food",
+  "sharedPreviewMeal": "Shared a meal",
+  "sharedPreviewMealPlan": "Shared a meal program",
+  "sharedPreviewPost": "Shared a post",
+  "sharedPreviewProduct": "Shared a product",
+  "sharedPreviewProfile": "Shared a profile",
+  "sharedPreviewRecipe": "Shared a recipe",
+  "sharedPreviewRoutine": "Shared a workout program",
+  "sharedPreviewStory": "Shared a story",
+  "sharedPreviewWorkout": "Shared a workout",
+  "sharedPrivateChip": "Private account",
+  "sharedPrivateItemBody": "Only its author and people it's shared with can see it.",
+  "sharedPrivateItemTitle": "{kind} is private",
+  "sharedPrivatePostBody": "Only approved followers can see this post.",
+  "sharedPrivatePostTitle": "This account is private",
+  "sharedPrivateStoryBody": "Only approved followers can see this story.",
+  "sharedPrivateStoryTitle": "This story is private",
+  "sharedStoryExpiredShort": "Story expired",
+  "sharedStoryGoneShort": "Story unavailable",
+  "sharedStoryOf": "{name}'s story",
+  "sharedStoryReactedPreview": "Reacted {emoji} to a story",
+  "sharedStoryReactedTheirs": "You reacted to their story",
+  "sharedStoryReactedYours": "Reacted to your story",
+  "sharedStoryRepliedPreview": "Replied to a story: {text}",
+  "sharedStoryRepliedTheirs": "You replied to their story",
+  "sharedStoryRepliedYours": "Replied to your story",
+  "sharedUnavailableAccountTitle": "Account unavailable",
+  "sharedUnavailableBody": "This content was removed or you can no longer see it.",
+  "sharedUnavailablePostTitle": "Post unavailable",
+  "sharedUnavailableStoryTitle": "Story unavailable",
+  "sharedUnavailableTitle": "No longer available",
   "shellActivateAccount": "Activate account",
   "shellActivateInviteIntro": "Enter the 6-digit code from your invite email along with the email address and a password you'd like to use.",
   "shellActivateInviteTitle": "Activate invite",
@@ -4898,6 +5454,66 @@
   "socialTyping": "{name} is typing…",
   "socialTypingSeveral": "Several people are typing…",
   "socialUploadFailed": "Upload failed. Try again.",
+  "storyActivityCount": "{count, plural, =0{Activity} =1{1 view} other{{count} views}}",
+  "storyAddTooltip": "Add to your story",
+  "storyArchivedLabel": "Archived",
+  "storyClose": "Close",
+  "storyComposerBackground": "Background colour",
+  "storyComposerCaptionHint": "Add a caption…",
+  "storyComposerDiscard": "Discard",
+  "storyComposerDiscardTitle": "Discard this story?",
+  "storyComposerEdit": "Edit",
+  "storyComposerEmpty": "Add a photo, a video or some text",
+  "storyComposerPickMedia": "Photo or video",
+  "storyComposerPosting": "Sharing…",
+  "storyComposerRemoveMedia": "Remove photo or video",
+  "storyComposerShare": "Share to story",
+  "storyComposerTextHint": "Type something…",
+  "storyComposerTitle": "New story",
+  "storyDelete": "Delete story",
+  "storyDeleteConfirmBody": "It will be removed from your story and your archive.",
+  "storyDeleteConfirmTitle": "Delete this story?",
+  "storyDeleted": "Story deleted",
+  "storyLike": "Like",
+  "storyLoadFailed": "Couldn't load stories",
+  "storyMore": "More",
+  "storyNew": "New story",
+  "storyNoViewers": "No one has seen this story yet",
+  "storyPosted": "Added to your story",
+  "storyQuickReactions": "Quick reactions",
+  "storyReactionSent": "Reaction sent",
+  "storyReplySent": "Reply sent",
+  "storySend": "Send",
+  "storySendMessageHint": "Send message",
+  "storySendTo": "Send to…",
+  "storyTraySeen": "{name}'s story",
+  "storyTrayUnseen": "{name}'s story, not seen yet",
+  "storyUnavailable": "This story is no longer available",
+  "storyUnlike": "Unlike",
+  "storyViewsCount": "{count, plural, =0{No views yet} =1{1 view} other{{count} views}}",
+  "storyYourStory": "Your story",
+  "tagsDone": "Done",
+  "tagsDragHint": "Drag a name to move it, tap the photo to tag someone else",
+  "tagsKindGym": "Gym",
+  "tagsKindProduct": "Product",
+  "tagsKindShop": "Shop",
+  "tagsLimit": "Up to {count} people per photo",
+  "tagsNoPeople": "No people found",
+  "tagsNoTagged": "No posts tagged yet",
+  "tagsNoTaggedMe": "When people tag you in photos or mention you, the posts show up here.",
+  "tagsOpenFailed": "Couldn't open {name}",
+  "tagsRemoveMe": "Remove me from this post",
+  "tagsRemoveMeBody": "You'll no longer be tagged on this post's photos, and it won't show on your profile's Tagged tab.",
+  "tagsRemoveMeTitle": "Remove yourself?",
+  "tagsRemovePerson": "Remove {name}",
+  "tagsRemovedMe": "You were removed from this post",
+  "tagsSaved": "Tags updated",
+  "tagsSearchPeople": "Search people",
+  "tagsTabTagged": "Tagged",
+  "tagsTaggedPeople": "{count, plural, =1{1 person tagged} other{{count} people tagged}}",
+  "tagsTapToTag": "Tap the photo to tag people",
+  "tagsTitle": "Tag people",
+  "tagsTitleOf": "Tag people · {index}/{count}",
   "trainerClassesPickerCustomer": "Customer",
   "trainerClassesPickerCustomerPending": "Invite pending",
   "trainerClassesPickerEmpty": "No one found. You can add your followers, members of gyms where you coach, and your customers.",

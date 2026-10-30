@@ -50,6 +50,26 @@ the current one.
   recipient's `who_can_message`), groups with owner/admin roles, replies,
   edits, unsend, reactions, read receipts, mute/archive, and attachments of
   any type up to 50 MB.
+- **Stories** (`/stories/*`, migration 000020): a photo/video, text on a
+  colour, or something shared (a post, a logged workout or meal, a library
+  item, a product — never a person or business). Live for 24 hours for the
+  author's audience (followers of a private account, everyone for a public
+  one), then kept in the author's archive (`/stories/archive?from=&to=`).
+  A tray of followed people (unwatched first), recorded views, likes and
+  reactions that notify the author (`story_reaction`), a viewers list for
+  the author, and replies / quick emoji reactions that land in the author's
+  DMs (`POST /chat/story-replies`, "Reacted 🔥 to your story").
+- **Sharing** (`POST /chat/share`, or `share` on any message; stories take
+  `share` too): posts, stories, accounts, businesses, products, logged
+  workouts/meals and library items. Shares are resolved *for each viewer
+  when read* (`_shared/shares.ts`), so a recipient who can't see a private
+  post gets `{available: false, reason: "private"}` instead of a preview;
+  deleted/archived/blocked → `unavailable`, an old story → `expired`. A
+  logged workout or meal is a snapshot only its owner can share. Realtime
+  payloads carry shares unresolved; the app fetches `GET /chat/messages/:id`.
+- **Archive**: `PUT|DELETE /posts/:id/archive` hides a personal post from
+  everyone but its author (profile, feed, shares); `GET /posts/archive`
+  lists them by date for the archive calendar.
 - **Realtime**: Supabase Realtime private channels authorized by RLS policies
   on `realtime.messages` (migration 000014). `user:<id>` and `chat:<id>` are
   written only by the server (`realtime.send()` in the same transaction as the

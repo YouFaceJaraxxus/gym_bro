@@ -8,6 +8,7 @@ import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/settings_service.dart';
+import '../widgets/share_post.dart';
 
 class SessionDetailPage extends StatefulWidget {
   final String sessionId;
@@ -341,6 +342,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
         appBar: AppBar(
           title: Text(l10n.trainingSessionDetailTitle),
           actions: [
+            if (isOwner && !session.isActive) SharePostButton(target: workoutShareTarget(session)),
             if (isOwner)
               IconButton(
                 tooltip: l10n.trainingSessionDeleteTooltip,

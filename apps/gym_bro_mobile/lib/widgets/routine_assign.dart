@@ -7,6 +7,7 @@ import '../models/routine.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'coachable_members.dart';
+import 'plan_enrolment.dart';
 
 // Routine assignment flows used by RoutineDetailPage, WorkoutsPage and
 // MemberProgressPage.
@@ -14,14 +15,16 @@ import 'coachable_members.dart';
 String _fmtDate(BuildContext context, DateTime d) =>
     DateFormat.yMMMd(Localizations.localeOf(context).toString()).format(d);
 
-/// From a routine: pick "Myself" or a coached member, confirm (dates, note),
-/// then create the assignment. Returns true when one was created.
+/// From a routine: pick "Myself" (the self-enrol dialog, with workout time and
+/// zone) or a coached member, confirm (dates, note), then create the
+/// assignment. Returns true when one was created.
 Future<bool> showAssignRoutineFlow(BuildContext context, {required Routine routine}) async {
   final target = await showCoachedMemberPicker(
     context,
     title: context.l10n.trainingAssignPickerTitle(routine.name),
   );
   if (target == null || !context.mounted) return false;
+  if (target.isSelf) return showSelfEnrolRoutine(context, routine: routine);
   return _confirmAndAssign(
     context,
     routineId: routine.id,

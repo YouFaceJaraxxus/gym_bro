@@ -12,6 +12,7 @@ import '../utils/one_rep_max.dart';
 import '../widgets/exercise_picker_sheet.dart';
 import '../widgets/plate_calculator_sheet.dart';
 import '../widgets/rest_timer.dart';
+import '../widgets/share_post.dart';
 
 /// Active workout logging screen.
 /// Pass [training] for a structured session following a program,
@@ -114,9 +115,13 @@ class _SessionLogPageState extends State<SessionLogPage> {
     final cs = Theme.of(context).colorScheme;
     try {
       final token = await AuthManager.instance.getValidToken();
-      await _api.endTrainingSession(token, _session!.id);
+      final ended = await _api.endTrainingSession(token, _session!.id);
       _rest.skip();
-      if (mounted) Navigator.pop(context, true);
+      if (!mounted) return;
+      final navigator = Navigator.of(context);
+      final l10n = context.l10n;
+      navigator.pop(true);
+      showLoggedWithShare(messenger, navigator, message: l10n.postShareWorkoutFinished, target: workoutShareTarget(ended));
     } catch (e) {
       if (!mounted) return;
       setState(() => _finishing = false);

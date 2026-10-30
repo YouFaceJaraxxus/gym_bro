@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/l10n.dart';
+import '../models/mention.dart';
 import '../models/post.dart';
 import '../models/reaction.dart';
 import '../models/social.dart';
@@ -12,7 +13,11 @@ import '../pages/feed/reactions_sheet.dart';
 import '../pages/people/user_profile_page.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'mentions.dart';
+import 'photo_tags.dart';
+import 'post_attachment_card.dart';
 import 'reactions.dart';
+import 'share_sheet.dart';
 import 'social_widgets.dart';
 
 /// One post as a feed card (Instagram + Facebook): header, media carousel,
@@ -28,6 +33,7 @@ class PostCard extends StatefulWidget {
     required this.post,
     this.onChanged,
     this.onDeleted,
+    this.onArchived,
     this.onOpenComments,
     this.onEdit,
     this.onBusinessTap,
@@ -43,6 +49,10 @@ class PostCard extends StatefulWidget {
 
   /// The post was deleted (after confirmation and a successful API call).
   final VoidCallback? onDeleted;
+
+  /// The post was archived (hidden from everyone but me). Defaults to
+  /// [onDeleted], so lists drop it the same way.
+  final VoidCallback? onArchived;
 
   /// "Comment" / "N comments". Defaults to opening [PostDetailPage].
   final VoidCallback? onOpenComments;
@@ -66,7 +76,7 @@ class PostCard extends StatefulWidget {
   State<PostCard> createState() => _PostCardState();
 }
 
-enum _PostAction { edit, delete, copy }
+enum _PostAction { edit, tagPeople, removeMyTag, archive, unarchive, delete, copy }
 
 class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin {
   final _api = ApiService();
@@ -145,6 +155,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
         initial: _post,
         onChanged: _setPost,
         onDeleted: widget.onDeleted,
+        onArchived: widget.onArchived ?? widget.onDeleted,
       ),
     ));
   }
@@ -158,7 +169,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
   Future<void> _onAction(_PostAction action) async {
     switch (action) {
       case _PostAction.copy:
-        await Clipboard.setData(ClipboardData(text: _post.content));
+        await Clipboard.setData(ClipboardData(text: mentionPlainText(_post.content)));
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.feedCopied)));
         }
@@ -168,8 +179,88 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
         } else {
           await _editInline();
         }
+      case _PostAction.tagPeople:
+        await _editTags();
+      case _PostAction.removeMyTag:
+        await _removeMyTag();
+      case _PostAction.archive:
+        await _setArchived(true);
+      case _PostAction.unarchive:
+        await _setArchived(false);
       case _PostAction.delete:
         await _delete();
+    }
+  }
+
+  /// The author re-tags people on the photos.
+  Future<void> _editTags() async {
+    final photos = [
+      for (final i in [..._post.images]..sort((a, b) => a.position.compareTo(b.position)))
+        if (!i.isVideo) i,
+    ];
+    if (photos.isEmpty) return;
+    final result = await PhotoTagEditorPage.open(context, [
+      for (final i in photos)
+        TagEditorPhoto(
+          image: MediaImage(url: i.url, fit: BoxFit.contain),
+          provider: NetworkImage(i.url),
+          aspectRatio: i.aspectRatio,
+          tags: i.tags,
+        ),
+    ]);
+    if (result == null || !mounted) return;
+    final changed = <String, List<PhotoTag>>{
+      for (final (n, i) in photos.indexed)
+        if (!_sameTags(i.tags, result[n])) i.id: result[n],
+    };
+    if (changed.isEmpty) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final before = _post;
+    _setPost(before.copyWith(images: [for (final i in before.images) changed.containsKey(i.id) ? i.withTags(changed[i.id]!) : i]));
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      _setPost(await _api.updatePhotoTags(token, before.id, changed));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.tagsSaved)));
+    } catch (e) {
+      _setPost(_post.copyWith(images: before.images));
+      messenger.showSnackBar(SnackBar(content: Text(_msg(e))));
+    }
+  }
+
+  static bool _sameTags(List<PhotoTag> a, List<PhotoTag> b) =>
+      a.length == b.length &&
+      a.indexed.every((e) => e.$2.userId == b[e.$1].userId && e.$2.x == b[e.$1].x && e.$2.y == b[e.$1].y);
+
+  /// A tagged person takes themself off the photos.
+  Future<void> _removeMyTag() async {
+    final me = AuthManager.instance.profile?.id;
+    if (me == null) return;
+    final l10n = context.l10n;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(ctx.l10n.tagsRemoveMeTitle),
+        content: Text(ctx.l10n.tagsRemoveMeBody),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(ctx.l10n.commonCancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(ctx.l10n.tagsRemoveMe)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final before = _post;
+    _setPost(before.copyWith(images: [
+      for (final i in before.images) i.withTags([for (final t in i.tags) if (t.userId != me) t]),
+    ]));
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      await _api.removeMyPhotoTags(token, before.id);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.tagsRemovedMe)));
+    } catch (e) {
+      _setPost(_post.copyWith(images: before.images));
+      messenger.showSnackBar(SnackBar(content: Text(_msg(e))));
     }
   }
 
@@ -199,6 +290,23 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
       messenger.showSnackBar(SnackBar(content: Text(l10n.feedPostUpdated)));
     } catch (e) {
       _setPost(_post.copyWith(content: before.content, visibility: before.visibility));
+      messenger.showSnackBar(SnackBar(content: Text(_msg(e))));
+    }
+  }
+
+  /// Archives my post (it leaves the list) or shows an archived one on my
+  /// profile again.
+  Future<void> _setArchived(bool archive) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final onArchived = widget.onArchived ?? widget.onDeleted;
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final updated = archive ? await _api.archivePost(token, _post.id) : await _api.unarchivePost(token, _post.id);
+      if (mounted) _setPost(_post.copyWith(archivedAt: updated.archivedAt, clearArchivedAt: updated.archivedAt == null));
+      if (archive) onArchived?.call();
+      messenger.showSnackBar(SnackBar(content: Text(archive ? l10n.archivePostArchived : l10n.archivePostRestored)));
+    } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(_msg(e))));
     }
   }
@@ -244,13 +352,15 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _header(context, p),
-            if (p.content.isNotEmpty && p.images.isEmpty) _captionBlock(p, large: true),
+            if (p.content.isNotEmpty && p.images.isEmpty) _captionBlock(p, large: !p.isTyped),
+            if (p.images.isEmpty && p.isTyped) _attachment(p),
             if (p.images.isNotEmpty)
               _PostMedia(
                 images: p.images,
                 heart: _heart,
                 onDoubleTap: _doubleTapLove,
               ),
+            if (p.images.isNotEmpty && p.isTyped) _attachment(p, top: 10),
             if (p.content.isNotEmpty && p.images.isNotEmpty) _captionBlock(p),
             _stats(context, p),
             Divider(height: 1, indent: 12, endIndent: 12, color: cs.outlineVariant.withValues(alpha: 0.5)),
@@ -260,6 +370,11 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
       ),
     );
   }
+
+  Widget _attachment(Post p, {double top = 2}) => Padding(
+    padding: EdgeInsets.fromLTRB(12, top, 12, 8),
+    child: PostAttachmentCard(type: p.postType, attachment: p.attachment!, refId: p.refId, authorId: p.authorId),
+  );
 
   Widget _captionBlock(Post p, {bool large = false}) => Padding(
     padding: const EdgeInsets.fromLTRB(12, 4, 12, 6),
@@ -292,8 +407,13 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
     ];
 
     final onHeaderTap = isBusiness ? widget.onBusinessTap : (widget.linkAuthor && author != null ? _openAuthor : null);
+    final me = AuthManager.instance.profile?.id;
     final actions = <_PostAction>[
       if (p.canEdit) _PostAction.edit,
+      if (p.canEdit && p.isPersonal && p.authorId == me && p.images.any((i) => !i.isVideo)) _PostAction.tagPeople,
+      if (me != null && p.authorId != me && p.isTaggedIn(me)) _PostAction.removeMyTag,
+      if (p.isPersonal && p.authorId == me && !p.isArchived) _PostAction.archive,
+      if (p.isPersonal && p.authorId == me && p.isArchived) _PostAction.unarchive,
       if (p.canEdit) _PostAction.delete,
       if (p.content.isNotEmpty) _PostAction.copy,
     ];
@@ -359,11 +479,19 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                     contentPadding: EdgeInsets.zero,
                     leading: Icon(switch (a) {
                       _PostAction.edit => Icons.edit_outlined,
+                      _PostAction.tagPeople => Icons.person_pin_outlined,
+                      _PostAction.removeMyTag => Icons.person_remove_outlined,
+                      _PostAction.archive => Icons.archive_outlined,
+                      _PostAction.unarchive => Icons.unarchive_outlined,
                       _PostAction.delete => Icons.delete_outline,
                       _PostAction.copy => Icons.copy_rounded,
                     }),
                     title: Text(switch (a) {
                       _PostAction.edit => l10n.nutritionEditPost,
+                      _PostAction.tagPeople => l10n.tagsTitle,
+                      _PostAction.removeMyTag => l10n.tagsRemoveMe,
+                      _PostAction.archive => l10n.archivePostAction,
+                      _PostAction.unarchive => l10n.archivePostUnarchive,
                       _PostAction.delete => l10n.nutritionDeletePost,
                       _PostAction.copy => l10n.feedCopyText,
                     }),
@@ -430,6 +558,33 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
             ),
           ),
         ),
+        // Send it in chat (or add it to a story). An archived post is mine
+        // alone, so there's nothing to send.
+        if (!p.isArchived)
+          Expanded(
+            child: Center(
+              child: Semantics(
+                button: true,
+                label: l10n.shareSendAction,
+                excludeSemantics: true,
+                child: InkWell(
+                  onTap: () => showShareSheet(context, postShareRequest(p)),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      Icon(Icons.send_outlined, size: 20, color: cs.onSurfaceVariant),
+                      const SizedBox(width: 6),
+                      Text(
+                        l10n.shareSendAction,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w500),
+                      ),
+                    ]),
+                  ),
+                ),
+              ),
+            ),
+          ),
       ]),
     );
   }
@@ -466,17 +621,19 @@ class _ExpandableCaptionState extends State<ExpandableCaption> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final style = widget.large ? tt.titleMedium : tt.bodyMedium;
-    if (_expanded) return SelectableText(widget.text, style: style);
+    // Mentions are tappable, which selectable text doesn't do well.
+    final mentions = hasMentions(widget.text);
+    if (_expanded) return mentions ? MentionText(widget.text, style: style) : SelectableText(widget.text, style: style);
     return LayoutBuilder(builder: (context, constraints) {
       final painter = TextPainter(
-        text: TextSpan(text: widget.text, style: style),
+        text: TextSpan(text: mentions ? mentionPlainText(widget.text) : widget.text, style: style),
         maxLines: widget.maxLines,
         textDirection: Directionality.of(context),
         textScaler: MediaQuery.textScalerOf(context),
       )..layout(maxWidth: constraints.maxWidth);
       final overflows = painter.didExceedMaxLines;
       painter.dispose();
-      final text = Text(widget.text, style: style, maxLines: widget.maxLines, overflow: TextOverflow.ellipsis);
+      final text = MentionText(widget.text, style: style, maxLines: widget.maxLines, overflow: TextOverflow.ellipsis);
       if (!overflows) return text;
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -565,14 +722,26 @@ class _PostMediaState extends State<_PostMedia> {
   }
 }
 
-class _MediaItem extends StatelessWidget {
+/// One photo/video of the carousel. A photo with people tagged shows the
+/// person icon; a tap toggles their name labels (Instagram), otherwise it
+/// opens the photo full screen.
+class _MediaItem extends StatefulWidget {
   const _MediaItem({required this.item, required this.semanticLabel});
 
   final PostImage item;
   final String semanticLabel;
 
   @override
+  State<_MediaItem> createState() => _MediaItemState();
+}
+
+class _MediaItemState extends State<_MediaItem> {
+  bool _showTags = false;
+
+  @override
   Widget build(BuildContext context) {
+    final item = widget.item;
+    final semanticLabel = widget.semanticLabel;
     if (item.isVideo) {
       return Semantics(
         label: context.l10n.feedVideo,
@@ -582,13 +751,23 @@ class _MediaItem extends StatelessWidget {
         ),
       );
     }
+    final tagged = item.tags.isNotEmpty;
     return Semantics(
       image: true,
       button: true,
-      label: semanticLabel,
+      label: tagged ? '$semanticLabel, ${context.l10n.tagsTaggedPeople(item.tags.length)}' : semanticLabel,
       child: GestureDetector(
-        onTap: () => MediaViewerPage.open(context, url: item.url),
-        child: MediaImage(url: item.url),
+        onTap: tagged ? () => setState(() => _showTags = !_showTags) : () => MediaViewerPage.open(context, url: item.url),
+        child: Stack(fit: StackFit.expand, children: [
+          MediaImage(url: item.url),
+          if (tagged)
+            PhotoTagsOverlay(
+              tags: item.tags,
+              showLabels: _showTags,
+              aspectRatio: item.aspectRatio,
+              onIconTap: () => setState(() => _showTags = !_showTags),
+            ),
+        ]),
       ),
     );
   }
@@ -676,19 +855,21 @@ class _EditPostSheet extends StatefulWidget {
 }
 
 class _EditPostSheetState extends State<_EditPostSheet> {
-  late final _caption = TextEditingController(text: widget.post.content);
+  late final _caption = MentionTextEditingController(markup: widget.post.content);
+  final _focus = FocusNode();
   late PostVisibility _visibility = widget.post.visibility;
 
   @override
   void dispose() {
     _caption.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final valid = _caption.text.trim().isNotEmpty || widget.post.images.isNotEmpty;
+    final valid = _caption.text.trim().isNotEmpty || widget.post.images.isNotEmpty || widget.post.isTyped;
     return Padding(
       padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + MediaQuery.viewInsetsOf(context).bottom),
       child: SafeArea(
@@ -696,15 +877,20 @@ class _EditPostSheetState extends State<_EditPostSheet> {
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(l10n.nutritionEditPostTitle, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
-          TextField(
+          MentionAutocomplete(
             controller: _caption,
-            autofocus: true,
-            minLines: 2,
-            maxLines: 8,
-            maxLength: kCaptionMaxLength,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: InputDecoration(hintText: l10n.feedCaptionHint, border: const OutlineInputBorder()),
-            onChanged: (_) => setState(() {}),
+            focusNode: _focus,
+            child: TextField(
+              controller: _caption,
+              focusNode: _focus,
+              autofocus: true,
+              minLines: 2,
+              maxLines: 8,
+              maxLength: kCaptionMaxLength,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(hintText: l10n.feedCaptionHint, border: const OutlineInputBorder()),
+              onChanged: (_) => setState(() {}),
+            ),
           ),
           if (widget.post.isPersonal) ...[
             const SizedBox(height: 8),
@@ -715,7 +901,7 @@ class _EditPostSheetState extends State<_EditPostSheet> {
             TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
             const SizedBox(width: 8),
             FilledButton(
-              onPressed: valid ? () => Navigator.pop(context, (_caption.text.trim(), _visibility)) : null,
+              onPressed: valid ? () => Navigator.pop(context, (_caption.markup.trim(), _visibility)) : null,
               child: Text(l10n.commonSave),
             ),
           ]),

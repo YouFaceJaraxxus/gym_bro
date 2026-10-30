@@ -105,6 +105,156 @@ abstract class AppLocalizations {
   /// **'Gym Bro'**
   String get appTitle;
 
+  /// No description provided for @archiveDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}, {count, plural, =0{nothing} =1{1 item} other{{count} items}}'**
+  String archiveDayLabel(String day, int count);
+
+  /// No description provided for @archiveLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your archive'**
+  String get archiveLoadFailed;
+
+  /// No description provided for @archiveNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get archiveNextMonth;
+
+  /// No description provided for @archiveNoPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'No archived posts from {month}'**
+  String archiveNoPosts(String month);
+
+  /// No description provided for @archiveNoStories.
+  ///
+  /// In en, this message translates to:
+  /// **'No stories in {month}'**
+  String archiveNoStories(String month);
+
+  /// No description provided for @archiveNothingOnDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on {day}'**
+  String archiveNothingOnDay(String day);
+
+  /// No description provided for @archiveOnlyYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you can see your archive.'**
+  String get archiveOnlyYou;
+
+  /// No description provided for @archivePostAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get archivePostAction;
+
+  /// No description provided for @archivePostArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Post archived. Only you can see it now.'**
+  String get archivePostArchived;
+
+  /// No description provided for @archivePostBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived — only you can see this post'**
+  String get archivePostBanner;
+
+  /// No description provided for @archivePostRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Your post is back on your profile'**
+  String get archivePostRestored;
+
+  /// No description provided for @archivePostUnarchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on profile'**
+  String get archivePostUnarchive;
+
+  /// No description provided for @archivePostsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived posts are hidden from your profile and feed until you show them again.'**
+  String get archivePostsHint;
+
+  /// No description provided for @archivePrevMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get archivePrevMonth;
+
+  /// No description provided for @archiveStoriesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories stay here after their 24 hours.'**
+  String get archiveStoriesHint;
+
+  /// No description provided for @archiveStoryLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get archiveStoryLive;
+
+  /// No description provided for @archiveStoryShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared in a story'**
+  String get archiveStoryShared;
+
+  /// No description provided for @archiveStoryText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text story'**
+  String get archiveStoryText;
+
+  /// No description provided for @archiveSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your stories and archived posts'**
+  String get archiveSubtitle;
+
+  /// No description provided for @archiveTabPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get archiveTabPosts;
+
+  /// No description provided for @archiveTabStories.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories'**
+  String get archiveTabStories;
+
+  /// No description provided for @archiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get archiveTitle;
+
+  /// No description provided for @archiveViewCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get archiveViewCalendar;
+
+  /// No description provided for @archiveViewList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get archiveViewList;
+
+  /// No description provided for @archiveWholeMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'All of {month}'**
+  String archiveWholeMonth(String month);
+
   /// No description provided for @businessCheckInAllTime.
   ///
   /// In en, this message translates to:
@@ -8719,6 +8869,636 @@ abstract class AppLocalizations {
   /// **'View profile'**
   String get peopleViewProfile;
 
+  /// No description provided for @planAddFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Add food'**
+  String get planAddFood;
+
+  /// No description provided for @planCalendarDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get planCalendarDone;
+
+  /// No description provided for @planCalendarMealSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal: {title}'**
+  String planCalendarMealSemantics(String title);
+
+  /// No description provided for @planCalendarPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned'**
+  String get planCalendarPlanned;
+
+  /// No description provided for @planCalendarSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get planCalendarSkipped;
+
+  /// No description provided for @planCalendarWorkoutSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout: {title}'**
+  String planCalendarWorkoutSemantics(String title);
+
+  /// No description provided for @planConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm as planned'**
+  String get planConfirm;
+
+  /// No description provided for @planConfirmedMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal logged as planned'**
+  String get planConfirmedMeal;
+
+  /// No description provided for @planConfirmedWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout logged as planned'**
+  String get planConfirmedWorkout;
+
+  /// No description provided for @planEditDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get planEditDate;
+
+  /// No description provided for @planEditDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get planEditDuration;
+
+  /// No description provided for @planEditMealTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit planned meal'**
+  String get planEditMealTitle;
+
+  /// No description provided for @planEditNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get planEditNote;
+
+  /// No description provided for @planEditTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get planEditTime;
+
+  /// No description provided for @planEditTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get planEditTraining;
+
+  /// No description provided for @planEditWorkoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit planned workout'**
+  String get planEditWorkoutTitle;
+
+  /// No description provided for @planEditedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited'**
+  String get planEditedBadge;
+
+  /// No description provided for @planEnrolAssignMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign to a member'**
+  String get planEnrolAssignMember;
+
+  /// No description provided for @planEnrolAssignedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned by {name}'**
+  String planEnrolAssignedBy(String name);
+
+  /// No description provided for @planEnrolClearEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove end date'**
+  String get planEnrolClearEnd;
+
+  /// No description provided for @planEnrolDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start {name}'**
+  String planEnrolDialogTitle(String name);
+
+  /// No description provided for @planEnrolEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get planEnrolEndDate;
+
+  /// No description provided for @planEnrolLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get planEnrolLeave;
+
+  /// No description provided for @planEnrolLeavePlanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its planned meals are removed from your Schedule. Food you\'ve logged stays.'**
+  String get planEnrolLeavePlanBody;
+
+  /// No description provided for @planEnrolLeaveRoutineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its planned workouts are removed from your Schedule. Workouts you\'ve logged stay.'**
+  String get planEnrolLeaveRoutineBody;
+
+  /// No description provided for @planEnrolLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave {name}?'**
+  String planEnrolLeaveTitle(String name);
+
+  /// No description provided for @planEnrolLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'You left {name}'**
+  String planEnrolLeft(String name);
+
+  /// No description provided for @planEnrolManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get planEnrolManage;
+
+  /// No description provided for @planEnrolManageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage {name}'**
+  String planEnrolManageTitle(String name);
+
+  /// No description provided for @planEnrolMealHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each day\'s meals go on your Schedule at their usual times.'**
+  String get planEnrolMealHint;
+
+  /// No description provided for @planEnrolNoCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'No fixed days, so not on your Schedule'**
+  String get planEnrolNoCalendar;
+
+  /// No description provided for @planEnrolNoEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'No end date'**
+  String get planEnrolNoEnd;
+
+  /// No description provided for @planEnrolNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get planEnrolNote;
+
+  /// No description provided for @planEnrolOpenSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get planEnrolOpenSchedule;
+
+  /// No description provided for @planEnrolRoutineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Its workouts go on your Schedule on their days, at the time you choose.'**
+  String get planEnrolRoutineHint;
+
+  /// No description provided for @planEnrolSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Since {date}'**
+  String planEnrolSince(String date);
+
+  /// No description provided for @planEnrolStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get planEnrolStart;
+
+  /// No description provided for @planEnrolStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get planEnrolStartDate;
+
+  /// No description provided for @planEnrolStartPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Start this meal plan'**
+  String get planEnrolStartPlan;
+
+  /// No description provided for @planEnrolStartRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Start this routine'**
+  String get planEnrolStartRoutine;
+
+  /// No description provided for @planEnrolStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'You started {name}'**
+  String planEnrolStarted(String name);
+
+  /// No description provided for @planEnrolUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'until {date}'**
+  String planEnrolUntil(String date);
+
+  /// No description provided for @planEnrolUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get planEnrolUpdated;
+
+  /// No description provided for @planEnrolWildcardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This routine has no fixed days, so nothing is added to your Schedule — pick one of its trainings whenever you work out.'**
+  String get planEnrolWildcardHint;
+
+  /// No description provided for @planEnrolWorkoutTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout time'**
+  String get planEnrolWorkoutTime;
+
+  /// No description provided for @planEnrolWorkoutsAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts at {time}'**
+  String planEnrolWorkoutsAt(String time);
+
+  /// No description provided for @planEnrolledPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re following this meal plan'**
+  String get planEnrolledPlan;
+
+  /// No description provided for @planEnrolledRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re following this routine'**
+  String get planEnrolledRoutine;
+
+  /// No description provided for @planExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises'**
+  String get planExercises;
+
+  /// No description provided for @planFromSource.
+  ///
+  /// In en, this message translates to:
+  /// **'From {name}'**
+  String planFromSource(String name);
+
+  /// No description provided for @planLogDifferently.
+  ///
+  /// In en, this message translates to:
+  /// **'Log differently'**
+  String get planLogDifferently;
+
+  /// No description provided for @planLogMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Log meal'**
+  String get planLogMeal;
+
+  /// No description provided for @planLogMealHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{slot} · add food or a recipe'**
+  String planLogMealHint(String slot);
+
+  /// No description provided for @planLogWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log workout'**
+  String get planLogWorkout;
+
+  /// No description provided for @planLogWorkoutHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises, sets and weights'**
+  String get planLogWorkoutHint;
+
+  /// No description provided for @planLoggedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged'**
+  String get planLoggedItems;
+
+  /// No description provided for @planMealFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal'**
+  String get planMealFallback;
+
+  /// No description provided for @planMealItemsKcal.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item} other{{count} items}} · {kcal} kcal'**
+  String planMealItemsKcal(int count, int kcal);
+
+  /// No description provided for @planNoExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'No exercises in this training.'**
+  String get planNoExercises;
+
+  /// No description provided for @planNoItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is planned for this meal.'**
+  String get planNoItems;
+
+  /// No description provided for @planOpenDiary.
+  ///
+  /// In en, this message translates to:
+  /// **'Open food diary'**
+  String get planOpenDiary;
+
+  /// No description provided for @planOpenWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Open workout'**
+  String get planOpenWorkout;
+
+  /// No description provided for @planPlannedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned'**
+  String get planPlannedItems;
+
+  /// No description provided for @planRestoredSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back on your plan'**
+  String get planRestoredSnack;
+
+  /// No description provided for @planScheduleEmptyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on this day. Tap an hour to log a workout or a meal.'**
+  String get planScheduleEmptyDay;
+
+  /// No description provided for @planScheduleHubSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your classes, workouts and meals'**
+  String get planScheduleHubSubtitle;
+
+  /// No description provided for @planSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get planSkip;
+
+  /// No description provided for @planSkippedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get planSkippedSnack;
+
+  /// No description provided for @planSlotLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{time}, log a workout or a meal'**
+  String planSlotLabel(String time);
+
+  /// No description provided for @planTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get planTotal;
+
+  /// No description provided for @planUnskip.
+  ///
+  /// In en, this message translates to:
+  /// **'Put back on the plan'**
+  String get planUnskip;
+
+  /// No description provided for @planWorkoutFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout'**
+  String get planWorkoutFallback;
+
+  /// No description provided for @postShareAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as post'**
+  String get postShareAction;
+
+  /// No description provided for @postShareBestReps.
+  ///
+  /// In en, this message translates to:
+  /// **'best {reps} reps'**
+  String postShareBestReps(int reps);
+
+  /// No description provided for @postShareBestSet.
+  ///
+  /// In en, this message translates to:
+  /// **'best {weight} × {reps}'**
+  String postShareBestSet(String weight, int reps);
+
+  /// No description provided for @postShareCaptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Say something about it…'**
+  String get postShareCaptionHint;
+
+  /// No description provided for @postShareDaysPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day planned} other{{count} days planned}}'**
+  String postShareDaysPlanned(int count);
+
+  /// No description provided for @postShareExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 exercise} other{{count} exercises}}'**
+  String postShareExercises(int count);
+
+  /// No description provided for @postShareFutureBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'You can share this once it has happened'**
+  String get postShareFutureBlocked;
+
+  /// No description provided for @postShareMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String postShareMinutes(int count);
+
+  /// No description provided for @postShareMoreItems.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String postShareMoreItems(int count);
+
+  /// No description provided for @postSharePer100.
+  ///
+  /// In en, this message translates to:
+  /// **'per 100 {unit}'**
+  String postSharePer100(String unit);
+
+  /// No description provided for @postSharePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'per day'**
+  String get postSharePerDay;
+
+  /// No description provided for @postSharePerServing.
+  ///
+  /// In en, this message translates to:
+  /// **'per serving'**
+  String get postSharePerServing;
+
+  /// No description provided for @postSharePosted.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared to your feed'**
+  String get postSharePosted;
+
+  /// No description provided for @postShareRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t share this'**
+  String get postShareRemove;
+
+  /// No description provided for @postShareServings.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 serving} other{{count} servings}}'**
+  String postShareServings(int count);
+
+  /// No description provided for @postShareSets.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 set} other{{count} sets}}'**
+  String postShareSets(int count);
+
+  /// No description provided for @postShareShareAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get postShareShareAction;
+
+  /// No description provided for @postShareSharing.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing'**
+  String get postShareSharing;
+
+  /// No description provided for @postShareSourceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This isn\'t available anymore'**
+  String get postShareSourceUnavailable;
+
+  /// No description provided for @postShareTypeDailyMealPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Day plan'**
+  String get postShareTypeDailyMealPlan;
+
+  /// No description provided for @postShareTypeExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise'**
+  String get postShareTypeExercise;
+
+  /// No description provided for @postShareTypeFoodItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get postShareTypeFoodItem;
+
+  /// No description provided for @postShareTypeGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get postShareTypeGeneric;
+
+  /// No description provided for @postShareTypeMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal'**
+  String get postShareTypeMeal;
+
+  /// No description provided for @postShareTypeMealPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal program'**
+  String get postShareTypeMealPlan;
+
+  /// No description provided for @postShareTypeRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe'**
+  String get postShareTypeRecipe;
+
+  /// No description provided for @postShareTypeRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout program'**
+  String get postShareTypeRoutine;
+
+  /// No description provided for @postShareTypeTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout'**
+  String get postShareTypeTraining;
+
+  /// No description provided for @postShareTypeWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout'**
+  String get postShareTypeWorkout;
+
+  /// No description provided for @postShareWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 week} other{{count} weeks}}'**
+  String postShareWeeks(int count);
+
+  /// No description provided for @postShareWorkoutFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout finished'**
+  String get postShareWorkoutFinished;
+
+  /// No description provided for @postShareWorkoutLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout logged'**
+  String get postShareWorkoutLogged;
+
+  /// No description provided for @postShareWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 workout} other{{count} workouts}}'**
+  String postShareWorkouts(int count);
+
   /// No description provided for @reactionAngry.
   ///
   /// In en, this message translates to:
@@ -8814,6 +9594,390 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'System default'**
   String get settingsLanguageSystem;
+
+  /// No description provided for @shareBusinessAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareBusinessAction;
+
+  /// No description provided for @shareProductAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Share product'**
+  String get shareProductAction;
+
+  /// No description provided for @shareProfileAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Share profile'**
+  String get shareProfileAction;
+
+  /// No description provided for @shareSendAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get shareSendAction;
+
+  /// No description provided for @shareSheetAddToStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to story'**
+  String get shareSheetAddToStory;
+
+  /// No description provided for @shareSheetFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send: {error}'**
+  String shareSheetFailed(String error);
+
+  /// No description provided for @shareSheetGroupMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member} other{{count} members}}'**
+  String shareSheetGroupMembers(int count);
+
+  /// No description provided for @shareSheetLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your chats'**
+  String get shareSheetLoadFailed;
+
+  /// No description provided for @shareSheetMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a message…'**
+  String get shareSheetMessageHint;
+
+  /// No description provided for @shareSheetNoChats.
+  ///
+  /// In en, this message translates to:
+  /// **'No chats yet — search for someone to send this to.'**
+  String get shareSheetNoChats;
+
+  /// No description provided for @shareSheetNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No one found'**
+  String get shareSheetNoResults;
+
+  /// No description provided for @shareSheetPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get shareSheetPeople;
+
+  /// No description provided for @shareSheetRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent chats'**
+  String get shareSheetRecent;
+
+  /// No description provided for @shareSheetSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search people'**
+  String get shareSheetSearchHint;
+
+  /// No description provided for @shareSheetSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get shareSheetSend;
+
+  /// No description provided for @shareSheetSendTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to {count}'**
+  String shareSheetSendTo(int count);
+
+  /// No description provided for @shareSheetSent.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Sent} other{Sent to {count} chats}}'**
+  String shareSheetSent(int count);
+
+  /// No description provided for @shareSheetShareAsPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as post'**
+  String get shareSheetShareAsPost;
+
+  /// No description provided for @shareSheetSomeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send to {names}'**
+  String shareSheetSomeFailed(String names);
+
+  /// No description provided for @shareSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareSheetTitle;
+
+  /// No description provided for @sharedExpiredStoryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories are only visible for 24 hours.'**
+  String get sharedExpiredStoryBody;
+
+  /// No description provided for @sharedExpiredStoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Story expired'**
+  String get sharedExpiredStoryTitle;
+
+  /// No description provided for @sharedKindGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym'**
+  String get sharedKindGym;
+
+  /// No description provided for @sharedKindPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get sharedKindPost;
+
+  /// No description provided for @sharedKindProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get sharedKindProduct;
+
+  /// No description provided for @sharedKindProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get sharedKindProfile;
+
+  /// No description provided for @sharedKindShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get sharedKindShop;
+
+  /// No description provided for @sharedKindStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Story'**
+  String get sharedKindStory;
+
+  /// No description provided for @sharedLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get sharedLoading;
+
+  /// No description provided for @sharedPostOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s post'**
+  String sharedPostOf(String name);
+
+  /// No description provided for @sharedPreviewBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared a page'**
+  String get sharedPreviewBusiness;
+
+  /// No description provided for @sharedPreviewDayPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared a day plan'**
+  String get sharedPreviewDayPlan;
+
+  /// No description provided for @sharedPreviewExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared an exercise'**
+  String get sharedPreviewExercise;
+
+  /// No description provided for @sharedPreviewFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared a food'**
+  String get sharedPreviewFood;
+
+  /// No description provided for @sharedPreviewMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared a meal'**
+  String get sharedPreviewMeal;
+
+  /// No description provided for @sharedPreviewMealPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared a meal program'**
+  String get sharedPreviewMealPlan;
+
+  /// No description provided for @sharedPreviewPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared a post'**
+  String get sharedPreviewPost;
+
+  /// No description provided for @sharedPreviewProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared a product'**
+  String get sharedPreviewProduct;
+
+  /// No description provided for @sharedPreviewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared a profile'**
+  String get sharedPreviewProfile;
+
+  /// No description provided for @sharedPreviewRecipe.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared a recipe'**
+  String get sharedPreviewRecipe;
+
+  /// No description provided for @sharedPreviewRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared a workout program'**
+  String get sharedPreviewRoutine;
+
+  /// No description provided for @sharedPreviewStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared a story'**
+  String get sharedPreviewStory;
+
+  /// No description provided for @sharedPreviewWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared a workout'**
+  String get sharedPreviewWorkout;
+
+  /// No description provided for @sharedPrivateChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Private account'**
+  String get sharedPrivateChip;
+
+  /// No description provided for @sharedPrivateItemBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Only its author and people it\'s shared with can see it.'**
+  String get sharedPrivateItemBody;
+
+  /// No description provided for @sharedPrivateItemTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind} is private'**
+  String sharedPrivateItemTitle(String kind);
+
+  /// No description provided for @sharedPrivatePostBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Only approved followers can see this post.'**
+  String get sharedPrivatePostBody;
+
+  /// No description provided for @sharedPrivatePostTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is private'**
+  String get sharedPrivatePostTitle;
+
+  /// No description provided for @sharedPrivateStoryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Only approved followers can see this story.'**
+  String get sharedPrivateStoryBody;
+
+  /// No description provided for @sharedPrivateStoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This story is private'**
+  String get sharedPrivateStoryTitle;
+
+  /// No description provided for @sharedStoryExpiredShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Story expired'**
+  String get sharedStoryExpiredShort;
+
+  /// No description provided for @sharedStoryGoneShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Story unavailable'**
+  String get sharedStoryGoneShort;
+
+  /// No description provided for @sharedStoryOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s story'**
+  String sharedStoryOf(String name);
+
+  /// No description provided for @sharedStoryReactedPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Reacted {emoji} to a story'**
+  String sharedStoryReactedPreview(String emoji);
+
+  /// No description provided for @sharedStoryReactedTheirs.
+  ///
+  /// In en, this message translates to:
+  /// **'You reacted to their story'**
+  String get sharedStoryReactedTheirs;
+
+  /// No description provided for @sharedStoryReactedYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Reacted to your story'**
+  String get sharedStoryReactedYours;
+
+  /// No description provided for @sharedStoryRepliedPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Replied to a story: {text}'**
+  String sharedStoryRepliedPreview(String text);
+
+  /// No description provided for @sharedStoryRepliedTheirs.
+  ///
+  /// In en, this message translates to:
+  /// **'You replied to their story'**
+  String get sharedStoryRepliedTheirs;
+
+  /// No description provided for @sharedStoryRepliedYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Replied to your story'**
+  String get sharedStoryRepliedYours;
+
+  /// No description provided for @sharedUnavailableAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account unavailable'**
+  String get sharedUnavailableAccountTitle;
+
+  /// No description provided for @sharedUnavailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This content was removed or you can no longer see it.'**
+  String get sharedUnavailableBody;
+
+  /// No description provided for @sharedUnavailablePostTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Post unavailable'**
+  String get sharedUnavailablePostTitle;
+
+  /// No description provided for @sharedUnavailableStoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Story unavailable'**
+  String get sharedUnavailableStoryTitle;
+
+  /// No description provided for @sharedUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer available'**
+  String get sharedUnavailableTitle;
 
   /// No description provided for @shellActivateAccount.
   ///
@@ -10416,6 +11580,366 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upload failed. Try again.'**
   String get socialUploadFailed;
+
+  /// No description provided for @storyActivityCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Activity} =1{1 view} other{{count} views}}'**
+  String storyActivityCount(int count);
+
+  /// No description provided for @storyAddTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to your story'**
+  String get storyAddTooltip;
+
+  /// No description provided for @storyArchivedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get storyArchivedLabel;
+
+  /// No description provided for @storyClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get storyClose;
+
+  /// No description provided for @storyComposerBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Background colour'**
+  String get storyComposerBackground;
+
+  /// No description provided for @storyComposerCaptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a caption…'**
+  String get storyComposerCaptionHint;
+
+  /// No description provided for @storyComposerDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get storyComposerDiscard;
+
+  /// No description provided for @storyComposerDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this story?'**
+  String get storyComposerDiscardTitle;
+
+  /// No description provided for @storyComposerEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get storyComposerEdit;
+
+  /// No description provided for @storyComposerEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo, a video or some text'**
+  String get storyComposerEmpty;
+
+  /// No description provided for @storyComposerPickMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo or video'**
+  String get storyComposerPickMedia;
+
+  /// No description provided for @storyComposerPosting.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing…'**
+  String get storyComposerPosting;
+
+  /// No description provided for @storyComposerRemoveMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo or video'**
+  String get storyComposerRemoveMedia;
+
+  /// No description provided for @storyComposerShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share to story'**
+  String get storyComposerShare;
+
+  /// No description provided for @storyComposerTextHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type something…'**
+  String get storyComposerTextHint;
+
+  /// No description provided for @storyComposerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New story'**
+  String get storyComposerTitle;
+
+  /// No description provided for @storyDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete story'**
+  String get storyDelete;
+
+  /// No description provided for @storyDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It will be removed from your story and your archive.'**
+  String get storyDeleteConfirmBody;
+
+  /// No description provided for @storyDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this story?'**
+  String get storyDeleteConfirmTitle;
+
+  /// No description provided for @storyDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Story deleted'**
+  String get storyDeleted;
+
+  /// No description provided for @storyLike.
+  ///
+  /// In en, this message translates to:
+  /// **'Like'**
+  String get storyLike;
+
+  /// No description provided for @storyLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load stories'**
+  String get storyLoadFailed;
+
+  /// No description provided for @storyMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get storyMore;
+
+  /// No description provided for @storyNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New story'**
+  String get storyNew;
+
+  /// No description provided for @storyNoViewers.
+  ///
+  /// In en, this message translates to:
+  /// **'No one has seen this story yet'**
+  String get storyNoViewers;
+
+  /// No description provided for @storyPosted.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to your story'**
+  String get storyPosted;
+
+  /// No description provided for @storyQuickReactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick reactions'**
+  String get storyQuickReactions;
+
+  /// No description provided for @storyReactionSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reaction sent'**
+  String get storyReactionSent;
+
+  /// No description provided for @storyReplySent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply sent'**
+  String get storyReplySent;
+
+  /// No description provided for @storySend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get storySend;
+
+  /// No description provided for @storySendMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get storySendMessageHint;
+
+  /// No description provided for @storySendTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to…'**
+  String get storySendTo;
+
+  /// No description provided for @storyTraySeen.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s story'**
+  String storyTraySeen(String name);
+
+  /// No description provided for @storyTrayUnseen.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s story, not seen yet'**
+  String storyTrayUnseen(String name);
+
+  /// No description provided for @storyUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This story is no longer available'**
+  String get storyUnavailable;
+
+  /// No description provided for @storyUnlike.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlike'**
+  String get storyUnlike;
+
+  /// No description provided for @storyViewsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No views yet} =1{1 view} other{{count} views}}'**
+  String storyViewsCount(int count);
+
+  /// No description provided for @storyYourStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Your story'**
+  String get storyYourStory;
+
+  /// No description provided for @tagsDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get tagsDone;
+
+  /// No description provided for @tagsDragHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag a name to move it, tap the photo to tag someone else'**
+  String get tagsDragHint;
+
+  /// No description provided for @tagsKindGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym'**
+  String get tagsKindGym;
+
+  /// No description provided for @tagsKindProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get tagsKindProduct;
+
+  /// No description provided for @tagsKindShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get tagsKindShop;
+
+  /// No description provided for @tagsLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {count} people per photo'**
+  String tagsLimit(int count);
+
+  /// No description provided for @tagsNoPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'No people found'**
+  String get tagsNoPeople;
+
+  /// No description provided for @tagsNoTagged.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts tagged yet'**
+  String get tagsNoTagged;
+
+  /// No description provided for @tagsNoTaggedMe.
+  ///
+  /// In en, this message translates to:
+  /// **'When people tag you in photos or mention you, the posts show up here.'**
+  String get tagsNoTaggedMe;
+
+  /// No description provided for @tagsOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open {name}'**
+  String tagsOpenFailed(String name);
+
+  /// No description provided for @tagsRemoveMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove me from this post'**
+  String get tagsRemoveMe;
+
+  /// No description provided for @tagsRemoveMeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll no longer be tagged on this post\'s photos, and it won\'t show on your profile\'s Tagged tab.'**
+  String get tagsRemoveMeBody;
+
+  /// No description provided for @tagsRemoveMeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove yourself?'**
+  String get tagsRemoveMeTitle;
+
+  /// No description provided for @tagsRemovePerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}'**
+  String tagsRemovePerson(String name);
+
+  /// No description provided for @tagsRemovedMe.
+  ///
+  /// In en, this message translates to:
+  /// **'You were removed from this post'**
+  String get tagsRemovedMe;
+
+  /// No description provided for @tagsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags updated'**
+  String get tagsSaved;
+
+  /// No description provided for @tagsSearchPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Search people'**
+  String get tagsSearchPeople;
+
+  /// No description provided for @tagsTabTagged.
+  ///
+  /// In en, this message translates to:
+  /// **'Tagged'**
+  String get tagsTabTagged;
+
+  /// No description provided for @tagsTaggedPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 person tagged} other{{count} people tagged}}'**
+  String tagsTaggedPeople(int count);
+
+  /// No description provided for @tagsTapToTag.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the photo to tag people'**
+  String get tagsTapToTag;
+
+  /// No description provided for @tagsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag people'**
+  String get tagsTitle;
+
+  /// No description provided for @tagsTitleOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag people · {index}/{count}'**
+  String tagsTitleOf(int index, int count);
 
   /// No description provided for @trainerClassesPickerCustomer.
   ///

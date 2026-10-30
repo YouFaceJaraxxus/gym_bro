@@ -166,6 +166,23 @@ void main() {
         expect(preview(_msg(kind: 'media', preview: 'leg day'), kind: 'direct').text, 'leg day');
       });
 
+      test('a share without text says what was shared; with text shows the text', () {
+        expect(preview({..._msg(preview: null), 'share_kind': 'post'}, kind: 'direct').text, 'Shared a post');
+        expect(preview({..._msg(preview: null), 'share_kind': 'user'}, kind: 'direct').text, 'Shared a profile');
+        expect(preview({..._msg(preview: null), 'share_kind': 'workout'}, kind: 'direct').text, 'Shared a workout');
+        expect(preview({..._msg(preview: null), 'share_kind': 'meal_plan'}, kind: 'direct').text, 'Shared a meal program');
+        expect(preview({..._msg(preview: null, senderId: 'u-me'), 'share_kind': 'story'}).text, 'You: Shared a story');
+        expect(preview({..._msg(preview: 'look'), 'share_kind': 'post'}, kind: 'direct').text, 'look');
+      });
+
+      test('story replies and reactions', () {
+        expect(preview({..._msg(preview: '🔥'), 'story_mode': 'reaction'}, kind: 'direct').text, 'Reacted 🔥 to a story');
+        expect(
+          preview({..._msg(preview: 'Strong!\nwow'), 'story_mode': 'reply'}, kind: 'direct').text,
+          'Replied to a story: Strong! wow',
+        );
+      });
+
       test('system messages are italic sentences; names come from participants', () {
         final p = preview(_msg(
           kind: 'system',

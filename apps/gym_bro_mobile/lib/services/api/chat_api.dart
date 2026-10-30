@@ -115,6 +115,7 @@ extension ChatApi on ApiService {
     String? body,
     List<OutgoingAttachment> attachments = const [],
     String? replyToId,
+    ShareRequest? share,
     required String clientId,
   }) async {
     final r = await _client.post(
@@ -124,6 +125,7 @@ extension ChatApi on ApiService {
         'body': ?body,
         'attachments': attachments.map((a) => a.toJson()).toList(),
         'reply_to_id': ?replyToId,
+        'share': ?share?.toJson(),
         'client_id': clientId,
       }),
     );

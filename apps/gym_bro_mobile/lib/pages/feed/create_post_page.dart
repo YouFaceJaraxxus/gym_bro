@@ -15,6 +15,9 @@ import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../services/media_upload.dart';
 import '../../widgets/drafts.dart';
+import '../../widgets/mentions.dart';
+import '../../widgets/photo_tags.dart';
+import '../../widgets/post_attachment_card.dart';
 import '../../widgets/post_card.dart';
 import '../../widgets/social_widgets.dart';
 
@@ -33,15 +36,22 @@ class _Item {
   String? publishedPath;
   MediaEdit? publishedEdit;
 
+  /// People pinned on it (photos only).
+  List<PhotoTag> tags = const [];
+
   bool get isVideo => media.isVideo;
 }
 
 /// Compose a personal post: up to ten photos/videos (reorderable, each
-/// editable — or all at once), caption and visibility. Applies the edits,
-/// uploads each file to its signed slot with progress, then creates the
-/// post and pops with it. Leaving offers to save a draft.
+/// editable — or all at once — and with people tagged on photos), caption
+/// with @mentions, and visibility. Applies the edits, uploads each file to
+/// its signed slot with progress, then creates the post and pops with it.
+/// Leaving offers to save a draft.
+///
+/// With [share] it's a typed post sharing a workout, meal or library item:
+/// the card is shown and caption/media become optional.
 class CreatePostPage extends StatefulWidget {
-  const CreatePostPage({super.key, this.pickOnOpen = false, this.draft});
+  const CreatePostPage({super.key, this.pickOnOpen = false, this.draft, this.share});
 
   /// Open the camera/gallery sheet right away.
   final bool pickOnOpen;
@@ -49,13 +59,17 @@ class CreatePostPage extends StatefulWidget {
   /// A saved draft to continue.
   final Draft? draft;
 
+  /// What to share (wins over a draft's).
+  final ShareTarget? share;
+
   @override
   State<CreatePostPage> createState() => _CreatePostPageState();
 }
 
 class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
   final _api = ApiService();
-  final _caption = TextEditingController();
+  final _caption = MentionTextEditingController();
+  final _captionFocus = FocusNode();
   final _pages = PageController();
   final List<_Item> _items = [];
 
@@ -73,16 +87,20 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
   bool _restoring = false;
   int _preview = 0;
 
+  /// What the post shares, if anything.
+  ShareTarget? _share;
+
   @override
   void initState() {
     super.initState();
     _caption.addListener(() => setState(() {}));
     _loadPrivacy();
     final draft = widget.draft;
+    _share = widget.share ?? ShareTarget.maybeFromJson(draft?.data['share']);
     if (draft != null) {
-      _caption.text = draft.data['caption'] as String? ?? '';
+      _caption.markup = draft.data['caption'] as String? ?? '';
       _visibility = PostVisibility.parse(draft.data['visibility']);
-      if (draft.media.isNotEmpty) _restoreMedia(draft.media);
+      if (draft.media.isNotEmpty) _restoreMedia(draft.media, draft.data['media_tags']);
     } else if (widget.pickOnOpen) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _addMedia();
@@ -101,9 +119,20 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
   @override
   bool get hasDraftContent => _dirty;
   @override
-  String? draftTitle() => _caption.text.trim().split('\n').first;
+  String? draftTitle() {
+    final caption = _caption.text.trim().split('\n').first;
+    return caption.isEmpty ? _share?.preview.title : caption;
+  }
+
   @override
-  Map<String, dynamic> draftData() => {'caption': _caption.text, 'visibility': _visibility.apiValue};
+  Map<String, dynamic> draftData() => {
+    'caption': _caption.markup,
+    'visibility': _visibility.apiValue,
+    'share': ?_share?.toJson(),
+    'media_tags': [
+      for (final it in _items) [for (final t in it.tags) t.toJson()],
+    ],
+  };
   @override
   Object? draftFingerprint() => {
     ...draftData(),
@@ -138,13 +167,15 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
     return out;
   }
 
-  /// Downloads a draft's originals so they can be previewed and re-edited.
-  Future<void> _restoreMedia(List<DraftMedia> media) async {
+  /// Downloads a draft's originals so they can be previewed and re-edited;
+  /// [tags] are the people pinned on each (by position).
+  Future<void> _restoreMedia(List<DraftMedia> media, Object? tags) async {
     setState(() => _restoring = true);
     final dir = await getTemporaryDirectory();
     var failed = 0;
     final restored = <_Item>[];
-    for (final m in media) {
+    final tagLists = tags is List ? tags : const [];
+    for (final (i, m) in media.indexed) {
       try {
         final r = await http.get(Uri.parse(m.url!));
         if (r.statusCode != 200) throw Exception('HTTP ${r.statusCode}');
@@ -160,7 +191,15 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
           height: m.height,
           durationMs: m.durationMs,
         );
-        restored.add(_Item(EditableMedia(picked, edit: MediaEdit.fromJson(m.edit), uploadedPath: m.path)));
+        final item = _Item(EditableMedia(picked, edit: MediaEdit.fromJson(m.edit), uploadedPath: m.path));
+        final pins = i < tagLists.length ? tagLists[i] : null;
+        if (pins is List) {
+          item.tags = [
+            for (final t in pins)
+              if (t is Map<String, dynamic> && t['user_id'] != null) PhotoTag.fromJson(t),
+          ];
+        }
+        restored.add(item);
       } catch (_) {
         failed++;
       }
@@ -179,6 +218,7 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
   @override
   void dispose() {
     _caption.dispose();
+    _captionFocus.dispose();
     _pages.dispose();
     super.dispose();
   }
@@ -196,7 +236,9 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
   }
 
   bool get _dirty => _items.isNotEmpty || _caption.text.trim().isNotEmpty;
-  bool get _canPost => !_posting && !_restoring && _dirty;
+
+  /// A shared item is a post on its own; otherwise it needs a caption or media.
+  bool get _canPost => !_posting && !_restoring && (_dirty || _share != null);
   List<_Item> get _editable => _items.where((it) => it.media.canEdit).toList();
 
   Future<void> _addMedia() async {
@@ -256,6 +298,34 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
     if (mounted) setState(() {});
   }
 
+  /// Photos (not videos) can have people tagged.
+  List<_Item> get _taggable => _items.where((it) => it.media.isImage).toList();
+
+  Future<void> _tagPeople() async {
+    final items = _taggable;
+    if (items.isEmpty) return;
+    final current = items.indexOf(_items[_preview.clamp(0, _items.length - 1)]);
+    final result = await PhotoTagEditorPage.open(
+      context,
+      [
+        for (final it in items)
+          TagEditorPhoto(
+            image: EditedImage(media: it.media, fit: BoxFit.contain),
+            provider: FileImage(it.media.original.file),
+            aspectRatio: it.media.aspectRatio,
+            tags: it.tags,
+          ),
+      ],
+      initialIndex: current < 0 ? 0 : current,
+    );
+    if (result == null || !mounted) return;
+    setState(() {
+      for (final (i, it) in items.indexed) {
+        it.tags = result[i];
+      }
+    });
+  }
+
   void _showPreview(int i) {
     setState(() => _preview = i);
     if (_pages.hasClients) {
@@ -265,7 +335,7 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
 
   Future<void> _post() async {
     if (!_canPost) {
-      if (!_dirty) {
+      if (!_dirty && _share == null) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.feedPostEmpty)));
       }
       return;
@@ -329,9 +399,11 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
       final token = await AuthManager.instance.getValidToken();
       final post = await _api.createPersonalPost(
         token,
-        caption: _caption.text.trim(),
+        caption: _caption.markup.trim(),
         visibility: _visibility,
         media: [for (var i = 0; i < _items.length; i++) published[i].attachment(_items[i].publishedPath!)],
+        tags: [for (final it in _items) it.isVideo ? const <PhotoTag>[] : it.tags],
+        share: _share,
       );
       await draftPublished();
       if (!mounted) return;
@@ -343,7 +415,8 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
         _uploadingIndex = -1;
         _processing = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(_msg(e))));
+      final text = e is FutureActivityException ? l10n.postShareFutureBlocked : _msg(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
     }
   }
 
@@ -381,6 +454,10 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
                   _progress(context),
                   const SizedBox(height: 12),
                 ],
+                if (_share != null) ...[
+                  _sharedCard(context),
+                  const SizedBox(height: 16),
+                ],
                 if (_restoring)
                   const SizedBox(height: 180, child: Center(child: CircularProgressIndicator()))
                 else if (_items.isEmpty) _emptyMedia(context) else ...[
@@ -395,17 +472,22 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
                     ),
                 ],
                 const SizedBox(height: 16),
-                TextField(
+                MentionAutocomplete(
                   controller: _caption,
-                  enabled: !_posting,
-                  minLines: 3,
-                  maxLines: 10,
-                  maxLength: kCaptionMaxLength,
-                  textCapitalization: TextCapitalization.sentences,
-                  decoration: InputDecoration(
-                    hintText: l10n.feedCaptionHint,
-                    border: const OutlineInputBorder(),
-                    alignLabelWithHint: true,
+                  focusNode: _captionFocus,
+                  child: TextField(
+                    controller: _caption,
+                    focusNode: _captionFocus,
+                    enabled: !_posting,
+                    minLines: 3,
+                    maxLines: 10,
+                    maxLength: kCaptionMaxLength,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: InputDecoration(
+                      hintText: _share != null ? l10n.postShareCaptionHint : l10n.feedCaptionHint,
+                      border: const OutlineInputBorder(),
+                      alignLabelWithHint: true,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -459,6 +541,31 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
     ]);
   }
 
+  /// What's being shared, with a way to drop it (a plain post then).
+  Widget _sharedCard(BuildContext context) {
+    final l10n = context.l10n;
+    final share = _share!;
+    return Stack(children: [
+      PostAttachmentCard(
+        type: share.type,
+        attachment: share.preview,
+        refId: share.refId,
+        enabled: false,
+      ),
+      if (!_posting)
+        Positioned(
+          top: 2,
+          right: 2,
+          child: IconButton(
+            tooltip: l10n.postShareRemove,
+            visualDensity: VisualDensity.compact,
+            icon: const Icon(Icons.close, size: 18),
+            onPressed: () => setState(() => _share = null),
+          ),
+        ),
+    ]);
+  }
+
   Widget _emptyMedia(BuildContext context) {
     final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
@@ -468,7 +575,7 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
         onTap: _posting ? null : _addMedia,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          height: 180,
+          height: _share != null ? 110 : 180,
           decoration: BoxDecoration(
             color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(16),
@@ -502,11 +609,19 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
           label: Text(_items.length > 1 ? l10n.mediaEditItem(_preview + 1) : l10n.mediaEdit),
         ),
         const SizedBox(width: 8),
-        if (_editable.length > 1)
+        if (_editable.length > 1) ...[
           OutlinedButton.icon(
             onPressed: _editAll,
             icon: const Icon(Icons.auto_awesome_motion_outlined, size: 18),
             label: Text(l10n.mediaEditAll),
+          ),
+          const SizedBox(width: 8),
+        ],
+        if (_taggable.isNotEmpty)
+          OutlinedButton.icon(
+            onPressed: _tagPeople,
+            icon: const Icon(Icons.person_pin_outlined, size: 18),
+            label: Text(l10n.tagsTitle),
           ),
       ]),
     );
@@ -529,14 +644,20 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
             onPageChanged: (i) => setState(() => _preview = i),
             itemBuilder: (context, i) {
               final item = _items[i];
-              return item.isVideo
-                  ? EditedVideoPreview(key: item.key, media: item.media, fit: BoxFit.cover)
-                  : EditedImage(
-                      key: item.key,
-                      media: item.media,
-                      fit: BoxFit.cover,
-                      semanticLabel: l10n.nutritionPostPhotoOf(i + 1, _items.length),
-                    );
+              if (item.isVideo) return EditedVideoPreview(key: item.key, media: item.media, fit: BoxFit.cover);
+              return Stack(key: item.key, fit: StackFit.expand, children: [
+                EditedImage(
+                  media: item.media,
+                  fit: BoxFit.cover,
+                  semanticLabel: l10n.nutritionPostPhotoOf(i + 1, _items.length),
+                ),
+                PhotoTagsOverlay(
+                  tags: item.tags,
+                  showLabels: true,
+                  aspectRatio: item.media.aspectRatio,
+                  onIconTap: _posting ? null : _tagPeople,
+                ),
+              ]);
             },
           ),
           if (_items.length > 1) ...[
@@ -633,6 +754,19 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
                       ),
                     ),
                   ),
+                  if (item.tags.isNotEmpty && !_posting)
+                    Positioned(
+                      right: 4,
+                      bottom: 4,
+                      child: Semantics(
+                        label: l10n.tagsTaggedPeople(item.tags.length),
+                        child: const CircleAvatar(
+                          radius: 9,
+                          backgroundColor: Colors.black54,
+                          child: Icon(Icons.person, size: 12, color: Colors.white),
+                        ),
+                      ),
+                    ),
                   if (!item.media.edit.isIdentity && !_posting)
                     Positioned(
                       left: 4,

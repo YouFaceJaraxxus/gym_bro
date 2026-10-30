@@ -1,7 +1,7 @@
 import type { Kysely } from "npm:kysely@^0.27";
 import { db } from "./config.ts";
 import { type Caller, coachesUser } from "./auth.ts";
-import type { Database } from "../../types/schema/public.ts";
+import type { Database, MealSlotType } from "../../types/schema/public.ts";
 
 // ── Columns ───────────────────────────────────────────────────────────────────
 
@@ -339,4 +339,90 @@ export async function canSeeRecipe(
     return true;
   }
   return callerHasAssignedAccessToMealPlan(caller, await mealPlansUsingRecipe(recipe.id));
+}
+
+// ── Planned meals ─────────────────────────────────────────────────────────────
+
+/** The unit a logged/planned amount is in: g/ml for food items, servings for recipes. */
+export type LogUnit = "g" | "ml" | "serving";
+
+export type PlannedEntry = Macros & {
+  food_item_id: string | null;
+  recipe_id: string | null;
+  name: string;
+  amount: number;
+  unit: LogUnit;
+  note: string | null;
+};
+
+export type PlannedSlot = { slot_type: MealSlotType; position: number; note: string | null; entries: PlannedEntry[] };
+
+/** A daily meal plan's slots with each entry's name, amount and macros. */
+export async function dailyPlanSlots(dailyPlanId: string): Promise<PlannedSlot[]> {
+  const slots = await db
+    .selectFrom("daily_meal_plan_slot")
+    .select(["id", "slot_type", "position", "note"])
+    .where("daily_meal_plan_id", "=", dailyPlanId)
+    .orderBy("position", "asc")
+    .execute();
+  const slotIds = slots.map((s) => s.id);
+  const entries = slotIds.length
+    ? await db
+      .selectFrom("daily_meal_plan_slot_entry")
+      .select(["id", "daily_meal_plan_slot_id", "food_item_id", "recipe_id", "quantity", "servings", "note"])
+      .where("daily_meal_plan_slot_id", "in", slotIds)
+      .orderBy("position", "asc")
+      .execute()
+    : [];
+
+  const foodIds = [...new Set(entries.flatMap((e) => (e.food_item_id ? [e.food_item_id] : [])))];
+  const recipeIds = [...new Set(entries.flatMap((e) => (e.recipe_id ? [e.recipe_id] : [])))];
+  const foods = foodIds.length
+    ? await db.selectFrom("food_item").select(FOOD_ITEM_COLS).where("id", "in", foodIds).execute()
+    : [];
+  const recipes = recipeIds.length
+    ? await db.selectFrom("recipe").select(RECIPE_COLS).where("id", "in", recipeIds).execute()
+    : [];
+  const foodMap = new Map(foods.map((f) => [f.id, f]));
+  const recipeMap = new Map(recipes.map((r) => [r.id, r]));
+
+  const planned: PlannedSlot[] = slots.map((s) => ({
+    slot_type: s.slot_type,
+    position: s.position,
+    note: s.note,
+    entries: entries
+      .filter((e) => e.daily_meal_plan_slot_id === s.id)
+      .flatMap((e): PlannedEntry[] => {
+        const food = e.food_item_id ? foodMap.get(e.food_item_id) : undefined;
+        if (food) {
+          const amount = Number(e.quantity ?? 0);
+          if (amount <= 0) return [];
+          return [{
+            food_item_id: food.id,
+            recipe_id: null,
+            name: food.brand ? `${food.name} (${food.brand})` : food.name,
+            amount,
+            unit: food.serving_unit,
+            note: e.note,
+            ...roundMacros(foodItemMacros(food, amount)),
+          }];
+        }
+        const recipe = e.recipe_id ? recipeMap.get(e.recipe_id) : undefined;
+        if (recipe) {
+          const amount = Number(e.servings ?? 1);
+          if (amount <= 0) return [];
+          return [{
+            food_item_id: null,
+            recipe_id: recipe.id,
+            name: recipe.name,
+            amount,
+            unit: "serving",
+            note: e.note,
+            ...roundMacros(recipeMacros(recipe, amount)),
+          }];
+        }
+        return [];
+      }),
+  }));
+  return planned;
 }

@@ -10,15 +10,19 @@ import {
   requireCaller,
 } from "../_shared/auth.ts";
 import { notify } from "../_shared/notify.ts";
+import { forgetUntouchedEntries, readTimeOfDay, readTimezone } from "../_shared/plans.ts";
 import type { RoutineAssignmentTable } from "../../types/schema/public.ts";
 
 // Routines assigned to a user (by themself or a coach). Mirrors
 // meal-plan-assignments.
 //
 // Row shape: { id, routine_id, user_id, assigned_by_id, start_date, end_date
-//              ('YYYY-MM-DD' | null), note, created_at, routine_name,
-//              routine_is_public, routine_schedule_label, user_name,
-//              assigned_by_name }
+//              ('YYYY-MM-DD' | null), note, timezone, workout_time ('HH:MM'),
+//              created_at, routine_name, routine_is_public,
+//              routine_schedule_label, user_name, assigned_by_name }
+//
+// A fixed-weeks routine's trainings show up as planned workouts on the
+// calendar (plan-entries) at workout_time in timezone.
 
 const ASSIGNMENT_COLS = [
   "id",
@@ -28,6 +32,8 @@ const ASSIGNMENT_COLS = [
   sql<string | null>`to_char(start_date, 'YYYY-MM-DD')`.as("start_date"),
   sql<string | null>`to_char(end_date, 'YYYY-MM-DD')`.as("end_date"),
   "note",
+  "timezone",
+  sql<string>`to_char(workout_time, 'HH24:MI')`.as("workout_time"),
   "created_at",
 ] as const;
 
@@ -151,10 +157,15 @@ async function handler(req: Request): Promise<Response> {
   }
 
   // ── POST /routine-assignments ─────────────────────────────────────────────────
-  // Body: { routine_id, user_id, start_date?, end_date?, note? }
+  // Body: { routine_id, user_id, start_date?, end_date?, note?, timezone?,
+  //         workout_time? ('HH:MM', default 18:00) }
   if (req.method === "POST" && !id) {
     const body = await req.json().catch(() => null);
     const { routine_id, user_id, start_date, end_date, note } = body ?? {};
+    const timezone = readTimezone(body?.timezone);
+    if (timezone instanceof Response) return timezone;
+    const workoutTime = readTimeOfDay(body?.workout_time, "workout_time");
+    if (workoutTime instanceof Response) return workoutTime;
 
     if (!routine_id || !user_id) {
       return jsonError("routine_id and user_id are required", 400);
@@ -190,6 +201,8 @@ async function handler(req: Request): Promise<Response> {
       start_date: start_date ?? null,
       end_date: end_date ?? null,
       note: typeof note === "string" && note.trim() ? note.trim() : null,
+      timezone: timezone ?? null,
+      ...(workoutTime && { workout_time: workoutTime }),
     };
 
     const assignment = await db
@@ -210,6 +223,53 @@ async function handler(req: Request): Promise<Response> {
 
     const [row] = await withDetails([assignment]);
     return json(row, 201);
+  }
+
+  // ── PUT /routine-assignments/:id — assigner, target or super ─────────────────
+  // Body: any of { start_date, end_date, note, timezone, workout_time }. Planned
+  // workouts still to come that weren't edited or logged are regenerated.
+  if (req.method === "PUT" && id) {
+    const existing = await db
+      .selectFrom("routine_assignment")
+      .select(["assigned_by_id", "user_id"])
+      .where("id", "=", id)
+      .executeTakeFirst();
+    if (!existing) return jsonError("Routine assignment not found", 404);
+    const allowed = existing.user_id === caller.id || existing.assigned_by_id === caller.id || isSuperUser(caller);
+    if (!allowed) return forbidden();
+
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object") return jsonError("Body must be an object", 400);
+    for (const k of ["start_date", "end_date"] as const) {
+      const v = body[k];
+      if (v !== undefined && v !== null && (typeof v !== "string" || !DATE_RE.test(v))) {
+        return jsonError(`${k} must be YYYY-MM-DD`, 400);
+      }
+    }
+    const timezone = readTimezone(body.timezone);
+    if (timezone instanceof Response) return timezone;
+    const workoutTime = readTimeOfDay(body.workout_time, "workout_time");
+    if (workoutTime instanceof Response) return workoutTime;
+
+    const update = {
+      ...(body.start_date !== undefined && { start_date: body.start_date }),
+      ...(body.end_date !== undefined && { end_date: body.end_date }),
+      ...(body.note !== undefined && {
+        note: typeof body.note === "string" && body.note.trim() ? body.note.trim() : null,
+      }),
+      ...(timezone !== undefined && { timezone }),
+      ...(workoutTime && { workout_time: workoutTime }),
+    };
+    if (!Object.keys(update).length) return jsonError("Nothing to update", 400);
+
+    const assignment = await db.transaction().execute(async (trx) => {
+      const row = await trx.updateTable("routine_assignment").set(update).where("id", "=", id)
+        .returning(ASSIGNMENT_COLS).executeTakeFirstOrThrow();
+      await forgetUntouchedEntries(trx, { routineAssignmentId: id });
+      return row;
+    });
+    const [row] = await withDetails([assignment]);
+    return json(row);
   }
 
   // ── DELETE /routine-assignments/:id — assigner, target or super ──────────────

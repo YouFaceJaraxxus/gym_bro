@@ -841,8 +841,8 @@ Deno.test({
         const future = await call("POST", "/training-sessions", member.token, {
           started_at: new Date(Date.now() + 3600_000).toISOString(), sets: [{ exercise_id: pubEx.id }],
         });
-        if (future.status === 201) sessionId = future.data.id;
-        check("a session can't start in the future", future.status === 400, `status ${future.status}`);
+        check("a session can be logged ahead of time", future.status === 201 && future.data.plan_entry_id === null, `status ${future.status}`);
+        if (future.status === 201) await call("DELETE", `/training-sessions/${future.data.id}`, member.token);
         const backwards = await call("POST", "/training-sessions", member.token, { started_at: end.toISOString(), ended_at: start.toISOString() });
         check("ended_at must be after started_at", backwards.status === 400, `status ${backwards.status}`);
         const noIds = await call("POST", "/training-sessions", member.token, { started_at: start.toISOString(), sets: [{ drops: [] }] });

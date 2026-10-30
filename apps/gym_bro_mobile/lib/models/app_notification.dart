@@ -28,7 +28,16 @@ enum NotificationType {
   chatMessage('chat_message'),
   groupAdded('group_added'),
   postReaction('post_reaction'),
-  commentReply('comment_reply');
+  commentReply('comment_reply'),
+
+  /// Someone @mentioned me (or a business/product I own) in a post or comment.
+  mention('mention'),
+
+  /// Someone tagged me on a photo.
+  photoTag('photo_tag'),
+
+  /// Someone liked / reacted to my story.
+  storyReaction('story_reaction');
 
   const NotificationType(this.apiValue);
 

@@ -20,6 +20,12 @@ class RoutineAssignment {
   final DateTime? startDate;
   final DateTime? endDate;
   final String? note;
+
+  /// IANA zone planned workouts are placed in (null: the viewer's zone).
+  final String? timezone;
+
+  /// 'HH:MM' — when planned workouts start (fixed-weeks routines).
+  final String? workoutTime;
   final DateTime createdAt;
   final String routineName;
   final bool? routineIsPublic;
@@ -35,6 +41,8 @@ class RoutineAssignment {
     this.startDate,
     this.endDate,
     this.note,
+    this.timezone,
+    this.workoutTime,
     required this.createdAt,
     required this.routineName,
     this.routineIsPublic,
@@ -52,6 +60,8 @@ class RoutineAssignment {
         startDate: _parseLocalDate(json['start_date']),
         endDate: _parseLocalDate(json['end_date']),
         note: json['note'] as String?,
+        timezone: json['timezone'] as String?,
+        workoutTime: json['workout_time'] as String?,
         createdAt:
             DateTime.tryParse(json['created_at']?.toString() ?? '') ??
             DateTime.now(),

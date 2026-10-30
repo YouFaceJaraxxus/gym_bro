@@ -1,0 +1,65 @@
+{
+  "archiveTitle": "Archive",
+  "archiveSubtitle": "Your stories and archived posts",
+  "archiveOnlyYou": "Only you can see your archive.",
+  "archiveTabStories": "Stories",
+  "archiveTabPosts": "Posts",
+  "archiveStoriesHint": "Stories stay here after their 24 hours.",
+  "archivePostsHint": "Archived posts are hidden from your profile and feed until you show them again.",
+  "archiveNoStories": "No stories in {month}",
+  "@archiveNoStories": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveNoPosts": "No archived posts from {month}",
+  "@archiveNoPosts": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveNothingOnDay": "Nothing on {day}",
+  "@archiveNothingOnDay": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "archivePrevMonth": "Previous month",
+  "archiveNextMonth": "Next month",
+  "archiveViewCalendar": "Calendar",
+  "archiveViewList": "List",
+  "archiveWholeMonth": "All of {month}",
+  "@archiveWholeMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "archiveDayLabel": "{day}, {count, plural, =0{nothing} =1{1 item} other{{count} items}}",
+  "@archiveDayLabel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "archiveLoadFailed": "Couldn't load your archive",
+  "archiveStoryLive": "Live",
+  "archiveStoryText": "Text story",
+  "archiveStoryShared": "Shared in a story",
+  "archivePostAction": "Archive",
+  "archivePostUnarchive": "Show on profile",
+  "archivePostArchived": "Post archived. Only you can see it now.",
+  "archivePostRestored": "Your post is back on your profile",
+  "archivePostBanner": "Archived — only you can see this post"
+}

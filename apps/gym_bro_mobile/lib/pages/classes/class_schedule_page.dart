@@ -1,26 +1,32 @@
 import 'package:flutter/material.dart';
 import '../../l10n/l10n.dart';
 import '../../models/class_series.dart';
+import '../../models/food_log.dart';
 import '../../models/gym_class.dart';
 import '../../models/people.dart';
+import '../../models/plan_entry.dart';
 import '../../models/training_session.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
-import '../../theme.dart';
+import '../../utils/device_timezone.dart';
 import '../../widgets/calendar_view.dart';
 import '../../widgets/class_calendar.dart';
 import '../../widgets/social_widgets.dart';
-import '../log_workout_page.dart';
+import '../plans/plan_entry_sheet.dart';
 import '../session_detail_page.dart';
 import 'class_detail_page.dart';
+import 'schedule_items.dart';
 import 'schedule_widgets.dart';
 import 'series_format.dart';
 
 /// The Schedule tab: pending invites (to classes, and from trainers) on top,
 /// then a calendar of the caller's sessions — highlighted — merged with the
-/// other sessions they can book at their gyms (faded) and the workouts they
-/// logged, with an "Only mine" filter. Booking happens on a session's page;
-/// tapping an empty hour logs a workout there ([LogWorkoutPage]).
+/// other sessions they can book at their gyms (faded), the workouts and
+/// meals they logged, and the ones planned by the routines and meal plans
+/// they follow (see schedule_items.dart), with an "Only mine" filter.
+/// Booking happens on a session's page; a planned entry opens its sheet
+/// (confirm, log differently, edit, skip); tapping an empty hour — past or
+/// future — logs a workout or a meal there.
 ///
 /// Works as a tab body inside the home Scaffold, pushed inside a Scaffold
 /// with an app bar, or pushed on its own (it then brings its own app bar).
@@ -33,7 +39,7 @@ class ClassSchedulePage extends StatefulWidget {
 
 class _ClassSchedulePageState extends State<ClassSchedulePage> {
   final _api = ApiService();
-  final _calendar = GlobalKey<CalendarViewState<_ScheduleItem>>();
+  final _calendar = GlobalKey<CalendarViewState<ScheduleItem>>();
   List<ClassSeries> _classInvites = [];
   List<PersonSummary> _trainerInvites = [];
   final Set<String> _busy = {};
@@ -72,29 +78,41 @@ class _ClassSchedulePageState extends State<ClassSchedulePage> {
   static bool _isMine(GymClass c) =>
       c.myBookingStatus != null && c.myBookingStatus != BookingStatus.cancelled;
 
-  Future<List<_ScheduleItem>> _loadWeek(DateTime from, DateTime to) async {
+  Future<List<ScheduleItem>> _loadWeek(DateTime from, DateTime to) async {
     final token = await AuthManager.instance.getValidToken();
+    final tz = await deviceTimezone();
     // The default list covers the caller's gyms plus every class they're
     // booked into (also ones a trainer added them to).
     final classes = _api.getClasses(token, from: from, to: to);
+    // Workouts, plans and meals are extra; classes still show without them.
     final workouts = _api
         .getTrainingSessions(token, from: from, to: to, pageSize: 100)
-        // Workouts are extra; classes still show without them.
         .catchError((_) => <TrainingSession>[]);
-    return [
-      for (final c in await classes) _ClassItem(c),
-      for (final s in await workouts) _WorkoutItem(s),
-    ];
+    final entries = _api
+        .getPlanEntries(token, from: from, to: to, timezone: tz)
+        .catchError((_) => <PlanEntry>[]);
+    // Food logs are per day ([from, to] inclusive).
+    final foodLogs = _api
+        .getFoodLogs(token, from: from, to: to.subtract(const Duration(days: 1)))
+        .catchError((_) => <FoodLog>[]);
+    return buildScheduleItems(
+      classes: await classes,
+      sessions: await workouts,
+      entries: await entries,
+      foodLogs: await foodLogs,
+    );
   }
 
-  CalendarEntry _describe(BuildContext context, _ScheduleItem item) =>
+  CalendarEntry _describe(BuildContext context, ScheduleItem item) =>
       switch (item) {
-        _ClassItem(:final gymClass) => ClassCalendar.entryOf(
+        ClassItem(:final gymClass) => ClassCalendar.entryOf(
           context,
           gymClass,
           highlighted: _isMine(gymClass),
         ),
-        _WorkoutItem(:final session) => _workoutEntry(context, session),
+        WorkoutItem(:final session) => _workoutEntry(context, session),
+        PlanItem() => planCalendarEntry(context, item),
+        MealLogItem() => mealLogCalendarEntry(context, item),
       };
 
   CalendarEntry _workoutEntry(BuildContext context, TrainingSession s) {
@@ -114,7 +132,8 @@ class _ClassSchedulePageState extends State<ClassSchedulePage> {
       end: end.isAfter(start) ? end : start.add(const Duration(minutes: 1)),
       title: title,
       lines: lines,
-      color: context.appColors.success,
+      color: scheduleWorkoutColor(context),
+      icon: scheduleWorkoutIcon,
       semanticLabel: [
         l10n.workoutLogCalendarSemantics(title),
         calendarTimeRange(context, start, end),
@@ -123,37 +142,27 @@ class _ClassSchedulePageState extends State<ClassSchedulePage> {
     );
   }
 
-  Future<void> _open(_ScheduleItem item) async {
+  // The calendar reloads the item's week once these complete.
+  Future<void> _open(ScheduleItem item) async {
     switch (item) {
-      case _ClassItem(:final gymClass):
+      case ClassItem(:final gymClass):
         await Navigator.push<void>(
           context,
           MaterialPageRoute(builder: (_) => ClassDetailPage(classId: gymClass.id)),
         );
         if (mounted) _loadInvites();
-      case _WorkoutItem(:final session):
+      case WorkoutItem(:final session):
         await Navigator.push<bool>(
           context,
           MaterialPageRoute(builder: (_) => SessionDetailPage(sessionId: session.id)),
         );
+      case PlanItem(:final entry):
+        final changed = await showPlanEntrySheet(context, entry);
+        // A change can move the entry to another week; reload all.
+        if (changed && mounted) await _calendar.currentState?.refresh();
+      case MealLogItem():
+        await showMealLogsSheet(context, item);
     }
-  }
-
-  Future<bool> _logWorkout(DateTime slot) async {
-    if (slot.isAfter(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.workoutLogFutureSlot)),
-      );
-      return false;
-    }
-    final logged = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => LogWorkoutPage(start: slot),
-      ),
-    );
-    return logged == true;
   }
 
   Future<void> _answerClass(ClassSeries s, bool accept) async {
@@ -217,7 +226,7 @@ class _ClassSchedulePageState extends State<ClassSchedulePage> {
     final ownAppBar = parent == null || !parent.hasAppBar;
     final inviteCount = _classInvites.length + _trainerInvites.length;
     return Scaffold(
-      appBar: ownAppBar ? AppBar(title: Text(l10n.trainingClassClasses)) : null,
+      appBar: ownAppBar ? AppBar(title: Text(l10n.shellTabSchedule)) : null,
       body: Column(
         children: [
           if (inviteCount > 0) _buildInvites(context, inviteCount),
@@ -236,20 +245,21 @@ class _ClassSchedulePageState extends State<ClassSchedulePage> {
             ),
           ),
           Expanded(
-            child: CalendarView<_ScheduleItem>(
+            child: CalendarView<ScheduleItem>(
               key: _calendar,
               load: _loadWeek,
               describe: (item) => _describe(context, item),
+              // Workouts and meals (planned or logged) are always mine.
               filter: _onlyMine
                   ? (item) => switch (item) {
-                      _ClassItem(:final gymClass) => _isMine(gymClass),
-                      _WorkoutItem() => true,
+                      ClassItem(:final gymClass) => _isMine(gymClass),
+                      _ => true,
                     }
                   : null,
               onTap: _open,
-              onSlotTap: _logWorkout,
-              slotSemanticsLabel: l10n.workoutLogSlotLabel,
-              emptyDayText: l10n.workoutLogScheduleEmptyDay,
+              onSlotTap: (slot) => showLogSlotSheet(context, slot),
+              slotSemanticsLabel: l10n.planSlotLabel,
+              emptyDayText: l10n.planScheduleEmptyDay,
               daySemanticsLabel: l10n.classCalendarDayLabel,
             ),
           ),
@@ -402,18 +412,4 @@ class _InviteTile extends StatelessWidget {
       ),
     );
   }
-}
-
-/// One row on the Schedule calendar.
-sealed class _ScheduleItem {}
-
-final class _ClassItem extends _ScheduleItem {
-  _ClassItem(this.gymClass);
-  final GymClass gymClass;
-}
-
-/// A workout the caller logged (started live or logged afterwards).
-final class _WorkoutItem extends _ScheduleItem {
-  _WorkoutItem(this.session);
-  final TrainingSession session;
 }

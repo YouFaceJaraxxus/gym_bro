@@ -166,8 +166,8 @@ class _GymHubPageState extends State<GymHubPage> {
         ],
         _HubCard(
           icon: Icons.event_available_outlined,
-          label: l10n.shellTabClasses,
-          subtitle: l10n.shellHubClassesSubtitle,
+          label: l10n.shellTabSchedule,
+          subtitle: l10n.planScheduleHubSubtitle,
           onTap: () => _push(const ClassSchedulePage()),
         ),
         const SizedBox(height: 14),

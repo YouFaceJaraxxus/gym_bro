@@ -23,7 +23,7 @@ import type {
 
 const SESSION_COLS = [
   "id", "user_id", "trainer_id", "training_id",
-  "started_at", "ended_at", "notes", "created_at", "updated_at",
+  "started_at", "ended_at", "notes", "plan_entry_id", "created_at", "updated_at",
 ] as const;
 
 /** Number of comments on the session; select alongside SESSION_COLS. */
@@ -363,20 +363,19 @@ async function handler(req: Request): Promise<Response> {
 
   // ── POST /training-sessions — start a session, or log a finished one ─────────
   // Body: { training_id?, trainer_id?, notes? } starts one now. Logging one
-  // after the fact (e.g. from a calendar slot) adds { started_at, ended_at,
-  // sets: [{ training_set_id?, exercise_id?, position?, note?, drops }] }
-  // and returns the full detail; no PR detection for back-dated logs.
+  // from a calendar slot adds { started_at, ended_at, sets: [{ training_set_id?,
+  // exercise_id?, position?, note?, drops }] } and returns the full detail; no
+  // PR detection for those. The slot may be in the future (logged ahead of
+  // time; it can't be shared as a post until it has happened).
+  // plan_entry_id: the planned workout this session confirms (marks it done).
   if (req.method === "POST" && !id) {
     const body = await req.json().catch(() => null);
-    const { training_id, trainer_id, notes, started_at, ended_at, sets } = body ?? {};
+    const { training_id, trainer_id, notes, started_at, ended_at, sets, plan_entry_id } = body ?? {};
 
     const startedAt = started_at == null ? null : parseInstant(started_at);
     const endedAt = ended_at == null ? null : parseInstant(ended_at);
     if (started_at != null && !startedAt) return jsonError("started_at must be an ISO timestamp", 400);
     if (ended_at != null && !endedAt) return jsonError("ended_at must be an ISO timestamp", 400);
-    if (startedAt && startedAt.getTime() > Date.now() + 5 * 60_000) {
-      return jsonError("started_at can't be in the future", 400);
-    }
     if (endedAt && endedAt.getTime() < (startedAt ?? new Date()).getTime()) {
       return jsonError("ended_at must be after started_at", 400);
     }
@@ -384,6 +383,15 @@ async function handler(req: Request): Promise<Response> {
     const setPayloads = (sets ?? []) as SetPayload[];
     if (setPayloads.some((s) => !s || typeof s !== "object" || (!s.training_set_id && !s.exercise_id))) {
       return jsonError("Each set needs a training_set_id or an exercise_id", 400);
+    }
+
+    if (plan_entry_id != null) {
+      const entry = typeof plan_entry_id === "string"
+        ? await db.selectFrom("plan_entry").select(["user_id", "kind"]).where("id", "=", plan_entry_id)
+          .executeTakeFirst().catch(() => undefined)
+        : undefined;
+      if (!entry || entry.user_id !== caller.id) return jsonError("Planned workout not found", 404);
+      if (entry.kind !== "workout") return jsonError("That plan entry isn't a workout", 400);
     }
 
     if (trainer_id) {
@@ -401,6 +409,7 @@ async function handler(req: Request): Promise<Response> {
       training_id: training_id ?? null,
       trainer_id: trainer_id ?? null,
       notes: notes ?? null,
+      plan_entry_id: plan_entry_id ?? null,
       ...(startedAt && { started_at: startedAt.toISOString() }),
       ...(endedAt && { ended_at: endedAt.toISOString() }),
     };

@@ -7,10 +7,12 @@ import '../models/food_log.dart';
 import '../models/meal_plan.dart';
 import '../models/post.dart';
 import '../models/routine.dart';
+import '../models/shared_content.dart';
 import '../models/training.dart';
 import '../models/training_session.dart';
 import '../pages/feed/create_post_page.dart';
 import 'drafts.dart';
+import 'share_sheet.dart';
 
 // "Share as post": opens the composer with a workout, meal or library item
 // attached (see [CreatePostPage.share]). A workout or meal can only be shared
@@ -164,7 +166,8 @@ Future<Post?> sharePost(BuildContext context, ShareTarget target) async {
   return created;
 }
 
-/// After logging something: "[message]" with a "Share" action (left out
+/// After logging something: "[message]" with a "Share" action (the share
+/// sheet: send it in chat, add it to a story or post it; left out
 /// for something in the future). Uses [navigator]'s context, so it works
 /// after the logging screen has closed.
 void showLoggedWithShare(
@@ -181,14 +184,15 @@ void showLoggedWithShare(
         : SnackBarAction(
             label: l10n.postShareShareAction,
             onPressed: () {
-              if (navigator.mounted) sharePost(navigator.context, target);
+              if (navigator.mounted) showShareSheet(navigator.context, ShareRequest.fromTarget(target));
             },
           ),
   ));
 }
 
-/// App bar action: share [target] as a post. Greyed out (tapping explains
-/// why) while it's in the future.
+/// App bar action: the share sheet for [target] — send it in chat, add it to
+/// a story, or share it as a post. Greyed out (tapping explains why) while
+/// it's in the future.
 class SharePostButton extends StatelessWidget {
   const SharePostButton({super.key, required this.target});
 
@@ -199,9 +203,9 @@ class SharePostButton extends StatelessWidget {
     final l10n = context.l10n;
     final future = target.isFuture();
     return IconButton(
-      tooltip: future ? l10n.postShareFutureBlocked : l10n.postShareAction,
+      tooltip: future ? l10n.postShareFutureBlocked : l10n.postShareShareAction,
       icon: Icon(Icons.ios_share, color: future ? Theme.of(context).disabledColor : null),
-      onPressed: () => sharePost(context, target),
+      onPressed: () => showShareSheet(context, ShareRequest.fromTarget(target)),
     );
   }
 }

@@ -53,12 +53,16 @@ extension SocialApi on ApiService {
   }
 
   /// Creates a personal post from uploaded media (see [requestPostUpload] and
-  /// [uploadFileToSlot]).
+  /// [uploadFileToSlot]). [tags] are the people pinned on each media item (by
+  /// index); [share] makes it a typed post sharing a workout, meal or item.
+  /// Throws [FutureActivityException] when [share] hasn't happened yet.
   Future<Post> createPersonalPost(
     String token, {
     required String caption,
     required PostVisibility visibility,
     List<OutgoingAttachment> media = const [],
+    List<List<PhotoTag>> tags = const [],
+    ShareTarget? share,
   }) async {
     final r = await _client.post(
       Uri.parse('$_base/posts'),
@@ -66,9 +70,17 @@ extension SocialApi on ApiService {
       body: jsonEncode({
         'content': caption,
         'visibility': visibility.apiValue,
-        'media': media.map((m) => m.toJson()).toList(),
+        'media': [
+          for (final (i, m) in media.indexed)
+            {
+              ...m.toJson(),
+              if (i < tags.length && tags[i].isNotEmpty) 'tags': [for (final t in tags[i]) t.toRequestJson()],
+            },
+        ],
+        ...?share?.toRequestJson(),
       }),
     );
+    _throwIfFutureActivity(r);
     _check(r);
     return Post.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
   }
