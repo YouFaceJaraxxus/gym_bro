@@ -7,6 +7,7 @@ import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'plan_enrolment.dart';
+import 'app_bottom_sheet.dart';
 
 // Shared meal-plan assignment flows used by MealPlanDetailPage,
 // MealPlansPage and MemberProgressPage.
@@ -105,7 +106,7 @@ Future<bool> showAssignMealPlanFlow(
   BuildContext context, {
   required MealPlan plan,
 }) async {
-  final target = await showModalBottomSheet<_AssignTarget>(
+  final target = await showAppBottomSheet<_AssignTarget>(
     context: context,
     isScrollControlled: true,
     builder: (_) => const _AssignTargetSheet(),
@@ -128,7 +129,7 @@ Future<bool> showAssignPlanToMemberFlow(
   required String userId,
   required String displayName,
 }) async {
-  final plan = await showModalBottomSheet<MealPlan>(
+  final plan = await showAppBottomSheet<MealPlan>(
     context: context,
     isScrollControlled: true,
     builder: (_) => const MealPlanPickerSheet(),

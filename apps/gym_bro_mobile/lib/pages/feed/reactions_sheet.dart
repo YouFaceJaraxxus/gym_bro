@@ -7,12 +7,13 @@ import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/social_widgets.dart';
 import '../people/user_profile_page.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// "Who reacted": a tab for everyone plus one per emoji (with counts), each a
 /// paginated list of people. Tapping a person opens their profile.
 Future<void> showReactionsSheet(BuildContext context, Post post) {
   if (post.reactions.total == 0) return Future.value();
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -26,7 +27,7 @@ Future<void> showReactionsSheet(BuildContext context, Post post) {
 Future<void> showReactionBreakdownSheet(BuildContext context, ReactionSummary summary) {
   if (summary.total == 0) return Future.value();
   final entries = summary.counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     showDragHandle: true,
     builder: (ctx) {

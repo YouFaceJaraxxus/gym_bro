@@ -13,6 +13,7 @@ import '../widgets/exercise_picker_sheet.dart';
 import '../widgets/plate_calculator_sheet.dart';
 import '../widgets/rest_timer.dart';
 import '../widgets/share_post.dart';
+import '../widgets/app_bottom_sheet.dart';
 
 /// Active workout logging screen.
 /// Pass [training] for a structured session following a program,
@@ -537,7 +538,7 @@ class _FreeFormLoggerState extends State<_FreeFormLogger> {
   Exercise? _lastExercise;
 
   Future<void> _logSet() async {
-    final r = await showModalBottomSheet<_AdHocResult>(
+    final r = await showAppBottomSheet<_AdHocResult>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

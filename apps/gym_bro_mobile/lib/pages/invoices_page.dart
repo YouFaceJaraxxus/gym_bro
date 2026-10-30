@@ -8,6 +8,7 @@ import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'shop/order_widgets.dart' show PaymentsConfigCache;
+import '../widgets/app_bottom_sheet.dart';
 
 /// Membership invoices for owners, super users and gym staff.
 ///
@@ -163,7 +164,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
 
   Future<void> _openActions(MembershipInvoice inv) async {
     final l10n = context.l10n;
-    final picked = await showModalBottomSheet<InvoiceStatus>(
+    final picked = await showAppBottomSheet<InvoiceStatus>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

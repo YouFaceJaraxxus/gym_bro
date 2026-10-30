@@ -9,6 +9,7 @@ import '../pages/people/user_profile_page.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'mentions.dart';
+import 'app_bottom_sheet.dart';
 
 // People pinned on photos (Instagram-style). A pin's x, y are 0–1 of the
 // whole photo, so wherever the photo is shown (cropped to fill a feed card,
@@ -452,7 +453,7 @@ class _EditablePhotoState extends State<_EditablePhoto> {
 
 /// A bottom sheet to search for a person (mention search, people only).
 Future<MentionSuggestion?> showPersonPicker(BuildContext context, {MentionSearch? search}) =>
-    showModalBottomSheet<MentionSuggestion>(
+    showAppBottomSheet<MentionSuggestion>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

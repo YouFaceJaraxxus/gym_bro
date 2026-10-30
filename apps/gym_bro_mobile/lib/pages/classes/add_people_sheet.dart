@@ -7,11 +7,12 @@ import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/social_widgets.dart';
 import 'schedule_widgets.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// Lets a coach add people to [c]: members of its gym and their own approved
 /// followers. Resolves to true when anyone was added.
 Future<bool> showAddPeopleSheet(BuildContext context, GymClass c) async {
-  final added = await showModalBottomSheet<bool>(
+  final added = await showAppBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

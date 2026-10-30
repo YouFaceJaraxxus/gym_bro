@@ -9,6 +9,7 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/settings_service.dart';
 import '../widgets/share_post.dart';
+import '../widgets/app_bottom_sheet.dart';
 
 class SessionDetailPage extends StatefulWidget {
   final String sessionId;
@@ -220,7 +221,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
   }
 
   Future<void> _editSet(SessionSetLog setLog, String title) async {
-    final data = await showModalBottomSheet<Map<String, dynamic>>(
+    final data = await showAppBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _EditSetSheet(setLog: setLog, title: title),

@@ -7,6 +7,7 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/media_upload.dart';
 import 'social_widgets.dart' show readMediaDimensions;
+import 'app_bottom_sheet.dart';
 
 /// Opens a camera/gallery picker, then the photo editor, uploads the
 /// (edited) image via the `uploads` edge function, and reports progress/result through the callbacks. Useful
@@ -38,7 +39,7 @@ class _ImagePickerButton {
     required void Function(String url) onUploaded,
     required void Function(bool uploading) onUploadingChanged,
   }) async {
-    final source = await showModalBottomSheet<ImageSource>(
+    final source = await showAppBottomSheet<ImageSource>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Wrap(

@@ -9,6 +9,7 @@ import 'package:video_player/video_player.dart';
 
 import '../l10n/l10n.dart';
 import '../services/media_upload.dart';
+import 'app_bottom_sheet.dart';
 
 /// Shared building blocks for people, chat and posts: avatars with an
 /// online dot, the "typing…" dots, private-media images/videos and the
@@ -347,7 +348,7 @@ enum MediaSource { takePhoto, recordVideo, gallery, file }
 /// (empty when cancelled). Files over 50 MB are dropped with a snackbar.
 Future<List<PickedMedia>> pickMedia(BuildContext context, {bool allowFiles = true, bool multiple = true}) async {
   final l10n = context.l10n;
-  final source = await showModalBottomSheet<MediaSource>(
+  final source = await showAppBottomSheet<MediaSource>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(

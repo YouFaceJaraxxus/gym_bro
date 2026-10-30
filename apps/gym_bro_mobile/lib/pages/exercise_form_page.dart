@@ -9,6 +9,7 @@ import '../theme.dart';
 import '../widgets/drafts.dart';
 import '../widgets/image_upload_field.dart';
 import '../widgets/muscle_diagram.dart';
+import '../widgets/app_bottom_sheet.dart';
 
 class ExerciseFormPage extends StatefulWidget {
   final Exercise? exercise;
@@ -173,7 +174,7 @@ class _ExerciseFormPageState extends State<ExerciseFormPage>
     final other = isPrimary ? _secondaryMuscles : _primaryMuscles;
     final l10n = context.l10n;
 
-    final result = await showModalBottomSheet<Set<MuscleGroup>>(
+    final result = await showAppBottomSheet<Set<MuscleGroup>>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _MusclePickerSheet(

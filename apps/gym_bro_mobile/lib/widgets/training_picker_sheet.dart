@@ -6,6 +6,7 @@ import '../l10n/l10n.dart';
 import '../models/training.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'app_bottom_sheet.dart';
 
 const _kDebounce = Duration(milliseconds: 350);
 
@@ -24,7 +25,7 @@ Future<TrainingPick?> showTrainingPicker(
   String? title,
   String? noneLabel,
 }) {
-  return showModalBottomSheet<TrainingPick>(
+  return showAppBottomSheet<TrainingPick>(
     context: context,
     isScrollControlled: true,
     builder: (_) => TrainingPickerSheet(title: title, noneLabel: noneLabel),

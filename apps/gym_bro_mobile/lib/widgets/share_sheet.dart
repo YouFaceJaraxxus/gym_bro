@@ -15,6 +15,7 @@ import 'post_attachment_card.dart';
 import 'share_post.dart';
 import 'shared_content_card.dart';
 import 'social_widgets.dart';
+import 'app_bottom_sheet.dart';
 
 // Instagram's share sheet: pick people and chats (recent chats by default,
 // people search while typing), add a note, send — one message each. Quick
@@ -57,7 +58,7 @@ Future<void> showShareSheet(BuildContext context, ShareRequest request) async {
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(l10n.postShareFutureBlocked)));
     return;
   }
-  final action = await showModalBottomSheet<_QuickAction>(
+  final action = await showAppBottomSheet<_QuickAction>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

@@ -8,6 +8,7 @@ import '../../services/auth_manager.dart';
 import 'cart_service.dart';
 import 'order_detail_page.dart';
 import 'order_widgets.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// Opens the cart for [shopId] as a bottom sheet. After a successful order it
 /// opens the order (and starts card checkout when paying by card).
@@ -21,7 +22,7 @@ Future<void> showCartSheet(
   VoidCallback? onStockProblem,
 }) async {
   final navigator = Navigator.of(context);
-  final order = await showModalBottomSheet<ShopOrder>(
+  final order = await showAppBottomSheet<ShopOrder>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

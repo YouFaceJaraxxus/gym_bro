@@ -10,6 +10,7 @@ import '../theme.dart';
 import '../widgets/drafts.dart';
 import '../widgets/image_upload_field.dart';
 import 'nutrition/nutrition_widgets.dart';
+import '../widgets/app_bottom_sheet.dart';
 
 class RecipeFormPage extends StatefulWidget {
   final Recipe? recipe;
@@ -249,7 +250,7 @@ class _RecipeFormPageState extends State<RecipeFormPage> with DraftableForm {
   // ── Food picker ─────────────────────────────────────────────────────────────
 
   Future<void> _openFoodPicker() async {
-    final picked = await showModalBottomSheet<FoodItem>(
+    final picked = await showAppBottomSheet<FoodItem>(
       context: context,
       isScrollControlled: true,
       builder: (_) => const _FoodPickerSheet(),

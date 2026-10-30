@@ -5,13 +5,14 @@ import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'app_bottom_sheet.dart';
 
 const _kDebounce = Duration(milliseconds: 350);
 
 /// Opens a searchable bottom sheet of exercises and returns the picked one
 /// (or null when dismissed). Results update as you type (debounced).
 Future<Exercise?> showExercisePicker(BuildContext context) {
-  return showModalBottomSheet<Exercise>(
+  return showAppBottomSheet<Exercise>(
     context: context,
     isScrollControlled: true,
     builder: (_) => const ExercisePickerSheet(),

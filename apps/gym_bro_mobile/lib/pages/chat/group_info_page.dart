@@ -11,6 +11,7 @@ import 'chat_launcher.dart';
 import 'chat_widgets.dart';
 import 'new_chat_page.dart';
 import 'shared_media_page.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 enum _MemberAction { profile, message, makeAdmin, removeAdmin, makeOwner, remove }
 
@@ -154,7 +155,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         _isAdmin &&
         m.role != ParticipantRole.owner &&
         (m.role != ParticipantRole.admin || _isOwner);
-    final action = await showModalBottomSheet<_MemberAction>(
+    final action = await showAppBottomSheet<_MemberAction>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

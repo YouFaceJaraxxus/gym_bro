@@ -4,6 +4,7 @@ import '../models/business.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'app_bottom_sheet.dart';
 
 // Shared "pick a member I coach" sheet: used for routine assignment and
 // available to any feature that targets one of the caller's members.
@@ -109,7 +110,7 @@ Future<CoachedMemberPick?> showCoachedMemberPicker(
   String? title,
   bool includeSelf = true,
 }) {
-  return showModalBottomSheet<CoachedMemberPick>(
+  return showAppBottomSheet<CoachedMemberPick>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

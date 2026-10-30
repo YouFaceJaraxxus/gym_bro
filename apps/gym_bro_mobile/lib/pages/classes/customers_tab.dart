@@ -8,6 +8,7 @@ import 'customer_detail_page.dart';
 import 'person_picker_sheet.dart';
 import 'schedule_widgets.dart';
 import 'series_format.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// The trainer's customers and which of their classes each one takes or is
 /// invited to. Adding someone invites them, optionally to some classes too.
@@ -355,7 +356,7 @@ Future<bool> addCustomerFlow(
       ? '@${person.username}'
       : person.fullName;
 
-  final seriesIds = await showModalBottomSheet<List<String>>(
+  final seriesIds = await showAppBottomSheet<List<String>>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

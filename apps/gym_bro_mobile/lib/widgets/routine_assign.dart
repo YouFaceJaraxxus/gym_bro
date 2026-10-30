@@ -8,6 +8,7 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'coachable_members.dart';
 import 'plan_enrolment.dart';
+import 'app_bottom_sheet.dart';
 
 // Routine assignment flows used by RoutineDetailPage, WorkoutsPage and
 // MemberProgressPage.
@@ -41,7 +42,7 @@ Future<bool> showAssignRoutineToMemberFlow(
   required String userId,
   required String displayName,
 }) async {
-  final routine = await showModalBottomSheet<Routine>(
+  final routine = await showAppBottomSheet<Routine>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

@@ -7,6 +7,7 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/drafts.dart';
 import 'nutrition/nutrition_widgets.dart';
+import '../widgets/app_bottom_sheet.dart';
 
 class DailyMealPlanFormPage extends StatefulWidget {
   final DailyMealPlan? plan;
@@ -208,7 +209,7 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> with Draf
       );
       return;
     }
-    final picked = await showModalBottomSheet<MealSlotType>(
+    final picked = await showAppBottomSheet<MealSlotType>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _SlotTypePicker(available: available),
@@ -224,7 +225,7 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> with Draf
   // ── add food item to slot ────────────────────────────────────────────────────
 
   Future<void> _addFoodItem(int slotIndex) async {
-    final item = await showModalBottomSheet<FoodItem>(
+    final item = await showAppBottomSheet<FoodItem>(
       context: context,
       isScrollControlled: true,
       builder: (_) => const _FoodItemPickerSheet(),
@@ -261,7 +262,7 @@ class _DailyMealPlanFormPageState extends State<DailyMealPlanFormPage> with Draf
   // ── add recipe to slot ───────────────────────────────────────────────────────
 
   Future<void> _addRecipe(int slotIndex) async {
-    final recipe = await showModalBottomSheet<Recipe>(
+    final recipe = await showAppBottomSheet<Recipe>(
       context: context,
       isScrollControlled: true,
       builder: (_) => const _RecipePickerSheet(),

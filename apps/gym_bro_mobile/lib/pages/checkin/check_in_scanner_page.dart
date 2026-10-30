@@ -9,6 +9,7 @@ import '../../models/check_in.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import 'check_in_widgets.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// Front-desk scanner: reads a member's check-in QR code and records the
 /// visit, or checks a member in by name.
@@ -145,7 +146,7 @@ class _CheckInScannerPageState extends State<CheckInScannerPage>
 
   Future<void> _openManual() async {
     _resumeTimer?.cancel();
-    final person = await showModalBottomSheet<CheckInPerson>(
+    final person = await showAppBottomSheet<CheckInPerson>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

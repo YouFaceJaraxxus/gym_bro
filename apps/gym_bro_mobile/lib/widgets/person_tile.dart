@@ -7,6 +7,7 @@ import '../pages/people/user_profile_page.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'social_widgets.dart';
+import 'app_bottom_sheet.dart';
 
 /// Opens someone's profile.
 Future<void> openUserProfile(BuildContext context, String userId) =>
@@ -224,7 +225,7 @@ class _RelationshipButtonState extends State<RelationshipButton> {
     final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
     final rel = _rel!;
-    final action = await showModalBottomSheet<String>(
+    final action = await showAppBottomSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(
@@ -404,7 +405,7 @@ class _FriendButtonState extends State<FriendButton> {
 
   Future<void> _respond() async {
     final l10n = context.l10n;
-    final action = await showModalBottomSheet<bool>(
+    final action = await showAppBottomSheet<bool>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

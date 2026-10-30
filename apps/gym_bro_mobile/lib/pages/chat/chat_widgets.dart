@@ -10,6 +10,7 @@ import '../../models/people.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/shared_content_card.dart';
 import '../../widgets/social_widgets.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// Small building blocks shared by the chat screens: avatars, badges,
 /// previews of system events, dialogs and the swipe-to-reply gesture.
@@ -197,7 +198,7 @@ String reportReasonLabel(AppLocalizations l10n, ReportReason r) => switch (r) {
 
 Future<ReportReason?> pickReportReason(BuildContext context) {
   final l10n = context.l10n;
-  return showModalBottomSheet<ReportReason>(
+  return showAppBottomSheet<ReportReason>(
     context: context,
     showDragHandle: true,
     builder: (ctx) => SafeArea(

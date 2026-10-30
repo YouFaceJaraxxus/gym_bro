@@ -6,6 +6,7 @@ import '../../models/people.dart';
 import '../../models/social.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// Shared helpers for the people screens (profiles, lists, discovery).
 
@@ -181,7 +182,7 @@ String reportReasonLabel(AppLocalizations l10n, ReportReason r) => switch (r) {
 
 /// Reason picker + optional details; sends the report and shows a thank-you.
 Future<void> showReportUserSheet(BuildContext context, {required String userId, required String username}) async {
-  final sent = await showModalBottomSheet<bool>(
+  final sent = await showAppBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

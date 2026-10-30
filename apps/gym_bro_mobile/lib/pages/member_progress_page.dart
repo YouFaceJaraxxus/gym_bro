@@ -15,6 +15,7 @@ import 'nutrition/food_diary_page.dart';
 import 'progress/progress_page.dart';
 import 'routine_detail_page.dart';
 import 'session_detail_page.dart';
+import '../widgets/app_bottom_sheet.dart';
 
 /// A coach's view of one member: progress + food diary shortcuts, assigned
 /// routines and meal plans (with assign actions), and recent sessions.
@@ -152,7 +153,7 @@ class _MemberProgressPageState extends State<MemberProgressPage> {
 
   Future<void> _showAssignMenu() async {
     final l10n = context.l10n;
-    final choice = await showModalBottomSheet<String>(
+    final choice = await showAppBottomSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

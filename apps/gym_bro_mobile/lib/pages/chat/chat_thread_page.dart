@@ -22,6 +22,7 @@ import 'chat_widgets.dart';
 import 'group_info_page.dart';
 import 'message_bubble.dart';
 import 'shared_media_page.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// A message being sent: its files, per-file progress and the storage paths
 /// already uploaded (so a retry only re-sends what's missing).
@@ -641,7 +642,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
     final canModerate = _isGroup && (_conv?.myRole.isAdmin ?? false);
     final current = m.reactionOf(_me);
     HapticFeedback.mediumImpact();
-    final result = await showModalBottomSheet<Object>(
+    final result = await showAppBottomSheet<Object>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(
@@ -765,7 +766,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
 
   void _showReactors(ChatMessage m) {
     final l10n = context.l10n;
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,

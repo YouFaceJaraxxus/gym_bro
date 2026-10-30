@@ -7,6 +7,7 @@ import '../models/draft.dart';
 import '../models/social.dart' show relativeTime;
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'app_bottom_sheet.dart';
 
 // Drafts, Instagram-style: leaving a create screen with something on it asks
 // whether to save a draft (private, stored on the server); opening a create
@@ -64,7 +65,7 @@ Future<T?> _openCreateWithDrafts<T>(
   Draft? draft;
   if (drafts.isNotEmpty) {
     if (!context.mounted) return null;
-    final choice = await showModalBottomSheet<_Choice>(
+    final choice = await showAppBottomSheet<_Choice>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

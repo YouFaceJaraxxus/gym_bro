@@ -5,6 +5,7 @@ import '../../l10n/l10n.dart';
 import '../../models/food_log.dart';
 import '../../models/meal_plan.dart';
 import '../../theme.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 // ── Macro colors (derived from the theme so dark mode works) ──────────────────
 
@@ -188,7 +189,7 @@ Future<LogAmountResult?> showLogAmountSheet(
   required MealSlotType initialSlot,
   String? confirmLabel,
 }) {
-  return showModalBottomSheet<LogAmountResult>(
+  return showAppBottomSheet<LogAmountResult>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

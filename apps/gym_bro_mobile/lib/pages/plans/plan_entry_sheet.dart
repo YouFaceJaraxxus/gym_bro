@@ -18,6 +18,7 @@ import '../nutrition/food_diary_page.dart';
 import '../routine_detail_page.dart';
 import '../session_detail_page.dart';
 import '../training_detail_page.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 // Sheets the Schedule calendar opens: an empty hour (log a workout or a meal
 // there), a planned workout or meal (details, confirm, log differently, edit,
@@ -79,7 +80,7 @@ Future<bool> showLogSlotSheet(BuildContext context, DateTime slot) async {
   final time = DateFormat.jm(
     Localizations.localeOf(context).toString(),
   ).format(slot);
-  final choice = await showModalBottomSheet<PlanEntryKind>(
+  final choice = await showAppBottomSheet<PlanEntryKind>(
     context: context,
     showDragHandle: true,
     useSafeArea: true,
@@ -186,7 +187,7 @@ Future<bool> showPlanEntrySheet(BuildContext context, PlanEntry entry) async {
       entry.trainingSessionId != null) {
     return _runPlanAction(context, entry, _PlanAction.openSession);
   }
-  final action = await showModalBottomSheet<_PlanAction>(
+  final action = await showAppBottomSheet<_PlanAction>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -913,7 +914,7 @@ class _FieldButton extends StatelessWidget {
 /// food diary on that day.
 Future<bool> showMealLogsSheet(BuildContext context, MealLogItem item) async {
   final l10n = context.l10n;
-  final add = await showModalBottomSheet<bool>(
+  final add = await showAppBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

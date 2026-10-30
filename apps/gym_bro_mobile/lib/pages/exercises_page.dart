@@ -7,6 +7,7 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'exercise_detail_page.dart';
 import 'exercise_form_page.dart';
+import '../widgets/app_bottom_sheet.dart';
 
 class ExercisesPage extends StatefulWidget {
   const ExercisesPage({super.key});
@@ -81,7 +82,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
   }
 
   Future<void> _openFilter() async {
-    final selected = await showModalBottomSheet<MuscleGroup?>(
+    final selected = await showAppBottomSheet<MuscleGroup?>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _MuscleFilterSheet(current: _filterMuscle),

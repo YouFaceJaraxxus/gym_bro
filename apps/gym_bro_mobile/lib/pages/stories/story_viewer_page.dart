@@ -14,6 +14,7 @@ import '../../services/auth_manager.dart';
 import '../../widgets/share_sheet.dart';
 import '../../widgets/shared_content_card.dart';
 import '../../widgets/social_widgets.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 // The full-screen story viewer, Instagram-style: one page per person (swipe
 // sideways between people, with a cube turn), segmented progress bars, tap
@@ -489,7 +490,7 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
   Future<void> _openViewers() async {
     final story = _story;
     if (story == null) return;
-    await _withPause(() => showModalBottomSheet<void>(
+    await _withPause(() => showAppBottomSheet<void>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,

@@ -6,6 +6,7 @@ import '../services/auth_manager.dart';
 import 'add_gym_member_page.dart';
 import 'edit_gym_member_page.dart';
 import 'invite_gym_member_page.dart';
+import '../widgets/app_bottom_sheet.dart';
 
 class GymMembersPage extends StatefulWidget {
   const GymMembersPage(
@@ -128,7 +129,7 @@ class _GymMembersPageState extends State<GymMembersPage> {
 
   void _showAddOptions() {
     final l10n = context.l10n;
-    showModalBottomSheet(
+    showAppBottomSheet(
       context: context,
       builder: (_) => SafeArea(
         child: Column(

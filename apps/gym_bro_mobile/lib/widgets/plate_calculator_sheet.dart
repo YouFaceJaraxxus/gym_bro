@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../services/settings_service.dart';
 import '../utils/plate_calculator.dart';
+import 'app_bottom_sheet.dart';
 
 /// Plate calculator + warm-up suggestions in the user's weight unit.
 /// [initialWeightKg] pre-fills the target (converted for display).
 Future<void> showPlateCalculator(BuildContext context, {double? initialWeightKg}) {
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

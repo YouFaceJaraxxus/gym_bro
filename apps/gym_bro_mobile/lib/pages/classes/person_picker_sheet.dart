@@ -7,6 +7,7 @@ import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/social_widgets.dart';
 import 'schedule_widgets.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// Picks one person a trainer may add as a customer or invite to a class:
 /// their approved followers, members of gyms where they coach, and existing
@@ -18,7 +19,7 @@ Future<EligibleCustomer?> showPersonPicker(
   String? hint,
   Set<String> excludeIds = const {},
 }) {
-  return showModalBottomSheet<EligibleCustomer>(
+  return showAppBottomSheet<EligibleCustomer>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,

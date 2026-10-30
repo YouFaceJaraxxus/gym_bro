@@ -19,6 +19,7 @@ import 'post_attachment_card.dart';
 import 'reactions.dart';
 import 'share_sheet.dart';
 import 'social_widgets.dart';
+import 'app_bottom_sheet.dart';
 
 /// One post as a feed card (Instagram + Facebook): header, media carousel,
 /// caption, reaction/comment stats and the action row.
@@ -265,7 +266,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
   }
 
   Future<void> _editInline() async {
-    final result = await showModalBottomSheet<(String, PostVisibility)>(
+    final result = await showAppBottomSheet<(String, PostVisibility)>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

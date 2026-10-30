@@ -9,6 +9,7 @@ import '../services/auth_manager.dart';
 import '../widgets/drafts.dart';
 import '../widgets/exercise_picker_sheet.dart';
 import '../widgets/image_upload_field.dart';
+import '../widgets/app_bottom_sheet.dart';
 
 /// Create or edit a training program with sets, exercises, and drops, and
 /// pick which of the user's routines it belongs to.
@@ -148,7 +149,7 @@ class _TrainingFormPageState extends State<TrainingFormPage> with DraftableForm 
   Future<void> _pickRoutines() async {
     final routines = _myRoutines;
     if (routines == null) return;
-    final picked = await showModalBottomSheet<Set<String>>(
+    final picked = await showAppBottomSheet<Set<String>>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

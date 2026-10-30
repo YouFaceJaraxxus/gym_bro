@@ -12,6 +12,7 @@ import '../../widgets/share_sheet.dart';
 import 'cart_service.dart';
 import 'cart_sheet.dart';
 import 'order_widgets.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// One shop's products: search, filter by type, add to cart, check out.
 class StorefrontShopPage extends StatefulWidget {
@@ -122,7 +123,7 @@ class _StorefrontShopPageState extends State<StorefrontShopPage> {
   }
 
   Future<void> _openItem(ShopItem item) async {
-    await showModalBottomSheet<void>(
+    await showAppBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

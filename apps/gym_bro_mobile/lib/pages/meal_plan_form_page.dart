@@ -9,6 +9,7 @@ import '../theme.dart';
 import '../widgets/drafts.dart';
 import '../widgets/image_upload_field.dart';
 import 'nutrition/nutrition_widgets.dart';
+import '../widgets/app_bottom_sheet.dart';
 
 class MealPlanFormPage extends StatefulWidget {
   final MealPlan? plan;
@@ -187,7 +188,7 @@ class _MealPlanFormPageState extends State<MealPlanFormPage>
   }
 
   Future<void> _pickDailyPlan(int weekNumber, int dayOfWeek) async {
-    final result = await showModalBottomSheet<_DailyPlanPickResult>(
+    final result = await showAppBottomSheet<_DailyPlanPickResult>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _DailyPlanPickerSheet(),

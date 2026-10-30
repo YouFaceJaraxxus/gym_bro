@@ -10,6 +10,7 @@ import '../../services/realtime_service.dart';
 import 'chat_thread_page.dart';
 import 'chat_widgets.dart';
 import 'new_chat_page.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// Ticks whenever the lists should refetch (realtime events, returning
 /// from a thread, a pull elsewhere).
@@ -387,7 +388,7 @@ class _ConversationListState extends State<ConversationList> with AutomaticKeepA
     final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
     final requests = widget.box == ChatBox.requests;
-    final action = await showModalBottomSheet<_RowAction>(
+    final action = await showAppBottomSheet<_RowAction>(
       context: context,
       showDragHandle: true,
       builder: (ctx) => SafeArea(

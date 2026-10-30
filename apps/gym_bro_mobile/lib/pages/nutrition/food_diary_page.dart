@@ -9,6 +9,7 @@ import '../../widgets/share_post.dart';
 import '../../widgets/share_sheet.dart';
 import 'add_food_log_page.dart';
 import 'nutrition_widgets.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// Daily food diary. [userId] null (or the caller's own id) = my diary,
 /// editable; anyone else's diary (coach view) is read-only.
@@ -138,7 +139,7 @@ class _FoodDiaryPageState extends State<FoodDiaryPage> {
   Future<void> _edit(FoodLog log) async {
     if (!log.canEditAmount) {
       // Item was deleted: only the meal slot can still change.
-      final slot = await showModalBottomSheet<MealSlotType>(
+      final slot = await showAppBottomSheet<MealSlotType>(
         context: context,
         showDragHandle: true,
         builder: (ctx) => SafeArea(
