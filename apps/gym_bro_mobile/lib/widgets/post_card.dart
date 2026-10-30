@@ -373,7 +373,13 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
 
   Widget _attachment(Post p, {double top = 2}) => Padding(
     padding: EdgeInsets.fromLTRB(12, top, 12, 8),
-    child: PostAttachmentCard(type: p.postType, attachment: p.attachment!, refId: p.refId, authorId: p.authorId),
+    child: PostAttachmentCard(
+      type: p.postType,
+      attachment: p.attachment!,
+      refId: p.refId,
+      authorId: p.authorId,
+      access: p.refAccess,
+    ),
   );
 
   Widget _captionBlock(Post p, {bool large = false}) => Padding(

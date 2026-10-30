@@ -7,12 +7,17 @@ import '../../models/plan_entry.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/calendar_view.dart';
+import '../../widgets/link_access_note.dart';
 import '../../widgets/training_picker_sheet.dart';
 import '../classes/schedule_items.dart';
+import '../daily_meal_plan_detail_page.dart';
 import '../log_workout_page.dart';
+import '../meal_plan_detail_page.dart';
 import '../nutrition/add_food_log_page.dart';
 import '../nutrition/food_diary_page.dart';
+import '../routine_detail_page.dart';
 import '../session_detail_page.dart';
+import '../training_detail_page.dart';
 
 // Sheets the Schedule calendar opens: an empty hour (log a workout or a meal
 // there), a planned workout or meal (details, confirm, log differently, edit,
@@ -323,9 +328,6 @@ class _PlanEntrySheetState extends State<_PlanEntrySheet> {
     final title = e.isWorkout
         ? (e.trainingName ?? l10n.planWorkoutFallback)
         : (e.mealSlot?.label(l10n) ?? l10n.planMealFallback);
-    final source = e.isWorkout
-        ? e.routineName
-        : [?e.dailyMealPlanName, ?e.mealPlanName].join(' · ');
     final status = switch (e.status) {
       PlanEntryStatus.planned => l10n.planCalendarPlanned,
       PlanEntryStatus.done => l10n.planCalendarDone,
@@ -365,13 +367,6 @@ class _PlanEntrySheetState extends State<_PlanEntrySheet> {
                         color: cs.onSurfaceVariant,
                       ),
                     ),
-                    if (source != null && source.isNotEmpty)
-                      Text(
-                        l10n.planFromSource(source),
-                        style: ts.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -403,13 +398,88 @@ class _PlanEntrySheetState extends State<_PlanEntrySheet> {
             const SizedBox(height: 8),
             Text(e.note!, style: ts.bodyMedium),
           ],
-          const SizedBox(height: 16),
+          if (_sourceStatusText(context, e) case final text?) ...[
+            const SizedBox(height: 12),
+            Card(
+              margin: EdgeInsets.zero,
+              color: cs.surfaceContainerHighest,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.info_outline, size: 20, color: cs.onSurfaceVariant),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(text, style: ts.bodyMedium)),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 8),
+          ..._buildLinks(context, e),
+          const SizedBox(height: 8),
           ..._buildDetail(context, e),
           const SizedBox(height: 20),
           ..._buildActions(context, e),
         ],
       ),
     );
+  }
+
+  /// Why the routine / meal plan no longer drives this entry, if it doesn't.
+  String? _sourceStatusText(BuildContext context, PlanEntry e) {
+    final l10n = context.l10n;
+    final date = e.leftAt == null ? '' : _dayLabel(context, e.leftAt!);
+    return switch (e.sourceStatus) {
+      PlanSourceStatus.active => null,
+      PlanSourceStatus.left =>
+        e.isWorkout ? l10n.planLeftRoutine(date) : l10n.planLeftMealPlan(date),
+      PlanSourceStatus.removed =>
+        e.isWorkout ? l10n.planRemovedRoutine(date) : l10n.planRemovedMealPlan(date),
+      PlanSourceStatus.deleted =>
+        e.isWorkout ? l10n.planDeletedRoutine : l10n.planDeletedMealPlan,
+      PlanSourceStatus.ended => l10n.planEndedSource,
+    };
+  }
+
+  /// The routine / meal plan and the workout / day plan this entry is from:
+  /// each opens its page while the viewer has access, otherwise says why not.
+  List<Widget> _buildLinks(BuildContext context, PlanEntry e) {
+    final l10n = context.l10n;
+    final links = e.isWorkout
+        ? [
+            (l10n.planLinkRoutine, e.routineName, e.sourceAccess, e.routineId,
+                (String id) => RoutineDetailPage(routineId: id)),
+            (l10n.planLinkWorkout, e.trainingName, e.trainingAccess, e.trainingId,
+                (String id) => TrainingDetailPage(trainingId: id)),
+          ]
+        : [
+            (l10n.planLinkMealPlan, e.mealPlanName, e.sourceAccess, e.mealPlanId,
+                (String id) => MealPlanDetailPage(mealPlanId: id)),
+            (l10n.planLinkDayPlan, e.dailyMealPlanName, e.dailyMealPlanAccess, e.dailyMealPlanId,
+                (String id) => DailyMealPlanDetailPage(dailyMealPlanId: id)),
+          ];
+    return [
+      for (final (label, name, access, id, page) in links)
+        if (name != null)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            title: Text(name),
+            subtitle: access == null || access.canOpen
+                ? Text(label)
+                : LinkAccessNote(access: access, dense: true),
+            trailing: id != null && (access?.canOpen ?? false)
+                ? const Icon(Icons.chevron_right)
+                : null,
+            onTap: id != null && (access?.canOpen ?? false)
+                ? () => Navigator.of(context).push<void>(
+                    MaterialPageRoute(builder: (_) => page(id)),
+                  )
+                : null,
+          ),
+    ];
   }
 
   List<Widget> _buildDetail(BuildContext context, PlanEntry e) {

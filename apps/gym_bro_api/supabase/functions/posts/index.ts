@@ -41,6 +41,7 @@ import {
   validMentions,
 } from "../_shared/mentions.ts";
 import { buildAttachment, POST_TYPES } from "../_shared/post_attachments.ts";
+import { type LibraryKind, libraryAccess } from "../_shared/shares.ts";
 import { postVisibleSql } from "../_shared/visibility.ts";
 import type {
   Database,
@@ -304,6 +305,7 @@ async function decoratePosts(posts: PostRow[], caller: Caller | null) {
   const comments = Object.fromEntries(commentRows.map((r) => [r.post_id, r.n]));
   const myReaction = new Map(mine.map((r) => [r.post_id, r.reaction]));
   const businessById = new Map(businesses.map((b) => [b.id, b]));
+  const refAccess = await refAccessOf(posts, caller);
   return withMedia.map((p) => {
     const reactions = summarize(reactionsByPost.get(p.id) ?? []);
     const my = myReaction.get(p.id) ?? null;
@@ -318,8 +320,34 @@ async function decoratePosts(posts: PostRow[], caller: Caller | null) {
       like_count: reactions.total,
       liked_by_me: my !== null,
       can_edit: !!caller && canEditAuthored(caller, p.author_id),
+      ref_access: refAccess.get(p.id) ?? null,
     };
   });
+}
+
+/**
+ * For typed posts, whether this viewer can open what was shared: "ok",
+ * "private" (exists, no access — someone else's workout or meal, a private
+ * plan) or "unavailable" (deleted). The attachment snapshot shows either way.
+ */
+async function refAccessOf(posts: PostRow[], caller: Caller | null) {
+  const out = new Map<string, "ok" | "private" | "unavailable">();
+  const typed = posts.filter((p) => p.post_type !== "generic");
+  const sessionIds = typed.filter((p) => p.post_type === "workout" && p.ref_id).map((p) => p.ref_id!);
+  const liveSessions = new Set(sessionIds.length
+    ? (await db.selectFrom("training_session").select("id").where("id", "in", sessionIds).execute()).map((r) => r.id)
+    : []);
+  await Promise.all(typed.map(async (p) => {
+    const own = !!caller && caller.id === p.author_id;
+    if (p.post_type === "workout") {
+      out.set(p.id, !p.ref_id || !liveSessions.has(p.ref_id) ? "unavailable" : own ? "ok" : "private");
+    } else if (p.post_type === "meal") {
+      out.set(p.id, own ? "ok" : "private");
+    } else if (p.ref_id) {
+      out.set(p.id, caller ? await libraryAccess(caller, p.post_type as LibraryKind, p.ref_id) : "private");
+    }
+  }));
+  return out;
 }
 
 async function postReactionResult(postId: string, caller: Caller) {

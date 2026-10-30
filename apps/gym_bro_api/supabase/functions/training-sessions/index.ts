@@ -11,6 +11,7 @@ import {
 } from "../_shared/auth.ts";
 import { notify } from "../_shared/notify.ts";
 import { userDropRows } from "../_shared/progress.ts";
+import { libraryAccess } from "../_shared/shares.ts";
 import type {
   BodySide,
   Database,
@@ -354,11 +355,14 @@ async function handler(req: Request): Promise<Response> {
   }
 
   // ── GET /training-sessions/:id — full detail ──────────────────────────────────
+  // training_access: whether the viewer can open the followed training — "ok"
+  // or "private"; null for a free session (or once the training is deleted).
   if (req.method === "GET" && id && !action) {
     const detail = await fetchSessionDetail(id);
     if (!detail) return jsonError("Session not found", 404);
     if (!(await canReadSession(caller, detail))) return forbidden();
-    return json(detail);
+    const trainingAccess = detail.training_id ? await libraryAccess(caller, "training", detail.training_id) : null;
+    return json({ ...detail, training_access: trainingAccess });
   }
 
   // ── POST /training-sessions — start a session, or log a finished one ─────────

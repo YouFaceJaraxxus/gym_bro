@@ -234,6 +234,28 @@ Deno.test({
             await call("DELETE", `/food-logs/${l.id}`, member.token);
           }
         }
+
+        // ── Leaving keeps what was logged ──
+        const left = await call("DELETE", `/routine-assignments/${assignmentId}`, member.token);
+        const afterLeave = ((await call("GET", `/plan-entries?from=${from}&to=${to}&tz=${TZ}`, member.token)).data as any[])
+          .filter((e) => e.routine_assignment_id === assignmentId);
+        const active = (await call("GET", `/routine-assignments?user_id=${member.profile.id}`, member.token)).data as any[];
+        const ended = (await call("GET", `/routine-assignments?user_id=${member.profile.id}&include_ended=true`, member.token))
+          .data as any[];
+        check(
+          "leaving keeps the logged entries, marked as left",
+          left.status === 204 && afterLeave.length === 2 &&
+            afterLeave.every((e) => e.status === "done" && e.source_status === "left" && e.left_at && e.source_access === "ok") &&
+            !active.some((a) => a.id === assignmentId) && ended.some((a) => a.id === assignmentId && a.left_at),
+          short(afterLeave),
+        );
+        const againLeave = await call("DELETE", `/routine-assignments/${assignmentId}`, member.token);
+        const editEnded = await call("PUT", `/routine-assignments/${assignmentId}`, member.token, { note: "x" });
+        check(
+          "an ended enrolment can't be left again or edited",
+          againLeave.status === 404 && editEnded.status === 409,
+          `status ${againLeave.status}/${editEnded.status}`,
+        );
       } finally {
         for (const id of sessions) await call("DELETE", `/training-sessions/${id}`, member.token);
         if (assignmentId) await call("DELETE", `/routine-assignments/${assignmentId}`, member.token);
@@ -242,6 +264,78 @@ Deno.test({
         if (trainingId) await call("DELETE", `/trainings/${trainingId}`, member.token);
         if (mealPlanId) await call("DELETE", `/meal-plans/${mealPlanId}`, member.token);
         if (dailyId) await call("DELETE", `/daily-meal-plans/${dailyId}`, member.token);
+      }
+    });
+
+    await t.step("history outlives a coach's private routine", async () => {
+      let trainingId: string | null = null;
+      let routineId: string | null = null;
+      let assignmentId: string | null = null;
+      let postId: string | null = null;
+      let sessionId: string | null = null;
+      try {
+        const day = dayFromToday(320);
+        const from = `${day}T00:00:00Z`;
+        const to = new Date(Date.parse(from) + 86_400_000).toISOString();
+        const pubEx = ((await call("GET", "/exercises?page_size=1")).data as any[])[0];
+        trainingId = (await call("POST", "/trainings", trainer.token, {
+          name: `${name} coach day`,
+          sets: [{ type: "standard", exercises: [{ exercise_id: pubEx.id, drops: [{ rep_type: "count", rep_count: 5 }] }] }],
+        })).data?.id ?? null;
+        routineId = (await call("POST", "/routines", trainer.token, {
+          name: `${name} coach block`, schedule_type: "fixed_weeks", num_weeks: 1,
+          trainings: [{ training_id: trainingId, week_number: 1, day_of_week: isoDow(day) }],
+        })).data?.id ?? null;
+        const assigned = await call("POST", "/routine-assignments", trainer.token, {
+          routine_id: routineId, user_id: member.profile.id, start_date: day, timezone: TZ,
+        });
+        assignmentId = assigned.data?.id ?? null;
+        const [entry] = ((await call("GET", `/plan-entries?from=${from}&to=${to}&tz=${TZ}`, member.token)).data as any[])
+          .filter((e) => e.routine_assignment_id === assignmentId);
+        check(
+          "the assigned private routine opens while enrolled",
+          assigned.status === 201 && entry?.source_status === "active" && entry.source_access === "ok" &&
+            entry.training_access === "ok" && (await call("GET", `/routines/${routineId}`, member.token)).status === 200,
+          short(entry),
+        );
+        sessionId = (await call("POST", `/plan-entries/${entry?.id}/confirm`, member.token, {})).data?.training_session_id ?? null;
+
+        const shared = await call("POST", "/posts", trainer.token, { type: "routine", ref_id: routineId, content: name });
+        postId = shared.data?.id ?? null;
+
+        const removed = await call("DELETE", `/routine-assignments/${assignmentId}`, trainer.token);
+        const after = await call("GET", `/plan-entries/${entry?.id}`, member.token);
+        const routineNow = await call("GET", `/routines/${routineId}`, member.token);
+        const session = await call("GET", `/training-sessions/${sessionId}`, member.token);
+        const post = await call("GET", `/posts/${postId}`, member.token);
+        check(
+          "removed by the coach: history stays, the private routine no longer opens",
+          removed.status === 204 && after.status === 200 && after.data.status === "done" &&
+            after.data.source_status === "removed" && after.data.source_access === "private" &&
+            after.data.routine_name === `${name} coach block` && [403, 404].includes(routineNow.status) &&
+            session.status === 200 && session.data.training_access === "ok" && post.data?.ref_access === "private",
+          JSON.stringify({ status: after.data?.status, src: after.data?.source_status, acc: after.data?.source_access, name: after.data?.routine_name, routine: routineNow.status, session: session.status, tacc: session.data?.training_access, post: post.data?.ref_access }),
+        );
+        const authorView = await call("GET", `/posts/${postId}`, trainer.token);
+        check("the author can open what they shared", authorView.data?.ref_access === "ok", short(authorView.data?.ref_access));
+
+        const deleted = await call("DELETE", `/routines/${routineId}`, trainer.token);
+        if (deleted.status === 204) routineId = null;
+        const orphan = await call("GET", `/plan-entries/${entry?.id}`, member.token);
+        const postGone = await call("GET", `/posts/${postId}`, member.token);
+        check(
+          "a deleted routine leaves the entry, its name, and a 'deleted' status",
+          deleted.status === 204 && orphan.status === 200 && orphan.data.source_status === "deleted" &&
+            orphan.data.source_access === "unavailable" && orphan.data.routine_name === `${name} coach block` &&
+            orphan.data.training_name === `${name} coach day` && postGone.data?.ref_access === "unavailable",
+          short(orphan.data),
+        );
+      } finally {
+        if (postId) await call("DELETE", `/posts/${postId}`, trainer.token);
+        if (sessionId) await call("DELETE", `/training-sessions/${sessionId}`, member.token);
+        if (routineId) await call("DELETE", `/routines/${routineId}`, trainer.token);
+        if (trainingId) await call("DELETE", `/trainings/${trainingId}`, trainer.token);
+        await deleteNotifications(member.token, (n) => n.metadata?.routine_assignment_id === assignmentId);
       }
     });
 

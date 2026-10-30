@@ -52,14 +52,6 @@
       }
     }
   },
-  "planFromSource": "From {name}",
-  "@planFromSource": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "planEditedBadge": "Edited",
   "planExercises": "Exercises",
   "planNoExercises": "No exercises in this training.",
@@ -169,8 +161,8 @@
       }
     }
   },
-  "planEnrolLeaveRoutineBody": "Its planned workouts are removed from your Schedule. Workouts you've logged stay.",
-  "planEnrolLeavePlanBody": "Its planned meals are removed from your Schedule. Food you've logged stays.",
+  "planEnrolLeaveRoutineBody": "Upcoming planned workouts come off your Schedule. Past ones, and everything you've logged, stay there with a note that you left.",
+  "planEnrolLeavePlanBody": "Upcoming planned meals come off your Schedule. Past ones, and everything you've logged, stay there with a note that you left.",
   "planEnrolLeft": "You left {name}",
   "@planEnrolLeft": {
     "placeholders": {

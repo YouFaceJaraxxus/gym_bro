@@ -9,6 +9,15 @@ class AppLocalizationsSr extends AppLocalizations {
   AppLocalizationsSr([String locale = 'sr']) : super(locale);
 
   @override
+  String get accessOpenHint => 'Otvori';
+
+  @override
+  String get accessPrivate => 'Privatno · više nemaš pristup';
+
+  @override
+  String get accessUnavailable => 'Više nije dostupno · obrisano je';
+
+  @override
   String get appTitle => 'Gym Bro';
 
   @override
@@ -5416,6 +5425,14 @@ class AppLocalizationsSr extends AppLocalizations {
   String get planConfirmedWorkout => 'Trening upisan kako je planiran';
 
   @override
+  String get planDeletedMealPlan =>
+      'Ovaj plan ishrane je obrisan. Ono što si planirao/la i zabeležio/la ostaje ovde.';
+
+  @override
+  String get planDeletedRoutine =>
+      'Ova rutina je obrisana. Ono što si planirao/la i zabeležio/la ostaje ovde.';
+
+  @override
   String get planEditDate => 'Datum';
 
   @override
@@ -5438,6 +5455,10 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get planEditedBadge => 'Izmenjeno';
+
+  @override
+  String get planEndedSource =>
+      'Ovaj upis je završen. Ono što si planirao/la i zabeležio/la ostaje ovde.';
 
   @override
   String get planEnrolAssignMember => 'Dodeli članu';
@@ -5463,11 +5484,11 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get planEnrolLeavePlanBody =>
-      'Planirani obroci se uklanjaju iz tvog rasporeda. Upisana hrana ostaje.';
+      'Predstojeći planirani obroci nestaju iz rasporeda. Prošli, i sve što si zabeležio/la, ostaju uz napomenu da si napustio/la plan.';
 
   @override
   String get planEnrolLeaveRoutineBody =>
-      'Planirani treninzi se uklanjaju iz tvog rasporeda. Upisani treninzi ostaju.';
+      'Predstojeći planirani treninzi nestaju iz rasporeda. Prošli, i sve što si zabeležio/la, ostaju uz napomenu da si napustio/la plan.';
 
   @override
   String planEnrolLeaveTitle(String name) {
@@ -5559,9 +5580,26 @@ class AppLocalizationsSr extends AppLocalizations {
   String get planExercises => 'Vežbe';
 
   @override
-  String planFromSource(String name) {
-    return 'Iz plana $name';
+  String planLeftMealPlan(String date) {
+    return 'Napustio/la si ovaj plan ishrane $date. Ono što si planirao/la i zabeležio/la do tada ostaje ovde.';
   }
+
+  @override
+  String planLeftRoutine(String date) {
+    return 'Napustio/la si ovu rutinu $date. Ono što si planirao/la i zabeležio/la do tada ostaje ovde.';
+  }
+
+  @override
+  String get planLinkDayPlan => 'Dnevni plan';
+
+  @override
+  String get planLinkMealPlan => 'Plan ishrane';
+
+  @override
+  String get planLinkRoutine => 'Rutina';
+
+  @override
+  String get planLinkWorkout => 'Trening';
 
   @override
   String get planLogDifferently => 'Upiši drugačije';
@@ -5612,6 +5650,16 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get planPlannedItems => 'Planirano';
+
+  @override
+  String planRemovedMealPlan(String date) {
+    return 'Uklonjen/a si sa ovog plana ishrane $date. Ono što si planirao/la i zabeležio/la do tada ostaje ovde.';
+  }
+
+  @override
+  String planRemovedRoutine(String date) {
+    return 'Uklonjen/a si sa ove rutine $date. Ono što si planirao/la i zabeležio/la do tada ostaje ovde.';
+  }
 
   @override
   String get planRestoredSnack => 'Vraćeno u plan';
@@ -9561,6 +9609,15 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   AppLocalizationsSrLatn() : super('sr_Latn');
 
   @override
+  String get accessOpenHint => 'Otvori';
+
+  @override
+  String get accessPrivate => 'Privatno · više nemaš pristup';
+
+  @override
+  String get accessUnavailable => 'Više nije dostupno · obrisano je';
+
+  @override
   String get appTitle => 'Gym Bro';
 
   @override
@@ -14968,6 +15025,14 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get planConfirmedWorkout => 'Trening upisan kako je planiran';
 
   @override
+  String get planDeletedMealPlan =>
+      'Ovaj plan ishrane je obrisan. Ono što si planirao/la i zabeležio/la ostaje ovde.';
+
+  @override
+  String get planDeletedRoutine =>
+      'Ova rutina je obrisana. Ono što si planirao/la i zabeležio/la ostaje ovde.';
+
+  @override
   String get planEditDate => 'Datum';
 
   @override
@@ -14990,6 +15055,10 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get planEditedBadge => 'Izmenjeno';
+
+  @override
+  String get planEndedSource =>
+      'Ovaj upis je završen. Ono što si planirao/la i zabeležio/la ostaje ovde.';
 
   @override
   String get planEnrolAssignMember => 'Dodeli članu';
@@ -15015,11 +15084,11 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get planEnrolLeavePlanBody =>
-      'Planirani obroci se uklanjaju iz tvog rasporeda. Upisana hrana ostaje.';
+      'Predstojeći planirani obroci nestaju iz rasporeda. Prošli, i sve što si zabeležio/la, ostaju uz napomenu da si napustio/la plan.';
 
   @override
   String get planEnrolLeaveRoutineBody =>
-      'Planirani treninzi se uklanjaju iz tvog rasporeda. Upisani treninzi ostaju.';
+      'Predstojeći planirani treninzi nestaju iz rasporeda. Prošli, i sve što si zabeležio/la, ostaju uz napomenu da si napustio/la plan.';
 
   @override
   String planEnrolLeaveTitle(String name) {
@@ -15111,9 +15180,26 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get planExercises => 'Vežbe';
 
   @override
-  String planFromSource(String name) {
-    return 'Iz plana $name';
+  String planLeftMealPlan(String date) {
+    return 'Napustio/la si ovaj plan ishrane $date. Ono što si planirao/la i zabeležio/la do tada ostaje ovde.';
   }
+
+  @override
+  String planLeftRoutine(String date) {
+    return 'Napustio/la si ovu rutinu $date. Ono što si planirao/la i zabeležio/la do tada ostaje ovde.';
+  }
+
+  @override
+  String get planLinkDayPlan => 'Dnevni plan';
+
+  @override
+  String get planLinkMealPlan => 'Plan ishrane';
+
+  @override
+  String get planLinkRoutine => 'Rutina';
+
+  @override
+  String get planLinkWorkout => 'Trening';
 
   @override
   String get planLogDifferently => 'Upiši drugačije';
@@ -15164,6 +15250,16 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get planPlannedItems => 'Planirano';
+
+  @override
+  String planRemovedMealPlan(String date) {
+    return 'Uklonjen/a si sa ovog plana ishrane $date. Ono što si planirao/la i zabeležio/la do tada ostaje ovde.';
+  }
+
+  @override
+  String planRemovedRoutine(String date) {
+    return 'Uklonjen/a si sa ove rutine $date. Ono što si planirao/la i zabeležio/la do tada ostaje ovde.';
+  }
 
   @override
   String get planRestoredSnack => 'Vraćeno u plan';

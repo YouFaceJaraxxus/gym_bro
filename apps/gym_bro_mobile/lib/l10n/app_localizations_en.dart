@@ -9,6 +9,16 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get accessOpenHint => 'Open';
+
+  @override
+  String get accessPrivate =>
+      'Private · you don\'t have access to this anymore';
+
+  @override
+  String get accessUnavailable => 'No longer available · it was deleted';
+
+  @override
   String get appTitle => 'Gym Bro';
 
   @override
@@ -5401,6 +5411,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planConfirmedWorkout => 'Workout logged as planned';
 
   @override
+  String get planDeletedMealPlan =>
+      'This meal plan was deleted. What you planned and logged stays here.';
+
+  @override
+  String get planDeletedRoutine =>
+      'This routine was deleted. What you planned and logged stays here.';
+
+  @override
   String get planEditDate => 'Date';
 
   @override
@@ -5423,6 +5441,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planEditedBadge => 'Edited';
+
+  @override
+  String get planEndedSource =>
+      'This enrolment has ended. What you planned and logged stays here.';
 
   @override
   String get planEnrolAssignMember => 'Assign to a member';
@@ -5448,11 +5470,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planEnrolLeavePlanBody =>
-      'Its planned meals are removed from your Schedule. Food you\'ve logged stays.';
+      'Upcoming planned meals come off your Schedule. Past ones, and everything you\'ve logged, stay there with a note that you left.';
 
   @override
   String get planEnrolLeaveRoutineBody =>
-      'Its planned workouts are removed from your Schedule. Workouts you\'ve logged stay.';
+      'Upcoming planned workouts come off your Schedule. Past ones, and everything you\'ve logged, stay there with a note that you left.';
 
   @override
   String planEnrolLeaveTitle(String name) {
@@ -5544,9 +5566,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planExercises => 'Exercises';
 
   @override
-  String planFromSource(String name) {
-    return 'From $name';
+  String planLeftMealPlan(String date) {
+    return 'You left this meal plan on $date. What you planned and logged before then stays here.';
   }
+
+  @override
+  String planLeftRoutine(String date) {
+    return 'You left this routine on $date. What you planned and logged before then stays here.';
+  }
+
+  @override
+  String get planLinkDayPlan => 'Day plan';
+
+  @override
+  String get planLinkMealPlan => 'Meal plan';
+
+  @override
+  String get planLinkRoutine => 'Routine';
+
+  @override
+  String get planLinkWorkout => 'Workout';
 
   @override
   String get planLogDifferently => 'Log differently';
@@ -5596,6 +5635,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planPlannedItems => 'Planned';
+
+  @override
+  String planRemovedMealPlan(String date) {
+    return 'You were taken off this meal plan on $date. What you planned and logged before then stays here.';
+  }
+
+  @override
+  String planRemovedRoutine(String date) {
+    return 'You were taken off this routine on $date. What you planned and logged before then stays here.';
+  }
 
   @override
   String get planRestoredSnack => 'Back on your plan';

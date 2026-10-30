@@ -1,6 +1,7 @@
 // Planned workouts and meals on the calendar (GET /plan-entries), generated
 // from the routines and meal plans someone is enrolled in.
 import 'food_log.dart';
+import 'link_access.dart';
 import 'meal_plan.dart';
 
 // Postgres numeric / count columns may arrive as JSON strings.
@@ -29,6 +30,25 @@ enum PlanEntryStatus {
     'done' => done,
     'skipped' => skipped,
     _ => planned,
+  };
+}
+
+/// The enrolment an entry came from: still on, left by the user, taken off
+/// it by whoever assigned it, ended some other way, or the routine / meal plan
+/// itself deleted. Entries (and what was logged) outlive all of these.
+enum PlanSourceStatus {
+  active,
+  left,
+  removed,
+  ended,
+  deleted;
+
+  static PlanSourceStatus fromApiValue(String? v) => switch (v) {
+    'left' => left,
+    'removed' => removed,
+    'ended' => ended,
+    'deleted' => deleted,
+    _ => active,
   };
 }
 
@@ -69,6 +89,17 @@ class PlanEntry {
   /// Food log entries linked to it.
   final int loggedCount;
 
+  final PlanSourceStatus sourceStatus;
+
+  /// When the enrolment ended (left or removed).
+  final DateTime? leftAt;
+
+  /// Whether the viewer can open the routine / meal plan, the training (workouts)
+  /// and the day plan (meals); null when the entry has no such link.
+  final LinkAccess? sourceAccess;
+  final LinkAccess? trainingAccess;
+  final LinkAccess? dailyMealPlanAccess;
+
   const PlanEntry({
     required this.id,
     required this.userId,
@@ -94,6 +125,11 @@ class PlanEntry {
     this.dailyMealPlanName,
     this.mealSlot,
     this.loggedCount = 0,
+    this.sourceStatus = PlanSourceStatus.active,
+    this.leftAt,
+    this.sourceAccess,
+    this.trainingAccess,
+    this.dailyMealPlanAccess,
   });
 
   factory PlanEntry.fromJson(Map<String, dynamic> json) {
@@ -128,6 +164,13 @@ class PlanEntry {
       dailyMealPlanName: json['daily_meal_plan_name'] as String?,
       mealSlot: slot == null ? null : MealSlotType.fromApiValue(slot),
       loggedCount: _i(json['logged_count']),
+      sourceStatus: PlanSourceStatus.fromApiValue(
+        json['source_status'] as String?,
+      ),
+      leftAt: _instant(json['left_at']),
+      sourceAccess: LinkAccess.tryParse(json['source_access']),
+      trainingAccess: LinkAccess.tryParse(json['training_access']),
+      dailyMealPlanAccess: LinkAccess.tryParse(json['daily_meal_plan_access']),
     );
   }
 

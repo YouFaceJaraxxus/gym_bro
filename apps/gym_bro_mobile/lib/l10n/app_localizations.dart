@@ -99,6 +99,24 @@ abstract class AppLocalizations {
     Locale.fromSubtags(languageCode: 'sr', scriptCode: 'Latn'),
   ];
 
+  /// No description provided for @accessOpenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get accessOpenHint;
+
+  /// No description provided for @accessPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private · you don\'t have access to this anymore'**
+  String get accessPrivate;
+
+  /// No description provided for @accessUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer available · it was deleted'**
+  String get accessUnavailable;
+
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
@@ -8923,6 +8941,18 @@ abstract class AppLocalizations {
   /// **'Workout logged as planned'**
   String get planConfirmedWorkout;
 
+  /// No description provided for @planDeletedMealPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'This meal plan was deleted. What you planned and logged stays here.'**
+  String get planDeletedMealPlan;
+
+  /// No description provided for @planDeletedRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'This routine was deleted. What you planned and logged stays here.'**
+  String get planDeletedRoutine;
+
   /// No description provided for @planEditDate.
   ///
   /// In en, this message translates to:
@@ -8971,6 +9001,12 @@ abstract class AppLocalizations {
   /// **'Edited'**
   String get planEditedBadge;
 
+  /// No description provided for @planEndedSource.
+  ///
+  /// In en, this message translates to:
+  /// **'This enrolment has ended. What you planned and logged stays here.'**
+  String get planEndedSource;
+
   /// No description provided for @planEnrolAssignMember.
   ///
   /// In en, this message translates to:
@@ -9010,13 +9046,13 @@ abstract class AppLocalizations {
   /// No description provided for @planEnrolLeavePlanBody.
   ///
   /// In en, this message translates to:
-  /// **'Its planned meals are removed from your Schedule. Food you\'ve logged stays.'**
+  /// **'Upcoming planned meals come off your Schedule. Past ones, and everything you\'ve logged, stay there with a note that you left.'**
   String get planEnrolLeavePlanBody;
 
   /// No description provided for @planEnrolLeaveRoutineBody.
   ///
   /// In en, this message translates to:
-  /// **'Its planned workouts are removed from your Schedule. Workouts you\'ve logged stay.'**
+  /// **'Upcoming planned workouts come off your Schedule. Past ones, and everything you\'ve logged, stay there with a note that you left.'**
   String get planEnrolLeaveRoutineBody;
 
   /// No description provided for @planEnrolLeaveTitle.
@@ -9163,11 +9199,41 @@ abstract class AppLocalizations {
   /// **'Exercises'**
   String get planExercises;
 
-  /// No description provided for @planFromSource.
+  /// No description provided for @planLeftMealPlan.
   ///
   /// In en, this message translates to:
-  /// **'From {name}'**
-  String planFromSource(String name);
+  /// **'You left this meal plan on {date}. What you planned and logged before then stays here.'**
+  String planLeftMealPlan(String date);
+
+  /// No description provided for @planLeftRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'You left this routine on {date}. What you planned and logged before then stays here.'**
+  String planLeftRoutine(String date);
+
+  /// No description provided for @planLinkDayPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Day plan'**
+  String get planLinkDayPlan;
+
+  /// No description provided for @planLinkMealPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal plan'**
+  String get planLinkMealPlan;
+
+  /// No description provided for @planLinkRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'Routine'**
+  String get planLinkRoutine;
+
+  /// No description provided for @planLinkWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout'**
+  String get planLinkWorkout;
 
   /// No description provided for @planLogDifferently.
   ///
@@ -9246,6 +9312,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Planned'**
   String get planPlannedItems;
+
+  /// No description provided for @planRemovedMealPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'You were taken off this meal plan on {date}. What you planned and logged before then stays here.'**
+  String planRemovedMealPlan(String date);
+
+  /// No description provided for @planRemovedRoutine.
+  ///
+  /// In en, this message translates to:
+  /// **'You were taken off this routine on {date}. What you planned and logged before then stays here.'**
+  String planRemovedRoutine(String date);
 
   /// No description provided for @planRestoredSnack.
   ///

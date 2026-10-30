@@ -2089,9 +2089,16 @@
       }
     }
   },
-  "@planFromSource": {
+  "@planLeftMealPlan": {
     "placeholders": {
-      "name": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@planLeftRoutine": {
+    "placeholders": {
+      "date": {
         "type": "String"
       }
     }
@@ -2110,6 +2117,20 @@
       },
       "kcal": {
         "type": "int"
+      }
+    }
+  },
+  "@planRemovedMealPlan": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@planRemovedRoutine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
       }
     }
   },
@@ -3541,6 +3562,9 @@
       }
     }
   },
+  "accessOpenHint": "Open",
+  "accessPrivate": "Private · you don't have access to this anymore",
+  "accessUnavailable": "No longer available · it was deleted",
   "appTitle": "Gym Bro",
   "archiveDayLabel": "{day}, {count, plural, =0{nothing} =1{1 item} other{{count} items}}",
   "archiveLoadFailed": "Couldn't load your archive",
@@ -5011,6 +5035,8 @@
   "planConfirm": "Confirm as planned",
   "planConfirmedMeal": "Meal logged as planned",
   "planConfirmedWorkout": "Workout logged as planned",
+  "planDeletedMealPlan": "This meal plan was deleted. What you planned and logged stays here.",
+  "planDeletedRoutine": "This routine was deleted. What you planned and logged stays here.",
   "planEditDate": "Date",
   "planEditDuration": "Duration",
   "planEditMealTitle": "Edit planned meal",
@@ -5019,14 +5045,15 @@
   "planEditTraining": "Training",
   "planEditWorkoutTitle": "Edit planned workout",
   "planEditedBadge": "Edited",
+  "planEndedSource": "This enrolment has ended. What you planned and logged stays here.",
   "planEnrolAssignMember": "Assign to a member",
   "planEnrolAssignedBy": "Assigned by {name}",
   "planEnrolClearEnd": "Remove end date",
   "planEnrolDialogTitle": "Start {name}",
   "planEnrolEndDate": "Ends",
   "planEnrolLeave": "Leave",
-  "planEnrolLeavePlanBody": "Its planned meals are removed from your Schedule. Food you've logged stays.",
-  "planEnrolLeaveRoutineBody": "Its planned workouts are removed from your Schedule. Workouts you've logged stay.",
+  "planEnrolLeavePlanBody": "Upcoming planned meals come off your Schedule. Past ones, and everything you've logged, stay there with a note that you left.",
+  "planEnrolLeaveRoutineBody": "Upcoming planned workouts come off your Schedule. Past ones, and everything you've logged, stay there with a note that you left.",
   "planEnrolLeaveTitle": "Leave {name}?",
   "planEnrolLeft": "You left {name}",
   "planEnrolManage": "Manage",
@@ -5051,7 +5078,12 @@
   "planEnrolledPlan": "You're following this meal plan",
   "planEnrolledRoutine": "You're following this routine",
   "planExercises": "Exercises",
-  "planFromSource": "From {name}",
+  "planLeftMealPlan": "You left this meal plan on {date}. What you planned and logged before then stays here.",
+  "planLeftRoutine": "You left this routine on {date}. What you planned and logged before then stays here.",
+  "planLinkDayPlan": "Day plan",
+  "planLinkMealPlan": "Meal plan",
+  "planLinkRoutine": "Routine",
+  "planLinkWorkout": "Workout",
   "planLogDifferently": "Log differently",
   "planLogMeal": "Log meal",
   "planLogMealHint": "{slot} · add food or a recipe",
@@ -5065,6 +5097,8 @@
   "planOpenDiary": "Open food diary",
   "planOpenWorkout": "Open workout",
   "planPlannedItems": "Planned",
+  "planRemovedMealPlan": "You were taken off this meal plan on {date}. What you planned and logged before then stays here.",
+  "planRemovedRoutine": "You were taken off this routine on {date}. What you planned and logged before then stays here.",
   "planRestoredSnack": "Back on your plan",
   "planScheduleEmptyDay": "Nothing on this day. Tap an hour to log a workout or a meal.",
   "planScheduleHubSubtitle": "Your classes, workouts and meals",

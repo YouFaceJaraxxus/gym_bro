@@ -1,0 +1,16 @@
+{
+  "accessPrivate": "Privatno · više nemaš pristup",
+  "accessUnavailable": "Više nije dostupno · obrisano je",
+  "accessOpenHint": "Otvori",
+  "planLinkRoutine": "Rutina",
+  "planLinkMealPlan": "Plan ishrane",
+  "planLinkWorkout": "Trening",
+  "planLinkDayPlan": "Dnevni plan",
+  "planLeftRoutine": "Napustio/la si ovu rutinu {date}. Ono što si planirao/la i zabeležio/la do tada ostaje ovde.",
+  "planLeftMealPlan": "Napustio/la si ovaj plan ishrane {date}. Ono što si planirao/la i zabeležio/la do tada ostaje ovde.",
+  "planRemovedRoutine": "Uklonjen/a si sa ove rutine {date}. Ono što si planirao/la i zabeležio/la do tada ostaje ovde.",
+  "planRemovedMealPlan": "Uklonjen/a si sa ovog plana ishrane {date}. Ono što si planirao/la i zabeležio/la do tada ostaje ovde.",
+  "planDeletedRoutine": "Ova rutina je obrisana. Ono što si planirao/la i zabeležio/la ostaje ovde.",
+  "planDeletedMealPlan": "Ovaj plan ishrane je obrisan. Ono što si planirao/la i zabeležio/la ostaje ovde.",
+  "planEndedSource": "Ovaj upis je završen. Ono što si planirao/la i zabeležio/la ostaje ovde."
+}

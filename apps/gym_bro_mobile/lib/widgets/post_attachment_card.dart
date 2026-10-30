@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../models/food_log.dart';
+import '../models/link_access.dart';
 import '../models/meal_plan.dart';
 import '../models/post.dart';
 import '../models/routine.dart';
@@ -19,11 +20,13 @@ import '../pages/training_detail_page.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/settings_service.dart';
+import 'link_access_note.dart';
 
 /// The card of a typed post: what it shares (a logged workout or meal, or a
 /// library item), from the snapshot taken when posting. Tapping opens the
 /// source where there's a page for it (a workout or meal only for its
-/// author; others may get a "not found" for private items, which is fine).
+/// author). With [access] from the API, a source the viewer can't open (a
+/// private plan, or anything deleted) gets a note instead of a dead link.
 class PostAttachmentCard extends StatelessWidget {
   const PostAttachmentCard({
     super.key,
@@ -33,11 +36,15 @@ class PostAttachmentCard extends StatelessWidget {
     this.authorId,
     this.compact = false,
     this.enabled = true,
+    this.access,
   });
 
   final PostType type;
   final PostAttachment attachment;
   final String? refId;
+
+  /// Whether the viewer can open the source (null: not known, e.g. a preview).
+  final LinkAccess? access;
 
   /// Who posted it; their own workouts/meals open for them.
   final String? authorId;
@@ -50,7 +57,7 @@ class PostAttachmentCard extends StatelessWidget {
 
   bool get _mine => authorId != null && authorId == AuthManager.instance.profile?.id;
 
-  bool get _canOpen => switch (type) {
+  bool get _canOpen => (access == null || access!.canOpen) && switch (type) {
     PostType.generic => false,
     PostType.workout => refId != null && _mine,
     PostType.meal => _mine && attachment.logDate != null,
@@ -114,13 +121,29 @@ class PostAttachmentCard extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [_header(context), const SizedBox(height: 10), ..._body(context)],
+              children: [
+                _header(context),
+                const SizedBox(height: 10),
+                ..._body(context),
+                if (_accessNote != null) ...[
+                  const SizedBox(height: 10),
+                  LinkAccessNote(access: _accessNote, dense: true),
+                ],
+              ],
             ),
           ),
         ),
       ),
     );
   }
+
+  /// Deleted sources, and private library items; someone else's workout or
+  /// meal is private by design (the snapshot is what they shared), so no note.
+  LinkAccess? get _accessNote => switch (access) {
+    LinkAccess.unavailable => access,
+    LinkAccess.private when type != PostType.workout && type != PostType.meal => access,
+    _ => null,
+  };
 
   Widget _header(BuildContext context) {
     final l10n = context.l10n;

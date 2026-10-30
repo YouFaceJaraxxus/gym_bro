@@ -14,7 +14,6 @@
   "planLogWorkoutHint": "Vežbe, serije i težine",
   "planLogMeal": "Upiši obrok",
   "planLogMealHint": "{slot} · dodaj namirnicu ili recept",
-  "planFromSource": "Iz plana {name}",
   "planEditedBadge": "Izmenjeno",
   "planExercises": "Vežbe",
   "planNoExercises": "Ovaj trening nema vežbi.",
@@ -68,7 +67,7 @@
   "planEnrolManage": "Podesi",
   "planEnrolLeave": "Napusti",
   "planEnrolLeaveTitle": "Napustiti {name}?",
-  "planEnrolLeaveRoutineBody": "Planirani treninzi se uklanjaju iz tvog rasporeda. Upisani treninzi ostaju.",
-  "planEnrolLeavePlanBody": "Planirani obroci se uklanjaju iz tvog rasporeda. Upisana hrana ostaje.",
+  "planEnrolLeaveRoutineBody": "Predstojeći planirani treninzi nestaju iz rasporeda. Prošli, i sve što si zabeležio/la, ostaju uz napomenu da si napustio/la plan.",
+  "planEnrolLeavePlanBody": "Predstojeći planirani obroci nestaju iz rasporeda. Prošli, i sve što si zabeležio/la, ostaju uz napomenu da si napustio/la plan.",
   "planEnrolLeft": "Napustio si {name}"
 }

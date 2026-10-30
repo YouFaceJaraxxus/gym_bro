@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../config.dart';
+import 'link_access.dart';
 import 'reaction.dart';
 import 'social.dart';
 
@@ -456,6 +457,11 @@ class Post {
   /// Snapshot of what's shared; null for generic posts.
   final PostAttachment? attachment;
 
+  /// Whether I can open the shared source: someone else's workout or meal,
+  /// or a private plan, is [LinkAccess.private]; a deleted one
+  /// [LinkAccess.unavailable]. Null for generic posts.
+  final LinkAccess? refAccess;
+
   /// Set while archived: hidden from everyone but me (profile, feed, shares).
   final DateTime? archivedAt;
 
@@ -477,6 +483,7 @@ class Post {
     this.postType = PostType.generic,
     this.refId,
     this.attachment,
+    this.refAccess,
     this.archivedAt,
   });
 
@@ -524,6 +531,7 @@ class Post {
     postType: postType,
     refId: refId,
     attachment: attachment,
+    refAccess: refAccess,
     archivedAt: clearArchivedAt ? null : (archivedAt ?? this.archivedAt),
   );
 
@@ -567,6 +575,7 @@ class Post {
     postType: PostType.parse(json['post_type']),
     refId: json['ref_id'] as String?,
     attachment: PostAttachment.maybeFromJson(json['attachment']),
+    refAccess: LinkAccess.tryParse(json['ref_access']),
     archivedAt: DateTime.tryParse(json['archived_at'] as String? ?? '')?.toLocal(),
   );
 

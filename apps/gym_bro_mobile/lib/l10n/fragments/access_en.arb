@@ -1,0 +1,44 @@
+{
+  "accessPrivate": "Private · you don't have access to this anymore",
+  "accessUnavailable": "No longer available · it was deleted",
+  "accessOpenHint": "Open",
+  "planLinkRoutine": "Routine",
+  "planLinkMealPlan": "Meal plan",
+  "planLinkWorkout": "Workout",
+  "planLinkDayPlan": "Day plan",
+  "planLeftRoutine": "You left this routine on {date}. What you planned and logged before then stays here.",
+  "@planLeftRoutine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planLeftMealPlan": "You left this meal plan on {date}. What you planned and logged before then stays here.",
+  "@planLeftMealPlan": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planRemovedRoutine": "You were taken off this routine on {date}. What you planned and logged before then stays here.",
+  "@planRemovedRoutine": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planRemovedMealPlan": "You were taken off this meal plan on {date}. What you planned and logged before then stays here.",
+  "@planRemovedMealPlan": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planDeletedRoutine": "This routine was deleted. What you planned and logged stays here.",
+  "planDeletedMealPlan": "This meal plan was deleted. What you planned and logged stays here.",
+  "planEndedSource": "This enrolment has ended. What you planned and logged stays here."
+}
