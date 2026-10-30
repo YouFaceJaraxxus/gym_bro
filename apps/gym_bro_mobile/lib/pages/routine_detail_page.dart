@@ -6,9 +6,10 @@ import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../theme.dart';
+import '../widgets/plan_enrolment.dart';
 import '../widgets/routine_assign.dart';
-import 'routine_form_page.dart';
 import '../widgets/share_post.dart';
+import 'routine_form_page.dart';
 
 class RoutineDetailPage extends StatefulWidget {
   final String routineId;
@@ -24,6 +25,9 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
   Routine? _routine;
   bool _loading = true;
   String? _error;
+
+  /// Bumped to reload the enrolment card (e.g. a coach assigned it to themself).
+  int _enrolVersion = 0;
 
   @override
   void initState() {
@@ -110,25 +114,21 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
     final routine = _routine!;
     final profile = AuthManager.instance.profile;
     final isOwner = profile != null && profile.id == routine.authorId;
-    const coachRoles = {
-      UserRole.owner,
-      UserRole.trainer,
-      UserRole.employee,
-      UserRole.employeeTrainer,
-      UserRole.superUser,
-    };
-    final isCoach = profile != null && coachRoles.contains(profile.role);
-    // The API lets anyone assign public routines (or their own) to themselves
-    // or to members they coach.
-    final canAssign = isOwner ||
-        (isCoach && (routine.isPublic || profile.role == UserRole.superUser));
+    // The API lets anyone start a public routine (or their own) themselves;
+    // coaches can also assign it to members they coach.
+    final canEnrol = isOwner || routine.isPublic || profile?.role == UserRole.superUser;
+    final canAssign = canEnrol && isCoachRole(profile?.role);
 
     return Scaffold(
       floatingActionButton: canAssign
           ? FloatingActionButton.extended(
-              onPressed: () => showAssignRoutineFlow(context, routine: routine),
+              onPressed: () async {
+                if (await showAssignRoutineFlow(context, routine: routine) && mounted) {
+                  setState(() => _enrolVersion++);
+                }
+              },
               icon: const Icon(Icons.assignment_ind_outlined),
-              label: Text(l10n.trainingAssignAction),
+              label: Text(l10n.planEnrolAssignMember),
             )
           : null,
       appBar: AppBar(
@@ -193,6 +193,15 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
               const SizedBox(height: 16),
               Text(routine.description!),
             ],
+
+            EnrolmentCard(
+              key: ValueKey('enrol-$_enrolVersion'),
+              kind: EnrolKind.routine,
+              targetId: routine.id,
+              name: routine.name,
+              canEnrol: canEnrol,
+              scheduled: routine.scheduleType == RoutineScheduleType.fixedWeeks,
+            ),
 
             if (routine.notes != null && routine.notes!.isNotEmpty) ...[
               const SizedBox(height: 12),

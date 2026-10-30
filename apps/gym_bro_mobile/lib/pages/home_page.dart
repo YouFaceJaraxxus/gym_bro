@@ -96,10 +96,13 @@ const _employeeTrainerTabs = <_Tab>[
   ..._sharedTabs,
 ];
 
+// Everyone has a personal Schedule (classes, planned and logged workouts and
+// meals), super users included.
 const _superUserTabs = <_Tab>[
   _Tab.home,
   _Tab.businesses,
   _Tab.users,
+  _Tab.schedule,
   ..._sharedTabs,
 ];
 

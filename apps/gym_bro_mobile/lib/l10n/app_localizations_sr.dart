@@ -12,6 +12,101 @@ class AppLocalizationsSr extends AppLocalizations {
   String get appTitle => 'Gym Bro';
 
   @override
+  String archiveDayLabel(String day, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stavki',
+      few: '$count stavke',
+      one: '$count stavka',
+      zero: 'ništa',
+    );
+    return '$day, $_temp0';
+  }
+
+  @override
+  String get archiveLoadFailed => 'Nije moguće učitati arhivu';
+
+  @override
+  String get archiveNextMonth => 'Sledeći mesec';
+
+  @override
+  String archiveNoPosts(String month) {
+    return 'Nema arhiviranih objava iz perioda: $month';
+  }
+
+  @override
+  String archiveNoStories(String month) {
+    return 'Nema priča u periodu: $month';
+  }
+
+  @override
+  String archiveNothingOnDay(String day) {
+    return 'Ništa za $day';
+  }
+
+  @override
+  String get archiveOnlyYou => 'Samo ti vidiš svoju arhivu.';
+
+  @override
+  String get archivePostAction => 'Arhiviraj';
+
+  @override
+  String get archivePostArchived =>
+      'Objava je arhivirana. Sada je vidiš samo ti.';
+
+  @override
+  String get archivePostBanner => 'Arhivirano — samo ti vidiš ovu objavu';
+
+  @override
+  String get archivePostRestored => 'Objava je ponovo na tvom profilu';
+
+  @override
+  String get archivePostUnarchive => 'Prikaži na profilu';
+
+  @override
+  String get archivePostsHint =>
+      'Arhivirane objave su skrivene sa profila i iz feeda dok ih ponovo ne prikažeš.';
+
+  @override
+  String get archivePrevMonth => 'Prethodni mesec';
+
+  @override
+  String get archiveStoriesHint => 'Priče ostaju ovde i posle svoja 24 sata.';
+
+  @override
+  String get archiveStoryLive => 'Aktivna';
+
+  @override
+  String get archiveStoryShared => 'Podeljeno u priči';
+
+  @override
+  String get archiveStoryText => 'Tekstualna priča';
+
+  @override
+  String get archiveSubtitle => 'Tvoje priče i arhivirane objave';
+
+  @override
+  String get archiveTabPosts => 'Objave';
+
+  @override
+  String get archiveTabStories => 'Priče';
+
+  @override
+  String get archiveTitle => 'Arhiva';
+
+  @override
+  String get archiveViewCalendar => 'Kalendar';
+
+  @override
+  String get archiveViewList => 'Lista';
+
+  @override
+  String archiveWholeMonth(String month) {
+    return 'Ceo mesec: $month';
+  }
+
+  @override
   String get businessCheckInAllTime => 'Ukupno';
 
   @override
@@ -5290,6 +5385,428 @@ class AppLocalizationsSr extends AppLocalizations {
   String get peopleViewProfile => 'Pogledaj profil';
 
   @override
+  String get planAddFood => 'Dodaj hranu';
+
+  @override
+  String get planCalendarDone => 'Urađeno';
+
+  @override
+  String planCalendarMealSemantics(String title) {
+    return 'Obrok: $title';
+  }
+
+  @override
+  String get planCalendarPlanned => 'Planirano';
+
+  @override
+  String get planCalendarSkipped => 'Preskočeno';
+
+  @override
+  String planCalendarWorkoutSemantics(String title) {
+    return 'Trening: $title';
+  }
+
+  @override
+  String get planConfirm => 'Potvrdi kako je planirano';
+
+  @override
+  String get planConfirmedMeal => 'Obrok upisan kako je planiran';
+
+  @override
+  String get planConfirmedWorkout => 'Trening upisan kako je planiran';
+
+  @override
+  String get planEditDate => 'Datum';
+
+  @override
+  String get planEditDuration => 'Trajanje';
+
+  @override
+  String get planEditMealTitle => 'Izmeni planirani obrok';
+
+  @override
+  String get planEditNote => 'Napomena';
+
+  @override
+  String get planEditTime => 'Početak';
+
+  @override
+  String get planEditTraining => 'Trening';
+
+  @override
+  String get planEditWorkoutTitle => 'Izmeni planirani trening';
+
+  @override
+  String get planEditedBadge => 'Izmenjeno';
+
+  @override
+  String get planEnrolAssignMember => 'Dodeli članu';
+
+  @override
+  String planEnrolAssignedBy(String name) {
+    return 'Dodelio: $name';
+  }
+
+  @override
+  String get planEnrolClearEnd => 'Ukloni datum završetka';
+
+  @override
+  String planEnrolDialogTitle(String name) {
+    return 'Započni $name';
+  }
+
+  @override
+  String get planEnrolEndDate => 'Završava se';
+
+  @override
+  String get planEnrolLeave => 'Napusti';
+
+  @override
+  String get planEnrolLeavePlanBody =>
+      'Planirani obroci se uklanjaju iz tvog rasporeda. Upisana hrana ostaje.';
+
+  @override
+  String get planEnrolLeaveRoutineBody =>
+      'Planirani treninzi se uklanjaju iz tvog rasporeda. Upisani treninzi ostaju.';
+
+  @override
+  String planEnrolLeaveTitle(String name) {
+    return 'Napustiti $name?';
+  }
+
+  @override
+  String planEnrolLeft(String name) {
+    return 'Napustio si $name';
+  }
+
+  @override
+  String get planEnrolManage => 'Podesi';
+
+  @override
+  String planEnrolManageTitle(String name) {
+    return 'Podesi $name';
+  }
+
+  @override
+  String get planEnrolMealHint =>
+      'Obroci svakog dana idu u tvoj raspored u uobičajeno vreme.';
+
+  @override
+  String get planEnrolNoCalendar => 'Bez fiksnih dana, pa nije u rasporedu';
+
+  @override
+  String get planEnrolNoEnd => 'Bez datuma završetka';
+
+  @override
+  String get planEnrolNote => 'Napomena (opciono)';
+
+  @override
+  String get planEnrolOpenSchedule => 'Raspored';
+
+  @override
+  String get planEnrolRoutineHint =>
+      'Treninzi idu u tvoj raspored u svoje dane, u vreme koje izabereš.';
+
+  @override
+  String planEnrolSince(String date) {
+    return 'Od $date';
+  }
+
+  @override
+  String get planEnrolStart => 'Započni';
+
+  @override
+  String get planEnrolStartDate => 'Počinje';
+
+  @override
+  String get planEnrolStartPlan => 'Započni ovaj plan ishrane';
+
+  @override
+  String get planEnrolStartRoutine => 'Započni ovaj program';
+
+  @override
+  String planEnrolStarted(String name) {
+    return 'Započeo si $name';
+  }
+
+  @override
+  String planEnrolUntil(String date) {
+    return 'do $date';
+  }
+
+  @override
+  String get planEnrolUpdated => 'Sačuvano';
+
+  @override
+  String get planEnrolWildcardHint =>
+      'Ovaj program nema fiksne dane, pa se ništa ne dodaje u tvoj raspored — izaberi neki od njegovih treninga kad god vežbaš.';
+
+  @override
+  String get planEnrolWorkoutTime => 'Vreme treninga';
+
+  @override
+  String planEnrolWorkoutsAt(String time) {
+    return 'Treninzi u $time';
+  }
+
+  @override
+  String get planEnrolledPlan => 'Pratiš ovaj plan ishrane';
+
+  @override
+  String get planEnrolledRoutine => 'Pratiš ovaj program';
+
+  @override
+  String get planExercises => 'Vežbe';
+
+  @override
+  String planFromSource(String name) {
+    return 'Iz plana $name';
+  }
+
+  @override
+  String get planLogDifferently => 'Upiši drugačije';
+
+  @override
+  String get planLogMeal => 'Upiši obrok';
+
+  @override
+  String planLogMealHint(String slot) {
+    return '$slot · dodaj namirnicu ili recept';
+  }
+
+  @override
+  String get planLogWorkout => 'Upiši trening';
+
+  @override
+  String get planLogWorkoutHint => 'Vežbe, serije i težine';
+
+  @override
+  String get planLoggedItems => 'Upisano';
+
+  @override
+  String get planMealFallback => 'Obrok';
+
+  @override
+  String planMealItemsKcal(int count, int kcal) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count namirnica',
+      few: '$count namirnice',
+      one: '1 namirnica',
+    );
+    return '$_temp0 · $kcal kcal';
+  }
+
+  @override
+  String get planNoExercises => 'Ovaj trening nema vežbi.';
+
+  @override
+  String get planNoItems => 'Za ovaj obrok ništa nije planirano.';
+
+  @override
+  String get planOpenDiary => 'Otvori dnevnik ishrane';
+
+  @override
+  String get planOpenWorkout => 'Otvori trening';
+
+  @override
+  String get planPlannedItems => 'Planirano';
+
+  @override
+  String get planRestoredSnack => 'Vraćeno u plan';
+
+  @override
+  String get planScheduleEmptyDay =>
+      'Ništa za ovaj dan. Dodirni sat da upišeš trening ili obrok.';
+
+  @override
+  String get planScheduleHubSubtitle => 'Tvoji časovi, treninzi i obroci';
+
+  @override
+  String get planSkip => 'Preskoči';
+
+  @override
+  String get planSkippedSnack => 'Preskočeno';
+
+  @override
+  String planSlotLabel(String time) {
+    return '$time, upiši trening ili obrok';
+  }
+
+  @override
+  String get planTotal => 'Ukupno';
+
+  @override
+  String get planUnskip => 'Vrati u plan';
+
+  @override
+  String get planWorkoutFallback => 'Trening';
+
+  @override
+  String get postShareAction => 'Podeli kao objavu';
+
+  @override
+  String postShareBestReps(int reps) {
+    return 'najbolje $reps ponavljanja';
+  }
+
+  @override
+  String postShareBestSet(String weight, int reps) {
+    return 'najbolje $weight × $reps';
+  }
+
+  @override
+  String get postShareCaptionHint => 'Napiši nešto o tome…';
+
+  @override
+  String postShareDaysPlanned(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count isplaniranih dana',
+      few: '$count isplanirana dana',
+      one: '1 isplaniran dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String postShareExercises(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vežbi',
+      few: '$count vežbe',
+      one: '1 vežba',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postShareFutureBlocked => 'Ovo možeš da podeliš kada se desi';
+
+  @override
+  String postShareMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String postShareMoreItems(int count) {
+    return '+$count još';
+  }
+
+  @override
+  String postSharePer100(String unit) {
+    return 'na 100 $unit';
+  }
+
+  @override
+  String get postSharePerDay => 'dnevno';
+
+  @override
+  String get postSharePerServing => 'po porciji';
+
+  @override
+  String get postSharePosted => 'Podeljeno na tvom feedu';
+
+  @override
+  String get postShareRemove => 'Ne deli ovo';
+
+  @override
+  String postShareServings(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count porcija',
+      few: '$count porcije',
+      one: '1 porcija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String postShareSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count serija',
+      few: '$count serije',
+      one: '1 serija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postShareShareAction => 'Podeli';
+
+  @override
+  String get postShareSharing => 'Deliš';
+
+  @override
+  String get postShareSourceUnavailable => 'Ovo više nije dostupno';
+
+  @override
+  String get postShareTypeDailyMealPlan => 'Dnevni plan';
+
+  @override
+  String get postShareTypeExercise => 'Vežba';
+
+  @override
+  String get postShareTypeFoodItem => 'Namirnica';
+
+  @override
+  String get postShareTypeGeneric => 'Objava';
+
+  @override
+  String get postShareTypeMeal => 'Obrok';
+
+  @override
+  String get postShareTypeMealPlan => 'Program ishrane';
+
+  @override
+  String get postShareTypeRecipe => 'Recept';
+
+  @override
+  String get postShareTypeRoutine => 'Program treninga';
+
+  @override
+  String get postShareTypeTraining => 'Trening';
+
+  @override
+  String get postShareTypeWorkout => 'Trening';
+
+  @override
+  String postShareWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nedelja',
+      few: '$count nedelje',
+      one: '1 nedelja',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postShareWorkoutFinished => 'Trening je završen';
+
+  @override
+  String get postShareWorkoutLogged => 'Trening je upisan';
+
+  @override
+  String postShareWorkouts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treninga',
+      few: '$count treninga',
+      one: '1 trening',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get reactionAngry => 'Ljuto';
 
   @override
@@ -5345,6 +5862,238 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get settingsLanguageSystem => 'Podrazumevani jezik sistema';
+
+  @override
+  String get shareBusinessAction => 'Podeli';
+
+  @override
+  String get shareProductAction => 'Podeli proizvod';
+
+  @override
+  String get shareProfileAction => 'Podeli profil';
+
+  @override
+  String get shareSendAction => 'Pošalji';
+
+  @override
+  String get shareSheetAddToStory => 'Dodaj u priču';
+
+  @override
+  String shareSheetFailed(String error) {
+    return 'Slanje nije uspelo: $error';
+  }
+
+  @override
+  String shareSheetGroupMembers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count članova',
+      few: '$count člana',
+      one: '1 član',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shareSheetLoadFailed => 'Ćaskanja nije moguće učitati';
+
+  @override
+  String get shareSheetMessageHint => 'Napišite poruku…';
+
+  @override
+  String get shareSheetNoChats =>
+      'Još nema ćaskanja — potražite nekoga kome ćete ovo poslati.';
+
+  @override
+  String get shareSheetNoResults => 'Nema rezultata';
+
+  @override
+  String get shareSheetPeople => 'Ljudi';
+
+  @override
+  String get shareSheetRecent => 'Nedavna ćaskanja';
+
+  @override
+  String get shareSheetSearchHint => 'Pretraži ljude';
+
+  @override
+  String get shareSheetSend => 'Pošalji';
+
+  @override
+  String shareSheetSendTo(int count) {
+    return 'Pošalji ($count)';
+  }
+
+  @override
+  String shareSheetSent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Poslato u $count ćaskanja',
+      few: 'Poslato u $count ćaskanja',
+      one: 'Poslato',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shareSheetShareAsPost => 'Podeli kao objavu';
+
+  @override
+  String shareSheetSomeFailed(String names) {
+    return 'Nije poslato: $names';
+  }
+
+  @override
+  String get shareSheetTitle => 'Podeli';
+
+  @override
+  String get sharedExpiredStoryBody => 'Priče su vidljive samo 24 sata.';
+
+  @override
+  String get sharedExpiredStoryTitle => 'Priča je istekla';
+
+  @override
+  String get sharedKindGym => 'Teretana';
+
+  @override
+  String get sharedKindPost => 'Objava';
+
+  @override
+  String get sharedKindProduct => 'Proizvod';
+
+  @override
+  String get sharedKindProfile => 'Profil';
+
+  @override
+  String get sharedKindShop => 'Prodavnica';
+
+  @override
+  String get sharedKindStory => 'Priča';
+
+  @override
+  String get sharedLoading => 'Učitavanje…';
+
+  @override
+  String sharedPostOf(String name) {
+    return 'Objava – $name';
+  }
+
+  @override
+  String get sharedPreviewBusiness => 'Podelio/la je stranicu';
+
+  @override
+  String get sharedPreviewDayPlan => 'Podelio/la je dnevni plan';
+
+  @override
+  String get sharedPreviewExercise => 'Podelio/la je vežbu';
+
+  @override
+  String get sharedPreviewFood => 'Podelio/la je namirnicu';
+
+  @override
+  String get sharedPreviewMeal => 'Podelio/la je obrok';
+
+  @override
+  String get sharedPreviewMealPlan => 'Podelio/la je program ishrane';
+
+  @override
+  String get sharedPreviewPost => 'Podelio/la je objavu';
+
+  @override
+  String get sharedPreviewProduct => 'Podelio/la je proizvod';
+
+  @override
+  String get sharedPreviewProfile => 'Podelio/la je profil';
+
+  @override
+  String get sharedPreviewRecipe => 'Podelio/la je recept';
+
+  @override
+  String get sharedPreviewRoutine => 'Podelio/la je program treninga';
+
+  @override
+  String get sharedPreviewStory => 'Podelio/la je priču';
+
+  @override
+  String get sharedPreviewWorkout => 'Podelio/la je trening';
+
+  @override
+  String get sharedPrivateChip => 'Privatan nalog';
+
+  @override
+  String get sharedPrivateItemBody =>
+      'Vide ga samo autor i oni sa kojima je podeljeno.';
+
+  @override
+  String sharedPrivateItemTitle(String kind) {
+    return '$kind – privatno';
+  }
+
+  @override
+  String get sharedPrivatePostBody =>
+      'Samo odobreni pratioci mogu da vide ovu objavu.';
+
+  @override
+  String get sharedPrivatePostTitle => 'Ovaj nalog je privatan';
+
+  @override
+  String get sharedPrivateStoryBody =>
+      'Samo odobreni pratioci mogu da vide ovu priču.';
+
+  @override
+  String get sharedPrivateStoryTitle => 'Ova priča je privatna';
+
+  @override
+  String get sharedStoryExpiredShort => 'Priča je istekla';
+
+  @override
+  String get sharedStoryGoneShort => 'Priča nije dostupna';
+
+  @override
+  String sharedStoryOf(String name) {
+    return 'Priča – $name';
+  }
+
+  @override
+  String sharedStoryReactedPreview(String emoji) {
+    return 'Reagovao/la je sa $emoji na priču';
+  }
+
+  @override
+  String get sharedStoryReactedTheirs => 'Reagovali ste na njegovu/njenu priču';
+
+  @override
+  String get sharedStoryReactedYours => 'Reagovao/la je na vašu priču';
+
+  @override
+  String sharedStoryRepliedPreview(String text) {
+    return 'Odgovor na priču: $text';
+  }
+
+  @override
+  String get sharedStoryRepliedTheirs =>
+      'Odgovorili ste na njegovu/njenu priču';
+
+  @override
+  String get sharedStoryRepliedYours => 'Odgovorio/la je na vašu priču';
+
+  @override
+  String get sharedUnavailableAccountTitle => 'Nalog nije dostupan';
+
+  @override
+  String get sharedUnavailableBody =>
+      'Ovaj sadržaj je uklonjen ili ga više ne možete videti.';
+
+  @override
+  String get sharedUnavailablePostTitle => 'Objava nije dostupna';
+
+  @override
+  String get sharedUnavailableStoryTitle => 'Priča nije dostupna';
+
+  @override
+  String get sharedUnavailableTitle => 'Više nije dostupno';
 
   @override
   String get shellActivateAccount => 'Aktiviraj nalog';
@@ -6312,6 +7061,231 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get socialUploadFailed => 'Otpremanje nije uspelo. Pokušajte ponovo.';
+
+  @override
+  String storyActivityCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pregleda',
+      few: '$count pregleda',
+      one: '1 pregled',
+      zero: 'Aktivnost',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get storyAddTooltip => 'Dodaj u svoju priču';
+
+  @override
+  String get storyArchivedLabel => 'Arhivirano';
+
+  @override
+  String get storyClose => 'Zatvori';
+
+  @override
+  String get storyComposerBackground => 'Boja pozadine';
+
+  @override
+  String get storyComposerCaptionHint => 'Dodaj opis…';
+
+  @override
+  String get storyComposerDiscard => 'Odbaci';
+
+  @override
+  String get storyComposerDiscardTitle => 'Odbaciti ovu priču?';
+
+  @override
+  String get storyComposerEdit => 'Uredi';
+
+  @override
+  String get storyComposerEmpty => 'Dodaj fotografiju, video ili tekst';
+
+  @override
+  String get storyComposerPickMedia => 'Fotografija ili video';
+
+  @override
+  String get storyComposerPosting => 'Deljenje…';
+
+  @override
+  String get storyComposerRemoveMedia => 'Ukloni fotografiju ili video';
+
+  @override
+  String get storyComposerShare => 'Podeli u priču';
+
+  @override
+  String get storyComposerTextHint => 'Napiši nešto…';
+
+  @override
+  String get storyComposerTitle => 'Nova priča';
+
+  @override
+  String get storyDelete => 'Obriši priču';
+
+  @override
+  String get storyDeleteConfirmBody =>
+      'Biće uklonjena iz tvoje priče i iz arhive.';
+
+  @override
+  String get storyDeleteConfirmTitle => 'Obrisati ovu priču?';
+
+  @override
+  String get storyDeleted => 'Priča je obrisana';
+
+  @override
+  String get storyLike => 'Sviđa mi se';
+
+  @override
+  String get storyLoadFailed => 'Nije moguće učitati priče';
+
+  @override
+  String get storyMore => 'Još';
+
+  @override
+  String get storyNew => 'Nova priča';
+
+  @override
+  String get storyNoViewers => 'Niko još nije pogledao ovu priču';
+
+  @override
+  String get storyPosted => 'Dodato u tvoju priču';
+
+  @override
+  String get storyQuickReactions => 'Brze reakcije';
+
+  @override
+  String get storyReactionSent => 'Reakcija je poslata';
+
+  @override
+  String get storyReplySent => 'Odgovor je poslat';
+
+  @override
+  String get storySend => 'Pošalji';
+
+  @override
+  String get storySendMessageHint => 'Pošalji poruku';
+
+  @override
+  String get storySendTo => 'Pošalji…';
+
+  @override
+  String storyTraySeen(String name) {
+    return 'Priča korisnika $name';
+  }
+
+  @override
+  String storyTrayUnseen(String name) {
+    return 'Priča korisnika $name, nije pogledana';
+  }
+
+  @override
+  String get storyUnavailable => 'Ova priča više nije dostupna';
+
+  @override
+  String get storyUnlike => 'Ne sviđa mi se više';
+
+  @override
+  String storyViewsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pregleda',
+      few: '$count pregleda',
+      one: '1 pregled',
+      zero: 'Još nema pregleda',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get storyYourStory => 'Tvoja priča';
+
+  @override
+  String get tagsDone => 'Gotovo';
+
+  @override
+  String get tagsDragHint =>
+      'Prevuci ime da ga pomeriš, dodirni fotografiju da označiš još nekog';
+
+  @override
+  String get tagsKindGym => 'Teretana';
+
+  @override
+  String get tagsKindProduct => 'Proizvod';
+
+  @override
+  String get tagsKindShop => 'Prodavnica';
+
+  @override
+  String tagsLimit(int count) {
+    return 'Najviše $count osoba po fotografiji';
+  }
+
+  @override
+  String get tagsNoPeople => 'Nema pronađenih osoba';
+
+  @override
+  String get tagsNoTagged => 'Još nema objava sa oznakama';
+
+  @override
+  String get tagsNoTaggedMe =>
+      'Kada te neko označi na fotografiji ili te pomene, objave će se pojaviti ovde.';
+
+  @override
+  String tagsOpenFailed(String name) {
+    return 'Nije moguće otvoriti $name';
+  }
+
+  @override
+  String get tagsRemoveMe => 'Ukloni me iz ove objave';
+
+  @override
+  String get tagsRemoveMeBody =>
+      'Više nećeš biti označen na fotografijama ove objave i ona se neće prikazivati na kartici Označeno na tvom profilu.';
+
+  @override
+  String get tagsRemoveMeTitle => 'Da li želiš da se ukloniš?';
+
+  @override
+  String tagsRemovePerson(String name) {
+    return 'Ukloni $name';
+  }
+
+  @override
+  String get tagsRemovedMe => 'Uklonjen si iz ove objave';
+
+  @override
+  String get tagsSaved => 'Oznake su ažurirane';
+
+  @override
+  String get tagsSearchPeople => 'Pretraži ljude';
+
+  @override
+  String get tagsTabTagged => 'Označeno';
+
+  @override
+  String tagsTaggedPeople(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Označeno $count osoba',
+      few: 'Označene $count osobe',
+      one: 'Označena 1 osoba',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tagsTapToTag => 'Dodirni fotografiju da označiš ljude';
+
+  @override
+  String get tagsTitle => 'Označi ljude';
+
+  @override
+  String tagsTitleOf(int index, int count) {
+    return 'Označi ljude · $index/$count';
+  }
 
   @override
   String get trainerClassesPickerCustomer => 'Klijent';
@@ -8590,6 +9564,101 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get appTitle => 'Gym Bro';
 
   @override
+  String archiveDayLabel(String day, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stavki',
+      few: '$count stavke',
+      one: '$count stavka',
+      zero: 'ništa',
+    );
+    return '$day, $_temp0';
+  }
+
+  @override
+  String get archiveLoadFailed => 'Nije moguće učitati arhivu';
+
+  @override
+  String get archiveNextMonth => 'Sledeći mesec';
+
+  @override
+  String archiveNoPosts(String month) {
+    return 'Nema arhiviranih objava iz perioda: $month';
+  }
+
+  @override
+  String archiveNoStories(String month) {
+    return 'Nema priča u periodu: $month';
+  }
+
+  @override
+  String archiveNothingOnDay(String day) {
+    return 'Ništa za $day';
+  }
+
+  @override
+  String get archiveOnlyYou => 'Samo ti vidiš svoju arhivu.';
+
+  @override
+  String get archivePostAction => 'Arhiviraj';
+
+  @override
+  String get archivePostArchived =>
+      'Objava je arhivirana. Sada je vidiš samo ti.';
+
+  @override
+  String get archivePostBanner => 'Arhivirano — samo ti vidiš ovu objavu';
+
+  @override
+  String get archivePostRestored => 'Objava je ponovo na tvom profilu';
+
+  @override
+  String get archivePostUnarchive => 'Prikaži na profilu';
+
+  @override
+  String get archivePostsHint =>
+      'Arhivirane objave su skrivene sa profila i iz feeda dok ih ponovo ne prikažeš.';
+
+  @override
+  String get archivePrevMonth => 'Prethodni mesec';
+
+  @override
+  String get archiveStoriesHint => 'Priče ostaju ovde i posle svoja 24 sata.';
+
+  @override
+  String get archiveStoryLive => 'Aktivna';
+
+  @override
+  String get archiveStoryShared => 'Podeljeno u priči';
+
+  @override
+  String get archiveStoryText => 'Tekstualna priča';
+
+  @override
+  String get archiveSubtitle => 'Tvoje priče i arhivirane objave';
+
+  @override
+  String get archiveTabPosts => 'Objave';
+
+  @override
+  String get archiveTabStories => 'Priče';
+
+  @override
+  String get archiveTitle => 'Arhiva';
+
+  @override
+  String get archiveViewCalendar => 'Kalendar';
+
+  @override
+  String get archiveViewList => 'Lista';
+
+  @override
+  String archiveWholeMonth(String month) {
+    return 'Ceo mesec: $month';
+  }
+
+  @override
   String get businessCheckInAllTime => 'Ukupno';
 
   @override
@@ -13868,6 +14937,428 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get peopleViewProfile => 'Pogledaj profil';
 
   @override
+  String get planAddFood => 'Dodaj hranu';
+
+  @override
+  String get planCalendarDone => 'Urađeno';
+
+  @override
+  String planCalendarMealSemantics(String title) {
+    return 'Obrok: $title';
+  }
+
+  @override
+  String get planCalendarPlanned => 'Planirano';
+
+  @override
+  String get planCalendarSkipped => 'Preskočeno';
+
+  @override
+  String planCalendarWorkoutSemantics(String title) {
+    return 'Trening: $title';
+  }
+
+  @override
+  String get planConfirm => 'Potvrdi kako je planirano';
+
+  @override
+  String get planConfirmedMeal => 'Obrok upisan kako je planiran';
+
+  @override
+  String get planConfirmedWorkout => 'Trening upisan kako je planiran';
+
+  @override
+  String get planEditDate => 'Datum';
+
+  @override
+  String get planEditDuration => 'Trajanje';
+
+  @override
+  String get planEditMealTitle => 'Izmeni planirani obrok';
+
+  @override
+  String get planEditNote => 'Napomena';
+
+  @override
+  String get planEditTime => 'Početak';
+
+  @override
+  String get planEditTraining => 'Trening';
+
+  @override
+  String get planEditWorkoutTitle => 'Izmeni planirani trening';
+
+  @override
+  String get planEditedBadge => 'Izmenjeno';
+
+  @override
+  String get planEnrolAssignMember => 'Dodeli članu';
+
+  @override
+  String planEnrolAssignedBy(String name) {
+    return 'Dodelio: $name';
+  }
+
+  @override
+  String get planEnrolClearEnd => 'Ukloni datum završetka';
+
+  @override
+  String planEnrolDialogTitle(String name) {
+    return 'Započni $name';
+  }
+
+  @override
+  String get planEnrolEndDate => 'Završava se';
+
+  @override
+  String get planEnrolLeave => 'Napusti';
+
+  @override
+  String get planEnrolLeavePlanBody =>
+      'Planirani obroci se uklanjaju iz tvog rasporeda. Upisana hrana ostaje.';
+
+  @override
+  String get planEnrolLeaveRoutineBody =>
+      'Planirani treninzi se uklanjaju iz tvog rasporeda. Upisani treninzi ostaju.';
+
+  @override
+  String planEnrolLeaveTitle(String name) {
+    return 'Napustiti $name?';
+  }
+
+  @override
+  String planEnrolLeft(String name) {
+    return 'Napustio si $name';
+  }
+
+  @override
+  String get planEnrolManage => 'Podesi';
+
+  @override
+  String planEnrolManageTitle(String name) {
+    return 'Podesi $name';
+  }
+
+  @override
+  String get planEnrolMealHint =>
+      'Obroci svakog dana idu u tvoj raspored u uobičajeno vreme.';
+
+  @override
+  String get planEnrolNoCalendar => 'Bez fiksnih dana, pa nije u rasporedu';
+
+  @override
+  String get planEnrolNoEnd => 'Bez datuma završetka';
+
+  @override
+  String get planEnrolNote => 'Napomena (opciono)';
+
+  @override
+  String get planEnrolOpenSchedule => 'Raspored';
+
+  @override
+  String get planEnrolRoutineHint =>
+      'Treninzi idu u tvoj raspored u svoje dane, u vreme koje izabereš.';
+
+  @override
+  String planEnrolSince(String date) {
+    return 'Od $date';
+  }
+
+  @override
+  String get planEnrolStart => 'Započni';
+
+  @override
+  String get planEnrolStartDate => 'Počinje';
+
+  @override
+  String get planEnrolStartPlan => 'Započni ovaj plan ishrane';
+
+  @override
+  String get planEnrolStartRoutine => 'Započni ovaj program';
+
+  @override
+  String planEnrolStarted(String name) {
+    return 'Započeo si $name';
+  }
+
+  @override
+  String planEnrolUntil(String date) {
+    return 'do $date';
+  }
+
+  @override
+  String get planEnrolUpdated => 'Sačuvano';
+
+  @override
+  String get planEnrolWildcardHint =>
+      'Ovaj program nema fiksne dane, pa se ništa ne dodaje u tvoj raspored — izaberi neki od njegovih treninga kad god vežbaš.';
+
+  @override
+  String get planEnrolWorkoutTime => 'Vreme treninga';
+
+  @override
+  String planEnrolWorkoutsAt(String time) {
+    return 'Treninzi u $time';
+  }
+
+  @override
+  String get planEnrolledPlan => 'Pratiš ovaj plan ishrane';
+
+  @override
+  String get planEnrolledRoutine => 'Pratiš ovaj program';
+
+  @override
+  String get planExercises => 'Vežbe';
+
+  @override
+  String planFromSource(String name) {
+    return 'Iz plana $name';
+  }
+
+  @override
+  String get planLogDifferently => 'Upiši drugačije';
+
+  @override
+  String get planLogMeal => 'Upiši obrok';
+
+  @override
+  String planLogMealHint(String slot) {
+    return '$slot · dodaj namirnicu ili recept';
+  }
+
+  @override
+  String get planLogWorkout => 'Upiši trening';
+
+  @override
+  String get planLogWorkoutHint => 'Vežbe, serije i težine';
+
+  @override
+  String get planLoggedItems => 'Upisano';
+
+  @override
+  String get planMealFallback => 'Obrok';
+
+  @override
+  String planMealItemsKcal(int count, int kcal) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count namirnica',
+      few: '$count namirnice',
+      one: '1 namirnica',
+    );
+    return '$_temp0 · $kcal kcal';
+  }
+
+  @override
+  String get planNoExercises => 'Ovaj trening nema vežbi.';
+
+  @override
+  String get planNoItems => 'Za ovaj obrok ništa nije planirano.';
+
+  @override
+  String get planOpenDiary => 'Otvori dnevnik ishrane';
+
+  @override
+  String get planOpenWorkout => 'Otvori trening';
+
+  @override
+  String get planPlannedItems => 'Planirano';
+
+  @override
+  String get planRestoredSnack => 'Vraćeno u plan';
+
+  @override
+  String get planScheduleEmptyDay =>
+      'Ništa za ovaj dan. Dodirni sat da upišeš trening ili obrok.';
+
+  @override
+  String get planScheduleHubSubtitle => 'Tvoji časovi, treninzi i obroci';
+
+  @override
+  String get planSkip => 'Preskoči';
+
+  @override
+  String get planSkippedSnack => 'Preskočeno';
+
+  @override
+  String planSlotLabel(String time) {
+    return '$time, upiši trening ili obrok';
+  }
+
+  @override
+  String get planTotal => 'Ukupno';
+
+  @override
+  String get planUnskip => 'Vrati u plan';
+
+  @override
+  String get planWorkoutFallback => 'Trening';
+
+  @override
+  String get postShareAction => 'Podeli kao objavu';
+
+  @override
+  String postShareBestReps(int reps) {
+    return 'najbolje $reps ponavljanja';
+  }
+
+  @override
+  String postShareBestSet(String weight, int reps) {
+    return 'najbolje $weight × $reps';
+  }
+
+  @override
+  String get postShareCaptionHint => 'Napiši nešto o tome…';
+
+  @override
+  String postShareDaysPlanned(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count isplaniranih dana',
+      few: '$count isplanirana dana',
+      one: '1 isplaniran dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String postShareExercises(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vežbi',
+      few: '$count vežbe',
+      one: '1 vežba',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postShareFutureBlocked => 'Ovo možeš da podeliš kada se desi';
+
+  @override
+  String postShareMinutes(int count) {
+    return '$count min';
+  }
+
+  @override
+  String postShareMoreItems(int count) {
+    return '+$count još';
+  }
+
+  @override
+  String postSharePer100(String unit) {
+    return 'na 100 $unit';
+  }
+
+  @override
+  String get postSharePerDay => 'dnevno';
+
+  @override
+  String get postSharePerServing => 'po porciji';
+
+  @override
+  String get postSharePosted => 'Podeljeno na tvom feedu';
+
+  @override
+  String get postShareRemove => 'Ne deli ovo';
+
+  @override
+  String postShareServings(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count porcija',
+      few: '$count porcije',
+      one: '1 porcija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String postShareSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count serija',
+      few: '$count serije',
+      one: '1 serija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postShareShareAction => 'Podeli';
+
+  @override
+  String get postShareSharing => 'Deliš';
+
+  @override
+  String get postShareSourceUnavailable => 'Ovo više nije dostupno';
+
+  @override
+  String get postShareTypeDailyMealPlan => 'Dnevni plan';
+
+  @override
+  String get postShareTypeExercise => 'Vežba';
+
+  @override
+  String get postShareTypeFoodItem => 'Namirnica';
+
+  @override
+  String get postShareTypeGeneric => 'Objava';
+
+  @override
+  String get postShareTypeMeal => 'Obrok';
+
+  @override
+  String get postShareTypeMealPlan => 'Program ishrane';
+
+  @override
+  String get postShareTypeRecipe => 'Recept';
+
+  @override
+  String get postShareTypeRoutine => 'Program treninga';
+
+  @override
+  String get postShareTypeTraining => 'Trening';
+
+  @override
+  String get postShareTypeWorkout => 'Trening';
+
+  @override
+  String postShareWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nedelja',
+      few: '$count nedelje',
+      one: '1 nedelja',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postShareWorkoutFinished => 'Trening je završen';
+
+  @override
+  String get postShareWorkoutLogged => 'Trening je upisan';
+
+  @override
+  String postShareWorkouts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treninga',
+      few: '$count treninga',
+      one: '1 trening',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get reactionAngry => 'Ljuto';
 
   @override
@@ -13923,6 +15414,238 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get settingsLanguageSystem => 'Podrazumevani jezik sistema';
+
+  @override
+  String get shareBusinessAction => 'Podeli';
+
+  @override
+  String get shareProductAction => 'Podeli proizvod';
+
+  @override
+  String get shareProfileAction => 'Podeli profil';
+
+  @override
+  String get shareSendAction => 'Pošalji';
+
+  @override
+  String get shareSheetAddToStory => 'Dodaj u priču';
+
+  @override
+  String shareSheetFailed(String error) {
+    return 'Slanje nije uspelo: $error';
+  }
+
+  @override
+  String shareSheetGroupMembers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count članova',
+      few: '$count člana',
+      one: '1 član',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shareSheetLoadFailed => 'Ćaskanja nije moguće učitati';
+
+  @override
+  String get shareSheetMessageHint => 'Napišite poruku…';
+
+  @override
+  String get shareSheetNoChats =>
+      'Još nema ćaskanja — potražite nekoga kome ćete ovo poslati.';
+
+  @override
+  String get shareSheetNoResults => 'Nema rezultata';
+
+  @override
+  String get shareSheetPeople => 'Ljudi';
+
+  @override
+  String get shareSheetRecent => 'Nedavna ćaskanja';
+
+  @override
+  String get shareSheetSearchHint => 'Pretraži ljude';
+
+  @override
+  String get shareSheetSend => 'Pošalji';
+
+  @override
+  String shareSheetSendTo(int count) {
+    return 'Pošalji ($count)';
+  }
+
+  @override
+  String shareSheetSent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Poslato u $count ćaskanja',
+      few: 'Poslato u $count ćaskanja',
+      one: 'Poslato',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shareSheetShareAsPost => 'Podeli kao objavu';
+
+  @override
+  String shareSheetSomeFailed(String names) {
+    return 'Nije poslato: $names';
+  }
+
+  @override
+  String get shareSheetTitle => 'Podeli';
+
+  @override
+  String get sharedExpiredStoryBody => 'Priče su vidljive samo 24 sata.';
+
+  @override
+  String get sharedExpiredStoryTitle => 'Priča je istekla';
+
+  @override
+  String get sharedKindGym => 'Teretana';
+
+  @override
+  String get sharedKindPost => 'Objava';
+
+  @override
+  String get sharedKindProduct => 'Proizvod';
+
+  @override
+  String get sharedKindProfile => 'Profil';
+
+  @override
+  String get sharedKindShop => 'Prodavnica';
+
+  @override
+  String get sharedKindStory => 'Priča';
+
+  @override
+  String get sharedLoading => 'Učitavanje…';
+
+  @override
+  String sharedPostOf(String name) {
+    return 'Objava – $name';
+  }
+
+  @override
+  String get sharedPreviewBusiness => 'Podelio/la je stranicu';
+
+  @override
+  String get sharedPreviewDayPlan => 'Podelio/la je dnevni plan';
+
+  @override
+  String get sharedPreviewExercise => 'Podelio/la je vežbu';
+
+  @override
+  String get sharedPreviewFood => 'Podelio/la je namirnicu';
+
+  @override
+  String get sharedPreviewMeal => 'Podelio/la je obrok';
+
+  @override
+  String get sharedPreviewMealPlan => 'Podelio/la je program ishrane';
+
+  @override
+  String get sharedPreviewPost => 'Podelio/la je objavu';
+
+  @override
+  String get sharedPreviewProduct => 'Podelio/la je proizvod';
+
+  @override
+  String get sharedPreviewProfile => 'Podelio/la je profil';
+
+  @override
+  String get sharedPreviewRecipe => 'Podelio/la je recept';
+
+  @override
+  String get sharedPreviewRoutine => 'Podelio/la je program treninga';
+
+  @override
+  String get sharedPreviewStory => 'Podelio/la je priču';
+
+  @override
+  String get sharedPreviewWorkout => 'Podelio/la je trening';
+
+  @override
+  String get sharedPrivateChip => 'Privatan nalog';
+
+  @override
+  String get sharedPrivateItemBody =>
+      'Vide ga samo autor i oni sa kojima je podeljeno.';
+
+  @override
+  String sharedPrivateItemTitle(String kind) {
+    return '$kind – privatno';
+  }
+
+  @override
+  String get sharedPrivatePostBody =>
+      'Samo odobreni pratioci mogu da vide ovu objavu.';
+
+  @override
+  String get sharedPrivatePostTitle => 'Ovaj nalog je privatan';
+
+  @override
+  String get sharedPrivateStoryBody =>
+      'Samo odobreni pratioci mogu da vide ovu priču.';
+
+  @override
+  String get sharedPrivateStoryTitle => 'Ova priča je privatna';
+
+  @override
+  String get sharedStoryExpiredShort => 'Priča je istekla';
+
+  @override
+  String get sharedStoryGoneShort => 'Priča nije dostupna';
+
+  @override
+  String sharedStoryOf(String name) {
+    return 'Priča – $name';
+  }
+
+  @override
+  String sharedStoryReactedPreview(String emoji) {
+    return 'Reagovao/la je sa $emoji na priču';
+  }
+
+  @override
+  String get sharedStoryReactedTheirs => 'Reagovali ste na njegovu/njenu priču';
+
+  @override
+  String get sharedStoryReactedYours => 'Reagovao/la je na vašu priču';
+
+  @override
+  String sharedStoryRepliedPreview(String text) {
+    return 'Odgovor na priču: $text';
+  }
+
+  @override
+  String get sharedStoryRepliedTheirs =>
+      'Odgovorili ste na njegovu/njenu priču';
+
+  @override
+  String get sharedStoryRepliedYours => 'Odgovorio/la je na vašu priču';
+
+  @override
+  String get sharedUnavailableAccountTitle => 'Nalog nije dostupan';
+
+  @override
+  String get sharedUnavailableBody =>
+      'Ovaj sadržaj je uklonjen ili ga više ne možete videti.';
+
+  @override
+  String get sharedUnavailablePostTitle => 'Objava nije dostupna';
+
+  @override
+  String get sharedUnavailableStoryTitle => 'Priča nije dostupna';
+
+  @override
+  String get sharedUnavailableTitle => 'Više nije dostupno';
 
   @override
   String get shellActivateAccount => 'Aktiviraj nalog';
@@ -14890,6 +16613,231 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get socialUploadFailed => 'Otpremanje nije uspelo. Pokušajte ponovo.';
+
+  @override
+  String storyActivityCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pregleda',
+      few: '$count pregleda',
+      one: '1 pregled',
+      zero: 'Aktivnost',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get storyAddTooltip => 'Dodaj u svoju priču';
+
+  @override
+  String get storyArchivedLabel => 'Arhivirano';
+
+  @override
+  String get storyClose => 'Zatvori';
+
+  @override
+  String get storyComposerBackground => 'Boja pozadine';
+
+  @override
+  String get storyComposerCaptionHint => 'Dodaj opis…';
+
+  @override
+  String get storyComposerDiscard => 'Odbaci';
+
+  @override
+  String get storyComposerDiscardTitle => 'Odbaciti ovu priču?';
+
+  @override
+  String get storyComposerEdit => 'Uredi';
+
+  @override
+  String get storyComposerEmpty => 'Dodaj fotografiju, video ili tekst';
+
+  @override
+  String get storyComposerPickMedia => 'Fotografija ili video';
+
+  @override
+  String get storyComposerPosting => 'Deljenje…';
+
+  @override
+  String get storyComposerRemoveMedia => 'Ukloni fotografiju ili video';
+
+  @override
+  String get storyComposerShare => 'Podeli u priču';
+
+  @override
+  String get storyComposerTextHint => 'Napiši nešto…';
+
+  @override
+  String get storyComposerTitle => 'Nova priča';
+
+  @override
+  String get storyDelete => 'Obriši priču';
+
+  @override
+  String get storyDeleteConfirmBody =>
+      'Biće uklonjena iz tvoje priče i iz arhive.';
+
+  @override
+  String get storyDeleteConfirmTitle => 'Obrisati ovu priču?';
+
+  @override
+  String get storyDeleted => 'Priča je obrisana';
+
+  @override
+  String get storyLike => 'Sviđa mi se';
+
+  @override
+  String get storyLoadFailed => 'Nije moguće učitati priče';
+
+  @override
+  String get storyMore => 'Još';
+
+  @override
+  String get storyNew => 'Nova priča';
+
+  @override
+  String get storyNoViewers => 'Niko još nije pogledao ovu priču';
+
+  @override
+  String get storyPosted => 'Dodato u tvoju priču';
+
+  @override
+  String get storyQuickReactions => 'Brze reakcije';
+
+  @override
+  String get storyReactionSent => 'Reakcija je poslata';
+
+  @override
+  String get storyReplySent => 'Odgovor je poslat';
+
+  @override
+  String get storySend => 'Pošalji';
+
+  @override
+  String get storySendMessageHint => 'Pošalji poruku';
+
+  @override
+  String get storySendTo => 'Pošalji…';
+
+  @override
+  String storyTraySeen(String name) {
+    return 'Priča korisnika $name';
+  }
+
+  @override
+  String storyTrayUnseen(String name) {
+    return 'Priča korisnika $name, nije pogledana';
+  }
+
+  @override
+  String get storyUnavailable => 'Ova priča više nije dostupna';
+
+  @override
+  String get storyUnlike => 'Ne sviđa mi se više';
+
+  @override
+  String storyViewsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pregleda',
+      few: '$count pregleda',
+      one: '1 pregled',
+      zero: 'Još nema pregleda',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get storyYourStory => 'Tvoja priča';
+
+  @override
+  String get tagsDone => 'Gotovo';
+
+  @override
+  String get tagsDragHint =>
+      'Prevuci ime da ga pomeriš, dodirni fotografiju da označiš još nekog';
+
+  @override
+  String get tagsKindGym => 'Teretana';
+
+  @override
+  String get tagsKindProduct => 'Proizvod';
+
+  @override
+  String get tagsKindShop => 'Prodavnica';
+
+  @override
+  String tagsLimit(int count) {
+    return 'Najviše $count osoba po fotografiji';
+  }
+
+  @override
+  String get tagsNoPeople => 'Nema pronađenih osoba';
+
+  @override
+  String get tagsNoTagged => 'Još nema objava sa oznakama';
+
+  @override
+  String get tagsNoTaggedMe =>
+      'Kada te neko označi na fotografiji ili te pomene, objave će se pojaviti ovde.';
+
+  @override
+  String tagsOpenFailed(String name) {
+    return 'Nije moguće otvoriti $name';
+  }
+
+  @override
+  String get tagsRemoveMe => 'Ukloni me iz ove objave';
+
+  @override
+  String get tagsRemoveMeBody =>
+      'Više nećeš biti označen na fotografijama ove objave i ona se neće prikazivati na kartici Označeno na tvom profilu.';
+
+  @override
+  String get tagsRemoveMeTitle => 'Da li želiš da se ukloniš?';
+
+  @override
+  String tagsRemovePerson(String name) {
+    return 'Ukloni $name';
+  }
+
+  @override
+  String get tagsRemovedMe => 'Uklonjen si iz ove objave';
+
+  @override
+  String get tagsSaved => 'Oznake su ažurirane';
+
+  @override
+  String get tagsSearchPeople => 'Pretraži ljude';
+
+  @override
+  String get tagsTabTagged => 'Označeno';
+
+  @override
+  String tagsTaggedPeople(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Označeno $count osoba',
+      few: 'Označene $count osobe',
+      one: 'Označena 1 osoba',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tagsTapToTag => 'Dodirni fotografiju da označiš ljude';
+
+  @override
+  String get tagsTitle => 'Označi ljude';
+
+  @override
+  String tagsTitleOf(int index, int count) {
+    return 'Označi ljude · $index/$count';
+  }
 
   @override
   String get trainerClassesPickerCustomer => 'Klijent';

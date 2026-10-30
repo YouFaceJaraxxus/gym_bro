@@ -147,6 +147,13 @@ class FoodLog {
   final LogUnit unit;
   final MacroTotals macros;
   final String? note;
+
+  /// When it was eaten (local); null on older entries (then the slot's usual
+  /// time applies).
+  final DateTime? eatenAt;
+
+  /// The planned meal this entry logs, if any.
+  final String? planEntryId;
   final DateTime createdAt;
 
   const FoodLog({
@@ -161,6 +168,8 @@ class FoodLog {
     required this.unit,
     required this.macros,
     this.note,
+    this.eatenAt,
+    this.planEntryId,
     required this.createdAt,
   });
 
@@ -178,6 +187,10 @@ class FoodLog {
     unit: LogUnit.fromApiValue(json['unit'] as String?),
     macros: MacroTotals.fromJson(json),
     note: json['note'] as String?,
+    eatenAt: json['eaten_at'] == null
+        ? null
+        : DateTime.parse(json['eaten_at'] as String).toLocal(),
+    planEntryId: json['plan_entry_id'] as String?,
     createdAt: DateTime.parse(json['created_at'] as String),
   );
 

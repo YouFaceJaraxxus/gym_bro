@@ -10,6 +10,7 @@ import '../../models/social.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/comment_thread.dart';
+import '../../widgets/mentions.dart';
 import '../../widgets/post_card.dart';
 
 String _msg(Object e) => e.toString().replaceFirst('Exception: ', '');
@@ -325,7 +326,7 @@ mixin _CommentsUi<T extends StatefulWidget> on State<T> {
   CommentStore get store;
 
   final threadController = CommentThreadController();
-  final composerText = TextEditingController();
+  final composerText = MentionTextEditingController();
   final composerFocus = FocusNode();
   PostComment? replyTo;
   PostComment? editing;
@@ -374,8 +375,7 @@ mixin _CommentsUi<T extends StatefulWidget> on State<T> {
       editing = c;
       replyTo = null;
     });
-    composerText.text = c.body;
-    composerText.selection = TextSelection.collapsed(offset: c.body.length);
+    composerText.markup = c.body;
     composerFocus.requestFocus();
   }
 
@@ -397,7 +397,7 @@ mixin _CommentsUi<T extends StatefulWidget> on State<T> {
   }
 
   Future<void> send() async {
-    final text = composerText.text.trim();
+    final text = composerText.markup.trim();
     if (text.isEmpty) return;
     final edit = editing;
     final parent = replyTo;
@@ -438,7 +438,7 @@ mixin _CommentsUi<T extends StatefulWidget> on State<T> {
     } catch (e) {
       if (!mounted) return;
       // Put the text back so nothing is lost.
-      if (composerText.text.isEmpty) composerText.text = text;
+      if (composerText.text.isEmpty) composerText.markup = text;
       setState(() => replyTo = parent);
       snack(_msg(e));
     }
@@ -529,19 +529,23 @@ mixin _CommentsUi<T extends StatefulWidget> on State<T> {
             padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
             child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Expanded(
-                child: TextField(
+                child: MentionAutocomplete(
                   controller: composerText,
                   focusNode: composerFocus,
-                  minLines: 1,
-                  maxLines: 5,
-                  maxLength: 2000,
-                  textCapitalization: TextCapitalization.sentences,
-                  decoration: InputDecoration(
-                    hintText: target != null ? l10n.feedWriteReplyHint : l10n.nutritionWriteCommentHint,
-                    counterText: '',
-                    isDense: true,
-                    border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  child: TextField(
+                    controller: composerText,
+                    focusNode: composerFocus,
+                    minLines: 1,
+                    maxLines: 5,
+                    maxLength: 2000,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: InputDecoration(
+                      hintText: target != null ? l10n.feedWriteReplyHint : l10n.nutritionWriteCommentHint,
+                      counterText: '',
+                      isDense: true,
+                      border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    ),
                   ),
                 ),
               ),
@@ -576,6 +580,7 @@ class PostDetailPage extends StatefulWidget {
     this.focusCommentId,
     this.onChanged,
     this.onDeleted,
+    this.onArchived,
   });
 
   final String postId;
@@ -588,6 +593,10 @@ class PostDetailPage extends StatefulWidget {
 
   final ValueChanged<Post>? onChanged;
   final VoidCallback? onDeleted;
+
+  /// The post was archived from here (the page then closes). Defaults to
+  /// [onDeleted].
+  final VoidCallback? onArchived;
 
   @override
   State<PostDetailPage> createState() => _PostDetailPageState();
@@ -686,6 +695,49 @@ class _PostDetailPageState extends State<PostDetailPage> with _CommentsUi<PostDe
     if (mounted) Navigator.of(context).maybePop();
   }
 
+  void _onArchived() {
+    (widget.onArchived ?? widget.onDeleted)?.call();
+    if (mounted) Navigator.of(context).maybePop();
+  }
+
+  bool _unarchiving = false;
+
+  /// "Show on profile" from the archived banner.
+  Future<void> _unarchive(Post post) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    setState(() => _unarchiving = true);
+    try {
+      final updated = await _api.unarchivePost(await AuthManager.instance.getValidToken(), post.id);
+      _store.post = post.copyWith(archivedAt: updated.archivedAt, clearArchivedAt: updated.archivedAt == null);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.archivePostRestored)));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(_msg(e))));
+    } finally {
+      if (mounted) setState(() => _unarchiving = false);
+    }
+  }
+
+  Widget _archivedBanner(BuildContext context, Post post) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      color: cs.secondaryContainer,
+      padding: const EdgeInsets.fromLTRB(16, 6, 8, 6),
+      child: Row(children: [
+        Icon(Icons.archive_outlined, size: 18, color: cs.onSecondaryContainer),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(l10n.archivePostBanner, style: TextStyle(color: cs.onSecondaryContainer)),
+        ),
+        TextButton(
+          onPressed: _unarchiving ? null : () => _unarchive(post),
+          child: Text(l10n.archivePostUnarchive),
+        ),
+      ]),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -710,6 +762,8 @@ class _PostDetailPageState extends State<PostDetailPage> with _CommentsUi<PostDe
                   physics: const AlwaysScrollableScrollPhysics(),
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   slivers: [
+                    if (post.isArchived && post.authorId == AuthManager.instance.profile?.id)
+                      SliverToBoxAdapter(child: _archivedBanner(context, post)),
                     SliverToBoxAdapter(
                       child: PostCard(
                         key: ValueKey(post.id),
@@ -718,6 +772,7 @@ class _PostDetailPageState extends State<PostDetailPage> with _CommentsUi<PostDe
                         margin: EdgeInsets.zero,
                         onChanged: (p) => _store.post = p,
                         onDeleted: _onDeleted,
+                        onArchived: _onArchived,
                         onOpenComments: startComment,
                       ),
                     ),

@@ -5,9 +5,9 @@ import '../services/auth_manager.dart';
 import '../services/api_service.dart';
 import '../widgets/muscle_diagram.dart';
 import '../widgets/open_url.dart';
+import '../widgets/share_post.dart';
 import '../widgets/social_widgets.dart';
 import 'exercise_form_page.dart';
-import '../widgets/share_post.dart';
 
 class ExerciseDetailPage extends StatefulWidget {
   final Exercise exercise;

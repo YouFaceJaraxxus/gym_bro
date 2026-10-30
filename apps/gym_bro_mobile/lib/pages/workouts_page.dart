@@ -453,6 +453,8 @@ class _AssignedTabState extends State<_AssignedTab> with AutomaticKeepAliveClien
                                 builder: (_) => RoutineDetailPage(routineId: a.routineId),
                               ),
                             );
+                            // It may have been changed or left there.
+                            if (mounted) _load();
                           },
                           onRemove: () => _remove(a),
                         );

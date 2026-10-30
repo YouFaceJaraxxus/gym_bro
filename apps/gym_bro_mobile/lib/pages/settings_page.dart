@@ -23,7 +23,7 @@ enum _MuteCategory {
     'purchase_made',
     'shop_item_update',
   ]),
-  community(Icons.forum_outlined, ['news', 'post_comment', 'post_reaction', 'comment_reply']),
+  community(Icons.forum_outlined, ['news', 'post_comment', 'post_reaction', 'comment_reply', 'mention', 'photo_tag']),
   social(Icons.people_alt_outlined, [
     'follow',
     'follow_request',

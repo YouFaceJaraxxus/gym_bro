@@ -1255,6 +1255,9 @@ class MealPlanAssignment {
   final DateTime? startDate;
   final DateTime? endDate;
   final String? note;
+
+  /// IANA zone planned meals are placed in (null: the viewer's zone).
+  final String? timezone;
   final DateTime createdAt;
   // Joined by GET /meal-plan-assignments (may be absent on older responses).
   final String? mealPlanName;
@@ -1270,6 +1273,7 @@ class MealPlanAssignment {
     this.startDate,
     this.endDate,
     this.note,
+    this.timezone,
     required this.createdAt,
     this.mealPlanName,
     this.assignedByName,
@@ -1301,6 +1305,7 @@ class MealPlanAssignment {
             ? DateTime.parse(json['end_date'] as String)
             : null,
         note: json['note'] as String?,
+        timezone: json['timezone'] as String?,
         createdAt: DateTime.parse(json['created_at'] as String),
         mealPlanName: json['meal_plan_name'] as String?,
         assignedByName: json['assigned_by_name'] as String?,

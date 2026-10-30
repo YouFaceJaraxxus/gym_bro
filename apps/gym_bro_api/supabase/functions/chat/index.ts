@@ -26,7 +26,16 @@ import {
   type UserSummary,
   userSummaries,
 } from "../_shared/social.ts";
-import type { Database, ParticipantRole, ParticipantStatus } from "../../types/schema/public.ts";
+import {
+  prepareShare,
+  resolveShares,
+  type SharePreview,
+  shareSummary,
+  type StoredShare,
+  unresolved,
+} from "../_shared/shares.ts";
+import { storyVisibleSql } from "../_shared/visibility.ts";
+import type { Database, ParticipantRole, ParticipantStatus, StoryMode } from "../../types/schema/public.ts";
 
 // Direct and group chat.
 //
@@ -44,12 +53,25 @@ import type { Database, ParticipantRole, ParticipantStatus } from "../../types/s
 //   PUT    /chat/conversations/:id/participants/:userId {role}   owner sets admin/member
 //   DELETE /chat/conversations/:id/participants/:userId     remove (admins) / leave (self) / decline request
 //   GET    /chat/conversations/:id/messages?before_id=|after_id=&limit=
-//   POST   /chat/conversations/:id/messages {body?, attachments?, reply_to_id?, client_id?}
+//   POST   /chat/conversations/:id/messages {body?, attachments?, share?, reply_to_id?, client_id?}
 //   POST   /chat/conversations/:id/uploads {mime_type, file_name?, size_bytes}  signed upload URL
 //   GET    /chat/conversations/:id/media                    shared photos/videos/files
+//   GET    /chat/messages/:id                              one message, its share resolved for me
 //   PUT    /chat/messages/:id {body}                        edit own text
 //   DELETE /chat/messages/:id                               unsend own (group admins: anyone's)
 //   PUT    /chat/messages/:id/reaction {reaction}, DELETE   one reaction per person
+//
+//   POST   /chat/share {share, user_ids?, conversation_ids?, body?}  send something to people / chats (a message each)
+//   POST   /chat/story-replies {story_id, body? | reaction?}         reply or react to a story, in its author's DMs
+//
+// A message can share a post, story, account, business, product, logged
+// workout or meal, or library item (share: {kind, ref_id} — see
+// _shared/shares.ts). It's resolved for whoever reads it, so someone who
+// can't see the thing gets { available: false, reason: "private" | ... }
+// rather than a preview. Realtime payloads go to every participant at once,
+// so they carry shares unresolved (available: null): the app fetches
+// GET /chat/messages/:id for those. Story replies carry story_reply
+// { mode: reply | reaction, owner_id, story: <share preview> }.
 //
 // Realtime (see _shared/realtime.ts): chat:<id> gets message, message_updated,
 // read, conversation_updated; user:<id> gets inbox, conversation_added,
@@ -65,6 +87,8 @@ const BUCKET = "chat-media" as const;
 type Route =
   | { kind: "realtime" }
   | { kind: "conversations" }
+  | { kind: "share" }
+  | { kind: "story_replies" }
   | { kind: "conversation"; id: string }
   | { kind: "conv_action"; id: string; action: "settings" | "accept" | "clear" | "read" | "uploads" | "media" }
   | { kind: "participants"; id: string }
@@ -78,6 +102,8 @@ function parsePath(pathname: string): Route {
   const p = pathname.replace(/\/+$/, "");
   if (p === "/chat/realtime") return { kind: "realtime" };
   if (p === "/chat/conversations") return { kind: "conversations" };
+  if (p === "/chat/share") return { kind: "share" };
+  if (p === "/chat/story-replies") return { kind: "story_replies" };
   let m = p.match(/^\/chat\/messages\/([^/]+)\/reaction$/);
   if (m) return { kind: "reaction", messageId: m[1] };
   m = p.match(/^\/chat\/messages\/([^/]+)$/);
@@ -147,6 +173,11 @@ const MESSAGE_COLS = [
   "created_at",
   "edited_at",
   "deleted_at",
+  "share_kind",
+  "share_ref_id",
+  "share_snapshot",
+  "story_id",
+  "story_mode",
 ] as const;
 
 type MessageRow = {
@@ -161,11 +192,33 @@ type MessageRow = {
   created_at: string;
   edited_at: string | null;
   deleted_at: string | null;
+  share_kind: StoredShare["kind"] | null;
+  share_ref_id: string | null;
+  share_snapshot: unknown;
+  story_id: string | null;
+  story_mode: StoryMode | null;
 };
 
-/** Attachments (with signed URLs), reactions, sender and reply previews. */
-async function decorateMessages(rows: MessageRow[]) {
+const GONE_STORY: SharePreview = { kind: "story", ref_id: null, available: false, reason: "unavailable" };
+
+/**
+ * Attachments (with signed URLs), reactions, sender and reply previews, and
+ * shared things / replied-to stories as [viewer] may see them (unresolved
+ * when null, for realtime payloads).
+ */
+async function decorateMessages(rows: MessageRow[], viewer: Caller | null) {
   if (!rows.length) return [];
+  const live = rows.filter((r) => !r.deleted_at);
+  const shareRows = live.filter((r) => r.share_kind);
+  const storyRows = live.filter((r) => r.story_mode && r.story_id);
+  const stored: StoredShare[] = [
+    ...shareRows.map((r) => ({ kind: r.share_kind!, ref_id: r.share_ref_id, snapshot: r.share_snapshot })),
+    ...storyRows.map((r) => ({ kind: "story" as const, ref_id: r.story_id, snapshot: null })),
+  ];
+  const resolved = viewer ? await resolveShares(viewer, stored) : stored.map(unresolved);
+  const shareById = new Map(shareRows.map((r, i) => [r.id, resolved[i]]));
+  const storyById = new Map(storyRows.map((r, i) => [r.id, resolved[shareRows.length + i]]));
+
   const ids = rows.map((r) => r.id);
   const replyIds = [...new Set(rows.map((r) => r.reply_to_id).filter((x): x is string => !!x))];
   const [attachments, reactions, replies] = await Promise.all([
@@ -215,9 +268,20 @@ async function decorateMessages(rows: MessageRow[]) {
   return rows.map((r) => {
     const deleted = !!r.deleted_at;
     const reply = r.reply_to_id ? replyById.get(r.reply_to_id) : undefined;
+    const { share_kind: _kind, share_ref_id: _ref, share_snapshot: _snapshot, story_mode, ...rest } = r;
     return {
-      ...r,
+      ...rest,
       body: deleted ? null : r.body,
+      share: shareById.get(r.id) ?? null,
+      story_reply: story_mode && !deleted
+        ? {
+          mode: story_mode,
+          story_id: r.story_id,
+          owner_id: (r.metadata?.story_owner_id as string | undefined) ?? null,
+          reaction: (r.metadata?.reaction as string | undefined) ?? null,
+          story: storyById.get(r.id) ?? GONE_STORY,
+        }
+        : null,
       sender: r.sender_id ? people[r.sender_id] ?? null : null,
       attachments: deleted ? [] : attByMessage.get(r.id) ?? [],
       reactions: deleted ? [] : reactByMessage.get(r.id) ?? [],
@@ -235,12 +299,14 @@ async function decorateMessages(rows: MessageRow[]) {
   });
 }
 
-async function loadMessage(id: string) {
+async function loadMessage(id: string, viewer: Caller | null) {
   const row = await db.selectFrom("message").select(MESSAGE_COLS).where("id", "=", id).executeTakeFirst();
   if (!row) return null;
-  const [decorated] = await decorateMessages([row]);
+  const [decorated] = await decorateMessages([row], viewer);
   return decorated;
 }
+
+type DecoratedMessage = Awaited<ReturnType<typeof decorateMessages>>[number];
 
 /** Short inbox preview of a message ("📷 Photo", "Ana: hey"). */
 function previewText(m: { kind: string; body: string | null; deleted_at: string | null }, mediaType?: string | null) {
@@ -362,6 +428,9 @@ async function listConversations(
           sender_name: lm.sender_id && people[lm.sender_id as string] ? people[lm.sender_id as string].name : null,
           kind: lm.kind,
           preview: previewText(lm, r.last_media_type),
+          // The app words these ("Shared a post", "Reacted 🔥 to a story").
+          share_kind: lm.deleted_at ? null : lm.share_kind ?? null,
+          story_mode: lm.deleted_at ? null : lm.story_mode ?? null,
           metadata: lm.metadata,
           created_at: lm.created_at,
           deleted: !!lm.deleted_at,
@@ -420,7 +489,7 @@ async function systemMessage(
 }
 
 async function announce(conversationId: string, messages: MessageRow[]) {
-  for (const m of await decorateMessages(messages)) await broadcast(chatTopic(conversationId), "message", m);
+  for (const m of await decorateMessages(messages, null)) await broadcast(chatTopic(conversationId), "message", m);
 }
 
 // ── Adding people ─────────────────────────────────────────────────────────────
@@ -445,6 +514,243 @@ async function resolveInvitees(adder: Caller, userIds: string[]) {
     out.push({ id: u.id, status });
   }
   return { invitees: out };
+}
+
+// ── Direct chats ──────────────────────────────────────────────────────────────
+
+/**
+ * The direct chat with [other] (validated by resolveInvitees): created, or
+ * re-joined by whoever left it — me active, them per their settings.
+ */
+async function openDirect(caller: Caller, other: { id: string; status: ParticipantStatus }): Promise<string> {
+  const key = [caller.id, other.id].sort().join(":");
+  return await db.transaction().execute(async (trx) => {
+    const existing = await trx.selectFrom("conversation").select("id").where("direct_key", "=", key)
+      .executeTakeFirst();
+    const convId = existing?.id ?? (await trx.insertInto("conversation")
+      .values({ kind: "direct", direct_key: key, created_by: caller.id })
+      .onConflict((oc) => oc.column("direct_key").doUpdateSet({ updated_at: sql`conversation.updated_at` }))
+      .returning("id")
+      .executeTakeFirstOrThrow()).id;
+    await trx.insertInto("conversation_participant")
+      .values([
+        { conversation_id: convId, user_id: caller.id, status: "active", role: "member" },
+        { conversation_id: convId, user_id: other.id, status: other.status, role: "member", added_by: caller.id },
+      ])
+      .onConflict((oc) => oc.columns(["conversation_id", "user_id"]).doNothing())
+      .execute();
+    // Opening a chat I had archived brings it back.
+    await trx.updateTable("conversation_participant").set({ archived_at: null })
+      .where("conversation_id", "=", convId).where("user_id", "=", caller.id).execute();
+    return convId;
+  });
+}
+
+/**
+ * My direct chat with [otherId] to send into: the existing one when I'm in
+ * it (sendMessage re-checks blocks and message rules), else one opened if
+ * they take messages from me.
+ */
+async function directConversationFor(caller: Caller, otherId: string): Promise<{ id: string } | { error: string }> {
+  const key = [caller.id, otherId].sort().join(":");
+  const existing = await db.selectFrom("conversation").select("id").where("direct_key", "=", key).executeTakeFirst();
+  if (existing && (await membership(existing.id, caller.id))) return { id: existing.id };
+  const resolved = await resolveInvitees(caller, [otherId]);
+  if ("error" in resolved) return { error: resolved.error! };
+  return { id: await openDirect(caller, resolved.invitees![0]) };
+}
+
+// ── Sending ───────────────────────────────────────────────────────────────────
+
+type AttachmentInput = {
+  path: string;
+  file_name?: string;
+  size_bytes?: number;
+  width?: number;
+  height?: number;
+  duration_ms?: number;
+};
+
+type SendInput = {
+  text: string;
+  clientId?: string | null;
+  replyToId?: string | null;
+  attachments?: AttachmentInput[];
+  share?: StoredShare | null;
+  story?: { id: string; mode: StoryMode; ownerId: string; reaction?: string } | null;
+};
+
+/**
+ * Sends a message from [caller] into a conversation they're in ([me]):
+ * checks, inserts, broadcasts and pushes. The message as the caller sees it
+ * (duplicate: an idempotent retry of one already sent), or an error Response.
+ */
+async function sendMessage(
+  caller: Caller,
+  convId: string,
+  me: Membership,
+  input: SendInput,
+): Promise<{ message: DecoratedMessage; duplicate?: boolean } | { error: Response }> {
+  const fail = (r: Response) => ({ error: r });
+  const text = input.text;
+  const attachments = input.attachments ?? [];
+  const share = input.share ?? null;
+  const story = input.story ?? null;
+  const clientId = input.clientId ?? null;
+  const replyToId = input.replyToId ?? null;
+  if (text.length > BODY_MAX) return fail(jsonError(`Messages are limited to ${BODY_MAX} characters`, 400));
+  if (attachments.length > ATTACHMENTS_MAX) return fail(jsonError(`Up to ${ATTACHMENTS_MAX} attachments per message`, 400));
+  if (attachments.some((a) => typeof a?.path !== "string")) return fail(jsonError("Each attachment needs a path", 400));
+  if (!text && attachments.length === 0 && !share) {
+    return fail(jsonError("A message needs text, an attachment or something shared", 400));
+  }
+
+  // Idempotent retry: same client_id → the message already sent.
+  if (clientId) {
+    const dup = await db.selectFrom("message").select(MESSAGE_COLS).where("conversation_id", "=", convId)
+      .where("sender_id", "=", caller.id).where("client_id", "=", clientId).executeTakeFirst();
+    if (dup) return { message: (await decorateMessages([dup], caller))[0], duplicate: true };
+  }
+
+  // Direct chats: blocked either way → no sending; a recipient who left or
+  // declined is re-added (inbox or request, per directMessageStatus) unless
+  // they no longer take messages from me.
+  let directOther: MessageRecipient | undefined;
+  let directOtherStatus: "active" | "request" | null = null;
+  if (me.kind === "direct") {
+    const key = await db.selectFrom("conversation").select("direct_key").where("id", "=", convId)
+      .executeTakeFirstOrThrow();
+    const otherId = key.direct_key!.split(":").find((id) => id !== caller.id)!;
+    if (await isBlockedBetween(caller.id, otherId)) return fail(forbidden("You can't message this person"));
+    directOther = await db.selectFrom("users").select(MESSAGE_RULE_COLS).where("id", "=", otherId)
+      .executeTakeFirst();
+    if (!directOther) return fail(forbidden("This account no longer exists"));
+    directOtherStatus = messageable(await directMessageStatus(caller.id, directOther));
+    if (!directOtherStatus) {
+      const stillIn = await db.selectFrom("conversation_participant").select("user_id")
+        .where("conversation_id", "=", convId).where("user_id", "=", otherId).executeTakeFirst();
+      if (!stillIn) return fail(forbidden("This person only takes messages from their followers"));
+    }
+  }
+  if (me.status === "request") {
+    // Replying to a request accepts it.
+    await db.updateTable("conversation_participant").set({ status: "active" })
+      .where("conversation_id", "=", convId).where("user_id", "=", caller.id).execute();
+  }
+
+  if (replyToId) {
+    const target = UUID_RE.test(replyToId)
+      ? await db.selectFrom("message").select("id").where("id", "=", replyToId)
+        .where("conversation_id", "=", convId).executeTakeFirst()
+      : undefined;
+    if (!target) return fail(jsonError("reply_to_id is not in this conversation", 400));
+  }
+
+  const verified = await verifyUploads({
+    bucket: BUCKET,
+    paths: attachments.map((a) => a.path),
+    uploaderId: caller.id,
+    conversationId: convId,
+  });
+  if ("error" in verified) return fail(jsonError(verified.error, 400));
+
+  const int = (v: unknown) => (Number.isFinite(Number(v)) && Number(v) >= 0 ? Math.round(Number(v)) : null);
+  const msg = await db.transaction().execute(async (trx) => {
+    if (directOther && directOtherStatus) {
+      await trx.insertInto("conversation_participant")
+        .values({ conversation_id: convId, user_id: directOther.id, status: directOtherStatus, added_by: caller.id })
+        .onConflict((oc) => oc.columns(["conversation_id", "user_id"]).doNothing())
+        .execute();
+    }
+    const inserted = await trx.insertInto("message").values({
+      conversation_id: convId,
+      sender_id: caller.id,
+      kind: attachments.length ? "media" : "text",
+      body: text || null,
+      reply_to_id: replyToId,
+      client_id: clientId,
+      share_kind: share?.kind ?? null,
+      share_ref_id: share?.ref_id ?? null,
+      share_snapshot: share?.snapshot ? JSON.stringify(share.snapshot) : null,
+      story_id: story?.id ?? null,
+      story_mode: story?.mode ?? null,
+      metadata: story ? { story_owner_id: story.ownerId, ...(story.reaction && { reaction: story.reaction }) } : {},
+    }).returning(MESSAGE_COLS).executeTakeFirstOrThrow();
+    if (attachments.length) {
+      await trx.insertInto("message_attachment").values(attachments.map((a, i) => ({
+        message_id: inserted.id,
+        storage_path: a.path,
+        mime_type: verified.mimeByPath.get(a.path)!,
+        size_bytes: int(a.size_bytes) ?? 0,
+        file_name: typeof a.file_name === "string" ? a.file_name.slice(0, 200) : null,
+        width: int(a.width),
+        height: int(a.height),
+        duration_ms: int(a.duration_ms),
+        position: i,
+      }))).execute();
+      await trx.updateTable("media_upload").set({ claimed_at: inserted.created_at })
+        .where("bucket", "=", BUCKET).where("storage_path", "in", attachments.map((a) => a.path)).execute();
+    }
+    await trx.updateTable("conversation").set({ last_message_at: inserted.created_at }).where("id", "=", convId)
+      .execute();
+    // Sending marks the chat read for me, and un-archives it for everyone.
+    await trx.updateTable("conversation_participant").set({ last_read_at: inserted.created_at })
+      .where("conversation_id", "=", convId).where("user_id", "=", caller.id).execute();
+    await trx.updateTable("conversation_participant").set({ archived_at: null })
+      .where("conversation_id", "=", convId).where("archived_at", "is not", null).execute();
+    return inserted;
+  });
+
+  // Everyone gets the same realtime payload, so its share is left unresolved.
+  const [forAll] = await decorateMessages([msg], null);
+  await broadcast(chatTopic(convId), "message", forAll);
+
+  const recipients = await db.selectFrom("conversation_participant")
+    .select(["user_id", "status", "muted_until"])
+    .where("conversation_id", "=", convId)
+    .execute();
+  const otherIds = recipients.map((r) => r.user_id).filter((id) => id !== caller.id);
+  const mediaType = forAll.attachments.length ? (forAll.attachments[0] as { media_type: string }).media_type : null;
+  await broadcastToUsers([caller.id, ...otherIds], "inbox", {
+    conversation_id: convId,
+    message_id: msg.id,
+    sender_id: caller.id,
+    preview: previewText(msg, mediaType),
+    share_kind: msg.share_kind,
+    story_mode: msg.story_mode,
+    created_at: msg.created_at,
+  });
+
+  const now = Date.now();
+  const pushTo = recipients.filter((r) =>
+    r.user_id !== caller.id && r.status === "active" && !(r.muted_until && new Date(r.muted_until).getTime() > now)
+  ).map((r) => r.user_id);
+  if (pushTo.length) {
+    const conv = me.kind === "group"
+      ? await db.selectFrom("conversation").select("title").where("id", "=", convId).executeTakeFirst()
+      : null;
+    const who = displayName(caller);
+    const preview = story
+      ? story.mode === "reaction" ? `Reacted ${text} to your story` : `Replied to your story: ${text.slice(0, 120)}`
+      : text
+      ? text.slice(0, 140)
+      : share
+      ? shareSummary(share.kind)
+      : `Sent ${mediaType === "image" ? "a photo" : mediaType === "video" ? "a video" : mediaType === "audio" ? "a voice message" : "a file"}`;
+    pushOnly(pushTo, {
+      type: "chat_message",
+      title: conv ? conv.title || "Group chat" : who,
+      body: conv ? `${caller.name}: ${preview}` : preview,
+      metadata: { conversation_id: convId, message_id: msg.id },
+    });
+  }
+  return { message: (await decorateMessages([msg], caller))[0] };
+}
+
+/** The error message of a failed sendMessage, for per-recipient results. */
+async function errorOf(r: Response): Promise<{ status: number; error: string; code?: string }> {
+  const body = await r.json().catch(() => ({}));
+  return { status: r.status, error: body?.error ?? "Couldn't send", ...(body?.code && { code: body.code }) };
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
@@ -496,32 +802,7 @@ async function handler(req: Request): Promise<Response> {
     const invitees = resolved.invitees!;
 
     // Direct: one conversation per pair, reused.
-    if (!wantsGroup) {
-      const other = invitees[0];
-      const key = [caller.id, other.id].sort().join(":");
-      const id = await db.transaction().execute(async (trx) => {
-        const existing = await trx.selectFrom("conversation").select("id").where("direct_key", "=", key)
-          .executeTakeFirst();
-        const convId = existing?.id ?? (await trx.insertInto("conversation")
-          .values({ kind: "direct", direct_key: key, created_by: caller.id })
-          .onConflict((oc) => oc.column("direct_key").doUpdateSet({ updated_at: sql`conversation.updated_at` }))
-          .returning("id")
-          .executeTakeFirstOrThrow()).id;
-        // Re-add whoever left/declined: me active, them per their settings.
-        await trx.insertInto("conversation_participant")
-          .values([
-            { conversation_id: convId, user_id: caller.id, status: "active", role: "member" },
-            { conversation_id: convId, user_id: other.id, status: other.status, role: "member", added_by: caller.id },
-          ])
-          .onConflict((oc) => oc.columns(["conversation_id", "user_id"]).doNothing())
-          .execute();
-        // Opening a chat I had archived brings it back.
-        await trx.updateTable("conversation_participant").set({ archived_at: null })
-          .where("conversation_id", "=", convId).where("user_id", "=", caller.id).execute();
-        return convId;
-      });
-      return json(await conversationDetail(caller, id), 200);
-    }
+    if (!wantsGroup) return json(await conversationDetail(caller, await openDirect(caller, invitees[0])), 200);
 
     if (invitees.length + 1 > GROUP_MAX) return jsonError(`Groups are limited to ${GROUP_MAX} people`, 400);
     const id = await db.transaction().execute(async (trx) => {
@@ -552,6 +833,88 @@ async function handler(req: Request): Promise<Response> {
     return json(await conversationDetail(caller, id), 201);
   }
 
+  // ── POST /chat/share {share, user_ids?, conversation_ids?, body?} ────────────
+  // The share sheet: one message per person (their direct chat, opened if
+  // needed) and per chat. Results per target; 201 when at least one went out.
+  if (req.method === "POST" && route.kind === "share") {
+    const body = await req.json().catch(() => null);
+    const share = await prepareShare(caller, body?.share);
+    if (share instanceof Response) return share;
+    const text = typeof body?.body === "string" ? body.body.trim() : "";
+    if (text.length > BODY_MAX) return jsonError(`Messages are limited to ${BODY_MAX} characters`, 400);
+    const ids = (v: unknown) =>
+      [...new Set(Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [])];
+    const userIds = ids(body?.user_ids).filter((id) => id !== caller.id);
+    const conversationIds = ids(body?.conversation_ids);
+    if (!userIds.length && !conversationIds.length) return jsonError("Pick at least one person or chat", 400);
+    if (userIds.length + conversationIds.length > 20) return jsonError("Send to up to 20 people or chats at a time", 400);
+    if ([...userIds, ...conversationIds].some((id) => !UUID_RE.test(id))) return jsonError("Invalid id", 400);
+
+    const results: Record<string, unknown>[] = [];
+    for (const userId of userIds) {
+      const conv = await directConversationFor(caller, userId);
+      if ("error" in conv) {
+        results.push({ user_id: userId, status: 403, error: conv.error });
+        continue;
+      }
+      const sent = await sendMessage(caller, conv.id, (await membership(conv.id, caller.id))!, { text, share });
+      results.push({
+        user_id: userId,
+        conversation_id: conv.id,
+        ...("error" in sent ? await errorOf(sent.error) : { status: 201, message_id: sent.message.id }),
+      });
+    }
+    for (const conversationId of conversationIds) {
+      const m = await membership(conversationId, caller.id);
+      if (!m) {
+        results.push({ conversation_id: conversationId, status: 404, error: "Conversation not found" });
+        continue;
+      }
+      const sent = await sendMessage(caller, conversationId, m, { text, share });
+      results.push({
+        conversation_id: conversationId,
+        ...("error" in sent ? await errorOf(sent.error) : { status: 201, message_id: sent.message.id }),
+      });
+    }
+    const sentCount = results.filter((r) => r.status === 201).length;
+    if (!sentCount) {
+      return jsonError(String(results[0]?.error ?? "Couldn't send"), Number(results[0]?.status ?? 400), { results });
+    }
+    return json({ sent: sentCount, results }, 201);
+  }
+
+  // ── POST /chat/story-replies {story_id, body? | reaction?, client_id?} ───────
+  // A text reply or a quick emoji reaction to someone's live story, sent to
+  // their DMs ("Reacted 🔥 to your story") with the story attached.
+  if (req.method === "POST" && route.kind === "story_replies") {
+    const body = await req.json().catch(() => null);
+    const storyId = typeof body?.story_id === "string" ? body.story_id : "";
+    if (!UUID_RE.test(storyId)) return jsonError("Story not found", 404);
+    const reaction = body?.reaction ?? null;
+    if (reaction !== null && !isReaction(reaction)) return jsonError("Unknown reaction", 400);
+    const text = reaction ? REACTION_EMOJI[reaction as keyof typeof REACTION_EMOJI] : (typeof body?.body === "string" ? body.body.trim() : "");
+    if (!text) return jsonError("A reply needs text or a reaction", 400);
+
+    const story = await db.selectFrom("story").select(["id", "author_id", "expires_at"]).where("id", "=", storyId)
+      .where(storyVisibleSql(caller.id)).executeTakeFirst();
+    if (!story) return jsonError("Story not found", 404);
+    if (story.author_id === caller.id) return jsonError("You can't reply to your own story", 400);
+    if (new Date(story.expires_at).getTime() <= Date.now()) return jsonError("This story has expired", 410);
+
+    const conv = await directConversationFor(caller, story.author_id);
+    if ("error" in conv) return jsonError(conv.error, 403, { code: "cant_message" });
+    const sent = await sendMessage(caller, conv.id, (await membership(conv.id, caller.id))!, {
+      text,
+      clientId: typeof body?.client_id === "string" ? body.client_id.slice(0, 64) : null,
+      story: { id: story.id, mode: reaction ? "reaction" : "reply", ownerId: story.author_id, reaction: reaction ?? undefined },
+    });
+    if ("error" in sent) return sent.error;
+    // Replying means they watched it.
+    await db.insertInto("story_view").values({ story_id: story.id, viewer_id: caller.id })
+      .onConflict((oc) => oc.columns(["story_id", "viewer_id"]).doNothing()).execute();
+    return json({ ...sent.message, conversation_id: conv.id }, sent.duplicate ? 200 : 201);
+  }
+
   // Everything below is about one conversation or message.
 
   // ── Message-level routes ─────────────────────────────────────────────────────
@@ -562,6 +925,7 @@ async function handler(req: Request): Promise<Response> {
     if (!msg) return jsonError("Message not found", 404);
     const me = await membership(msg.conversation_id, caller.id);
     if (!me || new Date(msg.created_at) <= new Date(visibleFrom(me))) return jsonError("Message not found", 404);
+    if (route.kind === "message" && req.method === "GET") return json(await loadMessage(msg.id, caller));
     if (msg.deleted_at) return jsonError("Message was unsent", 410);
     if (msg.kind === "system") return jsonError("System messages can't be changed", 400);
 
@@ -569,7 +933,7 @@ async function handler(req: Request): Promise<Response> {
       if (msg.sender_id !== caller.id) return forbidden("You can only edit your own messages");
       const body = await req.json().catch(() => null);
       const text = typeof body?.body === "string" ? body.body.trim() : "";
-      if (!text && msg.kind === "text") return jsonError("body is required", 400);
+      if (!text && msg.kind === "text" && !msg.share_kind) return jsonError("body is required", 400);
       if (text.length > BODY_MAX) return jsonError(`Messages are limited to ${BODY_MAX} characters`, 400);
       await db.updateTable("message").set({ body: text || null, edited_at: new Date().toISOString() })
         .where("id", "=", msg.id).execute();
@@ -608,12 +972,13 @@ async function handler(req: Request): Promise<Response> {
       return jsonError("Method not allowed", 405);
     }
 
-    const updated = await loadMessage(msg.id);
-    await broadcast(chatTopic(msg.conversation_id), "message_updated", updated);
-    return json(updated);
+    await broadcast(chatTopic(msg.conversation_id), "message_updated", await loadMessage(msg.id, null));
+    return json(await loadMessage(msg.id, caller));
   }
 
-  if (route.kind === "realtime" || route.kind === "conversations") return jsonError("Method not allowed", 405);
+  if (route.kind === "realtime" || route.kind === "conversations" || route.kind === "share" || route.kind === "story_replies") {
+    return jsonError("Method not allowed", 405);
+  }
   const convId = route.id;
   const me = await membership(convId, caller.id);
   if (!me) return notFound();
@@ -883,7 +1248,7 @@ async function handler(req: Request): Promise<Response> {
         const sys = await systemMessage(trx, convId, caller.id, self
           ? { event: "left" }
           : { event: "removed", user_id: route.userId });
-        await broadcast(chatTopic(convId), "message", (await decorateMessages([sys]))[0], trx);
+        await broadcast(chatTopic(convId), "message", (await decorateMessages([sys], null))[0], trx);
       }
       await broadcastToUsers([route.userId], "conversation_removed", { conversation_id: convId }, trx);
       await broadcast(chatTopic(convId), "conversation_updated", { conversation_id: convId }, trx);
@@ -923,151 +1288,26 @@ async function handler(req: Request): Promise<Response> {
       q = q.orderBy("created_at", "desc").orderBy("id", "desc");
     }
     const rows = await q.limit(limit).execute();
-    return json(await decorateMessages(rows));
+    return json(await decorateMessages(rows, caller));
   }
 
   // ── POST /chat/conversations/:id/messages ────────────────────────────────────
   if (req.method === "POST" && route.kind === "messages") {
     const body = await req.json().catch(() => null);
-    const text = typeof body?.body === "string" ? body.body.trim() : "";
-    if (text.length > BODY_MAX) return jsonError(`Messages are limited to ${BODY_MAX} characters`, 400);
-    const clientId = typeof body?.client_id === "string" ? body.client_id.slice(0, 64) : null;
-    const replyToId = typeof body?.reply_to_id === "string" ? body.reply_to_id : null;
-    const attachments: {
-      path: string;
-      file_name?: string;
-      size_bytes?: number;
-      width?: number;
-      height?: number;
-      duration_ms?: number;
-    }[] = Array.isArray(body?.attachments) ? body.attachments : [];
-    if (attachments.length > ATTACHMENTS_MAX) return jsonError(`Up to ${ATTACHMENTS_MAX} attachments per message`, 400);
-    if (attachments.some((a) => typeof a?.path !== "string")) return jsonError("Each attachment needs a path", 400);
-    if (!text && attachments.length === 0) return jsonError("A message needs text or an attachment", 400);
-
-    // Idempotent retry: same client_id → the message already sent.
-    if (clientId) {
-      const dup = await db.selectFrom("message").select(MESSAGE_COLS).where("conversation_id", "=", convId)
-        .where("sender_id", "=", caller.id).where("client_id", "=", clientId).executeTakeFirst();
-      if (dup) return json((await decorateMessages([dup]))[0]);
+    let share: StoredShare | null = null;
+    if (body?.share != null) {
+      const prepared = await prepareShare(caller, body.share);
+      if (prepared instanceof Response) return prepared;
+      share = prepared;
     }
-
-    // Direct chats: blocked either way → no sending; a recipient who left or
-    // declined is re-added (inbox or request, per directMessageStatus) unless
-    // they no longer take messages from me.
-    let directOther: MessageRecipient | undefined;
-    let directOtherStatus: "active" | "request" | null = null;
-    if (me.kind === "direct") {
-      const key = await db.selectFrom("conversation").select("direct_key").where("id", "=", convId)
-        .executeTakeFirstOrThrow();
-      const otherId = key.direct_key!.split(":").find((id) => id !== caller.id)!;
-      if (await isBlockedBetween(caller.id, otherId)) return forbidden("You can't message this person");
-      directOther = await db.selectFrom("users").select(MESSAGE_RULE_COLS).where("id", "=", otherId)
-        .executeTakeFirst();
-      if (!directOther) return forbidden("This account no longer exists");
-      directOtherStatus = messageable(await directMessageStatus(caller.id, directOther));
-      if (!directOtherStatus) {
-        const stillIn = await db.selectFrom("conversation_participant").select("user_id")
-          .where("conversation_id", "=", convId).where("user_id", "=", otherId).executeTakeFirst();
-        if (!stillIn) return forbidden("This person only takes messages from their followers");
-      }
-    }
-    if (me.status === "request") {
-      // Replying to a request accepts it.
-      await db.updateTable("conversation_participant").set({ status: "active" })
-        .where("conversation_id", "=", convId).where("user_id", "=", caller.id).execute();
-    }
-
-    if (replyToId) {
-      const target = await db.selectFrom("message").select("id").where("id", "=", replyToId)
-        .where("conversation_id", "=", convId).executeTakeFirst();
-      if (!target) return jsonError("reply_to_id is not in this conversation", 400);
-    }
-
-    const verified = await verifyUploads({
-      bucket: BUCKET,
-      paths: attachments.map((a) => a.path),
-      uploaderId: caller.id,
-      conversationId: convId,
+    const sent = await sendMessage(caller, convId, me, {
+      text: typeof body?.body === "string" ? body.body.trim() : "",
+      clientId: typeof body?.client_id === "string" ? body.client_id.slice(0, 64) : null,
+      replyToId: typeof body?.reply_to_id === "string" ? body.reply_to_id : null,
+      attachments: Array.isArray(body?.attachments) ? body.attachments : [],
+      share,
     });
-    if ("error" in verified) return jsonError(verified.error, 400);
-
-    const int = (v: unknown) => (Number.isFinite(Number(v)) && Number(v) >= 0 ? Math.round(Number(v)) : null);
-    const msg = await db.transaction().execute(async (trx) => {
-      if (directOther && directOtherStatus) {
-        await trx.insertInto("conversation_participant")
-          .values({ conversation_id: convId, user_id: directOther.id, status: directOtherStatus, added_by: caller.id })
-          .onConflict((oc) => oc.columns(["conversation_id", "user_id"]).doNothing())
-          .execute();
-      }
-      const inserted = await trx.insertInto("message").values({
-        conversation_id: convId,
-        sender_id: caller.id,
-        kind: attachments.length ? "media" : "text",
-        body: text || null,
-        reply_to_id: replyToId,
-        client_id: clientId,
-      }).returning(MESSAGE_COLS).executeTakeFirstOrThrow();
-      if (attachments.length) {
-        await trx.insertInto("message_attachment").values(attachments.map((a, i) => ({
-          message_id: inserted.id,
-          storage_path: a.path,
-          mime_type: verified.mimeByPath.get(a.path)!,
-          size_bytes: int(a.size_bytes) ?? 0,
-          file_name: typeof a.file_name === "string" ? a.file_name.slice(0, 200) : null,
-          width: int(a.width),
-          height: int(a.height),
-          duration_ms: int(a.duration_ms),
-          position: i,
-        }))).execute();
-        await trx.updateTable("media_upload").set({ claimed_at: inserted.created_at })
-          .where("bucket", "=", BUCKET).where("storage_path", "in", attachments.map((a) => a.path)).execute();
-      }
-      await trx.updateTable("conversation").set({ last_message_at: inserted.created_at }).where("id", "=", convId)
-        .execute();
-      // Sending marks the chat read for me, and un-archives it for everyone.
-      await trx.updateTable("conversation_participant").set({ last_read_at: inserted.created_at })
-        .where("conversation_id", "=", convId).where("user_id", "=", caller.id).execute();
-      await trx.updateTable("conversation_participant").set({ archived_at: null })
-        .where("conversation_id", "=", convId).where("archived_at", "is not", null).execute();
-      return inserted;
-    });
-
-    const [decorated] = await decorateMessages([msg]);
-    await broadcast(chatTopic(convId), "message", decorated);
-
-    const recipients = await db.selectFrom("conversation_participant")
-      .select(["user_id", "status", "muted_until"])
-      .where("conversation_id", "=", convId)
-      .execute();
-    const otherIds = recipients.map((r) => r.user_id).filter((id) => id !== caller.id);
-    const mediaType = decorated.attachments.length ? (decorated.attachments[0] as { media_type: string }).media_type : null;
-    await broadcastToUsers([caller.id, ...otherIds], "inbox", {
-      conversation_id: convId,
-      message_id: msg.id,
-      sender_id: caller.id,
-      preview: previewText(msg, mediaType),
-      created_at: msg.created_at,
-    });
-
-    const now = Date.now();
-    const pushTo = recipients.filter((r) =>
-      r.user_id !== caller.id && r.status === "active" && !(r.muted_until && new Date(r.muted_until).getTime() > now)
-    ).map((r) => r.user_id);
-    if (pushTo.length) {
-      const conv = me.kind === "group"
-        ? await db.selectFrom("conversation").select("title").where("id", "=", convId).executeTakeFirst()
-        : null;
-      const who = displayName(caller);
-      const preview = text ? text.slice(0, 140) : `Sent ${mediaType === "image" ? "a photo" : mediaType === "video" ? "a video" : mediaType === "audio" ? "a voice message" : "a file"}`;
-      pushOnly(pushTo, {
-        type: "chat_message",
-        title: conv ? conv.title || "Group chat" : who,
-        body: conv ? `${caller.name}: ${preview}` : preview,
-        metadata: { conversation_id: convId, message_id: msg.id },
-      });
-    }
-    return json(decorated, 201);
+    return "error" in sent ? sent.error : json(sent.message, sent.duplicate ? 200 : 201);
   }
 
   return jsonError("Not found", 404);

@@ -18,6 +18,7 @@ import {
   unreadMessageSql,
   type UserSummary,
 } from "../_shared/social.ts";
+import { storyVisibleSql } from "../_shared/visibility.ts";
 import type { ReportReason } from "../../types/schema/public.ts";
 
 // People: profiles, follows, friends, blocks, reports, search and discovery.
@@ -176,14 +177,28 @@ async function gymsOf(userId: string) {
   return rows;
 }
 
+/** Their live stories I can see, and how many of those I haven't watched (the avatar ring). */
+async function storyRing(viewerId: string, authorId: string) {
+  const row = await db.selectFrom("story")
+    .select([
+      sql<number>`count(*)::int`.as("count"),
+      sql<number>`count(*) FILTER (WHERE story.author_id <> ${viewerId} AND NOT EXISTS (
+        SELECT 1 FROM story_view v WHERE v.story_id = story.id AND v.viewer_id = ${viewerId}))::int`.as("unseen"),
+    ])
+    .where("author_id", "=", authorId).where("expires_at", ">", sql<string>`NOW()`)
+    .where(storyVisibleSql(viewerId)).executeTakeFirstOrThrow();
+  return { count: row.count, unseen: row.unseen };
+}
+
 async function buildProfile(caller: Caller, u: ProfileRow) {
   const isMe = u.id === caller.id;
-  const [c, rel, canView, gyms, mutual] = await Promise.all([
+  const [c, rel, canView, gyms, mutual, stories] = await Promise.all([
     counts(u.id),
     isMe ? Promise.resolve(null) : relationship(caller.id, u.id),
     canSeeContentOf(caller.id, u),
     gymsOf(u.id),
     isMe ? Promise.resolve({ total: 0, users: [] }) : mutualFriends(caller.id, u.id, 3),
+    storyRing(caller.id, u.id),
   ]);
   const connected = !!rel && (rel.friendship === "friends" || (rel.following === "accepted" && rel.followed_by === "accepted"));
   const showActivity = u.show_activity_status && (isMe || connected);
@@ -207,6 +222,9 @@ async function buildProfile(caller: Caller, u: ProfileRow) {
     mutual_friends: { count: mutual.total, preview: mutual.users },
     gyms: canView ? gyms : [],
     last_active_at: showActivity ? u.last_active_at : null,
+    // Live stories: count, and whether any are unwatched (the coloured ring).
+    story_count: stories.count,
+    has_unseen_story: stories.unseen > 0,
   };
 }
 

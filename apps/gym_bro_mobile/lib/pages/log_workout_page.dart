@@ -7,11 +7,16 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/settings_service.dart';
 import '../widgets/exercise_picker_sheet.dart';
+import '../widgets/share_post.dart';
 import '../widgets/training_picker_sheet.dart';
 import 'training_form_page.dart';
 
-/// Logs a finished workout after the fact, starting at [start] (e.g. the hour
-/// tapped on the Schedule calendar).
+/// Logs a workout at [start] (e.g. the hour tapped on the Schedule calendar);
+/// it may be in the past or ahead of time.
+///
+/// From a planned workout: [planEntryId] links the session to it (marking it
+/// done), [initialTrainingId] preselects its training and [initialMinutes]
+/// its length.
 ///
 /// Picking a training (ones logged before first, then a coach's, then any)
 /// fills in its sets as planned; otherwise the user adds exercises. Saving
@@ -19,9 +24,18 @@ import 'training_form_page.dart';
 /// user's own trainings, a dialog offers to save the exercises as a new
 /// training (opens [TrainingFormPage] prefilled). Pops true once logged.
 class LogWorkoutPage extends StatefulWidget {
-  const LogWorkoutPage({super.key, required this.start});
+  const LogWorkoutPage({
+    super.key,
+    required this.start,
+    this.planEntryId,
+    this.initialTrainingId,
+    this.initialMinutes,
+  });
 
   final DateTime start;
+  final String? planEntryId;
+  final String? initialTrainingId;
+  final int? initialMinutes;
 
   @override
   State<LogWorkoutPage> createState() => _LogWorkoutPageState();
@@ -34,7 +48,10 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
   final _notes = TextEditingController();
 
   late DateTime _start = widget.start;
-  int _minutes = 60;
+  late int _minutes = widget.initialMinutes ?? 60;
+
+  /// The usual lengths, plus a planned one that isn't among them.
+  late final List<int> _durationChoices = {..._durations, _minutes}.toList()..sort();
 
   /// The followed training (detail with sets); null for a free workout.
   Training? _training;
@@ -43,6 +60,13 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
   final List<_LogBlock> _blocks = [];
   bool _saving = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    final trainingId = widget.initialTrainingId;
+    if (trainingId != null) _loadTraining(trainingId);
+  }
 
   @override
   void dispose() {
@@ -56,9 +80,9 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: _start.isAfter(now) ? now : _start,
+      initialDate: _start,
       firstDate: DateTime(now.year - 2),
-      lastDate: now,
+      lastDate: DateTime(now.year + 1, now.month, now.day),
     );
     if (picked == null || !mounted) return;
     setState(() {
@@ -98,13 +122,18 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
       );
       if (replace != true || !mounted) return;
     }
+    await _loadTraining(summary.id);
+  }
+
+  /// Follows training [id]: its sets replace the exercises entered so far.
+  Future<void> _loadTraining(String id) async {
     setState(() {
       _loadingTraining = true;
       _error = null;
     });
     try {
       final token = await AuthManager.instance.getValidToken();
-      final detail = await _api.getTraining(token, summary.id);
+      final detail = await _api.getTraining(token, id);
       if (!mounted) return;
       setState(() {
         _training = detail;
@@ -166,7 +195,6 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
 
   String? _validate() {
     final l10n = context.l10n;
-    if (_start.isAfter(DateTime.now())) return l10n.workoutLogFutureError;
     final exercises = _blocks.expand((b) => b.exercises).toList();
     if (exercises.isEmpty) return l10n.workoutLogNoExercisesError;
     final missingReps = exercises
@@ -181,6 +209,7 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
     final notes = _notes.text.trim();
     return {
       'training_id': _training?.id,
+      'plan_entry_id': ?widget.planEntryId,
       'started_at': _start.toUtc().toIso8601String(),
       'ended_at': _start.add(Duration(minutes: _minutes)).toUtc().toIso8601String(),
       'notes': notes.isEmpty ? null : notes,
@@ -222,7 +251,7 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
     final messenger = ScaffoldMessenger.of(context);
     try {
       final token = await AuthManager.instance.getValidToken();
-      await _api.logPastTrainingSession(token, _payload());
+      final session = await _api.logPastTrainingSession(token, _payload());
       if (!mounted) return;
       final me = AuthManager.instance.profile?.id;
       final ownTraining = _training != null && me != null && _training!.authorId == me;
@@ -234,7 +263,8 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
           ),
         );
       } else {
-        messenger.showSnackBar(SnackBar(content: Text(l10n.workoutLogSaved)));
+        // With "Share" (left out while it's still in the future).
+        showLoggedWithShare(messenger, navigator, message: l10n.workoutLogSaved, target: workoutShareTarget(session));
       }
       navigator.pop(true);
     } catch (e) {
@@ -367,7 +397,7 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
                 prefixIcon: const Icon(Icons.timer_outlined),
               ),
               items: [
-                for (final m in _durations)
+                for (final m in _durationChoices)
                   DropdownMenuItem(value: m, child: Text(l10n.workoutLogMinutes(m))),
               ],
               onChanged: (v) => setState(() => _minutes = v ?? _minutes),

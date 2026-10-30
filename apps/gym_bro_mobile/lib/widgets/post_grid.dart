@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
+import '../models/mention.dart';
 import '../models/post.dart';
+import 'post_attachment_card.dart';
 import 'social_widgets.dart';
 
 /// Instagram-style profile grid: three square tiles per row.
@@ -9,6 +11,8 @@ import 'social_widgets.dart';
 /// * photo → its thumbnail;
 /// * video → a dark tile with ▶ and the duration (no frame decoding);
 /// * text-only post → the caption on a tinted tile;
+/// * shared workout/meal/item without media → its picture, or its kind and
+///   title on a tinted tile (a small badge marks shared things);
 /// * several media → a "multiple" badge at the top right.
 ///
 /// [PostGrid] is a box widget (shrink-wrapped, not scrollable by default);
@@ -77,16 +81,40 @@ class PostGridTile extends StatelessWidget {
     final media = [...post.images]..sort((a, b) => a.position.compareTo(b.position));
     final first = media.isEmpty ? null : media.first;
 
+    final caption = mentionPlainText(post.content);
+    final attachment = post.isTyped ? post.attachment : null;
     final Widget content;
     final String label;
-    if (first == null) {
-      label = post.content;
+    if (first == null && attachment != null) {
+      final kind = postTypeLabel(l10n, post.postType);
+      final title = attachment.title;
+      label = [kind, ?title, if (caption.isNotEmpty) caption].join(', ');
+      content = attachment.imageUrl != null
+          ? MediaImage(url: attachment.imageUrl!)
+          : Container(
+              color: cs.primaryContainer,
+              padding: const EdgeInsets.all(8),
+              alignment: Alignment.center,
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Icon(postTypeIcon(post.postType), color: cs.onPrimaryContainer, size: 26),
+                const SizedBox(height: 4),
+                Text(
+                  title ?? kind,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(color: cs.onPrimaryContainer, fontWeight: FontWeight.w600),
+                ),
+              ]),
+            );
+    } else if (first == null) {
+      label = caption;
       content = Container(
         color: cs.surfaceContainerHighest,
         padding: const EdgeInsets.all(8),
         alignment: Alignment.center,
         child: Text(
-          post.content,
+          caption,
           maxLines: 5,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
@@ -105,7 +133,7 @@ class PostGridTile extends StatelessWidget {
         ]),
       );
     } else {
-      label = post.content.isNotEmpty ? post.content : l10n.nutritionPostPhoto;
+      label = caption.isNotEmpty ? caption : l10n.nutritionPostPhoto;
       content = MediaImage(url: first.url);
     }
 
@@ -128,6 +156,17 @@ class PostGridTile extends StatelessWidget {
               top: 6,
               right: 6,
               child: Icon(Icons.videocam_rounded, size: 16, color: Colors.white, shadows: [Shadow(color: Colors.black54, blurRadius: 4)]),
+            )
+          else if (attachment != null && (first != null || attachment.imageUrl != null))
+            Positioned(
+              top: 6,
+              right: 6,
+              child: Icon(
+                postTypeIcon(post.postType),
+                size: 16,
+                color: Colors.white,
+                shadows: const [Shadow(color: Colors.black54, blurRadius: 4)],
+              ),
             ),
         ]),
       ),

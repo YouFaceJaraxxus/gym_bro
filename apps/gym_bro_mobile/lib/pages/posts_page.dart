@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../models/draft.dart';
 import '../models/post.dart';
+import '../models/shared_content.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/drafts.dart';
 import '../widgets/image_upload_field.dart';
+import '../widgets/mentions.dart';
 import '../widgets/post_card.dart';
+import '../widgets/share_sheet.dart';
 
 /// Community feed for a gym or shop. Staff (owners/trainers/employees/vendors)
 /// can post announcements; everyone with access to the business can read,
@@ -139,7 +142,17 @@ class _PostsPageState extends State<PostsPage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.nutritionCommunityTitle(widget.businessName))),
+      appBar: AppBar(
+        title: Text(l10n.nutritionCommunityTitle(widget.businessName)),
+        actions: [
+          IconButton(
+            tooltip: l10n.shareBusinessAction,
+            icon: const Icon(Icons.send_outlined),
+            onPressed: () =>
+                showShareSheet(context, ShareRequest.of(ShareKind.business, widget.businessId, title: widget.businessName)),
+          ),
+        ],
+      ),
       floatingActionButton: widget.canPost
           ? FloatingActionButton.extended(
               onPressed: _openCreatePost,
@@ -238,7 +251,8 @@ class _PostFormPage extends StatefulWidget {
 
 class _PostFormPageState extends State<_PostFormPage> with DraftableForm {
   final _api = ApiService();
-  late final TextEditingController _contentCtrl;
+  late final MentionTextEditingController _contentCtrl;
+  final _contentFocus = FocusNode();
   late final List<String> _imageUrls;
   bool _uploading = false;
   bool _saving = false;
@@ -264,7 +278,7 @@ class _PostFormPageState extends State<_PostFormPage> with DraftableForm {
   String? draftThumbnailUrl() => _imageUrls.firstOrNull;
   @override
   Map<String, dynamic> draftData() => {
-        'content': _contentCtrl.text,
+        'content': _contentCtrl.markup,
         'image_urls': [..._imageUrls],
       };
 
@@ -275,14 +289,14 @@ class _PostFormPageState extends State<_PostFormPage> with DraftableForm {
     if (draft != null && !_isEditing) {
       final content = draft['content'];
       final images = draft['image_urls'];
-      _contentCtrl = TextEditingController(text: content is String ? content : '');
+      _contentCtrl = MentionTextEditingController(markup: content is String ? content : '');
       _imageUrls = [
         for (final url in images is List ? images : const [])
           if (url is String && url.isNotEmpty) url,
       ];
       return;
     }
-    _contentCtrl = TextEditingController(text: widget.post?.content ?? '');
+    _contentCtrl = MentionTextEditingController(markup: widget.post?.content ?? '');
     final images = [...?widget.post?.images]
       ..sort((a, b) => a.position.compareTo(b.position));
     _imageUrls = images.map((i) => i.url).toList();
@@ -291,6 +305,7 @@ class _PostFormPageState extends State<_PostFormPage> with DraftableForm {
   @override
   void dispose() {
     _contentCtrl.dispose();
+    _contentFocus.dispose();
     super.dispose();
   }
 
@@ -327,13 +342,13 @@ class _PostFormPageState extends State<_PostFormPage> with DraftableForm {
       final Post saved;
       if (_isEditing) {
         saved = await _api.updatePost(token, widget.post!.id, {
-          'content': _contentCtrl.text.trim(),
+          'content': _contentCtrl.markup.trim(),
           'images': images,
         });
       } else {
         saved = await _api.createPost(token, {
           'business_id': widget.businessId,
-          'content': _contentCtrl.text.trim(),
+          'content': _contentCtrl.markup.trim(),
           'images': images,
         });
         await draftPublished();
@@ -457,14 +472,19 @@ class _PostFormPageState extends State<_PostFormPage> with DraftableForm {
                 ),
               ),
               const SizedBox(height: 16),
-              TextField(
+              MentionAutocomplete(
                 controller: _contentCtrl,
-                decoration: InputDecoration(
-                  labelText: l10n.nutritionShareHint,
-                  alignLabelWithHint: true,
+                focusNode: _contentFocus,
+                child: TextField(
+                  controller: _contentCtrl,
+                  focusNode: _contentFocus,
+                  decoration: InputDecoration(
+                    labelText: l10n.nutritionShareHint,
+                    alignLabelWithHint: true,
+                  ),
+                  maxLines: 6,
+                  maxLength: kCaptionMaxLength,
                 ),
-                maxLines: 6,
-                maxLength: kCaptionMaxLength,
               ),
               if (_error != null) ...[
                 const SizedBox(height: 12),

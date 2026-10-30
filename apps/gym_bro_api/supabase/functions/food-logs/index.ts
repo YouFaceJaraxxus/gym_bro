@@ -13,10 +13,13 @@ import {
   addMacros,
   canSeeFoodItem,
   canSeeRecipe,
+  dailyPlanSlots,
   emptyMacros,
   foodItemMacros,
   FOOD_ITEM_COLS,
+  type LogUnit,
   type Macros,
+  type PlannedSlot,
   RECIPE_COLS,
   recipeMacros,
   roundMacros,
@@ -41,7 +44,6 @@ const VALID_SLOT_TYPES: MealSlotType[] = [
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const MAX_RANGE_DAYS = 92;
 
-type LogUnit = "g" | "ml" | "serving";
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -56,6 +58,27 @@ function isValidDate(v: unknown): v is string {
 
 function todayUtc(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+/** eaten_at from a body: undefined when absent, null to clear, or an ISO string. */
+function parseEatenAt(v: unknown): string | null | undefined | Response {
+  if (v === undefined) return undefined;
+  if (v === null) return null;
+  const d = typeof v === "string" ? new Date(v) : null;
+  if (!d || Number.isNaN(d.getTime())) return jsonError("eaten_at must be an ISO timestamp", 400);
+  return d.toISOString();
+}
+
+/** A planned meal of the caller's, or an error response. */
+async function ownMealPlanEntry(caller: Caller, id: unknown) {
+  if (typeof id !== "string") return jsonError("plan_entry_id must be a string", 400);
+  const entry = await db.selectFrom("plan_entry")
+    .select(["id", "user_id", "kind", "daily_meal_plan_id", "meal_slot", "starts_at",
+      sql<string>`to_char(plan_date, 'YYYY-MM-DD')`.as("plan_date")])
+    .where("id", "=", id).executeTakeFirst().catch(() => undefined);
+  if (!entry || entry.user_id !== caller.id) return jsonError("Planned meal not found", 404);
+  if (entry.kind !== "meal") return jsonError("That plan entry isn't a meal", 400);
+  return entry;
 }
 
 // ── Access ────────────────────────────────────────────────────────────────────
@@ -91,6 +114,8 @@ function logQuery(executor: Kysely<Database> = db) {
       "food_log.fat as fat",
       "food_log.fiber as fiber",
       "food_log.note as note",
+      "food_log.eaten_at as eaten_at",
+      "food_log.plan_entry_id as plan_entry_id",
       "food_log.created_at as created_at",
     ]);
 }
@@ -143,16 +168,13 @@ async function buildSnapshot(
 // the app labels plan days), so day_of_week = ISODOW(date) and week_number
 // counts calendar weeks (Monday-based) since the start week, mod num_weeks.
 
-type PlannedEntry = Macros & {
-  food_item_id: string | null;
-  recipe_id: string | null;
-  name: string;
-  amount: number;
-  unit: LogUnit;
-  note: string | null;
-};
-
-type PlannedSlot = { slot_type: MealSlotType; position: number; note: string | null; entries: PlannedEntry[] };
+/** The planned meals of one plan entry's day plan (an edited entry may use another). */
+async function planEntryDay(planEntryId: string) {
+  const entry = await db.selectFrom("plan_entry").select(["daily_meal_plan_id"]).where("id", "=", planEntryId)
+    .executeTakeFirst();
+  if (!entry?.daily_meal_plan_id) return null;
+  return { planned: await dailyPlanSlots(entry.daily_meal_plan_id) };
+}
 
 async function plannedDay(userId: string, date: string) {
   const assignment = await sql<{
@@ -221,71 +243,7 @@ async function plannedDay(userId: string, date: string) {
     fiber: Number(day.fiber_total),
   };
 
-  const slots = await db
-    .selectFrom("daily_meal_plan_slot")
-    .select(["id", "slot_type", "position", "note"])
-    .where("daily_meal_plan_id", "=", day.id)
-    .orderBy("position", "asc")
-    .execute();
-  const slotIds = slots.map((s) => s.id);
-  const entries = slotIds.length
-    ? await db
-      .selectFrom("daily_meal_plan_slot_entry")
-      .select(["id", "daily_meal_plan_slot_id", "food_item_id", "recipe_id", "quantity", "servings", "note"])
-      .where("daily_meal_plan_slot_id", "in", slotIds)
-      .orderBy("position", "asc")
-      .execute()
-    : [];
-
-  const foodIds = [...new Set(entries.flatMap((e) => (e.food_item_id ? [e.food_item_id] : [])))];
-  const recipeIds = [...new Set(entries.flatMap((e) => (e.recipe_id ? [e.recipe_id] : [])))];
-  const foods = foodIds.length
-    ? await db.selectFrom("food_item").select(FOOD_ITEM_COLS).where("id", "in", foodIds).execute()
-    : [];
-  const recipes = recipeIds.length
-    ? await db.selectFrom("recipe").select(RECIPE_COLS).where("id", "in", recipeIds).execute()
-    : [];
-  const foodMap = new Map(foods.map((f) => [f.id, f]));
-  const recipeMap = new Map(recipes.map((r) => [r.id, r]));
-
-  const planned: PlannedSlot[] = slots.map((s) => ({
-    slot_type: s.slot_type,
-    position: s.position,
-    note: s.note,
-    entries: entries
-      .filter((e) => e.daily_meal_plan_slot_id === s.id)
-      .flatMap((e): PlannedEntry[] => {
-        const food = e.food_item_id ? foodMap.get(e.food_item_id) : undefined;
-        if (food) {
-          const amount = Number(e.quantity ?? 0);
-          if (amount <= 0) return [];
-          return [{
-            food_item_id: food.id,
-            recipe_id: null,
-            name: food.brand ? `${food.name} (${food.brand})` : food.name,
-            amount,
-            unit: food.serving_unit,
-            note: e.note,
-            ...roundMacros(foodItemMacros(food, amount)),
-          }];
-        }
-        const recipe = e.recipe_id ? recipeMap.get(e.recipe_id) : undefined;
-        if (recipe) {
-          const amount = Number(e.servings ?? 1);
-          if (amount <= 0) return [];
-          return [{
-            food_item_id: null,
-            recipe_id: recipe.id,
-            name: recipe.name,
-            amount,
-            unit: "serving",
-            note: e.note,
-            ...roundMacros(recipeMacros(recipe, amount)),
-          }];
-        }
-        return [];
-      }),
-  }));
+  const planned = await dailyPlanSlots(day.id);
 
   return { plan, targets: roundMacros(targets), planned };
 }
@@ -389,17 +347,29 @@ async function handler(req: Request): Promise<Response> {
     return json(rows);
   }
 
-  // ── POST /food-logs/from-plan {date, slot_type?} ──────────────────────────────
+  // ── POST /food-logs/from-plan {date, slot_type?, eaten_at?} ───────────────────
+  // With plan_entry_id instead, logs that planned meal (its date and slot)
+  // and links the logs to it, which marks it done.
   if (req.method === "POST" && path === "/food-logs/from-plan") {
     const body = await req.json().catch(() => null);
-    const date = body?.date ?? todayUtc();
-    const slotType = body?.slot_type ?? null;
+    const eatenAt = parseEatenAt(body?.eaten_at);
+    if (eatenAt instanceof Response) return eatenAt;
+    let date = body?.date ?? todayUtc();
+    let slotType = body?.slot_type ?? null;
+    let planEntryId: string | null = null;
+    if (body?.plan_entry_id != null) {
+      const entry = await ownMealPlanEntry(caller, body.plan_entry_id);
+      if (entry instanceof Response) return entry;
+      date = entry.plan_date;
+      slotType = entry.meal_slot;
+      planEntryId = entry.id;
+    }
     if (!isValidDate(date)) return jsonError("date must be YYYY-MM-DD", 400);
     if (slotType !== null && !VALID_SLOT_TYPES.includes(slotType)) {
       return jsonError(`slot_type must be one of: ${VALID_SLOT_TYPES.join(", ")}`, 400);
     }
 
-    const planned = await plannedDay(caller.id, date);
+    const planned = planEntryId ? await planEntryDay(planEntryId) : await plannedDay(caller.id, date);
     const slots = (planned?.planned ?? []).filter((s) => slotType === null || s.slot_type === slotType);
     // Stagger created_at so the diary keeps the plan's entry order.
     const base = Date.now();
@@ -418,6 +388,8 @@ async function handler(req: Request): Promise<Response> {
       fat: e.fat,
       fiber: e.fiber,
       note: e.note,
+      eaten_at: eatenAt ?? null,
+      plan_entry_id: planEntryId,
     }));
     if (!values.length) return jsonError("No planned meals for this date", 404);
 
@@ -437,6 +409,14 @@ async function handler(req: Request): Promise<Response> {
     const body = await req.json().catch(() => null);
     const { log_date, slot_type, food_item_id, recipe_id, amount, note } = body ?? {};
     const date = log_date ?? todayUtc();
+    const eatenAt = parseEatenAt(body?.eaten_at);
+    if (eatenAt instanceof Response) return eatenAt;
+    let planEntryId: string | null = null;
+    if (body?.plan_entry_id != null) {
+      const entry = await ownMealPlanEntry(caller, body.plan_entry_id);
+      if (entry instanceof Response) return entry;
+      planEntryId = entry.id;
+    }
 
     if (!isValidDate(date)) return jsonError("log_date must be YYYY-MM-DD", 400);
     if (!VALID_SLOT_TYPES.includes(slot_type)) {
@@ -456,6 +436,8 @@ async function handler(req: Request): Promise<Response> {
         slot_type,
         amount,
         note: typeof note === "string" && note.trim() ? note.trim() : null,
+        eaten_at: eatenAt ?? null,
+        plan_entry_id: planEntryId,
         ...snap.snapshot,
       } as unknown as FoodLogInsert)
       .returning("id")
@@ -489,6 +471,11 @@ async function handler(req: Request): Promise<Response> {
     }
     if ("note" in body) {
       update.note = typeof body.note === "string" && body.note.trim() ? body.note.trim() : null;
+    }
+    if ("eaten_at" in body) {
+      const eatenAt = parseEatenAt(body.eaten_at);
+      if (eatenAt instanceof Response) return eatenAt;
+      update.eaten_at = eatenAt;
     }
     if ("amount" in body && (typeof body.amount !== "number" || !(body.amount > 0))) {
       return jsonError("amount must be a positive number", 400);

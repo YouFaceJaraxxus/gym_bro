@@ -8,6 +8,8 @@ import '../../services/auth_manager.dart';
 import '../../widgets/drafts.dart';
 import '../../widgets/post_card.dart';
 import '../../widgets/social_widgets.dart';
+import '../stories/story_composer_page.dart';
+import '../stories/story_tray.dart';
 import 'create_post_page.dart';
 
 class _FeedState {
@@ -38,6 +40,7 @@ class _FeedPageState extends State<FeedPage> {
   final _api = ApiService();
   final _scroll = ScrollController();
   final _feeds = {false: _FeedState(), true: _FeedState()};
+  final _tray = GlobalKey<StoryTrayState>();
   bool _explore = false;
 
   _FeedState get _current => _feeds[_explore]!;
@@ -160,15 +163,25 @@ class _FeedPageState extends State<FeedPage> {
     messenger.showSnackBar(SnackBar(content: Text(l10n.feedPosted)));
   }
 
+  Future<void> _newStory() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final story = await openStoryComposer(context);
+    if (story == null || !mounted) return;
+    messenger.showSnackBar(SnackBar(content: Text(l10n.storyPosted)));
+    _tray.currentState?.refresh();
+  }
+
   @override
   Widget build(BuildContext context) {
     final st = _current;
     return RefreshIndicator(
-      onRefresh: () => _load(_explore),
+      onRefresh: () => Future.wait([_load(_explore), if (_tray.currentState != null) _tray.currentState!.refresh()]),
       child: CustomScrollView(
         controller: _scroll,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
+          SliverToBoxAdapter(child: _constrained(StoryTray(key: _tray))),
           SliverToBoxAdapter(child: _constrained(_composerRow(context))),
           SliverToBoxAdapter(child: _constrained(_modeSwitch(context))),
           ..._content(context, st),
@@ -214,6 +227,11 @@ class _FeedPageState extends State<FeedPage> {
               ),
             ),
           ),
+        ),
+        IconButton(
+          tooltip: l10n.storyNew,
+          icon: Icon(Icons.history_toggle_off, color: cs.primary),
+          onPressed: _newStory,
         ),
         IconButton(
           tooltip: l10n.feedAddMedia,

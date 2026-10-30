@@ -5,9 +5,9 @@ import '../models/food_log.dart';
 import '../models/meal_plan.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/share_post.dart';
 import 'food_item_form_page.dart';
 import 'nutrition/nutrition_widgets.dart';
-import '../widgets/share_post.dart';
 
 class FoodItemDetailPage extends StatefulWidget {
   final String foodItemId;

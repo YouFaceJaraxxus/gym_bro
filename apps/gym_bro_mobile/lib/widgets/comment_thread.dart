@@ -7,10 +7,12 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '../l10n/l10n.dart';
+import '../models/mention.dart';
 import '../models/reaction.dart';
 import '../models/social.dart';
 import '../pages/feed/reactions_sheet.dart';
 import '../pages/people/user_profile_page.dart';
+import 'mentions.dart';
 import 'reactions.dart';
 import 'social_widgets.dart';
 
@@ -653,7 +655,7 @@ class _CommentTile extends StatelessWidget {
                       case _CommentAction.delete:
                         onDelete!(c);
                       case _CommentAction.copy:
-                        await Clipboard.setData(ClipboardData(text: c.body));
+                        await Clipboard.setData(ClipboardData(text: mentionPlainText(c.body)));
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.feedCopied)));
                         }
@@ -689,7 +691,7 @@ class _CommentTile extends StatelessWidget {
                 onTap: pending ? null : onToggle,
                 child: Padding(
                   padding: const EdgeInsets.only(left: 28, right: 4),
-                  child: Text(c.body, style: tt.bodyMedium),
+                  child: MentionText(c.body, style: tt.bodyMedium),
                 ),
               ),
             if (interactive)

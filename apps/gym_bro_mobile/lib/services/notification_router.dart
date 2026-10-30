@@ -21,6 +21,7 @@ import '../pages/shop/order_detail_page.dart';
 import '../pages/shop/storefront_page.dart';
 import '../pages/shop/storefront_shop_page.dart';
 import '../pages/shop_detail_page.dart';
+import '../pages/stories/story_viewer_page.dart';
 import 'api_service.dart';
 import 'auth_manager.dart';
 
@@ -97,10 +98,14 @@ class NotificationRouter {
       case 'member_subscription_extended':
         await push(_membershipScreen(profile, l10n));
 
-      // Comments, replies and reactions open the post itself (scrolled to
-      // the comment); gym news opens the business feed.
-      case 'post_comment' || 'comment_reply' || 'post_reaction' when str('post_id') != null:
+      // Comments, replies, reactions, mentions and photo tags open the post
+      // itself (scrolled to the comment); gym news opens the business feed.
+      case 'post_comment' || 'comment_reply' || 'post_reaction' || 'mention' || 'photo_tag' when str('post_id') != null:
         await push(PostDetailPage(postId: str('post_id')!, focusCommentId: str('comment_id')));
+
+      // A like / reaction on my story: the story (mine, so also once expired).
+      case 'story_reaction' when str('story_id') != null:
+        if (context.mounted) await openStoryById(context, str('story_id')!);
 
       case 'follow_request' || 'friend_request':
         await push(const RequestsPage());

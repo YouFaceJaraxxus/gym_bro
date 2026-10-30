@@ -6424,5 +6424,195 @@
         ]
       }
     ]
-  }
+  },
+  "member_routines": [
+    {
+      "author": "liamoconnor",
+      "name": "Deadlift Focus Block",
+      "description": "Two-week rotation built around heavy pulls: legs Monday, back Wednesday, push Friday, then a lighter full-body week-two finish.",
+      "is_public": true,
+      "schedule_type": "fixed_weeks",
+      "num_weeks": 2,
+      "days": [
+        {
+          "week": 1,
+          "day_of_week": 1,
+          "training": "Leg Day"
+        },
+        {
+          "week": 1,
+          "day_of_week": 3,
+          "training": "Pull Day A"
+        },
+        {
+          "week": 1,
+          "day_of_week": 5,
+          "training": "Push Day A"
+        },
+        {
+          "week": 2,
+          "day_of_week": 2,
+          "training": "Leg Day"
+        },
+        {
+          "week": 2,
+          "day_of_week": 4,
+          "training": "Pull Day A"
+        },
+        {
+          "week": 2,
+          "day_of_week": 6,
+          "training": "Full Body Beginner"
+        }
+      ],
+      "enrollments": [
+        {
+          "user": "liamoconnor",
+          "start_in_days": -4,
+          "workout_time": "06:30"
+        },
+        {
+          "user": "kenjitanaka",
+          "start_in_days": -1,
+          "workout_time": "18:30"
+        }
+      ]
+    },
+    {
+      "author": "sofiarossi",
+      "name": "Morning Glute & Core",
+      "description": "My own early-morning plan: short lower-body and core sessions before work, full body on Saturdays.",
+      "is_public": false,
+      "schedule_type": "fixed_weeks",
+      "num_weeks": 1,
+      "days": [
+        {
+          "week": 1,
+          "day_of_week": 1,
+          "training": "Core & Lower Body Finisher"
+        },
+        {
+          "week": 1,
+          "day_of_week": 3,
+          "training": "Core & Lower Body Finisher"
+        },
+        {
+          "week": 1,
+          "day_of_week": 5,
+          "training": "Core & Lower Body Finisher"
+        },
+        {
+          "week": 1,
+          "day_of_week": 6,
+          "training": "Full Body Beginner"
+        }
+      ],
+      "enrollments": [
+        {
+          "user": "sofiarossi",
+          "start_in_days": -9,
+          "workout_time": "07:00"
+        }
+      ]
+    },
+    {
+      "author": "victorhuang",
+      "name": "Travel Week Full Body",
+      "description": "Whatever the hotel gym has: pick one of these each day you can train, in any order.",
+      "is_public": true,
+      "schedule_type": "wildcard",
+      "num_weeks": null,
+      "days": [
+        {
+          "training": "Full Body Beginner"
+        },
+        {
+          "training": "Core & Lower Body Finisher"
+        },
+        {
+          "training": "Push Day A"
+        }
+      ],
+      "enrollments": [
+        {
+          "user": "victorhuang",
+          "start_in_days": 0
+        }
+      ]
+    }
+  ],
+  "meal_plan_enrollments": [
+    {
+      "user": "graceokafor",
+      "meal_plan": "1-Week Vegetarian Kickstart",
+      "start_in_days": -3
+    },
+    {
+      "user": "liamoconnor",
+      "meal_plan": "4-Week Lean Bulk",
+      "start_in_days": -6
+    }
+  ],
+  "shared_posts": [
+    {
+      "author": "liamoconnor",
+      "type": "workout",
+      "caption": "Logged today's session. @kenjitanaka your turn.",
+      "hours_ago": 5
+    },
+    {
+      "author": "kenjitanaka",
+      "type": "routine",
+      "ref": "Deadlift Focus Block",
+      "caption": "Starting @liamoconnor's block this week. Wish me luck 🙏",
+      "hours_ago": 20
+    },
+    {
+      "author": "graceokafor",
+      "type": "meal",
+      "caption": "Lunch that actually keeps me full till dinner.",
+      "hours_ago": 28
+    },
+    {
+      "author": "danielkim",
+      "type": "exercise",
+      "ref": "Romanian Deadlift",
+      "caption": "Underrated hamstring builder. Slow on the way down.",
+      "hours_ago": 40
+    },
+    {
+      "author": "sofiarossi",
+      "type": "recipe",
+      "ref": "Protein Pancakes",
+      "caption": "Sunday pancakes, macro-friendly edition 🥞",
+      "hours_ago": 52
+    }
+  ],
+  "photo_tags": [
+    {
+      "post_starts_with": "190kg deadlift",
+      "tags": [
+        {
+          "user": "elenavasquez",
+          "x": 0.68,
+          "y": 0.32
+        }
+      ]
+    },
+    {
+      "post_starts_with": "Week 12 of PPL",
+      "tags": [
+        {
+          "user": "liamoconnor",
+          "x": 0.3,
+          "y": 0.55
+        },
+        {
+          "user": "danielkim",
+          "x": 0.72,
+          "y": 0.5
+        }
+      ]
+    }
+  ]
 }

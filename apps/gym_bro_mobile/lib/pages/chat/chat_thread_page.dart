@@ -305,6 +305,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
 
   void _onIncoming(ChatMessage m) {
     if (!mounted) return;
+    m = _withResolvedShare(m);
     setState(() {
       _upsert(m);
       // Sending marks the chat read for the sender.
@@ -322,7 +323,36 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
     if (!mounted) return;
     final i = _messages.indexWhere((x) => x.id == m.id);
     if (i < 0) return;
+    m = _withResolvedShare(m);
     setState(() => _messages[i] = m);
+  }
+
+  /// Realtime payloads carry shares unresolved (one payload for everyone,
+  /// whatever each may see): reuse the copy I already have, else fetch the
+  /// message as I may see it.
+  ChatMessage _withResolvedShare(ChatMessage m) {
+    if (!m.needsResolve) return m;
+    final old = _messages.where((x) => x.id == m.id || (m.clientId != null && x.clientId == m.clientId)).firstOrNull;
+    if (old != null && !old.needsResolve && (old.share != null || old.storyReply != null)) {
+      return m.copyWith(share: old.share, storyReply: old.storyReply);
+    }
+    _resolveShare(m.id);
+    return m;
+  }
+
+  final _resolving = <String>{};
+
+  Future<void> _resolveShare(String id) async {
+    if (!_resolving.add(id)) return;
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final full = await _api.getChatMessage(token, id);
+      if (mounted) _replaceById(full);
+    } catch (_) {
+      // Stays a loading card; the next open of the chat loads it resolved.
+    } finally {
+      _resolving.remove(id);
+    }
   }
 
   void _onRead(({String userId, DateTime at}) r) {
@@ -648,7 +678,8 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
                   title: Text(l10n.chatCopy),
                   onTap: () => Navigator.pop(ctx, _MsgAction.copy),
                 ),
-              if (mine && hasText)
+              // A story reaction's emoji isn't text to edit.
+              if (mine && hasText && !(m.storyReply?.isReaction ?? false))
                 ListTile(
                   leading: const Icon(Icons.edit_outlined),
                   title: Text(l10n.commonEdit),

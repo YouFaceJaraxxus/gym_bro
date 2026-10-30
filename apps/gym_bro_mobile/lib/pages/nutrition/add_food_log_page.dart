@@ -11,11 +11,22 @@ import 'nutrition_widgets.dart';
 
 /// Search food items / recipes (or scan a barcode) and log one to [date].
 /// Pops with `true` when something was logged.
+///
+/// [eatenAt] records when it was (or will be) eaten, e.g. the hour tapped on
+/// the Schedule; [planEntryId] logs it against a planned meal.
 class AddFoodLogPage extends StatefulWidget {
   final DateTime date;
   final MealSlotType initialSlot;
+  final DateTime? eatenAt;
+  final String? planEntryId;
 
-  const AddFoodLogPage({super.key, required this.date, required this.initialSlot});
+  const AddFoodLogPage({
+    super.key,
+    required this.date,
+    required this.initialSlot,
+    this.eatenAt,
+    this.planEntryId,
+  });
 
   @override
   State<AddFoodLogPage> createState() => _AddFoodLogPageState();
@@ -149,6 +160,8 @@ class _AddFoodLogPageState extends State<AddFoodLogPage> with SingleTickerProvid
         foodItemId: foodItemId,
         recipeId: recipeId,
         amount: result.amount,
+        eatenAt: widget.eatenAt,
+        planEntryId: widget.planEntryId,
       );
       messenger.showSnackBar(SnackBar(content: Text(l10n.nutritionLoggedItemToSlot(name, result.slot.label(l10n)))));
       if (mounted) Navigator.pop(context, true);

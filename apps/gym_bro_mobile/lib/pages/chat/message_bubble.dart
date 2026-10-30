@@ -1,12 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../config.dart';
 import '../../l10n/l10n.dart';
 import '../../models/chat.dart';
 import '../../models/people.dart';
 import '../../models/reaction.dart';
+import '../../models/shared_content.dart';
+import '../../models/story.dart';
 import '../../services/media_upload.dart';
+import '../../widgets/shared_content_card.dart';
 import '../../widgets/social_widgets.dart';
+import '../stories/story_viewer_page.dart';
 import 'chat_attachments.dart';
 import 'chat_widgets.dart';
 
@@ -106,6 +111,9 @@ class MessageBubble extends StatelessWidget {
       ));
     } else {
       if (m.replyTo != null) content.add(_ReplyQuote(reply: m.replyTo!, mine: mine, onTap: onQuoteTap));
+      final storyReply = m.storyReply;
+      if (storyReply != null) content.add(StoryReplyHeader(info: storyReply, mine: mine));
+      if (m.share != null) content.add(SharedContentCard(content: m.share!, maxWidth: maxWidth, sharedBy: m.senderId));
       if (outgoing != null && outgoing!.files.isNotEmpty) {
         content.add(LocalAttachments(
           files: outgoing!.files,
@@ -117,7 +125,10 @@ class MessageBubble extends StatelessWidget {
         content.add(MessageAttachments(attachments: m.attachments, mine: mine, maxWidth: maxWidth));
       }
       final body = m.body;
-      if (body != null && body.isNotEmpty) {
+      if (body != null && body.isNotEmpty && storyReply != null && storyReply.isReaction) {
+        // A quick story reaction: just the big emoji, like Instagram.
+        content.add(Text(body, style: const TextStyle(fontSize: 44, height: 1.1)));
+      } else if (body != null && body.isNotEmpty) {
         content.add(Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(color: mine ? cs.primary : cs.surfaceContainerHigh, borderRadius: _radius()),
@@ -232,6 +243,97 @@ class MessageBubble extends StatelessWidget {
       color: highlighted ? cs.primary.withValues(alpha: 0.12) : Colors.transparent,
       padding: EdgeInsets.fromLTRB(12, clusterTop ? 8 : 1, 12, clusterBottom ? 2 : 1),
       child: SwipeToReply(onReply: m.isDeleted || m.pending || m.failed ? null : onReply, child: row),
+    );
+  }
+}
+
+/// Above a story reply / reaction: "Replied to your story" / "You reacted
+/// to their story" and the story's thumbnail (tap opens it), or why it's gone.
+class StoryReplyHeader extends StatelessWidget {
+  const StoryReplyHeader({super.key, required this.info, required this.mine});
+
+  final StoryReplyInfo info;
+  final bool mine;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final yours = info.ownerId != null && info.ownerId == chatMyId;
+    final label = info.isReaction
+        ? (yours ? l10n.sharedStoryReactedYours : l10n.sharedStoryReactedTheirs)
+        : (yours ? l10n.sharedStoryRepliedYours : l10n.sharedStoryRepliedTheirs);
+    final story = info.story;
+    final Widget thumb;
+    if (story.isAvailable) {
+      final media = story.mediaUrl;
+      thumb = GestureDetector(
+        onTap: info.storyId == null ? null : () => openStoryById(context, info.storyId!),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: SizedBox(
+            width: 84,
+            height: 140,
+            child: Stack(fit: StackFit.expand, children: [
+              Container(color: parseHexColor(story.background) ?? const Color(0xFF2B2D42)),
+              if (media != null && !story.isVideo) MediaImage(url: AppConfig.resolveUrl(media)),
+              if (story.isVideo) const Center(child: Icon(Icons.play_circle_fill, color: Colors.white)),
+              if (media == null && story.caption != null)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Text(
+                      story.caption!,
+                      maxLines: 5,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+            ]),
+          ),
+        ),
+      );
+    } else if (!story.isResolved) {
+      thumb = Container(
+        width: 84,
+        height: 140,
+        decoration: BoxDecoration(color: cs.surfaceContainerHigh, borderRadius: BorderRadius.circular(12)),
+      );
+    } else {
+      thumb = Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: cs.outlineVariant),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(
+            story.reason == ShareUnavailableReason.expired ? Icons.timer_off_outlined : Icons.visibility_off_outlined,
+            size: 14,
+            color: cs.onSurfaceVariant,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            story.reason == ShareUnavailableReason.expired ? l10n.sharedStoryExpiredShort : l10n.sharedStoryGoneShort,
+            style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+          ),
+        ]),
+      );
+    }
+    return Column(
+      crossAxisAlignment: mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(label, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+        ),
+        const SizedBox(height: 4),
+        thumb,
+      ],
     );
   }
 }

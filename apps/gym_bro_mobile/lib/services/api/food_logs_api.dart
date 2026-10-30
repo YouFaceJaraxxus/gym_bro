@@ -47,6 +47,8 @@ extension FoodLogsApi on ApiService {
 
   /// POST /food-logs — exactly one of [foodItemId] / [recipeId]; [amount] is
   /// g/ml for food items and servings for recipes. Macros are computed server-side.
+  /// [eatenAt] may be in the future; [planEntryId] links it to a planned meal
+  /// (which marks that meal done).
   Future<FoodLog> createFoodLog(
     String token, {
     required DateTime date,
@@ -55,6 +57,8 @@ extension FoodLogsApi on ApiService {
     String? recipeId,
     required double amount,
     String? note,
+    DateTime? eatenAt,
+    String? planEntryId,
   }) async {
     final r = await _client.post(
       Uri.parse('$_base/food-logs'),
@@ -66,13 +70,15 @@ extension FoodLogsApi on ApiService {
         'recipe_id': ?recipeId,
         'amount': amount,
         if (note != null && note.isNotEmpty) 'note': note,
+        if (eatenAt != null) 'eaten_at': eatenAt.toUtc().toIso8601String(),
+        'plan_entry_id': ?planEntryId,
       }),
     );
     _check(r);
     return FoodLog.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
   }
 
-  /// PUT /food-logs/:id — {amount?, slot_type?, log_date?, note?}.
+  /// PUT /food-logs/:id — {amount?, slot_type?, log_date?, note?, eaten_at?}.
   Future<FoodLog> updateFoodLog(
     String token,
     String id, {
@@ -80,6 +86,7 @@ extension FoodLogsApi on ApiService {
     MealSlotType? slotType,
     DateTime? date,
     String? note,
+    DateTime? eatenAt,
   }) async {
     final r = await _client.put(
       Uri.parse('$_base/food-logs/$id'),
@@ -89,6 +96,7 @@ extension FoodLogsApi on ApiService {
         if (slotType != null) 'slot_type': slotType.apiValue,
         if (date != null) 'log_date': apiDate(date),
         'note': ?note,
+        if (eatenAt != null) 'eaten_at': eatenAt.toUtc().toIso8601String(),
       }),
     );
     _check(r);
@@ -103,11 +111,15 @@ extension FoodLogsApi on ApiService {
     if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
   }
 
-  /// POST /food-logs/from-plan — logs the day's planned meals (optionally one slot).
+  /// POST /food-logs/from-plan — logs the day's planned meals (optionally one
+  /// slot). With [planEntryId], logs that planned meal (its own date and slot)
+  /// and links the entries to it.
   Future<List<FoodLog>> logPlannedMeals(
     String token,
     DateTime date, {
     MealSlotType? slotType,
+    DateTime? eatenAt,
+    String? planEntryId,
   }) async {
     final r = await _client.post(
       Uri.parse('$_base/food-logs/from-plan'),
@@ -115,6 +127,8 @@ extension FoodLogsApi on ApiService {
       body: jsonEncode({
         'date': apiDate(date),
         if (slotType != null) 'slot_type': slotType.apiValue,
+        if (eatenAt != null) 'eaten_at': eatenAt.toUtc().toIso8601String(),
+        'plan_entry_id': ?planEntryId,
       }),
     );
     _check(r);

@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../models/people.dart';
+import '../models/social.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/social_widgets.dart';
 import 'home/home_widgets.dart';
+import 'archive/archive_page.dart';
 import 'membership_page.dart';
 import 'people/blocked_users_page.dart';
 import 'people/edit_social_profile_page.dart';
 import 'people/people_list_page.dart';
 import 'people/requests_page.dart';
 import 'people/user_profile_page.dart';
+import 'stories/story_composer_page.dart';
+import 'stories/story_tray.dart';
+import 'stories/story_viewer_page.dart';
 import 'progress/progress_page.dart';
 import 'settings_page.dart';
 import 'shop/my_orders_page.dart';
@@ -66,6 +71,23 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _openMyStories() async {
+    final p = _profile;
+    await openUserStories(context, [
+      SocialUser(id: p.id, username: p.username, name: p.name, lastName: p.lastName, avatarUrl: p.avatarUrl),
+    ]);
+    if (mounted) _load();
+  }
+
+  Future<void> _newStory() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final story = await openStoryComposer(context);
+    if (story == null || !mounted) return;
+    messenger.showSnackBar(SnackBar(content: Text(l10n.storyPosted)));
+    _load();
+  }
+
   /// After editing: pick up the new name/username/avatar and counts.
   Future<void> _afterEdit() async {
     final me = AuthManager.instance.profile;
@@ -114,6 +136,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 PeopleListPage(userId: _profile.id, initialTab: tab, title: '@${_profile.username}'),
                 reload: true,
               ),
+              onOpenStories: _openMyStories,
+              onNewStory: _newStory,
             ),
             const SizedBox(height: 8),
             ListTile(
@@ -143,6 +167,13 @@ class _ProfilePageState extends State<ProfilePage> {
               subtitle: Text(l10n.peopleBlockedUsersSubtitle),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _open(const BlockedUsersPage(), reload: true),
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: Text(l10n.archiveTitle),
+              subtitle: Text(l10n.archiveSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const ArchivePage()),
             ),
             const Divider(),
             if (_profile.role == UserRole.member)
@@ -203,6 +234,8 @@ class _SocialHeaderCard extends StatelessWidget {
     required this.onView,
     required this.onEdit,
     required this.onOpenList,
+    required this.onOpenStories,
+    required this.onNewStory,
   });
 
   final UserProfile profile;
@@ -212,6 +245,10 @@ class _SocialHeaderCard extends StatelessWidget {
   final VoidCallback onView;
   final VoidCallback onEdit;
   final void Function(PeopleListTab tab) onOpenList;
+
+  /// Tapping the avatar: my live stories when there are any.
+  final VoidCallback onOpenStories;
+  final VoidCallback onNewStory;
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +298,14 @@ class _SocialHeaderCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               child: Row(
                 children: [
-                  UserAvatar(url: profile.avatarUrl, initials: initials.isEmpty ? '?' : initials, radius: 32),
+                  StoryRingAvatar(
+                    radius: 32,
+                    ring: StoryRingAvatar.ringFor(hasStory: s?.hasStory ?? false, hasUnseen: s?.hasStory ?? false),
+                    onTap: (s?.hasStory ?? false) ? onOpenStories : null,
+                    onAdd: onNewStory,
+                    semanticLabel: context.l10n.storyYourStory,
+                    child: UserAvatar(url: profile.avatarUrl, initials: initials.isEmpty ? '?' : initials, radius: 32),
+                  ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(

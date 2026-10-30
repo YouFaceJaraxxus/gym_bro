@@ -120,6 +120,7 @@ class CalendarEntry {
     this.state = CalendarEntryState.upcoming,
     this.highlighted = true,
     this.color,
+    this.icon,
     this.semanticLabel,
   });
 
@@ -136,8 +137,12 @@ class CalendarEntry {
   /// bookable classes that aren't mine).
   final bool highlighted;
 
-  /// Accent for a highlighted upcoming entry; defaults to the primary colour.
+  /// Accent for an upcoming entry (the fill and edge when highlighted, the
+  /// outline when not); defaults to the primary colour.
   final Color? color;
+
+  /// Shown before the title (e.g. what kind of item it is), in [color].
+  final IconData? icon;
 
   /// Screen-reader label; defaults to title, time, lines and state.
   final String? semanticLabel;
@@ -799,7 +804,11 @@ class CalendarBlock extends StatelessWidget {
             e.color == null ? cs.onPrimaryContainer : cs.onSurface,
             accent,
           )
-        : (cs.surface, cs.onSurfaceVariant, cs.outlineVariant);
+        : (
+            cs.surface,
+            cs.onSurfaceVariant,
+            e.color?.withValues(alpha: 0.7) ?? cs.outlineVariant,
+          );
 
     final time = calendarTimeRange(context, e.start, e.end);
     final semantics =
@@ -849,6 +858,16 @@ class CalendarBlock extends StatelessWidget {
                         ],
                         if (cancelled) ...[
                           Icon(Icons.event_busy, size: 14, color: fg),
+                          const SizedBox(width: 4),
+                        ],
+                        if (e.icon != null) ...[
+                          Icon(
+                            e.icon,
+                            size: 14,
+                            color: done || cancelled || e.color == null
+                                ? fg
+                                : accent,
+                          ),
                           const SizedBox(width: 4),
                         ],
                         Expanded(

@@ -64,6 +64,7 @@
 import { type Insertable, Kysely, PostgresDialect, sql } from "npm:kysely@^0.27";
 import pg from "npm:pg@^8";
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { normalizeMentions, validMentions } from "../supabase/functions/_shared/mentions.ts";
 import type {
   BookingStatus,
   Database,
@@ -77,6 +78,7 @@ import type {
   MuscleGroup,
   NotificationType,
   OrderStatus,
+  PostType,
   PostVisibility,
   ReactionType,
   RepType,
@@ -3185,8 +3187,10 @@ let personalCommentsAdded = 0;
 for (const p of personalPosts) {
   const authorId = userIdByUsername.get(p.author);
   if (!authorId) continue;
+  // Section 28 turns typed @handles into mention markup, so match that too.
+  const captions = [...new Set([p.caption, await normalizeMentions(db, p.caption)])];
   const exists = await db.selectFrom("post").select("id").where("author_id", "=", authorId)
-    .where("business_id", "is", null).where("content", "=", p.caption).executeTakeFirst();
+    .where("business_id", "is", null).where("content", "in", captions).executeTakeFirst();
   if (exists) {
     // An earlier run without network seeded it without its files.
     const hasMedia = await db.selectFrom("post_image").select("id").where("post_id", "=", exists.id).executeTakeFirst();
@@ -3443,6 +3447,350 @@ for (const c of chatSeeds) {
 report("conversations", conversationsAdded);
 report("chat messages", chatMessagesAdded);
 report("chat attachments", chatAttachmentsAdded);
+
+// ── 28. Self-directed plans, shared posts and tags ────────────────────────────
+// Routines don't need a trainer: members write their own (public or private)
+// and enroll themselves or each other, planned at their own workout time; a
+// couple of members follow a meal plan on their own. Then typed posts sharing
+// a workout, a meal, a routine, an exercise or a recipe (attachment snapshots
+// shaped like _shared/post_attachments.ts builds), and Instagram-style tags:
+// typed @handles in personal post captions become mentions, and a few photos
+// get people pinned on them — with the notifications the posts API sends.
+// Guards: routine by (author, name); enrollment by (user, routine / plan);
+// shared post by (author, caption); a post's tags by it having any.
+
+type MemberRoutine = {
+  author: string;
+  name: string;
+  description: string;
+  is_public: boolean;
+  schedule_type: "fixed_weeks" | "wildcard";
+  num_weeks: number | null;
+  days: { week?: number; day_of_week?: number; training: string }[];
+  enrollments: { user: string; start_in_days: number; workout_time?: string }[];
+};
+type SharedPostSeed = { author: string; type: string; ref?: string; caption: string; hours_ago: number };
+type PhotoTagSeed = { post_starts_with: string; tags: { user: string; x: number; y: number }[] };
+
+const homeTz = (username: string) => tzOf(personaByUsername.get(username)?.businesses[0] ?? "");
+
+let memberRoutinesAdded = 0;
+let selfEnrollmentsAdded = 0;
+for (const r of (seedData.member_routines ?? []) as MemberRoutine[]) {
+  const authorId = userIdByUsername.get(r.author);
+  if (!authorId) continue;
+  let routineId = (await db.selectFrom("routine").select("id").where("name", "=", r.name)
+    .where("author_id", "=", authorId).executeTakeFirst())?.id;
+  if (!routineId) {
+    routineId = (await db.insertInto("routine").values({
+      name: r.name,
+      description: r.description,
+      notes: null,
+      author_id: authorId,
+      is_public: r.is_public,
+      schedule_type: r.schedule_type,
+      num_weeks: r.num_weeks,
+    }).returning("id").executeTakeFirstOrThrow()).id;
+    await db.insertInto("routine_image").values({
+      routine_id: routineId,
+      url: photoUrl(`routine-${r.name}`, 800, 450),
+      is_thumbnail: true,
+      position: 0,
+    }).execute();
+    for (const [i, day] of r.days.entries()) {
+      const trainingId = trainingIdByName.get(day.training);
+      if (!trainingId) continue;
+      await db.insertInto("routine_training").values({
+        routine_id: routineId,
+        training_id: trainingId,
+        week_number: day.week ?? null,
+        day_of_week: day.day_of_week ?? null,
+        position: i,
+        note: null,
+      }).execute();
+    }
+    memberRoutinesAdded++;
+  }
+  routineIdByName.set(r.name, routineId);
+
+  for (const e of r.enrollments) {
+    const userId = userIdByUsername.get(e.user);
+    if (!userId) continue;
+    const exists = await db.selectFrom("routine_assignment").select("id").where("user_id", "=", userId)
+      .where("routine_id", "=", routineId).executeTakeFirst();
+    if (exists) continue;
+    const startDate = addDays(TODAY_UTC, e.start_in_days);
+    const createdMs = clampPast(zonedTime(addDays(startDate, -1), "21:00", homeTz(e.user)), 30);
+    await db.insertInto("routine_assignment").values({
+      routine_id: routineId,
+      user_id: userId,
+      assigned_by_id: userId,
+      start_date: startDate,
+      end_date: null,
+      note: null,
+      timezone: homeTz(e.user),
+      workout_time: e.workout_time ?? "18:00",
+      created_at: iso(createdMs),
+    }).execute();
+    selfEnrollmentsAdded++;
+  }
+}
+for (const e of (seedData.meal_plan_enrollments ?? []) as { user: string; meal_plan: string; start_in_days: number }[]) {
+  const userId = userIdByUsername.get(e.user);
+  const planId = mealPlanIdByName.get(e.meal_plan);
+  if (!userId || !planId) continue;
+  const exists = await db.selectFrom("meal_plan_assignment").select("id").where("user_id", "=", userId)
+    .where("meal_plan_id", "=", planId).executeTakeFirst();
+  if (exists) continue;
+  const startDate = addDays(TODAY_UTC, e.start_in_days);
+  await db.insertInto("meal_plan_assignment").values({
+    meal_plan_id: planId,
+    user_id: userId,
+    assigned_by_id: userId,
+    start_date: startDate,
+    end_date: null,
+    note: null,
+    timezone: homeTz(e.user),
+    created_at: iso(clampPast(zonedTime(addDays(startDate, -1), "20:00", homeTz(e.user)), 30)),
+  }).execute();
+  selfEnrollmentsAdded++;
+}
+report("member-written routines", memberRoutinesAdded);
+report("self-enrolled routines & meal plans", selfEnrollmentsAdded);
+
+/** Mention rows + notifications for a caption (already normalized). */
+async function seedMentions(post: { id: string; author_id: string }, caption: string, atMs: number) {
+  const mentions = (await validMentions(db, caption, post.author_id)).filter((m) => m.kind === "user");
+  if (!mentions.length) return 0;
+  await db.insertInto("post_tag").values(mentions.map((m) => ({
+    post_id: post.id,
+    kind: "user" as const,
+    user_id: m.id,
+    created_by: post.author_id,
+    created_at: iso(atMs),
+  }))).execute();
+  const who = displayNameOf(post.author_id);
+  await addNotification(mentions.map((m) => m.id).filter((id) => id !== post.author_id), {
+    type: "mention",
+    title: `${who} mentioned you in a post`,
+    body: caption.replace(/@\[([^\]]+)\]\([a-z_]+:[0-9a-f-]+\)/g, "@$1").slice(0, 120),
+    metadata: { post_id: post.id, business_id: null, comment_id: null, user_id: post.author_id },
+  }, atMs + 30 * MIN_MS);
+  return mentions.length;
+}
+const usernameById = new Map([...userIdByUsername].map(([u, id]) => [id, u]));
+const displayNameOf = (userId: string) => fullName(usernameById.get(userId) ?? "");
+
+/** The attachment snapshot of a shared post (see _shared/post_attachments.ts). */
+async function sharedAttachment(authorId: string, p: SharedPostSeed): Promise<{ ref_id: string | null; attachment: unknown } | null> {
+  switch (p.type) {
+    case "workout": {
+      const s = await db.selectFrom("training_session").leftJoin("training", "training.id", "training_session.training_id")
+        .select(["training_session.id", "training_session.training_id", "training_session.started_at",
+          "training_session.ended_at", "training.name"])
+        .where("training_session.user_id", "=", authorId).where("training_session.ended_at", "is not", null)
+        .where("training_session.started_at", "<", iso(NOW_MS - p.hours_ago * HOUR_MS))
+        .orderBy("training_session.started_at", "desc").executeTakeFirst();
+      if (!s) return null;
+      const { rows } = await sql<{ id: string; name: string; sets: number; volume: number; w: number | null; r: number | null }>`
+        SELECT x.id, x.name, count(DISTINCT sl.id)::int AS sets,
+               COALESCE(sum(dl.weight_kg_actual * dl.rep_count_actual), 0)::float8 AS volume,
+               max(dl.weight_kg_actual)::float8 AS w,
+               (array_agg(dl.rep_count_actual ORDER BY dl.weight_kg_actual DESC NULLS LAST))[1] AS r
+          FROM session_set_log sl
+          JOIN session_drop_log dl ON dl.session_set_log_id = sl.id
+          LEFT JOIN training_set_drop tsd ON tsd.id = dl.training_set_drop_id
+          LEFT JOIN training_set_exercise tse ON tse.id = tsd.training_set_exercise_id
+          JOIN exercise x ON x.id = COALESCE(sl.exercise_id, tse.exercise_id)
+         WHERE sl.session_id = ${s.id}
+         GROUP BY x.id, x.name ORDER BY min(sl.position)`.execute(db);
+      const startMs = toMs(s.started_at), endMs = toMs(s.ended_at);
+      return {
+        ref_id: s.id,
+        attachment: {
+          title: s.name,
+          training_id: s.training_id,
+          started_at: iso(startMs),
+          ended_at: iso(endMs),
+          duration_minutes: Math.round((endMs - startMs) / MIN_MS),
+          exercise_count: rows.length,
+          set_count: rows.reduce((a, x) => a + x.sets, 0),
+          volume_kg: Math.round(rows.reduce((a, x) => a + Number(x.volume), 0)),
+          exercises: rows.slice(0, 6).map((x) => ({ id: x.id, name: x.name, sets: x.sets, best_weight_kg: x.w, best_reps: x.r })),
+        },
+      };
+    }
+    case "meal": {
+      const slot = await db.selectFrom("food_log").select(["slot_type", sql<string>`to_char(log_date, 'YYYY-MM-DD')`.as("day")])
+        .where("user_id", "=", authorId).where("log_date", "<", TODAY_UTC)
+        .groupBy(["log_date", "slot_type"]).orderBy("log_date", "desc").orderBy(sql`count(*)`, "desc").executeTakeFirst();
+      if (!slot) return null;
+      const logs = await db.selectFrom("food_log").leftJoin("food_item", "food_item.id", "food_log.food_item_id")
+        .select(["food_log.name", "food_log.amount", "food_log.kcal", "food_log.protein", "food_log.carb", "food_log.fat",
+          "food_log.fiber", "food_log.recipe_id", "food_item.serving_unit"])
+        .where("food_log.user_id", "=", authorId).where("food_log.log_date", "=", slot.day)
+        .where("food_log.slot_type", "=", slot.slot_type).orderBy("food_log.created_at").execute();
+      const total = (k: "kcal" | "protein" | "carb" | "fat" | "fiber") =>
+        Math.round(logs.reduce((a, l) => a + Number(l[k]), 0) * 10) / 10;
+      return {
+        ref_id: null,
+        attachment: {
+          title: null,
+          log_date: slot.day,
+          slot_type: slot.slot_type,
+          eaten_at: null,
+          items: logs.slice(0, 12).map((l) => ({
+            name: l.name,
+            amount: Number(l.amount),
+            unit: l.recipe_id ? "serving" : l.serving_unit ?? "g",
+            kcal: Math.round(Number(l.kcal)),
+          })),
+          item_count: logs.length,
+          totals: { kcal: total("kcal"), protein: total("protein"), carb: total("carb"), fat: total("fat"), fiber: total("fiber") },
+        },
+      };
+    }
+    case "routine": {
+      const id = routineIdByName.get(p.ref ?? "");
+      const r = id && await db.selectFrom("routine").select(["id", "name", "description", "schedule_type", "num_weeks"])
+        .where("id", "=", id).executeTakeFirst();
+      if (!r) return null;
+      const img = await db.selectFrom("routine_image").select("url").where("routine_id", "=", r.id).executeTakeFirst();
+      const { rows: [c] } = await sql<{ n: number }>`
+        SELECT count(DISTINCT training_id)::int AS n FROM routine_training WHERE routine_id = ${r.id}`.execute(db);
+      return {
+        ref_id: r.id,
+        attachment: {
+          title: r.name,
+          description: r.description,
+          image_url: img?.url ?? null,
+          schedule_type: r.schedule_type,
+          num_weeks: r.num_weeks,
+          training_count: c?.n ?? 0,
+        },
+      };
+    }
+    case "exercise": {
+      const id = exerciseIdByName.get(p.ref ?? "");
+      const x = id && await db.selectFrom("exercise")
+        .select(["id", "name", "description", "image_url", "primary_muscles", "secondary_muscles"])
+        .where("id", "=", id).executeTakeFirst();
+      if (!x) return null;
+      return {
+        ref_id: x.id,
+        attachment: {
+          title: x.name,
+          description: x.description,
+          image_url: x.image_url,
+          primary_muscles: x.primary_muscles,
+          secondary_muscles: x.secondary_muscles,
+        },
+      };
+    }
+    case "recipe": {
+      const id = recipeIdByName.get(p.ref ?? "");
+      const r = id && await db.selectFrom("recipe")
+        .select(["id", "name", "description", "servings", "kcal_per_serving", "protein_per_serving", "carb_per_serving",
+          "fat_per_serving"])
+        .where("id", "=", id).executeTakeFirst();
+      if (!r) return null;
+      const img = await db.selectFrom("recipe_image").select("url").where("recipe_id", "=", r.id).orderBy("position")
+        .executeTakeFirst();
+      return {
+        ref_id: r.id,
+        attachment: {
+          title: r.name,
+          description: r.description,
+          image_url: img?.url ?? null,
+          servings: r.servings,
+          kcal_per_serving: Number(r.kcal_per_serving),
+          protein_per_serving: Number(r.protein_per_serving),
+          carb_per_serving: Number(r.carb_per_serving),
+          fat_per_serving: Number(r.fat_per_serving),
+        },
+      };
+    }
+  }
+  return null;
+}
+
+let sharedPostsAdded = 0;
+let mentionsAdded = 0;
+for (const p of (seedData.shared_posts ?? []) as SharedPostSeed[]) {
+  const authorId = userIdByUsername.get(p.author);
+  if (!authorId) continue;
+  const caption = await normalizeMentions(db, p.caption);
+  const exists = await db.selectFrom("post").select("id").where("author_id", "=", authorId)
+    .where("business_id", "is", null).where("content", "=", caption).executeTakeFirst();
+  if (exists) continue;
+  const shared = await sharedAttachment(authorId, p);
+  if (!shared) continue;
+  const createdMs = clampPast(NOW_MS - p.hours_ago * HOUR_MS, 10);
+  const post = await db.insertInto("post").values({
+    business_id: null,
+    author_id: authorId,
+    content: caption,
+    visibility: "public",
+    post_type: p.type as PostType,
+    ref_id: shared.ref_id,
+    attachment: JSON.stringify(shared.attachment),
+    created_at: iso(createdMs),
+    updated_at: iso(createdMs),
+  }).returning(["id"]).executeTakeFirstOrThrow();
+  sharedPostsAdded++;
+  mentionsAdded += await seedMentions({ id: post.id, author_id: authorId }, caption, createdMs);
+}
+
+// Typed @handles in the older personal post captions become mentions.
+const untagged = await db.selectFrom("post").select(["id", "author_id", "content", "created_at"])
+  .where("business_id", "is", null).where("content", "like", "%@%")
+  .where(({ not, exists, selectFrom }) =>
+    not(exists(selectFrom("post_tag").select("post_tag.id").whereRef("post_tag.post_id", "=", "post.id")))
+  ).execute();
+for (const post of untagged) {
+  if (!post.author_id) continue;
+  const caption = await normalizeMentions(db, post.content);
+  if (caption === post.content) continue;
+  await db.updateTable("post").set({ content: caption }).where("id", "=", post.id).execute();
+  mentionsAdded += await seedMentions({ id: post.id, author_id: post.author_id }, caption, toMs(post.created_at));
+}
+
+let photoTagsAdded = 0;
+for (const t of (seedData.photo_tags ?? []) as PhotoTagSeed[]) {
+  const post = await db.selectFrom("post").select(["id", "author_id", "created_at"])
+    .where("business_id", "is", null).where("content", "like", `${t.post_starts_with.replace(/[%_\\]/g, "\\$&")}%`)
+    .executeTakeFirst();
+  if (!post?.author_id) continue;
+  const media = await db.selectFrom("post_image").select("id").where("post_id", "=", post.id).orderBy("position")
+    .executeTakeFirst();
+  if (!media) continue;
+  const already = await db.selectFrom("post_tag").select("id").where("post_image_id", "=", media.id).executeTakeFirst();
+  if (already) continue;
+  const tags = t.tags.flatMap((x) => (userIdByUsername.has(x.user) ? [{ ...x, userId: uid(x.user) }] : []))
+    .filter((x) => x.userId !== post.author_id);
+  if (!tags.length) continue;
+  const atMs = toMs(post.created_at);
+  await db.insertInto("post_tag").values(tags.map((x) => ({
+    post_id: post.id,
+    post_image_id: media.id,
+    kind: "user" as const,
+    user_id: x.userId,
+    x: x.x,
+    y: x.y,
+    created_by: post.author_id,
+    created_at: iso(atMs),
+  }))).execute();
+  photoTagsAdded += tags.length;
+  await addNotification(tags.map((x) => x.userId), {
+    type: "photo_tag",
+    title: `${displayNameOf(post.author_id)} tagged you in a photo`,
+    body: "",
+    metadata: { post_id: post.id, business_id: null, comment_id: null, user_id: post.author_id },
+  }, atMs + 5 * MIN_MS);
+}
+report("shared posts (workouts, meals, plans)", sharedPostsAdded);
+report("caption mentions", mentionsAdded);
+report("photo tags", photoTagsAdded);
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 

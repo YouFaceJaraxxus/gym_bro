@@ -4,14 +4,20 @@ import 'package:flutter/services.dart';
 import '../../l10n/l10n.dart';
 import '../../models/people.dart';
 import '../../models/post.dart';
+import '../../models/shared_content.dart';
+import '../../models/social.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/person_tile.dart';
 import '../../widgets/post_grid.dart';
+import '../../widgets/share_sheet.dart';
 import '../../widgets/social_widgets.dart';
 import '../chat/chat_launcher.dart';
+import '../archive/archive_page.dart';
 import '../feed/post_detail_page.dart';
+import '../stories/story_tray.dart';
+import '../stories/story_viewer_page.dart';
 import 'blocked_users_page.dart';
 import 'edit_social_profile_page.dart';
 import 'people_common.dart';
@@ -45,6 +51,16 @@ class _UserProfilePageState extends State<UserProfilePage> {
   bool _postsPrivate = false;
   String? _postsError;
 
+  /// 0 = their posts, 1 = posts they're tagged in.
+  int _tab = 0;
+  List<Post> _tagged = [];
+  int _taggedPage = 0;
+  bool _taggedHasMore = false;
+  bool _taggedLoaded = false;
+  bool _taggedLoading = false;
+  bool _taggedLoadingMore = false;
+  String? _taggedError;
+
   bool _actionBusy = false;
   int _refreshGen = 0;
 
@@ -55,6 +71,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
   void initState() {
     super.initState();
     _load();
+  }
+
+  /// Their live stories (the avatar ring), then the profile again for the ring.
+  Future<void> _openStories(PublicProfile p) async {
+    await openUserStories(context, [
+      SocialUser(id: p.id, username: p.username, name: p.name, lastName: p.lastName, avatarUrl: p.avatarUrl),
+    ]);
+    if (mounted) _load();
   }
 
   Future<void> _load() async {
@@ -68,13 +92,72 @@ class _UserProfilePageState extends State<UserProfilePage> {
         _rel = profile.relationship;
         _loading = false;
       });
-      await _loadPosts();
+      _taggedLoaded = false;
+      await Future.wait([_loadPosts(), if (_tab == 1) _loadTagged()]);
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _error = peopleErrorText(e);
         _loading = false;
       });
+    }
+  }
+
+  void _switchTab(int tab) {
+    if (tab == _tab) return;
+    setState(() => _tab = tab);
+    if (tab == 1 && !_taggedLoaded && !_taggedLoading) _loadTagged();
+  }
+
+  Future<void> _loadTagged() async {
+    final profile = _profile;
+    if (profile == null || !profile.canViewContent || _blocked) return;
+    setState(() {
+      _taggedLoading = true;
+      _taggedError = null;
+    });
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final posts = await _api.getTaggedPosts(token, profile.id, pageSize: _kPostsPageSize);
+      if (!mounted) return;
+      setState(() {
+        _tagged = posts;
+        _taggedPage = 0;
+        _taggedHasMore = posts.length >= _kPostsPageSize;
+        _taggedLoaded = true;
+      });
+    } on PrivateAccountException {
+      if (!mounted) return;
+      setState(() {
+        _tagged = [];
+        _postsPrivate = true;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _taggedError = peopleErrorText(e));
+    } finally {
+      if (mounted) setState(() => _taggedLoading = false);
+    }
+  }
+
+  Future<void> _loadMoreTagged() async {
+    final profile = _profile;
+    if (profile == null || !_taggedHasMore || _taggedLoadingMore || _taggedLoading) return;
+    setState(() => _taggedLoadingMore = true);
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final posts = await _api.getTaggedPosts(token, profile.id, page: _taggedPage + 1, pageSize: _kPostsPageSize);
+      if (!mounted) return;
+      final seen = _tagged.map((p) => p.id).toSet();
+      setState(() {
+        _tagged = [..._tagged, ...posts.where((p) => !seen.contains(p.id))];
+        _taggedPage++;
+        _taggedHasMore = posts.length >= _kPostsPageSize;
+      });
+    } catch (_) {
+      // Retried on the next scroll.
+    } finally {
+      if (mounted) setState(() => _taggedLoadingMore = false);
     }
   }
 
@@ -239,7 +322,18 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   void _openPost(Post post) {
-    Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => PostDetailPage(postId: post.id, initial: post)));
+    // Deleted or archived from the detail page: it leaves the grid.
+    void drop() {
+      if (!mounted) return;
+      setState(() {
+        _posts = _posts.where((p) => p.id != post.id).toList();
+        _tagged = _tagged.where((p) => p.id != post.id).toList();
+      });
+    }
+
+    Navigator.of(context).push<void>(MaterialPageRoute(
+      builder: (_) => PostDetailPage(postId: post.id, initial: post, onDeleted: drop, onArchived: drop),
+    ));
   }
 
   void _onMenu(String action) {
@@ -248,6 +342,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
         _copyUsername();
       case 'edit':
         _openEdit();
+      case 'archive':
+        Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => const ArchivePage()));
+      case 'share':
+        final p = _profile!;
+        showShareSheet(
+          context,
+          ShareRequest.of(ShareKind.user, p.id, title: p.fullName.isNotEmpty ? p.fullName : '@${p.username}', preview: PostAttachment({'avatar_url': ?p.avatarUrl})),
+        );
       case 'blocked':
         Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => const BlockedUsersPage()));
       case 'remove_follower':
@@ -281,8 +383,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
               itemBuilder: (_) => [
                 if (_isMe) ...[
                   PopupMenuItem(value: 'edit', child: Text(l10n.peopleEditProfile)),
+                  PopupMenuItem(value: 'archive', child: Text(l10n.archiveTitle)),
                   PopupMenuItem(value: 'blocked', child: Text(l10n.peopleBlockedUsers)),
                 ],
+                PopupMenuItem(value: 'share', child: Text(l10n.shareProfileAction)),
                 PopupMenuItem(value: 'copy', child: Text(l10n.peopleCopyUsername)),
                 if (!_isMe) ...[
                   if (_rel?.followedBy == FollowState.accepted && !_blocked)
@@ -340,14 +444,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
       onRefresh: _load,
       child: NotificationListener<ScrollNotification>(
         onNotification: (n) {
-          if (n.metrics.pixels > n.metrics.maxScrollExtent - 600) _loadMorePosts();
+          if (n.metrics.pixels > n.metrics.maxScrollExtent - 600) _tab == 0 ? _loadMorePosts() : _loadMoreTagged();
           return false;
         },
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(child: _buildHeader(profile)),
-            const SliverToBoxAdapter(child: Divider(height: 1)),
+            if (profile.canViewContent && !_blocked && !_postsPrivate)
+              SliverToBoxAdapter(child: _buildTabs())
+            else
+              const SliverToBoxAdapter(child: Divider(height: 1)),
             ..._buildContent(profile),
           ],
         ),
@@ -381,6 +488,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         ),
       ];
     }
+    if (_tab == 1) return _buildTagged();
     if (_postsLoading && _posts.isEmpty) {
       return [
         SliverToBoxAdapter(
@@ -414,6 +522,76 @@ class _UserProfilePageState extends State<UserProfilePage> {
     ];
   }
 
+  /// Grid / tagged switch under the header (Instagram).
+  Widget _buildTabs() {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    Widget tab(int i, IconData icon, IconData selectedIcon, String label) {
+      final selected = _tab == i;
+      return Expanded(
+        child: Semantics(
+          selected: selected,
+          button: true,
+          label: label,
+          excludeSemantics: true,
+          child: InkWell(
+            onTap: () => _switchTab(i),
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: selected ? cs.onSurface : cs.outlineVariant, width: selected ? 1.5 : 0.5)),
+              ),
+              child: Icon(selected ? selectedIcon : icon, color: selected ? cs.onSurface : cs.onSurfaceVariant),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Row(children: [
+      tab(0, Icons.grid_on_outlined, Icons.grid_on, l10n.peoplePosts),
+      tab(1, Icons.person_pin_outlined, Icons.person_pin, l10n.tagsTabTagged),
+    ]);
+  }
+
+  List<Widget> _buildTagged() {
+    final l10n = context.l10n;
+    if (_taggedLoading && _tagged.isEmpty) {
+      return [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Center(child: CircularProgressIndicator(semanticsLabel: l10n.commonLoading)),
+          ),
+        ),
+      ];
+    }
+    if (_taggedError != null && _tagged.isEmpty) {
+      return [SliverToBoxAdapter(child: PeopleErrorState(message: _taggedError!, onRetry: _loadTagged))];
+    }
+    if (_tagged.isEmpty) {
+      return [
+        SliverToBoxAdapter(
+          child: PeopleMessageState(
+            icon: Icons.person_pin_outlined,
+            message: _isMe ? l10n.tagsNoTaggedMe : l10n.tagsNoTagged,
+          ),
+        ),
+      ];
+    }
+    return [
+      SliverPostGrid(posts: _tagged, onTap: _openPost),
+      if (_taggedLoadingMore)
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))),
+          ),
+        ),
+      const SliverToBoxAdapter(child: SizedBox(height: 24)),
+    ];
+  }
+
   Widget _buildHeader(PublicProfile p) {
     final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
@@ -430,7 +608,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
         children: [
           Row(
             children: [
-              UserAvatar(url: p.avatarUrl, initials: initials, radius: 42, online: isActiveNow(p.lastActiveAt)),
+              StoryRingAvatar(
+                radius: 42,
+                ring: StoryRingAvatar.ringFor(hasStory: p.hasStory, hasUnseen: p.hasUnseenStory),
+                onTap: p.hasStory ? () => _openStories(p) : null,
+                child: UserAvatar(url: p.avatarUrl, initials: initials, radius: 42, online: isActiveNow(p.lastActiveAt)),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Row(
