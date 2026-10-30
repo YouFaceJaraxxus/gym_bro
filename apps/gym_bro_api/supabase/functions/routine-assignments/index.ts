@@ -10,7 +10,7 @@ import {
   requireCaller,
 } from "../_shared/auth.ts";
 import { notify } from "../_shared/notify.ts";
-import { forgetUntouchedEntries, readTimeOfDay, readTimezone } from "../_shared/plans.ts";
+import { endAssignment, forgetUntouchedEntries, readTimeOfDay, readTimezone } from "../_shared/plans.ts";
 import type { RoutineAssignmentTable } from "../../types/schema/public.ts";
 
 // Routines assigned to a user (by themself or a coach). Mirrors
@@ -18,6 +18,7 @@ import type { RoutineAssignmentTable } from "../../types/schema/public.ts";
 //
 // Row shape: { id, routine_id, user_id, assigned_by_id, start_date, end_date
 //              ('YYYY-MM-DD' | null), note, timezone, workout_time ('HH:MM'),
+//              left_at, left_by (ended: left or removed; kept for history),
 //              created_at, routine_name, routine_is_public,
 //              routine_schedule_label, user_name, assigned_by_name }
 //
@@ -34,6 +35,8 @@ const ASSIGNMENT_COLS = [
   "note",
   "timezone",
   sql<string>`to_char(workout_time, 'HH24:MI')`.as("workout_time"),
+  "left_at",
+  "left_by",
   "created_at",
 ] as const;
 
@@ -125,6 +128,7 @@ async function handler(req: Request): Promise<Response> {
   if (!caller) return response;
 
   // ── GET /routine-assignments — ?user_id= / ?routine_id= / ?assigned_by_id= ────
+  // Ended assignments only with ?include_ended=true.
   // Rows are limited to ones where the caller is the target or the assigner,
   // unless the caller is super or coaches the target user.
   if (req.method === "GET" && !id) {
@@ -133,6 +137,7 @@ async function handler(req: Request): Promise<Response> {
     const assignedById = url.searchParams.get("assigned_by_id");
 
     let query = db.selectFrom("routine_assignment").select(ASSIGNMENT_COLS);
+    if (url.searchParams.get("include_ended") !== "true") query = query.where("left_at", "is", null);
     if (userId) query = query.where("user_id", "=", userId);
     if (routineId) query = query.where("routine_id", "=", routineId);
     if (assignedById) query = query.where("assigned_by_id", "=", assignedById);
@@ -231,10 +236,11 @@ async function handler(req: Request): Promise<Response> {
   if (req.method === "PUT" && id) {
     const existing = await db
       .selectFrom("routine_assignment")
-      .select(["assigned_by_id", "user_id"])
+      .select(["assigned_by_id", "user_id", "left_at"])
       .where("id", "=", id)
       .executeTakeFirst();
     if (!existing) return jsonError("Routine assignment not found", 404);
+    if (existing.left_at) return jsonError("This enrolment has ended", 409, { code: "ended" });
     const allowed = existing.user_id === caller.id || existing.assigned_by_id === caller.id || isSuperUser(caller);
     if (!allowed) return forbidden();
 
@@ -272,20 +278,21 @@ async function handler(req: Request): Promise<Response> {
     return json(row);
   }
 
-  // ── DELETE /routine-assignments/:id — assigner, target or super ──────────────
+  // ── DELETE /routine-assignments/:id — leave / remove (assigner, target, super) ─
   if (req.method === "DELETE" && id) {
     const existing = await db
       .selectFrom("routine_assignment")
-      .select(["assigned_by_id", "user_id"])
+      .select(["assigned_by_id", "user_id", "left_at"])
       .where("id", "=", id)
       .executeTakeFirst();
-    if (!existing) return jsonError("Routine assignment not found", 404);
+    if (!existing || existing.left_at) return jsonError("Routine assignment not found", 404);
 
     const isAssigner = existing.assigned_by_id !== null && existing.assigned_by_id === caller.id;
     const isTargetUser = existing.user_id === caller.id;
     if (!isAssigner && !isTargetUser && !isSuperUser(caller)) return forbidden();
 
-    await db.deleteFrom("routine_assignment").where("id", "=", id).execute();
+    // Ended, not deleted: past planned entries and what was logged keep their link.
+    await db.transaction().execute((trx) => endAssignment(trx, { routineAssignmentId: id }, caller.id));
     return new Response(null, { status: 204 });
   }
 

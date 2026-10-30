@@ -9,7 +9,7 @@ import {
   requireCaller,
 } from "../_shared/auth.ts";
 import { notify } from "../_shared/notify.ts";
-import { forgetUntouchedEntries, readTimezone } from "../_shared/plans.ts";
+import { endAssignment, forgetUntouchedEntries, readTimezone } from "../_shared/plans.ts";
 import type { MealPlanAssignmentInsert } from "../../types/schema/public.ts";
 
 const ASSIGNMENT_COLS = [
@@ -21,6 +21,8 @@ const ASSIGNMENT_COLS = [
   "end_date",
   "note",
   "timezone",
+  "left_at",
+  "left_by",
   "created_at",
 ] as const;
 
@@ -118,7 +120,9 @@ async function handler(req: Request): Promise<Response> {
     const userId = url.searchParams.get("user_id");
     const mealPlanId = url.searchParams.get("meal_plan_id");
 
+    // Ended assignments (left or removed, kept for history) only with ?include_ended=true.
     let query = db.selectFrom("meal_plan_assignment").select(ASSIGNMENT_COLS);
+    if (url.searchParams.get("include_ended") !== "true") query = query.where("left_at", "is", null);
     if (userId) query = query.where("user_id", "=", userId);
     if (mealPlanId) query = query.where("meal_plan_id", "=", mealPlanId);
 
@@ -207,10 +211,11 @@ async function handler(req: Request): Promise<Response> {
   if (req.method === "PUT" && id) {
     const existing = await db
       .selectFrom("meal_plan_assignment")
-      .select(["assigned_by_id", "user_id"])
+      .select(["assigned_by_id", "user_id", "left_at"])
       .where("id", "=", id)
       .executeTakeFirst();
     if (!existing) return jsonError("Meal plan assignment not found", 404);
+    if (existing.left_at) return jsonError("This enrolment has ended", 409, { code: "ended" });
     const allowed = existing.user_id === caller.id || existing.assigned_by_id === caller.id || isSuperUser(caller);
     if (!allowed) return forbidden();
 
@@ -242,20 +247,21 @@ async function handler(req: Request): Promise<Response> {
     return json(row);
   }
 
-  // ── DELETE /meal-plan-assignments/:id ─────────────────────────────────────────
+  // ── DELETE /meal-plan-assignments/:id — leave / remove (ends it) ──────────────
   if (req.method === "DELETE" && id) {
     const existing = await db
       .selectFrom("meal_plan_assignment")
-      .select(["assigned_by_id", "user_id"])
+      .select(["assigned_by_id", "user_id", "left_at"])
       .where("id", "=", id)
       .executeTakeFirst();
-    if (!existing) return jsonError("Meal plan assignment not found", 404);
+    if (!existing || existing.left_at) return jsonError("Meal plan assignment not found", 404);
 
     const isAssigner = existing.assigned_by_id !== null && existing.assigned_by_id === caller.id;
     const isTargetUser = existing.user_id === caller.id;
     if (!isAssigner && !isTargetUser && !isSuperUser(caller)) return forbidden();
 
-    await db.deleteFrom("meal_plan_assignment").where("id", "=", id).execute();
+    // Ended, not deleted: past planned entries and what was logged keep their link.
+    await db.transaction().execute((trx) => endAssignment(trx, { mealPlanAssignmentId: id }, caller.id));
     return new Response(null, { status: 204 });
   }
 

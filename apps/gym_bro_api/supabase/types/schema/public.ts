@@ -682,6 +682,9 @@ export interface MealPlanAssignmentTable {
   note: string | null;
   // IANA zone plan entries are generated in (null: the caller's at read time).
   timezone: string | null;
+  // Ended (left by the user or removed by the assigner); kept for history.
+  left_at: string | null;
+  left_by: string | null;
   created_at: Generated<string>;
 }
 
@@ -880,6 +883,9 @@ export interface RoutineAssignmentTable {
   note: string | null;
   timezone: string | null;
   workout_time: Generated<string>; // TIME 'HH:MM:SS'
+  // Ended (left by the user or removed by the assigner); kept for history.
+  left_at: string | null;
+  left_by: string | null;
   created_at: Generated<string>;
 }
 
@@ -1089,6 +1095,11 @@ export interface PlanEntryTable {
   routine_assignment_id: string | null;
   meal_plan_assignment_id: string | null;
   slot_key: string;
+  // The routine / meal plan and names it was planned with (kept after deletes).
+  source_id: string | null;
+  source_name: string | null;
+  training_name: string | null;
+  daily_meal_plan_name: string | null;
   plan_date: string;
   starts_at: string;
   duration_minutes: Generated<number>;

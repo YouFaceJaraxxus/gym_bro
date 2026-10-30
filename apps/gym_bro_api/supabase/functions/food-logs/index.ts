@@ -194,6 +194,7 @@ async function plannedDay(userId: string, date: string) {
       FROM meal_plan_assignment a
       JOIN meal_plan mp ON mp.id = a.meal_plan_id
      WHERE a.user_id = ${userId}
+       AND a.left_at IS NULL
        AND COALESCE(a.start_date, a.created_at::date) <= ${date}::date
        AND (a.end_date IS NULL OR a.end_date >= ${date}::date)
      ORDER BY COALESCE(a.start_date, a.created_at::date) DESC, a.created_at DESC

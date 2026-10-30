@@ -211,6 +211,7 @@ async function handler(req: Request): Promise<Response> {
         .select("id")
         .where("routine_id", "=", id)
         .where("user_id", "=", caller.id)
+        .where("left_at", "is", null)
         .executeTakeFirst();
       if (!caller || (!isSuperUser(caller) && detail.author_id !== caller.id && !assigned)) {
         return jsonError("Routine not found", 404);

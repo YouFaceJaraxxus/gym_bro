@@ -11,6 +11,7 @@ import {
 } from "../_shared/auth.ts";
 import { dailyPlanSlots } from "../_shared/nutrition.ts";
 import { generateEntries, isTimezone, MAX_WINDOW_DAYS } from "../_shared/plans.ts";
+import { type LibraryKind, libraryAccess } from "../_shared/shares.ts";
 import type { FoodLogTable } from "../../types/schema/public.ts";
 
 // Planned workouts and meals on someone's calendar, from the routines and
@@ -38,7 +39,13 @@ import type { FoodLogTable } from "../../types/schema/public.ts";
 //        training_id, training_name, routine_assignment_id, routine_id,
 //        routine_name, meal_plan_assignment_id, meal_plan_id, meal_plan_name,
 //        daily_meal_plan_id, daily_meal_plan_name, meal_slot,
-//        training_session_id, logged_count }
+//        training_session_id, logged_count,
+//        source_status ('active' | 'left' | 'removed' | 'ended' | 'deleted'), left_at,
+//        source_access, training_access, daily_meal_plan_access
+//        ('ok' | 'private' | 'unavailable' for this viewer; null = no such link) }
+// Entries outlive their enrolment: leaving keeps the past ones (names are
+// kept even if the routine / training is deleted), so the app can say why a
+// link no longer opens.
 // Reads: the user, super, or a coach of theirs. Writes: the user or super.
 
 type FoodLogInsert = Insertable<FoodLogTable>;
@@ -72,9 +79,9 @@ function entryQuery() {
   return db.selectFrom("plan_entry as e")
     .leftJoin("training as t", "t.id", "e.training_id")
     .leftJoin("routine_assignment as ra", "ra.id", "e.routine_assignment_id")
-    .leftJoin("routine as r", "r.id", "ra.routine_id")
+    .leftJoin("routine as r", (j) => j.onRef("r.id", "=", "e.source_id").on("e.kind", "=", "workout"))
     .leftJoin("meal_plan_assignment as ma", "ma.id", "e.meal_plan_assignment_id")
-    .leftJoin("meal_plan as mp", "mp.id", "ma.meal_plan_id")
+    .leftJoin("meal_plan as mp", (j) => j.onRef("mp.id", "=", "e.source_id").on("e.kind", "=", "meal"))
     .leftJoin("daily_meal_plan as dmp", "dmp.id", "e.daily_meal_plan_id")
     .select([
       "e.id", "e.user_id", "e.kind", "e.starts_at",
@@ -82,26 +89,71 @@ function entryQuery() {
       "e.duration_minutes",
       sql<string>`to_char(e.plan_date, 'YYYY-MM-DD')`.as("plan_date"),
       "e.note", "e.edited", "e.skipped",
-      "e.training_id", "t.name as training_name",
-      "e.routine_assignment_id", "r.id as routine_id", "r.name as routine_name",
-      "e.meal_plan_assignment_id", "mp.id as meal_plan_id", "mp.name as meal_plan_name",
-      "e.daily_meal_plan_id", "dmp.name as daily_meal_plan_name", "e.meal_slot",
+      "e.training_id", sql<string | null>`COALESCE(t.name, e.training_name)`.as("training_name"),
+      "e.routine_assignment_id", "r.id as routine_id",
+      sql<string | null>`CASE WHEN e.kind = 'workout' THEN COALESCE(r.name, e.source_name) END`.as("routine_name"),
+      "e.meal_plan_assignment_id", "mp.id as meal_plan_id",
+      sql<string | null>`CASE WHEN e.kind = 'meal' THEN COALESCE(mp.name, e.source_name) END`.as("meal_plan_name"),
+      "e.daily_meal_plan_id",
+      sql<string | null>`COALESCE(dmp.name, e.daily_meal_plan_name)`.as("daily_meal_plan_name"), "e.meal_slot",
+      sql<SourceStatus>`CASE
+        WHEN COALESCE(r.id, mp.id) IS NULL THEN 'deleted'
+        WHEN COALESCE(ra.left_at, ma.left_at) IS NOT NULL THEN
+          CASE WHEN COALESCE(ra.left_by, ma.left_by) = e.user_id THEN 'left' ELSE 'removed' END
+        WHEN COALESCE(ra.id, ma.id) IS NULL THEN 'ended'
+        ELSE 'active' END`.as("source_status"),
+      sql<string | null>`COALESCE(ra.left_at, ma.left_at)`.as("left_at"),
       sql<string | null>`(SELECT s.id FROM training_session s WHERE s.plan_entry_id = e.id
                           ORDER BY s.started_at DESC LIMIT 1)`.as("training_session_id"),
       sql<number>`(SELECT count(*)::int FROM food_log f WHERE f.plan_entry_id = e.id)`.as("logged_count"),
     ]);
 }
 
-type EntryRow = Awaited<ReturnType<ReturnType<typeof entryQuery>["executeTakeFirstOrThrow"]>>;
+/**
+ * The enrolment an entry came from: still on, left by the user, removed by
+ * whoever assigned it, gone, or the routine / meal plan itself deleted.
+ */
+type SourceStatus = "active" | "left" | "removed" | "ended" | "deleted";
 
-function shape(e: EntryRow) {
-  const done = e.kind === "workout" ? e.training_session_id !== null : e.logged_count > 0;
-  return { ...e, status: done ? "done" : e.skipped ? "skipped" : "planned" };
+type EntryRow = Awaited<ReturnType<ReturnType<typeof entryQuery>["executeTakeFirstOrThrow"]>>;
+type Access = "ok" | "private" | "unavailable";
+
+/**
+ * Adds status and, for the viewer, whether the links still open:
+ * source_access (routine / meal plan), training_access, daily_meal_plan_access
+ * — "ok", "private" (no access, e.g. a private routine they left) or
+ * "unavailable" (deleted); null when the entry never had that link.
+ */
+async function shape(rows: EntryRow[], viewer: Caller) {
+  const memo = new Map<string, Promise<Access>>();
+  const access = (kind: LibraryKind, id: string | null, name: string | null): Promise<Access | null> => {
+    if (!id) return Promise.resolve(name ? "unavailable" : null);
+    const key = `${kind}:${id}`;
+    if (!memo.has(key)) memo.set(key, libraryAccess(viewer, kind, id));
+    return memo.get(key)!;
+  };
+  return await Promise.all(rows.map(async (e) => {
+    const done = e.kind === "workout" ? e.training_session_id !== null : e.logged_count > 0;
+    const [source, training, day] = await Promise.all([
+      e.kind === "workout"
+        ? access("routine", e.routine_id, e.routine_name)
+        : access("meal_plan", e.meal_plan_id, e.meal_plan_name),
+      e.kind === "workout" ? access("training", e.training_id, e.training_name) : null,
+      e.kind === "meal" ? access("daily_meal_plan", e.daily_meal_plan_id, e.daily_meal_plan_name) : null,
+    ]);
+    return {
+      ...e,
+      status: done ? "done" : e.skipped ? "skipped" : "planned",
+      source_access: source,
+      training_access: training,
+      daily_meal_plan_access: day,
+    };
+  }));
 }
 
-async function fetchEntry(id: string) {
+async function fetchEntry(id: string, viewer: Caller) {
   const row = await entryQuery().where("e.id", "=", id).executeTakeFirst();
-  return row ? shape(row) : null;
+  return row ? (await shape([row], viewer))[0] : null;
 }
 
 /** Loads an entry the caller may read (or write); a Response otherwise. */
@@ -197,14 +249,14 @@ async function handler(req: Request): Promise<Response> {
       .where("e.starts_at", "<", to.toISOString())
       .orderBy("e.starts_at")
       .execute();
-    return json(rows.map(shape));
+    return json(await shape(rows, caller));
   }
 
   // ── GET /plan-entries/:id ─────────────────────────────────────────────────────
   if (req.method === "GET" && id && !action) {
     const entry = await loadEntry(caller, id, false);
     if (entry instanceof Response) return entry;
-    const row = (await fetchEntry(id))!;
+    const row = (await fetchEntry(id, caller))!;
     if (entry.kind === "meal") {
       const slots = entry.daily_meal_plan_id ? await dailyPlanSlots(entry.daily_meal_plan_id) : [];
       const slot = slots.find((s) => s.slot_type === entry.meal_slot);
@@ -265,13 +317,16 @@ async function handler(req: Request): Promise<Response> {
         }
       }
       update.training_id = body.training_id;
+      update.training_name = body.training_id
+        ? (await db.selectFrom("training").select("name").where("id", "=", body.training_id).executeTakeFirst())?.name
+        : null;
     }
     if (!Object.keys(update).length) return jsonError("Nothing to update", 400);
 
     await db.updateTable("plan_entry")
       .set({ ...update, edited: true, updated_at: new Date().toISOString() })
       .where("id", "=", id).execute();
-    return json(await fetchEntry(id));
+    return json(await fetchEntry(id, caller));
   }
 
   // ── DELETE /plan-entries/:id — skip ──────────────────────────────────────────
@@ -325,7 +380,7 @@ async function handler(req: Request): Promise<Response> {
         }
         return session.id;
       });
-      return json({ ...(await fetchEntry(id)), training_session_id: sessionId }, 201);
+      return json({ ...(await fetchEntry(id, caller)), training_session_id: sessionId }, 201);
     }
 
     const slots = entry.daily_meal_plan_id ? await dailyPlanSlots(entry.daily_meal_plan_id) : [];
@@ -350,7 +405,7 @@ async function handler(req: Request): Promise<Response> {
       eaten_at: startedAt.toISOString(),
       plan_entry_id: entry.id,
     })) as unknown as FoodLogInsert[]).execute();
-    return json(await fetchEntry(id), 201);
+    return json(await fetchEntry(id, caller), 201);
   }
 
   return jsonError("Not found", 404);

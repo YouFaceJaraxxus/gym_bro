@@ -79,7 +79,7 @@ async function canReadTraining(
         OR EXISTS (
              SELECT 1 FROM routine_training rt
                JOIN routine_assignment ra ON ra.routine_id = rt.routine_id
-              WHERE rt.training_id = ${t.id} AND ra.user_id = ${caller.id}) AS ok
+              WHERE rt.training_id = ${t.id} AND ra.user_id = ${caller.id} AND ra.left_at IS NULL) AS ok
   `.execute(db);
   return res.rows[0]?.ok === true;
 }
@@ -405,6 +405,7 @@ async function fetchSuggestions(caller: Caller, name: string | null, limit: numb
         JOIN training t          ON t.id = rt.training_id
         LEFT JOIN users u        ON u.id = ra.assigned_by_id
        WHERE ra.user_id = ${caller.id}
+         AND ra.left_at IS NULL
          AND ra.assigned_by_id IS NOT NULL
          AND ra.assigned_by_id <> ${caller.id}
          AND (ra.end_date IS NULL OR ra.end_date >= CURRENT_DATE)

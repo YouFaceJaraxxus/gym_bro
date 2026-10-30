@@ -10,6 +10,26 @@ import { deleteNotificationsWhere, restorePair, snapshotPair, sql } from "./_db.
 
 const OTHER_GYM_OWNER = "andrew.foster@example.com";
 
+/** A moment's local date ("YYYY-MM-DD"), time ("HH:MM") and ISO weekday in [timeZone]. */
+function localSlot(at: Date | number, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(at);
+  const p = Object.fromEntries(parts.map((x) => [x.type, x.value]));
+  const date = `${p.year}-${p.month}-${p.day}`;
+  return { date, time: `${p.hour}:${p.minute}`, weekday: isoWeekday(date) };
+}
+
+/** 1 = Monday … 7 = Sunday. */
+const isoWeekday = (date: string) => new Date(`${date}T00:00:00Z`).getUTCDay() || 7;
+const nextDate = (date: string) => new Date(Date.parse(`${date}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
+
 Deno.test({
   name: "features: class timetables, invites and customers",
   ...suite,
@@ -75,6 +95,7 @@ Deno.test({
         const otherGym = await call("POST", "/class-series", outsider.token, { ...base, title: "x" });
         check("another gym's staff can't create classes here", otherGym.status === 403, `status ${otherGym.status}`);
 
+        const createdAt = Date.now();
         const made = await call("POST", "/class-series", trainer.token, { ...base, title: `Series Test ${stamp}` });
         if (made.data?.id) created.push(made.data.id);
         seriesId = made.data?.id;
@@ -84,13 +105,36 @@ Deno.test({
             made.data.times.join() === "07:00,18:30" && made.data.weekdays.join() === "1,3,5",
           short(made.data),
         );
+        // Every Mon/Wed/Fri 07:00 and 18:30 (local) from now through 90 days
+        // ahead, each once. Today's slots within a minute of creating it may
+        // or may not have been generated.
         const sessions = await sessionsOf(made.data.id);
-        const days = new Set(sessions.map((s) => new Date(s.starts_at).toISOString().slice(0, 10)));
-        const spanDays = (new Date(sessions.at(-1)!.starts_at).getTime() - Date.now()) / 86_400_000;
+        const today = localSlot(createdAt, base.timezone);
+        const settled = localSlot(createdAt + 60_000, base.timezone);
+        const lastDate = new Date(Date.parse(`${today.date}T00:00:00Z`) + 90 * 86_400_000).toISOString().slice(0, 10);
+        const expected: string[] = [];
+        for (let date = today.date; date <= lastDate; date = nextDate(date)) {
+          if (!base.weekdays.includes(isoWeekday(date))) continue;
+          for (const time of base.times) {
+            const unsettled = date === today.date && (settled.date > today.date || time <= settled.time);
+            if (!unsettled) expected.push(`${date} ${time}`);
+          }
+        }
+        const got = sessions.map((s) => localSlot(new Date(s.starts_at), base.timezone));
+        const gotKeys = got.map((s) => `${s.date} ${s.time}`);
+        const offRule = got.filter((s) =>
+          !base.weekdays.includes(s.weekday) || !base.times.includes(s.time) || s.date < today.date || s.date > lastDate
+        );
         check(
-          "sessions: two a day on Mon/Wed/Fri for ~90 days",
-          sessions.length >= 74 && sessions.length <= 80 && sessions.length === days.size * 2 && spanDays > 85 && spanDays <= 91,
-          `n=${sessions.length} days=${days.size} span=${spanDays.toFixed(1)}`,
+          "sessions fall only on Mon/Wed/Fri at 07:00 and 18:30 local, from today through 90 days ahead",
+          offRule.length === 0 && sessions.every((s) => new Date(s.starts_at).getTime() > createdAt),
+          `off-rule: ${offRule.slice(0, 3).map((s) => `${s.date} ${s.time}`).join(", ")}`,
+        );
+        const missing = expected.filter((k) => !gotKeys.includes(k));
+        check(
+          "every upcoming slot has exactly one session",
+          missing.length === 0 && new Set(gotKeys).size === gotKeys.length,
+          `n=${sessions.length} expected=${expected.length} missing: ${missing.slice(0, 3).join(", ")}`,
         );
         const listed = (await call("GET", "/class-series", trainer.token)).data as any[];
         check("it's in the trainer's list", listed?.some((s) => s.id === made.data.id && s.upcoming_count === sessions.length));

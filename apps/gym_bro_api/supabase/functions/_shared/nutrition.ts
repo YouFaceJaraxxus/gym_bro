@@ -270,6 +270,7 @@ export async function callerHasAssignedAccessToMealPlan(
     .selectFrom("meal_plan_assignment")
     .select("user_id")
     .where("meal_plan_id", "in", ids)
+    .where("left_at", "is", null) // an ended enrolment no longer grants access
     .execute();
   const targets = [...new Set(rows.map((r) => r.user_id))];
   if (targets.includes(caller.id)) return true;

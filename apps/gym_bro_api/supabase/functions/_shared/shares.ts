@@ -33,7 +33,7 @@ export const STORY_SHARE_KINDS = SHARE_KINDS.filter((k) => !["story", "user", "b
   readonly StoryShareKind[];
 
 const LIBRARY_KINDS = ["exercise", "training", "routine", "recipe", "food_item", "daily_meal_plan", "meal_plan"] as const;
-type LibraryKind = (typeof LIBRARY_KINDS)[number];
+export type LibraryKind = (typeof LIBRARY_KINDS)[number];
 const isLibrary = (k: ShareKind): k is LibraryKind => (LIBRARY_KINDS as readonly string[]).includes(k);
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -264,6 +264,21 @@ async function resolveLibrary(viewer: Caller, s: StoredShare, kind: LibraryKind,
 }
 
 /**
+ * Whether [viewer] can open a library item: "ok", "private" (it exists but
+ * isn't public, theirs, or assigned to them) or "unavailable" (deleted). For
+ * links that outlive their access, e.g. a plan entry of a routine they left.
+ */
+export async function libraryAccess(
+  viewer: Caller,
+  kind: LibraryKind,
+  id: string,
+): Promise<"ok" | "private" | "unavailable"> {
+  const r = await resolveLibrary(viewer, { kind, ref_id: id, snapshot: null }, kind, id);
+  if (r.available === true) return "ok";
+  return r.available === false && r.reason === "private" ? "private" : "unavailable";
+}
+
+/**
  * Access a viewer has to a private plan beyond public/own: it's assigned to
  * them (or to someone they coach), or — for a workout — they've logged it.
  */
@@ -272,7 +287,7 @@ async function assignedAccess(viewer: Caller, kind: LibraryKind, id: string): Pr
   switch (kind) {
     case "routine": {
       const r = await db.selectFrom("routine_assignment").select("id").where("routine_id", "=", id)
-        .where("user_id", "=", viewer.id).executeTakeFirst();
+        .where("user_id", "=", viewer.id).where("left_at", "is", null).executeTakeFirst();
       return !!r;
     }
     case "training": {
@@ -280,7 +295,7 @@ async function assignedAccess(viewer: Caller, kind: LibraryKind, id: string): Pr
         SELECT EXISTS (SELECT 1 FROM training_session WHERE training_id = ${id} AND user_id = ${viewer.id})
             OR EXISTS (SELECT 1 FROM routine_training rt
                          JOIN routine_assignment ra ON ra.routine_id = rt.routine_id
-                        WHERE rt.training_id = ${id} AND ra.user_id = ${viewer.id}) AS ok`.execute(db);
+                        WHERE rt.training_id = ${id} AND ra.user_id = ${viewer.id} AND ra.left_at IS NULL) AS ok`.execute(db);
       return r?.ok === true;
     }
     case "meal_plan":
