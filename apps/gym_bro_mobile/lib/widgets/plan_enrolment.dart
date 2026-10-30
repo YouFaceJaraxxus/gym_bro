@@ -348,7 +348,8 @@ class _EnrolDialogState extends State<EnrolDialog> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _start,
-      firstDate: DateTime(now.year - 1),
+      // An enrolment managed long after it started keeps its start pickable.
+      firstDate: _start.isBefore(DateTime(now.year - 1)) ? _start : DateTime(now.year - 1),
       lastDate: DateTime(now.year + 3),
     );
     if (picked == null || !mounted) return;

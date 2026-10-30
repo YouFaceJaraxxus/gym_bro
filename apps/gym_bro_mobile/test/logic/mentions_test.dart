@@ -152,7 +152,7 @@ void main() {
     test('deleting a selection that overlaps a mention takes the mention too', () {
       final c = MentionTextEditingController(markup: 'ab @[Elena Vasquez](user:$_elenaId) cd');
       // Select "b @Ele" and delete it.
-      c.value = const TextEditingValue(text: 'anVasquez cd', selection: TextSelection.collapsed(offset: 1));
+      c.value = const TextEditingValue(text: 'ana Vasquez cd', selection: TextSelection.collapsed(offset: 1));
       expect(c.text, 'a cd');
       expect(c.mentions, isEmpty);
     });

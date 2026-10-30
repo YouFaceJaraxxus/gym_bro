@@ -371,6 +371,15 @@ async function handler(req: Request): Promise<Response> {
 
     const planned = planEntryId ? await planEntryDay(planEntryId) : await plannedDay(caller.id, date);
     const slots = (planned?.planned ?? []).filter((s) => slotType === null || s.slot_type === slotType);
+    // Logged from the diary: link each slot to its planned meal on the
+    // calendar (if one was generated), so that one shows as done.
+    const entryBySlot = new Map<MealSlotType, string>();
+    if (!planEntryId && slots.length) {
+      const entries = await db.selectFrom("plan_entry").select(["id", "meal_slot"])
+        .where("user_id", "=", caller.id).where("kind", "=", "meal").where("plan_date", "=", date)
+        .where("meal_slot", "in", slots.map((s) => s.slot_type)).orderBy("created_at").execute();
+      for (const e of entries) if (!entryBySlot.has(e.meal_slot!)) entryBySlot.set(e.meal_slot!, e.id);
+    }
     // Stagger created_at so the diary keeps the plan's entry order.
     const base = Date.now();
     const values = slots.flatMap((s) => s.entries.map((e) => ({ s, e }))).map(({ s, e }, i) => ({
@@ -389,7 +398,7 @@ async function handler(req: Request): Promise<Response> {
       fiber: e.fiber,
       note: e.note,
       eaten_at: eatenAt ?? null,
-      plan_entry_id: planEntryId,
+      plan_entry_id: planEntryId ?? entryBySlot.get(s.slot_type) ?? null,
     }));
     if (!values.length) return jsonError("No planned meals for this date", 404);
 

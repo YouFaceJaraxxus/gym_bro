@@ -91,9 +91,10 @@ class _ClassSchedulePageState extends State<ClassSchedulePage> {
     final entries = _api
         .getPlanEntries(token, from: from, to: to, timezone: tz)
         .catchError((_) => <PlanEntry>[]);
-    // Food logs are per day ([from, to] inclusive).
+    // Food logs are per day ([from, to] inclusive). Calendar days, not 24 h,
+    // so a week with a daylight-saving change keeps its last day.
     final foodLogs = _api
-        .getFoodLogs(token, from: from, to: to.subtract(const Duration(days: 1)))
+        .getFoodLogs(token, from: from, to: DateTime(to.year, to.month, to.day - 1))
         .catchError((_) => <FoodLog>[]);
     return buildScheduleItems(
       classes: await classes,
