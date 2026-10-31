@@ -8,6 +8,7 @@ import '../../services/auth_manager.dart';
 import '../../widgets/drafts.dart';
 import '../../widgets/post_card.dart';
 import '../../widgets/social_widgets.dart';
+import '../reels/reels_page.dart';
 import '../stories/story_composer_page.dart';
 import '../stories/story_tray.dart';
 import 'create_post_page.dart';
@@ -25,8 +26,8 @@ class _FeedState {
 }
 
 /// The social feed tab body (it lives inside the home shell's Scaffold):
-/// a "share something" row, Home / Explore switch and an endless list of
-/// [PostCard]s with pull-to-refresh.
+/// a "share something" row (with the [ReelsPage] entry), Home / Explore
+/// switch and an endless list of [PostCard]s with pull-to-refresh.
 class FeedPage extends StatefulWidget {
   const FeedPage({super.key});
 
@@ -227,6 +228,11 @@ class _FeedPageState extends State<FeedPage> {
               ),
             ),
           ),
+        ),
+        IconButton(
+          tooltip: l10n.postsReels,
+          icon: Icon(Icons.smart_display_outlined, color: cs.primary),
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ReelsPage())),
         ),
         IconButton(
           tooltip: l10n.storyNew,

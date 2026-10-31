@@ -15,13 +15,19 @@ import '../../widgets/share_sheet.dart';
 import '../../widgets/shared_content_card.dart';
 import '../../widgets/social_widgets.dart';
 import '../../widgets/app_bottom_sheet.dart';
+import '../../widgets/mentions.dart';
+import 'highlights.dart';
+import 'story_poll.dart';
+import 'story_thumb.dart';
 
 // The full-screen story viewer, Instagram-style: one page per person (swipe
 // sideways between people, with a cube turn), segmented progress bars, tap
 // right / left for the next / previous story, hold to pause, swipe down to
 // close. On someone else's story, swipe up for quick emoji reactions (sent
 // to their DMs as "Reacted 🔥 to your story"), reply below, or like it. On
-// my own, swipe up (or "Activity") for who watched it.
+// my own, swipe up (or "Activity") for who watched it, or add it to a
+// highlight. Expired stories (the archive, highlights) are watch-only: no
+// views recorded, no replies, reactions or poll votes.
 
 /// Opens the viewer on [users]' live stories (the tray order), starting at
 /// [initialIndex] and each person's first unwatched story. Resolves when it
@@ -41,11 +47,11 @@ Future<void> openUserStories(
 }
 
 /// Opens the viewer on a fixed list of stories (one author — e.g. the
-/// archive), starting at [initialIndex].
-Future<void> openStoryList(BuildContext context, List<Story> stories, {int initialIndex = 0}) async {
+/// archive or a highlight, then with its [title]), starting at [initialIndex].
+Future<void> openStoryList(BuildContext context, List<Story> stories, {int initialIndex = 0, String? title}) async {
   if (stories.isEmpty) return;
   await Navigator.of(context).push(_route(StoryViewerPage(
-    reels: [StoryReel.fixed(stories, initialIndex: initialIndex.clamp(0, stories.length - 1))],
+    reels: [StoryReel.fixed(stories, initialIndex: initialIndex.clamp(0, stories.length - 1), title: title)],
   )));
 }
 
@@ -78,12 +84,16 @@ Route<void> _route(Widget page) => PageRouteBuilder<void>(
 class StoryReel {
   StoryReel.user(SocialUser this.user)
     : stories = null,
-      initialIndex = null;
+      initialIndex = null,
+      title = null;
 
-  StoryReel.fixed(List<Story> this.stories, {this.initialIndex = 0}) : user = stories.first.author;
+  StoryReel.fixed(List<Story> this.stories, {this.initialIndex = 0, this.title}) : user = stories.first.author;
 
   final SocialUser? user;
   final List<Story>? stories;
+
+  /// A highlight's name, shown instead of the author's.
+  final String? title;
 
   /// Fixed reels start here; loaded ones at the first unwatched story.
   final int? initialIndex;
@@ -206,6 +216,9 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
   bool _reactionsOpen = false;
   bool _sheetOpen = false;
   bool _mediaReady = false;
+
+  /// Something (a sheet, a dialog, a profile opened from a mention) is on top.
+  bool _covered = false;
   VideoPlayerController? _video;
   String? _sentEmoji;
   String? _sentText;
@@ -213,13 +226,25 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
 
   Story? get _story => _stories == null || _stories!.isEmpty ? null : _stories![_index];
 
-  bool get _paused => _holding || _reactionsOpen || _sheetOpen || _replyFocus.hasFocus || !widget.active || !_mediaReady;
+  bool get _paused =>
+      _holding || _reactionsOpen || _sheetOpen || _covered || _replyFocus.hasFocus || !widget.active || !_mediaReady;
 
   @override
   void initState() {
     super.initState();
     _replyFocus.addListener(_syncPlayback);
     _load();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Hold while another route covers the viewer (it rebuilds anyway).
+    final covered = !(ModalRoute.isCurrentOf(context) ?? true);
+    if (covered != _covered) {
+      _covered = covered;
+      _applyPlayback();
+    }
   }
 
   @override
@@ -322,7 +347,8 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
   }
 
   void _markViewed(Story story) {
-    if (story.isMine || !_viewed.add(story.id)) return;
+    // Expired ones (highlights) aren't recorded: the API refuses them.
+    if (story.isMine || !story.isLive || !_viewed.add(story.id)) return;
     if (!story.seen) {
       AuthManager.instance.getValidToken().then((t) => _api.markStoryViewed(t, story.id)).catchError((_) {});
       _stories = [for (final s in _stories!) s.id == story.id ? s.copyWith(seen: true) : s];
@@ -332,6 +358,11 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
 
   void _syncPlayback() {
     if (!mounted) return;
+    _applyPlayback();
+    setState(() {});
+  }
+
+  void _applyPlayback() {
     final video = _video;
     if (_paused) {
       _progress.stop();
@@ -340,7 +371,6 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
       _progress.forward();
       if (video != null && video.value.isInitialized) video.play();
     }
-    setState(() {});
   }
 
   void _onProgressStatus(AnimationStatus status) {
@@ -391,6 +421,30 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
 
   void _replace(Story updated) {
     setState(() => _stories = [for (final s in _stories!) s.id == updated.id ? updated : s]);
+  }
+
+  /// Answers the poll (someone else's live story): my pick shows at once,
+  /// the results when the server answers.
+  Future<void> _vote(int option) async {
+    final story = _story;
+    final poll = story?.poll;
+    if (story == null || poll == null || story.isMine || !story.isLive || poll.myVote == option) return;
+    _replace(story.copyWith(
+      poll: StoryPoll(question: poll.question, options: poll.options, myVote: option, total: poll.total, counts: poll.counts),
+    ));
+    try {
+      final updated = await _api.voteInStoryPoll(await _token(), story.id, option);
+      if (mounted) _replace(updated);
+    } catch (e) {
+      if (mounted) _replace(story);
+      _showError(e);
+    }
+  }
+
+  Future<void> _addToHighlight() async {
+    final story = _story;
+    if (story == null) return;
+    await _withPause(() => showAddToHighlightSheet(context, story));
   }
 
   Future<void> _sendReaction(ReactionType reaction) async {
@@ -556,7 +610,12 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
             onVerticalDragEnd: _onVerticalDragEnd,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: _StoryBody(story: story, video: _video, mediaReady: _mediaReady),
+              child: _StoryBody(
+                story: story,
+                video: _video,
+                mediaReady: _mediaReady,
+                onVote: story.isMine || !story.isLive ? null : _vote,
+              ),
             ),
           ),
         ),
@@ -593,12 +652,13 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
     final l10n = context.l10n;
     final author = story.author ?? widget.reel.user;
     final time = story.isLive ? _ago(l10n, story.createdAt) : MaterialLocalizations.of(context).formatMediumDate(story.createdAt);
+    final title = widget.reel.title;
     return Row(children: [
       UserAvatar(url: author?.avatarUrl, initials: author?.initials ?? '?', radius: 16),
       const SizedBox(width: 8),
       Flexible(
         child: Text(
-          author == null ? '' : (author.username.isNotEmpty ? author.username : author.fullName),
+          title ?? (author == null ? '' : (author.username.isNotEmpty ? author.username : author.fullName)),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
@@ -613,6 +673,10 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
           decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(6)),
           child: Text(l10n.storyArchivedLabel, style: const TextStyle(color: Colors.white, fontSize: 11)),
         ),
+      ],
+      if (story.closeFriends) ...[
+        const SizedBox(width: 8),
+        Flexible(child: CloseFriendsBadge(label: l10n.storyCloseFriends)),
       ],
       const Spacer(),
       if (story.isMine)
@@ -632,8 +696,17 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
             _syncPlayback();
             if (v == 'delete') _delete();
             if (v == 'send') _sendTo();
+            if (v == 'highlight') _addToHighlight();
           },
           itemBuilder: (_) => [
+            PopupMenuItem(
+              value: 'highlight',
+              child: ListTile(
+                leading: const Icon(Icons.favorite_border_rounded),
+                title: Text(l10n.storyHighlightAddTo),
+                contentPadding: EdgeInsets.zero,
+              ),
+            ),
             PopupMenuItem(
               value: 'send',
               child: ListTile(leading: const Icon(Icons.send_outlined), title: Text(l10n.storySendTo), contentPadding: EdgeInsets.zero),
@@ -715,6 +788,13 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
           Text('${story.reactionCount}', style: const TextStyle(color: Colors.white)),
         ],
         const Spacer(),
+        TextButton.icon(
+          key: const ValueKey('story-highlight'),
+          style: TextButton.styleFrom(foregroundColor: Colors.white),
+          onPressed: _addToHighlight,
+          icon: const Icon(Icons.favorite_border_rounded),
+          label: Text(l10n.storyHighlightAction),
+        ),
         IconButton(tooltip: l10n.storySendTo, onPressed: _sendTo, icon: const Icon(Icons.send_outlined, color: Colors.white)),
       ]),
     );
@@ -835,15 +915,19 @@ class _ProgressBars extends StatelessWidget {
 
 /// What a story shows: its photo/video, or text / a shared thing on its colour.
 class _StoryBody extends StatelessWidget {
-  const _StoryBody({required this.story, required this.video, required this.mediaReady});
+  const _StoryBody({required this.story, required this.video, required this.mediaReady, this.onVote});
 
   final Story story;
   final VideoPlayerController? video;
   final bool mediaReady;
 
+  /// Set when I may answer its poll.
+  final ValueChanged<int>? onVote;
+
   @override
   Widget build(BuildContext context) {
     final caption = story.caption;
+    final poll = story.poll;
     if (story.hasMedia) {
       final v = video;
       return Stack(fit: StackFit.expand, children: [
@@ -860,12 +944,19 @@ class _StoryBody extends StatelessWidget {
             errorBuilder: (_, _, _) => const Center(child: Icon(Icons.broken_image_outlined, color: Colors.white54, size: 48)),
           ),
         if (!mediaReady) const Center(child: CircularProgressIndicator(color: Colors.white)),
+        if (poll != null)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: StoryPollSticker(poll: poll, onVote: onVote),
+            ),
+          ),
         if (caption != null && caption.isNotEmpty)
           Positioned(
             left: 16,
             right: 16,
             bottom: 96,
-            child: Text(
+            child: MentionText(
               caption,
               textAlign: TextAlign.center,
               style: const TextStyle(
@@ -887,12 +978,22 @@ class _StoryBody extends StatelessWidget {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           if (caption != null && caption.isNotEmpty)
             Padding(
-              padding: EdgeInsets.only(bottom: share == null ? 0 : 20),
-              child: Text(
+              padding: EdgeInsets.only(bottom: share == null && poll == null ? 0 : 20),
+              child: MentionText(
                 caption,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white, fontSize: share == null ? 30 : 20, fontWeight: FontWeight.w700, height: 1.2),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: share == null && poll == null ? 30 : 20,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
+                ),
               ),
+            ),
+          if (poll != null)
+            Padding(
+              padding: EdgeInsets.only(bottom: share == null ? 0 : 20),
+              child: StoryPollSticker(poll: poll, onVote: onVote),
             ),
           if (share != null) SharedContentCard(content: share, onDark: true, maxWidth: 320),
         ]),
@@ -967,10 +1068,23 @@ class _StoryViewersSheetState extends State<StoryViewersSheet> {
                     itemCount: viewers.length,
                     itemBuilder: (context, i) {
                       final v = viewers[i];
+                      final options = widget.story.poll?.options;
+                      final vote = v.pollVote != null && options != null && v.pollVote! >= 0 && v.pollVote! < options.length
+                          ? options[v.pollVote!]
+                          : null;
+                      final handle = v.user.username.isEmpty ? null : '@${v.user.username}';
                       return ListTile(
                         leading: UserAvatar(url: v.user.avatarUrl, initials: v.user.initials),
                         title: Text(v.user.fullName.isNotEmpty ? v.user.fullName : v.user.username),
-                        subtitle: v.user.username.isEmpty ? null : Text('@${v.user.username}'),
+                        subtitle: vote == null
+                            ? (handle == null ? null : Text(handle))
+                            : Text.rich(TextSpan(children: [
+                                if (handle != null) TextSpan(text: '$handle · '),
+                                TextSpan(
+                                  text: l10n.storyPollVotedFor(vote),
+                                  style: TextStyle(color: cs.primary, fontWeight: FontWeight.w600),
+                                ),
+                              ])),
                         trailing: v.reaction == null
                             ? null
                             : v.reaction == ReactionType.like

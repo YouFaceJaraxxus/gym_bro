@@ -1,0 +1,90 @@
+{
+  "storyCloseFriends": "Close friends",
+  "storyPollAdd": "Add a poll",
+  "storyPollEdit": "Edit poll",
+  "storyPollRemove": "Remove poll",
+  "storyPollEditorTitle": "Poll",
+  "storyPollQuestionHint": "Ask a question (optional)",
+  "storyPollOptionLabel": "Option {number}",
+  "@storyPollOptionLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "storyPollAddOption": "Add option",
+  "storyPollRemoveOption": "Remove option",
+  "storyPollDone": "Done",
+  "storyPollVotes": "{count, plural, =0{No votes yet} =1{1 vote} other{{count} votes}}",
+  "@storyPollVotes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "storyPollVotedFor": "Voted {option}",
+  "@storyPollVotedFor": {
+    "placeholders": {
+      "option": {
+        "type": "String"
+      }
+    }
+  },
+  "storyHighlightAction": "Highlight",
+  "storyHighlightAddTo": "Add to highlight",
+  "storyHighlightAddedTo": "Added to {title}",
+  "@storyHighlightAddedTo": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "storyHighlightCreated": "Highlight \"{title}\" created",
+  "@storyHighlightCreated": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "storyHighlightNew": "New",
+  "storyHighlightNewTitle": "New highlight",
+  "storyHighlightRename": "Rename highlight",
+  "storyHighlightNameLabel": "Highlight name",
+  "storyHighlightPickTitle": "Choose stories",
+  "storyHighlightNext": "Next",
+  "storyHighlightNoArchive": "Your archive has no stories yet. Stories you post are kept there after 24 hours.",
+  "storyHighlightEdit": "Edit highlight",
+  "storyHighlightDelete": "Delete highlight",
+  "storyHighlightDeleteTitle": "Delete this highlight?",
+  "storyHighlightDeleteBody": "Its stories stay in your archive.",
+  "storyHighlightDeleted": "Highlight deleted",
+  "storyHighlightSaved": "Highlight updated",
+  "storyHighlightNeedsStory": "Keep at least one story, or delete the highlight",
+  "storyHighlightStories": "Stories",
+  "storyHighlightAddStories": "Add stories",
+  "storyHighlightCover": "Cover",
+  "storyHighlightCoverHint": "Tap a story to make it the cover.",
+  "storyHighlightRemoveStory": "Remove from highlight",
+  "storyHighlightKeepStory": "Keep in highlight",
+  "closeFriendsPageTitle": "Close friends",
+  "closeFriendsPageInfo": "Only you can see your close friends list — no one is told when you add or remove them. Stories you share to close friends show only to them, with a green ring.",
+  "closeFriendsPageListTitle": "{count, plural, =0{Your list} =1{Your list · 1 person} other{Your list · {count} people}}",
+  "@closeFriendsPageListTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "closeFriendsPageEmpty": "No one yet. Tap the star next to a follower to add them.",
+  "closeFriendsPageFollowers": "Your followers",
+  "closeFriendsPageSearchHint": "Search followers",
+  "closeFriendsPageNoFollowers": "You don't have any followers to add yet.",
+  "closeFriendsPageNoMatch": "No followers match your search.",
+  "closeFriendsPageAdd": "Add to close friends",
+  "closeFriendsPageRemove": "Remove from close friends"
+}

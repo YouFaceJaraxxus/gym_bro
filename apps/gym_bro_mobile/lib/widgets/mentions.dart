@@ -5,7 +5,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
+import '../models/hashtag.dart';
 import '../models/mention.dart';
+import '../pages/hashtags/hashtag_page.dart';
 import '../pages/people/user_profile_page.dart';
 import '../pages/posts_page.dart';
 import '../pages/shop/storefront_shop_page.dart';
@@ -21,7 +23,7 @@ import 'social_widgets.dart';
 //   it back for editing.
 // * [MentionAutocomplete] — wraps the field: typing "@" drops down people,
 //   gyms/shops and products (GET /posts/mention-search); picking one inserts it.
-// * [MentionText] — renders stored text with tappable mentions.
+// * [MentionText] — renders stored text with tappable mentions and #hashtags.
 
 class _Range {
   _Range(this.start, this.end, this.mention);
@@ -483,8 +485,42 @@ class MentionThumb extends StatelessWidget {
 
 // ── Rendering ─────────────────────────────────────────────────────────────────
 
+/// A piece of rendered text: plain, a mention or a hashtag.
+class _Piece {
+  const _Piece(this.text, {this.mention, this.tag});
+
+  final String text;
+  final Mention? mention;
+
+  /// Lowercased, without "#".
+  final String? tag;
+
+  bool get isLink => mention != null || tag != null;
+}
+
+List<_Piece> _pieces(String text) {
+  final out = <_Piece>[];
+  String? prev;
+  for (final seg in parseMentions(text)) {
+    if (seg.mention != null) {
+      out.add(_Piece(seg.text, mention: seg.mention));
+    } else {
+      var last = 0;
+      for (final h in findHashtags(seg.text, before: prev)) {
+        if (h.start > last) out.add(_Piece(seg.text.substring(last, h.start)));
+        out.add(_Piece(seg.text.substring(h.start, h.end), tag: h.tag));
+        last = h.end;
+      }
+      if (last < seg.text.length) out.add(_Piece(seg.text.substring(last)));
+    }
+    if (seg.text.isNotEmpty) prev = seg.text;
+  }
+  return out;
+}
+
 /// Stored text with its mentions shown as tappable "@Name" (tap → profile,
-/// gym/shop or product, see [openMention]).
+/// gym/shop or product, see [openMention]) and tappable #hashtags (tap →
+/// [HashtagPage]).
 class MentionText extends StatefulWidget {
   const MentionText(this.text, {super.key, this.style, this.maxLines, this.overflow, this.textAlign});
 
@@ -499,7 +535,7 @@ class MentionText extends StatefulWidget {
 }
 
 class _MentionTextState extends State<MentionText> {
-  List<MentionSegment> _segments = const [];
+  List<_Piece> _segments = const [];
   final List<TapGestureRecognizer> _recognizers = [];
 
   @override
@@ -519,10 +555,12 @@ class _MentionTextState extends State<MentionText> {
       r.dispose();
     }
     _recognizers.clear();
-    _segments = parseMentions(widget.text);
+    _segments = _pieces(widget.text);
     for (final s in _segments) {
       if (s.mention != null) {
         _recognizers.add(TapGestureRecognizer()..onTap = () => openMention(context, s.mention!));
+      } else if (s.tag != null) {
+        _recognizers.add(TapGestureRecognizer()..onTap = () => openHashtag(context, s.tag!));
       }
     }
   }
@@ -553,9 +591,9 @@ class _MentionTextState extends State<MentionText> {
       TextSpan(
         children: [
           for (final s in _segments)
-            s.mention == null
-                ? TextSpan(text: s.text)
-                : TextSpan(text: s.text, style: link, recognizer: _recognizers[i++], semanticsLabel: s.text),
+            s.isLink
+                ? TextSpan(text: s.text, style: link, recognizer: _recognizers[i++], semanticsLabel: s.text)
+                : TextSpan(text: s.text),
         ],
       ),
       style: style,
@@ -565,6 +603,13 @@ class _MentionTextState extends State<MentionText> {
     );
   }
 }
+
+/// Whether [text] renders any link (a mention or a hashtag).
+bool hasRichLinks(String text) => hasMentions(text) || hasHashtags(text);
+
+/// Opens the posts with [tag].
+Future<void> openHashtag(BuildContext context, String tag) =>
+    Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => HashtagPage(tag: tag)));
 
 /// Opens what [mention] points at: a person's profile, a gym's feed or a
 /// shop's storefront, or a product in its shop.

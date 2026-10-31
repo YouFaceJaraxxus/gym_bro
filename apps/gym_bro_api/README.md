@@ -70,6 +70,18 @@ the current one.
 - **Archive**: `PUT|DELETE /posts/:id/archive` hides a personal post from
   everyone but its author (profile, feed, shares); `GET /posts/archive`
   lists them by date for the archive calendar.
+- **Instagram extras** (migration 000022): saved posts and named
+  collections (`/posts/saved`, `/posts/collections`), hashtags parsed from
+  captions (`/posts/hashtags`, `GET /posts?hashtag=`), up to three pinned
+  posts, per-post "hide like count" / "turn off commenting" / free-text
+  location, posts I reacted to (`/posts/liked`), a Reels feed
+  (`/posts/feed?mode=reels`), muting someone's posts and/or stories
+  (`/social/users/:id/mute`), close friends (`/social/close-friends`) with
+  close-friends-only stories and notes, story polls and @mentions, story
+  highlights kept on the profile after expiry (`/stories/highlights`), inbox
+  notes (`/chat/notes`, 24 hours, replies land in DMs), up to three pinned
+  chats, forwarding messages with their files (`/chat/messages/:id/forward`),
+  and a website link on profiles.
 - **Realtime**: Supabase Realtime private channels authorized by RLS policies
   on `realtime.messages` (migration 000014). `user:<id>` and `chat:<id>` are
   written only by the server (`realtime.send()` in the same transaction as the

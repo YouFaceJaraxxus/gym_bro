@@ -48,6 +48,12 @@ class Story {
   final int? viewCount;
   final int? reactionCount;
 
+  /// 'everyone' or 'close_friends' (the green ring).
+  final String audience;
+
+  /// The poll sticker on it, if any.
+  final StoryPoll? poll;
+
   const Story({
     required this.id,
     required this.authorId,
@@ -68,8 +74,11 @@ class Story {
     this.isMine = false,
     this.viewCount,
     this.reactionCount,
+    this.audience = kStoryAudienceEveryone,
+    this.poll,
   });
 
+  bool get closeFriends => audience == kStoryAudienceCloseFriends;
   bool get isVideo => mediaType == 'video';
   bool get hasMedia => mediaUrl != null;
   bool get liked => myReaction != null;
@@ -85,7 +94,7 @@ class Story {
 
   Color get backgroundColor => parseHexColor(background) ?? const Color(0xFF2B2D42);
 
-  Story copyWith({bool? seen, ReactionType? myReaction, bool clearMyReaction = false, int? reactionCount}) => Story(
+  Story copyWith({bool? seen, ReactionType? myReaction, bool clearMyReaction = false, int? reactionCount, StoryPoll? poll}) => Story(
     id: id,
     authorId: authorId,
     author: author,
@@ -105,6 +114,8 @@ class Story {
     isMine: isMine,
     viewCount: viewCount,
     reactionCount: reactionCount ?? this.reactionCount,
+    audience: audience,
+    poll: poll ?? this.poll,
   );
 
   factory Story.fromJson(Map<String, dynamic> json) {
@@ -129,7 +140,63 @@ class Story {
       isMine: json['is_mine'] as bool? ?? false,
       viewCount: json['view_count'] as int?,
       reactionCount: json['reaction_count'] as int?,
+      audience: json['audience'] as String? ??
+          (json['close_friends'] == true ? kStoryAudienceCloseFriends : kStoryAudienceEveryone),
+      poll: StoryPoll.maybeFromJson(json['poll']),
     );
+  }
+}
+
+const kStoryAudienceEveryone = 'everyone';
+const kStoryAudienceCloseFriends = 'close_friends';
+
+/// The colour of close-friends stories: their ring, badge and the composer's button.
+const kCloseFriendsGreen = Color(0xFF1DB954);
+
+int? _intOrNull(Object? v) => v == null ? null : (v is int ? v : int.tryParse(v.toString()) ?? double.tryParse(v.toString())?.round());
+
+/// A poll sticker ({question, options: 2–4}). [counts] and [total] are null
+/// until I vote, unless it's my story.
+class StoryPoll {
+  final String question;
+  final List<String> options;
+
+  /// The option I picked (index), null when I haven't voted.
+  final int? myVote;
+  final int? total;
+  final List<int>? counts;
+
+  const StoryPoll({this.question = '', required this.options, this.myVote, this.total, this.counts});
+
+  bool get hasResults => counts != null;
+  bool get voted => myVote != null;
+
+  /// Option [i]'s share of the votes, 0–1 (0 without results or votes).
+  double fraction(int i) {
+    final c = counts;
+    if (c == null || i < 0 || i >= c.length) return 0;
+    final sum = total ?? c.fold<int>(0, (a, b) => a + b);
+    return sum <= 0 ? 0 : c[i] / sum;
+  }
+
+  /// Option [i]'s share in whole percent.
+  int percent(int i) => (fraction(i) * 100).round();
+
+  /// The body for creating one.
+  Map<String, dynamic> toJson() => {'question': question.trim(), 'options': [for (final o in options) o.trim()]};
+
+  factory StoryPoll.fromJson(Map<String, dynamic> json) => StoryPoll(
+    question: json['question'] as String? ?? '',
+    options: [for (final o in json['options'] as List<dynamic>? ?? const []) o.toString()],
+    myVote: _intOrNull(json['my_vote']),
+    total: _intOrNull(json['total']),
+    counts: json['counts'] is List ? [for (final c in json['counts'] as List) _intOrNull(c) ?? 0] : null,
+  );
+
+  static StoryPoll? maybeFromJson(Object? json) {
+    if (json is! Map<String, dynamic>) return null;
+    final poll = StoryPoll.fromJson(json);
+    return poll.options.length < 2 ? null : poll;
   }
 }
 
@@ -147,18 +214,28 @@ class StoryTrayEntry {
   final int unseenCount;
   final DateTime latestAt;
 
+  /// Some of their live stories are for close friends (the green ring).
+  final bool closeFriends;
+
   const StoryTrayEntry({
     required this.user,
     this.isMe = false,
     this.storyCount = 0,
     this.unseenCount = 0,
     required this.latestAt,
+    this.closeFriends = false,
   });
 
   bool get hasUnseen => unseenCount > 0;
 
-  StoryTrayEntry seenAll() =>
-      StoryTrayEntry(user: user, isMe: isMe, storyCount: storyCount, unseenCount: 0, latestAt: latestAt);
+  StoryTrayEntry seenAll() => StoryTrayEntry(
+    user: user,
+    isMe: isMe,
+    storyCount: storyCount,
+    unseenCount: 0,
+    latestAt: latestAt,
+    closeFriends: closeFriends,
+  );
 
   factory StoryTrayEntry.fromJson(Map<String, dynamic> json) => StoryTrayEntry(
     user: SocialUser.fromJson(json['user'] as Map<String, dynamic>),
@@ -166,6 +243,7 @@ class StoryTrayEntry {
     storyCount: json['story_count'] as int? ?? 0,
     unseenCount: json['unseen_count'] as int? ?? 0,
     latestAt: DateTime.tryParse(json['latest_at'] as String? ?? '')?.toLocal() ?? DateTime.now(),
+    closeFriends: json['close_friends'] as bool? ?? false,
   );
 }
 
@@ -175,12 +253,16 @@ class StoryViewer {
   final DateTime viewedAt;
   final ReactionType? reaction;
 
-  const StoryViewer({required this.user, required this.viewedAt, this.reaction});
+  /// The poll option they picked, if the story has a poll and they voted.
+  final int? pollVote;
+
+  const StoryViewer({required this.user, required this.viewedAt, this.reaction, this.pollVote});
 
   factory StoryViewer.fromJson(Map<String, dynamic> json) => StoryViewer(
     user: SocialUser.fromJson(json['user'] as Map<String, dynamic>),
     viewedAt: DateTime.tryParse(json['viewed_at'] as String? ?? '')?.toLocal() ?? DateTime.now(),
     reaction: ReactionType.tryParse(json['reaction']),
+    pollVote: _intOrNull(json['poll_vote']),
   );
 }
 
@@ -213,3 +295,81 @@ const kStoryQuickReactions = [
   ReactionType.celebrate,
   ReactionType.strong,
 ];
+
+// ── Highlights ────────────────────────────────────────────────────────────────
+
+/// What a highlight's circle shows: its cover story's photo/video, or its
+/// colour and text.
+class HighlightCover {
+  final String storyId;
+  final String? mediaUrl;
+  final String? mediaType;
+  final String? background;
+  final String? caption;
+
+  const HighlightCover({required this.storyId, this.mediaUrl, this.mediaType, this.background, this.caption});
+
+  bool get isVideo => mediaType == 'video';
+  bool get hasMedia => mediaUrl != null;
+  Color get backgroundColor => parseHexColor(background) ?? const Color(0xFF2B2D42);
+
+  factory HighlightCover.fromJson(Map<String, dynamic> json) {
+    final media = json['media_url'] as String?;
+    return HighlightCover(
+      storyId: json['story_id'] as String? ?? '',
+      mediaUrl: media == null || media.isEmpty ? null : AppConfig.resolveUrl(media),
+      mediaType: json['media_type'] as String?,
+      background: json['background'] as String?,
+      caption: json['caption'] as String?,
+    );
+  }
+}
+
+/// A highlight on someone's profile (GET /stories/highlights?user_id=):
+/// stories kept after they expired. [storyCount] counts only those I may see.
+class StoryHighlight {
+  final String id;
+  final String userId;
+  final String title;
+
+  /// The cover the owner picked (null: the newest story).
+  final String? coverStoryId;
+  final int storyCount;
+  final HighlightCover? cover;
+
+  const StoryHighlight({
+    required this.id,
+    required this.userId,
+    required this.title,
+    this.coverStoryId,
+    this.storyCount = 0,
+    this.cover,
+  });
+
+  factory StoryHighlight.fromJson(Map<String, dynamic> json) => StoryHighlight(
+    id: json['id'] as String,
+    userId: json['user_id'] as String? ?? '',
+    title: json['title'] as String? ?? '',
+    coverStoryId: json['cover_story_id'] as String?,
+    storyCount: _intOrNull(json['story_count']) ?? 0,
+    cover: json['cover'] is Map<String, dynamic> ? HighlightCover.fromJson(json['cover'] as Map<String, dynamic>) : null,
+  );
+}
+
+/// One highlight with its stories, oldest first (GET /stories/highlights/:id).
+class StoryHighlightDetail {
+  final StoryHighlight highlight;
+  final SocialUser? user;
+  final List<Story> stories;
+
+  const StoryHighlightDetail({required this.highlight, this.user, this.stories = const []});
+
+  String get id => highlight.id;
+  String get title => highlight.title;
+
+  factory StoryHighlightDetail.fromJson(Map<String, dynamic> json) => StoryHighlightDetail(
+    highlight: StoryHighlight.fromJson(json),
+    user: SocialUser.maybeFromJson(json['user']),
+    stories: [for (final s in json['stories'] as List<dynamic>? ?? const []) Story.fromJson(s as Map<String, dynamic>)],
+  );
+}

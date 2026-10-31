@@ -189,6 +189,9 @@ class PublicProfile {
   final String role;
   final String? bio;
   final List<String> interests;
+
+  /// "https://…" link shown under the bio.
+  final String? website;
   final bool isPrivate;
   final bool isMe;
   final ProfileCounts counts;
@@ -216,6 +219,12 @@ class PublicProfile {
   final int storyCount;
   final bool hasUnseenStory;
 
+  /// What of theirs I muted (null on my own profile). They aren't told.
+  final MuteSettings? muted;
+
+  /// They're on my close friends list (only I know).
+  final bool isCloseFriend;
+
   const PublicProfile({
     required this.id,
     required this.username,
@@ -225,6 +234,7 @@ class PublicProfile {
     this.role = 'member',
     this.bio,
     this.interests = const [],
+    this.website,
     this.isPrivate = false,
     this.isMe = false,
     this.counts = const ProfileCounts(),
@@ -239,11 +249,16 @@ class PublicProfile {
     this.settings,
     this.storyCount = 0,
     this.hasUnseenStory = false,
+    this.muted,
+    this.isCloseFriend = false,
   });
 
   String get fullName => '$name $lastName'.trim();
 
   bool get hasStory => storyCount > 0;
+
+  /// The web address without the scheme, for display ("ironclad.fit/liam").
+  String? get websiteLabel => website?.replaceFirst(RegExp(r'^https?://', caseSensitive: false), '').replaceFirst(RegExp(r'/$'), '');
 
   PersonSummary get summary =>
       PersonSummary(id: id, username: username, name: name, lastName: lastName, avatarUrl: avatarUrl, bio: bio, isPrivate: isPrivate, relationship: relationship);
@@ -259,6 +274,7 @@ class PublicProfile {
       role: json['role'] as String? ?? 'member',
       bio: json['bio'] as String?,
       interests: (json['interests'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
+      website: json['website'] as String?,
       isPrivate: json['is_private'] as bool? ?? false,
       isMe: json['is_me'] as bool? ?? false,
       counts: ProfileCounts.fromJson(json['counts']),
@@ -277,8 +293,36 @@ class PublicProfile {
           : null,
       storyCount: json['story_count'] as int? ?? 0,
       hasUnseenStory: json['has_unseen_story'] as bool? ?? false,
+      muted: MuteSettings.maybeFromJson(json['muted']),
+      isCloseFriend: json['is_close_friend'] as bool? ?? false,
     );
   }
+}
+
+/// Whose posts / stories I don't want to see (PUT /social/users/:id/mute).
+class MuteSettings {
+  final bool posts;
+  final bool stories;
+
+  const MuteSettings({this.posts = false, this.stories = false});
+
+  bool get any => posts || stories;
+
+  factory MuteSettings.fromJson(Map<String, dynamic> json) =>
+      MuteSettings(posts: json['posts'] as bool? ?? false, stories: json['stories'] as bool? ?? false);
+
+  static MuteSettings? maybeFromJson(Object? json) => json is Map<String, dynamic> ? MuteSettings.fromJson(json) : null;
+}
+
+/// A row of GET /social/mutes.
+class MutedPerson {
+  final PersonSummary person;
+  final MuteSettings muted;
+
+  const MutedPerson(this.person, this.muted);
+
+  factory MutedPerson.fromJson(Map<String, dynamic> json) =>
+      MutedPerson(PersonSummary.fromJson(json), MuteSettings.maybeFromJson(json['muted']) ?? const MuteSettings());
 }
 
 /// Why someone is suggested (GET /social/suggestions → reasons[]).

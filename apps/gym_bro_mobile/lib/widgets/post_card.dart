@@ -11,6 +11,7 @@ import '../models/social.dart';
 import '../pages/feed/post_detail_page.dart';
 import '../pages/feed/reactions_sheet.dart';
 import '../pages/people/user_profile_page.dart';
+import '../pages/saved/save_collection_sheet.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'mentions.dart';
@@ -77,12 +78,28 @@ class PostCard extends StatefulWidget {
   State<PostCard> createState() => _PostCardState();
 }
 
-enum _PostAction { edit, tagPeople, removeMyTag, archive, unarchive, delete, copy }
+enum _PostAction {
+  edit,
+  tagPeople,
+  removeMyTag,
+  pin,
+  unpin,
+  hideLikeCount,
+  showLikeCount,
+  disableComments,
+  enableComments,
+  saveToCollection,
+  archive,
+  unarchive,
+  delete,
+  copy,
+}
 
 class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin {
   final _api = ApiService();
   late Post _post = widget.post;
   int _reactSeq = 0;
+  int _saveSeq = 0;
   bool _deleting = false;
 
   // Created up front: a lazy controller first built in dispose() would look
@@ -184,6 +201,20 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
         await _editTags();
       case _PostAction.removeMyTag:
         await _removeMyTag();
+      case _PostAction.pin:
+        await _setPinned(true);
+      case _PostAction.unpin:
+        await _setPinned(false);
+      case _PostAction.hideLikeCount:
+        await _updateSettings(hideLikeCount: true);
+      case _PostAction.showLikeCount:
+        await _updateSettings(hideLikeCount: false);
+      case _PostAction.disableComments:
+        await _updateSettings(commentsDisabled: true);
+      case _PostAction.enableComments:
+        await _updateSettings(commentsDisabled: false);
+      case _PostAction.saveToCollection:
+        await _openCollections();
       case _PostAction.archive:
         await _setArchived(true);
       case _PostAction.unarchive:
@@ -266,31 +297,135 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
   }
 
   Future<void> _editInline() async {
-    final result = await showAppBottomSheet<(String, PostVisibility)>(
+    final result = await showAppBottomSheet<_PostEdit>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       builder: (_) => _EditPostSheet(post: _post),
     );
     if (result == null || !mounted) return;
-    final (content, visibility) = result;
-    if (content == _post.content && visibility == _post.visibility) return;
     final before = _post;
+    final personal = before.isPersonal;
+    final location = result.location.trim();
+    final locationChanged = personal && location != (before.locationName ?? '');
+    final hideChanged = personal && result.hideLikeCount != before.hideLikeCount;
+    final commentsChanged = personal && result.commentsDisabled != before.commentsDisabled;
+    if (result.content == before.content &&
+        result.visibility == before.visibility &&
+        !locationChanged &&
+        !hideChanged &&
+        !commentsChanged) {
+      return;
+    }
     final messenger = ScaffoldMessenger.of(context);
     final l10n = context.l10n;
-    _setPost(before.copyWith(content: content, visibility: visibility));
+    _setPost(before.copyWith(
+      content: result.content,
+      visibility: result.visibility,
+      hideLikeCount: personal ? result.hideLikeCount : null,
+      commentsDisabled: personal ? result.commentsDisabled : null,
+      locationName: location.isEmpty ? null : location,
+      clearLocationName: personal && location.isEmpty,
+    ));
     try {
       final token = await AuthManager.instance.getValidToken();
       final saved = await SocialApi(_api).updatePost(
         token,
         before.id,
-        content: content,
-        visibility: before.isPersonal ? visibility : null,
+        content: result.content,
+        visibility: personal ? result.visibility : null,
+        hideLikeCount: hideChanged ? result.hideLikeCount : null,
+        commentsDisabled: commentsChanged ? result.commentsDisabled : null,
+        locationName: locationChanged ? location : null,
       );
       _setPost(saved);
       messenger.showSnackBar(SnackBar(content: Text(l10n.feedPostUpdated)));
     } catch (e) {
-      _setPost(_post.copyWith(content: before.content, visibility: before.visibility));
+      _setPost(_post.copyWith(
+        content: before.content,
+        visibility: before.visibility,
+        hideLikeCount: before.hideLikeCount,
+        commentsDisabled: before.commentsDisabled,
+        locationName: before.locationName,
+        clearLocationName: before.locationName == null,
+      ));
+      messenger.showSnackBar(SnackBar(content: Text(_msg(e))));
+    }
+  }
+
+  /// Optimistic bookmark toggle; only the latest tap wins.
+  Future<void> _toggleSave() async {
+    final before = _post.savedByMe;
+    final seq = ++_saveSeq;
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    HapticFeedback.selectionClick();
+    _setPost(_post.copyWith(savedByMe: !before));
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      if (before) {
+        await _api.unsavePost(token, _post.id);
+      } else {
+        await _api.savePost(token, _post.id);
+      }
+    } catch (e) {
+      if (seq != _saveSeq) return;
+      _setPost(_post.copyWith(savedByMe: before));
+      messenger?.showSnackBar(SnackBar(content: Text(_msg(e))));
+    }
+  }
+
+  /// "Save to collection": the sheet reports the saved state as it changes.
+  Future<void> _openCollections() async {
+    _saveSeq++;
+    await showSaveToCollectionSheet(
+      context,
+      post: _post,
+      onSavedChanged: (saved) {
+        if (_post.savedByMe != saved) _setPost(_post.copyWith(savedByMe: saved));
+      },
+    );
+  }
+
+  Future<void> _setPinned(bool pin) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final before = _post;
+    _setPost(before.copyWith(pinned: pin));
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final updated = pin ? await _api.pinPost(token, before.id) : await _api.unpinPost(token, before.id);
+      _setPost(_post.copyWith(pinned: updated.pinned));
+      messenger.showSnackBar(SnackBar(content: Text(pin ? l10n.postsPinnedToast : l10n.postsUnpinnedToast)));
+    } on PostPinLimitException {
+      _setPost(_post.copyWith(pinned: before.pinned));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.postsPinLimit)));
+    } catch (e) {
+      _setPost(_post.copyWith(pinned: before.pinned));
+      messenger.showSnackBar(SnackBar(content: Text(_msg(e))));
+    }
+  }
+
+  /// Hide/show the like count or turn commenting off/on (optimistic).
+  Future<void> _updateSettings({bool? hideLikeCount, bool? commentsDisabled}) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    final before = _post;
+    _setPost(before.copyWith(hideLikeCount: hideLikeCount, commentsDisabled: commentsDisabled));
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final saved = await SocialApi(_api).updatePost(
+        token,
+        before.id,
+        hideLikeCount: hideLikeCount,
+        commentsDisabled: commentsDisabled,
+      );
+      _setPost(saved);
+      final text = hideLikeCount != null
+          ? (hideLikeCount ? l10n.postsLikeCountHiddenToast : l10n.postsLikeCountShownToast)
+          : (commentsDisabled! ? l10n.postsCommentingOffToast : l10n.postsCommentingOnToast);
+      messenger.showSnackBar(SnackBar(content: Text(text)));
+    } catch (e) {
+      _setPost(_post.copyWith(hideLikeCount: before.hideLikeCount, commentsDisabled: before.commentsDisabled));
       messenger.showSnackBar(SnackBar(content: Text(_msg(e))));
     }
   }
@@ -415,10 +550,15 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
 
     final onHeaderTap = isBusiness ? widget.onBusinessTap : (widget.linkAuthor && author != null ? _openAuthor : null);
     final me = AuthManager.instance.profile?.id;
+    final mine = p.isPersonal && me != null && p.authorId == me;
     final actions = <_PostAction>[
       if (p.canEdit) _PostAction.edit,
       if (p.canEdit && p.isPersonal && p.authorId == me && p.images.any((i) => !i.isVideo)) _PostAction.tagPeople,
       if (me != null && p.authorId != me && p.isTaggedIn(me)) _PostAction.removeMyTag,
+      if (mine && !p.isArchived) p.pinned ? _PostAction.unpin : _PostAction.pin,
+      if (mine) p.hideLikeCount ? _PostAction.showLikeCount : _PostAction.hideLikeCount,
+      if (mine) p.commentsDisabled ? _PostAction.enableComments : _PostAction.disableComments,
+      if (!p.isArchived) _PostAction.saveToCollection,
       if (p.isPersonal && p.authorId == me && !p.isArchived) _PostAction.archive,
       if (p.isPersonal && p.authorId == me && p.isArchived) _PostAction.unarchive,
       if (p.canEdit) _PostAction.delete,
@@ -440,7 +580,30 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(title, style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Row(children: [
+                      Flexible(
+                        child: Text(
+                          title,
+                          style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (p.pinned) ...[
+                        const SizedBox(width: 4),
+                        Tooltip(
+                          message: l10n.postsPinned,
+                          child: Icon(Icons.push_pin, size: 13, color: cs.onSurfaceVariant, semanticLabel: l10n.postsPinned),
+                        ),
+                      ],
+                    ]),
+                    if (p.locationName != null)
+                      Text(
+                        p.locationName!,
+                        style: tt.bodySmall?.copyWith(color: cs.onSurface),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     Row(children: [
                       Flexible(
                         child: Text(
@@ -488,6 +651,13 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                       _PostAction.edit => Icons.edit_outlined,
                       _PostAction.tagPeople => Icons.person_pin_outlined,
                       _PostAction.removeMyTag => Icons.person_remove_outlined,
+                      _PostAction.pin => Icons.push_pin_outlined,
+                      _PostAction.unpin => Icons.push_pin,
+                      _PostAction.hideLikeCount => Icons.visibility_off_outlined,
+                      _PostAction.showLikeCount => Icons.visibility_outlined,
+                      _PostAction.disableComments => Icons.comments_disabled_outlined,
+                      _PostAction.enableComments => Icons.mode_comment_outlined,
+                      _PostAction.saveToCollection => Icons.bookmarks_outlined,
                       _PostAction.archive => Icons.archive_outlined,
                       _PostAction.unarchive => Icons.unarchive_outlined,
                       _PostAction.delete => Icons.delete_outline,
@@ -497,6 +667,13 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                       _PostAction.edit => l10n.nutritionEditPost,
                       _PostAction.tagPeople => l10n.tagsTitle,
                       _PostAction.removeMyTag => l10n.tagsRemoveMe,
+                      _PostAction.pin => l10n.postsPinToProfile,
+                      _PostAction.unpin => l10n.postsUnpin,
+                      _PostAction.hideLikeCount => l10n.postsHideLikeCount,
+                      _PostAction.showLikeCount => l10n.postsShowLikeCount,
+                      _PostAction.disableComments => l10n.postsTurnOffCommenting,
+                      _PostAction.enableComments => l10n.postsTurnOnCommenting,
+                      _PostAction.saveToCollection => l10n.postsSaveToCollection,
                       _PostAction.archive => l10n.archivePostAction,
                       _PostAction.unarchive => l10n.archivePostUnarchive,
                       _PostAction.delete => l10n.nutritionDeletePost,
@@ -511,12 +688,21 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
   }
 
   Widget _stats(BuildContext context, Post p) {
-    if (p.reactions.total == 0 && p.commentCount == 0) return const SizedBox(height: 4);
+    final hidden = p.hidesCountsFrom(AuthManager.instance.profile?.id);
+    final hiddenTop = [
+      ...p.reactions.top,
+      if (p.myReaction != null && !p.reactions.top.contains(p.myReaction)) p.myReaction!,
+    ].take(3).toList();
+    final anyReaction = hidden ? hiddenTop.isNotEmpty : p.reactions.total > 0;
+    if (!anyReaction && p.commentCount == 0) return const SizedBox(height: 4);
     final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 2, 8, 4),
       child: Row(children: [
-        ReactionSummaryView(summary: p.reactions, onTap: () => showReactionsSheet(context, p)),
+        if (!hidden)
+          ReactionSummaryView(summary: p.reactions, onTap: () => showReactionsSheet(context, p))
+        else if (anyReaction)
+          HiddenReactionsView(top: hiddenTop, onTap: () => showReactionsSheet(context, p)),
         const Spacer(),
         if (p.commentCount > 0)
           InkWell(
@@ -592,7 +778,83 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
               ),
             ),
           ),
+        // Bookmark: a tap saves / unsaves, a long press files it in a collection.
+        if (!p.isArchived)
+          Semantics(
+            button: true,
+            toggled: p.savedByMe,
+            label: p.savedByMe ? l10n.postsUnsave : l10n.postsSave,
+            hint: l10n.postsSaveToCollection,
+            excludeSemantics: true,
+            onLongPress: _openCollections,
+            child: InkWell(
+              onTap: _toggleSave,
+              onLongPress: _openCollections,
+              customBorder: const CircleBorder(),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Icon(
+                  p.savedByMe ? Icons.bookmark : Icons.bookmark_border,
+                  size: 22,
+                  color: p.savedByMe ? cs.onSurface : cs.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ),
       ]),
+    );
+  }
+}
+
+/// Reactions on a post whose author hides the count: the top emojis and
+/// "Liked by others", no numbers.
+class HiddenReactionsView extends StatelessWidget {
+  const HiddenReactionsView({super.key, required this.top, this.onTap});
+
+  final List<ReactionType> top;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    const size = 20.0;
+    final label = context.l10n.postsLikedByOthers;
+    return Semantics(
+      button: onTap != null,
+      label: label,
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            SizedBox(
+              width: size + (top.length - 1) * size * 0.7,
+              height: size,
+              child: Stack(children: [
+                for (final (i, r) in top.indexed)
+                  Positioned(
+                    left: i * size * 0.7,
+                    child: Container(
+                      width: size,
+                      height: size,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerHighest,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: cs.surface, width: 1.5),
+                      ),
+                      child: Text(r.emoji, style: const TextStyle(fontSize: size * 0.62)),
+                    ),
+                  ),
+              ]),
+            ),
+            const SizedBox(width: 6),
+            Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
+          ]),
+        ),
+      ),
     );
   }
 }
@@ -628,8 +890,8 @@ class _ExpandableCaptionState extends State<ExpandableCaption> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final style = widget.large ? tt.titleMedium : tt.bodyMedium;
-    // Mentions are tappable, which selectable text doesn't do well.
-    final mentions = hasMentions(widget.text);
+    // Mentions and hashtags are tappable, which selectable text doesn't do well.
+    final mentions = hasRichLinks(widget.text);
     if (_expanded) return mentions ? MentionText(widget.text, style: style) : SelectableText(widget.text, style: style);
     return LayoutBuilder(builder: (context, constraints) {
       final painter = TextPainter(
@@ -851,7 +1113,27 @@ class _HeartPop extends StatelessWidget {
 
 // ── Edit sheet ────────────────────────────────────────────────────────────────
 
-/// Caption + (personal posts) visibility. Pops with (caption, visibility).
+/// What the edit sheet pops with.
+class _PostEdit {
+  const _PostEdit({
+    required this.content,
+    required this.visibility,
+    required this.location,
+    required this.hideLikeCount,
+    required this.commentsDisabled,
+  });
+
+  final String content;
+  final PostVisibility visibility;
+
+  /// Blank = no location.
+  final String location;
+  final bool hideLikeCount;
+  final bool commentsDisabled;
+}
+
+/// Caption + (personal posts) visibility, location and advanced settings.
+/// Pops with a [_PostEdit].
 class _EditPostSheet extends StatefulWidget {
   const _EditPostSheet({required this.post});
 
@@ -865,11 +1147,15 @@ class _EditPostSheetState extends State<_EditPostSheet> {
   late final _caption = MentionTextEditingController(markup: widget.post.content);
   final _focus = FocusNode();
   late PostVisibility _visibility = widget.post.visibility;
+  late final _location = TextEditingController(text: widget.post.locationName ?? '');
+  late bool _hideLikeCount = widget.post.hideLikeCount;
+  late bool _commentsDisabled = widget.post.commentsDisabled;
 
   @override
   void dispose() {
     _caption.dispose();
     _focus.dispose();
+    _location.dispose();
     super.dispose();
   }
 
@@ -881,7 +1167,8 @@ class _EditPostSheetState extends State<_EditPostSheet> {
       padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + MediaQuery.viewInsetsOf(context).bottom),
       child: SafeArea(
         top: false,
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        child: SingleChildScrollView(
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(l10n.nutritionEditPostTitle, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
           MentionAutocomplete(
@@ -901,18 +1188,39 @@ class _EditPostSheetState extends State<_EditPostSheet> {
           ),
           if (widget.post.isPersonal) ...[
             const SizedBox(height: 8),
+            PostLocationField(controller: _location),
+            const SizedBox(height: 12),
             VisibilitySelector(value: _visibility, onChanged: (v) => setState(() => _visibility = v)),
+            const SizedBox(height: 4),
+            PostAdvancedSettings(
+              hideLikeCount: _hideLikeCount,
+              commentsDisabled: _commentsDisabled,
+              onHideLikeCountChanged: (v) => setState(() => _hideLikeCount = v),
+              onCommentsDisabledChanged: (v) => setState(() => _commentsDisabled = v),
+            ),
           ],
           const SizedBox(height: 16),
           Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
             const SizedBox(width: 8),
             FilledButton(
-              onPressed: valid ? () => Navigator.pop(context, (_caption.markup.trim(), _visibility)) : null,
+              onPressed: valid
+                  ? () => Navigator.pop(
+                      context,
+                      _PostEdit(
+                        content: _caption.markup.trim(),
+                        visibility: _visibility,
+                        location: _location.text.trim(),
+                        hideLikeCount: _hideLikeCount,
+                        commentsDisabled: _commentsDisabled,
+                      ),
+                    )
+                  : null,
               child: Text(l10n.commonSave),
             ),
           ]),
-        ]),
+          ]),
+        ),
       ),
     );
   }
@@ -955,5 +1263,91 @@ class VisibilitySelector extends StatelessWidget {
         style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
       ),
     ]);
+  }
+}
+
+/// Free-text location for a personal post (up to [kLocationMaxLength]).
+class PostLocationField extends StatelessWidget {
+  const PostLocationField({super.key, required this.controller, this.enabled = true});
+
+  final TextEditingController controller;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, _) => TextField(
+        controller: controller,
+        enabled: enabled,
+        maxLength: kLocationMaxLength,
+        textCapitalization: TextCapitalization.words,
+        textInputAction: TextInputAction.done,
+        decoration: InputDecoration(
+          labelText: l10n.postsLocationLabel,
+          hintText: l10n.postsLocationHint,
+          prefixIcon: const Icon(Icons.place_outlined),
+          border: const OutlineInputBorder(),
+          counterText: '',
+          suffixIcon: value.text.isEmpty || !enabled
+              ? null
+              : IconButton(
+                  tooltip: l10n.postsLocationClear,
+                  icon: const Icon(Icons.clear),
+                  onPressed: controller.clear,
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Advanced settings": hide the like count and turn off commenting.
+/// Starts expanded when either is on.
+class PostAdvancedSettings extends StatelessWidget {
+  const PostAdvancedSettings({
+    super.key,
+    required this.hideLikeCount,
+    required this.commentsDisabled,
+    required this.onHideLikeCountChanged,
+    required this.onCommentsDisabledChanged,
+    this.enabled = true,
+  });
+
+  final bool hideLikeCount;
+  final bool commentsDisabled;
+  final ValueChanged<bool> onHideLikeCountChanged;
+  final ValueChanged<bool> onCommentsDisabledChanged;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: EdgeInsets.zero,
+      shape: const Border(),
+      collapsedShape: const Border(),
+      initiallyExpanded: hideLikeCount || commentsDisabled,
+      leading: const Icon(Icons.tune),
+      title: Text(l10n.postsAdvancedSettings),
+      children: [
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.postsHideLikeCount),
+          subtitle: Text(l10n.postsHideLikeCountHint),
+          value: hideLikeCount,
+          onChanged: enabled ? onHideLikeCountChanged : null,
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.postsTurnOffCommenting),
+          subtitle: Text(l10n.postsTurnOffCommentingHint),
+          value: commentsDisabled,
+          onChanged: enabled ? onCommentsDisabledChanged : null,
+        ),
+      ],
+    );
   }
 }

@@ -159,7 +159,7 @@ void main() {
       test('attachment-only messages show the media label', () {
         expect(preview(_msg(kind: 'media', preview: 'image'), kind: 'direct').text, '📷 Photo');
         expect(preview(_msg(kind: 'media', preview: 'video'), kind: 'direct').text, '🎥 Video');
-        expect(preview(_msg(kind: 'media', preview: 'audio'), kind: 'direct').text, '🎤 Audio');
+        expect(preview(_msg(kind: 'media', preview: 'audio'), kind: 'direct').text, '🎤 Voice message');
         expect(preview(_msg(kind: 'media', preview: 'file'), kind: 'direct').text, '📎 File');
         expect(preview(_msg(kind: 'media', preview: 'image', senderId: 'u-me')).text, 'You: 📷 Photo');
         // A text caption with media is shown as text.
@@ -230,7 +230,7 @@ void main() {
   });
 
   test('chatMediaLabel / reportReasonLabel cover every value', () {
-    expect(AttachmentType.values.map((t) => chatMediaLabel(en, t)), ['📷 Photo', '🎥 Video', '🎤 Audio', '📎 File']);
+    expect(AttachmentType.values.map((t) => chatMediaLabel(en, t)), ['📷 Photo', '🎥 Video', '🎤 Voice message', '📎 File']);
     for (final r in ReportReason.values) {
       expect(reportReasonLabel(en, r), isNotEmpty);
     }

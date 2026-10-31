@@ -1915,6 +1915,15 @@ class AppLocalizationsSr extends AppLocalizations {
   String get chatFollowingSection => 'Pratite';
 
   @override
+  String get chatForward => 'Prosledi';
+
+  @override
+  String get chatForwardTitle => 'Prosledi';
+
+  @override
+  String get chatForwarded => 'Prosleđeno';
+
+  @override
   String get chatGroupDescription => 'Opis';
 
   @override
@@ -2033,6 +2042,70 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
+  String chatNoteRepliedPreview(String text) {
+    return 'Odgovor na belešku: $text';
+  }
+
+  @override
+  String get chatNoteRepliedTheirs => 'Odgovorio/la si na njihovu belešku';
+
+  @override
+  String get chatNoteRepliedYours => 'Odgovor na tvoju belešku';
+
+  @override
+  String get chatNotesAudienceCloseFriends => 'Bliski prijatelji';
+
+  @override
+  String get chatNotesAudienceLabel => 'Podeli sa';
+
+  @override
+  String get chatNotesAudienceMutuals => 'Pratioci koje i ti pratiš';
+
+  @override
+  String get chatNotesDelete => 'Obriši belešku';
+
+  @override
+  String get chatNotesDeleted => 'Beleška je obrisana';
+
+  @override
+  String get chatNotesEditorTitle => 'Tvoja beleška';
+
+  @override
+  String get chatNotesHint => 'Podeli misao…';
+
+  @override
+  String get chatNotesLeaveNote => 'Ostavi belešku';
+
+  @override
+  String chatNotesOf(String name) {
+    return 'Beleška: $name';
+  }
+
+  @override
+  String get chatNotesOpenChat => 'Otvori čet';
+
+  @override
+  String chatNotesReplyHint(String name) {
+    return 'Odgovori korisniku $name…';
+  }
+
+  @override
+  String get chatNotesReplySent => 'Odgovor je poslat';
+
+  @override
+  String get chatNotesShare => 'Podeli';
+
+  @override
+  String get chatNotesShared => 'Beleška je podeljena';
+
+  @override
+  String get chatNotesVisibleFor =>
+      'Beleške se prikazuju iznad poruka 24 sata.';
+
+  @override
+  String get chatNotesYourNote => 'Tvoja beleška';
+
+  @override
   String get chatOpenFile => 'Otvori fajl';
 
   @override
@@ -2055,6 +2128,18 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get chatPhotoMessage => 'Fotografija';
+
+  @override
+  String get chatPin => 'Zakači';
+
+  @override
+  String get chatPinLimit => 'Možeš zakačiti najviše 3 četa';
+
+  @override
+  String get chatPinned => 'Zakačeno';
+
+  @override
+  String get chatPinnedSnack => 'Čet je zakačen';
 
   @override
   String get chatPlay => 'Pusti';
@@ -2319,6 +2404,12 @@ class AppLocalizationsSr extends AppLocalizations {
   String get chatUnmutedSnack => 'Obaveštenja su uključena';
 
   @override
+  String get chatUnpin => 'Otkači';
+
+  @override
+  String get chatUnpinnedSnack => 'Čet je otkačen';
+
+  @override
   String chatUnreadCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -2344,6 +2435,34 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get chatViewProfile => 'Pogledaj profil';
+
+  @override
+  String get chatVoiceCancel => 'Odbaci snimak';
+
+  @override
+  String get chatVoiceFailed => 'Snimanje zvuka nije uspelo';
+
+  @override
+  String get chatVoiceMessage => 'Glasovna poruka';
+
+  @override
+  String get chatVoicePermission =>
+      'Dozvoli pristup mikrofonu da bi snimao/la glasovne poruke.';
+
+  @override
+  String get chatVoicePreview => '🎤 Glasovna poruka';
+
+  @override
+  String get chatVoiceRecord => 'Snimi glasovnu poruku';
+
+  @override
+  String get chatVoiceRecording => 'Snimanje';
+
+  @override
+  String get chatVoiceSend => 'Pošalji glasovnu poruku';
+
+  @override
+  String get chatVoiceTooShort => 'Snimak je prekratak';
 
   @override
   String get chatYesterday => 'Juče';
@@ -2741,6 +2860,50 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get classSeriesYou => 'Ti';
+
+  @override
+  String get closeFriendsPageAdd => 'Dodaj u bliske prijatelje';
+
+  @override
+  String get closeFriendsPageEmpty =>
+      'Još nikog nema. Dodirni zvezdicu pored pratioca da ga dodaš.';
+
+  @override
+  String get closeFriendsPageFollowers => 'Tvoji pratioci';
+
+  @override
+  String get closeFriendsPageInfo =>
+      'Samo ti vidiš svoju listu bliskih prijatelja — niko ne dobija obaveštenje kada ga dodaš ili ukloniš. Priče koje podeliš bliskim prijateljima vide samo oni, sa zelenim prstenom.';
+
+  @override
+  String closeFriendsPageListTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Tvoja lista · $count osoba',
+      few: 'Tvoja lista · $count osobe',
+      one: 'Tvoja lista · 1 osoba',
+      zero: 'Tvoja lista',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closeFriendsPageNoFollowers =>
+      'Još nemaš pratioce koje možeš da dodaš.';
+
+  @override
+  String get closeFriendsPageNoMatch =>
+      'Nijedan pratilac ne odgovara pretrazi.';
+
+  @override
+  String get closeFriendsPageRemove => 'Ukloni iz bliskih prijatelja';
+
+  @override
+  String get closeFriendsPageSearchHint => 'Pretraži pratioce';
+
+  @override
+  String get closeFriendsPageTitle => 'Bliski prijatelji';
 
   @override
   String get commonBack => 'Nazad';
@@ -5855,6 +6018,361 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
+  String get postsAdvancedSettings => 'Napredna podešavanja';
+
+  @override
+  String get postsAllPosts => 'Sve objave';
+
+  @override
+  String get postsCollectionEmpty => 'U ovoj kolekciji još nema objava';
+
+  @override
+  String get postsCollectionName => 'Naziv kolekcije';
+
+  @override
+  String get postsCommentingIsOff => 'Komentarisanje je isključeno.';
+
+  @override
+  String get postsCommentingOffToast => 'Komentarisanje je isključeno';
+
+  @override
+  String get postsCommentingOnToast => 'Komentarisanje je uključeno';
+
+  @override
+  String get postsCreate => 'Napravi';
+
+  @override
+  String get postsDeleteCollection => 'Obriši kolekciju';
+
+  @override
+  String get postsDeleteCollectionBody =>
+      'Njene objave ostaju u Svim objavama.';
+
+  @override
+  String postsDeleteCollectionTitle(String name) {
+    return 'Obrisati „$name“?';
+  }
+
+  @override
+  String get postsGridView => 'Prikaz mreže';
+
+  @override
+  String get postsHashtagEmpty => 'Još nema objava sa ovim heštegom';
+
+  @override
+  String get postsHideLikeCount => 'Sakrij broj reakcija';
+
+  @override
+  String get postsHideLikeCountHint =>
+      'Samo ti ćeš videti koliko ljudi je reagovalo na ovu objavu.';
+
+  @override
+  String get postsLikeCountHiddenToast => 'Broj reakcija je sakriven';
+
+  @override
+  String get postsLikeCountShownToast => 'Broj reakcija je ponovo vidljiv';
+
+  @override
+  String get postsLikedByOthers => 'Sviđa se drugima';
+
+  @override
+  String get postsLikedTitle => 'Tvoje reakcije';
+
+  @override
+  String get postsListView => 'Prikaz liste';
+
+  @override
+  String get postsLocationClear => 'Obriši lokaciju';
+
+  @override
+  String get postsLocationHint => 'Dodaj lokaciju';
+
+  @override
+  String get postsLocationLabel => 'Lokacija';
+
+  @override
+  String get postsMute => 'Isključi zvuk';
+
+  @override
+  String get postsNewCollection => 'Nova kolekcija';
+
+  @override
+  String get postsNoLikedBody => 'Objave na koje reaguješ pojaviće se ovde.';
+
+  @override
+  String get postsNoLikedTitle => 'Još nema reakcija';
+
+  @override
+  String get postsNoReelsBody =>
+      'Ovde se pojavljuju video snimci koje ljudi dele.';
+
+  @override
+  String get postsNoReelsTitle => 'Još nema rilsova';
+
+  @override
+  String get postsNoSavedBody =>
+      'Dodirni obeleživač na objavi da je sačuvaš ovde.';
+
+  @override
+  String get postsNoSavedTitle => 'Još ništa nije sačuvano';
+
+  @override
+  String get postsPinLimit =>
+      'Možeš zakačiti najviše 3 objave. Prvo otkači jednu.';
+
+  @override
+  String get postsPinToProfile => 'Zakači na profil';
+
+  @override
+  String get postsPinned => 'Zakačeno';
+
+  @override
+  String get postsPinnedToast => 'Zakačeno na tvoj profil';
+
+  @override
+  String postsPostCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count objava',
+      few: '$count objave',
+      one: '$count objava',
+      zero: 'Nema objava',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postsReactionsAllHidden => 'Sve';
+
+  @override
+  String get postsReels => 'Rilsovi';
+
+  @override
+  String postsRemovedFrom(String name) {
+    return 'Uklonjeno iz: $name';
+  }
+
+  @override
+  String get postsRemovedFromSaved => 'Uklonjeno iz sačuvanih';
+
+  @override
+  String get postsRenameCollection => 'Preimenuj kolekciju';
+
+  @override
+  String get postsSave => 'Sačuvaj';
+
+  @override
+  String get postsSaveToCollection => 'Sačuvaj u kolekciju';
+
+  @override
+  String get postsSavedOnlyYou => 'Samo ti vidiš šta si sačuvao/la.';
+
+  @override
+  String get postsSavedTitle => 'Sačuvano';
+
+  @override
+  String postsSavedTo(String name) {
+    return 'Sačuvano u: $name';
+  }
+
+  @override
+  String get postsSavedToast => 'Sačuvano';
+
+  @override
+  String get postsShowLikeCount => 'Prikaži broj reakcija';
+
+  @override
+  String get postsTabRecent => 'Najnovije';
+
+  @override
+  String get postsTabTop => 'Najbolje';
+
+  @override
+  String get postsTurnOffCommenting => 'Isključi komentarisanje';
+
+  @override
+  String get postsTurnOffCommentingHint =>
+      'Niko ne može da komentariše. Postojeći komentari ostaju vidljivi.';
+
+  @override
+  String get postsTurnOnCommenting => 'Uključi komentarisanje';
+
+  @override
+  String get postsUnmute => 'Uključi zvuk';
+
+  @override
+  String get postsUnpin => 'Otkači sa profila';
+
+  @override
+  String get postsUnpinnedToast => 'Otkačeno';
+
+  @override
+  String get postsUnsave => 'Ukloni iz sačuvanih';
+
+  @override
+  String get postsVideoUnavailable => 'Ovaj video ne može da se pusti';
+
+  @override
+  String get profileExtrasAddCloseFriend => 'Dodaj u bliske prijatelje';
+
+  @override
+  String get profileExtrasClearAll => 'Obriši sve';
+
+  @override
+  String profileExtrasCloseFriendAdded(String username) {
+    return '@$username je dodat u bliske prijatelje';
+  }
+
+  @override
+  String profileExtrasCloseFriendRemoved(String username) {
+    return '@$username je uklonjen iz bliskih prijatelja';
+  }
+
+  @override
+  String get profileExtrasCloseFriends => 'Bliski prijatelji';
+
+  @override
+  String get profileExtrasCloseFriendsSubtitle =>
+      'Ko vidi tvoje priče i beleške za bliske prijatelje';
+
+  @override
+  String get profileExtrasDone => 'Gotovo';
+
+  @override
+  String profileExtrasHashtagPosts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count objava',
+      few: '$count objave',
+      one: '$count objava',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileExtrasMuteBody =>
+      'Neće saznati da si ga utišao. Njegove objave i priče i dalje ćeš videti na njegovom profilu.';
+
+  @override
+  String get profileExtrasMuteMenu => 'Utišaj';
+
+  @override
+  String get profileExtrasMutePosts => 'Objave';
+
+  @override
+  String get profileExtrasMuteStories => 'Priče';
+
+  @override
+  String profileExtrasMuteTitle(String username) {
+    return 'Utišaj @$username';
+  }
+
+  @override
+  String get profileExtrasMutedAccounts => 'Utišani nalozi';
+
+  @override
+  String get profileExtrasMutedAccountsSubtitle =>
+      'Ljudi čije si objave ili priče utišao';
+
+  @override
+  String get profileExtrasMutedBoth => 'Utišane objave i priče';
+
+  @override
+  String get profileExtrasMutedEmpty => 'Nikoga nisi utišao';
+
+  @override
+  String get profileExtrasMutedEmptyBody =>
+      'Utišaj nekoga sa njegovog profila da više ne vidiš njegove objave ili priče, bez otpraćivanja. Neće saznati.';
+
+  @override
+  String get profileExtrasMutedMenu => 'Utišano';
+
+  @override
+  String get profileExtrasMutedPosts => 'Utišane objave';
+
+  @override
+  String get profileExtrasMutedStories => 'Utišane priče';
+
+  @override
+  String get profileExtrasQrCameraUnavailable => 'Kamera nije dostupna.';
+
+  @override
+  String get profileExtrasQrCopyLink => 'Kopiraj link';
+
+  @override
+  String get profileExtrasQrHint =>
+      'Prijatelji mogu da skeniraju ovaj kod u aplikaciji Gym Bro i otvore tvoj profil.';
+
+  @override
+  String get profileExtrasQrLinkCopied => 'Link je kopiran';
+
+  @override
+  String get profileExtrasQrNotAProfile => 'To nije kod Gym Bro profila';
+
+  @override
+  String profileExtrasQrNotFound(String username) {
+    return 'Nije pronađen @$username';
+  }
+
+  @override
+  String get profileExtrasQrScan => 'Skeniraj QR kod';
+
+  @override
+  String profileExtrasQrSemantics(String username) {
+    return 'QR kod za @$username';
+  }
+
+  @override
+  String get profileExtrasQrSubtitle =>
+      'Neka te prijatelji pronađu skeniranjem';
+
+  @override
+  String get profileExtrasQrTitle => 'QR kod';
+
+  @override
+  String get profileExtrasRecentSearches => 'Nedavno';
+
+  @override
+  String get profileExtrasRemoveCloseFriend => 'Ukloni iz bliskih prijatelja';
+
+  @override
+  String get profileExtrasRemoveRecent => 'Ukloni';
+
+  @override
+  String get profileExtrasSaved => 'Sačuvano';
+
+  @override
+  String get profileExtrasSavedSubtitle =>
+      'Objave koje si sačuvao i tvoje kolekcije';
+
+  @override
+  String get profileExtrasUnmute => 'Ukloni utišavanje';
+
+  @override
+  String profileExtrasUnmutedSnack(String username) {
+    return 'Više nije utišan @$username';
+  }
+
+  @override
+  String get profileExtrasWebsite => 'Veb sajt';
+
+  @override
+  String get profileExtrasWebsiteHint => 'tvojsajt.com';
+
+  @override
+  String get profileExtrasWebsiteInvalid =>
+      'Unesi veb adresu, npr. tvojsajt.com';
+
+  @override
+  String get profileExtrasYourActivity => 'Tvoja aktivnost';
+
+  @override
+  String get profileExtrasYourActivitySubtitle =>
+      'Objave koje su ti se svidele ili na koje si reagovao';
+
+  @override
   String get reactionAngry => 'Ljuto';
 
   @override
@@ -7133,6 +7651,9 @@ class AppLocalizationsSr extends AppLocalizations {
   String get storyClose => 'Zatvori';
 
   @override
+  String get storyCloseFriends => 'Bliski prijatelji';
+
+  @override
   String get storyComposerBackground => 'Boja pozadine';
 
   @override
@@ -7182,6 +7703,85 @@ class AppLocalizationsSr extends AppLocalizations {
   String get storyDeleted => 'Priča je obrisana';
 
   @override
+  String get storyHighlightAction => 'Istakni';
+
+  @override
+  String get storyHighlightAddStories => 'Dodaj priče';
+
+  @override
+  String get storyHighlightAddTo => 'Dodaj u istaknuto';
+
+  @override
+  String storyHighlightAddedTo(String title) {
+    return 'Dodato u $title';
+  }
+
+  @override
+  String get storyHighlightCover => 'Naslovna';
+
+  @override
+  String get storyHighlightCoverHint => 'Dodirni priču da bude naslovna.';
+
+  @override
+  String storyHighlightCreated(String title) {
+    return 'Istaknuto „$title” je napravljeno';
+  }
+
+  @override
+  String get storyHighlightDelete => 'Obriši istaknuto';
+
+  @override
+  String get storyHighlightDeleteBody =>
+      'Njegove priče ostaju u tvojoj arhivi.';
+
+  @override
+  String get storyHighlightDeleteTitle => 'Obrisati ovo istaknuto?';
+
+  @override
+  String get storyHighlightDeleted => 'Istaknuto je obrisano';
+
+  @override
+  String get storyHighlightEdit => 'Izmeni istaknuto';
+
+  @override
+  String get storyHighlightKeepStory => 'Zadrži u istaknutom';
+
+  @override
+  String get storyHighlightNameLabel => 'Naziv istaknutog';
+
+  @override
+  String get storyHighlightNeedsStory =>
+      'Zadrži bar jednu priču ili obriši istaknuto';
+
+  @override
+  String get storyHighlightNew => 'Novo';
+
+  @override
+  String get storyHighlightNewTitle => 'Novo istaknuto';
+
+  @override
+  String get storyHighlightNext => 'Dalje';
+
+  @override
+  String get storyHighlightNoArchive =>
+      'U arhivi još nema priča. Priče koje objaviš čuvaju se tamo posle 24 sata.';
+
+  @override
+  String get storyHighlightPickTitle => 'Izaberi priče';
+
+  @override
+  String get storyHighlightRemoveStory => 'Ukloni iz istaknutog';
+
+  @override
+  String get storyHighlightRename => 'Preimenuj istaknuto';
+
+  @override
+  String get storyHighlightSaved => 'Istaknuto je ažurirano';
+
+  @override
+  String get storyHighlightStories => 'Priče';
+
+  @override
   String get storyLike => 'Sviđa mi se';
 
   @override
@@ -7195,6 +7795,53 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get storyNoViewers => 'Niko još nije pogledao ovu priču';
+
+  @override
+  String get storyPollAdd => 'Dodaj anketu';
+
+  @override
+  String get storyPollAddOption => 'Dodaj opciju';
+
+  @override
+  String get storyPollDone => 'Gotovo';
+
+  @override
+  String get storyPollEdit => 'Izmeni anketu';
+
+  @override
+  String get storyPollEditorTitle => 'Anketa';
+
+  @override
+  String storyPollOptionLabel(int number) {
+    return 'Opcija $number';
+  }
+
+  @override
+  String get storyPollQuestionHint => 'Postavi pitanje (opciono)';
+
+  @override
+  String get storyPollRemove => 'Ukloni anketu';
+
+  @override
+  String get storyPollRemoveOption => 'Ukloni opciju';
+
+  @override
+  String storyPollVotedFor(String option) {
+    return 'Glasao/la: $option';
+  }
+
+  @override
+  String storyPollVotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count glasova',
+      few: '$count glasa',
+      one: '1 glas',
+      zero: 'Još nema glasova',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get storyPosted => 'Dodato u tvoju priču';
@@ -11515,6 +12162,15 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get chatFollowingSection => 'Pratite';
 
   @override
+  String get chatForward => 'Prosledi';
+
+  @override
+  String get chatForwardTitle => 'Prosledi';
+
+  @override
+  String get chatForwarded => 'Prosleđeno';
+
+  @override
   String get chatGroupDescription => 'Opis';
 
   @override
@@ -11633,6 +12289,70 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
+  String chatNoteRepliedPreview(String text) {
+    return 'Odgovor na belešku: $text';
+  }
+
+  @override
+  String get chatNoteRepliedTheirs => 'Odgovorio/la si na njihovu belešku';
+
+  @override
+  String get chatNoteRepliedYours => 'Odgovor na tvoju belešku';
+
+  @override
+  String get chatNotesAudienceCloseFriends => 'Bliski prijatelji';
+
+  @override
+  String get chatNotesAudienceLabel => 'Podeli sa';
+
+  @override
+  String get chatNotesAudienceMutuals => 'Pratioci koje i ti pratiš';
+
+  @override
+  String get chatNotesDelete => 'Obriši belešku';
+
+  @override
+  String get chatNotesDeleted => 'Beleška je obrisana';
+
+  @override
+  String get chatNotesEditorTitle => 'Tvoja beleška';
+
+  @override
+  String get chatNotesHint => 'Podeli misao…';
+
+  @override
+  String get chatNotesLeaveNote => 'Ostavi belešku';
+
+  @override
+  String chatNotesOf(String name) {
+    return 'Beleška: $name';
+  }
+
+  @override
+  String get chatNotesOpenChat => 'Otvori čet';
+
+  @override
+  String chatNotesReplyHint(String name) {
+    return 'Odgovori korisniku $name…';
+  }
+
+  @override
+  String get chatNotesReplySent => 'Odgovor je poslat';
+
+  @override
+  String get chatNotesShare => 'Podeli';
+
+  @override
+  String get chatNotesShared => 'Beleška je podeljena';
+
+  @override
+  String get chatNotesVisibleFor =>
+      'Beleške se prikazuju iznad poruka 24 sata.';
+
+  @override
+  String get chatNotesYourNote => 'Tvoja beleška';
+
+  @override
   String get chatOpenFile => 'Otvori fajl';
 
   @override
@@ -11655,6 +12375,18 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get chatPhotoMessage => 'Fotografija';
+
+  @override
+  String get chatPin => 'Zakači';
+
+  @override
+  String get chatPinLimit => 'Možeš zakačiti najviše 3 četa';
+
+  @override
+  String get chatPinned => 'Zakačeno';
+
+  @override
+  String get chatPinnedSnack => 'Čet je zakačen';
 
   @override
   String get chatPlay => 'Pusti';
@@ -11919,6 +12651,12 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get chatUnmutedSnack => 'Obaveštenja su uključena';
 
   @override
+  String get chatUnpin => 'Otkači';
+
+  @override
+  String get chatUnpinnedSnack => 'Čet je otkačen';
+
+  @override
   String chatUnreadCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -11944,6 +12682,34 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get chatViewProfile => 'Pogledaj profil';
+
+  @override
+  String get chatVoiceCancel => 'Odbaci snimak';
+
+  @override
+  String get chatVoiceFailed => 'Snimanje zvuka nije uspelo';
+
+  @override
+  String get chatVoiceMessage => 'Glasovna poruka';
+
+  @override
+  String get chatVoicePermission =>
+      'Dozvoli pristup mikrofonu da bi snimao/la glasovne poruke.';
+
+  @override
+  String get chatVoicePreview => '🎤 Glasovna poruka';
+
+  @override
+  String get chatVoiceRecord => 'Snimi glasovnu poruku';
+
+  @override
+  String get chatVoiceRecording => 'Snimanje';
+
+  @override
+  String get chatVoiceSend => 'Pošalji glasovnu poruku';
+
+  @override
+  String get chatVoiceTooShort => 'Snimak je prekratak';
 
   @override
   String get chatYesterday => 'Juče';
@@ -12341,6 +13107,50 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get classSeriesYou => 'Ti';
+
+  @override
+  String get closeFriendsPageAdd => 'Dodaj u bliske prijatelje';
+
+  @override
+  String get closeFriendsPageEmpty =>
+      'Još nikog nema. Dodirni zvezdicu pored pratioca da ga dodaš.';
+
+  @override
+  String get closeFriendsPageFollowers => 'Tvoji pratioci';
+
+  @override
+  String get closeFriendsPageInfo =>
+      'Samo ti vidiš svoju listu bliskih prijatelja — niko ne dobija obaveštenje kada ga dodaš ili ukloniš. Priče koje podeliš bliskim prijateljima vide samo oni, sa zelenim prstenom.';
+
+  @override
+  String closeFriendsPageListTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Tvoja lista · $count osoba',
+      few: 'Tvoja lista · $count osobe',
+      one: 'Tvoja lista · 1 osoba',
+      zero: 'Tvoja lista',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closeFriendsPageNoFollowers =>
+      'Još nemaš pratioce koje možeš da dodaš.';
+
+  @override
+  String get closeFriendsPageNoMatch =>
+      'Nijedan pratilac ne odgovara pretrazi.';
+
+  @override
+  String get closeFriendsPageRemove => 'Ukloni iz bliskih prijatelja';
+
+  @override
+  String get closeFriendsPageSearchHint => 'Pretraži pratioce';
+
+  @override
+  String get closeFriendsPageTitle => 'Bliski prijatelji';
 
   @override
   String get commonBack => 'Nazad';
@@ -15455,6 +16265,361 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
+  String get postsAdvancedSettings => 'Napredna podešavanja';
+
+  @override
+  String get postsAllPosts => 'Sve objave';
+
+  @override
+  String get postsCollectionEmpty => 'U ovoj kolekciji još nema objava';
+
+  @override
+  String get postsCollectionName => 'Naziv kolekcije';
+
+  @override
+  String get postsCommentingIsOff => 'Komentarisanje je isključeno.';
+
+  @override
+  String get postsCommentingOffToast => 'Komentarisanje je isključeno';
+
+  @override
+  String get postsCommentingOnToast => 'Komentarisanje je uključeno';
+
+  @override
+  String get postsCreate => 'Napravi';
+
+  @override
+  String get postsDeleteCollection => 'Obriši kolekciju';
+
+  @override
+  String get postsDeleteCollectionBody =>
+      'Njene objave ostaju u Svim objavama.';
+
+  @override
+  String postsDeleteCollectionTitle(String name) {
+    return 'Obrisati „$name“?';
+  }
+
+  @override
+  String get postsGridView => 'Prikaz mreže';
+
+  @override
+  String get postsHashtagEmpty => 'Još nema objava sa ovim heštegom';
+
+  @override
+  String get postsHideLikeCount => 'Sakrij broj reakcija';
+
+  @override
+  String get postsHideLikeCountHint =>
+      'Samo ti ćeš videti koliko ljudi je reagovalo na ovu objavu.';
+
+  @override
+  String get postsLikeCountHiddenToast => 'Broj reakcija je sakriven';
+
+  @override
+  String get postsLikeCountShownToast => 'Broj reakcija je ponovo vidljiv';
+
+  @override
+  String get postsLikedByOthers => 'Sviđa se drugima';
+
+  @override
+  String get postsLikedTitle => 'Tvoje reakcije';
+
+  @override
+  String get postsListView => 'Prikaz liste';
+
+  @override
+  String get postsLocationClear => 'Obriši lokaciju';
+
+  @override
+  String get postsLocationHint => 'Dodaj lokaciju';
+
+  @override
+  String get postsLocationLabel => 'Lokacija';
+
+  @override
+  String get postsMute => 'Isključi zvuk';
+
+  @override
+  String get postsNewCollection => 'Nova kolekcija';
+
+  @override
+  String get postsNoLikedBody => 'Objave na koje reaguješ pojaviće se ovde.';
+
+  @override
+  String get postsNoLikedTitle => 'Još nema reakcija';
+
+  @override
+  String get postsNoReelsBody =>
+      'Ovde se pojavljuju video snimci koje ljudi dele.';
+
+  @override
+  String get postsNoReelsTitle => 'Još nema rilsova';
+
+  @override
+  String get postsNoSavedBody =>
+      'Dodirni obeleživač na objavi da je sačuvaš ovde.';
+
+  @override
+  String get postsNoSavedTitle => 'Još ništa nije sačuvano';
+
+  @override
+  String get postsPinLimit =>
+      'Možeš zakačiti najviše 3 objave. Prvo otkači jednu.';
+
+  @override
+  String get postsPinToProfile => 'Zakači na profil';
+
+  @override
+  String get postsPinned => 'Zakačeno';
+
+  @override
+  String get postsPinnedToast => 'Zakačeno na tvoj profil';
+
+  @override
+  String postsPostCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count objava',
+      few: '$count objave',
+      one: '$count objava',
+      zero: 'Nema objava',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postsReactionsAllHidden => 'Sve';
+
+  @override
+  String get postsReels => 'Rilsovi';
+
+  @override
+  String postsRemovedFrom(String name) {
+    return 'Uklonjeno iz: $name';
+  }
+
+  @override
+  String get postsRemovedFromSaved => 'Uklonjeno iz sačuvanih';
+
+  @override
+  String get postsRenameCollection => 'Preimenuj kolekciju';
+
+  @override
+  String get postsSave => 'Sačuvaj';
+
+  @override
+  String get postsSaveToCollection => 'Sačuvaj u kolekciju';
+
+  @override
+  String get postsSavedOnlyYou => 'Samo ti vidiš šta si sačuvao/la.';
+
+  @override
+  String get postsSavedTitle => 'Sačuvano';
+
+  @override
+  String postsSavedTo(String name) {
+    return 'Sačuvano u: $name';
+  }
+
+  @override
+  String get postsSavedToast => 'Sačuvano';
+
+  @override
+  String get postsShowLikeCount => 'Prikaži broj reakcija';
+
+  @override
+  String get postsTabRecent => 'Najnovije';
+
+  @override
+  String get postsTabTop => 'Najbolje';
+
+  @override
+  String get postsTurnOffCommenting => 'Isključi komentarisanje';
+
+  @override
+  String get postsTurnOffCommentingHint =>
+      'Niko ne može da komentariše. Postojeći komentari ostaju vidljivi.';
+
+  @override
+  String get postsTurnOnCommenting => 'Uključi komentarisanje';
+
+  @override
+  String get postsUnmute => 'Uključi zvuk';
+
+  @override
+  String get postsUnpin => 'Otkači sa profila';
+
+  @override
+  String get postsUnpinnedToast => 'Otkačeno';
+
+  @override
+  String get postsUnsave => 'Ukloni iz sačuvanih';
+
+  @override
+  String get postsVideoUnavailable => 'Ovaj video ne može da se pusti';
+
+  @override
+  String get profileExtrasAddCloseFriend => 'Dodaj u bliske prijatelje';
+
+  @override
+  String get profileExtrasClearAll => 'Obriši sve';
+
+  @override
+  String profileExtrasCloseFriendAdded(String username) {
+    return '@$username je dodat u bliske prijatelje';
+  }
+
+  @override
+  String profileExtrasCloseFriendRemoved(String username) {
+    return '@$username je uklonjen iz bliskih prijatelja';
+  }
+
+  @override
+  String get profileExtrasCloseFriends => 'Bliski prijatelji';
+
+  @override
+  String get profileExtrasCloseFriendsSubtitle =>
+      'Ko vidi tvoje priče i beleške za bliske prijatelje';
+
+  @override
+  String get profileExtrasDone => 'Gotovo';
+
+  @override
+  String profileExtrasHashtagPosts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count objava',
+      few: '$count objave',
+      one: '$count objava',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileExtrasMuteBody =>
+      'Neće saznati da si ga utišao. Njegove objave i priče i dalje ćeš videti na njegovom profilu.';
+
+  @override
+  String get profileExtrasMuteMenu => 'Utišaj';
+
+  @override
+  String get profileExtrasMutePosts => 'Objave';
+
+  @override
+  String get profileExtrasMuteStories => 'Priče';
+
+  @override
+  String profileExtrasMuteTitle(String username) {
+    return 'Utišaj @$username';
+  }
+
+  @override
+  String get profileExtrasMutedAccounts => 'Utišani nalozi';
+
+  @override
+  String get profileExtrasMutedAccountsSubtitle =>
+      'Ljudi čije si objave ili priče utišao';
+
+  @override
+  String get profileExtrasMutedBoth => 'Utišane objave i priče';
+
+  @override
+  String get profileExtrasMutedEmpty => 'Nikoga nisi utišao';
+
+  @override
+  String get profileExtrasMutedEmptyBody =>
+      'Utišaj nekoga sa njegovog profila da više ne vidiš njegove objave ili priče, bez otpraćivanja. Neće saznati.';
+
+  @override
+  String get profileExtrasMutedMenu => 'Utišano';
+
+  @override
+  String get profileExtrasMutedPosts => 'Utišane objave';
+
+  @override
+  String get profileExtrasMutedStories => 'Utišane priče';
+
+  @override
+  String get profileExtrasQrCameraUnavailable => 'Kamera nije dostupna.';
+
+  @override
+  String get profileExtrasQrCopyLink => 'Kopiraj link';
+
+  @override
+  String get profileExtrasQrHint =>
+      'Prijatelji mogu da skeniraju ovaj kod u aplikaciji Gym Bro i otvore tvoj profil.';
+
+  @override
+  String get profileExtrasQrLinkCopied => 'Link je kopiran';
+
+  @override
+  String get profileExtrasQrNotAProfile => 'To nije kod Gym Bro profila';
+
+  @override
+  String profileExtrasQrNotFound(String username) {
+    return 'Nije pronađen @$username';
+  }
+
+  @override
+  String get profileExtrasQrScan => 'Skeniraj QR kod';
+
+  @override
+  String profileExtrasQrSemantics(String username) {
+    return 'QR kod za @$username';
+  }
+
+  @override
+  String get profileExtrasQrSubtitle =>
+      'Neka te prijatelji pronađu skeniranjem';
+
+  @override
+  String get profileExtrasQrTitle => 'QR kod';
+
+  @override
+  String get profileExtrasRecentSearches => 'Nedavno';
+
+  @override
+  String get profileExtrasRemoveCloseFriend => 'Ukloni iz bliskih prijatelja';
+
+  @override
+  String get profileExtrasRemoveRecent => 'Ukloni';
+
+  @override
+  String get profileExtrasSaved => 'Sačuvano';
+
+  @override
+  String get profileExtrasSavedSubtitle =>
+      'Objave koje si sačuvao i tvoje kolekcije';
+
+  @override
+  String get profileExtrasUnmute => 'Ukloni utišavanje';
+
+  @override
+  String profileExtrasUnmutedSnack(String username) {
+    return 'Više nije utišan @$username';
+  }
+
+  @override
+  String get profileExtrasWebsite => 'Veb sajt';
+
+  @override
+  String get profileExtrasWebsiteHint => 'tvojsajt.com';
+
+  @override
+  String get profileExtrasWebsiteInvalid =>
+      'Unesi veb adresu, npr. tvojsajt.com';
+
+  @override
+  String get profileExtrasYourActivity => 'Tvoja aktivnost';
+
+  @override
+  String get profileExtrasYourActivitySubtitle =>
+      'Objave koje su ti se svidele ili na koje si reagovao';
+
+  @override
   String get reactionAngry => 'Ljuto';
 
   @override
@@ -16733,6 +17898,9 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get storyClose => 'Zatvori';
 
   @override
+  String get storyCloseFriends => 'Bliski prijatelji';
+
+  @override
   String get storyComposerBackground => 'Boja pozadine';
 
   @override
@@ -16782,6 +17950,85 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get storyDeleted => 'Priča je obrisana';
 
   @override
+  String get storyHighlightAction => 'Istakni';
+
+  @override
+  String get storyHighlightAddStories => 'Dodaj priče';
+
+  @override
+  String get storyHighlightAddTo => 'Dodaj u istaknuto';
+
+  @override
+  String storyHighlightAddedTo(String title) {
+    return 'Dodato u $title';
+  }
+
+  @override
+  String get storyHighlightCover => 'Naslovna';
+
+  @override
+  String get storyHighlightCoverHint => 'Dodirni priču da bude naslovna.';
+
+  @override
+  String storyHighlightCreated(String title) {
+    return 'Istaknuto „$title” je napravljeno';
+  }
+
+  @override
+  String get storyHighlightDelete => 'Obriši istaknuto';
+
+  @override
+  String get storyHighlightDeleteBody =>
+      'Njegove priče ostaju u tvojoj arhivi.';
+
+  @override
+  String get storyHighlightDeleteTitle => 'Obrisati ovo istaknuto?';
+
+  @override
+  String get storyHighlightDeleted => 'Istaknuto je obrisano';
+
+  @override
+  String get storyHighlightEdit => 'Izmeni istaknuto';
+
+  @override
+  String get storyHighlightKeepStory => 'Zadrži u istaknutom';
+
+  @override
+  String get storyHighlightNameLabel => 'Naziv istaknutog';
+
+  @override
+  String get storyHighlightNeedsStory =>
+      'Zadrži bar jednu priču ili obriši istaknuto';
+
+  @override
+  String get storyHighlightNew => 'Novo';
+
+  @override
+  String get storyHighlightNewTitle => 'Novo istaknuto';
+
+  @override
+  String get storyHighlightNext => 'Dalje';
+
+  @override
+  String get storyHighlightNoArchive =>
+      'U arhivi još nema priča. Priče koje objaviš čuvaju se tamo posle 24 sata.';
+
+  @override
+  String get storyHighlightPickTitle => 'Izaberi priče';
+
+  @override
+  String get storyHighlightRemoveStory => 'Ukloni iz istaknutog';
+
+  @override
+  String get storyHighlightRename => 'Preimenuj istaknuto';
+
+  @override
+  String get storyHighlightSaved => 'Istaknuto je ažurirano';
+
+  @override
+  String get storyHighlightStories => 'Priče';
+
+  @override
   String get storyLike => 'Sviđa mi se';
 
   @override
@@ -16795,6 +18042,53 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get storyNoViewers => 'Niko još nije pogledao ovu priču';
+
+  @override
+  String get storyPollAdd => 'Dodaj anketu';
+
+  @override
+  String get storyPollAddOption => 'Dodaj opciju';
+
+  @override
+  String get storyPollDone => 'Gotovo';
+
+  @override
+  String get storyPollEdit => 'Izmeni anketu';
+
+  @override
+  String get storyPollEditorTitle => 'Anketa';
+
+  @override
+  String storyPollOptionLabel(int number) {
+    return 'Opcija $number';
+  }
+
+  @override
+  String get storyPollQuestionHint => 'Postavi pitanje (opciono)';
+
+  @override
+  String get storyPollRemove => 'Ukloni anketu';
+
+  @override
+  String get storyPollRemoveOption => 'Ukloni opciju';
+
+  @override
+  String storyPollVotedFor(String option) {
+    return 'Glasao/la: $option';
+  }
+
+  @override
+  String storyPollVotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count glasova',
+      few: '$count glasa',
+      one: '1 glas',
+      zero: 'Još nema glasova',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get storyPosted => 'Dodato u tvoju priču';

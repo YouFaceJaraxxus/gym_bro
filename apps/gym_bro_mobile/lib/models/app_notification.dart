@@ -37,7 +37,10 @@ enum NotificationType {
   photoTag('photo_tag'),
 
   /// Someone liked / reacted to my story.
-  storyReaction('story_reaction');
+  storyReaction('story_reaction'),
+
+  /// Someone @mentioned me in their story.
+  storyMention('story_mention');
 
   const NotificationType(this.apiValue);
 

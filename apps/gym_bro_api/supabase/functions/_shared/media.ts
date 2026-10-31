@@ -98,6 +98,32 @@ export async function createUploadSlot(opts: {
 }
 
 /**
+ * Copies a stored object to a fresh path under `prefix` and reserves it for
+ * `uploaderId` as if they had uploaded it (forwarding a chat attachment).
+ */
+export async function copyIntoSlot(opts: {
+  bucket: MediaBucket;
+  from: string;
+  prefix: string;
+  uploaderId: string;
+  mime: string;
+  conversationId?: string;
+}): Promise<string> {
+  const ext = opts.from.match(/\.([a-zA-Z0-9]{1,8})$/)?.[1] ?? "bin";
+  const path = `${opts.prefix}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabaseAdmin.storage.from(opts.bucket).copy(opts.from, path);
+  if (error) throw new Error(`Could not copy file: ${error.message}`);
+  await db.insertInto("media_upload").values({
+    storage_path: path,
+    bucket: opts.bucket,
+    uploader_id: opts.uploaderId,
+    conversation_id: opts.conversationId ?? null,
+    mime_type: opts.mime,
+  }).execute();
+  return path;
+}
+
+/**
  * Checks that every path was reserved by `uploaderId` (for `conversationId`,
  * in chat), is unclaimed and was actually uploaded. Returns an error message,
  * or null when all are fine. Call markClaimed() once the row using them exists.

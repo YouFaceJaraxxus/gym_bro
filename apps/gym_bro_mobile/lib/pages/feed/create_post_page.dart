@@ -70,12 +70,15 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
   final _api = ApiService();
   final _caption = MentionTextEditingController();
   final _captionFocus = FocusNode();
+  final _location = TextEditingController();
   final _pages = PageController();
   final List<_Item> _items = [];
 
   /// Undo steps of "Edit all", kept between visits.
   final _groupHistory = EditHistory();
   PostVisibility _visibility = PostVisibility.public;
+  bool _hideLikeCount = false;
+  bool _commentsDisabled = false;
   bool _isPrivate = false;
   bool _posting = false;
   int _uploadingIndex = -1;
@@ -100,6 +103,9 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
     if (draft != null) {
       _caption.markup = draft.data['caption'] as String? ?? '';
       _visibility = PostVisibility.parse(draft.data['visibility']);
+      _location.text = draft.data['location_name'] as String? ?? '';
+      _hideLikeCount = draft.data['hide_like_count'] == true;
+      _commentsDisabled = draft.data['comments_disabled'] == true;
       if (draft.media.isNotEmpty) _restoreMedia(draft.media, draft.data['media_tags']);
     } else if (widget.pickOnOpen) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -128,6 +134,9 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
   Map<String, dynamic> draftData() => {
     'caption': _caption.markup,
     'visibility': _visibility.apiValue,
+    if (_location.text.trim().isNotEmpty) 'location_name': _location.text.trim(),
+    if (_hideLikeCount) 'hide_like_count': true,
+    if (_commentsDisabled) 'comments_disabled': true,
     'share': ?_share?.toJson(),
     'media_tags': [
       for (final it in _items) [for (final t in it.tags) t.toJson()],
@@ -219,6 +228,7 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
   void dispose() {
     _caption.dispose();
     _captionFocus.dispose();
+    _location.dispose();
     _pages.dispose();
     super.dispose();
   }
@@ -404,6 +414,9 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
         media: [for (var i = 0; i < _items.length; i++) published[i].attachment(_items[i].publishedPath!)],
         tags: [for (final it in _items) it.isVideo ? const <PhotoTag>[] : it.tags],
         share: _share,
+        hideLikeCount: _hideLikeCount ? true : null,
+        commentsDisabled: _commentsDisabled ? true : null,
+        locationName: _location.text,
       );
       await draftPublished();
       if (!mounted) return;
@@ -490,7 +503,9 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
+                PostLocationField(controller: _location, enabled: !_posting),
+                const SizedBox(height: 12),
                 VisibilitySelector(
                   value: _visibility,
                   enabled: !_posting,
@@ -513,6 +528,14 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
                     ]),
                   ),
                 ],
+                const SizedBox(height: 8),
+                PostAdvancedSettings(
+                  hideLikeCount: _hideLikeCount,
+                  commentsDisabled: _commentsDisabled,
+                  enabled: !_posting,
+                  onHideLikeCountChanged: (v) => setState(() => _hideLikeCount = v),
+                  onCommentsDisabledChanged: (v) => setState(() => _commentsDisabled = v),
+                ),
               ],
             ),
           ),

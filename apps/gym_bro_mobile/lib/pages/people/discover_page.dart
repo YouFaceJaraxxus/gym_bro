@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/l10n.dart';
 import '../../models/people.dart';
+import '../../models/post.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../services/recent_searches.dart';
+import '../../widgets/mentions.dart';
 import '../../widgets/person_tile.dart';
 import '../../widgets/social_widgets.dart';
 import 'people_common.dart';
@@ -28,11 +31,15 @@ class DiscoverPage extends StatefulWidget {
 class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClientMixin {
   final _api = ApiService();
   final _searchCtrl = TextEditingController();
+  final _searchFocus = FocusNode();
   Timer? _debounce;
+  final _recents = RecentSearches(AuthManager.instance.profile?.id ?? '');
+  List<RecentSearch> _recent = const [];
 
   // Search
   String _query = '';
   List<PersonSummary>? _results;
+  List<HashtagInfo> _tags = const [];
   bool _searching = false;
   String? _searchError;
   int _searchGen = 0;
@@ -61,6 +68,10 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
   @override
   void initState() {
     super.initState();
+    _searchFocus.addListener(() => setState(() {}));
+    _recents.load().then((r) {
+      if (mounted) setState(() => _recent = r);
+    });
     _refresh();
   }
 
@@ -68,6 +79,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
   void dispose() {
     _debounce?.cancel();
     _searchCtrl.dispose();
+    _searchFocus.dispose();
     super.dispose();
   }
 
@@ -160,15 +172,24 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
       _query = q;
       _searchError = null;
       _searching = q.isNotEmpty;
-      if (q.isEmpty) _results = null;
+      if (q.isEmpty) {
+        _results = null;
+        _tags = const [];
+      }
     });
     if (q.isEmpty) return;
     try {
       final token = await AuthManager.instance.getValidToken();
-      final rows = await _api.searchPeople(token, q);
+      // "#leg" searches only hashtags; anything else both, tags first.
+      final tagOnly = q.startsWith('#');
+      final results = await Future.wait([
+        tagOnly ? Future.value(<PersonSummary>[]) : _api.searchPeople(token, q),
+        _api.searchHashtags(token, q).catchError((_) => <HashtagInfo>[]),
+      ]);
       if (!mounted || gen != _searchGen) return;
       setState(() {
-        _results = rows;
+        _results = results[0] as List<PersonSummary>;
+        _tags = (results[1] as List<HashtagInfo>).take(tagOnly ? 20 : 3).toList();
         _searching = false;
       });
     } catch (e) {
@@ -185,6 +206,42 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
     _debounce?.cancel();
     FocusScope.of(context).unfocus();
     _search('');
+  }
+
+  // ── Recent searches ─────────────────────────────────────────────────────
+
+  Future<void> _remember(RecentSearch item) async {
+    final next = await _recents.add(item);
+    if (mounted) setState(() => _recent = next);
+  }
+
+  void _openPerson(PersonSummary p) {
+    _remember(RecentSearch.person(p));
+    openUserProfile(context, p.id);
+  }
+
+  void _openTag(String tag) {
+    _remember(RecentSearch.hashtag(tag));
+    openHashtag(context, tag);
+  }
+
+  void _openRecent(RecentSearch r) {
+    _remember(r);
+    if (r.person != null) {
+      openUserProfile(context, r.person!.id);
+    } else {
+      openHashtag(context, r.tag!);
+    }
+  }
+
+  Future<void> _forget(RecentSearch r) async {
+    final next = await _recents.remove(r);
+    if (mounted) setState(() => _recent = next);
+  }
+
+  Future<void> _clearRecent() async {
+    await _recents.clear();
+    if (mounted) setState(() => _recent = const []);
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────
@@ -217,6 +274,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
           child: TextField(
             controller: _searchCtrl,
+            focusNode: _searchFocus,
             onChanged: _onQueryChanged,
             onSubmitted: (v) {
               _debounce?.cancel();
@@ -233,7 +291,13 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
             ),
           ),
         ),
-        Expanded(child: _query.isNotEmpty ? _buildSearchResults() : _buildDiscover()),
+        Expanded(
+          child: _query.isNotEmpty
+              ? _buildSearchResults()
+              : _searchFocus.hasFocus && _recent.isNotEmpty
+              ? _buildRecent()
+              : _buildDiscover(),
+        ),
       ],
     );
   }
@@ -247,7 +311,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
     if (_searchError != null) {
       return ListView(children: [PeopleErrorState(message: _searchError!, onRetry: () => _search(_query))]);
     }
-    if (results == null || results.isEmpty) {
+    if ((results == null || results.isEmpty) && _tags.isEmpty) {
       return ListView(
         children: [PeopleMessageState(icon: Icons.person_search_outlined, message: l10n.peopleNoMatches(_query))],
       );
@@ -258,13 +322,53 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
         Expanded(
           child: ListView.builder(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            itemCount: results.length,
+            itemCount: _tags.length + (results?.length ?? 0),
             itemBuilder: (context, i) {
-              final p = results[i];
-              return PersonTile(key: ValueKey(p.id), person: p, trailing: _relButton(p));
+              if (i < _tags.length) return _tagTile(_tags[i].tag, subtitle: l10n.profileExtrasHashtagPosts(_tags[i].postCount));
+              final p = results![i - _tags.length];
+              return PersonTile(key: ValueKey(p.id), person: p, trailing: _relButton(p), onTap: () => _openPerson(p));
             },
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _tagTile(String tag, {String? subtitle, VoidCallback? onTap, Widget? trailing}) {
+    final cs = Theme.of(context).colorScheme;
+    return ListTile(
+      key: ValueKey('tag:$tag'),
+      leading: CircleAvatar(
+        radius: 22,
+        backgroundColor: cs.surfaceContainerHighest,
+        child: Icon(Icons.tag, color: cs.onSurfaceVariant),
+      ),
+      title: Text('#$tag', style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: subtitle == null ? null : Text(subtitle),
+      trailing: trailing,
+      onTap: onTap ?? () => _openTag(tag),
+    );
+  }
+
+  Widget _buildRecent() {
+    final l10n = context.l10n;
+    Widget remove(RecentSearch r) => IconButton(
+      tooltip: l10n.profileExtrasRemoveRecent,
+      icon: const Icon(Icons.close, size: 20),
+      onPressed: () => _forget(r),
+    );
+    return ListView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      children: [
+        _SectionHeader(
+          title: l10n.profileExtrasRecentSearches,
+          trailing: TextButton(onPressed: _clearRecent, child: Text(l10n.profileExtrasClearAll)),
+        ),
+        for (final r in _recent)
+          if (r.person != null)
+            PersonTile(key: ValueKey(r.key), person: r.person!, onTap: () => _openRecent(r), trailing: remove(r))
+          else
+            _tagTile(r.tag!, onTap: () => _openRecent(r), trailing: remove(r)),
       ],
     );
   }

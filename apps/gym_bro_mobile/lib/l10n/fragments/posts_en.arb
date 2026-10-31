@@ -1,0 +1,88 @@
+{
+  "postsSave": "Save",
+  "postsUnsave": "Remove from saved",
+  "postsSavedToast": "Saved",
+  "postsRemovedFromSaved": "Removed from saved",
+  "postsSaveToCollection": "Save to collection",
+  "postsNewCollection": "New collection",
+  "postsCollectionName": "Collection name",
+  "postsCreate": "Create",
+  "postsAllPosts": "All posts",
+  "postsSavedTo": "Saved to {name}",
+  "@postsSavedTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "postsRemovedFrom": "Removed from {name}",
+  "@postsRemovedFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "postsPinToProfile": "Pin to profile",
+  "postsUnpin": "Unpin from profile",
+  "postsPinnedToast": "Pinned to your profile",
+  "postsUnpinnedToast": "Unpinned",
+  "postsPinLimit": "You can pin up to 3 posts. Unpin one first.",
+  "postsPinned": "Pinned",
+  "postsHideLikeCount": "Hide like count",
+  "postsShowLikeCount": "Show like count",
+  "postsLikeCountHiddenToast": "Like count hidden",
+  "postsLikeCountShownToast": "Like count visible again",
+  "postsTurnOffCommenting": "Turn off commenting",
+  "postsTurnOnCommenting": "Turn on commenting",
+  "postsCommentingOffToast": "Commenting turned off",
+  "postsCommentingOnToast": "Commenting turned on",
+  "postsLikedByOthers": "Liked by others",
+  "postsLocationLabel": "Location",
+  "postsLocationHint": "Add a location",
+  "postsLocationClear": "Clear location",
+  "postsAdvancedSettings": "Advanced settings",
+  "postsHideLikeCountHint": "Only you will see how many people reacted to this post.",
+  "postsTurnOffCommentingHint": "No one can comment. Existing comments stay visible.",
+  "postsCommentingIsOff": "Commenting is turned off.",
+  "postsSavedTitle": "Saved",
+  "postsSavedOnlyYou": "Only you can see what you've saved.",
+  "postsNoSavedTitle": "Nothing saved yet",
+  "postsNoSavedBody": "Tap the bookmark on a post to save it here.",
+  "postsCollectionEmpty": "No posts in this collection yet",
+  "postsRenameCollection": "Rename collection",
+  "postsDeleteCollection": "Delete collection",
+  "postsDeleteCollectionTitle": "Delete \"{name}\"?",
+  "@postsDeleteCollectionTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "postsDeleteCollectionBody": "Its posts stay in All posts.",
+  "postsPostCount": "{count, plural, =0{No posts} =1{1 post} other{{count} posts}}",
+  "@postsPostCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "postsLikedTitle": "Your likes",
+  "postsNoLikedTitle": "No likes yet",
+  "postsNoLikedBody": "Posts you react to show up here.",
+  "postsGridView": "Grid view",
+  "postsListView": "List view",
+  "postsTabTop": "Top",
+  "postsTabRecent": "Recent",
+  "postsHashtagEmpty": "No posts with this hashtag yet",
+  "postsReels": "Reels",
+  "postsNoReelsTitle": "No reels yet",
+  "postsNoReelsBody": "Videos people share show up here.",
+  "postsMute": "Mute",
+  "postsUnmute": "Unmute",
+  "postsReactionsAllHidden": "All",
+  "postsVideoUnavailable": "This video can't be played"
+}

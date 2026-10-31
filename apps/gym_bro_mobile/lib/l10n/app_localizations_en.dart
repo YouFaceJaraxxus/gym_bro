@@ -1893,6 +1893,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatFollowingSection => 'Following';
 
   @override
+  String get chatForward => 'Forward';
+
+  @override
+  String get chatForwardTitle => 'Forward to';
+
+  @override
+  String get chatForwarded => 'Forwarded';
+
+  @override
   String get chatGroupDescription => 'Description';
 
   @override
@@ -2009,6 +2018,69 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String chatNoteRepliedPreview(String text) {
+    return 'Replied to a note: $text';
+  }
+
+  @override
+  String get chatNoteRepliedTheirs => 'You replied to their note';
+
+  @override
+  String get chatNoteRepliedYours => 'Replied to your note';
+
+  @override
+  String get chatNotesAudienceCloseFriends => 'Close friends';
+
+  @override
+  String get chatNotesAudienceLabel => 'Share with';
+
+  @override
+  String get chatNotesAudienceMutuals => 'Followers you follow back';
+
+  @override
+  String get chatNotesDelete => 'Delete note';
+
+  @override
+  String get chatNotesDeleted => 'Note deleted';
+
+  @override
+  String get chatNotesEditorTitle => 'Your note';
+
+  @override
+  String get chatNotesHint => 'Share a thought…';
+
+  @override
+  String get chatNotesLeaveNote => 'Leave a note';
+
+  @override
+  String chatNotesOf(String name) {
+    return '$name\'s note';
+  }
+
+  @override
+  String get chatNotesOpenChat => 'Open chat';
+
+  @override
+  String chatNotesReplyHint(String name) {
+    return 'Reply to $name…';
+  }
+
+  @override
+  String get chatNotesReplySent => 'Reply sent';
+
+  @override
+  String get chatNotesShare => 'Share';
+
+  @override
+  String get chatNotesShared => 'Note shared';
+
+  @override
+  String get chatNotesVisibleFor => 'Notes show above the inbox for 24 hours.';
+
+  @override
+  String get chatNotesYourNote => 'Your note';
+
+  @override
   String get chatOpenFile => 'Open file';
 
   @override
@@ -2030,6 +2102,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatPhotoMessage => 'Photo';
+
+  @override
+  String get chatPin => 'Pin';
+
+  @override
+  String get chatPinLimit => 'You can pin up to 3 chats';
+
+  @override
+  String get chatPinned => 'Pinned';
+
+  @override
+  String get chatPinnedSnack => 'Chat pinned';
 
   @override
   String get chatPlay => 'Play';
@@ -2294,6 +2378,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatUnmutedSnack => 'Notifications unmuted';
 
   @override
+  String get chatUnpin => 'Unpin';
+
+  @override
+  String get chatUnpinnedSnack => 'Chat unpinned';
+
+  @override
   String chatUnreadCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -2319,6 +2409,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatViewProfile => 'View profile';
+
+  @override
+  String get chatVoiceCancel => 'Discard recording';
+
+  @override
+  String get chatVoiceFailed => 'Couldn\'t record audio';
+
+  @override
+  String get chatVoiceMessage => 'Voice message';
+
+  @override
+  String get chatVoicePermission =>
+      'Allow microphone access to record voice messages.';
+
+  @override
+  String get chatVoicePreview => '🎤 Voice message';
+
+  @override
+  String get chatVoiceRecord => 'Record a voice message';
+
+  @override
+  String get chatVoiceRecording => 'Recording';
+
+  @override
+  String get chatVoiceSend => 'Send voice message';
+
+  @override
+  String get chatVoiceTooShort => 'That recording was too short';
 
   @override
   String get chatYesterday => 'Yesterday';
@@ -2745,6 +2863,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get classSeriesYou => 'You';
+
+  @override
+  String get closeFriendsPageAdd => 'Add to close friends';
+
+  @override
+  String get closeFriendsPageEmpty =>
+      'No one yet. Tap the star next to a follower to add them.';
+
+  @override
+  String get closeFriendsPageFollowers => 'Your followers';
+
+  @override
+  String get closeFriendsPageInfo =>
+      'Only you can see your close friends list — no one is told when you add or remove them. Stories you share to close friends show only to them, with a green ring.';
+
+  @override
+  String closeFriendsPageListTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Your list · $count people',
+      one: 'Your list · 1 person',
+      zero: 'Your list',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closeFriendsPageNoFollowers =>
+      'You don\'t have any followers to add yet.';
+
+  @override
+  String get closeFriendsPageNoMatch => 'No followers match your search.';
+
+  @override
+  String get closeFriendsPageRemove => 'Remove from close friends';
+
+  @override
+  String get closeFriendsPageSearchHint => 'Search followers';
+
+  @override
+  String get closeFriendsPageTitle => 'Close friends';
 
   @override
   String get commonBack => 'Back';
@@ -5835,6 +5995,354 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get postsAdvancedSettings => 'Advanced settings';
+
+  @override
+  String get postsAllPosts => 'All posts';
+
+  @override
+  String get postsCollectionEmpty => 'No posts in this collection yet';
+
+  @override
+  String get postsCollectionName => 'Collection name';
+
+  @override
+  String get postsCommentingIsOff => 'Commenting is turned off.';
+
+  @override
+  String get postsCommentingOffToast => 'Commenting turned off';
+
+  @override
+  String get postsCommentingOnToast => 'Commenting turned on';
+
+  @override
+  String get postsCreate => 'Create';
+
+  @override
+  String get postsDeleteCollection => 'Delete collection';
+
+  @override
+  String get postsDeleteCollectionBody => 'Its posts stay in All posts.';
+
+  @override
+  String postsDeleteCollectionTitle(String name) {
+    return 'Delete \"$name\"?';
+  }
+
+  @override
+  String get postsGridView => 'Grid view';
+
+  @override
+  String get postsHashtagEmpty => 'No posts with this hashtag yet';
+
+  @override
+  String get postsHideLikeCount => 'Hide like count';
+
+  @override
+  String get postsHideLikeCountHint =>
+      'Only you will see how many people reacted to this post.';
+
+  @override
+  String get postsLikeCountHiddenToast => 'Like count hidden';
+
+  @override
+  String get postsLikeCountShownToast => 'Like count visible again';
+
+  @override
+  String get postsLikedByOthers => 'Liked by others';
+
+  @override
+  String get postsLikedTitle => 'Your likes';
+
+  @override
+  String get postsListView => 'List view';
+
+  @override
+  String get postsLocationClear => 'Clear location';
+
+  @override
+  String get postsLocationHint => 'Add a location';
+
+  @override
+  String get postsLocationLabel => 'Location';
+
+  @override
+  String get postsMute => 'Mute';
+
+  @override
+  String get postsNewCollection => 'New collection';
+
+  @override
+  String get postsNoLikedBody => 'Posts you react to show up here.';
+
+  @override
+  String get postsNoLikedTitle => 'No likes yet';
+
+  @override
+  String get postsNoReelsBody => 'Videos people share show up here.';
+
+  @override
+  String get postsNoReelsTitle => 'No reels yet';
+
+  @override
+  String get postsNoSavedBody => 'Tap the bookmark on a post to save it here.';
+
+  @override
+  String get postsNoSavedTitle => 'Nothing saved yet';
+
+  @override
+  String get postsPinLimit => 'You can pin up to 3 posts. Unpin one first.';
+
+  @override
+  String get postsPinToProfile => 'Pin to profile';
+
+  @override
+  String get postsPinned => 'Pinned';
+
+  @override
+  String get postsPinnedToast => 'Pinned to your profile';
+
+  @override
+  String postsPostCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count posts',
+      one: '1 post',
+      zero: 'No posts',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get postsReactionsAllHidden => 'All';
+
+  @override
+  String get postsReels => 'Reels';
+
+  @override
+  String postsRemovedFrom(String name) {
+    return 'Removed from $name';
+  }
+
+  @override
+  String get postsRemovedFromSaved => 'Removed from saved';
+
+  @override
+  String get postsRenameCollection => 'Rename collection';
+
+  @override
+  String get postsSave => 'Save';
+
+  @override
+  String get postsSaveToCollection => 'Save to collection';
+
+  @override
+  String get postsSavedOnlyYou => 'Only you can see what you\'ve saved.';
+
+  @override
+  String get postsSavedTitle => 'Saved';
+
+  @override
+  String postsSavedTo(String name) {
+    return 'Saved to $name';
+  }
+
+  @override
+  String get postsSavedToast => 'Saved';
+
+  @override
+  String get postsShowLikeCount => 'Show like count';
+
+  @override
+  String get postsTabRecent => 'Recent';
+
+  @override
+  String get postsTabTop => 'Top';
+
+  @override
+  String get postsTurnOffCommenting => 'Turn off commenting';
+
+  @override
+  String get postsTurnOffCommentingHint =>
+      'No one can comment. Existing comments stay visible.';
+
+  @override
+  String get postsTurnOnCommenting => 'Turn on commenting';
+
+  @override
+  String get postsUnmute => 'Unmute';
+
+  @override
+  String get postsUnpin => 'Unpin from profile';
+
+  @override
+  String get postsUnpinnedToast => 'Unpinned';
+
+  @override
+  String get postsUnsave => 'Remove from saved';
+
+  @override
+  String get postsVideoUnavailable => 'This video can\'t be played';
+
+  @override
+  String get profileExtrasAddCloseFriend => 'Add to close friends';
+
+  @override
+  String get profileExtrasClearAll => 'Clear all';
+
+  @override
+  String profileExtrasCloseFriendAdded(String username) {
+    return 'Added @$username to close friends';
+  }
+
+  @override
+  String profileExtrasCloseFriendRemoved(String username) {
+    return 'Removed @$username from close friends';
+  }
+
+  @override
+  String get profileExtrasCloseFriends => 'Close friends';
+
+  @override
+  String get profileExtrasCloseFriendsSubtitle =>
+      'Who sees your close-friends stories and notes';
+
+  @override
+  String get profileExtrasDone => 'Done';
+
+  @override
+  String profileExtrasHashtagPosts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count posts',
+      one: '1 post',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get profileExtrasMuteBody =>
+      'They won\'t know you muted them. You\'ll still see their posts and stories on their profile.';
+
+  @override
+  String get profileExtrasMuteMenu => 'Mute';
+
+  @override
+  String get profileExtrasMutePosts => 'Posts';
+
+  @override
+  String get profileExtrasMuteStories => 'Stories';
+
+  @override
+  String profileExtrasMuteTitle(String username) {
+    return 'Mute @$username';
+  }
+
+  @override
+  String get profileExtrasMutedAccounts => 'Muted accounts';
+
+  @override
+  String get profileExtrasMutedAccountsSubtitle =>
+      'People whose posts or stories you muted';
+
+  @override
+  String get profileExtrasMutedBoth => 'Posts and stories muted';
+
+  @override
+  String get profileExtrasMutedEmpty => 'You haven\'t muted anyone';
+
+  @override
+  String get profileExtrasMutedEmptyBody =>
+      'Mute someone from their profile to stop seeing their posts or stories without unfollowing. They won\'t know.';
+
+  @override
+  String get profileExtrasMutedMenu => 'Muted';
+
+  @override
+  String get profileExtrasMutedPosts => 'Posts muted';
+
+  @override
+  String get profileExtrasMutedStories => 'Stories muted';
+
+  @override
+  String get profileExtrasQrCameraUnavailable => 'The camera isn\'t available.';
+
+  @override
+  String get profileExtrasQrCopyLink => 'Copy link';
+
+  @override
+  String get profileExtrasQrHint =>
+      'Friends can scan this with Gym Bro to open your profile.';
+
+  @override
+  String get profileExtrasQrLinkCopied => 'Link copied';
+
+  @override
+  String get profileExtrasQrNotAProfile => 'That\'s not a Gym Bro profile code';
+
+  @override
+  String profileExtrasQrNotFound(String username) {
+    return 'Couldn\'t find @$username';
+  }
+
+  @override
+  String get profileExtrasQrScan => 'Scan a QR code';
+
+  @override
+  String profileExtrasQrSemantics(String username) {
+    return 'QR code for @$username';
+  }
+
+  @override
+  String get profileExtrasQrSubtitle => 'Let friends scan to find you';
+
+  @override
+  String get profileExtrasQrTitle => 'QR code';
+
+  @override
+  String get profileExtrasRecentSearches => 'Recent';
+
+  @override
+  String get profileExtrasRemoveCloseFriend => 'Remove from close friends';
+
+  @override
+  String get profileExtrasRemoveRecent => 'Remove';
+
+  @override
+  String get profileExtrasSaved => 'Saved';
+
+  @override
+  String get profileExtrasSavedSubtitle =>
+      'Posts you saved and your collections';
+
+  @override
+  String get profileExtrasUnmute => 'Unmute';
+
+  @override
+  String profileExtrasUnmutedSnack(String username) {
+    return 'Unmuted @$username';
+  }
+
+  @override
+  String get profileExtrasWebsite => 'Website';
+
+  @override
+  String get profileExtrasWebsiteHint => 'yoursite.com';
+
+  @override
+  String get profileExtrasWebsiteInvalid =>
+      'Enter a web address like yoursite.com';
+
+  @override
+  String get profileExtrasYourActivity => 'Your activity';
+
+  @override
+  String get profileExtrasYourActivitySubtitle =>
+      'Posts you liked or reacted to';
+
+  @override
   String get reactionAngry => 'Angry';
 
   @override
@@ -7098,6 +7606,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storyClose => 'Close';
 
   @override
+  String get storyCloseFriends => 'Close friends';
+
+  @override
   String get storyComposerBackground => 'Background colour';
 
   @override
@@ -7147,6 +7658,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storyDeleted => 'Story deleted';
 
   @override
+  String get storyHighlightAction => 'Highlight';
+
+  @override
+  String get storyHighlightAddStories => 'Add stories';
+
+  @override
+  String get storyHighlightAddTo => 'Add to highlight';
+
+  @override
+  String storyHighlightAddedTo(String title) {
+    return 'Added to $title';
+  }
+
+  @override
+  String get storyHighlightCover => 'Cover';
+
+  @override
+  String get storyHighlightCoverHint => 'Tap a story to make it the cover.';
+
+  @override
+  String storyHighlightCreated(String title) {
+    return 'Highlight \"$title\" created';
+  }
+
+  @override
+  String get storyHighlightDelete => 'Delete highlight';
+
+  @override
+  String get storyHighlightDeleteBody => 'Its stories stay in your archive.';
+
+  @override
+  String get storyHighlightDeleteTitle => 'Delete this highlight?';
+
+  @override
+  String get storyHighlightDeleted => 'Highlight deleted';
+
+  @override
+  String get storyHighlightEdit => 'Edit highlight';
+
+  @override
+  String get storyHighlightKeepStory => 'Keep in highlight';
+
+  @override
+  String get storyHighlightNameLabel => 'Highlight name';
+
+  @override
+  String get storyHighlightNeedsStory =>
+      'Keep at least one story, or delete the highlight';
+
+  @override
+  String get storyHighlightNew => 'New';
+
+  @override
+  String get storyHighlightNewTitle => 'New highlight';
+
+  @override
+  String get storyHighlightNext => 'Next';
+
+  @override
+  String get storyHighlightNoArchive =>
+      'Your archive has no stories yet. Stories you post are kept there after 24 hours.';
+
+  @override
+  String get storyHighlightPickTitle => 'Choose stories';
+
+  @override
+  String get storyHighlightRemoveStory => 'Remove from highlight';
+
+  @override
+  String get storyHighlightRename => 'Rename highlight';
+
+  @override
+  String get storyHighlightSaved => 'Highlight updated';
+
+  @override
+  String get storyHighlightStories => 'Stories';
+
+  @override
   String get storyLike => 'Like';
 
   @override
@@ -7160,6 +7749,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storyNoViewers => 'No one has seen this story yet';
+
+  @override
+  String get storyPollAdd => 'Add a poll';
+
+  @override
+  String get storyPollAddOption => 'Add option';
+
+  @override
+  String get storyPollDone => 'Done';
+
+  @override
+  String get storyPollEdit => 'Edit poll';
+
+  @override
+  String get storyPollEditorTitle => 'Poll';
+
+  @override
+  String storyPollOptionLabel(int number) {
+    return 'Option $number';
+  }
+
+  @override
+  String get storyPollQuestionHint => 'Ask a question (optional)';
+
+  @override
+  String get storyPollRemove => 'Remove poll';
+
+  @override
+  String get storyPollRemoveOption => 'Remove option';
+
+  @override
+  String storyPollVotedFor(String option) {
+    return 'Voted $option';
+  }
+
+  @override
+  String storyPollVotes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count votes',
+      one: '1 vote',
+      zero: 'No votes yet',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get storyPosted => 'Added to your story';

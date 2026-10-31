@@ -45,14 +45,18 @@ extension StoriesApi on ApiService {
   }
 
   /// Posts a story: uploaded [media] (see [requestStoryUpload]), text on a
-  /// [background] colour, and/or something shared. Throws
-  /// [FutureActivityException] for a workout/meal that hasn't happened yet.
+  /// [background] colour, a [poll] and/or something shared — for everyone
+  /// or, with [audience] `'close_friends'`, my close friends only. "@username"
+  /// in [caption] becomes a mention. Throws [FutureActivityException] for a
+  /// workout/meal that hasn't happened yet.
   Future<Story> createStory(
     String token, {
     OutgoingAttachment? media,
     String? caption,
     String? background,
     ShareRequest? share,
+    String audience = kStoryAudienceEveryone,
+    StoryPoll? poll,
   }) async {
     final r = await _client.post(
       Uri.parse('$_base/stories'),
@@ -68,6 +72,8 @@ extension StoriesApi on ApiService {
         if (caption != null && caption.trim().isNotEmpty) 'caption': caption.trim(),
         'background': ?background,
         'share': ?share?.toJson(),
+        if (audience != kStoryAudienceEveryone) 'audience': audience,
+        'poll': ?poll?.toJson(),
       }),
     );
     if (r.statusCode == 400 && r.body.contains('future_activity')) throw const FutureActivityException();
@@ -102,6 +108,78 @@ extension StoriesApi on ApiService {
     final r = await _client.get(Uri.parse('$_base/stories/$storyId/viewers?page=$page'), headers: _headers(token));
     _check(r);
     return (jsonDecode(r.body) as List).map((e) => StoryViewer.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Answers a live story's poll with option [option] (an index; it can be
+  /// changed). Returns the story with the results.
+  Future<Story> voteInStoryPoll(String token, String storyId, int option) async {
+    final r = await _client.put(
+      Uri.parse('$_base/stories/$storyId/vote'),
+      headers: _headers(token),
+      body: jsonEncode({'option': option}),
+    );
+    _check(r);
+    return Story.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  // ── Highlights ──────────────────────────────────────────────────────────────
+
+  /// [userId]'s highlights as I may see them (empty ones left out).
+  Future<List<StoryHighlight>> getHighlights(String token, String userId) async {
+    final r = await _client.get(Uri.parse('$_base/stories/highlights?user_id=$userId'), headers: _headers(token));
+    _check(r);
+    return (jsonDecode(r.body) as List).map((e) => StoryHighlight.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// One highlight with the stories I may see, oldest first.
+  Future<StoryHighlightDetail> getHighlight(String token, String highlightId) async {
+    final r = await _client.get(Uri.parse('$_base/stories/highlights/$highlightId'), headers: _headers(token));
+    _check(r);
+    return StoryHighlightDetail.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// A new highlight of my [storyIds] (any age).
+  Future<StoryHighlight> createHighlight(String token, String title, List<String> storyIds, {String? coverStoryId}) async {
+    final r = await _client.post(
+      Uri.parse('$_base/stories/highlights'),
+      headers: _headers(token),
+      body: jsonEncode({'title': title.trim(), 'story_ids': storyIds, 'cover_story_id': ?coverStoryId}),
+    );
+    _check(r);
+    return StoryHighlight.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// Renames it, replaces ([storyIds]) or adds / removes stories, or picks
+  /// the cover ([clearCover] goes back to the newest story). Only what's
+  /// given changes.
+  Future<StoryHighlight> updateHighlight(
+    String token,
+    String highlightId, {
+    String? title,
+    List<String>? storyIds,
+    List<String>? addStoryIds,
+    List<String>? removeStoryIds,
+    String? coverStoryId,
+    bool clearCover = false,
+  }) async {
+    final r = await _client.put(
+      Uri.parse('$_base/stories/highlights/$highlightId'),
+      headers: _headers(token),
+      body: jsonEncode({
+        if (title != null) 'title': title.trim(),
+        'story_ids': ?storyIds,
+        'add_story_ids': ?addStoryIds,
+        'remove_story_ids': ?removeStoryIds,
+        if (coverStoryId != null || clearCover) 'cover_story_id': coverStoryId,
+      }),
+    );
+    _check(r);
+    return StoryHighlight.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  Future<void> deleteHighlight(String token, String highlightId) async {
+    final r = await _client.delete(Uri.parse('$_base/stories/highlights/$highlightId'), headers: _headers(token));
+    if (r.statusCode >= 400) _check(r);
   }
 
   /// Replies to someone's story with text, or a quick [reaction] — sent to

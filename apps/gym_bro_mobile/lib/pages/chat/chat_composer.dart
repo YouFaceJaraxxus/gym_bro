@@ -8,13 +8,15 @@ import '../../models/chat.dart';
 import '../../services/media_upload.dart';
 import '../../widgets/social_widgets.dart';
 import 'chat_attachments.dart';
+import 'voice_recorder.dart';
 
 /// Max files per message (API limit).
 const kMaxChatAttachments = 10;
 
 /// The bottom bar of a thread: context bar (replying / editing), picked
-/// files strip, then [attach] [camera] [text field] [send].
-class ChatComposer extends StatelessWidget {
+/// files strip, then [attach] [camera] [text field] [send] — or [mic] while
+/// there's nothing to send, which swaps the row for a voice recorder.
+class ChatComposer extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   /// Picked files; photos and videos can be edited before sending.
@@ -29,6 +31,9 @@ class ChatComposer extends StatelessWidget {
   /// "Replying to …" / "Editing message" bar.
   final Widget? contextBar;
 
+  /// Sends a recorded voice message; null hides the mic.
+  final ValueChanged<PickedMedia>? onVoice;
+
   const ChatComposer({
     super.key,
     required this.controller,
@@ -39,7 +44,29 @@ class ChatComposer extends StatelessWidget {
     required this.onSend,
     this.editing = false,
     this.contextBar,
+    this.onVoice,
   });
+
+  @override
+  State<ChatComposer> createState() => _ChatComposerState();
+}
+
+class _ChatComposerState extends State<ChatComposer> {
+  bool _recording = false;
+
+  TextEditingController get controller => widget.controller;
+  FocusNode get focusNode => widget.focusNode;
+  List<EditableMedia> get files => widget.files;
+  ValueChanged<List<EditableMedia>> get onFilesChanged => widget.onFilesChanged;
+  ValueChanged<String> get onChanged => widget.onChanged;
+  VoidCallback get onSend => widget.onSend;
+  bool get editing => widget.editing;
+  Widget? get contextBar => widget.contextBar;
+
+  void _startRecording() {
+    focusNode.unfocus();
+    setState(() => _recording = true);
+  }
 
   Future<void> _add(BuildContext context, Future<List<PickedMedia>> picking) async {
     final picked = await picking;
@@ -78,67 +105,86 @@ class ChatComposer extends StatelessWidget {
                 ),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(4, 6, 6, 6),
-            child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              if (!editing) ...[
-                IconButton(
-                  tooltip: l10n.chatAttach,
-                  icon: Icon(Icons.add_circle_rounded, color: cs.primary),
-                  onPressed: files.length >= kMaxChatAttachments ? null : () => _add(context, pickMedia(context)),
-                ),
-                IconButton(
-                  tooltip: l10n.socialCamera,
-                  icon: Icon(Icons.photo_camera_rounded, color: cs.primary),
-                  onPressed: files.length >= kMaxChatAttachments
-                      ? null
-                      : () => _add(
-                          context,
-                          pickMediaFrom(MediaSource.takePhoto, onTooLarge: () {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.socialFileTooLarge)));
-                          }),
-                        ),
-                ),
-              ] else
-                const SizedBox(width: 8),
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  onChanged: onChanged,
-                  minLines: 1,
-                  maxLines: 5,
-                  maxLength: 4000,
-                  textCapitalization: TextCapitalization.sentences,
-                  keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
-                    hintText: l10n.chatMessageHint,
-                    counterText: '',
-                    isDense: true,
-                    filled: true,
-                    fillColor: cs.surfaceContainerHigh,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(22), borderSide: BorderSide.none),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(22), borderSide: BorderSide.none),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(22), borderSide: BorderSide.none),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              ValueListenableBuilder<TextEditingValue>(
-                valueListenable: controller,
-                builder: (context, value, _) {
-                  final canSend = value.text.trim().isNotEmpty || (!editing && files.isNotEmpty);
-                  return IconButton(
-                    tooltip: editing ? l10n.chatSaveEdit : l10n.chatSend,
-                    onPressed: canSend ? onSend : null,
-                    icon: Icon(editing ? Icons.check_circle_rounded : Icons.send_rounded),
-                    color: cs.primary,
-                  );
+          if (_recording && widget.onVoice != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 6, 6, 6),
+              child: VoiceRecorderBar(
+                onSend: widget.onVoice!,
+                onClose: () {
+                  if (mounted) setState(() => _recording = false);
                 },
               ),
-            ]),
-          ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 6, 6, 6),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                if (!editing) ...[
+                  IconButton(
+                    tooltip: l10n.chatAttach,
+                    icon: Icon(Icons.add_circle_rounded, color: cs.primary),
+                    onPressed: files.length >= kMaxChatAttachments ? null : () => _add(context, pickMedia(context)),
+                  ),
+                  IconButton(
+                    tooltip: l10n.socialCamera,
+                    icon: Icon(Icons.photo_camera_rounded, color: cs.primary),
+                    onPressed: files.length >= kMaxChatAttachments
+                        ? null
+                        : () => _add(
+                            context,
+                            pickMediaFrom(MediaSource.takePhoto, onTooLarge: () {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.socialFileTooLarge)));
+                            }),
+                          ),
+                  ),
+                ] else
+                  const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    onChanged: onChanged,
+                    minLines: 1,
+                    maxLines: 5,
+                    maxLength: 4000,
+                    textCapitalization: TextCapitalization.sentences,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      hintText: l10n.chatMessageHint,
+                      counterText: '',
+                      isDense: true,
+                      filled: true,
+                      fillColor: cs.surfaceContainerHigh,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(22), borderSide: BorderSide.none),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(22), borderSide: BorderSide.none),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(22), borderSide: BorderSide.none),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: controller,
+                  builder: (context, value, _) {
+                    final canSend = value.text.trim().isNotEmpty || (!editing && files.isNotEmpty);
+                    if (!canSend && !editing && widget.onVoice != null) {
+                      return IconButton(
+                        tooltip: l10n.chatVoiceRecord,
+                        onPressed: _startRecording,
+                        icon: const Icon(Icons.mic_rounded),
+                        color: cs.primary,
+                      );
+                    }
+                    return IconButton(
+                      tooltip: editing ? l10n.chatSaveEdit : l10n.chatSend,
+                      onPressed: canSend ? onSend : null,
+                      icon: Icon(editing ? Icons.check_circle_rounded : Icons.send_rounded),
+                      color: cs.primary,
+                    );
+                  },
+                ),
+              ]),
+            ),
         ]),
       ),
     );

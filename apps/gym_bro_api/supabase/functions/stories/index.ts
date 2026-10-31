@@ -22,7 +22,8 @@ import {
 } from "../_shared/social.ts";
 import { prepareShare, resolveShares, type StoredShare, STORY_SHARE_KINDS, type StoryShareKind } from "../_shared/shares.ts";
 import { storyVisibleSql } from "../_shared/visibility.ts";
-import type { ReactionType } from "../../types/schema/public.ts";
+import { normalizeMentions, validMentions } from "../_shared/mentions.ts";
+import type { ReactionType, StoryAudience } from "../../types/schema/public.ts";
 
 // Stories, Instagram-style. A story is a photo/video, a text card on a
 // background colour, or something shared (a post, a logged workout or meal,
@@ -41,12 +42,33 @@ import type { ReactionType } from "../../types/schema/public.ts";
 //   DELETE /stories/:id
 //   POST   /stories/:id/view                    I watched it
 //   PUT    /stories/:id/reaction {reaction}, DELETE   (POST|DELETE /stories/:id/like = 'like')
-//   GET    /stories/:id/viewers                 the author: who watched, with their reactions
+//   GET    /stories/:id/viewers                 the author: who watched, with their reactions and poll votes
+//   PUT    /stories/:id/vote {option}           answer a live story's poll (once; it can be changed)
+//
+// A story can be for close friends only (audience: 'close_friends', the green
+// ring — see /social/close-friends) and carry a poll ({question, options:
+// 2–4}); results show to the author, and to a viewer once they've voted.
+// "@username" in its text mentions people: those who can see it are told.
+//
+// Highlights keep stories on the author's profile after they expire, for
+// whoever can see the author's posts (close-friends stories still only for
+// close friends):
+//   GET    /stories/highlights?user_id=                 [{id, title, story_count, cover}]
+//   GET    /stories/highlights/:id                      {…, user, stories}
+//   POST   /stories/highlights {title, story_ids, cover_story_id?}
+//   PUT    /stories/highlights/:id {title?, story_ids? | add_story_ids? | remove_story_ids?, cover_story_id?}
+//   DELETE /stories/highlights/:id
 
 const BUCKET = "user-media" as const;
 const CAPTION_MAX = 500;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const HEX_RE = /^#[0-9a-fA-F]{6}$/;
+const AUDIENCES: readonly StoryAudience[] = ["everyone", "close_friends"];
+const POLL_QUESTION_MAX = 100;
+const POLL_OPTION_MAX = 40;
+const HIGHLIGHT_TITLE_MAX = 30;
+const HIGHLIGHTS_MAX = 100;
+const HIGHLIGHT_STORIES_MAX = 100;
 
 const STORY_COLS = [
   "id",
@@ -62,6 +84,8 @@ const STORY_COLS = [
   "share_kind",
   "share_ref_id",
   "share_snapshot",
+  "audience",
+  "poll",
   "created_at",
   "expires_at",
 ] as const;
@@ -80,9 +104,13 @@ type StoryRow = {
   share_kind: StoryShareKind | null;
   share_ref_id: string | null;
   share_snapshot: unknown;
+  audience: StoryAudience;
+  poll: unknown;
   created_at: string;
   expires_at: string;
 };
+
+type Poll = { question: string; options: string[] };
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -96,6 +124,9 @@ type Route =
   | { kind: "reaction"; id: string }
   | { kind: "like"; id: string }
   | { kind: "viewers"; id: string }
+  | { kind: "vote"; id: string }
+  | { kind: "highlights" }
+  | { kind: "highlight"; highlightId: string }
   | { kind: "unknown" };
 
 function parsePath(pathname: string): Route {
@@ -104,7 +135,10 @@ function parsePath(pathname: string): Route {
   if (p === "/stories/feed") return { kind: "feed" };
   if (p === "/stories/archive") return { kind: "archive" };
   if (p === "/stories/uploads") return { kind: "uploads" };
-  const m = p.match(/^\/stories\/([^/]+)(?:\/(view|reaction|like|viewers))?$/);
+  if (p === "/stories/highlights") return { kind: "highlights" };
+  const h = p.match(/^\/stories\/highlights\/([^/]+)$/);
+  if (h) return { kind: "highlight", highlightId: h[1] };
+  const m = p.match(/^\/stories\/([^/]+)(?:\/(view|reaction|like|viewers|vote))?$/);
   if (!m) return { kind: "unknown" };
   return m[2] ? { kind: m[2] as "view", id: m[1] } : { kind: "story", id: m[1] };
 }
@@ -129,7 +163,8 @@ async function decorateStories(rows: StoryRow[], viewer: Caller) {
   const ids = rows.map((r) => r.id);
   const own = rows.filter((r) => r.author_id === viewer.id).map((r) => r.id);
   const shared = rows.filter((r) => r.share_kind);
-  const [signed, authors, seen, mine, views, reactions, previews] = await Promise.all([
+  const polled = rows.filter((r) => r.poll).map((r) => r.id);
+  const [signed, authors, seen, mine, views, reactions, previews, votes] = await Promise.all([
     signPaths(BUCKET, rows.flatMap((r) => (r.storage_path ? [r.storage_path] : []))),
     userSummaries(rows.map((r) => r.author_id)),
     db.selectFrom("story_view").select("story_id").where("story_id", "in", ids).where("viewer_id", "=", viewer.id)
@@ -149,6 +184,9 @@ async function decorateStories(rows: StoryRow[], viewer: Caller) {
       ref_id: r.share_ref_id,
       snapshot: r.share_snapshot,
     }))),
+    polled.length
+      ? db.selectFrom("story_poll_vote").select(["story_id", "option", "user_id"]).where("story_id", "in", polled).execute()
+      : Promise.resolve([]),
   ]);
   const seenSet = new Set(seen.map((s) => s.story_id));
   const myReaction = new Map(mine.map((r) => [r.story_id, r.reaction]));
@@ -156,10 +194,12 @@ async function decorateStories(rows: StoryRow[], viewer: Caller) {
   const reactionCount = new Map(reactions.map((v) => [v.story_id, v.n]));
   const previewById = new Map(shared.map((r, i) => [r.id, previews[i]]));
   return rows.map((r) => {
-    const { storage_path, share_snapshot: _snapshot, ...rest } = r;
+    const { storage_path, share_snapshot: _snapshot, poll: _poll, ...rest } = r;
     const mineStory = r.author_id === viewer.id;
     return {
       ...rest,
+      poll: r.poll ? pollResult(r.poll as Poll, votes.filter((v) => v.story_id === r.id), viewer.id, mineStory) : null,
+      close_friends: r.audience === "close_friends",
       media_url: storage_path ? signed.get(storage_path) ?? null : null,
       author: authors[r.author_id] ?? null,
       share: previewById.get(r.id) ?? null,
@@ -172,6 +212,108 @@ async function decorateStories(rows: StoryRow[], viewer: Caller) {
       reaction_count: mineStory ? reactionCount.get(r.id) ?? 0 : null,
     };
   });
+}
+
+/** Tells the people mentioned in a story's text who can see it. */
+async function notifyStoryMentions(caller: Caller, story: StoryRow) {
+  if (!story.caption) return;
+  const mentioned = (await validMentions(db, story.caption, caller.id))
+    .filter((m) => m.kind === "user" && m.id !== caller.id).map((m) => m.id);
+  const audience: string[] = [];
+  for (const id of mentioned) {
+    const visible = await db.selectFrom("story").select("id").where("id", "=", story.id)
+      .where(storyVisibleSql(id)).executeTakeFirst();
+    if (visible) audience.push(id);
+  }
+  await notify(audience, {
+    type: "story_mention",
+    title: `${displayName(caller)} mentioned you in their story`,
+    body: "",
+    metadata: { story_id: story.id, user_id: caller.id },
+  });
+}
+
+// ── Highlights ────────────────────────────────────────────────────────────────
+
+/** Valid ids of [raw] that are stories of [userId] (any age), deduplicated, in order. */
+async function ownStoryIds(raw: unknown, userId: string): Promise<string[] | Response> {
+  if (!Array.isArray(raw)) return jsonError("story ids must be a list", 400);
+  const ids = [...new Set(raw.filter((x): x is string => typeof x === "string" && UUID_RE.test(x)))];
+  if (ids.length !== raw.length) return jsonError("story ids must be distinct story ids", 400);
+  if (!ids.length) return [];
+  const found = new Set((await db.selectFrom("story").select("id").where("id", "in", ids).where("author_id", "=", userId)
+    .execute()).map((r) => r.id));
+  if (found.size !== ids.length) return jsonError("Highlights can only hold your own stories", 400);
+  return ids;
+}
+
+/**
+ * [ownerId]'s highlights as [viewer] sees them: only stories they may see
+ * count, and highlights left empty for them are dropped. The cover is the
+ * chosen story when visible, else the newest one.
+ */
+async function highlightSummaries(ownerId: string, viewer: Caller, onlyId?: string) {
+  const highlights = await db.selectFrom("story_highlight")
+    .select(["id", "user_id", "title", "cover_story_id", "created_at", "updated_at"])
+    .where("user_id", "=", ownerId).$if(!!onlyId, (q) => q.where("id", "=", onlyId!))
+    .orderBy("position").orderBy("created_at", "desc").execute();
+  if (!highlights.length) return [];
+  const items = await db.selectFrom("story_highlight_item as i").innerJoin("story", "story.id", "i.story_id")
+    .select(["i.highlight_id", "story.id", "story.storage_path", "story.media_type", "story.background",
+      "story.caption", "story.created_at"])
+    .where("i.highlight_id", "in", highlights.map((h) => h.id))
+    .where(storyVisibleSql(viewer.id, { anyAge: true }))
+    .orderBy("story.created_at", "desc").execute();
+  const covers = highlights.flatMap((h) => {
+    const mine = items.filter((i) => i.highlight_id === h.id);
+    return mine.length ? [{ h, count: mine.length, cover: mine.find((i) => i.id === h.cover_story_id) ?? mine[0] }] : [];
+  });
+  const signed = await signPaths(BUCKET, covers.flatMap((c) => (c.cover.storage_path ? [c.cover.storage_path] : [])));
+  return covers.map(({ h, count, cover }) => ({
+    id: h.id,
+    user_id: h.user_id,
+    title: h.title,
+    cover_story_id: h.cover_story_id,
+    story_count: count,
+    cover: {
+      story_id: cover.id,
+      media_url: cover.storage_path ? signed.get(cover.storage_path) ?? null : null,
+      media_type: cover.media_type,
+      background: cover.background,
+      caption: cover.caption,
+    },
+    created_at: h.created_at,
+    updated_at: h.updated_at,
+  }));
+}
+
+/** A poll with its votes: counts only for the author or someone who voted. */
+function pollResult(poll: Poll, votes: { option: number; user_id: string }[], viewerId: string, isAuthor: boolean) {
+  const mine = votes.find((v) => v.user_id === viewerId)?.option ?? null;
+  const show = isAuthor || mine !== null;
+  return {
+    question: poll.question,
+    options: poll.options,
+    my_vote: mine,
+    total: show ? votes.length : null,
+    counts: show ? poll.options.map((_, i) => votes.filter((v) => v.option === i).length) : null,
+  };
+}
+
+/** {question, options} from a body; null when absent, a Response when malformed. */
+function readPoll(raw: unknown): Poll | null | Response {
+  if (raw === undefined || raw === null) return null;
+  const p = raw as { question?: unknown; options?: unknown };
+  const question = typeof p.question === "string" ? p.question.trim() : "";
+  if (question.length > POLL_QUESTION_MAX) return jsonError(`Poll questions are limited to ${POLL_QUESTION_MAX} characters`, 400);
+  if (!Array.isArray(p.options) || p.options.length < 2 || p.options.length > 4) {
+    return jsonError("A poll needs 2 to 4 options", 400);
+  }
+  const options = p.options.map((o) => (typeof o === "string" ? o.trim() : ""));
+  if (options.some((o) => !o || o.length > POLL_OPTION_MAX)) {
+    return jsonError(`Poll options must be 1–${POLL_OPTION_MAX} characters`, 400);
+  }
+  return { question, options };
 }
 
 /** ?from= & ?to= as ISO timestamps (each optional); a 400 when malformed. */
@@ -206,10 +348,12 @@ async function handler(req: Request): Promise<Response> {
       author_id: string;
       story_count: number;
       unseen_count: number;
+      close_friends: boolean;
       latest_at: string;
     }>`
       SELECT story.author_id,
              count(*)::int AS story_count,
+             bool_or(story.audience = 'close_friends') AS close_friends,
              count(*) FILTER (WHERE story.author_id <> ${me} AND NOT EXISTS (
                SELECT 1 FROM story_view v WHERE v.story_id = story.id AND v.viewer_id = ${me}))::int AS unseen_count,
              max(story.created_at) AS latest_at
@@ -218,6 +362,7 @@ async function handler(req: Request): Promise<Response> {
          AND (story.author_id = ${me} OR story.author_id IN (
                SELECT followee_id FROM follow WHERE follower_id = ${me} AND status = 'accepted'))
          AND ${storyVisibleSql(me)}
+         AND NOT EXISTS (SELECT 1 FROM user_mute um WHERE um.muter_id = ${me} AND um.muted_id = story.author_id AND um.stories)
        GROUP BY story.author_id
        ORDER BY (story.author_id = ${me}) DESC, (count(*) FILTER (WHERE NOT EXISTS (
                SELECT 1 FROM story_view v WHERE v.story_id = story.id AND v.viewer_id = ${me})) > 0) DESC,
@@ -231,6 +376,7 @@ async function handler(req: Request): Promise<Response> {
       story_count: r.story_count,
       unseen_count: r.unseen_count,
       has_unseen: r.unseen_count > 0,
+      close_friends: r.close_friends,
       latest_at: r.latest_at,
     })));
   }
@@ -281,7 +427,7 @@ async function handler(req: Request): Promise<Response> {
   // ── POST /stories ────────────────────────────────────────────────────────────
   if (req.method === "POST" && route.kind === "collection") {
     const body = await req.json().catch(() => null);
-    const caption = typeof body?.caption === "string" ? body.caption.trim() : "";
+    const caption = await normalizeMentions(db, typeof body?.caption === "string" ? body.caption.trim() : "");
     if (caption.length > CAPTION_MAX) return jsonError(`Story text is limited to ${CAPTION_MAX} characters`, 400);
     const background = body?.background ?? null;
     if (background !== null && (typeof background !== "string" || !HEX_RE.test(background))) {
@@ -289,6 +435,10 @@ async function handler(req: Request): Promise<Response> {
     }
     const media = body?.media ?? null;
     if (media !== null && typeof media?.path !== "string") return jsonError("media.path is required", 400);
+    const audience = body?.audience ?? "everyone";
+    if (!AUDIENCES.includes(audience)) return jsonError("audience must be everyone or close_friends", 400);
+    const poll = readPoll(body?.poll);
+    if (poll instanceof Response) return poll;
 
     let share: StoredShare | null = null;
     if (body?.share != null) {
@@ -296,7 +446,9 @@ async function handler(req: Request): Promise<Response> {
       if (prepared instanceof Response) return prepared;
       share = prepared;
     }
-    if (!media && !share && !caption) return jsonError("A story needs a photo, a video, text or something shared", 400);
+    if (!media && !share && !caption && !poll) {
+      return jsonError("A story needs a photo, a video, text, a poll or something shared", 400);
+    }
 
     let mime: string | null = null;
     if (media) {
@@ -318,10 +470,137 @@ async function handler(req: Request): Promise<Response> {
       share_kind: (share?.kind as StoryShareKind | undefined) ?? null,
       share_ref_id: share?.ref_id ?? null,
       share_snapshot: share?.snapshot ? JSON.stringify(share.snapshot) : null,
+      audience,
+      poll: poll ? JSON.stringify(poll) : null,
     }).returning(STORY_COLS).executeTakeFirstOrThrow();
     if (media) await markClaimed(BUCKET, [media.path]);
+    await notifyStoryMentions(caller, row);
     const [decorated] = await decorateStories([row], caller);
     return json(decorated, 201);
+  }
+
+  // ── GET /stories/highlights?user_id= ────────────────────────────────────────
+  if (req.method === "GET" && route.kind === "highlights") {
+    const userId = url.searchParams.get("user_id") ?? me;
+    if (!UUID_RE.test(userId)) return jsonError("User not found", 404);
+    return json(await highlightSummaries(userId, caller));
+  }
+
+  // ── POST /stories/highlights {title, story_ids, cover_story_id?} ─────────────
+  if (req.method === "POST" && route.kind === "highlights") {
+    const body = await req.json().catch(() => null);
+    const title = typeof body?.title === "string" ? body.title.trim() : "";
+    if (!title || title.length > HIGHLIGHT_TITLE_MAX) {
+      return jsonError(`title must be 1–${HIGHLIGHT_TITLE_MAX} characters`, 400);
+    }
+    const ids = await ownStoryIds(body?.story_ids, me);
+    if (ids instanceof Response) return ids;
+    if (!ids.length) return jsonError("Pick at least one story", 400);
+    if (ids.length > HIGHLIGHT_STORIES_MAX) return jsonError(`Up to ${HIGHLIGHT_STORIES_MAX} stories per highlight`, 400);
+    const cover = body?.cover_story_id ?? null;
+    if (cover !== null && !ids.includes(cover)) return jsonError("cover_story_id must be one of the stories", 400);
+    const { n } = await db.selectFrom("story_highlight").select(sql<number>`count(*)::int`.as("n"))
+      .where("user_id", "=", me).executeTakeFirstOrThrow();
+    if (n >= HIGHLIGHTS_MAX) return jsonError(`Up to ${HIGHLIGHTS_MAX} highlights`, 400);
+    const created = await db.transaction().execute(async (trx) => {
+      const row = await trx.insertInto("story_highlight").values({ user_id: me, title, cover_story_id: cover })
+        .returning("id").executeTakeFirstOrThrow();
+      await trx.insertInto("story_highlight_item").values(ids.map((story_id) => ({ highlight_id: row.id, story_id })))
+        .execute();
+      return row;
+    });
+    const [summary] = await highlightSummaries(me, caller, created.id);
+    return json(summary, 201);
+  }
+
+  if (route.kind === "highlight") {
+    if (!UUID_RE.test(route.highlightId)) return jsonError("Highlight not found", 404);
+    const highlight = await db.selectFrom("story_highlight").select(["id", "user_id", "title", "cover_story_id"])
+      .where("id", "=", route.highlightId).executeTakeFirst();
+    if (!highlight) return jsonError("Highlight not found", 404);
+
+    // ── GET /stories/highlights/:id ────────────────────────────────────────────
+    if (req.method === "GET") {
+      const [summary] = await highlightSummaries(highlight.user_id, caller, highlight.id);
+      if (!summary) return jsonError("Highlight not found", 404);
+      const rows = await db.selectFrom("story").select(STORY_COLS)
+        .where(({ exists, selectFrom }) =>
+          exists(selectFrom("story_highlight_item").select("story_highlight_item.story_id")
+            .whereRef("story_highlight_item.story_id", "=", "story.id")
+            .where("story_highlight_item.highlight_id", "=", highlight.id))
+        )
+        .where(storyVisibleSql(me, { anyAge: true }))
+        .orderBy("created_at", "asc").orderBy("id", "asc").execute();
+      const people = await userSummaries([highlight.user_id]);
+      return json({ ...summary, user: people[highlight.user_id] ?? null, stories: await decorateStories(rows, caller) });
+    }
+
+    if (highlight.user_id !== me) return forbidden("Only its owner can change a highlight");
+
+    // ── DELETE /stories/highlights/:id ─────────────────────────────────────────
+    if (req.method === "DELETE") {
+      await db.deleteFrom("story_highlight").where("id", "=", highlight.id).execute();
+      return new Response(null, { status: 204 });
+    }
+
+    // ── PUT /stories/highlights/:id ────────────────────────────────────────────
+    if (req.method === "PUT") {
+      const body = await req.json().catch(() => null);
+      if (!body || typeof body !== "object") return jsonError("Expected a JSON object", 400);
+      let title: string | undefined;
+      if ("title" in body) {
+        title = typeof body.title === "string" ? body.title.trim() : "";
+        if (!title || title.length > HIGHLIGHT_TITLE_MAX) {
+          return jsonError(`title must be 1–${HIGHLIGHT_TITLE_MAX} characters`, 400);
+        }
+      }
+      const current = (await db.selectFrom("story_highlight_item").select("story_id")
+        .where("highlight_id", "=", highlight.id).execute()).map((r) => r.story_id);
+      let next = current;
+      if ("story_ids" in body) {
+        const ids = await ownStoryIds(body.story_ids, me);
+        if (ids instanceof Response) return ids;
+        next = ids;
+      }
+      if ("add_story_ids" in body) {
+        const ids = await ownStoryIds(body.add_story_ids, me);
+        if (ids instanceof Response) return ids;
+        next = [...new Set([...next, ...ids])];
+      }
+      if ("remove_story_ids" in body) {
+        if (!Array.isArray(body.remove_story_ids)) return jsonError("remove_story_ids must be a list", 400);
+        const remove = new Set(body.remove_story_ids);
+        next = next.filter((id) => !remove.has(id));
+      }
+      if (!next.length) return jsonError("A highlight needs at least one story — delete it instead", 400);
+      if (next.length > HIGHLIGHT_STORIES_MAX) return jsonError(`Up to ${HIGHLIGHT_STORIES_MAX} stories per highlight`, 400);
+      let cover = highlight.cover_story_id;
+      if ("cover_story_id" in body) cover = body.cover_story_id ?? null;
+      if (cover !== null && !next.includes(cover)) {
+        if ("cover_story_id" in body) return jsonError("cover_story_id must be one of the stories", 400);
+        cover = null; // the cover was taken out
+      }
+      await db.transaction().execute(async (trx) => {
+        await trx.updateTable("story_highlight").set({
+          ...(title !== undefined && { title }),
+          cover_story_id: cover,
+          updated_at: new Date().toISOString(),
+        }).where("id", "=", highlight.id).execute();
+        const added = next.filter((id) => !current.includes(id));
+        const removed = current.filter((id) => !next.includes(id));
+        if (removed.length) {
+          await trx.deleteFrom("story_highlight_item").where("highlight_id", "=", highlight.id)
+            .where("story_id", "in", removed).execute();
+        }
+        if (added.length) {
+          await trx.insertInto("story_highlight_item").values(added.map((story_id) => ({ highlight_id: highlight.id, story_id })))
+            .execute();
+        }
+      });
+      const [summary] = await highlightSummaries(me, caller, highlight.id);
+      return json(summary);
+    }
+    return jsonError("Method not allowed", 405);
   }
 
   if (!("id" in route)) return jsonError("Method not allowed", 405);
@@ -403,6 +682,25 @@ async function handler(req: Request): Promise<Response> {
     });
   }
 
+  // ── PUT /stories/:id/vote {option} ───────────────────────────────────────────
+  if (req.method === "PUT" && route.kind === "vote") {
+    const story = await loadVisibleStory(route.id, caller);
+    if (!story || !story.poll) return jsonError("Poll not found", 404);
+    if (story.author_id === me) return jsonError("You can't vote in your own poll", 400);
+    if (!isLive(story)) return jsonError("This story has expired", 410);
+    const option = (await req.json().catch(() => null))?.option;
+    if (!Number.isInteger(option) || option < 0 || option >= (story.poll as Poll).options.length) {
+      return jsonError("option must be the index of one of the poll's options", 400);
+    }
+    await db.insertInto("story_poll_vote").values({ story_id: story.id, user_id: me, option })
+      .onConflict((oc) => oc.columns(["story_id", "user_id"]).doUpdateSet({ option })).execute();
+    // Voting counts as watching it.
+    await db.insertInto("story_view").values({ story_id: story.id, viewer_id: me })
+      .onConflict((oc) => oc.columns(["story_id", "viewer_id"]).doNothing()).execute();
+    const [decorated] = await decorateStories([story], caller);
+    return json(decorated);
+  }
+
   // ── GET /stories/:id/viewers — the author only ───────────────────────────────
   // Everyone who watched it (people who reacted without a recorded view too),
   // those who reacted first, then most recent.
@@ -414,15 +712,17 @@ async function handler(req: Request): Promise<Response> {
     if (story.author_id !== me && !isSuperUser(caller)) return forbidden("Only the author sees who watched");
     const { page, pageSize } = parsePaging(url, 50, 200);
     const hidden = [...(await blockedIds(story.author_id))];
-    const { rows } = await sql<{ user_id: string; viewed_at: string; reaction: ReactionType | null }>`
+    const { rows } = await sql<{ user_id: string; viewed_at: string; reaction: ReactionType | null; poll_vote: number | null }>`
       SELECT u.id AS user_id,
              COALESCE(v.viewed_at, r.created_at) AS viewed_at,
-             r.reaction
+             r.reaction,
+             pv.option AS poll_vote
         FROM (SELECT viewer_id AS id FROM story_view WHERE story_id = ${story.id}
               UNION SELECT user_id FROM story_reaction WHERE story_id = ${story.id}) w
         JOIN users u ON u.id = w.id
         LEFT JOIN story_view v ON v.story_id = ${story.id} AND v.viewer_id = u.id
         LEFT JOIN story_reaction r ON r.story_id = ${story.id} AND r.user_id = u.id
+        LEFT JOIN story_poll_vote pv ON pv.story_id = ${story.id} AND pv.user_id = u.id
        WHERE u.id <> ${story.author_id} AND NOT (u.id = ANY(${hidden}::uuid[]))
        ORDER BY (r.reaction IS NOT NULL) DESC, COALESCE(v.viewed_at, r.created_at) DESC, u.id
        LIMIT ${pageSize} OFFSET ${page * pageSize}
@@ -432,6 +732,7 @@ async function handler(req: Request): Promise<Response> {
       user: people[r.user_id],
       viewed_at: r.viewed_at,
       reaction: r.reaction,
+      poll_vote: r.poll_vote,
     })));
   }
 

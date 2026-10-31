@@ -352,7 +352,15 @@ mixin _CommentsUi<T extends StatefulWidget> on State<T> {
     });
   }
 
+  /// The author turned commenting off: no new comments or replies (my
+  /// existing ones can still be edited).
+  bool get commentsDisabled => store.post?.commentsDisabled == true;
+
   void startComment() {
+    if (commentsDisabled) {
+      snack(context.l10n.postsCommentingIsOff);
+      return;
+    }
     if (editing != null) composerText.clear();
     setState(() {
       replyTo = null;
@@ -362,6 +370,10 @@ mixin _CommentsUi<T extends StatefulWidget> on State<T> {
   }
 
   void startReply(PostComment c) {
+    if (commentsDisabled) {
+      snack(context.l10n.postsCommentingIsOff);
+      return;
+    }
     if (editing != null) composerText.clear();
     setState(() {
       replyTo = c;
@@ -493,6 +505,22 @@ mixin _CommentsUi<T extends StatefulWidget> on State<T> {
   Widget buildComposer(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
+    if (commentsDisabled && editing == null) {
+      return Material(
+        color: cs.surfaceContainer,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(Icons.comments_disabled_outlined, size: 18, color: cs.onSurfaceVariant),
+              const SizedBox(width: 8),
+              Flexible(child: Text(l10n.postsCommentingIsOff, style: TextStyle(color: cs.onSurfaceVariant))),
+            ]),
+          ),
+        ),
+      );
+    }
     final target = replyTo;
     final author = target?.author;
     final targetName = author == null

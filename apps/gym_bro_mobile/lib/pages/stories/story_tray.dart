@@ -9,9 +9,9 @@ import '../../widgets/social_widgets.dart';
 import 'story_composer_page.dart';
 import 'story_viewer_page.dart';
 
-/// The ring around an avatar: none, unwatched stories (gradient) or all
-/// watched (grey).
-enum StoryRing { none, unseen, seen }
+/// The ring around an avatar: none, unwatched stories (gradient), unwatched
+/// close-friends stories (green) or all watched (grey).
+enum StoryRing { none, unseen, closeFriends, seen }
 
 /// The Instagram story gradient.
 const kStoryGradient = SweepGradient(
@@ -40,9 +40,10 @@ class StoryRingAvatar extends StatelessWidget {
   final VoidCallback? onAdd;
   final String? semanticLabel;
 
-  /// The ring for someone with [hasStory] / [hasUnseen] live stories.
-  static StoryRing ringFor({required bool hasStory, required bool hasUnseen}) =>
-      !hasStory ? StoryRing.none : (hasUnseen ? StoryRing.unseen : StoryRing.seen);
+  /// The ring for someone with [hasStory] / [hasUnseen] live stories
+  /// (green when [closeFriends] ones are among them).
+  static StoryRing ringFor({required bool hasStory, required bool hasUnseen, bool closeFriends = false}) =>
+      !hasStory ? StoryRing.none : (hasUnseen ? (closeFriends ? StoryRing.closeFriends : StoryRing.unseen) : StoryRing.seen);
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +55,11 @@ class StoryRingAvatar extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: ring == StoryRing.unseen ? kStoryGradient : null,
-        color: ring == StoryRing.seen ? cs.outlineVariant : Colors.transparent,
+        color: switch (ring) {
+          StoryRing.seen => cs.outlineVariant,
+          StoryRing.closeFriends => kCloseFriendsGreen,
+          _ => Colors.transparent,
+        },
       ),
       child: Container(
         padding: EdgeInsets.all(gap),
@@ -176,7 +181,7 @@ class StoryTrayState extends State<StoryTray> {
             _TrayItem(
               user: me,
               label: l10n.storyYourStory,
-              ring: _mine == null ? StoryRing.none : StoryRing.unseen,
+              ring: _mine == null ? StoryRing.none : (_mine!.closeFriends ? StoryRing.closeFriends : StoryRing.unseen),
               onTap: _openMine,
               onLongPress: _compose,
               onAdd: _compose,
@@ -186,7 +191,7 @@ class StoryTrayState extends State<StoryTray> {
             _TrayItem(
               user: e.user,
               label: e.user.username.isNotEmpty ? e.user.username : e.user.fullName,
-              ring: e.hasUnseen ? StoryRing.unseen : StoryRing.seen,
+              ring: StoryRingAvatar.ringFor(hasStory: true, hasUnseen: e.hasUnseen, closeFriends: e.closeFriends),
               onTap: () => _openOther(i),
               semanticLabel: e.hasUnseen ? l10n.storyTrayUnseen(e.user.fullName) : l10n.storyTraySeen(e.user.fullName),
             ),

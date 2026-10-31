@@ -110,9 +110,12 @@ class MessageBubble extends StatelessWidget {
         ),
       ));
     } else {
+      if (m.isForwarded) content.add(const ForwardedLabel());
       if (m.replyTo != null) content.add(_ReplyQuote(reply: m.replyTo!, mine: mine, onTap: onQuoteTap));
       final storyReply = m.storyReply;
       if (storyReply != null) content.add(StoryReplyHeader(info: storyReply, mine: mine));
+      final noteReply = m.noteReply;
+      if (noteReply != null) content.add(NoteReplyHeader(info: noteReply, mine: mine));
       if (m.share != null) content.add(SharedContentCard(content: m.share!, maxWidth: maxWidth, sharedBy: m.senderId));
       if (outgoing != null && outgoing!.files.isNotEmpty) {
         content.add(LocalAttachments(
@@ -333,6 +336,76 @@ class StoryReplyHeader extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         thumb,
+      ],
+    );
+  }
+}
+
+/// "↪ Forwarded" above a message passed on from another chat.
+class ForwardedLabel extends StatelessWidget {
+  const ForwardedLabel({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final style = Theme.of(context).textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontStyle: FontStyle.italic);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Icon(Icons.shortcut_rounded, size: 13, color: cs.onSurfaceVariant),
+        const SizedBox(width: 3),
+        Text(context.l10n.chatForwarded, style: style),
+      ]),
+    );
+  }
+}
+
+/// Above a note reply: "Replied to your note" / "You replied to their note"
+/// and the note as it was, quoted.
+class NoteReplyHeader extends StatelessWidget {
+  const NoteReplyHeader({super.key, required this.info, required this.mine});
+
+  final NoteReplyInfo info;
+  final bool mine;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final yours = info.ownerId != null && info.ownerId == chatMyId;
+    return Column(
+      crossAxisAlignment: mine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            yours ? l10n.chatNoteRepliedYours : l10n.chatNoteRepliedTheirs,
+            style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.fromLTRB(10, 6, 12, 8),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHighest.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(14),
+            border: Border(left: BorderSide(color: cs.outline, width: 3)),
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(Icons.sticky_note_2_outlined, size: 14, color: cs.onSurfaceVariant),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                info.body,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+              ),
+            ),
+          ]),
+        ),
       ],
     );
   }

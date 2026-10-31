@@ -44,11 +44,11 @@ void showChatSnack(BuildContext context, String text) {
     ..showSnackBar(SnackBar(content: Text(text)));
 }
 
-/// "📷 Photo", "🎥 Video", …
+/// "📷 Photo", "🎥 Video", "🎤 Voice message", …
 String chatMediaLabel(AppLocalizations l10n, AttachmentType type) => switch (type) {
   AttachmentType.image => l10n.chatMediaPhoto,
   AttachmentType.video => l10n.chatMediaVideo,
-  AttachmentType.audio => l10n.chatMediaAudio,
+  AttachmentType.audio => l10n.chatVoicePreview,
   AttachmentType.file => l10n.chatMediaFile,
 };
 
@@ -73,6 +73,7 @@ Conversation conversationWithMembers(Conversation c, List<ConversationMember> me
   myStatus: c.myStatus,
   muted: c.muted,
   archived: c.archived,
+  pinned: c.pinned,
   lastReadAt: c.lastReadAt,
   unreadCount: c.unreadCount,
   participantCount: c.participantCount,
@@ -172,7 +173,7 @@ String systemEventText(
   var text = switch ((m.kind, raw)) {
     ('media', 'image') => l10n.chatMediaPhoto,
     ('media', 'video') => l10n.chatMediaVideo,
-    ('media', 'audio') => l10n.chatMediaAudio,
+    ('media', 'audio') => l10n.chatVoicePreview,
     ('media', 'file') => l10n.chatMediaFile,
     _ => raw.replaceAll('\n', ' '),
   };
@@ -180,6 +181,8 @@ String systemEventText(
     text = l10n.sharedStoryReactedPreview(raw);
   } else if (m.storyMode == 'reply') {
     text = l10n.sharedStoryRepliedPreview(text);
+  } else if (m.metadata['note_reply'] is Map) {
+    text = l10n.chatNoteRepliedPreview(text);
   } else if (raw.isEmpty && m.shareKind != null) {
     text = sharedPreviewText(l10n, m.shareKind!);
   }

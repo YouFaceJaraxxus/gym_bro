@@ -171,8 +171,9 @@ class DurationBadge extends StatelessWidget {
   }
 }
 
-/// A compact audio player (play/pause, progress, time). The player is only
-/// created on first play.
+/// A voice-note player (play/pause, progress — tap to seek — and time),
+/// played with video_player (it handles audio-only files). The player is
+/// only created on first play, and only one plays at a time.
 class AudioAttachment extends StatefulWidget {
   final String? url;
   final int? durationMs;
@@ -185,15 +186,27 @@ class AudioAttachment extends StatefulWidget {
 }
 
 class _AudioAttachmentState extends State<AudioAttachment> {
+  /// The one playing now; starting another pauses it.
+  static _AudioAttachmentState? _active;
+
   VideoPlayerController? _c;
   bool _loading = false;
   bool _error = false;
 
   @override
   void dispose() {
+    if (_active == this) _active = null;
     _c?.removeListener(_tick);
     _c?.dispose();
     super.dispose();
+  }
+
+  Future<void> _seek(double fraction) async {
+    final c = _c;
+    if (c == null || !c.value.isInitialized) return;
+    final total = c.value.duration;
+    if (total <= Duration.zero) return;
+    await c.seekTo(total * fraction.clamp(0.0, 1.0));
   }
 
   void _tick() {
@@ -236,6 +249,9 @@ class _AudioAttachmentState extends State<AudioAttachment> {
     if (v.isPlaying) {
       await c.pause();
     } else {
+      final other = _active;
+      if (other != null && other != this) await other._c?.pause();
+      _active = this;
       if (v.duration > Duration.zero && v.position >= v.duration) await c.seekTo(Duration.zero);
       await c.play();
     }
@@ -265,17 +281,29 @@ class _AudioAttachmentState extends State<AudioAttachment> {
               : Icon(_error ? Icons.error_outline : (playing ? Icons.pause_rounded : Icons.play_arrow_rounded), color: fg),
         ),
         Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(2),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 3,
-              color: fg,
-              backgroundColor: fg.withValues(alpha: 0.25),
+          child: LayoutBuilder(
+            builder: (context, constraints) => GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapDown: (d) => _seek(d.localPosition.dx / constraints.maxWidth),
+              onHorizontalDragUpdate: (d) => _seek(d.localPosition.dx / constraints.maxWidth),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 3,
+                    color: fg,
+                    backgroundColor: fg.withValues(alpha: 0.25),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
+        Icon(Icons.mic_rounded, size: 14, color: fg.withValues(alpha: 0.75)),
+        const SizedBox(width: 2),
         Text(
           formatDuration(playing || pos > 0 ? pos : total),
           style: Theme.of(context).textTheme.labelSmall?.copyWith(color: fg, fontFeatures: const [FontFeature.tabularFigures()]),
@@ -433,8 +461,8 @@ class LocalAttachments extends StatelessWidget {
         ),
       for (final i in other)
         _FileRow(
-          icon: fileIconFor(files[i].mimeType, files[i].fileName),
-          name: files[i].fileName,
+          icon: files[i].type == AttachmentType.audio ? Icons.mic_rounded : fileIconFor(files[i].mimeType, files[i].fileName),
+          name: files[i].type == AttachmentType.audio ? context.l10n.chatVoiceMessage : files[i].fileName,
           size: files[i].sizeBytes,
           fg: cs.onPrimary,
           bg: cs.primary,

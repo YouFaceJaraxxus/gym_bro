@@ -3121,6 +3121,24 @@ abstract class AppLocalizations {
   /// **'Following'**
   String get chatFollowingSection;
 
+  /// No description provided for @chatForward.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward'**
+  String get chatForward;
+
+  /// No description provided for @chatForwardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward to'**
+  String get chatForwardTitle;
+
+  /// No description provided for @chatForwarded.
+  ///
+  /// In en, this message translates to:
+  /// **'Forwarded'**
+  String get chatForwarded;
+
   /// No description provided for @chatGroupDescription.
   ///
   /// In en, this message translates to:
@@ -3325,6 +3343,120 @@ abstract class AppLocalizations {
   /// **'No chats match \"{query}\"'**
   String chatNoResults(String query);
 
+  /// No description provided for @chatNoteRepliedPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Replied to a note: {text}'**
+  String chatNoteRepliedPreview(String text);
+
+  /// No description provided for @chatNoteRepliedTheirs.
+  ///
+  /// In en, this message translates to:
+  /// **'You replied to their note'**
+  String get chatNoteRepliedTheirs;
+
+  /// No description provided for @chatNoteRepliedYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Replied to your note'**
+  String get chatNoteRepliedYours;
+
+  /// No description provided for @chatNotesAudienceCloseFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Close friends'**
+  String get chatNotesAudienceCloseFriends;
+
+  /// No description provided for @chatNotesAudienceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Share with'**
+  String get chatNotesAudienceLabel;
+
+  /// No description provided for @chatNotesAudienceMutuals.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers you follow back'**
+  String get chatNotesAudienceMutuals;
+
+  /// No description provided for @chatNotesDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete note'**
+  String get chatNotesDelete;
+
+  /// No description provided for @chatNotesDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Note deleted'**
+  String get chatNotesDeleted;
+
+  /// No description provided for @chatNotesEditorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your note'**
+  String get chatNotesEditorTitle;
+
+  /// No description provided for @chatNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a thought…'**
+  String get chatNotesHint;
+
+  /// No description provided for @chatNotesLeaveNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave a note'**
+  String get chatNotesLeaveNote;
+
+  /// No description provided for @chatNotesOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s note'**
+  String chatNotesOf(String name);
+
+  /// No description provided for @chatNotesOpenChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Open chat'**
+  String get chatNotesOpenChat;
+
+  /// No description provided for @chatNotesReplyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply to {name}…'**
+  String chatNotesReplyHint(String name);
+
+  /// No description provided for @chatNotesReplySent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply sent'**
+  String get chatNotesReplySent;
+
+  /// No description provided for @chatNotesShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get chatNotesShare;
+
+  /// No description provided for @chatNotesShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Note shared'**
+  String get chatNotesShared;
+
+  /// No description provided for @chatNotesVisibleFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes show above the inbox for 24 hours.'**
+  String get chatNotesVisibleFor;
+
+  /// No description provided for @chatNotesYourNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your note'**
+  String get chatNotesYourNote;
+
   /// No description provided for @chatOpenFile.
   ///
   /// In en, this message translates to:
@@ -3354,6 +3486,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Photo'**
   String get chatPhotoMessage;
+
+  /// No description provided for @chatPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get chatPin;
+
+  /// No description provided for @chatPinLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can pin up to 3 chats'**
+  String get chatPinLimit;
+
+  /// No description provided for @chatPinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned'**
+  String get chatPinned;
+
+  /// No description provided for @chatPinnedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat pinned'**
+  String get chatPinnedSnack;
 
   /// No description provided for @chatPlay.
   ///
@@ -3721,6 +3877,18 @@ abstract class AppLocalizations {
   /// **'Notifications unmuted'**
   String get chatUnmutedSnack;
 
+  /// No description provided for @chatUnpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get chatUnpin;
+
+  /// No description provided for @chatUnpinnedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat unpinned'**
+  String get chatUnpinnedSnack;
+
   /// No description provided for @chatUnreadCount.
   ///
   /// In en, this message translates to:
@@ -3756,6 +3924,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View profile'**
   String get chatViewProfile;
+
+  /// No description provided for @chatVoiceCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard recording'**
+  String get chatVoiceCancel;
+
+  /// No description provided for @chatVoiceFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t record audio'**
+  String get chatVoiceFailed;
+
+  /// No description provided for @chatVoiceMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice message'**
+  String get chatVoiceMessage;
+
+  /// No description provided for @chatVoicePermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow microphone access to record voice messages.'**
+  String get chatVoicePermission;
+
+  /// No description provided for @chatVoicePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'🎤 Voice message'**
+  String get chatVoicePreview;
+
+  /// No description provided for @chatVoiceRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a voice message'**
+  String get chatVoiceRecord;
+
+  /// No description provided for @chatVoiceRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording'**
+  String get chatVoiceRecording;
+
+  /// No description provided for @chatVoiceSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send voice message'**
+  String get chatVoiceSend;
+
+  /// No description provided for @chatVoiceTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'That recording was too short'**
+  String get chatVoiceTooShort;
 
   /// No description provided for @chatYesterday.
   ///
@@ -4410,6 +4632,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You'**
   String get classSeriesYou;
+
+  /// No description provided for @closeFriendsPageAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to close friends'**
+  String get closeFriendsPageAdd;
+
+  /// No description provided for @closeFriendsPageEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one yet. Tap the star next to a follower to add them.'**
+  String get closeFriendsPageEmpty;
+
+  /// No description provided for @closeFriendsPageFollowers.
+  ///
+  /// In en, this message translates to:
+  /// **'Your followers'**
+  String get closeFriendsPageFollowers;
+
+  /// No description provided for @closeFriendsPageInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you can see your close friends list — no one is told when you add or remove them. Stories you share to close friends show only to them, with a green ring.'**
+  String get closeFriendsPageInfo;
+
+  /// No description provided for @closeFriendsPageListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Your list} =1{Your list · 1 person} other{Your list · {count} people}}'**
+  String closeFriendsPageListTitle(int count);
+
+  /// No description provided for @closeFriendsPageNoFollowers.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have any followers to add yet.'**
+  String get closeFriendsPageNoFollowers;
+
+  /// No description provided for @closeFriendsPageNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No followers match your search.'**
+  String get closeFriendsPageNoMatch;
+
+  /// No description provided for @closeFriendsPageRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from close friends'**
+  String get closeFriendsPageRemove;
+
+  /// No description provided for @closeFriendsPageSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search followers'**
+  String get closeFriendsPageSearchHint;
+
+  /// No description provided for @closeFriendsPageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Close friends'**
+  String get closeFriendsPageTitle;
 
   /// No description provided for @commonBack.
   ///
@@ -9577,6 +9859,612 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 workout} other{{count} workouts}}'**
   String postShareWorkouts(int count);
 
+  /// No description provided for @postsAdvancedSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced settings'**
+  String get postsAdvancedSettings;
+
+  /// No description provided for @postsAllPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'All posts'**
+  String get postsAllPosts;
+
+  /// No description provided for @postsCollectionEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts in this collection yet'**
+  String get postsCollectionEmpty;
+
+  /// No description provided for @postsCollectionName.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection name'**
+  String get postsCollectionName;
+
+  /// No description provided for @postsCommentingIsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Commenting is turned off.'**
+  String get postsCommentingIsOff;
+
+  /// No description provided for @postsCommentingOffToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Commenting turned off'**
+  String get postsCommentingOffToast;
+
+  /// No description provided for @postsCommentingOnToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Commenting turned on'**
+  String get postsCommentingOnToast;
+
+  /// No description provided for @postsCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get postsCreate;
+
+  /// No description provided for @postsDeleteCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete collection'**
+  String get postsDeleteCollection;
+
+  /// No description provided for @postsDeleteCollectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its posts stay in All posts.'**
+  String get postsDeleteCollectionBody;
+
+  /// No description provided for @postsDeleteCollectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"?'**
+  String postsDeleteCollectionTitle(String name);
+
+  /// No description provided for @postsGridView.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid view'**
+  String get postsGridView;
+
+  /// No description provided for @postsHashtagEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts with this hashtag yet'**
+  String get postsHashtagEmpty;
+
+  /// No description provided for @postsHideLikeCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide like count'**
+  String get postsHideLikeCount;
+
+  /// No description provided for @postsHideLikeCountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you will see how many people reacted to this post.'**
+  String get postsHideLikeCountHint;
+
+  /// No description provided for @postsLikeCountHiddenToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Like count hidden'**
+  String get postsLikeCountHiddenToast;
+
+  /// No description provided for @postsLikeCountShownToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Like count visible again'**
+  String get postsLikeCountShownToast;
+
+  /// No description provided for @postsLikedByOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Liked by others'**
+  String get postsLikedByOthers;
+
+  /// No description provided for @postsLikedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your likes'**
+  String get postsLikedTitle;
+
+  /// No description provided for @postsListView.
+  ///
+  /// In en, this message translates to:
+  /// **'List view'**
+  String get postsListView;
+
+  /// No description provided for @postsLocationClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear location'**
+  String get postsLocationClear;
+
+  /// No description provided for @postsLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a location'**
+  String get postsLocationHint;
+
+  /// No description provided for @postsLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get postsLocationLabel;
+
+  /// No description provided for @postsMute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get postsMute;
+
+  /// No description provided for @postsNewCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'New collection'**
+  String get postsNewCollection;
+
+  /// No description provided for @postsNoLikedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts you react to show up here.'**
+  String get postsNoLikedBody;
+
+  /// No description provided for @postsNoLikedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No likes yet'**
+  String get postsNoLikedTitle;
+
+  /// No description provided for @postsNoReelsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Videos people share show up here.'**
+  String get postsNoReelsBody;
+
+  /// No description provided for @postsNoReelsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No reels yet'**
+  String get postsNoReelsTitle;
+
+  /// No description provided for @postsNoSavedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the bookmark on a post to save it here.'**
+  String get postsNoSavedBody;
+
+  /// No description provided for @postsNoSavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing saved yet'**
+  String get postsNoSavedTitle;
+
+  /// No description provided for @postsPinLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You can pin up to 3 posts. Unpin one first.'**
+  String get postsPinLimit;
+
+  /// No description provided for @postsPinToProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin to profile'**
+  String get postsPinToProfile;
+
+  /// No description provided for @postsPinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned'**
+  String get postsPinned;
+
+  /// No description provided for @postsPinnedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned to your profile'**
+  String get postsPinnedToast;
+
+  /// No description provided for @postsPostCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No posts} =1{1 post} other{{count} posts}}'**
+  String postsPostCount(int count);
+
+  /// No description provided for @postsReactionsAllHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get postsReactionsAllHidden;
+
+  /// No description provided for @postsReels.
+  ///
+  /// In en, this message translates to:
+  /// **'Reels'**
+  String get postsReels;
+
+  /// No description provided for @postsRemovedFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from {name}'**
+  String postsRemovedFrom(String name);
+
+  /// No description provided for @postsRemovedFromSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from saved'**
+  String get postsRemovedFromSaved;
+
+  /// No description provided for @postsRenameCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename collection'**
+  String get postsRenameCollection;
+
+  /// No description provided for @postsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get postsSave;
+
+  /// No description provided for @postsSaveToCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to collection'**
+  String get postsSaveToCollection;
+
+  /// No description provided for @postsSavedOnlyYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you can see what you\'ve saved.'**
+  String get postsSavedOnlyYou;
+
+  /// No description provided for @postsSavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get postsSavedTitle;
+
+  /// No description provided for @postsSavedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to {name}'**
+  String postsSavedTo(String name);
+
+  /// No description provided for @postsSavedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get postsSavedToast;
+
+  /// No description provided for @postsShowLikeCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Show like count'**
+  String get postsShowLikeCount;
+
+  /// No description provided for @postsTabRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get postsTabRecent;
+
+  /// No description provided for @postsTabTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Top'**
+  String get postsTabTop;
+
+  /// No description provided for @postsTurnOffCommenting.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off commenting'**
+  String get postsTurnOffCommenting;
+
+  /// No description provided for @postsTurnOffCommentingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No one can comment. Existing comments stay visible.'**
+  String get postsTurnOffCommentingHint;
+
+  /// No description provided for @postsTurnOnCommenting.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on commenting'**
+  String get postsTurnOnCommenting;
+
+  /// No description provided for @postsUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get postsUnmute;
+
+  /// No description provided for @postsUnpin.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin from profile'**
+  String get postsUnpin;
+
+  /// No description provided for @postsUnpinnedToast.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpinned'**
+  String get postsUnpinnedToast;
+
+  /// No description provided for @postsUnsave.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from saved'**
+  String get postsUnsave;
+
+  /// No description provided for @postsVideoUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This video can\'t be played'**
+  String get postsVideoUnavailable;
+
+  /// No description provided for @profileExtrasAddCloseFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to close friends'**
+  String get profileExtrasAddCloseFriend;
+
+  /// No description provided for @profileExtrasClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get profileExtrasClearAll;
+
+  /// No description provided for @profileExtrasCloseFriendAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added @{username} to close friends'**
+  String profileExtrasCloseFriendAdded(String username);
+
+  /// No description provided for @profileExtrasCloseFriendRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed @{username} from close friends'**
+  String profileExtrasCloseFriendRemoved(String username);
+
+  /// No description provided for @profileExtrasCloseFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Close friends'**
+  String get profileExtrasCloseFriends;
+
+  /// No description provided for @profileExtrasCloseFriendsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who sees your close-friends stories and notes'**
+  String get profileExtrasCloseFriendsSubtitle;
+
+  /// No description provided for @profileExtrasDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get profileExtrasDone;
+
+  /// No description provided for @profileExtrasHashtagPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 post} other{{count} posts}}'**
+  String profileExtrasHashtagPosts(int count);
+
+  /// No description provided for @profileExtrasMuteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'They won\'t know you muted them. You\'ll still see their posts and stories on their profile.'**
+  String get profileExtrasMuteBody;
+
+  /// No description provided for @profileExtrasMuteMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get profileExtrasMuteMenu;
+
+  /// No description provided for @profileExtrasMutePosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get profileExtrasMutePosts;
+
+  /// No description provided for @profileExtrasMuteStories.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories'**
+  String get profileExtrasMuteStories;
+
+  /// No description provided for @profileExtrasMuteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute @{username}'**
+  String profileExtrasMuteTitle(String username);
+
+  /// No description provided for @profileExtrasMutedAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Muted accounts'**
+  String get profileExtrasMutedAccounts;
+
+  /// No description provided for @profileExtrasMutedAccountsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'People whose posts or stories you muted'**
+  String get profileExtrasMutedAccountsSubtitle;
+
+  /// No description provided for @profileExtrasMutedBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts and stories muted'**
+  String get profileExtrasMutedBoth;
+
+  /// No description provided for @profileExtrasMutedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t muted anyone'**
+  String get profileExtrasMutedEmpty;
+
+  /// No description provided for @profileExtrasMutedEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute someone from their profile to stop seeing their posts or stories without unfollowing. They won\'t know.'**
+  String get profileExtrasMutedEmptyBody;
+
+  /// No description provided for @profileExtrasMutedMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Muted'**
+  String get profileExtrasMutedMenu;
+
+  /// No description provided for @profileExtrasMutedPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts muted'**
+  String get profileExtrasMutedPosts;
+
+  /// No description provided for @profileExtrasMutedStories.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories muted'**
+  String get profileExtrasMutedStories;
+
+  /// No description provided for @profileExtrasQrCameraUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera isn\'t available.'**
+  String get profileExtrasQrCameraUnavailable;
+
+  /// No description provided for @profileExtrasQrCopyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get profileExtrasQrCopyLink;
+
+  /// No description provided for @profileExtrasQrHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends can scan this with Gym Bro to open your profile.'**
+  String get profileExtrasQrHint;
+
+  /// No description provided for @profileExtrasQrLinkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get profileExtrasQrLinkCopied;
+
+  /// No description provided for @profileExtrasQrNotAProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s not a Gym Bro profile code'**
+  String get profileExtrasQrNotAProfile;
+
+  /// No description provided for @profileExtrasQrNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t find @{username}'**
+  String profileExtrasQrNotFound(String username);
+
+  /// No description provided for @profileExtrasQrScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a QR code'**
+  String get profileExtrasQrScan;
+
+  /// No description provided for @profileExtrasQrSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code for @{username}'**
+  String profileExtrasQrSemantics(String username);
+
+  /// No description provided for @profileExtrasQrSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let friends scan to find you'**
+  String get profileExtrasQrSubtitle;
+
+  /// No description provided for @profileExtrasQrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code'**
+  String get profileExtrasQrTitle;
+
+  /// No description provided for @profileExtrasRecentSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get profileExtrasRecentSearches;
+
+  /// No description provided for @profileExtrasRemoveCloseFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from close friends'**
+  String get profileExtrasRemoveCloseFriend;
+
+  /// No description provided for @profileExtrasRemoveRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get profileExtrasRemoveRecent;
+
+  /// No description provided for @profileExtrasSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get profileExtrasSaved;
+
+  /// No description provided for @profileExtrasSavedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts you saved and your collections'**
+  String get profileExtrasSavedSubtitle;
+
+  /// No description provided for @profileExtrasUnmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get profileExtrasUnmute;
+
+  /// No description provided for @profileExtrasUnmutedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmuted @{username}'**
+  String profileExtrasUnmutedSnack(String username);
+
+  /// No description provided for @profileExtrasWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get profileExtrasWebsite;
+
+  /// No description provided for @profileExtrasWebsiteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'yoursite.com'**
+  String get profileExtrasWebsiteHint;
+
+  /// No description provided for @profileExtrasWebsiteInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a web address like yoursite.com'**
+  String get profileExtrasWebsiteInvalid;
+
+  /// No description provided for @profileExtrasYourActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Your activity'**
+  String get profileExtrasYourActivity;
+
+  /// No description provided for @profileExtrasYourActivitySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts you liked or reacted to'**
+  String get profileExtrasYourActivitySubtitle;
+
   /// No description provided for @reactionAngry.
   ///
   /// In en, this message translates to:
@@ -11683,6 +12571,12 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get storyClose;
 
+  /// No description provided for @storyCloseFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Close friends'**
+  String get storyCloseFriends;
+
   /// No description provided for @storyComposerBackground.
   ///
   /// In en, this message translates to:
@@ -11779,6 +12673,150 @@ abstract class AppLocalizations {
   /// **'Story deleted'**
   String get storyDeleted;
 
+  /// No description provided for @storyHighlightAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight'**
+  String get storyHighlightAction;
+
+  /// No description provided for @storyHighlightAddStories.
+  ///
+  /// In en, this message translates to:
+  /// **'Add stories'**
+  String get storyHighlightAddStories;
+
+  /// No description provided for @storyHighlightAddTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to highlight'**
+  String get storyHighlightAddTo;
+
+  /// No description provided for @storyHighlightAddedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to {title}'**
+  String storyHighlightAddedTo(String title);
+
+  /// No description provided for @storyHighlightCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover'**
+  String get storyHighlightCover;
+
+  /// No description provided for @storyHighlightCoverHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a story to make it the cover.'**
+  String get storyHighlightCoverHint;
+
+  /// No description provided for @storyHighlightCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight \"{title}\" created'**
+  String storyHighlightCreated(String title);
+
+  /// No description provided for @storyHighlightDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete highlight'**
+  String get storyHighlightDelete;
+
+  /// No description provided for @storyHighlightDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Its stories stay in your archive.'**
+  String get storyHighlightDeleteBody;
+
+  /// No description provided for @storyHighlightDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this highlight?'**
+  String get storyHighlightDeleteTitle;
+
+  /// No description provided for @storyHighlightDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight deleted'**
+  String get storyHighlightDeleted;
+
+  /// No description provided for @storyHighlightEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit highlight'**
+  String get storyHighlightEdit;
+
+  /// No description provided for @storyHighlightKeepStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep in highlight'**
+  String get storyHighlightKeepStory;
+
+  /// No description provided for @storyHighlightNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight name'**
+  String get storyHighlightNameLabel;
+
+  /// No description provided for @storyHighlightNeedsStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep at least one story, or delete the highlight'**
+  String get storyHighlightNeedsStory;
+
+  /// No description provided for @storyHighlightNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get storyHighlightNew;
+
+  /// No description provided for @storyHighlightNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New highlight'**
+  String get storyHighlightNewTitle;
+
+  /// No description provided for @storyHighlightNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get storyHighlightNext;
+
+  /// No description provided for @storyHighlightNoArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Your archive has no stories yet. Stories you post are kept there after 24 hours.'**
+  String get storyHighlightNoArchive;
+
+  /// No description provided for @storyHighlightPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose stories'**
+  String get storyHighlightPickTitle;
+
+  /// No description provided for @storyHighlightRemoveStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from highlight'**
+  String get storyHighlightRemoveStory;
+
+  /// No description provided for @storyHighlightRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename highlight'**
+  String get storyHighlightRename;
+
+  /// No description provided for @storyHighlightSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight updated'**
+  String get storyHighlightSaved;
+
+  /// No description provided for @storyHighlightStories.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories'**
+  String get storyHighlightStories;
+
   /// No description provided for @storyLike.
   ///
   /// In en, this message translates to:
@@ -11808,6 +12846,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No one has seen this story yet'**
   String get storyNoViewers;
+
+  /// No description provided for @storyPollAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a poll'**
+  String get storyPollAdd;
+
+  /// No description provided for @storyPollAddOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Add option'**
+  String get storyPollAddOption;
+
+  /// No description provided for @storyPollDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get storyPollDone;
+
+  /// No description provided for @storyPollEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit poll'**
+  String get storyPollEdit;
+
+  /// No description provided for @storyPollEditorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Poll'**
+  String get storyPollEditorTitle;
+
+  /// No description provided for @storyPollOptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Option {number}'**
+  String storyPollOptionLabel(int number);
+
+  /// No description provided for @storyPollQuestionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a question (optional)'**
+  String get storyPollQuestionHint;
+
+  /// No description provided for @storyPollRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove poll'**
+  String get storyPollRemove;
+
+  /// No description provided for @storyPollRemoveOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove option'**
+  String get storyPollRemoveOption;
+
+  /// No description provided for @storyPollVotedFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Voted {option}'**
+  String storyPollVotedFor(String option);
+
+  /// No description provided for @storyPollVotes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No votes yet} =1{1 vote} other{{count} votes}}'**
+  String storyPollVotes(int count);
 
   /// No description provided for @storyPosted.
   ///

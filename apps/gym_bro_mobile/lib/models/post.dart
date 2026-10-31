@@ -5,6 +5,8 @@ import 'link_access.dart';
 import 'reaction.dart';
 import 'social.dart';
 
+export 'hashtag.dart';
+
 /// A photo or video on a post. Business posts carry public URLs; personal
 /// posts carry short-lived signed URLs (already made absolute here).
 class PostImage {
@@ -111,6 +113,11 @@ enum PostType {
 
   /// Something that already happened (it can't be shared before it did).
   bool get isActivity => this == workout || this == meal;
+}
+
+String? _nonEmpty(Object? v) {
+  final s = v?.toString().trim();
+  return s == null || s.isEmpty ? null : s;
 }
 
 double? _toDouble(Object? v) => v == null ? null : double.tryParse(v.toString());
@@ -465,6 +472,22 @@ class Post {
   /// Set while archived: hidden from everyone but me (profile, feed, shares).
   final DateTime? archivedAt;
 
+  /// I saved it (bookmark).
+  final bool savedByMe;
+
+  /// Pinned to the top of the author's profile (up to three).
+  final bool pinned;
+
+  /// Only the author sees reaction counts; everyone else gets the top
+  /// emojis without numbers (the server masks them).
+  final bool hideLikeCount;
+
+  /// No new comments; existing ones still show.
+  final bool commentsDisabled;
+
+  /// Free-text place shown under the author's name.
+  final String? locationName;
+
   const Post({
     required this.id,
     this.businessId,
@@ -485,7 +508,16 @@ class Post {
     this.attachment,
     this.refAccess,
     this.archivedAt,
+    this.savedByMe = false,
+    this.pinned = false,
+    this.hideLikeCount = false,
+    this.commentsDisabled = false,
+    this.locationName,
   });
+
+  /// Whether [viewerId] sees reactions without counts (everyone but the
+  /// author when [hideLikeCount] is on).
+  bool hidesCountsFrom(String? viewerId) => hideLikeCount && (viewerId == null || viewerId != authorId);
 
   bool get isPersonal => businessId == null;
   bool get isArchived => archivedAt != null;
@@ -513,6 +545,12 @@ class Post {
     List<PostImage>? images,
     DateTime? archivedAt,
     bool clearArchivedAt = false,
+    bool? savedByMe,
+    bool? pinned,
+    bool? hideLikeCount,
+    bool? commentsDisabled,
+    String? locationName,
+    bool clearLocationName = false,
   }) => Post(
     id: id,
     businessId: businessId,
@@ -533,6 +571,11 @@ class Post {
     attachment: attachment,
     refAccess: refAccess,
     archivedAt: clearArchivedAt ? null : (archivedAt ?? this.archivedAt),
+    savedByMe: savedByMe ?? this.savedByMe,
+    pinned: pinned ?? this.pinned,
+    hideLikeCount: hideLikeCount ?? this.hideLikeCount,
+    commentsDisabled: commentsDisabled ?? this.commentsDisabled,
+    locationName: clearLocationName ? null : (locationName ?? this.locationName),
   );
 
   /// The optimistic state after setting my reaction to [to] (null removes it).
@@ -577,6 +620,11 @@ class Post {
     attachment: PostAttachment.maybeFromJson(json['attachment']),
     refAccess: LinkAccess.tryParse(json['ref_access']),
     archivedAt: DateTime.tryParse(json['archived_at'] as String? ?? '')?.toLocal(),
+    savedByMe: json['saved_by_me'] == true,
+    pinned: json['pinned'] == true || json['pinned_at'] != null,
+    hideLikeCount: json['hide_like_count'] == true,
+    commentsDisabled: json['comments_disabled'] == true,
+    locationName: _nonEmpty(json['location_name']),
   );
 
   Map<String, dynamic> toJson() => {
@@ -615,5 +663,115 @@ class Reactor {
     user: SocialUser.fromJson(json),
     username: json['username'] as String? ?? '',
     reaction: ReactionType.tryParse(json['reaction']) ?? ReactionType.like,
+  );
+}
+
+// ── Saved posts & collections ─────────────────────────────────────────────────
+
+/// Server limit for a collection's name.
+const kCollectionNameMaxLength = 50;
+
+/// Server limit for a post's location.
+const kLocationMaxLength = 100;
+
+/// The first photo/video of a saved post, for collection tiles.
+class SaveCover {
+  final String? url;
+
+  /// 'image' or 'video'.
+  final String mediaType;
+
+  const SaveCover({this.url, this.mediaType = 'image'});
+
+  bool get isVideo => mediaType == 'video';
+
+  factory SaveCover.fromJson(Map<String, dynamic> json) {
+    final url = json['url'] as String?;
+    return SaveCover(
+      url: url == null || url.isEmpty ? null : AppConfig.resolveUrl(url),
+      mediaType: json['media_type'] as String? ?? 'image',
+    );
+  }
+}
+
+List<SaveCover> _covers(Object? v) => [
+  for (final c in v is List ? v : const []) if (c is Map<String, dynamic>) SaveCover.fromJson(c),
+];
+
+/// "All posts": how many saved posts I can still see, and up to four covers.
+class SavedSummary {
+  final int postCount;
+  final List<SaveCover> covers;
+
+  const SavedSummary({this.postCount = 0, this.covers = const []});
+
+  factory SavedSummary.fromJson(Object? json) => json is Map<String, dynamic>
+      ? SavedSummary(postCount: _toInt(json['post_count']) ?? 0, covers: _covers(json['covers']))
+      : const SavedSummary();
+}
+
+/// One of my saved-post collections.
+class SaveCollection {
+  final String id;
+  final String name;
+  final int postCount;
+
+  /// Up to four, newest first.
+  final List<SaveCover> covers;
+
+  /// Whether it holds the post asked about (GET /posts/collections?post_id=);
+  /// null when none was asked about.
+  final bool? containsPost;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  const SaveCollection({
+    required this.id,
+    required this.name,
+    this.postCount = 0,
+    this.covers = const [],
+    this.containsPost,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  SaveCollection copyWith({String? name, int? postCount, bool? containsPost}) => SaveCollection(
+    id: id,
+    name: name ?? this.name,
+    postCount: postCount ?? this.postCount,
+    covers: covers,
+    containsPost: containsPost ?? this.containsPost,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+  );
+
+  factory SaveCollection.fromJson(Map<String, dynamic> json) => SaveCollection(
+    id: json['id'].toString(),
+    name: json['name'] as String? ?? '',
+    postCount: _toInt(json['post_count']) ?? 0,
+    covers: _covers(json['covers']),
+    containsPost: json['contains_post'] is bool ? json['contains_post'] as bool : null,
+    createdAt: DateTime.tryParse(json['created_at']?.toString() ?? '')?.toLocal(),
+    updatedAt: DateTime.tryParse(json['updated_at']?.toString() ?? '')?.toLocal(),
+  );
+}
+
+/// GET /posts/collections: "All posts" and my collections (most recently
+/// changed first). With a post asked about, [postSaved] and each
+/// collection's [SaveCollection.containsPost] are set.
+class SavedOverview {
+  final SavedSummary saved;
+  final bool? postSaved;
+  final List<SaveCollection> collections;
+
+  const SavedOverview({this.saved = const SavedSummary(), this.postSaved, this.collections = const []});
+
+  factory SavedOverview.fromJson(Map<String, dynamic> json) => SavedOverview(
+    saved: SavedSummary.fromJson(json['saved']),
+    postSaved: json['post_saved'] is bool ? json['post_saved'] as bool : null,
+    collections: [
+      for (final c in json['collections'] as List<dynamic>? ?? const [])
+        if (c is Map<String, dynamic>) SaveCollection.fromJson(c),
+    ],
   );
 }

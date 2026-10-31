@@ -9,6 +9,7 @@ import '../../models/social.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../widgets/open_url.dart';
 import '../../widgets/person_tile.dart';
 import '../../widgets/post_grid.dart';
 import '../../widgets/share_sheet.dart';
@@ -16,12 +17,15 @@ import '../../widgets/social_widgets.dart';
 import '../chat/chat_launcher.dart';
 import '../archive/archive_page.dart';
 import '../feed/post_detail_page.dart';
+import '../stories/highlights.dart';
 import '../stories/story_tray.dart';
 import '../stories/story_viewer_page.dart';
 import 'blocked_users_page.dart';
 import 'edit_social_profile_page.dart';
+import 'muted_accounts_page.dart';
 import 'people_common.dart';
 import 'people_list_page.dart';
+import 'profile_qr_page.dart';
 
 const _kPostsPageSize = 30;
 
@@ -37,6 +41,7 @@ class UserProfilePage extends StatefulWidget {
 
 class _UserProfilePageState extends State<UserProfilePage> {
   final _api = ApiService();
+  final _highlights = GlobalKey<HighlightsRowState>();
 
   PublicProfile? _profile;
   Relationship? _rel;
@@ -336,8 +341,45 @@ class _UserProfilePageState extends State<UserProfilePage> {
     ));
   }
 
+  Future<void> _openMute() async {
+    final p = _profile;
+    if (p == null) return;
+    final result = await showMuteSheet(context, person: p.summary, current: p.muted ?? const MuteSettings());
+    if (result != null && mounted) _load();
+  }
+
+  Future<void> _toggleCloseFriend() async {
+    final p = _profile;
+    if (p == null) return;
+    final l10n = context.l10n;
+    final add = !p.isCloseFriend;
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      await _api.setCloseFriend(token, p.id, add);
+      if (!mounted) return;
+      showPeopleSnack(context, add ? l10n.profileExtrasCloseFriendAdded(p.username) : l10n.profileExtrasCloseFriendRemoved(p.username));
+      _load();
+    } catch (e) {
+      if (mounted) showPeopleSnack(context, peopleErrorText(e));
+    }
+  }
+
+  void _openQr() {
+    final p = _profile;
+    if (p == null) return;
+    Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => ProfileQrPage(profile: p)));
+  }
+
   void _onMenu(String action) {
     switch (action) {
+      case 'qr':
+        _openQr();
+      case 'muted':
+        Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => const MutedAccountsPage()));
+      case 'mute':
+        _openMute();
+      case 'close_friend':
+        _toggleCloseFriend();
       case 'copy':
         _copyUsername();
       case 'edit':
@@ -385,9 +427,21 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   PopupMenuItem(value: 'edit', child: Text(l10n.peopleEditProfile)),
                   PopupMenuItem(value: 'archive', child: Text(l10n.archiveTitle)),
                   PopupMenuItem(value: 'blocked', child: Text(l10n.peopleBlockedUsers)),
+                  PopupMenuItem(value: 'muted', child: Text(l10n.profileExtrasMutedAccounts)),
                 ],
                 PopupMenuItem(value: 'share', child: Text(l10n.shareProfileAction)),
+                if (_isMe) PopupMenuItem(value: 'qr', child: Text(l10n.profileExtrasQrTitle)),
                 PopupMenuItem(value: 'copy', child: Text(l10n.peopleCopyUsername)),
+                if (!_isMe && !_blocked) ...[
+                  PopupMenuItem(
+                    value: 'close_friend',
+                    child: Text(profile.isCloseFriend ? l10n.profileExtrasRemoveCloseFriend : l10n.profileExtrasAddCloseFriend),
+                  ),
+                  PopupMenuItem(
+                    value: 'mute',
+                    child: Text((profile.muted?.any ?? false) ? l10n.profileExtrasMutedMenu : l10n.profileExtrasMuteMenu),
+                  ),
+                ],
                 if (!_isMe) ...[
                   if (_rel?.followedBy == FollowState.accepted && !_blocked)
                     PopupMenuItem(value: 'remove_follower', child: Text(l10n.peopleRemoveFollower)),
@@ -441,7 +495,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
 
     return RefreshIndicator(
-      onRefresh: _load,
+      onRefresh: () => Future.wait([_load(), if (_highlights.currentState != null) _highlights.currentState!.refresh()]),
       child: NotificationListener<ScrollNotification>(
         onNotification: (n) {
           if (n.metrics.pixels > n.metrics.maxScrollExtent - 600) _tab == 0 ? _loadMorePosts() : _loadMoreTagged();
@@ -580,7 +634,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       ];
     }
     return [
-      SliverPostGrid(posts: _tagged, onTap: _openPost),
+      SliverPostGrid(posts: _tagged, onTap: _openPost, showPinned: false),
       if (_taggedLoadingMore)
         const SliverToBoxAdapter(
           child: Padding(
@@ -671,6 +725,26 @@ class _UserProfilePageState extends State<UserProfilePage> {
             const SizedBox(height: 6),
             _ExpandableBio(text: p.bio!.trim()),
           ],
+          if (p.website != null && !locked) ...[
+            const SizedBox(height: 4),
+            InkWell(
+              onTap: () => openExternalUrl(context, p.website!),
+              child: Row(
+                children: [
+                  Icon(Icons.link, size: 16, color: cs.primary),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      p.websiteLabel!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: text.bodyMedium?.copyWith(color: cs.primary, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           if (p.interests.isNotEmpty) ...[
             const SizedBox(height: 8),
             Wrap(
@@ -707,6 +781,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
           ],
           const SizedBox(height: 14),
           if (_isMe) _buildMyActions() else if (!_blocked) _buildActions(p),
+          if (!locked) ...[
+            const SizedBox(height: 12),
+            HighlightsRow(key: _highlights, userId: p.id, isMe: _isMe),
+          ],
         ],
       ),
     );
@@ -723,7 +801,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       children: [
         Expanded(child: FilledButton.tonal(onPressed: _openEdit, style: style, child: Text(l10n.peopleEditProfile))),
         const SizedBox(width: 8),
-        Expanded(child: FilledButton.tonal(onPressed: _copyUsername, style: style, child: Text(l10n.peopleShare))),
+        Expanded(child: FilledButton.tonal(onPressed: _openQr, style: style, child: Text(l10n.peopleShare))),
       ],
     );
   }

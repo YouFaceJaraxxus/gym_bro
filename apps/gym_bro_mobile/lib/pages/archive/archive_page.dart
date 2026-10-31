@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../l10n/l10n.dart';
+import '../../models/mention.dart';
 import '../../models/post.dart';
-import '../../models/shared_content.dart';
 import '../../models/story.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/post_grid.dart';
-import '../../widgets/social_widgets.dart';
 import '../feed/post_detail_page.dart';
+import '../stories/highlights.dart';
+import '../stories/story_thumb.dart';
 import '../stories/story_viewer_page.dart';
 import 'archive_calendar.dart';
 
@@ -54,7 +55,7 @@ class _ArchivePageState extends State<ArchivePage> {
                 ApiService().getStoryArchive(await AuthManager.instance.getValidToken(), from: from, to: to),
             dateOf: (s) => s.createdAt,
             emptyText: l10n.archiveNoStories,
-            thumbnail: (s) => _StoryThumb(story: s),
+            thumbnail: (s) => StoryThumb(story: s),
             items: (state, stories) => _storyGrid(state, stories),
           ),
           _MonthArchive<Post>(
@@ -84,6 +85,7 @@ class _ArchivePageState extends State<ArchivePage> {
     itemCount: stories.length,
     itemBuilder: (context, i) => _StoryTile(
       story: stories[i],
+      onLongPress: () => showAddToHighlightSheet(context, stories[i]),
       onTap: () async {
         final ordered = [...stories]..sort((a, b) => a.createdAt.compareTo(b.createdAt));
         await openStoryList(context, ordered, initialIndex: ordered.indexOf(stories[i]));
@@ -423,48 +425,16 @@ class _DayCell<T> extends StatelessWidget {
   }
 }
 
-/// What a story looks like small: its photo, a dark tile for a video (no
-/// frame decoding), or its colour with the text / shared thing's icon.
-class _StoryThumb extends StatelessWidget {
-  const _StoryThumb({required this.story});
-
-  final Story story;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = story;
-    if (s.hasMedia && !s.isVideo) return MediaImage(url: s.mediaUrl!);
-    if (s.isVideo) {
-      return Container(
-        color: const Color(0xFF1C1C1E),
-        alignment: Alignment.center,
-        child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 22),
-      );
-    }
-    return Container(
-      color: s.backgroundColor,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(4),
-      child: s.share != null
-          ? Icon(shareKindIcon(s.share!.kind), color: Colors.white, size: 18)
-          : Text(
-              s.caption ?? '',
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w600),
-            ),
-    );
-  }
-}
-
 /// A story in the grid: the thumbnail plus its time, caption and a "Live"
 /// badge while it's still up.
 class _StoryTile extends StatelessWidget {
-  const _StoryTile({required this.story, required this.onTap});
+  const _StoryTile({required this.story, required this.onTap, this.onLongPress});
 
   final Story story;
   final VoidCallback onTap;
+
+  /// Long-press: add it to a highlight.
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -472,23 +442,26 @@ class _StoryTile extends StatelessWidget {
     final s = story;
     final locale = Localizations.localeOf(context).toString();
     final time = DateFormat.MMMd(locale).add_jm().format(s.createdAt);
-    final what = s.caption ??
+    final caption = s.caption == null ? null : mentionPlainText(s.caption!);
+    final what = caption ??
         (s.share != null ? (s.share!.title ?? l10n.archiveStoryShared) : (s.hasMedia ? '' : l10n.archiveStoryText));
     return Semantics(
       button: true,
       label: [time, if (what.isNotEmpty) what, if (s.isLive) l10n.archiveStoryLive].join(', '),
       excludeSemantics: true,
+      onLongPressHint: onLongPress == null ? null : l10n.storyHighlightAddTo,
       child: GestureDetector(
         onTap: onTap,
+        onLongPress: onLongPress,
         child: Stack(fit: StackFit.expand, children: [
-          _StoryThumb(story: s),
-          if (s.hasMedia && s.caption != null)
+          StoryThumb(story: s),
+          if (s.hasMedia && caption != null)
             Positioned(
               left: 6,
               right: 6,
               bottom: 26,
               child: Text(
-                s.caption!,
+                caption,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
@@ -521,6 +494,12 @@ class _StoryTile extends StatelessWidget {
                 child: Text(l10n.archiveStoryLive, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
               ),
             ),
+          if (s.closeFriends)
+            const Positioned(
+              right: 5,
+              bottom: 4,
+              child: CloseFriendsStar(size: 14),
+            ),
           if (s.viewCount != null && s.viewCount! > 0)
             Positioned(
               top: 6,
@@ -536,15 +515,3 @@ class _StoryTile extends StatelessWidget {
     );
   }
 }
-
-/// An icon for what a story / message shares.
-IconData shareKindIcon(ShareKind kind) => switch (kind) {
-  ShareKind.post => Icons.grid_on_rounded,
-  ShareKind.story => Icons.amp_stories_outlined,
-  ShareKind.user => Icons.person_outline,
-  ShareKind.business => Icons.storefront_outlined,
-  ShareKind.shopItem => Icons.shopping_bag_outlined,
-  ShareKind.workout || ShareKind.training || ShareKind.exercise || ShareKind.routine => Icons.fitness_center,
-  ShareKind.meal || ShareKind.recipe || ShareKind.foodItem || ShareKind.dailyMealPlan || ShareKind.mealPlan =>
-    Icons.restaurant_outlined,
-};

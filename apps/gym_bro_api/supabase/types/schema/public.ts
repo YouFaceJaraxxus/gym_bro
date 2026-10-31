@@ -79,7 +79,8 @@ export type NotificationType =
   | "comment_reply"
   | "mention"
   | "photo_tag"
-  | "story_reaction";
+  | "story_reaction"
+  | "story_mention";
 
 export type ReactionType =
   | "like"
@@ -216,6 +217,8 @@ export interface UsersTable {
   location_lat: Generated<number | null>;
   location_lng: Generated<number | null>;
   location_updated_at: Generated<string | null>;
+  // "https://…" shown as a link on the profile.
+  website: Generated<string | null>;
 }
 
 export interface BusinessTable {
@@ -704,6 +707,12 @@ export interface PostTable {
   attachment: unknown | null;
   // Hidden from everyone but the author while set.
   archived_at: string | null;
+  // Up to three pinned posts lead the author's profile grid.
+  pinned_at: Generated<string | null>;
+  // Only the author sees reaction counts.
+  hide_like_count: Generated<boolean>;
+  comments_disabled: Generated<boolean>;
+  location_name: Generated<string | null>;
   created_at: Generated<string>;
   updated_at: Generated<string>;
 }
@@ -987,6 +996,7 @@ export interface ConversationParticipantTable {
   muted_until: string | null;
   archived_at: string | null;
   cleared_at: string | null;
+  pinned_at: Generated<string | null>;
 }
 
 export interface MessageTable {
@@ -1144,6 +1154,10 @@ export interface StoryTable {
   share_kind: Exclude<ShareKind, "story" | "user" | "business"> | null;
   share_ref_id: string | null;
   share_snapshot: unknown | null;
+  // 'close_friends': only the author's close friends see it.
+  audience: Generated<StoryAudience>;
+  // {question, options: string[2..4]}
+  poll: unknown | null;
   created_at: Generated<string>;
   expires_at: Generated<string>;
 }
@@ -1159,6 +1173,82 @@ export interface StoryReactionTable {
   user_id: string;
   reaction: ReactionType;
   created_at: Generated<string>;
+}
+
+export type StoryAudience = "everyone" | "close_friends";
+export type NoteAudience = "mutuals" | "close_friends";
+
+export interface StoryPollVoteTable {
+  story_id: string;
+  user_id: string;
+  option: number;
+  created_at: Generated<string>;
+}
+
+export interface StoryHighlightTable {
+  id: Generated<string>;
+  user_id: string;
+  title: string;
+  cover_story_id: string | null;
+  position: Generated<number>;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface StoryHighlightItemTable {
+  highlight_id: string;
+  story_id: string;
+  added_at: Generated<string>;
+}
+
+// ── Saves, hashtags, mutes, close friends, notes ──────────────────────────────
+
+export interface PostSaveTable {
+  user_id: string;
+  post_id: string;
+  created_at: Generated<string>;
+}
+
+export interface SaveCollectionTable {
+  id: Generated<string>;
+  user_id: string;
+  name: string;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface SaveCollectionItemTable {
+  collection_id: string;
+  post_id: string;
+  added_at: Generated<string>;
+}
+
+export interface PostHashtagTable {
+  post_id: string;
+  // Lowercased, without "#".
+  tag: string;
+}
+
+export interface UserMuteTable {
+  muter_id: string;
+  muted_id: string;
+  posts: Generated<boolean>;
+  stories: Generated<boolean>;
+  created_at: Generated<string>;
+}
+
+export interface CloseFriendTable {
+  user_id: string;
+  friend_id: string;
+  created_at: Generated<string>;
+}
+
+export interface UserNoteTable {
+  user_id: string;
+  body: string;
+  audience: Generated<NoteAudience>;
+  created_at: Generated<string>;
+  expires_at: Generated<string>;
 }
 
 export interface Database {
@@ -1245,6 +1335,16 @@ export interface Database {
   story: StoryTable;
   story_view: StoryViewTable;
   story_reaction: StoryReactionTable;
+  story_poll_vote: StoryPollVoteTable;
+  story_highlight: StoryHighlightTable;
+  story_highlight_item: StoryHighlightItemTable;
+  post_save: PostSaveTable;
+  save_collection: SaveCollectionTable;
+  save_collection_item: SaveCollectionItemTable;
+  post_hashtag: PostHashtagTable;
+  user_mute: UserMuteTable;
+  close_friend: CloseFriendTable;
+  user_note: UserNoteTable;
 }
 
 // ── CRUD helpers ──────────────────────────────────────────────────────────────

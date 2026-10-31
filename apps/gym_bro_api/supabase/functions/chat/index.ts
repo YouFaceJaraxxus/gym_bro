@@ -4,6 +4,7 @@ import { type Caller, forbidden, json, jsonError, requireCaller } from "../_shar
 import { notify, pushOnly } from "../_shared/notify.ts";
 import { broadcast, broadcastToUsers, chatTopic, userTopic } from "../_shared/realtime.ts";
 import {
+  copyIntoSlot,
   createUploadSlot,
   MAX_UPLOAD_BYTES,
   mediaTypeOf,
@@ -35,7 +36,7 @@ import {
   unresolved,
 } from "../_shared/shares.ts";
 import { storyVisibleSql } from "../_shared/visibility.ts";
-import type { Database, ParticipantRole, ParticipantStatus, StoryMode } from "../../types/schema/public.ts";
+import type { Database, NoteAudience, ParticipantRole, ParticipantStatus, StoryMode } from "../../types/schema/public.ts";
 
 // Direct and group chat.
 //
@@ -63,6 +64,15 @@ import type { Database, ParticipantRole, ParticipantStatus, StoryMode } from "..
 //
 //   POST   /chat/share {share, user_ids?, conversation_ids?, body?}  send something to people / chats (a message each)
 //   POST   /chat/story-replies {story_id, body? | reaction?}         reply or react to a story, in its author's DMs
+//   POST   /chat/messages/:id/forward {user_ids?, conversation_ids?}  send a copy (text, share, files) elsewhere
+//   PUT    /chat/conversations/:id/settings {pinned}       pin a chat to the top of my inbox (up to 3)
+//
+// Notes: a line of text (≤ 60) above the inbox for 24 hours, one per person,
+// for people who follow each other with the author ('mutuals') or only the
+// author's close friends. Replies go to the author's DMs.
+//   GET    /chat/notes                       {mine, notes: [{user, body, created_at, expires_at}]}
+//   PUT    /chat/notes {body, audience?}     post (replaces mine), DELETE /chat/notes
+//   POST   /chat/notes/:userId/replies {body, client_id?}
 //
 // A message can share a post, story, account, business, product, logged
 // workout or meal, or library item (share: {kind, ref_id} — see
@@ -83,12 +93,18 @@ const GROUP_MAX = 64;
 const ATTACHMENTS_MAX = 10;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const BUCKET = "chat-media" as const;
+const NOTE_MAX = 60;
+const NOTE_AUDIENCES: readonly NoteAudience[] = ["mutuals", "close_friends"];
+const PINNED_CHATS_MAX = 3;
 
 type Route =
   | { kind: "realtime" }
   | { kind: "conversations" }
   | { kind: "share" }
   | { kind: "story_replies" }
+  | { kind: "notes" }
+  | { kind: "note_reply"; userId: string }
+  | { kind: "forward"; messageId: string }
   | { kind: "conversation"; id: string }
   | { kind: "conv_action"; id: string; action: "settings" | "accept" | "clear" | "read" | "uploads" | "media" }
   | { kind: "participants"; id: string }
@@ -104,7 +120,12 @@ function parsePath(pathname: string): Route {
   if (p === "/chat/conversations") return { kind: "conversations" };
   if (p === "/chat/share") return { kind: "share" };
   if (p === "/chat/story-replies") return { kind: "story_replies" };
-  let m = p.match(/^\/chat\/messages\/([^/]+)\/reaction$/);
+  if (p === "/chat/notes") return { kind: "notes" };
+  let m = p.match(/^\/chat\/notes\/([^/]+)\/replies$/);
+  if (m) return { kind: "note_reply", userId: m[1] };
+  m = p.match(/^\/chat\/messages\/([^/]+)\/forward$/);
+  if (m) return { kind: "forward", messageId: m[1] };
+  m = p.match(/^\/chat\/messages\/([^/]+)\/reaction$/);
   if (m) return { kind: "reaction", messageId: m[1] };
   m = p.match(/^\/chat\/messages\/([^/]+)$/);
   if (m) return { kind: "message", messageId: m[1] };
@@ -328,6 +349,7 @@ type ConversationListRow = {
   status: ParticipantStatus;
   muted_until: string | null;
   archived_at: string | null;
+  pinned_at: string | null;
   last_read_at: string | null;
   unread_count: number;
   participant_count: number;
@@ -342,7 +364,7 @@ async function listConversations(
   const box = opts.box ?? "inbox";
   const { rows } = await sql<ConversationListRow>`
     SELECT c.id, c.kind, c.title, c.description, c.avatar_url, c.created_by, c.created_at, c.last_message_at,
-           p.role, p.status, p.muted_until, p.archived_at, p.last_read_at,
+           p.role, p.status, p.muted_until, p.archived_at, p.pinned_at, p.last_read_at,
            (SELECT count(*)::int FROM message m
              WHERE m.conversation_id = c.id AND ${unreadMessageSql(caller.id)}) AS unread_count,
            (SELECT count(*)::int FROM conversation_participant x WHERE x.conversation_id = c.id) AS participant_count,
@@ -371,7 +393,10 @@ async function listConversations(
               -- an empty direct chat I didn't start isn't shown yet
               -- (nor one I started and then left)
               AND (c.kind = 'group' OR lm.msg IS NOT NULL OR (c.created_by = ${caller.id} AND p.cleared_at IS NULL)))))
-    ORDER BY c.last_message_at DESC, c.id
+    -- pinned chats lead the inbox, most recently pinned first
+    ORDER BY (${box} = 'inbox' AND p.pinned_at IS NOT NULL) DESC,
+             CASE WHEN ${box} = 'inbox' THEN p.pinned_at END DESC NULLS LAST,
+             c.last_message_at DESC, c.id
     LIMIT ${opts.limit ?? 30} OFFSET ${opts.offset ?? 0}
   `.execute(db);
   if (!rows.length) return [];
@@ -415,6 +440,7 @@ async function listConversations(
       muted: !!r.muted_until && new Date(r.muted_until).getTime() > now,
       muted_until: r.muted_until,
       archived: !!r.archived_at,
+      pinned: !!r.pinned_at,
       last_read_at: r.last_read_at,
       unread_count: r.unread_count,
       participant_count: r.participant_count,
@@ -578,6 +604,8 @@ type SendInput = {
   attachments?: AttachmentInput[];
   share?: StoredShare | null;
   story?: { id: string; mode: StoryMode; ownerId: string; reaction?: string } | null;
+  // Stored on the message: {forwarded: true} or {note_reply: {owner_id, body}}.
+  metadata?: Record<string, unknown>;
 };
 
 /**
@@ -674,7 +702,9 @@ async function sendMessage(
       share_snapshot: share?.snapshot ? JSON.stringify(share.snapshot) : null,
       story_id: story?.id ?? null,
       story_mode: story?.mode ?? null,
-      metadata: story ? { story_owner_id: story.ownerId, ...(story.reaction && { reaction: story.reaction }) } : {},
+      metadata: story
+        ? { story_owner_id: story.ownerId, ...(story.reaction && { reaction: story.reaction }) }
+        : input.metadata ?? {},
     }).returning(MESSAGE_COLS).executeTakeFirstOrThrow();
     if (attachments.length) {
       await trx.insertInto("message_attachment").values(attachments.map((a, i) => ({
@@ -732,6 +762,8 @@ async function sendMessage(
     const who = displayName(caller);
     const preview = story
       ? story.mode === "reaction" ? `Reacted ${text} to your story` : `Replied to your story: ${text.slice(0, 120)}`
+      : input.metadata?.note_reply
+      ? `Replied to your note: ${text.slice(0, 120)}`
       : text
       ? text.slice(0, 140)
       : share
@@ -751,6 +783,92 @@ async function sendMessage(
 async function errorOf(r: Response): Promise<{ status: number; error: string; code?: string }> {
   const body = await r.json().catch(() => ({}));
   return { status: r.status, error: body?.error ?? "Couldn't send", ...(body?.code && { code: body.code }) };
+}
+
+/**
+ * Sends one message per person in body.user_ids (their direct chat, opened if
+ * needed) and per chat in body.conversation_ids — the share sheet and
+ * forwarding. Results per target; 201 when at least one went out.
+ */
+async function sendToTargets(
+  caller: Caller,
+  body: { user_ids?: unknown; conversation_ids?: unknown } | null,
+  build: (conversationId: string) => Promise<SendInput>,
+): Promise<Response> {
+  const ids = (v: unknown) => [...new Set(Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [])];
+  const userIds = ids(body?.user_ids).filter((id) => id !== caller.id);
+  const conversationIds = ids(body?.conversation_ids);
+  if (!userIds.length && !conversationIds.length) return jsonError("Pick at least one person or chat", 400);
+  if (userIds.length + conversationIds.length > 20) return jsonError("Send to up to 20 people or chats at a time", 400);
+  if ([...userIds, ...conversationIds].some((id) => !UUID_RE.test(id))) return jsonError("Invalid id", 400);
+
+  const results: Record<string, unknown>[] = [];
+  for (const userId of userIds) {
+    const conv = await directConversationFor(caller, userId);
+    if ("error" in conv) {
+      results.push({ user_id: userId, status: 403, error: conv.error });
+      continue;
+    }
+    const sent = await sendMessage(caller, conv.id, (await membership(conv.id, caller.id))!, await build(conv.id));
+    results.push({
+      user_id: userId,
+      conversation_id: conv.id,
+      ...("error" in sent ? await errorOf(sent.error) : { status: 201, message_id: sent.message.id }),
+    });
+  }
+  for (const conversationId of conversationIds) {
+    const m = await membership(conversationId, caller.id);
+    if (!m) {
+      results.push({ conversation_id: conversationId, status: 404, error: "Conversation not found" });
+      continue;
+    }
+    const sent = await sendMessage(caller, conversationId, m, await build(conversationId));
+    results.push({
+      conversation_id: conversationId,
+      ...("error" in sent ? await errorOf(sent.error) : { status: 201, message_id: sent.message.id }),
+    });
+  }
+  const sentCount = results.filter((r) => r.status === 201).length;
+  if (!sentCount) {
+    return jsonError(String(results[0]?.error ?? "Couldn't send"), Number(results[0]?.status ?? 400), { results });
+  }
+  return json({ sent: sentCount, results }, 201);
+}
+
+// ── Notes ─────────────────────────────────────────────────────────────────────
+
+/** SQL condition: note `n` is live and [viewerId] is in its audience (never their own). */
+function noteVisibleSql(viewerId: string) {
+  return sql<boolean>`(
+    n.expires_at > NOW()
+    AND n.user_id <> ${viewerId}
+    AND NOT is_blocked_between(n.user_id, ${viewerId})
+    AND (
+      (n.audience = 'mutuals'
+        AND EXISTS (SELECT 1 FROM follow f WHERE f.follower_id = ${viewerId} AND f.followee_id = n.user_id AND f.status = 'accepted')
+        AND EXISTS (SELECT 1 FROM follow f WHERE f.follower_id = n.user_id AND f.followee_id = ${viewerId} AND f.status = 'accepted'))
+      OR (n.audience = 'close_friends'
+        AND EXISTS (SELECT 1 FROM close_friend cf WHERE cf.user_id = n.user_id AND cf.friend_id = ${viewerId}))
+    )
+  )`;
+}
+
+async function notesFor(caller: Caller) {
+  const [mine, { rows }] = await Promise.all([
+    db.selectFrom("user_note").select(["body", "audience", "created_at", "expires_at"]).where("user_id", "=", caller.id)
+      .where("expires_at", ">", sql<string>`NOW()`).executeTakeFirst(),
+    sql<{ user_id: string; body: string; created_at: string; expires_at: string }>`
+      SELECT n.user_id, n.body, n.created_at, n.expires_at FROM user_note n
+      WHERE ${noteVisibleSql(caller.id)}
+      ORDER BY n.created_at DESC
+      LIMIT 100
+    `.execute(db),
+  ]);
+  const people = await userSummaries(rows.map((r) => r.user_id));
+  return {
+    mine: mine ?? null,
+    notes: rows.filter((r) => people[r.user_id]).map((r) => ({ ...r, user: people[r.user_id] })),
+  };
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
@@ -842,45 +960,7 @@ async function handler(req: Request): Promise<Response> {
     if (share instanceof Response) return share;
     const text = typeof body?.body === "string" ? body.body.trim() : "";
     if (text.length > BODY_MAX) return jsonError(`Messages are limited to ${BODY_MAX} characters`, 400);
-    const ids = (v: unknown) =>
-      [...new Set(Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [])];
-    const userIds = ids(body?.user_ids).filter((id) => id !== caller.id);
-    const conversationIds = ids(body?.conversation_ids);
-    if (!userIds.length && !conversationIds.length) return jsonError("Pick at least one person or chat", 400);
-    if (userIds.length + conversationIds.length > 20) return jsonError("Send to up to 20 people or chats at a time", 400);
-    if ([...userIds, ...conversationIds].some((id) => !UUID_RE.test(id))) return jsonError("Invalid id", 400);
-
-    const results: Record<string, unknown>[] = [];
-    for (const userId of userIds) {
-      const conv = await directConversationFor(caller, userId);
-      if ("error" in conv) {
-        results.push({ user_id: userId, status: 403, error: conv.error });
-        continue;
-      }
-      const sent = await sendMessage(caller, conv.id, (await membership(conv.id, caller.id))!, { text, share });
-      results.push({
-        user_id: userId,
-        conversation_id: conv.id,
-        ...("error" in sent ? await errorOf(sent.error) : { status: 201, message_id: sent.message.id }),
-      });
-    }
-    for (const conversationId of conversationIds) {
-      const m = await membership(conversationId, caller.id);
-      if (!m) {
-        results.push({ conversation_id: conversationId, status: 404, error: "Conversation not found" });
-        continue;
-      }
-      const sent = await sendMessage(caller, conversationId, m, { text, share });
-      results.push({
-        conversation_id: conversationId,
-        ...("error" in sent ? await errorOf(sent.error) : { status: 201, message_id: sent.message.id }),
-      });
-    }
-    const sentCount = results.filter((r) => r.status === 201).length;
-    if (!sentCount) {
-      return jsonError(String(results[0]?.error ?? "Couldn't send"), Number(results[0]?.status ?? 400), { results });
-    }
-    return json({ sent: sentCount, results }, 201);
+    return await sendToTargets(caller, body, () => Promise.resolve({ text, share }));
   }
 
   // ── POST /chat/story-replies {story_id, body? | reaction?, client_id?} ───────
@@ -913,6 +993,99 @@ async function handler(req: Request): Promise<Response> {
     await db.insertInto("story_view").values({ story_id: story.id, viewer_id: caller.id })
       .onConflict((oc) => oc.columns(["story_id", "viewer_id"]).doNothing()).execute();
     return json({ ...sent.message, conversation_id: conv.id }, sent.duplicate ? 200 : 201);
+  }
+
+  // ── GET|PUT|DELETE /chat/notes ───────────────────────────────────────────────
+  if (route.kind === "notes") {
+    if (req.method === "PUT") {
+      const body = await req.json().catch(() => null);
+      const text = typeof body?.body === "string" ? body.body.trim() : "";
+      if (!text || [...text].length > NOTE_MAX) return jsonError(`A note is 1–${NOTE_MAX} characters`, 400);
+      const audience = body?.audience ?? "mutuals";
+      if (!NOTE_AUDIENCES.includes(audience)) return jsonError("audience must be mutuals or close_friends", 400);
+      await sql`
+        INSERT INTO user_note (user_id, body, audience) VALUES (${caller.id}, ${text}, ${audience})
+        ON CONFLICT (user_id) DO UPDATE
+          SET body = EXCLUDED.body, audience = EXCLUDED.audience, created_at = NOW(), expires_at = NOW() + INTERVAL '24 hours'
+      `.execute(db);
+    } else if (req.method === "DELETE") {
+      await db.deleteFrom("user_note").where("user_id", "=", caller.id).execute();
+    } else if (req.method !== "GET") {
+      return jsonError("Method not allowed", 405);
+    }
+    return json(await notesFor(caller));
+  }
+
+  // ── POST /chat/notes/:userId/replies {body, client_id?} ──────────────────────
+  if (req.method === "POST" && route.kind === "note_reply") {
+    if (!UUID_RE.test(route.userId)) return jsonError("Note not found", 404);
+    const body = await req.json().catch(() => null);
+    const text = typeof body?.body === "string" ? body.body.trim() : "";
+    if (!text) return jsonError("A reply needs text", 400);
+    const { rows: [note] } = await sql<{ body: string }>`
+      SELECT n.body FROM user_note n WHERE n.user_id = ${route.userId} AND ${noteVisibleSql(caller.id)}
+    `.execute(db);
+    if (!note) return jsonError("Note not found", 404);
+    const conv = await directConversationFor(caller, route.userId);
+    if ("error" in conv) return jsonError(conv.error, 403, { code: "cant_message" });
+    const sent = await sendMessage(caller, conv.id, (await membership(conv.id, caller.id))!, {
+      text,
+      clientId: typeof body?.client_id === "string" ? body.client_id.slice(0, 64) : null,
+      metadata: { note_reply: { owner_id: route.userId, body: note.body } },
+    });
+    if ("error" in sent) return sent.error;
+    return json({ ...sent.message, conversation_id: conv.id }, sent.duplicate ? 200 : 201);
+  }
+
+  // ── POST /chat/messages/:id/forward {user_ids?, conversation_ids?} ───────────
+  // A copy of the text, the shared thing (re-checked for me; someone else's
+  // workout or meal snapshot can't be passed on) and the files, marked
+  // forwarded. Story replies go as plain text.
+  if (req.method === "POST" && route.kind === "forward") {
+    if (!UUID_RE.test(route.messageId)) return jsonError("Message not found", 404);
+    const msg = await db.selectFrom("message").select(MESSAGE_COLS).where("id", "=", route.messageId)
+      .executeTakeFirst();
+    const from = msg && await membership(msg.conversation_id, caller.id);
+    if (!msg || !from || new Date(msg.created_at) <= new Date(visibleFrom(from))) {
+      return jsonError("Message not found", 404);
+    }
+    if (msg.deleted_at) return jsonError("Message was unsent", 410);
+    if (msg.kind === "system") return jsonError("System messages can't be forwarded", 400);
+    let share: StoredShare | null = null;
+    if (msg.share_kind) {
+      if (msg.share_snapshot) {
+        if (msg.sender_id !== caller.id) return jsonError("Only its owner can pass this on", 403, { code: "not_forwardable" });
+        share = { kind: msg.share_kind, ref_id: msg.share_ref_id, snapshot: msg.share_snapshot };
+      } else {
+        const prepared = await prepareShare(caller, { kind: msg.share_kind, ref_id: msg.share_ref_id });
+        if (prepared instanceof Response) return prepared;
+        share = prepared;
+      }
+    }
+    const files = await db.selectFrom("message_attachment")
+      .select(["storage_path", "mime_type", "size_bytes", "file_name", "width", "height", "duration_ms"])
+      .where("message_id", "=", msg.id).orderBy("position").execute();
+    const body = await req.json().catch(() => null);
+    return await sendToTargets(caller, body, async (conversationId) => ({
+      text: msg.body ?? "",
+      share,
+      attachments: await Promise.all(files.map(async (f) => ({
+        path: await copyIntoSlot({
+          bucket: BUCKET,
+          from: f.storage_path,
+          prefix: conversationId,
+          uploaderId: caller.id,
+          mime: f.mime_type,
+          conversationId,
+        }),
+        file_name: f.file_name ?? undefined,
+        size_bytes: Number(f.size_bytes),
+        width: f.width ?? undefined,
+        height: f.height ?? undefined,
+        duration_ms: f.duration_ms ?? undefined,
+      }))),
+      metadata: { forwarded: true },
+    }));
   }
 
   // Everything below is about one conversation or message.
@@ -976,9 +1149,7 @@ async function handler(req: Request): Promise<Response> {
     return json(await loadMessage(msg.id, caller));
   }
 
-  if (route.kind === "realtime" || route.kind === "conversations" || route.kind === "share" || route.kind === "story_replies") {
-    return jsonError("Method not allowed", 405);
-  }
+  if (!("id" in route)) return jsonError("Method not allowed", 405);
   const convId = route.id;
   const me = await membership(convId, caller.id);
   if (!me) return notFound();
@@ -1032,7 +1203,7 @@ async function handler(req: Request): Promise<Response> {
   // ── PUT /chat/conversations/:id/settings ─────────────────────────────────────
   if (req.method === "PUT" && route.kind === "conv_action" && route.action === "settings") {
     const body = await req.json().catch(() => null);
-    const update: { muted_until?: string | null; archived_at?: string | null } = {};
+    const update: { muted_until?: string | null; archived_at?: string | null; pinned_at?: string | null } = {};
     if (body && "muted" in body) {
       if (typeof body.muted !== "boolean") return jsonError("muted must be a boolean", 400);
       // "Muted" with no end is stored as far in the future.
@@ -1048,9 +1219,28 @@ async function handler(req: Request): Promise<Response> {
       if (typeof body.archived !== "boolean") return jsonError("archived must be a boolean", 400);
       update.archived_at = body.archived ? new Date().toISOString() : null;
     }
-    if (Object.keys(update).length === 0) return jsonError("Nothing to update", 400);
-    await db.updateTable("conversation_participant").set(update)
-      .where("conversation_id", "=", convId).where("user_id", "=", caller.id).execute();
+    if (body && "pinned" in body) {
+      if (typeof body.pinned !== "boolean") return jsonError("pinned must be a boolean", 400);
+      if (body.pinned) {
+        const { rows: [pins] } = await sql<{ n: number; mine: boolean }>`
+          SELECT count(*)::int AS n, bool_or(conversation_id = ${convId}) AS mine
+          FROM conversation_participant WHERE user_id = ${caller.id} AND pinned_at IS NOT NULL
+        `.execute(db);
+        if (!pins.mine && pins.n >= PINNED_CHATS_MAX) {
+          return jsonError(`Up to ${PINNED_CHATS_MAX} chats can be pinned`, 409, { code: "pin_limit" });
+        }
+        if (!pins.mine) update.pinned_at = new Date().toISOString();
+      } else {
+        update.pinned_at = null;
+      }
+    }
+    if (!body || !["muted", "muted_until", "archived", "pinned"].some((k) => k in body)) {
+      return jsonError("Nothing to update", 400);
+    }
+    if (Object.keys(update).length) {
+      await db.updateTable("conversation_participant").set(update)
+        .where("conversation_id", "=", convId).where("user_id", "=", caller.id).execute();
+    }
     const [summary] = await listConversations(caller, { ids: [convId] });
     return json(summary);
   }

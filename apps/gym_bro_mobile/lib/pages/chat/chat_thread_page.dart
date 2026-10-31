@@ -18,6 +18,7 @@ import '../../widgets/social_widgets.dart';
 import '../people/user_profile_page.dart';
 import 'chat_composer.dart';
 import 'chat_thread_parts.dart';
+import 'forward_sheet.dart';
 import 'chat_widgets.dart';
 import 'group_info_page.dart';
 import 'message_bubble.dart';
@@ -45,9 +46,9 @@ class _Outgoing {
   final paths = <int, String>{};
 }
 
-enum _MsgAction { reply, copy, edit, unsend, report, retry, discard, moreReactions }
+enum _MsgAction { reply, copy, forward, edit, unsend, report, retry, discard, moreReactions }
 
-enum _Menu { info, media, mute, archive, clear, deleteChat, block, report, leave }
+enum _Menu { info, media, pin, mute, archive, clear, deleteChat, block, report, leave }
 
 /// One conversation: live messages, typing, read receipts, attachments,
 /// replies, reactions, edits and message requests.
@@ -465,9 +466,16 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
     if (_editing != null) return _saveEdit();
     final text = _input.text.trim();
     if (text.isEmpty && _files.isEmpty) return;
+    await _sendNew(body: text.isEmpty ? null : text, media: List.of(_files));
+  }
+
+  /// A recorded voice message (audio/mp4, voice.m4a, with its duration).
+  Future<void> _sendVoice(PickedMedia voice) => _sendNew(media: [EditableMedia(voice)]);
+
+  Future<void> _sendNew({String? body, required List<EditableMedia> media}) async {
     final clientId = newChatClientId();
     final reply = _replyTo;
-    final out = _Outgoing(clientId: clientId, body: text.isEmpty ? null : text, media: List.of(_files), replyToId: reply?.id);
+    final out = _Outgoing(clientId: clientId, body: body, media: media, replyToId: reply?.id);
     _outgoing[clientId] = out;
     final optimistic = ChatMessage(
       id: 'local-$clientId',
@@ -679,6 +687,12 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
                   title: Text(l10n.chatCopy),
                   onTap: () => Navigator.pop(ctx, _MsgAction.copy),
                 ),
+              if (m.canForward)
+                ListTile(
+                  leading: const Icon(Icons.shortcut_rounded),
+                  title: Text(l10n.chatForward),
+                  onTap: () => Navigator.pop(ctx, _MsgAction.forward),
+                ),
               // A story reaction's emoji isn't text to edit.
               if (mine && hasText && !(m.storyReply?.isReaction ?? false))
                 ListTile(
@@ -714,6 +728,8 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
       case _MsgAction.copy:
         await Clipboard.setData(ClipboardData(text: m.body ?? ''));
         if (mounted) showChatSnack(context, l10n.chatCopied);
+      case _MsgAction.forward:
+        await showForwardSheet(context, m);
       case _MsgAction.edit:
         _startEdit(m);
       case _MsgAction.unsend:
@@ -880,6 +896,15 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
           await _openInfo();
         case _Menu.media:
           await Navigator.push<void>(context, MaterialPageRoute(builder: (_) => SharedMediaPage(conversationId: _id)));
+        case _Menu.pin:
+          try {
+            final updated = await _api.setConversationPinned(token, _id, !c.pinned);
+            if (!mounted) return;
+            _applySummary(updated);
+            showChatSnack(context, updated.pinned ? l10n.chatPinnedSnack : l10n.chatUnpinnedSnack);
+          } on PinLimitException {
+            if (mounted) showChatSnack(context, l10n.chatPinLimit);
+          }
         case _Menu.mute:
           final updated = await _api.updateChatSettings(token, _id, muted: !c.muted);
           if (!mounted) return;
@@ -1046,6 +1071,7 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
             onSend: _send,
             editing: _editing != null,
             contextBar: _contextBar(),
+            onVoice: _sendVoice,
           ),
       ]),
     );
@@ -1069,6 +1095,8 @@ class _ChatThreadPageState extends State<ChatThreadPage> with WidgetsBindingObse
       item(_Menu.info, c.isGroup ? Icons.info_outline : Icons.person_outline, c.isGroup ? l10n.chatGroupInfo : l10n.chatViewProfile),
       if (!c.isGroup) item(_Menu.media, Icons.perm_media_outlined, l10n.chatSharedMedia),
       if (!c.isRequest) ...[
+        // Pinned chats lead the inbox, so archived ones can't be pinned (same as the inbox menu).
+        if (!c.archived) item(_Menu.pin, c.pinned ? Icons.push_pin : Icons.push_pin_outlined, c.pinned ? l10n.chatUnpin : l10n.chatPin),
         item(_Menu.mute, c.muted ? Icons.notifications_active_outlined : Icons.notifications_off_outlined,
             c.muted ? l10n.chatUnmute : l10n.chatMute),
         item(_Menu.archive, c.archived ? Icons.unarchive_outlined : Icons.archive_outlined,

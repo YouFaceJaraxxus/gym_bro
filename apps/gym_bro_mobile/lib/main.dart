@@ -11,6 +11,7 @@ import 'pages/home_page.dart';
 import 'pages/verify_invite_page.dart';
 import 'pages/forgot_password_page.dart';
 import 'pages/reset_password_page.dart';
+import 'pages/people/profile_qr_page.dart';
 import 'services/auth_manager.dart';
 import 'services/push_service.dart';
 import 'services/settings_service.dart';
@@ -101,7 +102,7 @@ class _AppInitState extends State<_AppInit> {
       final handled = await _handleAuthLink(initialLink);
       if (handled) {
         // Subscribe for future links and return — navigation already done.
-        _linkSub = appLinks.uriLinkStream.listen(_handleAuthLink);
+        _linkSub = appLinks.uriLinkStream.listen(_handleLink);
         return;
       }
     }
@@ -117,10 +118,26 @@ class _AppInitState extends State<_AppInit> {
     if (mounted) {
       Navigator.pushReplacementNamed(context, hasSession ? '/home' : '/signup');
     }
+    // Cold-started from a profile QR code / link: open it over home.
+    if (hasSession && initialLink != null) _openProfileLink(initialLink);
 
     // Subscribe for links that arrive while the app is already running
     // (e.g. user taps the invite email while the app is in the foreground).
-    _linkSub = appLinks.uriLinkStream.listen(_handleAuthLink);
+    _linkSub = appLinks.uriLinkStream.listen(_handleLink);
+  }
+
+  Future<void> _handleLink(Uri uri) async {
+    if (!await _handleAuthLink(uri)) _openProfileLink(uri);
+  }
+
+  /// `gymbroo://u/<username>` (a profile QR code) opens that profile when signed in.
+  void _openProfileLink(Uri uri) {
+    final username = usernameFromProfileLink(uri.toString());
+    if (username == null || !AuthManager.instance.hasSession) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = navigatorKey.currentContext;
+      if (ctx != null && ctx.mounted) openProfileByUsername(ctx, username);
+    });
   }
 
   /// Parses a `gymbroo://auth/callback#access_token=…` URI, stores the session,

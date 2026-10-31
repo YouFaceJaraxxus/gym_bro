@@ -29,11 +29,18 @@ if (isHosted && isLocal) {
   );
 }
 
+// Every function (and every concurrent worker of one) has its own pool, and
+// the decorators fire ~10 queries at once — with pg's default of 10
+// connections per pool a busy minute exhausts Postgres' 100 slots (and auth,
+// which shares them, starts failing). A few per worker is plenty: extra
+// queries queue for a moment instead.
 export const db = new Kysely<Database>({
   dialect: new PostgresDialect({
     pool: new Pool({
       connectionString: postgresUrl,
       ssl: isLocal ? false : { rejectUnauthorized: false },
+      max: 4,
+      idleTimeoutMillis: 5_000,
     }),
   }),
 });

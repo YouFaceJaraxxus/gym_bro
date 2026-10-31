@@ -4,7 +4,7 @@
     <!-- Profile photos and check-in / barcode scanning (mobile_scanner). -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
-    <!-- Videos recorded for posts and chats. -->
+    <!-- Videos recorded for posts and chats; chat voice messages (record). -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <!-- Opt-in "people nearby": approximate location only. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -46,6 +46,8 @@
                 <data android:scheme="gymbroo" android:host="auth"/>
                 <!-- Stripe Checkout returns here after a payment. -->
                 <data android:scheme="gymbroo" android:host="payments"/>
+                <!-- Profile QR codes: gymbroo://u/<username>. -->
+                <data android:scheme="gymbroo" android:host="u"/>
             </intent-filter>
         </activity>
         <!-- FCM: channel for pushes that arrive while the app is in the background

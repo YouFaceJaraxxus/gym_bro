@@ -103,8 +103,9 @@ class NotificationRouter {
       case 'post_comment' || 'comment_reply' || 'post_reaction' || 'mention' || 'photo_tag' when str('post_id') != null:
         await push(PostDetailPage(postId: str('post_id')!, focusCommentId: str('comment_id')));
 
-      // A like / reaction on my story: the story (mine, so also once expired).
-      case 'story_reaction' when str('story_id') != null:
+      // A like / reaction on my story: the story (mine, so also once expired);
+      // a mention in someone's story: that story while it's live.
+      case 'story_reaction' || 'story_mention' when str('story_id') != null:
         if (context.mounted) await openStoryById(context, str('story_id')!);
 
       case 'follow_request' || 'friend_request':

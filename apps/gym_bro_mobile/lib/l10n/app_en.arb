@@ -750,6 +750,27 @@
       }
     }
   },
+  "@chatNoteRepliedPreview": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatNotesOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@chatNotesReplyHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@chatPeopleAdded": {
     "placeholders": {
       "count": {
@@ -1091,6 +1112,13 @@
     }
   },
   "@classSeriesUpcomingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@closeFriendsPageListTitle": {
     "placeholders": {
       "count": {
         "type": "int"
@@ -2221,6 +2249,83 @@
       }
     }
   },
+  "@postsDeleteCollectionTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@postsPostCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@postsRemovedFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@postsSavedTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@profileExtrasCloseFriendAdded": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "@profileExtrasCloseFriendRemoved": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "@profileExtrasHashtagPosts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@profileExtrasMuteTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "@profileExtrasQrNotFound": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "@profileExtrasQrSemantics": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "@profileExtrasUnmutedSnack": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
   "@reactionCount": {
     "placeholders": {
       "count": {
@@ -2591,6 +2696,41 @@
     }
   },
   "@storyActivityCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@storyHighlightAddedTo": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@storyHighlightCreated": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@storyPollOptionLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "@storyPollVotedFor": {
+    "placeholders": {
+      "option": {
+        "type": "String"
+      }
+    }
+  },
+  "@storyPollVotes": {
     "placeholders": {
       "count": {
         "type": "int"
@@ -4065,6 +4205,9 @@
   "chatEmptyRequestsHint": "Messages from people who can't message you directly show up here.",
   "chatFailed": "Not sent · Tap to retry",
   "chatFollowingSection": "Following",
+  "chatForward": "Forward",
+  "chatForwardTitle": "Forward to",
+  "chatForwarded": "Forwarded",
   "chatGroupDescription": "Description",
   "chatGroupFallback": "Group chat",
   "chatGroupInfo": "Group info",
@@ -4099,11 +4242,34 @@
   "chatNoMedia": "No photos or videos yet",
   "chatNoPeopleFound": "No people found",
   "chatNoResults": "No chats match \"{query}\"",
+  "chatNoteRepliedPreview": "Replied to a note: {text}",
+  "chatNoteRepliedTheirs": "You replied to their note",
+  "chatNoteRepliedYours": "Replied to your note",
+  "chatNotesAudienceCloseFriends": "Close friends",
+  "chatNotesAudienceLabel": "Share with",
+  "chatNotesAudienceMutuals": "Followers you follow back",
+  "chatNotesDelete": "Delete note",
+  "chatNotesDeleted": "Note deleted",
+  "chatNotesEditorTitle": "Your note",
+  "chatNotesHint": "Share a thought…",
+  "chatNotesLeaveNote": "Leave a note",
+  "chatNotesOf": "{name}'s note",
+  "chatNotesOpenChat": "Open chat",
+  "chatNotesReplyHint": "Reply to {name}…",
+  "chatNotesReplySent": "Reply sent",
+  "chatNotesShare": "Share",
+  "chatNotesShared": "Note shared",
+  "chatNotesVisibleFor": "Notes show above the inbox for 24 hours.",
+  "chatNotesYourNote": "Your note",
   "chatOpenFile": "Open file",
   "chatOriginalNotFound": "Couldn't find the original message",
   "chatPause": "Pause",
   "chatPeopleAdded": "{count, plural, =1{1 person added} other{{count} people added}}",
   "chatPhotoMessage": "Photo",
+  "chatPin": "Pin",
+  "chatPinLimit": "You can pin up to 3 chats",
+  "chatPinned": "Pinned",
+  "chatPinnedSnack": "Chat pinned",
   "chatPlay": "Play",
   "chatPreviewSender": "{name}: {text}",
   "chatPreviewYou": "You: {text}",
@@ -4165,12 +4331,23 @@
   "chatUndo": "Undo",
   "chatUnmute": "Unmute",
   "chatUnmutedSnack": "Notifications unmuted",
+  "chatUnpin": "Unpin",
+  "chatUnpinnedSnack": "Chat unpinned",
   "chatUnreadCount": "{count, plural, =1{1 unread message} other{{count} unread messages}}",
   "chatUnsend": "Unsend",
   "chatUnsendConfirmBody": "It will be removed for everyone in this chat.",
   "chatUnsendConfirmTitle": "Unsend message?",
   "chatVideoMessage": "Video",
   "chatViewProfile": "View profile",
+  "chatVoiceCancel": "Discard recording",
+  "chatVoiceFailed": "Couldn't record audio",
+  "chatVoiceMessage": "Voice message",
+  "chatVoicePermission": "Allow microphone access to record voice messages.",
+  "chatVoicePreview": "🎤 Voice message",
+  "chatVoiceRecord": "Record a voice message",
+  "chatVoiceRecording": "Recording",
+  "chatVoiceSend": "Send voice message",
+  "chatVoiceTooShort": "That recording was too short",
   "chatYesterday": "Yesterday",
   "chatYou": "You",
   "chatYouObject": "you",
@@ -4280,6 +4457,16 @@
   "classSeriesUpcomingSessions": "Upcoming sessions",
   "classSeriesWeekdays": "On these days",
   "classSeriesYou": "You",
+  "closeFriendsPageAdd": "Add to close friends",
+  "closeFriendsPageEmpty": "No one yet. Tap the star next to a follower to add them.",
+  "closeFriendsPageFollowers": "Your followers",
+  "closeFriendsPageInfo": "Only you can see your close friends list — no one is told when you add or remove them. Stories you share to close friends show only to them, with a green ring.",
+  "closeFriendsPageListTitle": "{count, plural, =0{Your list} =1{Your list · 1 person} other{Your list · {count} people}}",
+  "closeFriendsPageNoFollowers": "You don't have any followers to add yet.",
+  "closeFriendsPageNoMatch": "No followers match your search.",
+  "closeFriendsPageRemove": "Remove from close friends",
+  "closeFriendsPageSearchHint": "Search followers",
+  "closeFriendsPageTitle": "Close friends",
   "commonBack": "Back",
   "commonCancel": "Cancel",
   "commonClose": "Close",
@@ -5141,6 +5328,107 @@
   "postShareWorkoutFinished": "Workout finished",
   "postShareWorkoutLogged": "Workout logged",
   "postShareWorkouts": "{count, plural, =1{1 workout} other{{count} workouts}}",
+  "postsAdvancedSettings": "Advanced settings",
+  "postsAllPosts": "All posts",
+  "postsCollectionEmpty": "No posts in this collection yet",
+  "postsCollectionName": "Collection name",
+  "postsCommentingIsOff": "Commenting is turned off.",
+  "postsCommentingOffToast": "Commenting turned off",
+  "postsCommentingOnToast": "Commenting turned on",
+  "postsCreate": "Create",
+  "postsDeleteCollection": "Delete collection",
+  "postsDeleteCollectionBody": "Its posts stay in All posts.",
+  "postsDeleteCollectionTitle": "Delete \"{name}\"?",
+  "postsGridView": "Grid view",
+  "postsHashtagEmpty": "No posts with this hashtag yet",
+  "postsHideLikeCount": "Hide like count",
+  "postsHideLikeCountHint": "Only you will see how many people reacted to this post.",
+  "postsLikeCountHiddenToast": "Like count hidden",
+  "postsLikeCountShownToast": "Like count visible again",
+  "postsLikedByOthers": "Liked by others",
+  "postsLikedTitle": "Your likes",
+  "postsListView": "List view",
+  "postsLocationClear": "Clear location",
+  "postsLocationHint": "Add a location",
+  "postsLocationLabel": "Location",
+  "postsMute": "Mute",
+  "postsNewCollection": "New collection",
+  "postsNoLikedBody": "Posts you react to show up here.",
+  "postsNoLikedTitle": "No likes yet",
+  "postsNoReelsBody": "Videos people share show up here.",
+  "postsNoReelsTitle": "No reels yet",
+  "postsNoSavedBody": "Tap the bookmark on a post to save it here.",
+  "postsNoSavedTitle": "Nothing saved yet",
+  "postsPinLimit": "You can pin up to 3 posts. Unpin one first.",
+  "postsPinToProfile": "Pin to profile",
+  "postsPinned": "Pinned",
+  "postsPinnedToast": "Pinned to your profile",
+  "postsPostCount": "{count, plural, =0{No posts} =1{1 post} other{{count} posts}}",
+  "postsReactionsAllHidden": "All",
+  "postsReels": "Reels",
+  "postsRemovedFrom": "Removed from {name}",
+  "postsRemovedFromSaved": "Removed from saved",
+  "postsRenameCollection": "Rename collection",
+  "postsSave": "Save",
+  "postsSaveToCollection": "Save to collection",
+  "postsSavedOnlyYou": "Only you can see what you've saved.",
+  "postsSavedTitle": "Saved",
+  "postsSavedTo": "Saved to {name}",
+  "postsSavedToast": "Saved",
+  "postsShowLikeCount": "Show like count",
+  "postsTabRecent": "Recent",
+  "postsTabTop": "Top",
+  "postsTurnOffCommenting": "Turn off commenting",
+  "postsTurnOffCommentingHint": "No one can comment. Existing comments stay visible.",
+  "postsTurnOnCommenting": "Turn on commenting",
+  "postsUnmute": "Unmute",
+  "postsUnpin": "Unpin from profile",
+  "postsUnpinnedToast": "Unpinned",
+  "postsUnsave": "Remove from saved",
+  "postsVideoUnavailable": "This video can't be played",
+  "profileExtrasAddCloseFriend": "Add to close friends",
+  "profileExtrasClearAll": "Clear all",
+  "profileExtrasCloseFriendAdded": "Added @{username} to close friends",
+  "profileExtrasCloseFriendRemoved": "Removed @{username} from close friends",
+  "profileExtrasCloseFriends": "Close friends",
+  "profileExtrasCloseFriendsSubtitle": "Who sees your close-friends stories and notes",
+  "profileExtrasDone": "Done",
+  "profileExtrasHashtagPosts": "{count, plural, =1{1 post} other{{count} posts}}",
+  "profileExtrasMuteBody": "They won't know you muted them. You'll still see their posts and stories on their profile.",
+  "profileExtrasMuteMenu": "Mute",
+  "profileExtrasMutePosts": "Posts",
+  "profileExtrasMuteStories": "Stories",
+  "profileExtrasMuteTitle": "Mute @{username}",
+  "profileExtrasMutedAccounts": "Muted accounts",
+  "profileExtrasMutedAccountsSubtitle": "People whose posts or stories you muted",
+  "profileExtrasMutedBoth": "Posts and stories muted",
+  "profileExtrasMutedEmpty": "You haven't muted anyone",
+  "profileExtrasMutedEmptyBody": "Mute someone from their profile to stop seeing their posts or stories without unfollowing. They won't know.",
+  "profileExtrasMutedMenu": "Muted",
+  "profileExtrasMutedPosts": "Posts muted",
+  "profileExtrasMutedStories": "Stories muted",
+  "profileExtrasQrCameraUnavailable": "The camera isn't available.",
+  "profileExtrasQrCopyLink": "Copy link",
+  "profileExtrasQrHint": "Friends can scan this with Gym Bro to open your profile.",
+  "profileExtrasQrLinkCopied": "Link copied",
+  "profileExtrasQrNotAProfile": "That's not a Gym Bro profile code",
+  "profileExtrasQrNotFound": "Couldn't find @{username}",
+  "profileExtrasQrScan": "Scan a QR code",
+  "profileExtrasQrSemantics": "QR code for @{username}",
+  "profileExtrasQrSubtitle": "Let friends scan to find you",
+  "profileExtrasQrTitle": "QR code",
+  "profileExtrasRecentSearches": "Recent",
+  "profileExtrasRemoveCloseFriend": "Remove from close friends",
+  "profileExtrasRemoveRecent": "Remove",
+  "profileExtrasSaved": "Saved",
+  "profileExtrasSavedSubtitle": "Posts you saved and your collections",
+  "profileExtrasUnmute": "Unmute",
+  "profileExtrasUnmutedSnack": "Unmuted @{username}",
+  "profileExtrasWebsite": "Website",
+  "profileExtrasWebsiteHint": "yoursite.com",
+  "profileExtrasWebsiteInvalid": "Enter a web address like yoursite.com",
+  "profileExtrasYourActivity": "Your activity",
+  "profileExtrasYourActivitySubtitle": "Posts you liked or reacted to",
   "reactionAngry": "Angry",
   "reactionCelebrate": "Celebrate",
   "reactionClap": "Clap",
@@ -5492,6 +5780,7 @@
   "storyAddTooltip": "Add to your story",
   "storyArchivedLabel": "Archived",
   "storyClose": "Close",
+  "storyCloseFriends": "Close friends",
   "storyComposerBackground": "Background colour",
   "storyComposerCaptionHint": "Add a caption…",
   "storyComposerDiscard": "Discard",
@@ -5508,11 +5797,46 @@
   "storyDeleteConfirmBody": "It will be removed from your story and your archive.",
   "storyDeleteConfirmTitle": "Delete this story?",
   "storyDeleted": "Story deleted",
+  "storyHighlightAction": "Highlight",
+  "storyHighlightAddStories": "Add stories",
+  "storyHighlightAddTo": "Add to highlight",
+  "storyHighlightAddedTo": "Added to {title}",
+  "storyHighlightCover": "Cover",
+  "storyHighlightCoverHint": "Tap a story to make it the cover.",
+  "storyHighlightCreated": "Highlight \"{title}\" created",
+  "storyHighlightDelete": "Delete highlight",
+  "storyHighlightDeleteBody": "Its stories stay in your archive.",
+  "storyHighlightDeleteTitle": "Delete this highlight?",
+  "storyHighlightDeleted": "Highlight deleted",
+  "storyHighlightEdit": "Edit highlight",
+  "storyHighlightKeepStory": "Keep in highlight",
+  "storyHighlightNameLabel": "Highlight name",
+  "storyHighlightNeedsStory": "Keep at least one story, or delete the highlight",
+  "storyHighlightNew": "New",
+  "storyHighlightNewTitle": "New highlight",
+  "storyHighlightNext": "Next",
+  "storyHighlightNoArchive": "Your archive has no stories yet. Stories you post are kept there after 24 hours.",
+  "storyHighlightPickTitle": "Choose stories",
+  "storyHighlightRemoveStory": "Remove from highlight",
+  "storyHighlightRename": "Rename highlight",
+  "storyHighlightSaved": "Highlight updated",
+  "storyHighlightStories": "Stories",
   "storyLike": "Like",
   "storyLoadFailed": "Couldn't load stories",
   "storyMore": "More",
   "storyNew": "New story",
   "storyNoViewers": "No one has seen this story yet",
+  "storyPollAdd": "Add a poll",
+  "storyPollAddOption": "Add option",
+  "storyPollDone": "Done",
+  "storyPollEdit": "Edit poll",
+  "storyPollEditorTitle": "Poll",
+  "storyPollOptionLabel": "Option {number}",
+  "storyPollQuestionHint": "Ask a question (optional)",
+  "storyPollRemove": "Remove poll",
+  "storyPollRemoveOption": "Remove option",
+  "storyPollVotedFor": "Voted {option}",
+  "storyPollVotes": "{count, plural, =0{No votes yet} =1{1 vote} other{{count} votes}}",
   "storyPosted": "Added to your story",
   "storyQuickReactions": "Quick reactions",
   "storyReactionSent": "Reaction sent",

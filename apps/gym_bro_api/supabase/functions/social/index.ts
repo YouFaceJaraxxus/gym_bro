@@ -17,6 +17,7 @@ import {
   touchActivity,
   unreadMessageSql,
   type UserSummary,
+  userSummaries,
 } from "../_shared/social.ts";
 import { storyVisibleSql } from "../_shared/visibility.ts";
 import type { ReportReason } from "../../types/schema/public.ts";
@@ -46,12 +47,19 @@ import type { ReportReason } from "../../types/schema/public.ts";
 //   GET    /social/search?q=                       people search
 //   GET    /social/suggestions                     people you may know
 //   GET    /social/nearby?radius_km=               discoverable people near me
+//   PUT    /social/users/:id/mute {posts, stories}  mute their posts and/or stories (they aren't told)
+//   DELETE /social/users/:id/mute
+//   GET    /social/mutes                           people I muted
+//   GET    /social/close-friends                   my close friends (private to me)
+//   PUT    /social/close-friends/:id, DELETE       add / remove someone
 
 const BIO_MAX = 300;
 const INTEREST_MAX = 30;
 const INTERESTS_MAX = 10;
 const REPORT_REASONS: readonly ReportReason[] = ["spam", "harassment", "inappropriate", "impersonation", "other"];
 const USERNAME_RE = /^[a-zA-Z0-9._]{3,30}$/;
+const WEBSITE_MAX = 200;
+const CLOSE_FRIENDS_MAX = 1000;
 
 type Route =
   | { kind: "me" }
@@ -69,6 +77,10 @@ type Route =
   | { kind: "search" }
   | { kind: "suggestions" }
   | { kind: "nearby" }
+  | { kind: "mute"; id: string }
+  | { kind: "mutes" }
+  | { kind: "close_friends" }
+  | { kind: "close_friend"; id: string }
   | { kind: "unknown" };
 
 function parsePath(pathname: string): Route {
@@ -83,7 +95,13 @@ function parsePath(pathname: string): Route {
   if (p === "/social/search") return { kind: "search" };
   if (p === "/social/suggestions") return { kind: "suggestions" };
   if (p === "/social/nearby") return { kind: "nearby" };
-  let m = p.match(/^\/social\/reports\/([^/]+)\/resolve$/);
+  if (p === "/social/mutes") return { kind: "mutes" };
+  if (p === "/social/close-friends") return { kind: "close_friends" };
+  let m = p.match(/^\/social\/close-friends\/([^/]+)$/);
+  if (m) return { kind: "close_friend", id: m[1] };
+  m = p.match(/^\/social\/users\/([^/]+)\/mute$/);
+  if (m) return { kind: "mute", id: m[1] };
+  m = p.match(/^\/social\/reports\/([^/]+)\/resolve$/);
   if (m) return { kind: "report_resolve", id: m[1] };
   m = p.match(/^\/social\/follow-requests\/([^/]+)(\/accept)?$/);
   if (m) return { kind: "follow_request", userId: m[1], accept: !!m[2] };
@@ -111,6 +129,7 @@ const PROFILE_COLS = [
   "allow_non_follower_messages",
   "show_activity_status",
   "last_active_at",
+  "website",
   "created_at",
 ] as const;
 
@@ -127,6 +146,7 @@ type ProfileRow = {
   allow_non_follower_messages: boolean;
   show_activity_status: boolean;
   last_active_at: string | null;
+  website: string | null;
   created_at: string;
 };
 
@@ -192,13 +212,21 @@ async function storyRing(viewerId: string, authorId: string) {
 
 async function buildProfile(caller: Caller, u: ProfileRow) {
   const isMe = u.id === caller.id;
-  const [c, rel, canView, gyms, mutual, stories] = await Promise.all([
+  const [c, rel, canView, gyms, mutual, stories, mute, closeFriend] = await Promise.all([
     counts(u.id),
     isMe ? Promise.resolve(null) : relationship(caller.id, u.id),
     canSeeContentOf(caller.id, u),
     gymsOf(u.id),
     isMe ? Promise.resolve({ total: 0, users: [] }) : mutualFriends(caller.id, u.id, 3),
     storyRing(caller.id, u.id),
+    isMe
+      ? Promise.resolve(undefined)
+      : db.selectFrom("user_mute").select(["posts", "stories"]).where("muter_id", "=", caller.id)
+        .where("muted_id", "=", u.id).executeTakeFirst(),
+    isMe
+      ? Promise.resolve(undefined)
+      : db.selectFrom("close_friend").select("friend_id").where("user_id", "=", caller.id)
+        .where("friend_id", "=", u.id).executeTakeFirst(),
   ]);
   const connected = !!rel && (rel.friendship === "friends" || (rel.following === "accepted" && rel.followed_by === "accepted"));
   const showActivity = u.show_activity_status && (isMe || connected);
@@ -211,6 +239,7 @@ async function buildProfile(caller: Caller, u: ProfileRow) {
     role: u.role,
     bio: u.bio,
     interests: u.interests,
+    website: u.website,
     is_private: u.is_private,
     created_at: u.created_at,
     is_me: isMe,
@@ -225,6 +254,9 @@ async function buildProfile(caller: Caller, u: ProfileRow) {
     // Live stories: count, and whether any are unwatched (the coloured ring).
     story_count: stories.count,
     has_unseen_story: stories.unseen > 0,
+    // Mine to know only: what of theirs I muted, and whether they're on my close friends list.
+    muted: isMe ? null : { posts: mute?.posts ?? false, stories: mute?.stories ?? false },
+    is_close_friend: !isMe && !!closeFriend,
   };
 }
 
@@ -515,6 +547,22 @@ async function handler(req: Request): Promise<Response> {
       }
       update.username = body.username;
     }
+    if ("website" in body) {
+      if (body.website !== null && typeof body.website !== "string") return jsonError("website must be a string", 400);
+      let website: string | null = body.website?.trim() || null;
+      if (website && !/^https?:\/\//i.test(website)) website = `https://${website}`;
+      if (website) {
+        let valid = website.length <= WEBSITE_MAX;
+        try {
+          const parsed = new URL(website);
+          valid &&= parsed.hostname.includes(".") && !parsed.username && !parsed.password;
+        } catch {
+          valid = false;
+        }
+        if (!valid) return jsonError("website must be a web address", 400);
+      }
+      update.website = website;
+    }
     if ("avatar_url" in body) {
       if (body.avatar_url !== null && typeof body.avatar_url !== "string") {
         return jsonError("avatar_url must be a string", 400);
@@ -713,6 +761,64 @@ async function handler(req: Request): Promise<Response> {
     const theyBlockedMe = (await db.selectFrom("user_block").select("blocker_id")
       .where("blocker_id", "=", target.id).where("blocked_id", "=", caller.id).executeTakeFirst()) !== undefined;
     return json({ user_id: target.id, relationship: theyBlockedMe ? null : await relationship(caller.id, target.id) });
+  }
+
+  // ── PUT|DELETE /social/users/:id/mute {posts, stories} ───────────────────────
+  if (route.kind === "mute" && (req.method === "PUT" || req.method === "DELETE")) {
+    if (!UUID_RE.test(route.id)) return jsonError("User not found", 404);
+    if (route.id === caller.id) return jsonError("That's you", 400);
+    const target = await db.selectFrom("users").select("id").where("id", "=", route.id).executeTakeFirst();
+    if (!target) return jsonError("User not found", 404);
+    let posts = false, stories = false;
+    if (req.method === "PUT") {
+      const body = await req.json().catch(() => null);
+      if (typeof body?.posts !== "boolean" || typeof body?.stories !== "boolean") {
+        return jsonError("posts and stories must be booleans", 400);
+      }
+      ({ posts, stories } = body);
+    }
+    if (posts || stories) {
+      await db.insertInto("user_mute").values({ muter_id: caller.id, muted_id: target.id, posts, stories })
+        .onConflict((oc) => oc.columns(["muter_id", "muted_id"]).doUpdateSet({ posts, stories })).execute();
+    } else {
+      await db.deleteFrom("user_mute").where("muter_id", "=", caller.id).where("muted_id", "=", target.id).execute();
+    }
+    return json({ user_id: target.id, muted: { posts, stories } });
+  }
+
+  // ── GET /social/mutes ────────────────────────────────────────────────────────
+  if (req.method === "GET" && route.kind === "mutes") {
+    const rows = await db.selectFrom("user_mute").select(["muted_id", "posts", "stories"])
+      .where("muter_id", "=", caller.id).orderBy("created_at", "desc").execute();
+    const people = await usersInOrder(caller, rows.map((r) => r.muted_id));
+    const byId = new Map(rows.map((r) => [r.muted_id, r]));
+    return json(people.map((u) => ({ ...u, muted: { posts: byId.get(u.id)!.posts, stories: byId.get(u.id)!.stories } })));
+  }
+
+  // ── GET /social/close-friends ────────────────────────────────────────────────
+  if (req.method === "GET" && route.kind === "close_friends") {
+    const rows = await db.selectFrom("close_friend").select("friend_id").where("user_id", "=", caller.id)
+      .where(sql<boolean>`NOT is_blocked_between(friend_id, ${caller.id})`)
+      .orderBy("created_at", "desc").limit(CLOSE_FRIENDS_MAX).execute();
+    return json(await usersInOrder(caller, rows.map((r) => r.friend_id)));
+  }
+
+  // ── PUT|DELETE /social/close-friends/:id ─────────────────────────────────────
+  if (route.kind === "close_friend" && (req.method === "PUT" || req.method === "DELETE")) {
+    if (!UUID_RE.test(route.id)) return jsonError("User not found", 404);
+    if (route.id === caller.id) return jsonError("That's you", 400);
+    if (req.method === "DELETE") {
+      await db.deleteFrom("close_friend").where("user_id", "=", caller.id).where("friend_id", "=", route.id).execute();
+      return json({ user_id: route.id, is_close_friend: false });
+    }
+    const target = await db.selectFrom("users").select("id").where("id", "=", route.id).executeTakeFirst();
+    if (!target || (await isBlockedBetween(caller.id, target.id))) return jsonError("User not found", 404);
+    const { n } = await db.selectFrom("close_friend").select(sql<number>`count(*)::int`.as("n"))
+      .where("user_id", "=", caller.id).executeTakeFirstOrThrow();
+    if (n >= CLOSE_FRIENDS_MAX) return jsonError(`Up to ${CLOSE_FRIENDS_MAX} close friends`, 400);
+    await db.insertInto("close_friend").values({ user_id: caller.id, friend_id: target.id })
+      .onConflict((oc) => oc.columns(["user_id", "friend_id"]).doNothing()).execute();
+    return json({ user_id: target.id, is_close_friend: true });
   }
 
   // ── GET /social/blocks ───────────────────────────────────────────────────────
@@ -937,6 +1043,12 @@ async function handler(req: Request): Promise<Response> {
   }
 
   return jsonError("Not found", 404);
+}
+
+/** Users by id, decorated for lists, in the order of [ids]. */
+async function usersInOrder(caller: Caller, ids: string[]) {
+  const people = await userSummaries(ids);
+  return await decorateUsers(caller, ids.flatMap((id) => (people[id] ? [people[id]] : [])));
 }
 
 async function acceptFriendship(caller: Caller, requesterId: string) {

@@ -12,6 +12,9 @@ import 'people_common.dart';
 
 final _usernameRe = RegExp(r'^[a-zA-Z0-9._]{3,30}$');
 const _kBioMax = 300;
+const _kWebsiteMax = 200;
+// A host with a dot, optionally a scheme and a path ("ironclad.fit/liam").
+final _websiteRe = RegExp(r'^(https?://)?[^\s/@:]+\.[^\s/@:]{2,}(/\S*)?$', caseSensitive: false);
 const _kInterestMaxLength = 30;
 
 /// Edit my social profile (avatar, names, username, bio, interests) and
@@ -34,6 +37,7 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
   final _lastName = TextEditingController();
   final _username = TextEditingController();
   final _bio = TextEditingController();
+  final _website = TextEditingController();
   final _interestCtrl = TextEditingController();
   final _interestFocus = FocusNode();
 
@@ -57,7 +61,7 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
   @override
   void initState() {
     super.initState();
-    for (final c in [_name, _lastName, _username, _bio]) {
+    for (final c in [_name, _lastName, _username, _bio, _website]) {
       c.addListener(_onEdited);
     }
     _load();
@@ -65,7 +69,7 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
 
   @override
   void dispose() {
-    for (final c in [_name, _lastName, _username, _bio, _interestCtrl]) {
+    for (final c in [_name, _lastName, _username, _bio, _website, _interestCtrl]) {
       c.dispose();
     }
     _interestFocus.dispose();
@@ -109,6 +113,7 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
     _lastName.text = p.lastName;
     _username.text = p.username;
     _bio.text = p.bio ?? '';
+    _website.text = p.websiteLabel ?? '';
     _avatarUrl = p.avatarUrl;
     _interests = [...p.interests];
     _isPrivate = s?.isPrivate ?? p.isPrivate;
@@ -125,11 +130,14 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
     if (p == null) return const {};
     final s = p.settings;
     final bio = _bio.text.trim();
+    final website = _website.text.trim();
     return {
       if (_name.text.trim() != p.name) 'name': _name.text.trim(),
       if (_lastName.text.trim() != p.lastName) 'last_name': _lastName.text.trim(),
       if (_username.text.trim() != p.username) 'username': _username.text.trim(),
       if (bio != (p.bio ?? '').trim()) 'bio': bio,
+      // Shown without "https://"; the server adds it back.
+      if (website != (p.websiteLabel ?? '')) 'website': website.isEmpty ? null : website,
       if (!listEquals(_interests, p.interests)) 'interests': _interests,
       if (_avatarUrl != p.avatarUrl) 'avatar_url': _avatarUrl,
       if (_isPrivate != (s?.isPrivate ?? p.isPrivate)) 'is_private': _isPrivate,
@@ -379,6 +387,24 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
             maxLines: 5,
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(labelText: l10n.peopleBio, hintText: l10n.peopleBioHint, alignLabelWithHint: true),
+          ),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: _website,
+            enabled: !_saving,
+            autocorrect: false,
+            keyboardType: TextInputType.url,
+            maxLength: _kWebsiteMax,
+            decoration: InputDecoration(
+              labelText: l10n.profileExtrasWebsite,
+              hintText: l10n.profileExtrasWebsiteHint,
+              prefixIcon: const Icon(Icons.link),
+              counterText: '',
+            ),
+            validator: (v) {
+              final t = (v ?? '').trim();
+              return t.isEmpty || _websiteRe.hasMatch(t) ? null : l10n.profileExtrasWebsiteInvalid;
+            },
           ),
           const SizedBox(height: 8),
           _buildInterests(),

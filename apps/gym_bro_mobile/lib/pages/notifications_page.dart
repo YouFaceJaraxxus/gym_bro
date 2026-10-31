@@ -554,6 +554,7 @@ class _NotificationTile extends StatelessWidget {
     NotificationType.mention => Icons.alternate_email,
     NotificationType.photoTag => Icons.person_pin_outlined,
     NotificationType.storyReaction => Icons.favorite_border,
+    NotificationType.storyMention => Icons.alternate_email,
   };
 
   Color _colorFor(AppNotification n, ColorScheme cs) {

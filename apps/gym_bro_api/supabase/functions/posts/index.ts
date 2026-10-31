@@ -43,6 +43,7 @@ import {
 import { buildAttachment, POST_TYPES } from "../_shared/post_attachments.ts";
 import { type LibraryKind, libraryAccess } from "../_shared/shares.ts";
 import { postVisibleSql } from "../_shared/visibility.ts";
+import { normalizeTag, syncHashtags } from "../_shared/hashtags.ts";
 import type {
   Database,
   PostImageInsert,
@@ -80,6 +81,24 @@ import type {
 //   DELETE /posts/:id/tags/me                         remove myself from a post's photo tags
 //   PUT    /posts/:id/archive, DELETE                 archive my post (hidden from everyone else) / show it again
 //   GET    /posts/archive?from=&to=                   my archived posts (created in [from, to)), newest first
+//   PUT    /posts/:id/pin, DELETE                     pin my post to the top of my profile (up to 3)
+//   GET    /posts/feed?mode=reels                     posts that open with a video, for the vertical player
+//   GET    /posts/liked                               posts I reacted to, most recent reaction first
+//
+// Saved posts (private to me), optionally filed into collections:
+//   PUT    /posts/:id/save {collection_id?}, DELETE   save (into a collection too) / unsave everywhere
+//   GET    /posts/saved?collection_id=                saved posts I can still see, newest save first
+//   GET    /posts/collections?post_id=                {saved: {post_count, covers}, collections: [...]}
+//   POST   /posts/collections {name, post_ids?}       PUT /posts/collections/:id {name}, DELETE
+//   PUT    /posts/collections/:id/posts/:postId, DELETE   file a post (saving it) / take it out
+//
+// Hashtags ("#legday" in a caption, see _shared/hashtags.ts):
+//   GET    /posts/hashtags?q=                         tags starting with q, most used first
+//   GET    /posts/hashtags/:tag                       {tag, post_count}
+//   GET    /posts?hashtag=&sort=top|recent            posts with the tag I can see
+//
+// Personal posts also take hide_like_count (only the author sees counts),
+// comments_disabled and location_name (free text) on POST and PUT.
 //
 // Personal posts have a type: generic, or sharing a logged workout / meal or
 // a library item ({type, ref_id} or {type: 'meal', meal: {log_date,
@@ -97,6 +116,10 @@ const POST_COLS = [
   "ref_id",
   "attachment",
   "archived_at",
+  "pinned_at",
+  "hide_like_count",
+  "comments_disabled",
+  "location_name",
   "created_at",
   "updated_at",
 ] as const;
@@ -128,6 +151,10 @@ const CAPTION_MAX_LENGTH = 2200;
 const MAX_DEPTH = 9;
 const MEDIA_MAX = 10;
 const VISIBILITIES: readonly PostVisibility[] = ["public", "followers"];
+const PINS_MAX = 3;
+const COLLECTIONS_MAX = 100;
+const COLLECTION_NAME_MAX = 50;
+const LOCATION_MAX = 100;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const BUCKET = "user-media" as const;
 
@@ -141,6 +168,10 @@ type PostRow = {
   ref_id: string | null;
   attachment: unknown;
   archived_at: string | null;
+  pinned_at: string | null;
+  hide_like_count: boolean;
+  comments_disabled: boolean;
+  location_name: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -155,6 +186,15 @@ type Route =
   | { kind: "uploads" }
   | { kind: "archive_list" }
   | { kind: "archive"; id: string }
+  | { kind: "pin"; id: string }
+  | { kind: "save"; id: string }
+  | { kind: "saved_list" }
+  | { kind: "liked_list" }
+  | { kind: "collections" }
+  | { kind: "saved_collection"; collectionId: string }
+  | { kind: "saved_collection_post"; collectionId: string; postId: string }
+  | { kind: "hashtags" }
+  | { kind: "hashtag"; tag: string }
   | { kind: "mention_search" }
   | { kind: "untag"; id: string }
   | { kind: "post"; id: string }
@@ -172,8 +212,16 @@ function parsePath(pathname: string): Route {
   if (/^\/posts\/uploads\/?$/.test(pathname)) return { kind: "uploads" };
   if (/^\/posts\/mention-search\/?$/.test(pathname)) return { kind: "mention_search" };
   if (/^\/posts\/archive\/?$/.test(pathname)) return { kind: "archive_list" };
-  const a = pathname.match(/^\/posts\/([^/]+)\/archive$/);
-  if (a) return { kind: "archive", id: a[1] };
+  if (/^\/posts\/saved\/?$/.test(pathname)) return { kind: "saved_list" };
+  if (/^\/posts\/liked\/?$/.test(pathname)) return { kind: "liked_list" };
+  if (/^\/posts\/collections\/?$/.test(pathname)) return { kind: "collections" };
+  if (/^\/posts\/hashtags\/?$/.test(pathname)) return { kind: "hashtags" };
+  const h = pathname.match(/^\/posts\/hashtags\/([^/]+)$/);
+  if (h) return { kind: "hashtag", tag: decodeURIComponent(h[1]) };
+  const c = pathname.match(/^\/posts\/collections\/([^/]+)(?:\/posts\/([^/]+))?$/);
+  if (c) return c[2] ? { kind: "saved_collection_post", collectionId: c[1], postId: c[2] } : { kind: "saved_collection", collectionId: c[1] };
+  const a = pathname.match(/^\/posts\/([^/]+)\/(archive|pin|save)$/);
+  if (a) return { kind: a[2] as "archive", id: a[1] };
   const t = pathname.match(/^\/posts\/([^/]+)\/tags\/me$/);
   if (t) return { kind: "untag", id: t[1] };
   let m = pathname.match(/^\/posts\/comments\/([^/]+)\/reaction$/);
@@ -268,15 +316,28 @@ function summarize(rows: { reaction: ReactionType; n: number }[]): ReactionSumma
 }
 
 /**
- * Adds media, author, business, reaction summary, my_reaction and
- * comment_count. like_count / liked_by_me mirror the reaction total and
- * "I reacted" for older clients.
+ * With hide_like_count on, everyone but the author sees which reactions
+ * were used but not how many.
+ */
+function maskReactions(
+  summary: ReactionSummary,
+  post: { author_id: string | null; hide_like_count: boolean },
+  caller: Caller | null,
+): ReactionSummary {
+  if (!post.hide_like_count || (caller && caller.id === post.author_id)) return summary;
+  return { counts: {}, total: 0, top: summary.top };
+}
+
+/**
+ * Adds media, author, business, reaction summary, my_reaction,
+ * comment_count and saved_by_me. like_count / liked_by_me mirror the
+ * reaction total and "I reacted" for older clients.
  */
 async function decoratePosts(posts: PostRow[], caller: Caller | null) {
   if (!posts.length) return [];
   const ids = posts.map((p) => p.id);
   const businessIds = [...new Set(posts.map((p) => p.business_id).filter((x): x is string => !!x))];
-  const [withMedia, reactionRows, commentRows, mine, authors, businesses] = await Promise.all([
+  const [withMedia, reactionRows, commentRows, mine, authors, businesses, saved] = await Promise.all([
     attachMedia(posts),
     db.selectFrom("post_reaction")
       .select(["post_id", "reaction", sql<number>`count(*)::int`.as("n")])
@@ -297,7 +358,12 @@ async function decoratePosts(posts: PostRow[], caller: Caller | null) {
     businessIds.length
       ? db.selectFrom("business").select(["id", "name", "logo", "type"]).where("id", "in", businessIds).execute()
       : Promise.resolve([]),
+    caller
+      ? db.selectFrom("post_save").select("post_id").where("user_id", "=", caller.id).where("post_id", "in", ids)
+        .execute()
+      : Promise.resolve([] as { post_id: string }[]),
   ]);
+  const savedSet = new Set(saved.map((r) => r.post_id));
   const reactionsByPost = new Map<string, { reaction: ReactionType; n: number }[]>();
   for (const r of reactionRows) {
     (reactionsByPost.get(r.post_id) ?? reactionsByPost.set(r.post_id, []).get(r.post_id)!).push(r);
@@ -307,7 +373,7 @@ async function decoratePosts(posts: PostRow[], caller: Caller | null) {
   const businessById = new Map(businesses.map((b) => [b.id, b]));
   const refAccess = await refAccessOf(posts, caller);
   return withMedia.map((p) => {
-    const reactions = summarize(reactionsByPost.get(p.id) ?? []);
+    const reactions = maskReactions(summarize(reactionsByPost.get(p.id) ?? []), p, caller);
     const my = myReaction.get(p.id) ?? null;
     return {
       ...p,
@@ -321,6 +387,8 @@ async function decoratePosts(posts: PostRow[], caller: Caller | null) {
       liked_by_me: my !== null,
       can_edit: !!caller && canEditAuthored(caller, p.author_id),
       ref_access: refAccess.get(p.id) ?? null,
+      saved_by_me: savedSet.has(p.id),
+      pinned: !!p.pinned_at,
     };
   });
 }
@@ -350,14 +418,15 @@ async function refAccessOf(posts: PostRow[], caller: Caller | null) {
   return out;
 }
 
-async function postReactionResult(postId: string, caller: Caller) {
+async function postReactionResult(post: Pick<PostRow, "id" | "author_id" | "hide_like_count">, caller: Caller) {
+  const postId = post.id;
   const [rows, mine] = await Promise.all([
     db.selectFrom("post_reaction").select(["reaction", sql<number>`count(*)::int`.as("n")])
       .where("post_id", "=", postId).groupBy("reaction").execute(),
     db.selectFrom("post_reaction").select("reaction").where("post_id", "=", postId).where("user_id", "=", caller.id)
       .executeTakeFirst(),
   ]);
-  const reactions = summarize(rows);
+  const reactions = maskReactions(summarize(rows), post, caller);
   return {
     post_id: postId,
     reactions,
@@ -573,8 +642,13 @@ async function prepareText(text: string, authorId: string) {
 //   freshness  (1 + age_hours / 6) ^ -1.3
 // and ×0.6 once I've reacted (already seen), so new things float up.
 // mode=explore keeps only the "other" bucket and drops the affinity term.
+// mode=reels keeps personal posts whose first media is a video, from the last
+// 90 days, from everyone in the candidate set. People whose posts I muted
+// are left out of every mode (their profile still shows them).
 
-async function feed(caller: Caller, mode: "home" | "explore", limit: number, offset: number): Promise<PostRow[]> {
+type FeedMode = "home" | "explore" | "reels";
+
+async function feed(caller: Caller, mode: FeedMode, limit: number, offset: number): Promise<PostRow[]> {
   const me = caller.id;
   const { rows } = await sql<PostRow>`
     WITH following AS (
@@ -617,9 +691,10 @@ async function feed(caller: Caller, mode: "home" | "explore", limit: number, off
         END AS bucket
       FROM post
       LEFT JOIN users a ON a.id = post.author_id
-      WHERE post.created_at > NOW() - INTERVAL '30 days'
+      WHERE post.created_at > NOW() - CASE WHEN ${mode} = 'reels' THEN INTERVAL '90 days' ELSE INTERVAL '30 days' END
         AND post.archived_at IS NULL
         AND ${visibleTo(me)}
+        AND NOT EXISTS (SELECT 1 FROM user_mute um WHERE um.muter_id = ${me} AND um.muted_id = post.author_id AND um.posts)
         AND (
           (post.business_id IS NULL AND (post.author_id = ${me} OR post.author_id IN (SELECT id FROM following)))
           OR post.business_id IN (SELECT id FROM my_businesses)
@@ -642,10 +717,14 @@ async function feed(caller: Caller, mode: "home" | "explore", limit: number, off
         * CASE WHEN EXISTS (SELECT 1 FROM post_reaction r WHERE r.post_id = c.id AND r.user_id = ${me}) THEN 0.6 ELSE 1 END
         AS score
       FROM candidates c
-      WHERE ${mode} = 'home' OR (c.bucket = 'other' AND c.business_id IS NULL)
+      WHERE ${mode} = 'home'
+        OR (${mode} = 'explore' AND c.bucket = 'other' AND c.business_id IS NULL)
+        OR (${mode} = 'reels' AND c.business_id IS NULL AND EXISTS (
+              SELECT 1 FROM post_image pi WHERE pi.post_id = c.id AND pi.media_type = 'video'
+                AND pi.position = (SELECT min(position) FROM post_image f WHERE f.post_id = c.id)))
     )
     SELECT id, business_id, author_id, content, visibility, post_type, ref_id, attachment, archived_at,
-           created_at, updated_at
+           pinned_at, hide_like_count, comments_disabled, location_name, created_at, updated_at
     FROM scored
     ORDER BY score DESC, created_at DESC, id
     LIMIT ${limit} OFFSET ${offset}
@@ -664,6 +743,120 @@ function parseRange(url: URL): { from: string | null; to: string | null } | Resp
   const from = read("from"), to = read("to");
   if (from === undefined || to === undefined) return jsonError("from and to must be ISO dates", 400);
   return { from, to };
+}
+
+// ── Post settings ─────────────────────────────────────────────────────────────
+
+type PostSettings = { hide_like_count?: boolean; comments_disabled?: boolean; location_name?: string | null };
+
+/** hide_like_count, comments_disabled and location_name from a body (the keys present); a Response when malformed. */
+function readPostSettings(body: Record<string, unknown> | null): PostSettings | Response {
+  const out: PostSettings = {};
+  for (const key of ["hide_like_count", "comments_disabled"] as const) {
+    if (body && key in body) {
+      if (typeof body[key] !== "boolean") return jsonError(`${key} must be a boolean`, 400);
+      out[key] = body[key] as boolean;
+    }
+  }
+  if (body && "location_name" in body) {
+    const v = body.location_name;
+    if (v !== null && typeof v !== "string") return jsonError("location_name must be a string", 400);
+    const name = (v as string | null)?.trim() || null;
+    if (name && name.length > LOCATION_MAX) return jsonError(`Locations are limited to ${LOCATION_MAX} characters`, 400);
+    out.location_name = name;
+  }
+  return out;
+}
+
+// ── Saved posts & collections ─────────────────────────────────────────────────
+
+async function ownCollection(id: unknown, userId: string) {
+  if (typeof id !== "string" || !UUID_RE.test(id)) return null;
+  const row = await db.selectFrom("save_collection").select(["id", "name"]).where("id", "=", id)
+    .where("user_id", "=", userId).executeTakeFirst();
+  return row ?? null;
+}
+
+/** Saves the post for [userId] (idempotent), filing it into [collectionId] too when given. */
+async function savePost(trx: Kysely<Database>, userId: string, postId: string, collectionId: string | null) {
+  await trx.insertInto("post_save").values({ user_id: userId, post_id: postId })
+    .onConflict((oc) => oc.columns(["user_id", "post_id"]).doNothing()).execute();
+  if (collectionId) {
+    await trx.insertInto("save_collection_item").values({ collection_id: collectionId, post_id: postId })
+      .onConflict((oc) => oc.columns(["collection_id", "post_id"]).doNothing()).execute();
+    await trx.updateTable("save_collection").set({ updated_at: new Date().toISOString() })
+      .where("id", "=", collectionId).execute();
+  }
+}
+
+/** The first photo/video of each post, signed: covers for collections. */
+async function coversOf(postIds: string[]): Promise<Map<string, { url: string | null; media_type: string }>> {
+  const out = new Map<string, { url: string | null; media_type: string }>();
+  if (!postIds.length) return out;
+  const media = await db.selectFrom("post_image").select(["post_id", "url", "storage_path", "media_type"])
+    .distinctOn("post_id").where("post_id", "in", postIds).orderBy("post_id").orderBy("position").execute();
+  const signed = await signPaths(BUCKET, media.flatMap((m) => (m.storage_path ? [m.storage_path] : [])));
+  for (const m of media) {
+    out.set(m.post_id, { url: m.storage_path ? signed.get(m.storage_path) ?? null : m.url, media_type: m.media_type });
+  }
+  return out;
+}
+
+/**
+ * "All posts" and each of my collections with how many saved posts I can
+ * still see and up to four covers (newest first); [postId] marks the
+ * collections that hold it.
+ */
+async function collectionsOverview(caller: Caller, postId: string | null) {
+  const me = caller.id;
+  const collections = await db.selectFrom("save_collection").select(["id", "name", "created_at", "updated_at"])
+    .where("user_id", "=", me).orderBy("updated_at", "desc").orderBy("id").execute();
+  const { rows } = await sql<{ collection_id: string | null; post_id: string; n: number }>`
+    WITH visible AS (
+      SELECT s.post_id, s.created_at FROM post_save s JOIN post ON post.id = s.post_id
+      WHERE s.user_id = ${me} AND post.archived_at IS NULL AND ${visibleTo(me)}
+    ),
+    filed AS (
+      SELECT NULL::uuid AS collection_id, post_id, created_at FROM visible
+      UNION ALL
+      SELECT i.collection_id, i.post_id, i.added_at FROM save_collection_item i
+        JOIN save_collection c ON c.id = i.collection_id AND c.user_id = ${me}
+        JOIN visible v ON v.post_id = i.post_id
+    )
+    SELECT collection_id, post_id, n FROM (
+      SELECT collection_id, post_id,
+             row_number() OVER (PARTITION BY collection_id ORDER BY created_at DESC, post_id) AS rn,
+             count(*) OVER (PARTITION BY collection_id)::int AS n
+      FROM filed
+    ) x WHERE rn <= 4
+    ORDER BY collection_id, rn
+  `.execute(db);
+  const covers = await coversOf([...new Set(rows.map((r) => r.post_id))]);
+  const summary = (collectionId: string | null) => {
+    const mine = rows.filter((r) => r.collection_id === collectionId);
+    return {
+      post_count: mine[0]?.n ?? 0,
+      covers: mine.flatMap((r) => (covers.has(r.post_id) ? [covers.get(r.post_id)!] : [])),
+    };
+  };
+  const asked = !!postId && UUID_RE.test(postId);
+  const holding = asked && collections.length
+    ? new Set((await db.selectFrom("save_collection_item").select("collection_id").where("post_id", "=", postId)
+      .where("collection_id", "in", collections.map((c) => c.id)).execute()).map((r) => r.collection_id))
+    : new Set<string>();
+  const savedRow = asked
+    ? await db.selectFrom("post_save").select("post_id").where("user_id", "=", me).where("post_id", "=", postId)
+      .executeTakeFirst()
+    : undefined;
+  return {
+    saved: summary(null),
+    ...(asked && { post_saved: !!savedRow }),
+    collections: collections.map((c) => ({
+      ...c,
+      ...summary(c.id),
+      ...(asked && { contains_post: holding.has(c.id) }),
+    })),
+  };
 }
 
 // ── Postgres error mapping ────────────────────────────────────────────────────
@@ -695,14 +888,30 @@ async function handler(req: Request): Promise<Response> {
     const businessId = url.searchParams.get("business_id");
     const authorId = url.searchParams.get("author_id");
     const taggedId = url.searchParams.get("tagged_user_id");
-    if (!businessId && !authorId && !taggedId) {
-      return jsonError("business_id, author_id or tagged_user_id is required", 400);
+    const hashtag = url.searchParams.get("hashtag");
+    if (!businessId && !authorId && !taggedId && hashtag === null) {
+      return jsonError("business_id, author_id, tagged_user_id or hashtag is required", 400);
     }
     const { page, pageSize } = parsePaging(url, 20);
     const caller = await optionalCaller(req);
 
     let q = db.selectFrom("post").select(POST_COLS);
-    if (taggedId && !businessId && !authorId) {
+    let pinnedFirst = false;
+    if (hashtag !== null && !businessId && !authorId && !taggedId) {
+      // Top: most reactions + comments first; recent: newest first.
+      const tag = normalizeTag(hashtag);
+      if (!tag) return json([]);
+      const sort = url.searchParams.get("sort") ?? "top";
+      if (!["top", "recent"].includes(sort)) return jsonError("sort must be top or recent", 400);
+      q = q.where(({ exists, selectFrom }) =>
+        exists(selectFrom("post_hashtag").select("post_hashtag.post_id").whereRef("post_hashtag.post_id", "=", "post.id")
+          .where("post_hashtag.tag", "=", tag))
+      ).where(visibleTo(caller?.id ?? null)).where("archived_at", "is", null);
+      if (sort === "top") {
+        q = q.orderBy(sql`(SELECT count(*) FROM post_reaction r WHERE r.post_id = post.id)
+          + 2 * (SELECT count(*) FROM post_comment k WHERE k.post_id = post.id AND k.deleted_at IS NULL)`, "desc");
+      }
+    } else if (taggedId && !businessId && !authorId) {
       // Posts the person is pinned in or mentioned in the caption of.
       if (!UUID_RE.test(taggedId)) return jsonError("User not found", 404);
       const person = await db.selectFrom("users").select(["id", "is_private"]).where("id", "=", taggedId)
@@ -734,7 +943,9 @@ async function handler(req: Request): Promise<Response> {
           exists(selectFrom("post_image").select("post_image.id").whereRef("post_image.post_id", "=", "post.id"))
         );
       }
+      pinnedFirst = true;
     }
+    if (pinnedFirst) q = q.orderBy(sql`pinned_at IS NOT NULL`, "desc").orderBy("pinned_at", "desc");
     const posts = await q.orderBy("created_at", "desc").orderBy("id", "desc").limit(pageSize).offset(page * pageSize)
       .execute();
     return json(await decoratePosts(posts, caller));
@@ -795,7 +1006,8 @@ async function handler(req: Request): Promise<Response> {
 
   // ── GET /posts/feed ──────────────────────────────────────────────────────────
   if (req.method === "GET" && route.kind === "feed") {
-    const mode = url.searchParams.get("mode") === "explore" ? "explore" : "home";
+    const requested = url.searchParams.get("mode");
+    const mode: FeedMode = requested === "explore" || requested === "reels" ? requested : "home";
     const { page, pageSize } = parsePaging(url, 20, 50);
     return json(await decoratePosts(await feed(caller, mode, pageSize, page * pageSize), caller));
   }
@@ -919,11 +1131,195 @@ async function handler(req: Request): Promise<Response> {
     if (existing.business_id) return jsonError("Only personal posts can be archived", 400);
     if (existing.author_id !== caller.id) return forbidden("Only the author can archive a post");
     await db.updateTable("post")
-      .set({ archived_at: req.method === "PUT" ? sql<string>`COALESCE(archived_at, NOW())` : null })
+      .set(req.method === "PUT" ? { archived_at: sql<string>`COALESCE(archived_at, NOW())`, pinned_at: null } : { archived_at: null })
       .where("id", "=", route.id).execute();
     const post = await db.selectFrom("post").select(POST_COLS).where("id", "=", route.id).executeTakeFirstOrThrow();
     const [decorated] = await decoratePosts([post], caller);
     return json(decorated);
+  }
+
+  // ── PUT|DELETE /posts/:id/pin — pin my post to the top of my profile ────────
+  if (route.kind === "pin" && (req.method === "PUT" || req.method === "DELETE")) {
+    if (!UUID_RE.test(route.id)) return jsonError("Post not found", 404);
+    const existing = await db.selectFrom("post").select(["author_id", "business_id", "archived_at", "pinned_at"])
+      .where("id", "=", route.id).executeTakeFirst();
+    if (!existing) return jsonError("Post not found", 404);
+    if (existing.business_id) return jsonError("Only personal posts can be pinned", 400);
+    if (existing.author_id !== caller.id) return forbidden("Only the author can pin a post");
+    if (req.method === "PUT" && !existing.pinned_at) {
+      if (existing.archived_at) return jsonError("Archived posts can't be pinned", 400);
+      const { n } = await db.selectFrom("post").select(sql<number>`count(*)::int`.as("n"))
+        .where("author_id", "=", caller.id).where("business_id", "is", null).where("pinned_at", "is not", null)
+        .executeTakeFirstOrThrow();
+      if (n >= PINS_MAX) return jsonError(`Up to ${PINS_MAX} posts can be pinned`, 409, { code: "pin_limit" });
+    }
+    await db.updateTable("post")
+      .set({ pinned_at: req.method === "PUT" ? sql<string>`COALESCE(pinned_at, NOW())` : null })
+      .where("id", "=", route.id).execute();
+    const post = await db.selectFrom("post").select(POST_COLS).where("id", "=", route.id).executeTakeFirstOrThrow();
+    const [decorated] = await decoratePosts([post], caller);
+    return json(decorated);
+  }
+
+  // ── PUT|DELETE /posts/:id/save {collection_id?} ──────────────────────────────
+  if (route.kind === "save" && (req.method === "PUT" || req.method === "DELETE")) {
+    if (!UUID_RE.test(route.id)) return jsonError("Post not found", 404);
+    if (req.method === "DELETE") {
+      await db.transaction().execute(async (trx) => {
+        await trx.deleteFrom("save_collection_item").where("post_id", "=", route.id)
+          .where("collection_id", "in", trx.selectFrom("save_collection").select("id").where("user_id", "=", caller.id))
+          .execute();
+        await trx.deleteFrom("post_save").where("user_id", "=", caller.id).where("post_id", "=", route.id).execute();
+      });
+      return json({ post_id: route.id, saved: false });
+    }
+    const post = await loadVisiblePost(route.id, caller);
+    if (!post) return jsonError("Post not found", 404);
+    const body = await req.json().catch(() => null);
+    let collectionId: string | null = null;
+    if (body?.collection_id != null) {
+      const collection = await ownCollection(body.collection_id, caller.id);
+      if (!collection) return jsonError("Collection not found", 404);
+      collectionId = collection.id;
+    }
+    await db.transaction().execute((trx) => savePost(trx, caller.id, post.id, collectionId));
+    return json({ post_id: post.id, saved: true });
+  }
+
+  // ── GET /posts/saved?collection_id= ──────────────────────────────────────────
+  if (req.method === "GET" && route.kind === "saved_list") {
+    const { page, pageSize } = parsePaging(url, 30, 100);
+    const collectionId = url.searchParams.get("collection_id");
+    if (collectionId && !(await ownCollection(collectionId, caller.id))) return jsonError("Collection not found", 404);
+    const posts = await db.selectFrom("post").select(POST_COLS)
+      .where("archived_at", "is", null).where(visibleTo(caller.id))
+      .$if(!collectionId, (q) =>
+        q.where(({ exists, selectFrom }) =>
+          exists(selectFrom("post_save").select("post_save.post_id").whereRef("post_save.post_id", "=", "post.id")
+            .where("post_save.user_id", "=", caller.id))
+        ).orderBy(sql`(SELECT s.created_at FROM post_save s WHERE s.post_id = post.id AND s.user_id = ${caller.id})`, "desc"))
+      .$if(!!collectionId, (q) =>
+        q.where(({ exists, selectFrom }) =>
+          exists(selectFrom("save_collection_item").select("save_collection_item.post_id")
+            .whereRef("save_collection_item.post_id", "=", "post.id")
+            .where("save_collection_item.collection_id", "=", collectionId!))
+        ).orderBy(sql`(SELECT i.added_at FROM save_collection_item i
+            WHERE i.post_id = post.id AND i.collection_id = ${collectionId})`, "desc"))
+      .orderBy("id", "desc").limit(pageSize).offset(page * pageSize).execute();
+    return json(await decoratePosts(posts, caller));
+  }
+
+  // ── GET /posts/collections?post_id= ──────────────────────────────────────────
+  if (req.method === "GET" && route.kind === "collections") {
+    return json(await collectionsOverview(caller, url.searchParams.get("post_id")));
+  }
+
+  // ── POST /posts/collections {name, post_ids?} ────────────────────────────────
+  if (req.method === "POST" && route.kind === "collections") {
+    const body = await req.json().catch(() => null);
+    const name = typeof body?.name === "string" ? body.name.trim() : "";
+    if (!name || name.length > COLLECTION_NAME_MAX) {
+      return jsonError(`name must be 1–${COLLECTION_NAME_MAX} characters`, 400);
+    }
+    const postIds: string[] = Array.isArray(body?.post_ids)
+      ? [...new Set(body.post_ids.filter((x: unknown): x is string => typeof x === "string" && UUID_RE.test(x)))] as string[]
+      : [];
+    const { n } = await db.selectFrom("save_collection").select(sql<number>`count(*)::int`.as("n"))
+      .where("user_id", "=", caller.id).executeTakeFirstOrThrow();
+    if (n >= COLLECTIONS_MAX) return jsonError(`Up to ${COLLECTIONS_MAX} collections`, 400);
+    const visible = postIds.length
+      ? (await db.selectFrom("post").select("id").where("id", "in", postIds).where(visibleTo(caller.id)).execute())
+        .map((p) => p.id)
+      : [];
+    try {
+      const created = await db.transaction().execute(async (trx) => {
+        const row = await trx.insertInto("save_collection").values({ user_id: caller.id, name }).returning("id")
+          .executeTakeFirstOrThrow();
+        for (const postId of visible) await savePost(trx, caller.id, postId, row.id);
+        return row;
+      });
+      const overview = await collectionsOverview(caller, null);
+      return json(overview.collections.find((c) => c.id === created.id), 201);
+    } catch (e) {
+      if ((e as { code?: string }).code === "23505") return jsonError("You already have a collection with that name", 409);
+      throw e;
+    }
+  }
+
+  // ── PUT|DELETE /posts/collections/:id ────────────────────────────────────────
+  // Deleting a collection keeps its posts saved.
+  if (route.kind === "saved_collection" && (req.method === "PUT" || req.method === "DELETE")) {
+    const collection = await ownCollection(route.collectionId, caller.id);
+    if (!collection) return jsonError("Collection not found", 404);
+    if (req.method === "DELETE") {
+      await db.deleteFrom("save_collection").where("id", "=", collection.id).execute();
+      return new Response(null, { status: 204 });
+    }
+    const body = await req.json().catch(() => null);
+    const name = typeof body?.name === "string" ? body.name.trim() : "";
+    if (!name || name.length > COLLECTION_NAME_MAX) {
+      return jsonError(`name must be 1–${COLLECTION_NAME_MAX} characters`, 400);
+    }
+    try {
+      await db.updateTable("save_collection").set({ name, updated_at: new Date().toISOString() })
+        .where("id", "=", collection.id).execute();
+    } catch (e) {
+      if ((e as { code?: string }).code === "23505") return jsonError("You already have a collection with that name", 409);
+      throw e;
+    }
+    const overview = await collectionsOverview(caller, null);
+    return json(overview.collections.find((c) => c.id === collection.id));
+  }
+
+  // ── PUT|DELETE /posts/collections/:id/posts/:postId ──────────────────────────
+  if (route.kind === "saved_collection_post" && (req.method === "PUT" || req.method === "DELETE")) {
+    const collection = await ownCollection(route.collectionId, caller.id);
+    if (!collection) return jsonError("Collection not found", 404);
+    if (!UUID_RE.test(route.postId)) return jsonError("Post not found", 404);
+    if (req.method === "DELETE") {
+      await db.deleteFrom("save_collection_item").where("collection_id", "=", collection.id)
+        .where("post_id", "=", route.postId).execute();
+      return new Response(null, { status: 204 });
+    }
+    const post = await loadVisiblePost(route.postId, caller);
+    if (!post) return jsonError("Post not found", 404);
+    await db.transaction().execute((trx) => savePost(trx, caller.id, post.id, collection.id));
+    return json({ post_id: post.id, collection_id: collection.id, saved: true });
+  }
+
+  // ── GET /posts/liked — posts I reacted to ────────────────────────────────────
+  if (req.method === "GET" && route.kind === "liked_list") {
+    const { page, pageSize } = parsePaging(url, 30, 100);
+    const posts = await db.selectFrom("post").select(POST_COLS)
+      .where(({ exists, selectFrom }) =>
+        exists(selectFrom("post_reaction").select("post_reaction.post_id").whereRef("post_reaction.post_id", "=", "post.id")
+          .where("post_reaction.user_id", "=", caller.id))
+      )
+      .where("archived_at", "is", null).where(visibleTo(caller.id))
+      .orderBy(sql`(SELECT r.created_at FROM post_reaction r WHERE r.post_id = post.id AND r.user_id = ${caller.id})`, "desc")
+      .orderBy("id", "desc").limit(pageSize).offset(page * pageSize).execute();
+    return json(await decoratePosts(posts, caller));
+  }
+
+  // ── GET /posts/hashtags?q= — tag search ──────────────────────────────────────
+  if (req.method === "GET" && route.kind === "hashtags") {
+    const q = normalizeTag(url.searchParams.get("q") ?? "");
+    if (!q) return json([]);
+    const rows = await db.selectFrom("post_hashtag as h").innerJoin("post", "post.id", "h.post_id")
+      .select(["h.tag", sql<number>`count(*)::int`.as("post_count")])
+      .where("h.tag", "like", `${q.replace(/_/g, "\\_")}%`).where("post.archived_at", "is", null)
+      .groupBy("h.tag").orderBy(sql`count(*)`, "desc").orderBy("h.tag").limit(20).execute();
+    return json(rows);
+  }
+
+  // ── GET /posts/hashtags/:tag ─────────────────────────────────────────────────
+  if (req.method === "GET" && route.kind === "hashtag") {
+    const tag = normalizeTag(route.tag);
+    if (!tag) return jsonError("Not a hashtag", 400);
+    const { n } = await db.selectFrom("post_hashtag as h").innerJoin("post", "post.id", "h.post_id")
+      .select(sql<number>`count(*)::int`.as("n")).where("h.tag", "=", tag).where("post.archived_at", "is", null)
+      .executeTakeFirstOrThrow();
+    return json({ tag, post_count: n });
   }
 
   // ── POST /posts ──────────────────────────────────────────────────────────────
@@ -937,6 +1333,8 @@ async function handler(req: Request): Promise<Response> {
       if (caption.length > CAPTION_MAX_LENGTH) return jsonError(`Captions are limited to ${CAPTION_MAX_LENGTH} characters`, 400);
       const visibility = body?.visibility ?? "public";
       if (!VISIBILITIES.includes(visibility)) return jsonError("visibility must be public or followers", 400);
+      const settings = readPostSettings(body);
+      if (settings instanceof Response) return settings;
       const media: { path: string; width?: number; height?: number; duration_ms?: number; tags?: unknown }[] =
         Array.isArray(body?.media) ? body.media : [];
       if (media.length > MEDIA_MAX) return jsonError(`Up to ${MEDIA_MAX} photos/videos per post`, 400);
@@ -969,6 +1367,7 @@ async function handler(req: Request): Promise<Response> {
             post_type: type,
             ref_id: shared?.ref_id ?? null,
             attachment: shared ? JSON.stringify(shared.attachment) : null,
+            ...settings,
           })
           .returning(POST_COLS).executeTakeFirstOrThrow();
         const pinned: string[] = [];
@@ -993,6 +1392,7 @@ async function handler(req: Request): Promise<Response> {
           }
         }
         await syncMentionRows(trx, { postId: created.id, commentId: null, authorId: caller.id }, mentions);
+        await syncHashtags(trx, created.id, caption);
         return { post: created, pinned: [...new Set(pinned)] };
       });
       await markClaimed(BUCKET, media.map((m) => m.path));
@@ -1040,8 +1440,9 @@ async function handler(req: Request): Promise<Response> {
 
   // ── PUT /posts/:id ───────────────────────────────────────────────────────────
   // Business posts: content + images. Personal posts: caption + visibility +
-  // photo tags (photo_tags: [{post_image_id, tags: [{user_id, x, y}]}] replaces
-  // the people on those photos); the media itself is fixed once posted.
+  // settings (hide_like_count, comments_disabled, location_name) + photo tags
+  // (photo_tags: [{post_image_id, tags: [{user_id, x, y}]}] replaces the
+  // people on those photos); the media itself is fixed once posted.
   if (req.method === "PUT" && route.kind === "post") {
     const existing = await db.selectFrom("post").select(POST_COLS).where("id", "=", route.id).executeTakeFirst();
     if (!existing) return jsonError("Post not found", 404);
@@ -1051,6 +1452,11 @@ async function handler(req: Request): Promise<Response> {
     const { content, images, visibility } = body ?? {};
     if (visibility !== undefined && (existing.business_id || !VISIBILITIES.includes(visibility))) {
       return jsonError("visibility must be public or followers (personal posts only)", 400);
+    }
+    const settings = readPostSettings(body);
+    if (settings instanceof Response) return settings;
+    if (existing.business_id && Object.keys(settings).length) {
+      return jsonError("hide_like_count, comments_disabled and location_name are for personal posts", 400);
     }
     const photoTags: { post_image_id: string; tags: { user_id: string; x: number; y: number }[] }[] = [];
     if (body?.photo_tags !== undefined) {
@@ -1085,8 +1491,10 @@ async function handler(req: Request): Promise<Response> {
       await trx.updateTable("post").set({
         ...(content !== undefined && { content: text }),
         ...(visibility !== undefined && { visibility }),
+        ...settings,
         updated_at: new Date().toISOString(),
       }).where("id", "=", route.id).execute();
+      if (prepared && !existing.business_id) await syncHashtags(trx, route.id, prepared.text);
       if (existing.business_id && Array.isArray(images)) await replaceBusinessImages(trx, route.id, images);
       const mentioned = prepared
         ? await syncMentionRows(trx, { postId: route.id, commentId: null, authorId }, prepared.mentions)
@@ -1142,7 +1550,7 @@ async function handler(req: Request): Promise<Response> {
         });
       }
     }
-    return json(await postReactionResult(post.id, caller));
+    return json(await postReactionResult(post, caller));
   }
 
   // ── GET /posts/:id/reactions?reaction= — who reacted ────────────────────────
@@ -1175,6 +1583,7 @@ async function handler(req: Request): Promise<Response> {
     }
     const post = await loadVisiblePost(route.id, caller);
     if (!post) return jsonError("Post not found", 404);
+    if (post.comments_disabled) return jsonError("Commenting is turned off for this post", 403, { code: "comments_disabled" });
     if (!(await canCommentOn(caller, post))) return forbidden("Only members and staff of this gym can comment");
 
     const parentId = typeof payload?.parent_id === "string" ? payload.parent_id : null;

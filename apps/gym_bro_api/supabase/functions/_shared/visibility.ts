@@ -33,17 +33,23 @@ export function postVisibleSql(viewerId: string | null) {
 /**
  * `story` is visible to the viewer: always to its author (the archive);
  * to anyone else while it's live, unless either one blocked the other, if
- * they're an accepted follower or the account is public.
+ * they're an accepted follower or the account is public — and, for a
+ * close-friends story, on the author's close friends list. With `anyAge`
+ * (stories kept in a highlight) the same rules apply after it expires.
  */
-export function storyVisibleSql(viewerId: string) {
+export function storyVisibleSql(viewerId: string, opts: { anyAge?: boolean } = {}) {
   return sql<boolean>`(
     story.author_id = ${viewerId}
     OR (
-      story.expires_at > NOW()
+      ${opts.anyAge ? sql`TRUE` : sql`story.expires_at > NOW()`}
       AND NOT is_blocked_between(story.author_id, ${viewerId})
       AND (
         EXISTS (SELECT 1 FROM follow f WHERE f.follower_id = ${viewerId} AND f.followee_id = story.author_id AND f.status = 'accepted')
         OR NOT (SELECT is_private FROM users WHERE id = story.author_id)
+      )
+      AND (
+        story.audience = 'everyone'
+        OR EXISTS (SELECT 1 FROM close_friend cf WHERE cf.user_id = story.author_id AND cf.friend_id = ${viewerId})
       )
     )
   )`;

@@ -11,8 +11,11 @@ import '../../widgets/app_bottom_sheet.dart';
 
 /// "Who reacted": a tab for everyone plus one per emoji (with counts), each a
 /// paginated list of people. Tapping a person opens their profile.
+///
+/// With the author hiding the count, the summary carries no numbers (only
+/// the top emojis), so the sheet shows just the list of people.
 Future<void> showReactionsSheet(BuildContext context, Post post) {
-  if (post.reactions.total == 0) return Future.value();
+  if (post.reactions.total == 0 && post.reactions.top.isEmpty) return Future.value();
   return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
@@ -63,6 +66,7 @@ class _ReactionsSheet extends StatelessWidget {
     final types = post.reactions.counts.entries.where((e) => e.value > 0).toList()
       ..sort((a, b) => b.value != a.value ? b.value.compareTo(a.value) : a.key.index.compareTo(b.key.index));
     final tabs = <ReactionType?>[null, ...types.map((e) => e.key)];
+    final all = post.reactions.total == 0 ? l10n.postsReactionsAllHidden : l10n.feedReactionsAll(post.reactions.total);
     return DefaultTabController(
       length: tabs.length,
       child: SizedBox(
@@ -82,13 +86,9 @@ class _ReactionsSheet extends StatelessWidget {
               for (final t in tabs)
                 Tab(
                   child: Semantics(
-                    label: t == null
-                        ? l10n.feedReactionsAll(post.reactions.total)
-                        : '${t.label(l10n)} ${post.reactions.counts[t] ?? 0}',
+                    label: t == null ? all : '${t.label(l10n)} ${post.reactions.counts[t] ?? 0}',
                     excludeSemantics: true,
-                    child: Text(
-                      t == null ? l10n.feedReactionsAll(post.reactions.total) : '${t.emoji} ${post.reactions.counts[t] ?? 0}',
-                    ),
+                    child: Text(t == null ? all : '${t.emoji} ${post.reactions.counts[t] ?? 0}'),
                   ),
                 ),
             ],

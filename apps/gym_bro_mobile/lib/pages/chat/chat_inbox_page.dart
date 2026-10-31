@@ -7,6 +7,7 @@ import '../../models/chat.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../services/realtime_service.dart';
+import 'chat_notes.dart';
 import 'chat_thread_page.dart';
 import 'chat_widgets.dart';
 import 'new_chat_page.dart';
@@ -31,6 +32,7 @@ class _ChatInboxPageState extends State<ChatInboxPage> with SingleTickerProvider
   late final TabController _tabs = TabController(length: 2, vsync: this);
   final _search = TextEditingController();
   final _refresh = _RefreshSignal();
+  final _notes = GlobalKey<NotesRowState>();
   StreamSubscription<UserEvent>? _sub;
   Timer? _debounce;
   String _query = '';
@@ -148,7 +150,14 @@ class _ChatInboxPageState extends State<ChatInboxPage> with SingleTickerProvider
         ),
         Expanded(
           child: TabBarView(controller: _tabs, children: [
-            ConversationList(box: ChatBox.inbox, query: _query, refresh: _refresh),
+            ConversationList(
+              box: ChatBox.inbox,
+              query: _query,
+              refresh: _refresh,
+              // Notes above the chats (hidden while searching).
+              header: _query.isEmpty ? NotesRow(key: _notes) : null,
+              onRefresh: () async => _notes.currentState?.reload(),
+            ),
             ConversationList(
               box: ChatBox.requests,
               query: _query,
@@ -164,7 +173,7 @@ class _ChatInboxPageState extends State<ChatInboxPage> with SingleTickerProvider
   }
 }
 
-enum _RowAction { mute, archive, markRead, delete, accept, block }
+enum _RowAction { mute, archive, markRead, delete, accept, block, pin }
 
 /// One inbox box (inbox, requests or archived): paginated, pull to refresh,
 /// filtered by [query], refetched when [refresh] ticks.
@@ -176,7 +185,21 @@ class ConversationList extends StatefulWidget {
   /// Loaded row count (for the Requests badge).
   final ValueChanged<int>? onCount;
 
-  const ConversationList({super.key, required this.box, this.query = '', this.refresh, this.onCount});
+  /// Scrolls above the rows (the inbox's notes).
+  final Widget? header;
+
+  /// Runs alongside the list's own pull to refresh.
+  final Future<void> Function()? onRefresh;
+
+  const ConversationList({
+    super.key,
+    required this.box,
+    this.query = '',
+    this.refresh,
+    this.onCount,
+    this.header,
+    this.onRefresh,
+  });
 
   @override
   State<ConversationList> createState() => _ConversationListState();
@@ -338,6 +361,17 @@ class _ConversationListState extends State<ConversationList> with AutomaticKeepA
             ),
           );
           return true;
+        case _RowAction.pin:
+          try {
+            final updated = await _api.setConversationPinned(token, c.id, !c.pinned);
+            snack(updated.pinned ? l10n.chatPinnedSnack : l10n.chatUnpinnedSnack);
+          } on PinLimitException {
+            snack(l10n.chatPinLimit);
+            return false;
+          }
+          // Pinned chats lead the inbox: refetch for the new order.
+          await _load();
+          return false;
         case _RowAction.markRead:
           await _api.markChatRead(token, c.id);
           await _load();
@@ -417,6 +451,12 @@ class _ConversationListState extends State<ConversationList> with AutomaticKeepA
                 title: Text(l10n.chatMarkRead),
                 onTap: () => Navigator.pop(ctx, _RowAction.markRead),
               ),
+            if (widget.box == ChatBox.inbox)
+              ListTile(
+                leading: Icon(c.pinned ? Icons.push_pin : Icons.push_pin_outlined),
+                title: Text(c.pinned ? l10n.chatUnpin : l10n.chatPin),
+                onTap: () => Navigator.pop(ctx, _RowAction.pin),
+              ),
             ListTile(
               leading: Icon(c.muted ? Icons.notifications_active_outlined : Icons.notifications_off_outlined),
               title: Text(c.muted ? l10n.chatUnmute : l10n.chatMute),
@@ -480,13 +520,21 @@ class _ConversationListState extends State<ConversationList> with AutomaticKeepA
       ),
       ChatBox.archived => ChatEmptyState(icon: Icons.archive_outlined, title: l10n.chatEmptyArchived),
     };
+    final header = widget.header;
+    final lead = header == null ? 0 : 1;
     return RefreshIndicator(
-      onRefresh: _load,
+      onRefresh: () => Future.wait([_load(), ?widget.onRefresh?.call()]),
       child: visible.isEmpty
           ? LayoutBuilder(
               builder: (context, constraints) => SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                child: SizedBox(height: constraints.maxHeight, child: empty()),
+                child: Column(children: [
+                  ?header,
+                  SizedBox(
+                    height: (constraints.maxHeight - (header == null ? 0 : kNotesRowHeight)).clamp(240.0, double.infinity),
+                    child: empty(),
+                  ),
+                ]),
               ),
             )
           : NotificationListener<ScrollNotification>(
@@ -494,8 +542,10 @@ class _ConversationListState extends State<ConversationList> with AutomaticKeepA
               child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.only(top: 4, bottom: 88),
-                itemCount: visible.length + (_loadingMore ? 1 : 0),
-                itemBuilder: (context, i) {
+                itemCount: lead + visible.length + (_loadingMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index < lead) return header!;
+                  final i = index - lead;
                   if (i >= visible.length) {
                     return const Padding(
                       padding: EdgeInsets.all(16),
@@ -648,6 +698,10 @@ class _ConversationTile extends StatelessWidget {
                   if (c.muted) ...[
                     const SizedBox(width: 4),
                     Icon(Icons.notifications_off_outlined, size: 16, color: cs.onSurfaceVariant),
+                  ],
+                  if (c.pinned && !showRequestActions) ...[
+                    const SizedBox(width: 4),
+                    Icon(Icons.push_pin, size: 15, color: cs.onSurfaceVariant, semanticLabel: l10n.chatPinned),
                   ],
                   if (unread) ...[
                     const SizedBox(width: 6),

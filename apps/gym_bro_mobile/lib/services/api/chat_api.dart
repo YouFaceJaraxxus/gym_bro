@@ -1,5 +1,14 @@
 part of '../api_service.dart';
 
+/// PUT /chat/conversations/:id/settings {pinned: true} when three chats are
+/// already pinned (409 pin_limit).
+class PinLimitException implements Exception {
+  const PinLimitException();
+
+  @override
+  String toString() => 'Exception: pin_limit';
+}
+
 /// Direct and group chat (/chat/*). Live updates come from [RealtimeService].
 extension ChatApi on ApiService {
   /// The public anon key the realtime socket needs (apikey param).
@@ -180,5 +189,84 @@ extension ChatApi on ApiService {
     );
     _check(r);
     return UploadSlot.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  // ── Pinned chats ───────────────────────────────────────────────────────────
+
+  /// Pins / unpins a chat at the top of my inbox. Throws
+  /// [PinLimitException] when three are already pinned.
+  Future<Conversation> setConversationPinned(String token, String id, bool pinned) async {
+    final r = await _client.put(
+      Uri.parse('$_base/chat/conversations/$id/settings'),
+      headers: _headers(token),
+      body: jsonEncode({'pinned': pinned}),
+    );
+    if (r.statusCode == 409 && _errorCode(r) == 'pin_limit') throw const PinLimitException();
+    return _conversation(r);
+  }
+
+  String? _errorCode(http.Response r) {
+    try {
+      final d = jsonDecode(r.body);
+      return d is Map ? d['code'] as String? : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ── Forwarding ─────────────────────────────────────────────────────────────
+
+  /// Sends a copy of a message (text, share, files — marked forwarded) to each
+  /// person's direct chat and each chat. Throws when nothing went out.
+  Future<ForwardResult> forwardMessage(
+    String token,
+    String messageId, {
+    List<String> userIds = const [],
+    List<String> conversationIds = const [],
+  }) async {
+    final r = await _client.post(
+      Uri.parse('$_base/chat/messages/$messageId/forward'),
+      headers: _headers(token),
+      body: jsonEncode({
+        if (userIds.isNotEmpty) 'user_ids': userIds,
+        if (conversationIds.isNotEmpty) 'conversation_ids': conversationIds,
+      }),
+    );
+    _check(r);
+    return ForwardResult.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  // ── Notes ──────────────────────────────────────────────────────────────────
+
+  NotesFeed _notes(http.Response r) {
+    _check(r);
+    return NotesFeed.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// My note and the notes of people whose audience I'm in.
+  Future<NotesFeed> getNotes(String token) async =>
+      _notes(await _client.get(Uri.parse('$_base/chat/notes'), headers: _headers(token)));
+
+  /// Posts my note (replacing any), live for 24 hours.
+  Future<NotesFeed> setNote(String token, String body, {NoteAudience audience = NoteAudience.mutuals}) async =>
+      _notes(await _client.put(
+        Uri.parse('$_base/chat/notes'),
+        headers: _headers(token),
+        body: jsonEncode({'body': body.trim(), 'audience': audience.apiValue}),
+      ));
+
+  Future<NotesFeed> deleteNote(String token) async =>
+      _notes(await _client.delete(Uri.parse('$_base/chat/notes'), headers: _headers(token)));
+
+  /// Replies to [userId]'s note in their DMs; the sent message carries its
+  /// conversation_id and metadata.note_reply.
+  Future<ChatMessage> replyToNote(String token, String userId, String body, {String? clientId}) async {
+    final r = await _client.post(
+      Uri.parse('$_base/chat/notes/$userId/replies'),
+      headers: _headers(token),
+      body: jsonEncode({'body': body.trim(), 'client_id': ?clientId}),
+    );
+    _check(r);
+    return ChatMessage.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
   }
 }

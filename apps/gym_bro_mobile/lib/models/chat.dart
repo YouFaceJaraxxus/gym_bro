@@ -133,6 +133,9 @@ class Conversation {
   final String myStatus;
   final bool muted;
   final bool archived;
+
+  /// Pinned to the top of my inbox (up to three).
+  final bool pinned;
   final DateTime? lastReadAt;
   final int unreadCount;
   final int participantCount;
@@ -160,6 +163,7 @@ class Conversation {
     this.myStatus = 'active',
     this.muted = false,
     this.archived = false,
+    this.pinned = false,
     this.lastReadAt,
     this.unreadCount = 0,
     this.participantCount = 0,
@@ -172,6 +176,30 @@ class Conversation {
 
   bool get isGroup => kind == ConversationKind.group;
   bool get isRequest => myStatus == 'request';
+
+  /// This conversation with [pinned] switched (optimistic pin / unpin).
+  Conversation withPinned(bool pinned) => Conversation(
+    id: id,
+    kind: kind,
+    title: title,
+    description: description,
+    avatarUrl: avatarUrl,
+    createdBy: createdBy,
+    lastMessageAt: lastMessageAt,
+    myRole: myRole,
+    myStatus: myStatus,
+    muted: muted,
+    archived: archived,
+    pinned: pinned,
+    lastReadAt: lastReadAt,
+    unreadCount: unreadCount,
+    participantCount: participantCount,
+    participants: participants,
+    otherUser: otherUser,
+    otherLastActiveAt: otherLastActiveAt,
+    lastMessage: lastMessage,
+    members: members,
+  );
 
   /// Group title, else the other person's name, else the first few names.
   String displayTitle(String fallback) {
@@ -193,6 +221,7 @@ class Conversation {
     myStatus: json['my_status'] as String? ?? 'active',
     muted: json['muted'] as bool? ?? false,
     archived: json['archived'] as bool? ?? false,
+    pinned: json['pinned'] as bool? ?? false,
     lastReadAt: DateTime.tryParse(json['last_read_at'] as String? ?? '')?.toLocal(),
     unreadCount: int.parse((json['unread_count'] ?? 0).toString()),
     participantCount: int.parse((json['participant_count'] ?? 0).toString()),
@@ -352,6 +381,17 @@ class ChatMessage {
   });
 
   bool get isSystem => kind == 'system';
+
+  /// A copy passed on from another chat (metadata.forwarded).
+  bool get isForwarded => metadata['forwarded'] == true;
+
+  /// Set when it replies to someone's note (metadata.note_reply).
+  NoteReplyInfo? get noteReply => NoteReplyInfo.maybeFromJson(metadata['note_reply']);
+
+  /// Has something to pass on: text, a share or files (not unsent, system
+  /// or still-sending messages).
+  bool get canForward =>
+      !isSystem && !isDeleted && !pending && !failed && ((body?.isNotEmpty ?? false) || share != null || attachments.isNotEmpty);
 
   /// Arrived over realtime with a share not resolved for me yet: fetch it
   /// (GET /chat/messages/:id) before showing a preview.
@@ -519,4 +559,116 @@ class SharedMedia {
       createdAt: DateTime.parse(json['created_at'] as String).toLocal(),
     );
   }
+}
+
+// ── Notes, note replies and forwarding ────────────────────────────────────────
+
+/// metadata.note_reply on a message that answers someone's note: whose note
+/// and what it said when replied to.
+class NoteReplyInfo {
+  final String? ownerId;
+  final String body;
+
+  const NoteReplyInfo({this.ownerId, required this.body});
+
+  static NoteReplyInfo? maybeFromJson(Object? json) {
+    final m = _map(json);
+    if (m == null) return null;
+    return NoteReplyInfo(ownerId: m['owner_id'] as String?, body: m['body'] as String? ?? '');
+  }
+}
+
+/// Who sees my note.
+enum NoteAudience {
+  /// People I follow who follow me back.
+  mutuals('mutuals'),
+  closeFriends('close_friends');
+
+  const NoteAudience(this.apiValue);
+  final String apiValue;
+
+  static NoteAudience parse(Object? v) => v == 'close_friends' ? NoteAudience.closeFriends : NoteAudience.mutuals;
+}
+
+/// Max characters in a note (API limit).
+const kNoteMaxLength = 60;
+
+/// My live note (GET /chat/notes → mine).
+class MyNote {
+  final String body;
+  final NoteAudience audience;
+  final DateTime? createdAt;
+  final DateTime? expiresAt;
+
+  const MyNote({required this.body, this.audience = NoteAudience.mutuals, this.createdAt, this.expiresAt});
+
+  static MyNote? maybeFromJson(Object? json) {
+    final m = _map(json);
+    if (m == null) return null;
+    return MyNote(
+      body: m['body'] as String? ?? '',
+      audience: NoteAudience.parse(m['audience']),
+      createdAt: DateTime.tryParse(m['created_at'] as String? ?? '')?.toLocal(),
+      expiresAt: DateTime.tryParse(m['expires_at'] as String? ?? '')?.toLocal(),
+    );
+  }
+}
+
+/// Someone's note above my inbox.
+class UserNote {
+  final String userId;
+  final String body;
+  final DateTime? createdAt;
+  final DateTime? expiresAt;
+  final PersonSummary user;
+
+  const UserNote({required this.userId, required this.body, this.createdAt, this.expiresAt, required this.user});
+
+  factory UserNote.fromJson(Map<String, dynamic> json) {
+    final user = PersonSummary.fromJson(_map(json['user']) ?? {'id': json['user_id']});
+    return UserNote(
+      userId: json['user_id'] as String? ?? user.id,
+      body: json['body'] as String? ?? '',
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? '')?.toLocal(),
+      expiresAt: DateTime.tryParse(json['expires_at'] as String? ?? '')?.toLocal(),
+      user: user,
+    );
+  }
+}
+
+/// GET / PUT / DELETE /chat/notes: my note and the notes I can see.
+class NotesFeed {
+  final MyNote? mine;
+  final List<UserNote> notes;
+
+  const NotesFeed({this.mine, this.notes = const []});
+
+  static const empty = NotesFeed();
+
+  factory NotesFeed.fromJson(Map<String, dynamic> json) => NotesFeed(
+    mine: MyNote.maybeFromJson(json['mine']),
+    notes: (json['notes'] as List<dynamic>? ?? [])
+        .map((e) => _map(e))
+        .whereType<Map<String, dynamic>>()
+        .where((m) => m['user'] is Map || m['user_id'] is String)
+        .map(UserNote.fromJson)
+        .toList(),
+  );
+}
+
+/// POST /chat/messages/:id/forward: how many went out and each target's outcome.
+class ForwardResult {
+  final int sent;
+  final List<ShareSendResult> results;
+
+  const ForwardResult({required this.sent, this.results = const []});
+
+  factory ForwardResult.fromJson(Map<String, dynamic> json) => ForwardResult(
+    sent: int.parse((json['sent'] ?? 0).toString()),
+    results: (json['results'] as List<dynamic>? ?? [])
+        .map((e) => _map(e))
+        .whereType<Map<String, dynamic>>()
+        .map(ShareSendResult.fromJson)
+        .toList(),
+  );
 }

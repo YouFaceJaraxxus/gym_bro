@@ -1,0 +1,94 @@
+{
+  "profileExtrasWebsite": "Website",
+  "profileExtrasWebsiteHint": "yoursite.com",
+  "profileExtrasWebsiteInvalid": "Enter a web address like yoursite.com",
+  "profileExtrasQrTitle": "QR code",
+  "profileExtrasQrSemantics": "QR code for @{username}",
+  "@profileExtrasQrSemantics": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "profileExtrasQrHint": "Friends can scan this with Gym Bro to open your profile.",
+  "profileExtrasQrCopyLink": "Copy link",
+  "profileExtrasQrLinkCopied": "Link copied",
+  "profileExtrasQrScan": "Scan a QR code",
+  "profileExtrasQrNotAProfile": "That's not a Gym Bro profile code",
+  "profileExtrasQrNotFound": "Couldn't find @{username}",
+  "@profileExtrasQrNotFound": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "profileExtrasQrCameraUnavailable": "The camera isn't available.",
+  "profileExtrasMutedAccounts": "Muted accounts",
+  "profileExtrasMutedEmpty": "You haven't muted anyone",
+  "profileExtrasMutedEmptyBody": "Mute someone from their profile to stop seeing their posts or stories without unfollowing. They won't know.",
+  "profileExtrasMutedBoth": "Posts and stories muted",
+  "profileExtrasMutedPosts": "Posts muted",
+  "profileExtrasMutedStories": "Stories muted",
+  "profileExtrasUnmute": "Unmute",
+  "profileExtrasUnmutedSnack": "Unmuted @{username}",
+  "@profileExtrasUnmutedSnack": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "profileExtrasMuteMenu": "Mute",
+  "profileExtrasMutedMenu": "Muted",
+  "profileExtrasMuteTitle": "Mute @{username}",
+  "@profileExtrasMuteTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "profileExtrasMuteBody": "They won't know you muted them. You'll still see their posts and stories on their profile.",
+  "profileExtrasMutePosts": "Posts",
+  "profileExtrasMuteStories": "Stories",
+  "profileExtrasDone": "Done",
+  "profileExtrasAddCloseFriend": "Add to close friends",
+  "profileExtrasRemoveCloseFriend": "Remove from close friends",
+  "profileExtrasCloseFriendAdded": "Added @{username} to close friends",
+  "@profileExtrasCloseFriendAdded": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "profileExtrasCloseFriendRemoved": "Removed @{username} from close friends",
+  "@profileExtrasCloseFriendRemoved": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "profileExtrasRecentSearches": "Recent",
+  "profileExtrasClearAll": "Clear all",
+  "profileExtrasRemoveRecent": "Remove",
+  "profileExtrasMutedAccountsSubtitle": "People whose posts or stories you muted",
+  "profileExtrasQrSubtitle": "Let friends scan to find you",
+  "profileExtrasSaved": "Saved",
+  "profileExtrasSavedSubtitle": "Posts you saved and your collections",
+  "profileExtrasYourActivity": "Your activity",
+  "profileExtrasYourActivitySubtitle": "Posts you liked or reacted to",
+  "profileExtrasCloseFriends": "Close friends",
+  "profileExtrasCloseFriendsSubtitle": "Who sees your close-friends stories and notes",
+  "profileExtrasHashtagPosts": "{count, plural, =1{1 post} other{{count} posts}}",
+  "@profileExtrasHashtagPosts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

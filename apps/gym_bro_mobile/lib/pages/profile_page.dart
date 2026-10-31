@@ -10,14 +10,19 @@ import 'home/home_widgets.dart';
 import 'archive/archive_page.dart';
 import 'membership_page.dart';
 import 'people/blocked_users_page.dart';
+import 'people/close_friends_page.dart';
 import 'people/edit_social_profile_page.dart';
+import 'people/muted_accounts_page.dart';
 import 'people/people_list_page.dart';
+import 'people/profile_qr_page.dart';
 import 'people/requests_page.dart';
 import 'people/user_profile_page.dart';
 import 'stories/story_composer_page.dart';
 import 'stories/story_tray.dart';
 import 'stories/story_viewer_page.dart';
 import 'progress/progress_page.dart';
+import 'saved/liked_posts_page.dart';
+import 'saved/saved_posts_page.dart';
 import 'settings_page.dart';
 import 'shop/my_orders_page.dart';
 
@@ -169,12 +174,48 @@ class _ProfilePageState extends State<ProfilePage> {
               onTap: () => _open(const BlockedUsersPage(), reload: true),
             ),
             ListTile(
+              leading: const Icon(Icons.volume_off_outlined),
+              title: Text(l10n.profileExtrasMutedAccounts),
+              subtitle: Text(l10n.profileExtrasMutedAccountsSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const MutedAccountsPage()),
+            ),
+            ListTile(
               leading: const Icon(Icons.history),
               title: Text(l10n.archiveTitle),
               subtitle: Text(l10n.archiveSubtitle),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _open(const ArchivePage()),
             ),
+            ListTile(
+              leading: const Icon(Icons.bookmark_border),
+              title: Text(l10n.profileExtrasSaved),
+              subtitle: Text(l10n.profileExtrasSavedSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const SavedPostsPage()),
+            ),
+            ListTile(
+              leading: const Icon(Icons.favorite_border),
+              title: Text(l10n.profileExtrasYourActivity),
+              subtitle: Text(l10n.profileExtrasYourActivitySubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const LikedPostsPage()),
+            ),
+            ListTile(
+              leading: const Icon(Icons.stars_outlined),
+              title: Text(l10n.profileExtrasCloseFriends),
+              subtitle: Text(l10n.profileExtrasCloseFriendsSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _open(const CloseFriendsPage()),
+            ),
+            if (_social != null)
+              ListTile(
+                leading: const Icon(Icons.qr_code_2),
+                title: Text(l10n.profileExtrasQrTitle),
+                subtitle: Text(l10n.profileExtrasQrSubtitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _open(ProfileQrPage(profile: _social!)),
+              ),
             const Divider(),
             if (_profile.role == UserRole.member)
               ListTile(

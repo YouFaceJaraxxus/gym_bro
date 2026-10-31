@@ -28,7 +28,7 @@ extension PeopleApi on ApiService {
     return PublicProfile.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
   }
 
-  /// Any of: bio, interests, is_private, discoverable, allow_non_follower_messages,
+  /// Any of: bio, interests, website, is_private, discoverable, allow_non_follower_messages,
   /// show_activity_status, name, last_name, username, avatar_url.
   Future<PublicProfile> updateMyProfile(String token, Map<String, dynamic> changes) async {
     final r = await _client.put(Uri.parse('$_base/social/me'), headers: _headers(token), body: jsonEncode(changes));
@@ -116,6 +116,37 @@ extension PeopleApi on ApiService {
 
   Future<Relationship?> block(String token, String userId) => _relationshipAction(token, userId, 'block', add: true);
   Future<Relationship?> unblock(String token, String userId) => _relationshipAction(token, userId, 'block', add: false);
+
+  // ── Mutes & close friends ─────────────────────────────────────────────────
+
+  /// Mutes their posts and/or stories (both false = unmute). They aren't told.
+  Future<MuteSettings> setMute(String token, String userId, {required bool posts, required bool stories}) async {
+    final uri = Uri.parse('$_base/social/users/$userId/mute');
+    final r = posts || stories
+        ? await _client.put(uri, headers: _headers(token), body: jsonEncode({'posts': posts, 'stories': stories}))
+        : await _client.delete(uri, headers: _headers(token));
+    _check(r);
+    return MuteSettings.maybeFromJson((jsonDecode(r.body) as Map<String, dynamic>)['muted']) ?? const MuteSettings();
+  }
+
+  Future<List<MutedPerson>> getMutes(String token) async {
+    final r = await _client.get(Uri.parse('$_base/social/mutes'), headers: _headers(token));
+    _check(r);
+    return (jsonDecode(r.body) as List).map((e) => MutedPerson.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// My close friends (private to me): who sees close-friends stories and notes.
+  Future<List<PersonSummary>> getCloseFriends(String token) async {
+    final r = await _client.get(Uri.parse('$_base/social/close-friends'), headers: _headers(token));
+    _check(r);
+    return _people(r);
+  }
+
+  Future<void> setCloseFriend(String token, String userId, bool add) async {
+    final uri = Uri.parse('$_base/social/close-friends/$userId');
+    final r = add ? await _client.put(uri, headers: _headers(token)) : await _client.delete(uri, headers: _headers(token));
+    _check(r);
+  }
 
   Future<List<PersonSummary>> getBlockedUsers(String token) async {
     final r = await _client.get(Uri.parse('$_base/social/blocks'), headers: _headers(token));
