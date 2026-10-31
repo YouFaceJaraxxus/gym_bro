@@ -6,6 +6,7 @@ import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/app_bottom_sheet.dart';
 import '../../widgets/social_widgets.dart';
+import '../../widgets/video_frame_thumb.dart';
 
 /// "Save to collection" (Instagram's long press on the bookmark): "All
 /// posts" (saved or not) and each of my collections with a check when it
@@ -275,10 +276,7 @@ class CoverThumb extends StatelessWidget {
     if (c == null || c.url == null) {
       child = ColoredBox(color: cs.surfaceContainerHighest, child: Center(child: Icon(icon, color: cs.onSurfaceVariant)));
     } else if (c.isVideo) {
-      child = const ColoredBox(
-        color: Color(0xFF1C1C1E),
-        child: Center(child: Icon(Icons.play_arrow_rounded, color: Colors.white70)),
-      );
+      child = VideoFrameThumb(url: c.url);
     } else {
       child = MediaImage(url: c.url!);
     }

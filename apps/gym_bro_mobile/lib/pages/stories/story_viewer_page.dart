@@ -959,6 +959,7 @@ class _StoryBody extends StatelessWidget {
             child: MentionText(
               caption,
               textAlign: TextAlign.center,
+              linkStyle: _storyLinkStyle,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -982,6 +983,7 @@ class _StoryBody extends StatelessWidget {
               child: MentionText(
                 caption,
                 textAlign: TextAlign.center,
+                linkStyle: _storyLinkStyle,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: share == null && poll == null ? 30 : 20,
@@ -1101,3 +1103,11 @@ class _StoryViewersSheetState extends State<StoryViewersSheet> {
     );
   }
 }
+
+/// Mentions on a story read as white, underlined text over any photo or colour.
+const _storyLinkStyle = TextStyle(
+  color: Colors.white,
+  fontWeight: FontWeight.w800,
+  decoration: TextDecoration.underline,
+  decorationColor: Colors.white,
+);

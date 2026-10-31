@@ -7,6 +7,7 @@ import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/app_bottom_sheet.dart';
 import '../../widgets/social_widgets.dart';
+import '../../widgets/video_frame_thumb.dart';
 import 'story_thumb.dart';
 import 'story_viewer_page.dart';
 

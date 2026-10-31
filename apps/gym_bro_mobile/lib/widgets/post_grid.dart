@@ -8,11 +8,12 @@ import '../services/auth_manager.dart';
 import 'post_card.dart';
 import 'post_attachment_card.dart';
 import 'social_widgets.dart';
+import 'video_frame_thumb.dart';
 
 /// Instagram-style profile grid: three square tiles per row.
 ///
 /// * photo → its thumbnail;
-/// * video → a dark tile with ▶ and the duration (no frame decoding);
+/// * video → a frame of it with ▶ and the duration;
 /// * text-only post → the caption on a tinted tile;
 /// * shared workout/meal/item without media → its picture, or its kind and
 ///   title on a tinted tile (a small badge marks shared things);
@@ -135,14 +136,10 @@ class PostGridTile extends StatelessWidget {
       );
     } else if (first.isVideo) {
       label = l10n.feedVideo;
-      content = Container(
-        color: const Color(0xFF1C1C1E),
-        alignment: Alignment.center,
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 34),
-          if (first.durationMs != null)
-            Text(formatDuration(first.durationMs!), style: const TextStyle(color: Colors.white70, fontSize: 12)),
-        ]),
+      content = VideoFrameThumb(
+        url: first.url,
+        iconSize: 34,
+        caption: first.durationMs == null ? null : formatDuration(first.durationMs!),
       );
     } else {
       label = caption.isNotEmpty ? caption : l10n.nutritionPostPhoto;

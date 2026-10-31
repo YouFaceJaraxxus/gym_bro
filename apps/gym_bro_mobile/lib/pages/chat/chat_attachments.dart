@@ -210,6 +210,11 @@ class _AudioAttachmentState extends State<AudioAttachment> {
   }
 
   void _tick() {
+    final c = _c;
+    // Played to the end: back to the start, ready to play again.
+    if (c != null && c.value.isCompleted && !c.value.isPlaying && c.value.position > Duration.zero) {
+      c.seekTo(Duration.zero);
+    }
     if (mounted) setState(() {});
   }
 

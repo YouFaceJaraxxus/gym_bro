@@ -522,10 +522,14 @@ List<_Piece> _pieces(String text) {
 /// gym/shop or product, see [openMention]) and tappable #hashtags (tap →
 /// [HashtagPage]).
 class MentionText extends StatefulWidget {
-  const MentionText(this.text, {super.key, this.style, this.maxLines, this.overflow, this.textAlign});
+  const MentionText(this.text, {super.key, this.style, this.linkStyle, this.maxLines, this.overflow, this.textAlign});
 
   final String text;
   final TextStyle? style;
+
+  /// How mentions and hashtags look; defaults to [mentionLinkStyle] (for
+  /// text over photos and videos, where the accent colour doesn't read).
+  final TextStyle? linkStyle;
   final int? maxLines;
   final TextOverflow? overflow;
   final TextAlign? textAlign;
@@ -585,7 +589,7 @@ class _MentionTextState extends State<MentionText> {
         textAlign: widget.textAlign,
       );
     }
-    final link = mentionLinkStyle(context, style);
+    final link = widget.linkStyle ?? mentionLinkStyle(context, style);
     var i = 0;
     return Text.rich(
       TextSpan(

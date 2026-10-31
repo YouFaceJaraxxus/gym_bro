@@ -1,13 +1,10 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:pro_video_editor/pro_video_editor.dart' as pve;
 
-import '../../config.dart';
 import '../../models/mention.dart';
 import '../../models/shared_content.dart';
 import '../../models/story.dart';
 import '../../widgets/social_widgets.dart';
+import '../../widgets/video_frame_thumb.dart';
 
 /// What a story looks like small: its photo, a frame of its video, or its
 /// colour with the text / shared thing's icon.
@@ -34,80 +31,6 @@ class StoryThumb extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.w600),
             ),
-    );
-  }
-}
-
-/// The first moments of a video as a still (decoded once per file and
-/// cached), over a dark tile with a play icon while loading or when the frame
-/// can't be read.
-class VideoFrameThumb extends StatefulWidget {
-  const VideoFrameThumb({super.key, required this.url, this.iconSize = 24});
-
-  /// Signed (possibly relative) URL of the video; null shows just the tile.
-  final String? url;
-  final double iconSize;
-
-  /// By URL without the query string, so a re-signed URL reuses the frame.
-  static final Map<String, Future<Uint8List?>> _cache = {};
-
-  static Future<Uint8List?> _frame(String url) {
-    final key = url.split('?').first;
-    return _cache.putIfAbsent(key, () async {
-      try {
-        final frames = await pve.ProVideoEditor.instance.getThumbnails(
-          pve.ThumbnailConfigs(
-            video: pve.EditorVideo.network(AppConfig.resolveUrl(url)),
-            outputSize: const Size.square(240),
-            boxFit: pve.ThumbnailBoxFit.cover,
-            timestamps: const [Duration(milliseconds: 300)],
-          ),
-        );
-        return frames.isEmpty ? null : frames.first;
-      } catch (_) {
-        _cache.remove(key); // try again next time
-        return null;
-      }
-    });
-  }
-
-  @override
-  State<VideoFrameThumb> createState() => _VideoFrameThumbState();
-}
-
-class _VideoFrameThumbState extends State<VideoFrameThumb> {
-  Future<Uint8List?>? _frame;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.url != null) _frame = VideoFrameThumb._frame(widget.url!);
-  }
-
-  @override
-  void didUpdateWidget(VideoFrameThumb old) {
-    super.didUpdateWidget(old);
-    if (widget.url?.split('?').first != old.url?.split('?').first) {
-      _frame = widget.url == null ? null : VideoFrameThumb._frame(widget.url!);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final icon = Icon(Icons.play_arrow_rounded, color: Colors.white, size: widget.iconSize);
-    return FutureBuilder<Uint8List?>(
-      future: _frame,
-      builder: (context, snap) {
-        final bytes = snap.data;
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            const ColoredBox(color: Color(0xFF1C1C1E)),
-            if (bytes != null) Image.memory(bytes, fit: BoxFit.cover, gaplessPlayback: true),
-            Center(child: icon),
-          ],
-        );
-      },
     );
   }
 }
@@ -151,7 +74,14 @@ class CloseFriendsBadge extends StatelessWidget {
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       const Icon(Icons.star_rounded, size: 13, color: Colors.white),
       const SizedBox(width: 2),
-      Text(label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+      Flexible(
+        child: Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+        ),
+      ),
     ]),
   );
 }

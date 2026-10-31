@@ -264,7 +264,7 @@ class _ReelsPageState extends State<ReelsPage> with WidgetsBindingObserver {
           foregroundColor: Colors.white,
           elevation: 0,
           scrolledUnderElevation: 0,
-          title: Text(l10n.postsReels, style: const TextStyle(fontWeight: FontWeight.w700)),
+          title: Text(l10n.postsReels, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
           actions: [
             IconButton(
               tooltip: _muted ? l10n.postsUnmute : l10n.postsMute,
@@ -612,6 +612,7 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
                   child: MentionText(
                     p.content,
                     style: const TextStyle(color: Colors.white, shadows: shadow),
+                    linkStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
                     maxLines: _captionOpen ? null : 2,
                     overflow: _captionOpen ? null : TextOverflow.ellipsis,
                   ),

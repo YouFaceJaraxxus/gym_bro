@@ -78,19 +78,25 @@ class _AppInit extends StatefulWidget {
   State<_AppInit> createState() => _AppInitState();
 }
 
-class _AppInitState extends State<_AppInit> {
-  StreamSubscription<Uri>? _linkSub;
+/// Deep links for the app's lifetime. Not tied to [_AppInit]: that splash
+/// route is replaced by home right away, and links keep arriving after it.
+StreamSubscription<Uri>? _linkSub;
 
+class _AppInitState extends State<_AppInit> {
   @override
   void initState() {
     super.initState();
     _init();
   }
 
-  @override
-  void dispose() {
-    _linkSub?.cancel();
-    super.dispose();
+  /// Replaces the splash with [route], or — once the splash is gone (a link
+  /// while the app runs) — everything on the root navigator.
+  void _go(String route) {
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, route);
+    } else {
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(route, (_) => false);
+    }
   }
 
   Future<void> _init() async {
@@ -102,7 +108,7 @@ class _AppInitState extends State<_AppInit> {
       final handled = await _handleAuthLink(initialLink);
       if (handled) {
         // Subscribe for future links and return — navigation already done.
-        _linkSub = appLinks.uriLinkStream.listen(_handleLink);
+        _linkSub ??= appLinks.uriLinkStream.listen(_handleLink);
         return;
       }
     }
@@ -123,7 +129,7 @@ class _AppInitState extends State<_AppInit> {
 
     // Subscribe for links that arrive while the app is already running
     // (e.g. user taps the invite email while the app is in the foreground).
-    _linkSub = appLinks.uriLinkStream.listen(_handleLink);
+    _linkSub ??= appLinks.uriLinkStream.listen(_handleLink);
   }
 
   Future<void> _handleLink(Uri uri) async {
@@ -158,10 +164,10 @@ class _AppInitState extends State<_AppInit> {
 
     final type = params['type'];
     if (type == 'recovery') {
-      if (mounted) Navigator.pushReplacementNamed(context, '/reset-password');
+      _go('/reset-password');
     } else {
       await AuthManager.instance.ensureProfile();
-      if (mounted) Navigator.pushReplacementNamed(context, '/home');
+      _go('/home');
     }
     return true;
   }
