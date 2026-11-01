@@ -395,13 +395,16 @@ Future<void> openGymMember(
 }
 
 /// Pushes a tab body widget (which has no Scaffold of its own) as a page.
+/// The body is kept clear of the system navigation bar: these bodies are
+/// lists with their own padding, which Flutter then doesn't inset, and
+/// Android 15+ draws apps edge-to-edge under the nav bar.
 Future<T?> pushTabPage<T>(BuildContext context, String title, Widget body) {
   return Navigator.push<T>(
     context,
     MaterialPageRoute(
       builder: (_) => Scaffold(
         appBar: AppBar(title: Text(title)),
-        body: body,
+        body: SafeArea(top: false, child: body),
       ),
     ),
   );
