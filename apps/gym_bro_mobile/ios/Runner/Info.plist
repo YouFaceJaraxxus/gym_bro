@@ -44,7 +44,7 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Gym Bro uses your microphone to record voice messages in chats and sound with the videos you take for posts and chats.</string>
 	<key>NSHealthShareUsageDescription</key>
-	<string>If you connect Apple Health, Gym Bro reads your weigh-ins (to add them to your body measurements), and today's steps and last night's sleep (shown on Home).</string>
+	<string>If you connect Apple Health, Gym Bro reads your weigh-ins (to add them to your body measurements); today's steps, last night's sleep, resting heart rate and heart rate variability (shown on Home); and the heart rate and active calories recorded during your workouts (shown on each workout).</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>If you connect Apple Health, Gym Bro saves the workouts you finish and the water you log there.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

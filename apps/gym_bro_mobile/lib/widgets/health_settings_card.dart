@@ -7,7 +7,8 @@ import '../l10n/l10n.dart';
 import '../services/health_sync_service.dart';
 
 /// Settings → Health: connect Apple Health / Health Connect, choose what
-/// syncs, sync now, disconnect. The connection is this device's only.
+/// syncs, sync now, grant access added since connecting, disconnect. The
+/// connection is this device's only.
 class HealthSettingsCard extends StatefulWidget {
   const HealthSettingsCard({super.key});
 
@@ -115,6 +116,14 @@ class _HealthSettingsCardState extends State<HealthSettingsCard> {
                     ? spinner
                     : TextButton(onPressed: _syncNow, child: Text(l10n.nativeHealthSyncNow)),
               ),
+              if (_health.needsNewAccess)
+                ListTile(
+                  leading: Icon(Icons.monitor_heart_outlined, color: cs.primary),
+                  title: Text(l10n.nativeHealthNewAccess),
+                  subtitle: Text(l10n.nativeHealthNewAccessSubtitle(name)),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: _busy ? null : _connect,
+                ),
               const Divider(indent: 16, endIndent: 16),
               SwitchListTile(
                 secondary: const Icon(Icons.monitor_weight_outlined),
@@ -129,6 +138,13 @@ class _HealthSettingsCardState extends State<HealthSettingsCard> {
                 subtitle: Text(l10n.nativeHealthShowActivitySubtitle),
                 value: s.showActivity,
                 onChanged: (v) => _health.update(showActivity: v),
+              ),
+              SwitchListTile(
+                secondary: const Icon(Icons.favorite_border),
+                title: Text(l10n.nativeHealthShowWorkoutStats),
+                subtitle: Text(l10n.nativeHealthShowWorkoutStatsSubtitle),
+                value: s.showWorkoutStats,
+                onChanged: (v) => _health.update(showWorkoutStats: v),
               ),
               SwitchListTile(
                 secondary: const Icon(Icons.fitness_center),

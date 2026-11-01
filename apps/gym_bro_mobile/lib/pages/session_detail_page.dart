@@ -6,6 +6,7 @@ import '../models/training.dart';
 import '../models/training_session.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../services/health_sync_service.dart';
 import '../services/settings_service.dart';
 import '../widgets/share_post.dart';
 import '../widgets/app_bottom_sheet.dart';
@@ -27,6 +28,8 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
   // exercise_id → name, resolved after load for free-session set logs.
   final Map<String, String> _exerciseNames = {};
   bool _changed = false;
+  // Heart rate and calories from Apple Health / Health Connect (mine only).
+  HealthWorkoutStats? _healthStats;
 
   // Comments thread (owner ↔ coaches).
   List<SessionComment> _comments = [];
@@ -174,6 +177,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
         _loading = false;
       });
       _resolveExerciseNames(token, s);
+      _loadHealthStats(s);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -181,6 +185,12 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
         _loading = false;
       });
     }
+  }
+
+  Future<void> _loadHealthStats(TrainingSession s) async {
+    final stats = await HealthSyncService.instance.workoutStats(s);
+    if (!mounted) return;
+    setState(() => _healthStats = stats);
   }
 
   Future<void> _resolveExerciseNames(String token, TrainingSession s) async {
@@ -393,6 +403,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
                           label: l10n.trainingSessionNotes,
                           value: session.notes!,
                         ),
+                      ..._buildHealthStats(),
                     ],
                   ),
                 ),
@@ -450,6 +461,37 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildHealthStats() {
+    final stats = _healthStats;
+    if (stats == null) return const [];
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    return [
+      if (stats.avgHeartRate != null)
+        _SummaryRow(
+          icon: Icons.favorite_border,
+          label: l10n.nativeHealthWorkoutHeartRate,
+          value: l10n.nativeHealthWorkoutHeartRateValue(stats.avgHeartRate!, stats.maxHeartRate!),
+        ),
+      if (stats.activeKcal != null)
+        _SummaryRow(
+          icon: Icons.local_fire_department_outlined,
+          label: l10n.nativeHealthWorkoutCalories,
+          value: l10n.nativeHealthKcal(stats.activeKcal!),
+        ),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            l10n.nativeHealthWorkoutSource(HealthSyncService.instance.platformName),
+            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+          ),
+        ),
+      ),
+    ];
   }
 
   List<Widget> _buildComments(TrainingSession session) {

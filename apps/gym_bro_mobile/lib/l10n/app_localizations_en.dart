@@ -4362,13 +4362,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nativeHealthApple => 'Apple Health';
 
   @override
+  String nativeHealthBpm(int bpm) {
+    return '$bpm bpm';
+  }
+
+  @override
   String nativeHealthConnect(String platform) {
     return 'Connect $platform';
   }
 
   @override
   String get nativeHealthConnectSubtitle =>
-      'Import weigh-ins, show steps and sleep on Home, and save your workouts and water there.';
+      'Import weigh-ins, see steps, sleep, heart rate and calories from your watch, and save your workouts and water there.';
 
   @override
   String nativeHealthConnectedTo(String platform) {
@@ -4401,6 +4406,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nativeHealthGoogle => 'Health Connect';
 
   @override
+  String get nativeHealthHrv => 'HRV';
+
+  @override
   String get nativeHealthImportWeight => 'Import weigh-ins';
 
   @override
@@ -4423,12 +4431,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nativeHealthInstall => 'Install';
 
   @override
+  String nativeHealthKcal(int kcal) {
+    return '$kcal kcal';
+  }
+
+  @override
   String nativeHealthLastChecked(String when) {
     return 'Weigh-ins last checked $when';
   }
 
   @override
+  String get nativeHealthLatest => 'latest';
+
+  @override
+  String nativeHealthMs(int ms) {
+    return '$ms ms';
+  }
+
+  @override
   String get nativeHealthNeverChecked => 'Weigh-ins not checked yet';
+
+  @override
+  String get nativeHealthNewAccess => 'Allow heart rate and calories';
+
+  @override
+  String nativeHealthNewAccessSubtitle(String platform) {
+    return '$platform can now also share heart rate, active calories, resting heart rate and HRV.';
+  }
 
   @override
   String get nativeHealthNoData => 'No data';
@@ -4441,14 +4470,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nativeHealthOnThisDevice => 'Only on this device';
 
   @override
+  String nativeHealthRecoverySemantics(String heartRate, String hrv) {
+    return 'resting heart rate $heartRate, heart rate variability $hrv';
+  }
+
+  @override
+  String get nativeHealthRestingHeartRate => 'Resting HR';
+
+  @override
   String get nativeHealthSection => 'Health';
 
   @override
-  String get nativeHealthShowActivity => 'Steps and sleep on Home';
+  String get nativeHealthShowActivity => 'Activity on Home';
 
   @override
   String get nativeHealthShowActivitySubtitle =>
-      'Today\'s steps and last night\'s sleep on the Today dashboard.';
+      'Today\'s steps, last night\'s sleep, resting heart rate and HRV on the Today dashboard.';
+
+  @override
+  String get nativeHealthShowWorkoutStats =>
+      'Heart rate and calories on workouts';
+
+  @override
+  String get nativeHealthShowWorkoutStatsSubtitle =>
+      'Average and max heart rate and active calories your watch recorded during each workout you finish.';
 
   @override
   String get nativeHealthSleep => 'Sleep';
@@ -4478,6 +4523,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String nativeHealthWeighInNote(String platform) {
     return 'From $platform';
+  }
+
+  @override
+  String get nativeHealthWorkoutCalories => 'Active calories';
+
+  @override
+  String get nativeHealthWorkoutHeartRate => 'Heart rate';
+
+  @override
+  String nativeHealthWorkoutHeartRateValue(int avg, int max) {
+    return 'avg $avg · max $max bpm';
+  }
+
+  @override
+  String nativeHealthWorkoutSource(String platform) {
+    return 'Heart rate and calories from $platform';
   }
 
   @override

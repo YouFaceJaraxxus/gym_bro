@@ -4,9 +4,10 @@ import 'package:intl/intl.dart';
 import '../l10n/l10n.dart';
 import '../services/health_sync_service.dart';
 
-/// Today's steps and last night's sleep from Apple Health / Health Connect,
-/// on the Today dashboard. Hidden unless Health is connected with "Steps and
-/// sleep on Home" on, and there's something to show.
+/// Today's steps, last night's sleep and (when a watch or ring recorded
+/// them) the latest resting heart rate and HRV from Apple Health / Health
+/// Connect, on the Today dashboard. Hidden unless Health is connected with
+/// "Activity on Home" on, and there's something to show.
 class HealthTodayCard extends StatefulWidget {
   const HealthTodayCard({super.key});
 
@@ -38,9 +39,13 @@ class _HealthTodayCardState extends State<HealthTodayCard> {
         final steps = today.steps == null ? l10n.nativeHealthNoData : NumberFormat.decimalPattern(locale).format(today.steps);
         final minutes = today.sleepMinutes;
         final sleep = minutes == null ? l10n.nativeHealthNoData : l10n.nativeHealthSleepDuration(minutes ~/ 60, minutes % 60);
+        final restingHr = today.restingHeartRate == null ? l10n.nativeHealthNoData : l10n.nativeHealthBpm(today.restingHeartRate!);
+        final hrv = today.hrvMs == null ? l10n.nativeHealthNoData : l10n.nativeHealthMs(today.hrvMs!);
+        var semantics = l10n.nativeHealthTodaySemantics(steps, sleep);
+        if (today.hasRecovery) semantics = '$semantics, ${l10n.nativeHealthRecoverySemantics(restingHr, hrv)}';
         return Semantics(
           container: true,
-          label: l10n.nativeHealthTodaySemantics(steps, sleep),
+          label: semantics,
           child: ExcludeSemantics(
             child: Card(
               elevation: 0,
@@ -49,28 +54,59 @@ class _HealthTodayCardState extends State<HealthTodayCard> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Row(
+                child: Column(
                   children: [
-                    Expanded(
-                      child: _Stat(
-                        icon: Icons.directions_walk_rounded,
-                        color: const Color(0xFF2E9D5B),
-                        label: l10n.nativeHealthSteps,
-                        value: steps,
-                        caption: l10n.nativeHealthStepsToday,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _Stat(
+                            icon: Icons.directions_walk_rounded,
+                            color: const Color(0xFF2E9D5B),
+                            label: l10n.nativeHealthSteps,
+                            value: steps,
+                            caption: l10n.nativeHealthStepsToday,
+                          ),
+                        ),
+                        Container(width: 1, height: 44, color: cs.outlineVariant),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _Stat(
+                            icon: Icons.bedtime_rounded,
+                            color: const Color(0xFF6F5BD8),
+                            label: l10n.nativeHealthSleep,
+                            value: sleep,
+                            caption: l10n.nativeHealthSleepLastNight,
+                          ),
+                        ),
+                      ],
                     ),
-                    Container(width: 1, height: 44, color: cs.outlineVariant),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _Stat(
-                        icon: Icons.bedtime_rounded,
-                        color: const Color(0xFF6F5BD8),
-                        label: l10n.nativeHealthSleep,
-                        value: sleep,
-                        caption: l10n.nativeHealthSleepLastNight,
+                    if (today.hasRecovery) ...[
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _Stat(
+                              icon: Icons.monitor_heart_outlined,
+                              color: const Color(0xFFD9475B),
+                              label: l10n.nativeHealthRestingHeartRate,
+                              value: restingHr,
+                              caption: l10n.nativeHealthLatest,
+                            ),
+                          ),
+                          Container(width: 1, height: 44, color: cs.outlineVariant),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _Stat(
+                              icon: Icons.insights_rounded,
+                              color: const Color(0xFF2B87C8),
+                              label: l10n.nativeHealthHrv,
+                              value: hrv,
+                              caption: l10n.nativeHealthLatest,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),

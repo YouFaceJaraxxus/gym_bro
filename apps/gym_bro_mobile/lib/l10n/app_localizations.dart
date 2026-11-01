@@ -6853,6 +6853,12 @@ abstract class AppLocalizations {
   /// **'Apple Health'**
   String get nativeHealthApple;
 
+  /// No description provided for @nativeHealthBpm.
+  ///
+  /// In en, this message translates to:
+  /// **'{bpm} bpm'**
+  String nativeHealthBpm(int bpm);
+
   /// No description provided for @nativeHealthConnect.
   ///
   /// In en, this message translates to:
@@ -6862,7 +6868,7 @@ abstract class AppLocalizations {
   /// No description provided for @nativeHealthConnectSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Import weigh-ins, show steps and sleep on Home, and save your workouts and water there.'**
+  /// **'Import weigh-ins, see steps, sleep, heart rate and calories from your watch, and save your workouts and water there.'**
   String get nativeHealthConnectSubtitle;
 
   /// No description provided for @nativeHealthConnectedTo.
@@ -6907,6 +6913,12 @@ abstract class AppLocalizations {
   /// **'Health Connect'**
   String get nativeHealthGoogle;
 
+  /// No description provided for @nativeHealthHrv.
+  ///
+  /// In en, this message translates to:
+  /// **'HRV'**
+  String get nativeHealthHrv;
+
   /// No description provided for @nativeHealthImportWeight.
   ///
   /// In en, this message translates to:
@@ -6931,17 +6943,47 @@ abstract class AppLocalizations {
   /// **'Install'**
   String get nativeHealthInstall;
 
+  /// No description provided for @nativeHealthKcal.
+  ///
+  /// In en, this message translates to:
+  /// **'{kcal} kcal'**
+  String nativeHealthKcal(int kcal);
+
   /// No description provided for @nativeHealthLastChecked.
   ///
   /// In en, this message translates to:
   /// **'Weigh-ins last checked {when}'**
   String nativeHealthLastChecked(String when);
 
+  /// No description provided for @nativeHealthLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'latest'**
+  String get nativeHealthLatest;
+
+  /// No description provided for @nativeHealthMs.
+  ///
+  /// In en, this message translates to:
+  /// **'{ms} ms'**
+  String nativeHealthMs(int ms);
+
   /// No description provided for @nativeHealthNeverChecked.
   ///
   /// In en, this message translates to:
   /// **'Weigh-ins not checked yet'**
   String get nativeHealthNeverChecked;
+
+  /// No description provided for @nativeHealthNewAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow heart rate and calories'**
+  String get nativeHealthNewAccess;
+
+  /// No description provided for @nativeHealthNewAccessSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{platform} can now also share heart rate, active calories, resting heart rate and HRV.'**
+  String nativeHealthNewAccessSubtitle(String platform);
 
   /// No description provided for @nativeHealthNoData.
   ///
@@ -6961,6 +7003,18 @@ abstract class AppLocalizations {
   /// **'Only on this device'**
   String get nativeHealthOnThisDevice;
 
+  /// No description provided for @nativeHealthRecoverySemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'resting heart rate {heartRate}, heart rate variability {hrv}'**
+  String nativeHealthRecoverySemantics(String heartRate, String hrv);
+
+  /// No description provided for @nativeHealthRestingHeartRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Resting HR'**
+  String get nativeHealthRestingHeartRate;
+
   /// No description provided for @nativeHealthSection.
   ///
   /// In en, this message translates to:
@@ -6970,14 +7024,26 @@ abstract class AppLocalizations {
   /// No description provided for @nativeHealthShowActivity.
   ///
   /// In en, this message translates to:
-  /// **'Steps and sleep on Home'**
+  /// **'Activity on Home'**
   String get nativeHealthShowActivity;
 
   /// No description provided for @nativeHealthShowActivitySubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Today\'s steps and last night\'s sleep on the Today dashboard.'**
+  /// **'Today\'s steps, last night\'s sleep, resting heart rate and HRV on the Today dashboard.'**
   String get nativeHealthShowActivitySubtitle;
+
+  /// No description provided for @nativeHealthShowWorkoutStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Heart rate and calories on workouts'**
+  String get nativeHealthShowWorkoutStats;
+
+  /// No description provided for @nativeHealthShowWorkoutStatsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Average and max heart rate and active calories your watch recorded during each workout you finish.'**
+  String get nativeHealthShowWorkoutStatsSubtitle;
 
   /// No description provided for @nativeHealthSleep.
   ///
@@ -7026,6 +7092,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From {platform}'**
   String nativeHealthWeighInNote(String platform);
+
+  /// No description provided for @nativeHealthWorkoutCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Active calories'**
+  String get nativeHealthWorkoutCalories;
+
+  /// No description provided for @nativeHealthWorkoutHeartRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Heart rate'**
+  String get nativeHealthWorkoutHeartRate;
+
+  /// No description provided for @nativeHealthWorkoutHeartRateValue.
+  ///
+  /// In en, this message translates to:
+  /// **'avg {avg} · max {max} bpm'**
+  String nativeHealthWorkoutHeartRateValue(int avg, int max);
+
+  /// No description provided for @nativeHealthWorkoutSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Heart rate and calories from {platform}'**
+  String nativeHealthWorkoutSource(String platform);
 
   /// No description provided for @nativeHealthWriteWater.
   ///

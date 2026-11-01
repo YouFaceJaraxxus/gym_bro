@@ -12,11 +12,16 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- flutter_local_notifications: re-schedule pending notifications after reboot. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <!-- Health Connect (opt-in in Settings → Health): weigh-ins, steps and
-         sleep are read; finished workouts and water are written. -->
+    <!-- Health Connect (opt-in in Settings → Health): weigh-ins, steps,
+         sleep, heart rate, active calories, resting heart rate and HRV are
+         read; finished workouts and water are written. -->
     <uses-permission android:name="android.permission.health.READ_WEIGHT"/>
     <uses-permission android:name="android.permission.health.READ_STEPS"/>
     <uses-permission android:name="android.permission.health.READ_SLEEP"/>
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED"/>
+    <uses-permission android:name="android.permission.health.READ_RESTING_HEART_RATE"/>
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY"/>
     <uses-permission android:name="android.permission.health.WRITE_EXERCISE"/>
     <uses-permission android:name="android.permission.health.WRITE_HYDRATION"/>
     <application

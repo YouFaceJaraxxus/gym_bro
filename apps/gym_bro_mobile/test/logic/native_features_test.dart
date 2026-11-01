@@ -113,6 +113,7 @@ void main() {
       userId: 'u1',
       showActivity: false,
       writeWater: false,
+      showWorkoutStats: false,
       lastWeightImport: DateTime(2026, 11, 1, 9, 30),
       writtenWorkouts: const ['a', 'b'],
     );
@@ -125,7 +126,65 @@ void main() {
     expect(back.writeWater, isFalse);
     expect(back.lastWeightImport, DateTime(2026, 11, 1, 9, 30));
     expect(back.writtenWorkouts, ['a', 'b']);
+    expect(back.showWorkoutStats, isFalse);
+    expect(back.accessVersion, HealthSyncService.accessVersion);
     expect(HealthSyncSettings.fromJson(const {}).connected, isFalse);
+  });
+
+  test('connections saved before access versions count as the first access', () {
+    final old = HealthSyncSettings.fromJson(const {'connected': true, 'user_id': 'u1'});
+    expect(old.accessVersion, 1);
+    expect(old.accessVersion, lessThan(HealthSyncService.accessVersion));
+    expect(old.showWorkoutStats, isTrue);
+  });
+
+  group('workout stats', () {
+    test('heartRateSummary averages plausible readings and keeps the highest', () {
+      expect(heartRateSummary([120, 140, 160.4, 0, 400, double.nan]), (avg: 140, max: 160));
+      expect(heartRateSummary([]), isNull);
+      expect(heartRateSummary([10, 300]), isNull);
+    });
+
+    final start = DateTime(2026, 11, 1, 18);
+    final end = DateTime(2026, 11, 1, 19);
+    HealthEnergySample e(String source, DateTime from, DateTime to, double kcal) =>
+        HealthEnergySample(source: source, from: from, to: to, kcal: kcal);
+
+    test('activeCalories counts samples partly inside in proportion', () {
+      final kcal = activeCalories([
+        e('watch', DateTime(2026, 11, 1, 18, 10), DateTime(2026, 11, 1, 18, 20), 50),
+        // Half of it falls before the workout.
+        e('watch', DateTime(2026, 11, 1, 17, 50), DateTime(2026, 11, 1, 18, 10), 40),
+        // Entirely after.
+        e('watch', DateTime(2026, 11, 1, 19, 5), DateTime(2026, 11, 1, 19, 10), 30),
+        // An instant inside counts whole.
+        e('watch', DateTime(2026, 11, 1, 18, 30), DateTime(2026, 11, 1, 18, 30), 5),
+      ], start, end);
+      expect(kcal, 75);
+    });
+
+    test('activeCalories takes the source that recorded the most, not the sum', () {
+      final kcal = activeCalories([
+        e('phone', DateTime(2026, 11, 1, 18), DateTime(2026, 11, 1, 19), 120),
+        e('watch', DateTime(2026, 11, 1, 18), DateTime(2026, 11, 1, 18, 30), 150),
+        e('watch', DateTime(2026, 11, 1, 18, 30), DateTime(2026, 11, 1, 19), 160),
+      ], start, end);
+      expect(kcal, 310);
+    });
+
+    test('activeCalories is null without anything recorded', () {
+      expect(activeCalories([], start, end), isNull);
+      expect(activeCalories([e('watch', start, end, 0)], start, end), isNull);
+    });
+
+    test('HealthWorkoutStats and HealthToday know when they are empty', () {
+      expect(const HealthWorkoutStats().isEmpty, isTrue);
+      expect(const HealthWorkoutStats(activeKcal: 200).isEmpty, isFalse);
+      final now = DateTime(2026, 11, 1);
+      expect(HealthToday(readAt: now).isEmpty, isTrue);
+      expect(HealthToday(hrvMs: 48, readAt: now).isEmpty, isFalse);
+      expect(HealthToday(steps: 4000, readAt: now).hasRecovery, isFalse);
+    });
   });
 
   group('homeWidgetPayload', () {

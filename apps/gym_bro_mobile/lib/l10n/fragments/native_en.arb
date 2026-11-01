@@ -10,7 +10,7 @@
       }
     }
   },
-  "nativeHealthConnectSubtitle": "Import weigh-ins, show steps and sleep on Home, and save your workouts and water there.",
+  "nativeHealthConnectSubtitle": "Import weigh-ins, see steps, sleep, heart rate and calories from your watch, and save your workouts and water there.",
   "nativeHealthConnectedTo": "Connected to {platform}",
   "@nativeHealthConnectedTo": {
     "placeholders": {
@@ -32,8 +32,8 @@
   "nativeHealthNeverChecked": "Weigh-ins not checked yet",
   "nativeHealthImportWeight": "Import weigh-ins",
   "nativeHealthImportWeightSubtitle": "New ones from the last 30 days, at most one a day, only on days without a measurement.",
-  "nativeHealthShowActivity": "Steps and sleep on Home",
-  "nativeHealthShowActivitySubtitle": "Today's steps and last night's sleep on the Today dashboard.",
+  "nativeHealthShowActivity": "Activity on Home",
+  "nativeHealthShowActivitySubtitle": "Today's steps, last night's sleep, resting heart rate and HRV on the Today dashboard.",
   "nativeHealthWriteWorkouts": "Save workouts",
   "nativeHealthWriteWorkoutsSubtitle": "Workouts you finish are saved as strength training.",
   "nativeHealthWriteWater": "Save water",
@@ -105,6 +105,76 @@
         "type": "String"
       },
       "sleep": {
+        "type": "String"
+      }
+    }
+  },
+  "nativeHealthShowWorkoutStats": "Heart rate and calories on workouts",
+  "nativeHealthShowWorkoutStatsSubtitle": "Average and max heart rate and active calories your watch recorded during each workout you finish.",
+  "nativeHealthNewAccess": "Allow heart rate and calories",
+  "nativeHealthNewAccessSubtitle": "{platform} can now also share heart rate, active calories, resting heart rate and HRV.",
+  "@nativeHealthNewAccessSubtitle": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "nativeHealthRestingHeartRate": "Resting HR",
+  "nativeHealthHrv": "HRV",
+  "nativeHealthLatest": "latest",
+  "nativeHealthBpm": "{bpm} bpm",
+  "@nativeHealthBpm": {
+    "placeholders": {
+      "bpm": {
+        "type": "int"
+      }
+    }
+  },
+  "nativeHealthMs": "{ms} ms",
+  "@nativeHealthMs": {
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "nativeHealthRecoverySemantics": "resting heart rate {heartRate}, heart rate variability {hrv}",
+  "@nativeHealthRecoverySemantics": {
+    "placeholders": {
+      "heartRate": {
+        "type": "String"
+      },
+      "hrv": {
+        "type": "String"
+      }
+    }
+  },
+  "nativeHealthWorkoutHeartRate": "Heart rate",
+  "nativeHealthWorkoutHeartRateValue": "avg {avg} · max {max} bpm",
+  "@nativeHealthWorkoutHeartRateValue": {
+    "placeholders": {
+      "avg": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "nativeHealthWorkoutCalories": "Active calories",
+  "nativeHealthKcal": "{kcal} kcal",
+  "@nativeHealthKcal": {
+    "placeholders": {
+      "kcal": {
+        "type": "int"
+      }
+    }
+  },
+  "nativeHealthWorkoutSource": "Heart rate and calories from {platform}",
+  "@nativeHealthWorkoutSource": {
+    "placeholders": {
+      "platform": {
         "type": "String"
       }
     }

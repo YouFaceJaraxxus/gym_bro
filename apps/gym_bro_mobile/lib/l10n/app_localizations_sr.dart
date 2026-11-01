@@ -4386,13 +4386,18 @@ class AppLocalizationsSr extends AppLocalizations {
   String get nativeHealthApple => 'Apple Health';
 
   @override
+  String nativeHealthBpm(int bpm) {
+    return '$bpm otk/min';
+  }
+
+  @override
   String nativeHealthConnect(String platform) {
     return 'Poveži $platform';
   }
 
   @override
   String get nativeHealthConnectSubtitle =>
-      'Uvezi merenja težine, prikaži korake i san na početnom ekranu i čuvaj tamo treninge i vodu.';
+      'Uvezi merenja težine, vidi korake, san, puls i kalorije sa sata i čuvaj tamo treninge i vodu.';
 
   @override
   String nativeHealthConnectedTo(String platform) {
@@ -4425,6 +4430,9 @@ class AppLocalizationsSr extends AppLocalizations {
   String get nativeHealthGoogle => 'Health Connect';
 
   @override
+  String get nativeHealthHrv => 'HRV';
+
+  @override
   String get nativeHealthImportWeight => 'Uvoz merenja težine';
 
   @override
@@ -4448,12 +4456,33 @@ class AppLocalizationsSr extends AppLocalizations {
   String get nativeHealthInstall => 'Instaliraj';
 
   @override
+  String nativeHealthKcal(int kcal) {
+    return '$kcal kcal';
+  }
+
+  @override
   String nativeHealthLastChecked(String when) {
     return 'Merenja poslednji put proverena $when';
   }
 
   @override
+  String get nativeHealthLatest => 'poslednje';
+
+  @override
+  String nativeHealthMs(int ms) {
+    return '$ms ms';
+  }
+
+  @override
   String get nativeHealthNeverChecked => 'Merenja još nisu proverena';
+
+  @override
+  String get nativeHealthNewAccess => 'Dozvoli puls i kalorije';
+
+  @override
+  String nativeHealthNewAccessSubtitle(String platform) {
+    return '$platform sada može da deli i puls, aktivne kalorije, puls u mirovanju i HRV.';
+  }
 
   @override
   String get nativeHealthNoData => 'Nema podataka';
@@ -4466,14 +4495,29 @@ class AppLocalizationsSr extends AppLocalizations {
   String get nativeHealthOnThisDevice => 'Samo na ovom uređaju';
 
   @override
+  String nativeHealthRecoverySemantics(String heartRate, String hrv) {
+    return 'puls u mirovanju $heartRate, varijabilnost pulsa $hrv';
+  }
+
+  @override
+  String get nativeHealthRestingHeartRate => 'Puls u mirovanju';
+
+  @override
   String get nativeHealthSection => 'Zdravlje';
 
   @override
-  String get nativeHealthShowActivity => 'Koraci i san na početnom ekranu';
+  String get nativeHealthShowActivity => 'Aktivnost na početnom ekranu';
 
   @override
   String get nativeHealthShowActivitySubtitle =>
-      'Današnji koraci i sinoćnji san na pregledu dana.';
+      'Današnji koraci, sinoćnji san, puls u mirovanju i HRV na pregledu dana.';
+
+  @override
+  String get nativeHealthShowWorkoutStats => 'Puls i kalorije na treninzima';
+
+  @override
+  String get nativeHealthShowWorkoutStatsSubtitle =>
+      'Prosečan i najviši puls i aktivne kalorije koje je sat zabeležio tokom svakog završenog treninga.';
 
   @override
   String get nativeHealthSleep => 'San';
@@ -4503,6 +4547,22 @@ class AppLocalizationsSr extends AppLocalizations {
   @override
   String nativeHealthWeighInNote(String platform) {
     return 'Iz aplikacije $platform';
+  }
+
+  @override
+  String get nativeHealthWorkoutCalories => 'Aktivne kalorije';
+
+  @override
+  String get nativeHealthWorkoutHeartRate => 'Puls';
+
+  @override
+  String nativeHealthWorkoutHeartRateValue(int avg, int max) {
+    return 'prosečno $avg · najviše $max otk/min';
+  }
+
+  @override
+  String nativeHealthWorkoutSource(String platform) {
+    return 'Puls i kalorije iz aplikacije $platform';
   }
 
   @override
@@ -17438,13 +17498,18 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get nativeHealthApple => 'Apple Health';
 
   @override
+  String nativeHealthBpm(int bpm) {
+    return '$bpm otk/min';
+  }
+
+  @override
   String nativeHealthConnect(String platform) {
     return 'Poveži $platform';
   }
 
   @override
   String get nativeHealthConnectSubtitle =>
-      'Uvezi merenja težine, prikaži korake i san na početnom ekranu i čuvaj tamo treninge i vodu.';
+      'Uvezi merenja težine, vidi korake, san, puls i kalorije sa sata i čuvaj tamo treninge i vodu.';
 
   @override
   String nativeHealthConnectedTo(String platform) {
@@ -17477,6 +17542,9 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get nativeHealthGoogle => 'Health Connect';
 
   @override
+  String get nativeHealthHrv => 'HRV';
+
+  @override
   String get nativeHealthImportWeight => 'Uvoz merenja težine';
 
   @override
@@ -17500,12 +17568,33 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get nativeHealthInstall => 'Instaliraj';
 
   @override
+  String nativeHealthKcal(int kcal) {
+    return '$kcal kcal';
+  }
+
+  @override
   String nativeHealthLastChecked(String when) {
     return 'Merenja poslednji put proverena $when';
   }
 
   @override
+  String get nativeHealthLatest => 'poslednje';
+
+  @override
+  String nativeHealthMs(int ms) {
+    return '$ms ms';
+  }
+
+  @override
   String get nativeHealthNeverChecked => 'Merenja još nisu proverena';
+
+  @override
+  String get nativeHealthNewAccess => 'Dozvoli puls i kalorije';
+
+  @override
+  String nativeHealthNewAccessSubtitle(String platform) {
+    return '$platform sada može da deli i puls, aktivne kalorije, puls u mirovanju i HRV.';
+  }
 
   @override
   String get nativeHealthNoData => 'Nema podataka';
@@ -17518,14 +17607,29 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get nativeHealthOnThisDevice => 'Samo na ovom uređaju';
 
   @override
+  String nativeHealthRecoverySemantics(String heartRate, String hrv) {
+    return 'puls u mirovanju $heartRate, varijabilnost pulsa $hrv';
+  }
+
+  @override
+  String get nativeHealthRestingHeartRate => 'Puls u mirovanju';
+
+  @override
   String get nativeHealthSection => 'Zdravlje';
 
   @override
-  String get nativeHealthShowActivity => 'Koraci i san na početnom ekranu';
+  String get nativeHealthShowActivity => 'Aktivnost na početnom ekranu';
 
   @override
   String get nativeHealthShowActivitySubtitle =>
-      'Današnji koraci i sinoćnji san na pregledu dana.';
+      'Današnji koraci, sinoćnji san, puls u mirovanju i HRV na pregledu dana.';
+
+  @override
+  String get nativeHealthShowWorkoutStats => 'Puls i kalorije na treninzima';
+
+  @override
+  String get nativeHealthShowWorkoutStatsSubtitle =>
+      'Prosečan i najviši puls i aktivne kalorije koje je sat zabeležio tokom svakog završenog treninga.';
 
   @override
   String get nativeHealthSleep => 'San';
@@ -17555,6 +17659,22 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   @override
   String nativeHealthWeighInNote(String platform) {
     return 'Iz aplikacije $platform';
+  }
+
+  @override
+  String get nativeHealthWorkoutCalories => 'Aktivne kalorije';
+
+  @override
+  String get nativeHealthWorkoutHeartRate => 'Puls';
+
+  @override
+  String nativeHealthWorkoutHeartRateValue(int avg, int max) {
+    return 'prosečno $avg · najviše $max otk/min';
+  }
+
+  @override
+  String nativeHealthWorkoutSource(String platform) {
+    return 'Puls i kalorije iz aplikacije $platform';
   }
 
   @override
