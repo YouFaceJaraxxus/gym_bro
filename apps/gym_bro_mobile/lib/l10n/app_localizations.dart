@@ -507,6 +507,420 @@ abstract class AppLocalizations {
   /// **'All of {month}'**
   String archiveWholeMonth(String month);
 
+  /// No description provided for @bodyChangeInRange.
+  ///
+  /// In en, this message translates to:
+  /// **'over {range}'**
+  String bodyChangeInRange(String range);
+
+  /// No description provided for @bodyChangeSince.
+  ///
+  /// In en, this message translates to:
+  /// **'since {date}'**
+  String bodyChangeSince(String date);
+
+  /// No description provided for @bodyCompareAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get bodyCompareAfter;
+
+  /// No description provided for @bodyCompareBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get bodyCompareBefore;
+
+  /// No description provided for @bodyCompareDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String bodyCompareDays(int count);
+
+  /// No description provided for @bodyCompareDiff.
+  ///
+  /// In en, this message translates to:
+  /// **'{change} in {span}'**
+  String bodyCompareDiff(String change, String span);
+
+  /// No description provided for @bodyComparePick.
+  ///
+  /// In en, this message translates to:
+  /// **'{which}: pick a photo'**
+  String bodyComparePick(String which);
+
+  /// No description provided for @bodyCompareSliderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Before and after divider'**
+  String get bodyCompareSliderLabel;
+
+  /// No description provided for @bodyCompareSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap before and after'**
+  String get bodyCompareSwap;
+
+  /// No description provided for @bodyCompareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get bodyCompareTitle;
+
+  /// No description provided for @bodyCompareWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 week} other{{count} weeks}}'**
+  String bodyCompareWeeks(int count);
+
+  /// No description provided for @bodyGoalEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit goal weight'**
+  String get bodyGoalEditTitle;
+
+  /// No description provided for @bodyGoalEtaFlat.
+  ///
+  /// In en, this message translates to:
+  /// **'Your trend is holding steady, so there\'s no date for {goal} yet.'**
+  String bodyGoalEtaFlat(String goal);
+
+  /// No description provided for @bodyGoalEtaNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a few weigh-ins over a week or two to see when you\'ll reach {goal}.'**
+  String bodyGoalEtaNoData(String goal);
+
+  /// No description provided for @bodyGoalEtaOnTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'At {rate}/week you\'ll reach {goal} around {date}.'**
+  String bodyGoalEtaOnTrack(String rate, String goal, String date);
+
+  /// No description provided for @bodyGoalEtaReached.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re at your goal of {goal}. Nice work!'**
+  String bodyGoalEtaReached(String goal);
+
+  /// No description provided for @bodyGoalEtaTooFar.
+  ///
+  /// In en, this message translates to:
+  /// **'At {rate}/week, {goal} is more than three years away.'**
+  String bodyGoalEtaTooFar(String rate, String goal);
+
+  /// No description provided for @bodyGoalEtaWrongWay.
+  ///
+  /// In en, this message translates to:
+  /// **'At {rate}/week you\'re moving away from {goal}. Small, steady changes add up.'**
+  String bodyGoalEtaWrongWay(String rate, String goal);
+
+  /// No description provided for @bodyGoalFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal weight'**
+  String get bodyGoalFieldLabel;
+
+  /// No description provided for @bodyGoalInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a goal between {min} and {max}'**
+  String bodyGoalInvalid(String min, String max);
+
+  /// No description provided for @bodyGoalLineLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal {value}'**
+  String bodyGoalLineLabel(String value);
+
+  /// No description provided for @bodyGoalRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove goal'**
+  String get bodyGoalRemove;
+
+  /// No description provided for @bodyGoalSetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'See a goal line on your chart and when you\'ll get there'**
+  String get bodyGoalSetHint;
+
+  /// No description provided for @bodyGoalSetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a goal weight'**
+  String get bodyGoalSetTitle;
+
+  /// No description provided for @bodyGoalSheetHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll draw it on your chart and estimate when you\'ll get there.'**
+  String get bodyGoalSheetHelp;
+
+  /// No description provided for @bodyGoalSheetHelpCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Your trend weight is {current}. We\'ll draw the goal on your chart and estimate when you\'ll get there.'**
+  String bodyGoalSheetHelpCurrent(String current);
+
+  /// No description provided for @bodyGoalToGo.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} to go'**
+  String bodyGoalToGo(String value);
+
+  /// No description provided for @bodyLastWeighIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Last weigh-in {value} · {date}'**
+  String bodyLastWeighIn(String value, String date);
+
+  /// No description provided for @bodyLegendGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get bodyLegendGoal;
+
+  /// No description provided for @bodyLegendTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Trend'**
+  String get bodyLegendTrend;
+
+  /// No description provided for @bodyLegendWeighIns.
+  ///
+  /// In en, this message translates to:
+  /// **'Weigh-ins'**
+  String get bodyLegendWeighIns;
+
+  /// No description provided for @bodyMetricArm.
+  ///
+  /// In en, this message translates to:
+  /// **'Arm'**
+  String get bodyMetricArm;
+
+  /// No description provided for @bodyMetricBodyFat.
+  ///
+  /// In en, this message translates to:
+  /// **'Body fat'**
+  String get bodyMetricBodyFat;
+
+  /// No description provided for @bodyMetricChest.
+  ///
+  /// In en, this message translates to:
+  /// **'Chest'**
+  String get bodyMetricChest;
+
+  /// No description provided for @bodyMetricHips.
+  ///
+  /// In en, this message translates to:
+  /// **'Hips'**
+  String get bodyMetricHips;
+
+  /// No description provided for @bodyMetricNeck.
+  ///
+  /// In en, this message translates to:
+  /// **'Neck'**
+  String get bodyMetricNeck;
+
+  /// No description provided for @bodyMetricThigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Thigh'**
+  String get bodyMetricThigh;
+
+  /// No description provided for @bodyMetricWaist.
+  ///
+  /// In en, this message translates to:
+  /// **'Waist'**
+  String get bodyMetricWaist;
+
+  /// No description provided for @bodyNeedAnyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a weight, body fat or at least one measurement'**
+  String get bodyNeedAnyValue;
+
+  /// No description provided for @bodyPhotoAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photo'**
+  String get bodyPhotoAdd;
+
+  /// No description provided for @bodyPhotoAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New progress photo'**
+  String get bodyPhotoAddTitle;
+
+  /// No description provided for @bodyPhotoDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo will be removed for good.'**
+  String get bodyPhotoDeleteMessage;
+
+  /// No description provided for @bodyPhotoDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete photo?'**
+  String get bodyPhotoDeleteTitle;
+
+  /// No description provided for @bodyPhotoDeleteTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete photo'**
+  String get bodyPhotoDeleteTooltip;
+
+  /// No description provided for @bodyPhotoFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get bodyPhotoFromGallery;
+
+  /// No description provided for @bodyPhotoTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get bodyPhotoTake;
+
+  /// No description provided for @bodyPhotoTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'That photo is over 20 MB.'**
+  String get bodyPhotoTooLarge;
+
+  /// No description provided for @bodyPhotoWeightHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to use your nearest weigh-in.'**
+  String get bodyPhotoWeightHelp;
+
+  /// No description provided for @bodyPhotoWeightOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight (optional)'**
+  String get bodyPhotoWeightOptional;
+
+  /// No description provided for @bodyPhotosCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo} other{{count} photos}}'**
+  String bodyPhotosCount(int count);
+
+  /// No description provided for @bodyPhotosEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Take front, side and back photos every few weeks, then compare any two.'**
+  String get bodyPhotosEmptyMessage;
+
+  /// No description provided for @bodyPhotosEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See how far you\'ve come'**
+  String get bodyPhotosEmptyTitle;
+
+  /// No description provided for @bodyPhotosPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you can see these.'**
+  String get bodyPhotosPrivate;
+
+  /// No description provided for @bodyPhotosPrivateDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress photos never appear in feeds, and trainers can\'t see them.'**
+  String get bodyPhotosPrivateDetail;
+
+  /// No description provided for @bodyPhotosTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get bodyPhotosTab;
+
+  /// No description provided for @bodyPoseAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get bodyPoseAll;
+
+  /// No description provided for @bodyPoseBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get bodyPoseBack;
+
+  /// No description provided for @bodyPoseFront.
+  ///
+  /// In en, this message translates to:
+  /// **'Front'**
+  String get bodyPoseFront;
+
+  /// No description provided for @bodyPoseOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get bodyPoseOther;
+
+  /// No description provided for @bodyPoseSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Side'**
+  String get bodyPoseSide;
+
+  /// No description provided for @bodyRange1y.
+  ///
+  /// In en, this message translates to:
+  /// **'1Y'**
+  String get bodyRange1y;
+
+  /// No description provided for @bodyRatePerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{rate} per week'**
+  String bodyRatePerWeek(String rate);
+
+  /// No description provided for @bodyTapeOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{metric} must be between {min} and {max} {unit}'**
+  String bodyTapeOutOfRange(String metric, String min, String max, String unit);
+
+  /// No description provided for @bodyTapeSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Body measurements'**
+  String get bodyTapeSection;
+
+  /// No description provided for @bodyTapeSectionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional, in {unit}'**
+  String bodyTapeSectionHint(String unit);
+
+  /// No description provided for @bodyTooltipTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Trend {value}'**
+  String bodyTooltipTrend(String value);
+
+  /// No description provided for @bodyTooltipWeighIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Weigh-in {value}'**
+  String bodyTooltipWeighIn(String value);
+
+  /// No description provided for @bodyTrendSeries.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight trend'**
+  String get bodyTrendSeries;
+
+  /// No description provided for @bodyTrendWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Trend weight'**
+  String get bodyTrendWeight;
+
   /// No description provided for @businessCheckInAllTime.
   ///
   /// In en, this message translates to:
@@ -2742,6 +3156,546 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Previous week'**
   String get calendarPreviousWeek;
+
+  /// No description provided for @challengeCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get challengeCancel;
+
+  /// No description provided for @challengeCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get challengeCompleted;
+
+  /// No description provided for @challengeCompletedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed {date}'**
+  String challengeCompletedOn(String date);
+
+  /// No description provided for @challengeCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'New challenge'**
+  String get challengeCreate;
+
+  /// No description provided for @challengeCreatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'By {name}'**
+  String challengeCreatedBy(String name);
+
+  /// No description provided for @challengeDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, other{{count} days left}}'**
+  String challengeDaysLeft(int count);
+
+  /// No description provided for @challengeDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete challenge'**
+  String get challengeDelete;
+
+  /// No description provided for @challengeDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{title}”? Everyone\'s progress in it goes too.'**
+  String challengeDeleteConfirm(String title);
+
+  /// No description provided for @challengeDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge deleted'**
+  String get challengeDeleted;
+
+  /// No description provided for @challengeEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit challenge'**
+  String get challengeEdit;
+
+  /// No description provided for @challengeEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get challengeEnded;
+
+  /// No description provided for @challengeEndedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended {date}'**
+  String challengeEndedOn(String date);
+
+  /// No description provided for @challengeFormCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create challenge'**
+  String get challengeFormCreate;
+
+  /// No description provided for @challengeFormDates.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get challengeFormDates;
+
+  /// No description provided for @challengeFormDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get challengeFormDescription;
+
+  /// No description provided for @challengeFormEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get challengeFormEnds;
+
+  /// No description provided for @challengeFormEndsBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'It has to end after it starts.'**
+  String get challengeFormEndsBeforeStart;
+
+  /// No description provided for @challengeFormEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone on Gym Bro'**
+  String get challengeFormEveryone;
+
+  /// No description provided for @challengeFormLength.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String challengeFormLength(int count);
+
+  /// No description provided for @challengeFormLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'What counts and the start date are fixed once it has started.'**
+  String get challengeFormLocked;
+
+  /// No description provided for @challengeFormMembersOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Members of {gym}'**
+  String challengeFormMembersOf(String gym);
+
+  /// No description provided for @challengeFormMetric.
+  ///
+  /// In en, this message translates to:
+  /// **'What counts'**
+  String get challengeFormMetric;
+
+  /// No description provided for @challengeFormNotify.
+  ///
+  /// In en, this message translates to:
+  /// **'Members of {gym} get a notification when you create it.'**
+  String challengeFormNotify(String gym);
+
+  /// No description provided for @challengeFormSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get challengeFormSave;
+
+  /// No description provided for @challengeFormSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge saved'**
+  String get challengeFormSaved;
+
+  /// No description provided for @challengeFormStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get challengeFormStarts;
+
+  /// No description provided for @challengeFormTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get challengeFormTarget;
+
+  /// No description provided for @challengeFormTargetInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a whole number above 0'**
+  String get challengeFormTargetInvalid;
+
+  /// No description provided for @challengeFormTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get challengeFormTitle;
+
+  /// No description provided for @challengeFormTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 30 days of iron'**
+  String get challengeFormTitleHint;
+
+  /// No description provided for @challengeFormTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Give it a name'**
+  String get challengeFormTitleRequired;
+
+  /// No description provided for @challengeFormTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'A challenge lasts a year at most.'**
+  String get challengeFormTooLong;
+
+  /// No description provided for @challengeFormWho.
+  ///
+  /// In en, this message translates to:
+  /// **'Who it\'s for'**
+  String get challengeFormWho;
+
+  /// No description provided for @challengeGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal: {goal}'**
+  String challengeGoal(String goal);
+
+  /// No description provided for @challengeGoalReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached!'**
+  String get challengeGoalReached;
+
+  /// No description provided for @challengeHowItCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'How it counts'**
+  String get challengeHowItCounts;
+
+  /// No description provided for @challengeHubIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{You\'re in 1 challenge} other{You\'re in {count} challenges}}'**
+  String challengeHubIn(int count);
+
+  /// No description provided for @challengeHubNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a challenge, earn medals'**
+  String get challengeHubNone;
+
+  /// No description provided for @challengeHubOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{New ones every month} =1{1 open to join} other{{count} open to join}}'**
+  String challengeHubOpen(int count);
+
+  /// No description provided for @challengeHubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenges'**
+  String get challengeHubTitle;
+
+  /// No description provided for @challengeJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get challengeJoin;
+
+  /// No description provided for @challengeJoinChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Join challenge'**
+  String get challengeJoinChallenge;
+
+  /// No description provided for @challengeJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re in! Let\'s go 💪'**
+  String get challengeJoined;
+
+  /// No description provided for @challengeJustCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge complete! 🏅'**
+  String get challengeJustCompleted;
+
+  /// No description provided for @challengeJustCompletedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You crushed it. The medal is on your profile now.'**
+  String get challengeJustCompletedBody;
+
+  /// No description provided for @challengeLastDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Last day'**
+  String get challengeLastDay;
+
+  /// No description provided for @challengeLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get challengeLeaderboard;
+
+  /// No description provided for @challengeLeaderboardEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one on the board yet. Join and take the lead.'**
+  String get challengeLeaderboardEmpty;
+
+  /// No description provided for @challengeLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave challenge'**
+  String get challengeLeave;
+
+  /// No description provided for @challengeLeaveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave “{title}”? You can join again until it ends.'**
+  String challengeLeaveConfirm(String title);
+
+  /// No description provided for @challengeMedalsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 medal} other{{count} medals}}'**
+  String challengeMedalsCount(int count);
+
+  /// No description provided for @challengeMedalsPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is private. Follow them to see their medals.'**
+  String get challengeMedalsPrivate;
+
+  /// No description provided for @challengeMedalsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge medals'**
+  String get challengeMedalsTitle;
+
+  /// No description provided for @challengeMetricActiveDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Active days'**
+  String get challengeMetricActiveDays;
+
+  /// No description provided for @challengeMetricCheckIns.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-ins'**
+  String get challengeMetricCheckIns;
+
+  /// No description provided for @challengeMetricMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes'**
+  String get challengeMetricMinutes;
+
+  /// No description provided for @challengeMetricVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume lifted'**
+  String get challengeMetricVolume;
+
+  /// No description provided for @challengeMetricWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts'**
+  String get challengeMetricWorkouts;
+
+  /// No description provided for @challengeMonthlyActiveDaysDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Train on {count} different days in {month}.'**
+  String challengeMonthlyActiveDaysDescription(String month, int count);
+
+  /// No description provided for @challengeMonthlyActiveDaysTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Active {month}: {count} days'**
+  String challengeMonthlyActiveDaysTitle(String month, int count);
+
+  /// No description provided for @challengeMonthlyWorkoutsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish {count} workouts in {month}. Any workout counts, at the gym or at home.'**
+  String challengeMonthlyWorkoutsDescription(String month, int count);
+
+  /// No description provided for @challengeMonthlyWorkoutsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{month} Grind: {count} workouts'**
+  String challengeMonthlyWorkoutsTitle(String month, int count);
+
+  /// No description provided for @challengeMuteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished challenges, new ones at your gyms and your yearly recap.'**
+  String get challengeMuteDescription;
+
+  /// No description provided for @challengeMuteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenges & Wrapped'**
+  String get challengeMuteLabel;
+
+  /// No description provided for @challengeParticipants.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No one yet} =1{1 person} other{{count} people}}'**
+  String challengeParticipants(int count);
+
+  /// No description provided for @challengePlatform.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym Bro'**
+  String get challengePlatform;
+
+  /// No description provided for @challengeRuleActiveDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day you finish a workout counts once.'**
+  String get challengeRuleActiveDays;
+
+  /// No description provided for @challengeRuleCheckIns.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day you check in at {gym} counts once.'**
+  String challengeRuleCheckIns(String gym);
+
+  /// No description provided for @challengeRuleMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'The minutes of your finished workouts count, up to 4 hours per workout.'**
+  String get challengeRuleMinutes;
+
+  /// No description provided for @challengeRuleVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight × reps of every logged set counts.'**
+  String get challengeRuleVolume;
+
+  /// No description provided for @challengeRuleWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts from the start of the challenge count, even from before you joined.'**
+  String get challengeRuleWindow;
+
+  /// No description provided for @challengeRuleWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Every finished workout with at least one logged set counts. Log it by the end of the next day.'**
+  String get challengeRuleWorkouts;
+
+  /// No description provided for @challengeStartsIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Starts in 1 day} other{Starts in {count} days}}'**
+  String challengeStartsIn(int count);
+
+  /// No description provided for @challengeStartsTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts tomorrow'**
+  String get challengeStartsTomorrow;
+
+  /// No description provided for @challengeToGo.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} to go'**
+  String challengeToGo(String amount);
+
+  /// No description provided for @challengeUnitActiveDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{active day} other{active days}}'**
+  String challengeUnitActiveDays(int count);
+
+  /// No description provided for @challengeUnitCheckIns.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{check-in} other{check-ins}}'**
+  String challengeUnitCheckIns(int count);
+
+  /// No description provided for @challengeUnitMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get challengeUnitMinutes;
+
+  /// No description provided for @challengeUnitWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{workout} other{workouts}}'**
+  String challengeUnitWorkouts(int count);
+
+  /// No description provided for @challengeUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get challengeUpcoming;
+
+  /// No description provided for @challengeYourRank.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re #{rank}'**
+  String challengeYourRank(int rank);
+
+  /// No description provided for @challengesEmptyJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing open to join right now. New challenges start every month.'**
+  String get challengesEmptyJoin;
+
+  /// No description provided for @challengesEmptyMedals.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish a challenge to earn your first medal.'**
+  String get challengesEmptyMedals;
+
+  /// No description provided for @challengesEmptyMine.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re not in a challenge yet. Pick one and start moving.'**
+  String get challengesEmptyMine;
+
+  /// No description provided for @challengesLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load challenges.'**
+  String get challengesLoadFailed;
+
+  /// No description provided for @challengesRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get challengesRetry;
+
+  /// No description provided for @challengesTabJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get challengesTabJoin;
+
+  /// No description provided for @challengesTabMedals.
+  ///
+  /// In en, this message translates to:
+  /// **'Medals'**
+  String get challengesTabMedals;
+
+  /// No description provided for @challengesTabMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Mine'**
+  String get challengesTabMine;
+
+  /// No description provided for @challengesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenges'**
+  String get challengesTitle;
 
   /// No description provided for @chatAccept.
   ///
@@ -5893,6 +6847,288 @@ abstract class AppLocalizations {
   /// **'Video {index}'**
   String mediaVideoNumber(int index);
 
+  /// No description provided for @nativeHealthApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Health'**
+  String get nativeHealthApple;
+
+  /// No description provided for @nativeHealthConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect {platform}'**
+  String nativeHealthConnect(String platform);
+
+  /// No description provided for @nativeHealthConnectSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import weigh-ins, show steps and sleep on Home, and save your workouts and water there.'**
+  String get nativeHealthConnectSubtitle;
+
+  /// No description provided for @nativeHealthConnectedTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected to {platform}'**
+  String nativeHealthConnectedTo(String platform);
+
+  /// No description provided for @nativeHealthDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'{platform} access wasn\'t granted.'**
+  String nativeHealthDenied(String platform);
+
+  /// No description provided for @nativeHealthDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get nativeHealthDisconnect;
+
+  /// No description provided for @nativeHealthDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected from {platform}.'**
+  String nativeHealthDisconnected(String platform);
+
+  /// No description provided for @nativeHealthDisconnectedIos.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected. To remove access completely, open the Health app → your profile → Apps → Gym Bro.'**
+  String get nativeHealthDisconnectedIos;
+
+  /// No description provided for @nativeHealthFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t connect: {error}'**
+  String nativeHealthFailed(String error);
+
+  /// No description provided for @nativeHealthGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Connect'**
+  String get nativeHealthGoogle;
+
+  /// No description provided for @nativeHealthImportWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Import weigh-ins'**
+  String get nativeHealthImportWeight;
+
+  /// No description provided for @nativeHealthImportWeightSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New ones from the last 30 days, at most one a day, only on days without a measurement.'**
+  String get nativeHealthImportWeightSubtitle;
+
+  /// No description provided for @nativeHealthImported.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No new weigh-ins} =1{Imported 1 weigh-in} other{Imported {count} weigh-ins}}'**
+  String nativeHealthImported(int count);
+
+  /// No description provided for @nativeHealthInstall.
+  ///
+  /// In en, this message translates to:
+  /// **'Install'**
+  String get nativeHealthInstall;
+
+  /// No description provided for @nativeHealthLastChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Weigh-ins last checked {when}'**
+  String nativeHealthLastChecked(String when);
+
+  /// No description provided for @nativeHealthNeverChecked.
+  ///
+  /// In en, this message translates to:
+  /// **'Weigh-ins not checked yet'**
+  String get nativeHealthNeverChecked;
+
+  /// No description provided for @nativeHealthNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get nativeHealthNoData;
+
+  /// No description provided for @nativeHealthNotInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Connect isn\'t installed or needs an update.'**
+  String get nativeHealthNotInstalled;
+
+  /// No description provided for @nativeHealthOnThisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Only on this device'**
+  String get nativeHealthOnThisDevice;
+
+  /// No description provided for @nativeHealthSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get nativeHealthSection;
+
+  /// No description provided for @nativeHealthShowActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Steps and sleep on Home'**
+  String get nativeHealthShowActivity;
+
+  /// No description provided for @nativeHealthShowActivitySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s steps and last night\'s sleep on the Today dashboard.'**
+  String get nativeHealthShowActivitySubtitle;
+
+  /// No description provided for @nativeHealthSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep'**
+  String get nativeHealthSleep;
+
+  /// No description provided for @nativeHealthSleepDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String nativeHealthSleepDuration(int hours, int minutes);
+
+  /// No description provided for @nativeHealthSleepLastNight.
+  ///
+  /// In en, this message translates to:
+  /// **'last night'**
+  String get nativeHealthSleepLastNight;
+
+  /// No description provided for @nativeHealthSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Steps'**
+  String get nativeHealthSteps;
+
+  /// No description provided for @nativeHealthStepsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get nativeHealthStepsToday;
+
+  /// No description provided for @nativeHealthSyncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get nativeHealthSyncNow;
+
+  /// No description provided for @nativeHealthTodaySemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{steps} steps today, {sleep} of sleep last night'**
+  String nativeHealthTodaySemantics(String steps, String sleep);
+
+  /// No description provided for @nativeHealthWeighInNote.
+  ///
+  /// In en, this message translates to:
+  /// **'From {platform}'**
+  String nativeHealthWeighInNote(String platform);
+
+  /// No description provided for @nativeHealthWriteWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Save water'**
+  String get nativeHealthWriteWater;
+
+  /// No description provided for @nativeHealthWriteWaterSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Each drink you log is saved.'**
+  String get nativeHealthWriteWaterSubtitle;
+
+  /// No description provided for @nativeHealthWriteWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Save workouts'**
+  String get nativeHealthWriteWorkouts;
+
+  /// No description provided for @nativeHealthWriteWorkoutsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts you finish are saved as strength training.'**
+  String get nativeHealthWriteWorkoutsSubtitle;
+
+  /// No description provided for @nativeRestAdd30.
+  ///
+  /// In en, this message translates to:
+  /// **'+30 s'**
+  String get nativeRestAdd30;
+
+  /// No description provided for @nativeRestBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest between sets'**
+  String get nativeRestBody;
+
+  /// No description provided for @nativeRestChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest timer'**
+  String get nativeRestChannel;
+
+  /// No description provided for @nativeRestChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The countdown between sets while you train.'**
+  String get nativeRestChannelDescription;
+
+  /// No description provided for @nativeRestNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {name}'**
+  String nativeRestNext(String name);
+
+  /// No description provided for @nativeRestOverBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Time for your next set'**
+  String get nativeRestOverBody;
+
+  /// No description provided for @nativeRestOverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest\'s over'**
+  String get nativeRestOverTitle;
+
+  /// No description provided for @nativeRestSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get nativeRestSkip;
+
+  /// No description provided for @nativeRestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest'**
+  String get nativeRestTitle;
+
+  /// No description provided for @nativeWidgetOpenApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Gym Bro to refresh'**
+  String get nativeWidgetOpenApp;
+
+  /// No description provided for @nativeWidgetSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Gym Bro'**
+  String get nativeWidgetSignedOut;
+
+  /// No description provided for @nativeWidgetStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak'**
+  String get nativeWidgetStreak;
+
+  /// No description provided for @nativeWidgetToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get nativeWidgetToday;
+
   /// No description provided for @nutritionAdd.
   ///
   /// In en, this message translates to:
@@ -8203,6 +9439,444 @@ abstract class AppLocalizations {
   /// **'Yours'**
   String get nutritionYours;
 
+  /// No description provided for @onboardingBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get onboardingBack;
+
+  /// No description provided for @onboardingBodyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. It sets your water goal and the goal line on your weight chart.'**
+  String get onboardingBodyBody;
+
+  /// No description provided for @onboardingBodyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About you'**
+  String get onboardingBodyTitle;
+
+  /// No description provided for @onboardingContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get onboardingContinue;
+
+  /// No description provided for @onboardingCurrentWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Current weight'**
+  String get onboardingCurrentWeight;
+
+  /// No description provided for @onboardingDaysBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a number you can keep up with. Consistency beats intensity.'**
+  String get onboardingDaysBody;
+
+  /// No description provided for @onboardingDaysEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'A gentle start'**
+  String get onboardingDaysEasy;
+
+  /// No description provided for @onboardingDaysIntense.
+  ///
+  /// In en, this message translates to:
+  /// **'Serious dedication'**
+  String get onboardingDaysIntense;
+
+  /// No description provided for @onboardingDaysSteady.
+  ///
+  /// In en, this message translates to:
+  /// **'A solid routine'**
+  String get onboardingDaysSteady;
+
+  /// No description provided for @onboardingDaysStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Hit it every week to keep your streak alive. Plans count too.'**
+  String get onboardingDaysStreak;
+
+  /// No description provided for @onboardingDaysTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How many days a week will you train?'**
+  String get onboardingDaysTitle;
+
+  /// No description provided for @onboardingDaysValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day a week} other{{count} days a week}}'**
+  String onboardingDaysValue(int count);
+
+  /// No description provided for @onboardingDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s your setup. Tap anything to change it.'**
+  String get onboardingDoneBody;
+
+  /// No description provided for @onboardingDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all set!'**
+  String get onboardingDoneTitle;
+
+  /// No description provided for @onboardingFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s go'**
+  String get onboardingFinish;
+
+  /// No description provided for @onboardingGoalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the one that matters most right now.'**
+  String get onboardingGoalBody;
+
+  /// No description provided for @onboardingGoalBuildMuscle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build muscle'**
+  String get onboardingGoalBuildMuscle;
+
+  /// No description provided for @onboardingGoalBuildMuscleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add size and shape'**
+  String get onboardingGoalBuildMuscleHint;
+
+  /// No description provided for @onboardingGoalEndurance.
+  ///
+  /// In en, this message translates to:
+  /// **'Endurance'**
+  String get onboardingGoalEndurance;
+
+  /// No description provided for @onboardingGoalEnduranceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Go longer and recover faster'**
+  String get onboardingGoalEnduranceHint;
+
+  /// No description provided for @onboardingGoalGetStronger.
+  ///
+  /// In en, this message translates to:
+  /// **'Get stronger'**
+  String get onboardingGoalGetStronger;
+
+  /// No description provided for @onboardingGoalGetStrongerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Lift heavier and hit new PRs'**
+  String get onboardingGoalGetStrongerHint;
+
+  /// No description provided for @onboardingGoalLoseFat.
+  ///
+  /// In en, this message translates to:
+  /// **'Lose fat'**
+  String get onboardingGoalLoseFat;
+
+  /// No description provided for @onboardingGoalLoseFatHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Lean out and feel lighter'**
+  String get onboardingGoalLoseFatHint;
+
+  /// No description provided for @onboardingGoalStayFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay fit'**
+  String get onboardingGoalStayFit;
+
+  /// No description provided for @onboardingGoalStayFitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep healthy, active and moving'**
+  String get onboardingGoalStayFitHint;
+
+  /// No description provided for @onboardingGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s your main goal?'**
+  String get onboardingGoalTitle;
+
+  /// No description provided for @onboardingGoalWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal weight'**
+  String get onboardingGoalWeight;
+
+  /// No description provided for @onboardingGoalWeightSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested for your goal. Change it or clear it.'**
+  String get onboardingGoalWeightSuggested;
+
+  /// No description provided for @onboardingOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get onboardingOptional;
+
+  /// No description provided for @onboardingProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String onboardingProgress(int current, int total);
+
+  /// No description provided for @onboardingRedo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo setup'**
+  String get onboardingRedo;
+
+  /// No description provided for @onboardingRedoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal, training days, weight and water'**
+  String get onboardingRedoSubtitle;
+
+  /// No description provided for @onboardingSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save your setup. We\'ll ask again next time.'**
+  String get onboardingSaveFailed;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get onboardingStart;
+
+  /// No description provided for @onboardingSummaryDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get onboardingSummaryDays;
+
+  /// No description provided for @onboardingSummaryGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get onboardingSummaryGoal;
+
+  /// No description provided for @onboardingSummaryGoalOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal: {goal}'**
+  String onboardingSummaryGoalOnly(String goal);
+
+  /// No description provided for @onboardingSummaryNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get onboardingSummaryNotSet;
+
+  /// No description provided for @onboardingSummaryWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get onboardingSummaryWater;
+
+  /// No description provided for @onboardingSummaryWaterAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} a day (auto)'**
+  String onboardingSummaryWaterAuto(String amount);
+
+  /// No description provided for @onboardingSummaryWaterCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} a day'**
+  String onboardingSummaryWaterCustom(String amount);
+
+  /// No description provided for @onboardingSummaryWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get onboardingSummaryWeight;
+
+  /// No description provided for @onboardingSummaryWeightGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} → {goal}'**
+  String onboardingSummaryWeightGoal(String current, String goal);
+
+  /// No description provided for @onboardingUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'Units'**
+  String get onboardingUnits;
+
+  /// No description provided for @onboardingWaterAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto: about 35 ml per kg of body weight'**
+  String get onboardingWaterAuto;
+
+  /// No description provided for @onboardingWaterAutoNoWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto: a good default until you add your weight'**
+  String get onboardingWaterAutoNoWeight;
+
+  /// No description provided for @onboardingWaterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Staying hydrated makes every workout better.'**
+  String get onboardingWaterBody;
+
+  /// No description provided for @onboardingWaterCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own goal'**
+  String get onboardingWaterCustom;
+
+  /// No description provided for @onboardingWaterGlasses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{about 1 glass of 250 ml} other{about {count} glasses of 250 ml}}'**
+  String onboardingWaterGlasses(int count);
+
+  /// No description provided for @onboardingWaterLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Less water'**
+  String get onboardingWaterLess;
+
+  /// No description provided for @onboardingWaterLiters.
+  ///
+  /// In en, this message translates to:
+  /// **'{liters} L'**
+  String onboardingWaterLiters(String liters);
+
+  /// No description provided for @onboardingWaterMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More water'**
+  String get onboardingWaterMore;
+
+  /// No description provided for @onboardingWaterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your daily water goal'**
+  String get onboardingWaterTitle;
+
+  /// No description provided for @onboardingWaterUseAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Use auto'**
+  String get onboardingWaterUseAuto;
+
+  /// No description provided for @onboardingWeightInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a weight between {min} and {max}'**
+  String onboardingWeightInvalid(String min, String max);
+
+  /// No description provided for @onboardingWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A few quick questions and your training, streak and goals are ready. It takes under a minute.'**
+  String get onboardingWelcomeBody;
+
+  /// No description provided for @onboardingWelcomeGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Set goals and watch yourself get there'**
+  String get onboardingWelcomeGoals;
+
+  /// No description provided for @onboardingWelcomeLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change all of this later in Settings.'**
+  String get onboardingWelcomeLater;
+
+  /// No description provided for @onboardingWelcomeStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Build a streak that keeps you coming back'**
+  String get onboardingWelcomeStreak;
+
+  /// No description provided for @onboardingWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Gym Bro'**
+  String get onboardingWelcomeTitle;
+
+  /// No description provided for @onboardingWelcomeTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Log every workout and PR'**
+  String get onboardingWelcomeTrack;
+
+  /// No description provided for @overloadLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last: {sets}'**
+  String overloadLast(String sets);
+
+  /// No description provided for @overloadLastReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Last: {reps} reps'**
+  String overloadLastReps(String reps);
+
+  /// No description provided for @overloadReasonAddRep.
+  ///
+  /// In en, this message translates to:
+  /// **'Same weight, one more rep'**
+  String get overloadReasonAddRep;
+
+  /// No description provided for @overloadReasonAddWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Hit all reps last time → +{increment}'**
+  String overloadReasonAddWeight(String increment);
+
+  /// No description provided for @overloadReasonBodyweight.
+  ///
+  /// In en, this message translates to:
+  /// **'One more rep than last time'**
+  String get overloadReasonBodyweight;
+
+  /// No description provided for @overloadReasonDeload.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days off → ease back in (−10%)'**
+  String overloadReasonDeload(int days);
+
+  /// No description provided for @overloadTry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try {weight} × {reps}'**
+  String overloadTry(String weight, int reps);
+
+  /// No description provided for @overloadTryReps.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Try 1 rep} other{Try {count} reps}}'**
+  String overloadTryReps(int count);
+
+  /// No description provided for @overloadUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get overloadUse;
+
+  /// No description provided for @overloadUseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fills in the suggestion'**
+  String get overloadUseHint;
+
   /// No description provided for @peopleAccept.
   ///
   /// In en, this message translates to:
@@ -9679,6 +11353,162 @@ abstract class AppLocalizations {
   /// **'Workout'**
   String get planWorkoutFallback;
 
+  /// No description provided for @polishEmptyChallengesAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse challenges'**
+  String get polishEmptyChallengesAction;
+
+  /// No description provided for @polishEmptyChallengesJoinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to join right now'**
+  String get polishEmptyChallengesJoinTitle;
+
+  /// No description provided for @polishEmptyChallengesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No challenges yet'**
+  String get polishEmptyChallengesTitle;
+
+  /// No description provided for @polishEmptyNotificationsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Likes, comments, follows and class updates show up here.'**
+  String get polishEmptyNotificationsBody;
+
+  /// No description provided for @polishEmptyWorkoutsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Start your first workout'**
+  String get polishEmptyWorkoutsAction;
+
+  /// No description provided for @polishEmptyWorkoutsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a session and it will show up here.'**
+  String get polishEmptyWorkoutsBody;
+
+  /// No description provided for @polishEmptyWorkoutsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts yet'**
+  String get polishEmptyWorkoutsTitle;
+
+  /// No description provided for @polishFeedFindPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Find people to follow'**
+  String get polishFeedFindPeople;
+
+  /// No description provided for @polishFindPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Find people'**
+  String get polishFindPeople;
+
+  /// No description provided for @polishFindPeopleRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Find people, 1 request} other{Find people, {count} requests}}'**
+  String polishFindPeopleRequests(int count);
+
+  /// No description provided for @polishSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get polishSeeAll;
+
+  /// No description provided for @polishStartChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a chat'**
+  String get polishStartChat;
+
+  /// No description provided for @polishTabTrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Train'**
+  String get polishTabTrain;
+
+  /// No description provided for @polishTrainChallengesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compete with friends and your gym'**
+  String get polishTrainChallengesSubtitle;
+
+  /// No description provided for @polishTrainExercisesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The library, with how-tos'**
+  String get polishTrainExercisesSubtitle;
+
+  /// No description provided for @polishTrainHeroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow a workout or log a free session.'**
+  String get polishTrainHeroBody;
+
+  /// No description provided for @polishTrainHeroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to train?'**
+  String get polishTrainHeroTitle;
+
+  /// No description provided for @polishTrainLast7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get polishTrainLast7Days;
+
+  /// No description provided for @polishTrainPlanTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan & track'**
+  String get polishTrainPlanTrack;
+
+  /// No description provided for @polishTrainProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress & PRs'**
+  String get polishTrainProgress;
+
+  /// No description provided for @polishTrainProgressSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifts, records and body stats'**
+  String get polishTrainProgressSubtitle;
+
+  /// No description provided for @polishTrainRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent sessions'**
+  String get polishTrainRecent;
+
+  /// No description provided for @polishTrainRoutinesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your routines and plans'**
+  String get polishTrainRoutinesSubtitle;
+
+  /// No description provided for @polishTrainStatMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Minutes'**
+  String get polishTrainStatMinutes;
+
+  /// No description provided for @polishTrainStatSets.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets'**
+  String get polishTrainStatSets;
+
+  /// No description provided for @polishTrainStatWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts'**
+  String get polishTrainStatWorkouts;
+
   /// No description provided for @postShareAction.
   ///
   /// In en, this message translates to:
@@ -9876,6 +11706,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 workout} other{{count} workouts}}'**
   String postShareWorkouts(int count);
+
+  /// No description provided for @postingDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get postingDiscard;
+
+  /// No description provided for @postingDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Posted'**
+  String get postingDone;
+
+  /// No description provided for @postingFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t post.'**
+  String get postingFailed;
+
+  /// No description provided for @postingInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Posting…'**
+  String get postingInProgress;
+
+  /// No description provided for @postingProgressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Posting, {percent}% done'**
+  String postingProgressLabel(int percent);
+
+  /// No description provided for @postingRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get postingRetry;
 
   /// No description provided for @postsAdvancedSettings.
   ///
@@ -14155,6 +16021,216 @@ abstract class AppLocalizations {
   /// **'Tag people · {index}/{count}'**
   String tagsTitleOf(int index, int count);
 
+  /// No description provided for @todayAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All done for today'**
+  String get todayAllDone;
+
+  /// No description provided for @todayAllDoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Nice work. Rest up, or squeeze in another session.'**
+  String get todayAllDoneHint;
+
+  /// No description provided for @todayCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories'**
+  String get todayCalories;
+
+  /// No description provided for @todayCarbShort.
+  ///
+  /// In en, this message translates to:
+  /// **'C'**
+  String get todayCarbShort;
+
+  /// No description provided for @todayClassWith.
+  ///
+  /// In en, this message translates to:
+  /// **'with {trainer}'**
+  String todayClassWith(String trainer);
+
+  /// No description provided for @todayEntryDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get todayEntryDone;
+
+  /// No description provided for @todayEntrySkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get todayEntrySkipped;
+
+  /// No description provided for @todayFatShort.
+  ///
+  /// In en, this message translates to:
+  /// **'F'**
+  String get todayFatShort;
+
+  /// No description provided for @todayFreeDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Free day'**
+  String get todayFreeDay;
+
+  /// No description provided for @todayFreeDayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing planned today. Feel like moving anyway?'**
+  String get todayFreeDayHint;
+
+  /// No description provided for @todayGreetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon, {name}'**
+  String todayGreetingAfternoon(String name);
+
+  /// No description provided for @todayGreetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening, {name}'**
+  String todayGreetingEvening(String name);
+
+  /// No description provided for @todayGreetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning, {name}'**
+  String todayGreetingMorning(String name);
+
+  /// No description provided for @todayKcalLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'kcal logged'**
+  String get todayKcalLogged;
+
+  /// No description provided for @todayKcalOf.
+  ///
+  /// In en, this message translates to:
+  /// **'of {target} kcal'**
+  String todayKcalOf(int target);
+
+  /// No description provided for @todayKcalSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories today: {eaten} kcal'**
+  String todayKcalSemantics(int eaten);
+
+  /// No description provided for @todayKcalTargetSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories today: {eaten} of {target} kcal'**
+  String todayKcalTargetSemantics(int eaten, int target);
+
+  /// No description provided for @todayNextClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Next class'**
+  String get todayNextClass;
+
+  /// No description provided for @todayOpenDiary.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the food diary'**
+  String get todayOpenDiary;
+
+  /// No description provided for @todayProteinShort.
+  ///
+  /// In en, this message translates to:
+  /// **'P'**
+  String get todayProteinShort;
+
+  /// No description provided for @todayShortcuts.
+  ///
+  /// In en, this message translates to:
+  /// **'Shortcuts'**
+  String get todayShortcuts;
+
+  /// No description provided for @todayStartAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Start another'**
+  String get todayStartAnother;
+
+  /// No description provided for @todayStartAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a workout anyway'**
+  String get todayStartAnyway;
+
+  /// No description provided for @todayStartFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t start the workout: {error}'**
+  String todayStartFailed(String error);
+
+  /// No description provided for @todayStartWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Start workout'**
+  String get todayStartWorkout;
+
+  /// No description provided for @todayTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get todayTomorrow;
+
+  /// No description provided for @todayTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s training'**
+  String get todayTraining;
+
+  /// No description provided for @todayWaitlisted.
+  ///
+  /// In en, this message translates to:
+  /// **'Waitlist'**
+  String get todayWaitlisted;
+
+  /// No description provided for @todayWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get todayWeight;
+
+  /// No description provided for @todayWeightChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{change} in 30 days'**
+  String todayWeightChange(String change);
+
+  /// No description provided for @todayWeightOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first weigh-in'**
+  String get todayWeightOne;
+
+  /// No description provided for @todayWeightSteady.
+  ///
+  /// In en, this message translates to:
+  /// **'Steady over 30 days'**
+  String get todayWeightSteady;
+
+  /// No description provided for @todayWeightTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight trend over the last 30 days'**
+  String get todayWeightTrend;
+
+  /// No description provided for @todayWorkoutFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout'**
+  String get todayWorkoutFallback;
+
+  /// No description provided for @todayWorkoutWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} · {minutes} min'**
+  String todayWorkoutWhen(String time, int minutes);
+
   /// No description provided for @trainerClassesPickerCustomer.
   ///
   /// In en, this message translates to:
@@ -17519,6 +19595,342 @@ abstract class AppLocalizations {
   /// **'No routines assigned to you yet.\nYour coach\'s assignments show up here.'**
   String get trainingWorkoutsToMeEmpty;
 
+  /// No description provided for @waterAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get waterAdd;
+
+  /// No description provided for @waterAddCup.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {amount}'**
+  String waterAddCup(String amount);
+
+  /// No description provided for @waterAddFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t log that drink: {error}'**
+  String waterAddFailed(String error);
+
+  /// No description provided for @waterAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {amount}'**
+  String waterAdded(String amount);
+
+  /// No description provided for @waterAddedGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {amount}. Daily goal reached!'**
+  String waterAddedGoal(String amount);
+
+  /// No description provided for @waterAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily average'**
+  String get waterAverage;
+
+  /// No description provided for @waterBottleSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Water today: {drunk} of {goal}, {percent} percent'**
+  String waterBottleSemantics(String drunk, String goal, int percent);
+
+  /// No description provided for @waterChartSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Water per day over the last {count} days, {reached} of them at the goal'**
+  String waterChartSemantics(int count, int reached);
+
+  /// No description provided for @waterCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get waterCustom;
+
+  /// No description provided for @waterCustomInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 1 to 3000 ml'**
+  String get waterCustomInvalid;
+
+  /// No description provided for @waterCustomLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (ml)'**
+  String get waterCustomLabel;
+
+  /// No description provided for @waterCustomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add water'**
+  String get waterCustomTitle;
+
+  /// No description provided for @waterDaysReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal met'**
+  String get waterDaysReached;
+
+  /// No description provided for @waterDaysReachedValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {total} days'**
+  String waterDaysReachedValue(int count, int total);
+
+  /// No description provided for @waterGoalLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get waterGoalLine;
+
+  /// No description provided for @waterGoalReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached!'**
+  String get waterGoalReached;
+
+  /// No description provided for @waterHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get waterHistory;
+
+  /// No description provided for @waterHistoryDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days'**
+  String waterHistoryDays(int count);
+
+  /// No description provided for @waterLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} to go'**
+  String waterLeft(String amount);
+
+  /// No description provided for @waterLiters.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} l'**
+  String waterLiters(String amount);
+
+  /// No description provided for @waterLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your water.'**
+  String get waterLoadFailed;
+
+  /// No description provided for @waterMl.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} ml'**
+  String waterMl(String amount);
+
+  /// No description provided for @waterNoEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing yet today. Tap a cup to log your first drink.'**
+  String get waterNoEntries;
+
+  /// No description provided for @waterOfGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'of {goal}'**
+  String waterOfGoal(String goal);
+
+  /// No description provided for @waterOpenTracker.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the water tracker'**
+  String get waterOpenTracker;
+
+  /// No description provided for @waterProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{drunk} of {goal}'**
+  String waterProgress(String drunk, String goal);
+
+  /// No description provided for @waterReminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A glass now keeps you on track for the day.'**
+  String get waterReminderBody;
+
+  /// No description provided for @waterReminderBodyLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} to go for today\'s goal.'**
+  String waterReminderBodyLeft(String amount);
+
+  /// No description provided for @waterReminderChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Water reminders'**
+  String get waterReminderChannel;
+
+  /// No description provided for @waterReminderChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders to drink water through the day'**
+  String get waterReminderChannelDescription;
+
+  /// No description provided for @waterReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time for some water'**
+  String get waterReminderTitle;
+
+  /// No description provided for @waterRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed {amount}'**
+  String waterRemoved(String amount);
+
+  /// No description provided for @waterRingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to add {amount}, hold to open the water tracker'**
+  String waterRingHint(String amount);
+
+  /// No description provided for @waterSettingsAddCup.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a size'**
+  String get waterSettingsAddCup;
+
+  /// No description provided for @waterSettingsCups.
+  ///
+  /// In en, this message translates to:
+  /// **'Cup sizes'**
+  String get waterSettingsCups;
+
+  /// No description provided for @waterSettingsCupsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to four quick-add sizes, from 50 to 2000 ml.'**
+  String get waterSettingsCupsHelp;
+
+  /// No description provided for @waterSettingsGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily goal'**
+  String get waterSettingsGoal;
+
+  /// No description provided for @waterSettingsGoalAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic · {amount}'**
+  String waterSettingsGoalAuto(String amount);
+
+  /// No description provided for @waterSettingsGoalAutoHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'About 35 ml per kg of your latest body weight (2.5 l without one). Workout days add 500 ml.'**
+  String get waterSettingsGoalAutoHelp;
+
+  /// No description provided for @waterSettingsGoalCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom · {amount}'**
+  String waterSettingsGoalCustom(String amount);
+
+  /// No description provided for @waterSettingsGoalCustomHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own goal. Workout days still add 500 ml.'**
+  String get waterSettingsGoalCustomHelp;
+
+  /// No description provided for @waterSettingsGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily water goal'**
+  String get waterSettingsGoalTitle;
+
+  /// No description provided for @waterSettingsLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Less'**
+  String get waterSettingsLess;
+
+  /// No description provided for @waterSettingsMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get waterSettingsMore;
+
+  /// No description provided for @waterSettingsPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications for Gym Bro to get water reminders.'**
+  String get waterSettingsPermissionDenied;
+
+  /// No description provided for @waterSettingsReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get waterSettingsReminders;
+
+  /// No description provided for @waterSettingsRemindersHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Every 2 hours from 9:00 to 21:00, stopping once you reach the day\'s goal.'**
+  String get waterSettingsRemindersHelp;
+
+  /// No description provided for @waterSettingsRemoveCup.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this size'**
+  String get waterSettingsRemoveCup;
+
+  /// No description provided for @waterSettingsUseAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get waterSettingsUseAuto;
+
+  /// No description provided for @waterSettingsUseCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get waterSettingsUseCustom;
+
+  /// No description provided for @waterStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'In a row'**
+  String get waterStreak;
+
+  /// No description provided for @waterStreakValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String waterStreakValue(int count);
+
+  /// No description provided for @waterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get waterTitle;
+
+  /// No description provided for @waterTodayEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s drinks'**
+  String get waterTodayEntries;
+
+  /// No description provided for @waterUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get waterUndo;
+
+  /// No description provided for @waterWorkoutBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} for today\'s workout'**
+  String waterWorkoutBonus(String amount);
+
   /// No description provided for @workoutCompleteDone.
   ///
   /// In en, this message translates to:
@@ -17962,6 +20374,354 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save as a new training'**
   String get workoutTrainingSaveAsCopy;
+
+  /// No description provided for @wrappedActiveDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{on 1 day} other{on {count} different days}}'**
+  String wrappedActiveDays(int count);
+
+  /// No description provided for @wrappedBadges.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges earned'**
+  String get wrappedBadges;
+
+  /// No description provided for @wrappedBannerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts, lifts, streaks and more.'**
+  String get wrappedBannerBody;
+
+  /// No description provided for @wrappedBannerCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch it'**
+  String get wrappedBannerCta;
+
+  /// No description provided for @wrappedBannerKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym Bro Wrapped'**
+  String get wrappedBannerKicker;
+
+  /// No description provided for @wrappedBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {year} in training is ready'**
+  String wrappedBannerTitle(String year);
+
+  /// No description provided for @wrappedBestLifts.
+  ///
+  /// In en, this message translates to:
+  /// **'Your strongest lifts (estimated 1RM)'**
+  String get wrappedBestLifts;
+
+  /// No description provided for @wrappedBestMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Biggest month: {month}, {count, plural, =1{1 workout} other{{count} workouts}}'**
+  String wrappedBestMonth(String month, int count);
+
+  /// No description provided for @wrappedBusiestDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{day} was your day'**
+  String wrappedBusiestDay(String day);
+
+  /// No description provided for @wrappedChallenges.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 challenge completed} other{{count} challenges completed}}'**
+  String wrappedChallenges(int count);
+
+  /// No description provided for @wrappedCheckIns.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{check-in} other{check-ins}}'**
+  String wrappedCheckIns(int count);
+
+  /// No description provided for @wrappedClasses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 class attended} other{{count} classes attended}}'**
+  String wrappedClasses(int count);
+
+  /// No description provided for @wrappedClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get wrappedClose;
+
+  /// No description provided for @wrappedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get wrappedDone;
+
+  /// No description provided for @wrappedEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was logged in {year}. Your next Wrapped starts with your next workout.'**
+  String wrappedEmptyBody(String year);
+
+  /// No description provided for @wrappedEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A quiet year'**
+  String get wrappedEmptyTitle;
+
+  /// No description provided for @wrappedFavouriteGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Your second home'**
+  String get wrappedFavouriteGym;
+
+  /// No description provided for @wrappedFavouriteHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Favourite time to train: {time}'**
+  String wrappedFavouriteHour(String time);
+
+  /// No description provided for @wrappedFirstWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'It all started on {date}.'**
+  String wrappedFirstWorkout(String date);
+
+  /// No description provided for @wrappedGymKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'At the gym'**
+  String get wrappedGymKicker;
+
+  /// No description provided for @wrappedHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} hours of training'**
+  String wrappedHours(String hours);
+
+  /// No description provided for @wrappedInARow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{workout in a row} other{workouts in a row}}'**
+  String wrappedInARow(int count);
+
+  /// No description provided for @wrappedIntroHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to begin'**
+  String get wrappedIntroHint;
+
+  /// No description provided for @wrappedIntroKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Your year in training'**
+  String get wrappedIntroKicker;
+
+  /// No description provided for @wrappedIntroWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrapped'**
+  String get wrappedIntroWord;
+
+  /// No description provided for @wrappedLiftDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{weight} × {reps}'**
+  String wrappedLiftDetail(String weight, int reps);
+
+  /// No description provided for @wrappedLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your Wrapped.'**
+  String get wrappedLoadFailed;
+
+  /// No description provided for @wrappedLongestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest streak'**
+  String get wrappedLongestStreak;
+
+  /// No description provided for @wrappedNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get wrappedNext;
+
+  /// No description provided for @wrappedNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts were logged in {year}.'**
+  String wrappedNoData(String year);
+
+  /// No description provided for @wrappedNotYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {year} Wrapped opens on {date}.'**
+  String wrappedNotYet(String year, String date);
+
+  /// No description provided for @wrappedPrCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No new PRs} =1{new PR} other{new PRs}}'**
+  String wrappedPrCount(int count);
+
+  /// No description provided for @wrappedPrKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal records'**
+  String get wrappedPrKicker;
+
+  /// No description provided for @wrappedPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get wrappedPrevious;
+
+  /// No description provided for @wrappedRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get wrappedRetry;
+
+  /// No description provided for @wrappedRhythmKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rhythm'**
+  String get wrappedRhythmKicker;
+
+  /// No description provided for @wrappedSetsReps.
+  ///
+  /// In en, this message translates to:
+  /// **'{sets} sets · {reps} reps'**
+  String wrappedSetsReps(String sets, String reps);
+
+  /// No description provided for @wrappedShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share to story'**
+  String get wrappedShare;
+
+  /// No description provided for @wrappedShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t create the image.'**
+  String get wrappedShareFailed;
+
+  /// No description provided for @wrappedSlideLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Slide {index} of {count}'**
+  String wrappedSlideLabel(int index, int count);
+
+  /// No description provided for @wrappedStreakKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Consistency'**
+  String get wrappedStreakKicker;
+
+  /// No description provided for @wrappedSummaryDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Active days'**
+  String get wrappedSummaryDays;
+
+  /// No description provided for @wrappedSummaryHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get wrappedSummaryHours;
+
+  /// No description provided for @wrappedSummaryKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s a wrap'**
+  String get wrappedSummaryKicker;
+
+  /// No description provided for @wrappedSummaryPrs.
+  ///
+  /// In en, this message translates to:
+  /// **'PRs'**
+  String get wrappedSummaryPrs;
+
+  /// No description provided for @wrappedSummaryStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Best streak'**
+  String get wrappedSummaryStreak;
+
+  /// No description provided for @wrappedSummaryTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Top exercise'**
+  String get wrappedSummaryTop;
+
+  /// No description provided for @wrappedSummaryVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifted'**
+  String get wrappedSummaryVolume;
+
+  /// No description provided for @wrappedSummaryWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts'**
+  String get wrappedSummaryWorkouts;
+
+  /// No description provided for @wrappedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym Bro Wrapped'**
+  String get wrappedTitle;
+
+  /// No description provided for @wrappedTopKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'Your most-trained exercises'**
+  String get wrappedTopKicker;
+
+  /// No description provided for @wrappedTopSets.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 set} other{{count} sets}}'**
+  String wrappedTopSets(int count);
+
+  /// No description provided for @wrappedVolumeCars.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{That\'s about 1 car 🚗} other{That\'s about {count} cars 🚗}}'**
+  String wrappedVolumeCars(int count);
+
+  /// No description provided for @wrappedVolumeElephants.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{That\'s about 1 elephant 🐘} other{That\'s about {count} elephants 🐘}}'**
+  String wrappedVolumeElephants(int count);
+
+  /// No description provided for @wrappedVolumeKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'In total you lifted'**
+  String get wrappedVolumeKicker;
+
+  /// No description provided for @wrappedVolumePianos.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{That\'s about 1 grand piano 🎹} other{That\'s about {count} grand pianos 🎹}}'**
+  String wrappedVolumePianos(int count);
+
+  /// No description provided for @wrappedWorkoutsKicker.
+  ///
+  /// In en, this message translates to:
+  /// **'This year you showed up for'**
+  String get wrappedWorkoutsKicker;
+
+  /// No description provided for @wrappedWorkoutsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{workout} other{workouts}}'**
+  String wrappedWorkoutsUnit(int count);
 }
 
 class _AppLocalizationsDelegate

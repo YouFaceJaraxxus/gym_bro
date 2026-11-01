@@ -35,8 +35,13 @@ import '../models/reaction.dart';
 import '../models/shared_content.dart';
 import '../models/story.dart';
 import '../models/streak.dart';
+import '../models/water.dart';
+import '../models/last_sets.dart';
+import '../models/challenge.dart';
+import '../models/wrapped.dart';
 import '../config.dart';
 import 'auth_manager.dart';
+import 'health_sync_service.dart';
 import 'offline/offline_support.dart';
 
 part 'api/account_api.dart';
@@ -59,6 +64,10 @@ part 'api/plans_api.dart';
 part 'api/post_tags_api.dart';
 part 'api/stories_api.dart';
 part 'api/streaks_api.dart';
+part 'api/water_api.dart';
+part 'api/suggestions_api.dart';
+part 'api/challenges_api.dart';
+part 'api/wrapped_api.dart';
 
 // Set with --dart-define=API_BASE_URL=... (see lib/config.dart / README.md).
 final _base = AppConfig.apiBaseUrl;
@@ -689,13 +698,15 @@ class ApiService {
   }
 
   /// POST /training-sessions — starts one now. A trainer passes [userId] to
-  /// run it for someone they coach (they become its trainer).
+  /// run it for someone they coach (they become its trainer); [planEntryId]
+  /// is the planned workout it confirms.
   Future<TrainingSession> startTrainingSession(
     String token, {
     String? trainingId,
     String? trainerId,
     String? notes,
     String? userId,
+    String? planEntryId,
   }) async {
     final r = await _client.post(
       Uri.parse('$_base/training-sessions'),
@@ -705,6 +716,7 @@ class ApiService {
         'trainer_id': trainerId,
         'notes': notes,
         'user_id': ?userId,
+        'plan_entry_id': ?planEntryId,
       }),
     );
     _check(r);
@@ -725,7 +737,10 @@ class ApiService {
     );
     _check(r);
     streakChanges.value++;
-    return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+    final session = TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+    // Opt-in Apple Health / Health Connect copy; never throws.
+    HealthSyncService.instance.writeWorkout(session, logged: true);
+    return session;
   }
 
   Future<TrainingSession> updateTrainingSession(
@@ -1301,7 +1316,10 @@ class ApiService {
     );
     _check(r);
     streakChanges.value++;
-    return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+    final session = TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+    // Opt-in Apple Health / Health Connect copy; never throws.
+    HealthSyncService.instance.writeWorkout(session);
+    return session;
   }
 
   /// PUT /training-sessions/sets/:setLogId — same editable fields as

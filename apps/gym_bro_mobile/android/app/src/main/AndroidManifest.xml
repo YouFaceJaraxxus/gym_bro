@@ -12,6 +12,13 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- flutter_local_notifications: re-schedule pending notifications after reboot. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Health Connect (opt-in in Settings → Health): weigh-ins, steps and
+         sleep are read; finished workouts and water are written. -->
+    <uses-permission android:name="android.permission.health.READ_WEIGHT"/>
+    <uses-permission android:name="android.permission.health.READ_STEPS"/>
+    <uses-permission android:name="android.permission.health.READ_SLEEP"/>
+    <uses-permission android:name="android.permission.health.WRITE_EXERCISE"/>
+    <uses-permission android:name="android.permission.health.WRITE_HYDRATION"/>
     <application
         android:label="gym_bro_mobile"
         android:name="${applicationName}"
@@ -49,7 +56,43 @@
                 <!-- Profile QR codes: gymbroo://u/<username>. -->
                 <data android:scheme="gymbroo" android:host="u"/>
             </intent-filter>
+            <!-- Health Connect: "why does Gym Bro want this?" opens the app. -->
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"/>
+            </intent-filter>
         </activity>
+        <!-- Health Connect (Android 14+): the privacy-policy link in its
+             permission screen. Points at the app for now; route it to the
+             privacy policy before shipping (see the health package README). -->
+        <activity-alias
+            android:name="ViewPermissionUsageActivity"
+            android:exported="true"
+            android:targetActivity=".MainActivity"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE"/>
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS"/>
+            </intent-filter>
+        </activity-alias>
+        <!-- Home-screen widgets (data from lib/services/home_widget_service.dart). -->
+        <receiver android:name=".widgets.StreakWidgetProvider" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_streak_info"/>
+        </receiver>
+        <receiver android:name=".widgets.WaterWidgetProvider" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_water_info"/>
+        </receiver>
+        <receiver android:name=".widgets.TodayWidgetProvider" android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_today_info"/>
+        </receiver>
         <!-- FCM: channel for pushes that arrive while the app is in the background
              (created by lib/services/push_service.dart). -->
         <meta-data
@@ -81,6 +124,11 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- Health Connect: is it installed, and its permissions rationale. -->
+        <package android:name="com.google.android.apps.healthdata"/>
+        <intent>
+            <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"/>
         </intent>
         <!-- Lets url_launcher open exercise/recipe video links in a browser or app. -->
         <intent>

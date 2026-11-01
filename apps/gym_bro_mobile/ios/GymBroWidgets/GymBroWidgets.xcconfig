@@ -1,0 +1,4 @@
+// Build settings for the widget extension (home-screen widgets and the rest
+// timer Live Activity). Only Flutter's generated values are pulled in, for
+// the version numbers in Info.plist; the extension links no pods.
+#include? "../Flutter/Generated.xcconfig"

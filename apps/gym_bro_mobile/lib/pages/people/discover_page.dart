@@ -8,8 +8,10 @@ import '../../models/post.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../services/recent_searches.dart';
+import '../../utils/haptics.dart';
 import '../../widgets/mentions.dart';
 import '../../widgets/person_tile.dart';
+import '../../widgets/skeleton.dart';
 import '../../widgets/social_widgets.dart';
 import 'people_common.dart';
 import 'requests_page.dart';
@@ -19,7 +21,20 @@ import 'requests_page.dart';
 const _kCarouselCount = 10;
 const _kRadii = [5, 25, 50];
 
-/// The People tab body (no app bar: it sits inside the home shell): search,
+/// Opens Discover as its own page (it's reached from the Feed app bar).
+Future<void> openDiscover(BuildContext context) {
+  return Navigator.push<void>(
+    context,
+    MaterialPageRoute(
+      builder: (context) => Scaffold(
+        appBar: AppBar(title: Text(context.l10n.shellTabDiscover)),
+        body: const DiscoverPage(),
+      ),
+    ),
+  );
+}
+
+/// The Discover body (no app bar of its own; see [openDiscover]): search,
 /// requests banner, suggestions carousel, nearby people, more suggestions.
 class DiscoverPage extends StatefulWidget {
   const DiscoverPage({super.key});
@@ -381,7 +396,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
     final badges = _badges;
 
     return RefreshIndicator(
-      onRefresh: _refresh,
+      onRefresh: () => Haptics.refreshed(_refresh),
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
@@ -435,7 +450,38 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
   Widget _buildCarousel(List<Suggestion> carousel) {
     final l10n = context.l10n;
     if (_suggestions == null && _suggestionsError == null) {
-      return SizedBox(height: 120, child: Center(child: CircularProgressIndicator(semanticsLabel: l10n.commonLoading)));
+      // Suggestion-card placeholders: avatar, name, reason and a button.
+      return SizedBox(
+        height: 238,
+        child: Skeleton(
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: 4,
+            separatorBuilder: (_, _) => const SizedBox(width: 10),
+            itemBuilder: (_, _) => Container(
+              width: 160,
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Column(
+                children: [
+                  SkeletonCircle(size: 72),
+                  SizedBox(height: 14),
+                  SkeletonBox(width: 96, height: 13),
+                  SizedBox(height: 8),
+                  SkeletonBox(width: 72, height: 10),
+                  Spacer(),
+                  SkeletonBox(height: 34, radius: 10),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
     }
     if (_suggestionsError != null && _suggestions == null) {
       return PeopleErrorState(message: _suggestionsError!, onRetry: _loadSuggestions);
@@ -519,7 +565,7 @@ class _DiscoverPageState extends State<DiscoverPage> with AutomaticKeepAliveClie
       }
       return [
         SliverToBoxAdapter(
-          child: SizedBox(height: 80, child: Center(child: CircularProgressIndicator(semanticsLabel: l10n.commonLoading))),
+          child: Skeleton(child: Column(children: [for (var i = 0; i < 3; i++) const SkeletonTile(trailing: true)])),
         ),
       ];
     }

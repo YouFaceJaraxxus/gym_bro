@@ -6,6 +6,9 @@ import '../models/training_session.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../theme.dart';
+import '../utils/haptics.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/skeleton.dart';
 import '../widgets/training_picker_sheet.dart';
 import 'session_detail_page.dart';
 import 'progress/progress_page.dart';
@@ -138,7 +141,7 @@ class _SessionsPageState extends State<SessionsPage> {
     final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     if (_loading && _sessions.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return SkeletonList(itemCount: 7, itemBuilder: (_, _) => const SkeletonTile(square: true));
     }
     if (_error != null && _sessions.isEmpty) {
       return Center(
@@ -153,31 +156,27 @@ class _SessionsPageState extends State<SessionsPage> {
       );
     }
     if (_sessions.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.fitness_center, size: 64, color: cs.onSurfaceVariant),
-            const SizedBox(height: 16),
-            Text(
-              _isTrainerView ? l10n.trainingSessionsNoClasses : l10n.trainingSessionsEmpty,
-              style: TextStyle(fontSize: 18, color: cs.onSurfaceVariant),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _isTrainerView
-                  ? l10n.trainingSessionsNoClassesHint
-                  : l10n.trainingSessionsEmptyHint,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: cs.onSurfaceVariant),
-            ),
-          ],
-        ),
+      return RefreshIndicator(
+        onRefresh: () => Haptics.refreshed(() => _load(reset: true)),
+        child: _isTrainerView
+            ? EmptyState.scrollable(
+                icon: Icons.groups_outlined,
+                title: l10n.trainingSessionsNoClasses,
+                message: l10n.trainingSessionsNoClassesHint,
+              )
+            : EmptyState.scrollable(
+                icon: Icons.fitness_center,
+                title: l10n.polishEmptyWorkoutsTitle,
+                message: l10n.polishEmptyWorkoutsBody,
+                actionLabel: l10n.polishEmptyWorkoutsAction,
+                actionIcon: Icons.play_arrow_rounded,
+                onAction: _startSession,
+              ),
       );
     }
 
     return RefreshIndicator(
-      onRefresh: () => _load(reset: true),
+      onRefresh: () => Haptics.refreshed(() => _load(reset: true)),
       child: NotificationListener<ScrollNotification>(
         onNotification: (n) {
           if (!_loading && _hasMore && n.metrics.extentAfter < 200) {

@@ -5,6 +5,8 @@ import { notify, optionalSecret } from "../_shared/notify.ts";
 import { removeObjects } from "../_shared/media.ts";
 import { topUpSeries } from "../_shared/class_series.ts";
 import { addDays, isoDow, refreshStreak } from "../_shared/streaks.ts";
+import { ensureMonthlyChallenges, syncLiveChallenges } from "../_shared/challenges.ts";
+import { sendWrappedNotices } from "../_shared/wrapped.ts";
 
 // Scheduled maintenance, called by pg_cron every 15 minutes (see
 // sql/cron.sql) with the shared CRON_SECRET in the x-cron-secret header.
@@ -139,7 +141,7 @@ async function sweepAbandonedUploads(): Promise<number> {
     .where(sql<boolean>`created_at < NOW() - INTERVAL '24 hours'`)
     .returning(["bucket", "storage_path"])
     .execute();
-  for (const bucket of ["chat-media", "user-media"] as const) {
+  for (const bucket of ["chat-media", "user-media", "progress-photos"] as const) {
     await removeObjects(bucket, stale.filter((s) => s.bucket === bucket).map((s) => s.storage_path));
   }
   return stale.length;
@@ -230,6 +232,15 @@ Deno.serve(async (req: Request) => {
       const streaks_settled = await settleStreaks();
       step = "streak_reminders";
       const streak_reminders = await sendStreakReminders();
+      step = "monthly_challenges";
+      // This month's platform challenges (next month's too in the last week).
+      const monthly_challenges_created = await ensureMonthlyChallenges();
+      step = "challenge_progress";
+      // Completions (and their notifications) for everyone in live challenges.
+      const challenge_progress = await syncLiveChallenges();
+      step = "wrapped_notices";
+      // December only: "Your <year> Wrapped is ready", once per user and year.
+      const wrapped_notices = await sendWrappedNotices();
 
       return json({
         memberships_expired,
@@ -239,6 +250,9 @@ Deno.serve(async (req: Request) => {
         class_sessions_created,
         streaks_settled,
         streak_reminders,
+        monthly_challenges_created,
+        challenge_progress,
+        wrapped_notices,
         duration_ms: Date.now() - started,
       });
     } catch (err) {

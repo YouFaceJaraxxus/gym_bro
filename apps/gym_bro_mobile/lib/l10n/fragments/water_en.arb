@@ -1,0 +1,213 @@
+{
+  "waterTitle": "Water",
+  "waterMl": "{amount} ml",
+  "@waterMl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waterLiters": "{amount} l",
+  "@waterLiters": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waterProgress": "{drunk} of {goal}",
+  "@waterProgress": {
+    "placeholders": {
+      "drunk": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "waterOfGoal": "of {goal}",
+  "@waterOfGoal": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "waterLeft": "{amount} to go",
+  "@waterLeft": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waterGoalReached": "Goal reached!",
+  "waterWorkoutBonus": "+{amount} for today's workout",
+  "@waterWorkoutBonus": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waterAdded": "Added {amount}",
+  "@waterAdded": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waterAddedGoal": "Added {amount}. Daily goal reached!",
+  "@waterAddedGoal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waterRemoved": "Removed {amount}",
+  "@waterRemoved": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waterUndo": "Undo",
+  "waterCustom": "Custom",
+  "waterCustomTitle": "Add water",
+  "waterCustomLabel": "Amount (ml)",
+  "waterCustomInvalid": "Enter 1 to 3000 ml",
+  "waterAdd": "Add",
+  "waterAddCup": "Add {amount}",
+  "@waterAddCup": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waterTodayEntries": "Today's drinks",
+  "waterNoEntries": "Nothing yet today. Tap a cup to log your first drink.",
+  "waterHistory": "History",
+  "waterHistoryDays": "{count} days",
+  "@waterHistoryDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "waterAverage": "Daily average",
+  "waterDaysReached": "Goal met",
+  "waterDaysReachedValue": "{count} of {total} days",
+  "@waterDaysReachedValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "waterStreak": "In a row",
+  "waterStreakValue": "{count, plural, =1{1 day} other{{count} days}}",
+  "@waterStreakValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "waterLoadFailed": "Couldn't load your water.",
+  "waterAddFailed": "Couldn't log that drink: {error}",
+  "@waterAddFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "waterChartSemantics": "Water per day over the last {count} days, {reached} of them at the goal",
+  "@waterChartSemantics": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "reached": {
+        "type": "int"
+      }
+    }
+  },
+  "waterBottleSemantics": "Water today: {drunk} of {goal}, {percent} percent",
+  "@waterBottleSemantics": {
+    "placeholders": {
+      "drunk": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "waterRingHint": "Tap to add {amount}, hold to open the water tracker",
+  "@waterRingHint": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waterOpenTracker": "Open the water tracker",
+  "waterGoalLine": "Goal",
+  "waterSettingsGoal": "Daily goal",
+  "waterSettingsGoalAuto": "Automatic · {amount}",
+  "@waterSettingsGoalAuto": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waterSettingsGoalCustom": "Custom · {amount}",
+  "@waterSettingsGoalCustom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waterSettingsGoalTitle": "Daily water goal",
+  "waterSettingsGoalAutoHelp": "About 35 ml per kg of your latest body weight (2.5 l without one). Workout days add 500 ml.",
+  "waterSettingsGoalCustomHelp": "Your own goal. Workout days still add 500 ml.",
+  "waterSettingsUseAuto": "Automatic",
+  "waterSettingsUseCustom": "Custom",
+  "waterSettingsLess": "Less",
+  "waterSettingsMore": "More",
+  "waterSettingsCups": "Cup sizes",
+  "waterSettingsCupsHelp": "Up to four quick-add sizes, from 50 to 2000 ml.",
+  "waterSettingsAddCup": "Add a size",
+  "waterSettingsRemoveCup": "Remove this size",
+  "waterSettingsReminders": "Reminders",
+  "waterSettingsRemindersHelp": "Every 2 hours from 9:00 to 21:00, stopping once you reach the day's goal.",
+  "waterSettingsPermissionDenied": "Allow notifications for Gym Bro to get water reminders.",
+  "waterReminderTitle": "Time for some water",
+  "waterReminderBody": "A glass now keeps you on track for the day.",
+  "waterReminderBodyLeft": "{amount} to go for today's goal.",
+  "@waterReminderBodyLeft": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waterReminderChannel": "Water reminders",
+  "waterReminderChannelDescription": "Reminders to drink water through the day"
+}

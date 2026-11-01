@@ -5,6 +5,7 @@ import '../models/streak.dart';
 import '../pages/streaks/streak_page.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../theme.dart';
 import '../utils/device_timezone.dart';
 import 'streak_widgets.dart';
 
@@ -93,10 +94,7 @@ class HomeStreakCardState extends State<HomeStreakCard> {
                       children: [
                         Text(
                           '${s.current}',
-                          style: text.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                          ),
+                          style: AppText.stat(size: 34, weight: FontWeight.w800, color: risk ? cs.onErrorContainer : cs.onSurface),
                         ),
                         const SizedBox(width: 6),
                         Flexible(

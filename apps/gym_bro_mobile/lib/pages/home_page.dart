@@ -8,6 +8,8 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/auth_service.dart';
 import '../services/realtime_service.dart';
+import '../utils/haptics.dart';
+import '../widgets/app_hero.dart';
 import 'home/home_menu_page.dart';
 import '../widgets/offline_banner.dart';
 import '../widgets/social_widgets.dart';
@@ -16,22 +18,25 @@ import 'classes/class_schedule_page.dart';
 import 'chat/chat_inbox_page.dart';
 import 'feed/feed_page.dart';
 import 'notifications_page.dart';
+import 'onboarding/onboarding_gate.dart';
 import 'people/discover_page.dart';
 import 'gym_hub_page.dart';
 import 'profile_page.dart';
+import 'train/train_page.dart';
 
 // ── Nav tabs ──────────────────────────────────────────────────────────────────
 
 /// One bottom-nav destination. Everyone gets the same five: Home is a menu
 /// of what the user can do (built from what they are: member, trainer, on a
-/// gym's or shop's team, admin), the rest are shared. Labels are resolved at
-/// build time so they follow the app language.
+/// gym's or shop's team, admin), Train is one tap from a workout, the rest
+/// are shared. Discover lives behind the people icon in Feed's app bar.
+/// Labels are resolved at build time so they follow the app language.
 enum _Tab {
   home(Icons.space_dashboard_outlined, Icons.space_dashboard),
   feed(Icons.dynamic_feed_outlined, Icons.dynamic_feed),
-  discover(Icons.explore_outlined, Icons.explore),
+  train(Icons.fitness_center_outlined, Icons.fitness_center),
   schedule(Icons.calendar_month_outlined, Icons.calendar_month),
-  gym(Icons.fitness_center_outlined, Icons.fitness_center);
+  gym(Icons.place_outlined, Icons.place);
 
   const _Tab(this.icon, this.selectedIcon);
 
@@ -41,7 +46,7 @@ enum _Tab {
   String label(AppLocalizations l10n) => switch (this) {
     _Tab.home => l10n.shellTabHome,
     _Tab.feed => l10n.shellTabFeed,
-    _Tab.discover => l10n.shellTabDiscover,
+    _Tab.train => l10n.polishTabTrain,
     _Tab.schedule => l10n.shellTabSchedule,
     _Tab.gym => l10n.shellTabGym,
   };
@@ -73,6 +78,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadProfile();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) OnboardingGate.maybeShow(context);
+    });
     // Live badges: any inbox, notification or relationship event refreshes them.
     _realtimeSub = RealtimeService.instance.userEvents.listen((_) {
       _badgeDebounce?.cancel();
@@ -167,6 +175,13 @@ class _HomePageState extends State<HomePage> {
     if (profile != null && mounted) _refreshUnreadCount(profile.id);
   }
 
+  /// Discover (search, suggestions, nearby, requests) from Feed's app bar.
+  Future<void> _openDiscover() async {
+    await openDiscover(context);
+    final profile = _profile;
+    if (profile != null && mounted) _refreshUnreadCount(profile.id);
+  }
+
   Future<void> _openProfile() async {
     await pushTabPage<void>(
       context,
@@ -238,6 +253,13 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text(tabs[_tabIndex].label(l10n)),
         actions: [
+          if (tabs[_tabIndex] == _Tab.feed)
+            _BadgeIconButton(
+              icon: Icons.person_search_outlined,
+              count: badges,
+              tooltip: badges > 0 ? l10n.polishFindPeopleRequests(badges) : l10n.polishFindPeople,
+              onPressed: _openDiscover,
+            ),
           _BadgeIconButton(
             icon: Icons.chat_bubble_outline,
             count: _badges.unreadConversations + _badges.messageRequests,
@@ -295,10 +317,13 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             tooltip: l10n.shellTabProfile,
             onPressed: _openProfile,
-            icon: UserAvatar(
-              url: profile.avatarUrl,
-              initials: _initials(profile),
-              radius: 14,
+            icon: AppHero(
+              tag: myAvatarHeroTag(profile.id),
+              child: UserAvatar(
+                url: profile.avatarUrl,
+                initials: _initials(profile),
+                radius: 14,
+              ),
             ),
           ),
           const SizedBox(width: 4),
@@ -317,6 +342,7 @@ class _HomePageState extends State<HomePage> {
         onDestinationSelected: (i) {
           // Coming back to Home picks up new roles, invites and reviews.
           if (tabs[i] == _Tab.home && _tabIndex != i) _loadProfile();
+          if (_tabIndex != i) Haptics.select();
           setState(() => _tabIndex = i);
         },
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
@@ -333,11 +359,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// Home shows open team invites; Discover, follow and friend requests.
+  /// Home shows open team invites; Feed (where Discover lives), follow and
+  /// friend requests.
   Widget _tabIcon(_Tab tab, IconData icon, UserProfile profile, int requests) {
     final count = switch (tab) {
       _Tab.home => profile.pendingInvites,
-      _Tab.discover => requests,
+      _Tab.feed => requests,
       _ => 0,
     };
     if (count == 0) return Icon(icon);
@@ -358,7 +385,7 @@ class _HomePageState extends State<HomePage> {
         onRefresh: _loadProfile,
       ),
       _Tab.feed => const FeedPage(),
-      _Tab.discover => const DiscoverPage(),
+      _Tab.train => const TrainPage(),
       _Tab.schedule => const ClassSchedulePage(),
       _Tab.gym => GymHubPage(profile: profile),
     };

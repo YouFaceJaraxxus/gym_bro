@@ -239,6 +239,8 @@ void main() {
       'audience': 'close_friends',
       'poll': {'question': 'Squat or deadlift?', 'options': ['Squat', 'Deadlift']},
     });
+    // Posted through the upload queue: let its "Posted" moment run out.
+    await tester.pump(const Duration(seconds: 2));
   });
 
   testWidgets('CloseFriendsPage: remove one, add a follower', (tester) async {

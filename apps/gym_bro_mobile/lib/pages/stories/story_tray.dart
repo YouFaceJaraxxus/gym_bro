@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../l10n/l10n.dart';
@@ -5,6 +7,7 @@ import '../../models/social.dart';
 import '../../models/story.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../services/post_upload_queue.dart';
 import '../../widgets/social_widgets.dart';
 import 'story_composer_page.dart';
 import 'story_viewer_page.dart';
@@ -109,11 +112,19 @@ class StoryTray extends StatefulWidget {
 class StoryTrayState extends State<StoryTray> {
   final _api = ApiService();
   List<StoryTrayEntry> _entries = const [];
+  StreamSubscription<Story>? _postedSub;
 
   @override
   void initState() {
     super.initState();
+    _postedSub = PostUploadQueue.instance.storyPosted.listen((_) => refresh());
     refresh();
+  }
+
+  @override
+  void dispose() {
+    _postedSub?.cancel();
+    super.dispose();
   }
 
   Future<void> refresh() async {
@@ -137,12 +148,8 @@ class StoryTrayState extends State<StoryTray> {
   }
 
   Future<void> _compose() async {
-    final messenger = ScaffoldMessenger.of(context);
-    final l10n = context.l10n;
-    final story = await openStoryComposer(context);
-    if (story == null || !mounted) return;
-    messenger.showSnackBar(SnackBar(content: Text(l10n.storyPosted)));
-    refresh();
+    // The feed's "Posting…" bar shows it; [storyPosted] reloads the tray.
+    await openStoryComposer(context);
   }
 
   Future<void> _openMine() async {

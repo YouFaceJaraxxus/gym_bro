@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Progress ring for the water widget (a ProgressBar's progressDrawable). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape android:shape="ring" android:innerRadiusRatio="2.7" android:thickness="8dp" android:useLevel="false">
+            <solid android:color="#401976D2"/>
+        </shape>
+    </item>
+    <item android:id="@android:id/progress">
+        <rotate android:fromDegrees="270" android:toDegrees="270" android:pivotX="50%" android:pivotY="50%">
+            <shape android:shape="ring" android:innerRadiusRatio="2.7" android:thickness="8dp" android:useLevel="true">
+                <gradient android:type="sweep" android:startColor="@color/gb_water" android:endColor="@color/gb_water_light"/>
+            </shape>
+        </rotate>
+    </item>
+</layer-list>

@@ -4,7 +4,9 @@ import '../../models/business.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
-import '../../widgets/home_streak_card.dart';
+import '../../utils/haptics.dart';
+import '../../widgets/today_dashboard.dart';
+import '../../widgets/wrapped_banner.dart';
 import '../admin/db_console_page.dart';
 import '../business/business_invites_page.dart';
 import '../business/business_manage_page.dart';
@@ -24,9 +26,12 @@ import '../sessions_page.dart';
 import '../shop/buy_membership_page.dart';
 import '../shop/my_orders_page.dart';
 import '../workouts_page.dart';
+import 'home_widgets.dart';
 import 'owner_users_page.dart';
 
-/// The Home tab: everything the user can do, grouped into cards. Nobody has a
+/// The Home tab: today's dashboard (greeting, streak, training, water,
+/// calories, weight, next class), then everything the user can do, grouped
+/// into cards. Nobody has a
 /// single "type" — the cards stack up from what they are: everyone trains,
 /// eats and holds memberships; trainers get trainer tools; anyone on a gym's
 /// or shop's team gets a card per business; super users get Admin.
@@ -55,7 +60,7 @@ class _HomeMenuPageState extends State<HomeMenuPage> {
 
   /// Businesses waiting for review (super users only).
   int _pendingReviews = 0;
-  final _streak = GlobalKey<HomeStreakCardState>();
+  final _today = GlobalKey<TodayDashboardState>();
 
   @override
   void initState() {
@@ -143,14 +148,15 @@ class _HomeMenuPageState extends State<HomeMenuPage> {
     );
 
     return RefreshIndicator(
-      onRefresh: () async {
-        await Future.wait([widget.onRefresh(), if (_streak.currentState != null) _streak.currentState!.refresh()]);
+      onRefresh: () => Haptics.refreshed(() async {
+        await Future.wait([widget.onRefresh(), if (_today.currentState != null) _today.currentState!.refresh()]);
         await _loadReviewCount();
-      },
+      }),
       child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
-          HomeStreakCard(key: _streak),
+          // Team invites need an answer: above everything else.
           if (p.pendingInvites > 0) ...[
             _InviteBanner(
               count: p.pendingInvites,
@@ -158,6 +164,11 @@ class _HomeMenuPageState extends State<HomeMenuPage> {
             ),
             const SizedBox(height: 12),
           ],
+          // ── Today ──
+          const WrappedBanner(padding: EdgeInsets.only(bottom: 14)),
+          TodayDashboard(key: _today, profile: p),
+
+          HomeSectionTitle(l10n.todayShortcuts),
 
           // ── Everyone ──
           _MenuSection(

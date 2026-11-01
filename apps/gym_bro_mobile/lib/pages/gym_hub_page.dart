@@ -7,7 +7,10 @@ import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../utils/device_timezone.dart';
+import '../utils/haptics.dart';
+import '../widgets/challenge_hub_card.dart';
 import '../widgets/gym_board_card.dart';
+import '../widgets/skeleton.dart';
 import 'business/business_profile_page.dart';
 import 'business/business_search_page.dart';
 import 'business/business_widgets.dart';
@@ -17,9 +20,9 @@ import 'shop/storefront_page.dart';
 import 'streaks/gym_board_page.dart';
 
 /// The Gym tab: places. The gyms the user is a member of (to their profile),
-/// their gym boards, checking in, buying a membership, the store, and finding
+/// their gym boards, challenges, checking in, buying a membership, the store, and finding
 /// gyms and shops.
-/// Personal tools (workouts, nutrition, …) live in the Home menu.
+/// Personal tools live in the Home menu and the Train tab.
 class GymHubPage extends StatefulWidget {
   const GymHubPage({super.key, this.profile});
 
@@ -95,10 +98,15 @@ class _GymHubPageState extends State<GymHubPage> {
     final l10n = context.l10n;
     final gyms = _gyms ?? const <CheckInGym>[];
     return RefreshIndicator(
-      onRefresh: _loadGyms,
+      onRefresh: () => Haptics.refreshed(_loadGyms),
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
         children: [
+          // First load: my gyms and their board card take shape.
+          if (_gyms == null) ...[
+            const _GymsSkeleton(),
+            const SizedBox(height: 14),
+          ],
           if (gyms.isNotEmpty) ...[
             Text(l10n.rolesHubMyGyms, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
@@ -151,12 +159,19 @@ class _GymHubPageState extends State<GymHubPage> {
                 ),
                 const SizedBox(height: 14),
               ],
+            const ChallengesHubCard(),
+            const SizedBox(height: 14),
             _HubCard(
               icon: Icons.qr_code_2,
               label: l10n.shellHubCheckIn,
               subtitle: l10n.shellHubCheckInSubtitle,
               onTap: () => _push(const MemberCheckInPage()),
             ),
+            const SizedBox(height: 14),
+          ],
+          // Platform challenges are for everyone, gym or not.
+          if (_gyms != null && gyms.isEmpty) ...[
+            const ChallengesHubCard(),
             const SizedBox(height: 14),
           ],
           _HubCard(
@@ -179,6 +194,39 @@ class _GymHubPageState extends State<GymHubPage> {
             subtitle: l10n.rolesHubFindSubtitle,
             onTap: () => _push(const BusinessSearchPage()),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GymsSkeleton extends StatelessWidget {
+  const _GymsSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Skeleton(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SkeletonBox(width: 96, height: 16),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              for (var i = 0; i < 3; i++) ...[
+                const Column(
+                  children: [
+                    SkeletonCircle(size: 64),
+                    SizedBox(height: 10),
+                    SkeletonBox(width: 64, height: 10),
+                  ],
+                ),
+                const SizedBox(width: 28),
+              ],
+            ],
+          ),
+          const SizedBox(height: 24),
+          const SkeletonBox(height: 120, radius: 16),
         ],
       ),
     );

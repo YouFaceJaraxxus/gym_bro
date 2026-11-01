@@ -311,6 +311,290 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
+  String bodyChangeInRange(String range) {
+    return 'za $range';
+  }
+
+  @override
+  String bodyChangeSince(String date) {
+    return 'od $date';
+  }
+
+  @override
+  String get bodyCompareAfter => 'Posle';
+
+  @override
+  String get bodyCompareBefore => 'Pre';
+
+  @override
+  String bodyCompareDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dana',
+      few: '$count dana',
+      one: '$count dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bodyCompareDiff(String change, String span) {
+    return '$change za $span';
+  }
+
+  @override
+  String bodyComparePick(String which) {
+    return '$which: izaberi fotografiju';
+  }
+
+  @override
+  String get bodyCompareSliderLabel => 'Razdelnik pre i posle';
+
+  @override
+  String get bodyCompareSwap => 'Zameni pre i posle';
+
+  @override
+  String get bodyCompareTitle => 'Uporedi';
+
+  @override
+  String bodyCompareWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nedelja',
+      few: '$count nedelje',
+      one: '$count nedelju',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bodyGoalEditTitle => 'Izmeni ciljnu težinu';
+
+  @override
+  String bodyGoalEtaFlat(String goal) {
+    return 'Tvoj trend miruje, pa još nema datuma za $goal.';
+  }
+
+  @override
+  String bodyGoalEtaNoData(String goal) {
+    return 'Izmeri se nekoliko puta tokom nedelju-dve da vidiš kada ćeš stići do $goal.';
+  }
+
+  @override
+  String bodyGoalEtaOnTrack(String rate, String goal, String date) {
+    return 'Sa $rate nedeljno stići ćeš do $goal oko $date.';
+  }
+
+  @override
+  String bodyGoalEtaReached(String goal) {
+    return 'Stigao si do cilja od $goal. Svaka čast!';
+  }
+
+  @override
+  String bodyGoalEtaTooFar(String rate, String goal) {
+    return 'Sa $rate nedeljno, $goal je dalje od tri godine.';
+  }
+
+  @override
+  String bodyGoalEtaWrongWay(String rate, String goal) {
+    return 'Sa $rate nedeljno udaljavaš se od cilja $goal. Male, stalne promene se sabiraju.';
+  }
+
+  @override
+  String get bodyGoalFieldLabel => 'Ciljna težina';
+
+  @override
+  String bodyGoalInvalid(String min, String max) {
+    return 'Unesi cilj između $min i $max';
+  }
+
+  @override
+  String bodyGoalLineLabel(String value) {
+    return 'Cilj $value';
+  }
+
+  @override
+  String get bodyGoalRemove => 'Ukloni cilj';
+
+  @override
+  String get bodyGoalSetHint =>
+      'Vidi liniju cilja na grafikonu i kada ćeš stići do nje';
+
+  @override
+  String get bodyGoalSetTitle => 'Postavi ciljnu težinu';
+
+  @override
+  String get bodyGoalSheetHelp =>
+      'Nacrtaćemo je na grafikonu i proceniti kada ćeš stići do nje.';
+
+  @override
+  String bodyGoalSheetHelpCurrent(String current) {
+    return 'Tvoj trend težine je $current. Nacrtaćemo cilj na grafikonu i proceniti kada ćeš stići do njega.';
+  }
+
+  @override
+  String bodyGoalToGo(String value) {
+    return 'još $value';
+  }
+
+  @override
+  String bodyLastWeighIn(String value, String date) {
+    return 'Poslednje merenje $value · $date';
+  }
+
+  @override
+  String get bodyLegendGoal => 'Cilj';
+
+  @override
+  String get bodyLegendTrend => 'Trend';
+
+  @override
+  String get bodyLegendWeighIns => 'Merenja';
+
+  @override
+  String get bodyMetricArm => 'Ruka';
+
+  @override
+  String get bodyMetricBodyFat => 'Masnoća';
+
+  @override
+  String get bodyMetricChest => 'Grudi';
+
+  @override
+  String get bodyMetricHips => 'Kukovi';
+
+  @override
+  String get bodyMetricNeck => 'Vrat';
+
+  @override
+  String get bodyMetricThigh => 'Butina';
+
+  @override
+  String get bodyMetricWaist => 'Struk';
+
+  @override
+  String get bodyNeedAnyValue => 'Unesi težinu, masnoću ili bar jednu meru';
+
+  @override
+  String get bodyPhotoAdd => 'Dodaj fotografiju';
+
+  @override
+  String get bodyPhotoAddTitle => 'Nova fotografija napretka';
+
+  @override
+  String get bodyPhotoDeleteMessage => 'Fotografija će biti trajno uklonjena.';
+
+  @override
+  String get bodyPhotoDeleteTitle => 'Obrisati fotografiju?';
+
+  @override
+  String get bodyPhotoDeleteTooltip => 'Obriši fotografiju';
+
+  @override
+  String get bodyPhotoFromGallery => 'Izaberi iz galerije';
+
+  @override
+  String get bodyPhotoTake => 'Slikaj';
+
+  @override
+  String get bodyPhotoTooLarge => 'Ta fotografija je veća od 20 MB.';
+
+  @override
+  String get bodyPhotoWeightHelp =>
+      'Ostavi prazno da se uzme najbliže merenje.';
+
+  @override
+  String get bodyPhotoWeightOptional => 'Težina (opciono)';
+
+  @override
+  String bodyPhotosCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fotografija',
+      few: '$count fotografije',
+      one: '$count fotografija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bodyPhotosEmptyMessage =>
+      'Slikaj se spreda, sa strane i otpozadi na svakih nekoliko nedelja, pa uporedi bilo koje dve.';
+
+  @override
+  String get bodyPhotosEmptyTitle => 'Vidi koliko si napredovao';
+
+  @override
+  String get bodyPhotosPrivate => 'Samo ti ih vidiš.';
+
+  @override
+  String get bodyPhotosPrivateDetail =>
+      'Fotografije napretka se nikad ne pojavljuju u objavama, a treneri ih ne vide.';
+
+  @override
+  String get bodyPhotosTab => 'Fotografije';
+
+  @override
+  String get bodyPoseAll => 'Sve';
+
+  @override
+  String get bodyPoseBack => 'Otpozadi';
+
+  @override
+  String get bodyPoseFront => 'Spreda';
+
+  @override
+  String get bodyPoseOther => 'Ostalo';
+
+  @override
+  String get bodyPoseSide => 'Sa strane';
+
+  @override
+  String get bodyRange1y => '1G';
+
+  @override
+  String bodyRatePerWeek(String rate) {
+    return '$rate nedeljno';
+  }
+
+  @override
+  String bodyTapeOutOfRange(
+    String metric,
+    String min,
+    String max,
+    String unit,
+  ) {
+    return '$metric mora biti između $min i $max $unit';
+  }
+
+  @override
+  String get bodyTapeSection => 'Mere tela';
+
+  @override
+  String bodyTapeSectionHint(String unit) {
+    return 'Opciono, u $unit';
+  }
+
+  @override
+  String bodyTooltipTrend(String value) {
+    return 'Trend $value';
+  }
+
+  @override
+  String bodyTooltipWeighIn(String value) {
+    return 'Merenje $value';
+  }
+
+  @override
+  String get bodyTrendSeries => 'Trend težine';
+
+  @override
+  String get bodyTrendWeight => 'Trend težine';
+
+  @override
   String get businessCheckInAllTime => 'Ukupno';
 
   @override
@@ -1753,6 +2037,408 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get calendarPreviousWeek => 'Prethodna nedelja';
+
+  @override
+  String get challengeCancel => 'Otkaži';
+
+  @override
+  String get challengeCompleted => 'Završeno';
+
+  @override
+  String challengeCompletedOn(String date) {
+    return 'Završeno $date';
+  }
+
+  @override
+  String get challengeCreate => 'Novi izazov';
+
+  @override
+  String challengeCreatedBy(String name) {
+    return 'Autor: $name';
+  }
+
+  @override
+  String challengeDaysLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Još $count dana',
+      few: 'Još $count dana',
+      one: 'Još $count dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeDelete => 'Obriši izazov';
+
+  @override
+  String challengeDeleteConfirm(String title) {
+    return 'Obrisati „$title“? Briše se i napredak svih učesnika.';
+  }
+
+  @override
+  String get challengeDeleted => 'Izazov je obrisan';
+
+  @override
+  String get challengeEdit => 'Izmeni izazov';
+
+  @override
+  String get challengeEnded => 'Završen';
+
+  @override
+  String challengeEndedOn(String date) {
+    return 'Završen $date';
+  }
+
+  @override
+  String get challengeFormCreate => 'Napravi izazov';
+
+  @override
+  String get challengeFormDates => 'Kada';
+
+  @override
+  String get challengeFormDescription => 'Opis (nije obavezno)';
+
+  @override
+  String get challengeFormEnds => 'Završava se';
+
+  @override
+  String get challengeFormEndsBeforeStart => 'Mora da se završi posle početka.';
+
+  @override
+  String get challengeFormEveryone => 'Svi na Gym Bro';
+
+  @override
+  String challengeFormLength(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dana',
+      few: '$count dana',
+      one: '$count dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeFormLocked =>
+      'Kada izazov počne, ne mogu se menjati šta se računa i datum početka.';
+
+  @override
+  String challengeFormMembersOf(String gym) {
+    return 'Članovi teretane $gym';
+  }
+
+  @override
+  String get challengeFormMetric => 'Šta se računa';
+
+  @override
+  String challengeFormNotify(String gym) {
+    return 'Članovi teretane $gym dobiće obaveštenje kada ga napraviš.';
+  }
+
+  @override
+  String get challengeFormSave => 'Sačuvaj';
+
+  @override
+  String get challengeFormSaved => 'Izazov je sačuvan';
+
+  @override
+  String get challengeFormStarts => 'Počinje';
+
+  @override
+  String get challengeFormTarget => 'Cilj';
+
+  @override
+  String get challengeFormTargetInvalid => 'Unesi ceo broj veći od 0';
+
+  @override
+  String get challengeFormTitle => 'Naziv';
+
+  @override
+  String get challengeFormTitleHint => 'npr. 30 dana gvožđa';
+
+  @override
+  String get challengeFormTitleRequired => 'Daj mu naziv';
+
+  @override
+  String get challengeFormTooLong => 'Izazov traje najviše godinu dana.';
+
+  @override
+  String get challengeFormWho => 'Za koga je';
+
+  @override
+  String challengeGoal(String goal) {
+    return 'Cilj: $goal';
+  }
+
+  @override
+  String get challengeGoalReached => 'Cilj ostvaren!';
+
+  @override
+  String get challengeHowItCounts => 'Šta se računa';
+
+  @override
+  String challengeHubIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Učestvuješ u $count izazova',
+      one: 'Učestvuješ u 1 izazovu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeHubNone => 'Pridruži se izazovu, osvoji medalje';
+
+  @override
+  String challengeHubOpen(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count otvorenih za prijavu',
+      one: '1 otvoren za prijavu',
+      zero: 'Novi svakog meseca',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeHubTitle => 'Izazovi';
+
+  @override
+  String get challengeJoin => 'Pridruži se';
+
+  @override
+  String get challengeJoinChallenge => 'Pridruži se izazovu';
+
+  @override
+  String get challengeJoined => 'Unutra si! Idemo 💪';
+
+  @override
+  String get challengeJustCompleted => 'Izazov završen! 🏅';
+
+  @override
+  String get challengeJustCompletedBody =>
+      'Rasturio si. Medalja je sada na tvom profilu.';
+
+  @override
+  String get challengeLastDay => 'Poslednji dan';
+
+  @override
+  String get challengeLeaderboard => 'Rang lista';
+
+  @override
+  String get challengeLeaderboardEmpty =>
+      'Na listi još nema nikoga. Pridruži se i preuzmi vođstvo.';
+
+  @override
+  String get challengeLeave => 'Napusti izazov';
+
+  @override
+  String challengeLeaveConfirm(String title) {
+    return 'Napustiti „$title“? Možeš ponovo da se pridružiš dok traje.';
+  }
+
+  @override
+  String challengeMedalsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count medalja',
+      few: '$count medalje',
+      one: '$count medalja',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeMedalsPrivate =>
+      'Ovaj nalog je privatan. Zaprati ga da vidiš medalje.';
+
+  @override
+  String get challengeMedalsTitle => 'Medalje iz izazova';
+
+  @override
+  String get challengeMetricActiveDays => 'Aktivni dani';
+
+  @override
+  String get challengeMetricCheckIns => 'Dolasci';
+
+  @override
+  String get challengeMetricMinutes => 'Minuti';
+
+  @override
+  String get challengeMetricVolume => 'Podignuta težina';
+
+  @override
+  String get challengeMetricWorkouts => 'Treninzi';
+
+  @override
+  String challengeMonthlyActiveDaysDescription(String month, int count) {
+    return 'Treniraj $count različitih dana u mesecu $month.';
+  }
+
+  @override
+  String challengeMonthlyActiveDaysTitle(String month, int count) {
+    return 'Aktivan $month: $count dana';
+  }
+
+  @override
+  String challengeMonthlyWorkoutsDescription(String month, int count) {
+    return 'Završi $count treninga u mesecu $month. Računa se svaki trening, u teretani ili kod kuće.';
+  }
+
+  @override
+  String challengeMonthlyWorkoutsTitle(String month, int count) {
+    return '$month grind: $count treninga';
+  }
+
+  @override
+  String get challengeMuteDescription =>
+      'Završeni izazovi, novi izazovi u tvojim teretanama i godišnji pregled.';
+
+  @override
+  String get challengeMuteLabel => 'Izazovi i Wrapped';
+
+  @override
+  String challengeParticipants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count osoba',
+      few: '$count osobe',
+      one: '$count osoba',
+      zero: 'Još niko',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengePlatform => 'Gym Bro';
+
+  @override
+  String get challengeRuleActiveDays =>
+      'Svaki dan sa završenim treningom računa se jednom.';
+
+  @override
+  String challengeRuleCheckIns(String gym) {
+    return 'Svaki dan kada se prijaviš u $gym računa se jednom.';
+  }
+
+  @override
+  String get challengeRuleMinutes =>
+      'Računaju se minuti završenih treninga, najviše 4 sata po treningu.';
+
+  @override
+  String get challengeRuleVolume =>
+      'Računa se težina × ponavljanja svake upisane serije.';
+
+  @override
+  String get challengeRuleWindow =>
+      'Računaju se treninzi od početka izazova, i oni pre nego što si se pridružio.';
+
+  @override
+  String get challengeRuleWorkouts =>
+      'Računa se svaki završen trening sa bar jednom upisanom serijom. Upiši ga najkasnije do kraja sledećeg dana.';
+
+  @override
+  String challengeStartsIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Počinje za $count dana',
+      few: 'Počinje za $count dana',
+      one: 'Počinje za $count dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeStartsTomorrow => 'Počinje sutra';
+
+  @override
+  String challengeToGo(String amount) {
+    return 'Još $amount';
+  }
+
+  @override
+  String challengeUnitActiveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'aktivnih dana',
+      few: 'aktivna dana',
+      one: 'aktivan dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String challengeUnitCheckIns(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'dolazaka',
+      few: 'dolaska',
+      one: 'dolazak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeUnitMinutes => 'min';
+
+  @override
+  String challengeUnitWorkouts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'treninga',
+      few: 'treninga',
+      one: 'trening',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeUpcoming => 'Uskoro';
+
+  @override
+  String challengeYourRank(int rank) {
+    return 'Ti si #$rank';
+  }
+
+  @override
+  String get challengesEmptyJoin =>
+      'Trenutno nema otvorenih izazova. Novi počinju svakog meseca.';
+
+  @override
+  String get challengesEmptyMedals => 'Završi izazov i osvoji prvu medalju.';
+
+  @override
+  String get challengesEmptyMine =>
+      'Još nisi ni u jednom izazovu. Izaberi jedan i kreni.';
+
+  @override
+  String get challengesLoadFailed => 'Nije moguće učitati izazove.';
+
+  @override
+  String get challengesRetry => 'Pokušaj ponovo';
+
+  @override
+  String get challengesTabJoin => 'Pridruži se';
+
+  @override
+  String get challengesTabMedals => 'Medalje';
+
+  @override
+  String get challengesTabMine => 'Moji';
+
+  @override
+  String get challengesTitle => 'Izazovi';
 
   @override
   String get chatAccept => 'Prihvati';
@@ -3697,6 +4383,184 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
+  String get nativeHealthApple => 'Apple Health';
+
+  @override
+  String nativeHealthConnect(String platform) {
+    return 'Poveži $platform';
+  }
+
+  @override
+  String get nativeHealthConnectSubtitle =>
+      'Uvezi merenja težine, prikaži korake i san na početnom ekranu i čuvaj tamo treninge i vodu.';
+
+  @override
+  String nativeHealthConnectedTo(String platform) {
+    return 'Povezano sa $platform';
+  }
+
+  @override
+  String nativeHealthDenied(String platform) {
+    return 'Pristup za $platform nije odobren.';
+  }
+
+  @override
+  String get nativeHealthDisconnect => 'Prekini vezu';
+
+  @override
+  String nativeHealthDisconnected(String platform) {
+    return 'Veza sa $platform je prekinuta.';
+  }
+
+  @override
+  String get nativeHealthDisconnectedIos =>
+      'Veza je prekinuta. Da potpuno ukloniš pristup, otvori aplikaciju Zdravlje → svoj profil → Aplikacije → Gym Bro.';
+
+  @override
+  String nativeHealthFailed(String error) {
+    return 'Povezivanje nije uspelo: $error';
+  }
+
+  @override
+  String get nativeHealthGoogle => 'Health Connect';
+
+  @override
+  String get nativeHealthImportWeight => 'Uvoz merenja težine';
+
+  @override
+  String get nativeHealthImportWeightSubtitle =>
+      'Nova iz poslednjih 30 dana, najviše jedno dnevno, samo za dane bez merenja.';
+
+  @override
+  String nativeHealthImported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Uvezeno $count merenja',
+      few: 'Uvezena $count merenja',
+      one: 'Uvezeno $count merenje',
+      zero: 'Nema novih merenja',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nativeHealthInstall => 'Instaliraj';
+
+  @override
+  String nativeHealthLastChecked(String when) {
+    return 'Merenja poslednji put proverena $when';
+  }
+
+  @override
+  String get nativeHealthNeverChecked => 'Merenja još nisu proverena';
+
+  @override
+  String get nativeHealthNoData => 'Nema podataka';
+
+  @override
+  String get nativeHealthNotInstalled =>
+      'Health Connect nije instaliran ili ga treba ažurirati.';
+
+  @override
+  String get nativeHealthOnThisDevice => 'Samo na ovom uređaju';
+
+  @override
+  String get nativeHealthSection => 'Zdravlje';
+
+  @override
+  String get nativeHealthShowActivity => 'Koraci i san na početnom ekranu';
+
+  @override
+  String get nativeHealthShowActivitySubtitle =>
+      'Današnji koraci i sinoćnji san na pregledu dana.';
+
+  @override
+  String get nativeHealthSleep => 'San';
+
+  @override
+  String nativeHealthSleepDuration(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String get nativeHealthSleepLastNight => 'sinoć';
+
+  @override
+  String get nativeHealthSteps => 'Koraci';
+
+  @override
+  String get nativeHealthStepsToday => 'danas';
+
+  @override
+  String get nativeHealthSyncNow => 'Sinhronizuj';
+
+  @override
+  String nativeHealthTodaySemantics(String steps, String sleep) {
+    return '$steps koraka danas, $sleep sna sinoć';
+  }
+
+  @override
+  String nativeHealthWeighInNote(String platform) {
+    return 'Iz aplikacije $platform';
+  }
+
+  @override
+  String get nativeHealthWriteWater => 'Čuvaj vodu';
+
+  @override
+  String get nativeHealthWriteWaterSubtitle => 'Svako uneto piće se čuva.';
+
+  @override
+  String get nativeHealthWriteWorkouts => 'Čuvaj treninge';
+
+  @override
+  String get nativeHealthWriteWorkoutsSubtitle =>
+      'Završeni treninzi se čuvaju kao trening snage.';
+
+  @override
+  String get nativeRestAdd30 => '+30 s';
+
+  @override
+  String get nativeRestBody => 'Odmor između serija';
+
+  @override
+  String get nativeRestChannel => 'Tajmer odmora';
+
+  @override
+  String get nativeRestChannelDescription =>
+      'Odbrojavanje između serija tokom treninga.';
+
+  @override
+  String nativeRestNext(String name) {
+    return 'Sledeće: $name';
+  }
+
+  @override
+  String get nativeRestOverBody => 'Vreme je za sledeću seriju';
+
+  @override
+  String get nativeRestOverTitle => 'Odmor je gotov';
+
+  @override
+  String get nativeRestSkip => 'Preskoči';
+
+  @override
+  String get nativeRestTitle => 'Odmor';
+
+  @override
+  String get nativeWidgetOpenApp => 'Otvori Gym Bro da osvežiš';
+
+  @override
+  String get nativeWidgetSignedOut => 'Prijavi se u Gym Bro';
+
+  @override
+  String get nativeWidgetStreak => 'Niz';
+
+  @override
+  String get nativeWidgetToday => 'Danas';
+
+  @override
   String get nutritionAdd => 'Dodaj';
 
   @override
@@ -5063,6 +5927,289 @@ class AppLocalizationsSr extends AppLocalizations {
   String get nutritionYours => 'Tvoj';
 
   @override
+  String get onboardingBack => 'Nazad';
+
+  @override
+  String get onboardingBodyBody =>
+      'Nije obavezno. Na osnovu ovoga postavljamo cilj za vodu i liniju cilja na grafikonu težine.';
+
+  @override
+  String get onboardingBodyTitle => 'O tebi';
+
+  @override
+  String get onboardingContinue => 'Nastavi';
+
+  @override
+  String get onboardingCurrentWeight => 'Trenutna težina';
+
+  @override
+  String get onboardingDaysBody =>
+      'Izaberi broj koji možeš da održiš. Doslednost je važnija od intenziteta.';
+
+  @override
+  String get onboardingDaysEasy => 'Lagan početak';
+
+  @override
+  String get onboardingDaysIntense => 'Ozbiljna posvećenost';
+
+  @override
+  String get onboardingDaysSteady => 'Solidna rutina';
+
+  @override
+  String get onboardingDaysStreak =>
+      'Ispuni ga svake nedelje da bi tvoj niz ostao živ. Planovi se takođe računaju.';
+
+  @override
+  String get onboardingDaysTitle => 'Koliko dana nedeljno ćeš trenirati?';
+
+  @override
+  String onboardingDaysValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dana nedeljno',
+      few: '$count dana nedeljno',
+      one: '$count dan nedeljno',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onboardingDoneBody =>
+      'Ovo je tvoje podešavanje. Dodirni bilo šta da promeniš.';
+
+  @override
+  String get onboardingDoneTitle => 'Sve je spremno!';
+
+  @override
+  String get onboardingFinish => 'Idemo';
+
+  @override
+  String get onboardingGoalBody => 'Izaberi ono što ti je sada najvažnije.';
+
+  @override
+  String get onboardingGoalBuildMuscle => 'Izgradnja mišića';
+
+  @override
+  String get onboardingGoalBuildMuscleHint => 'Dodaj masu i oblik';
+
+  @override
+  String get onboardingGoalEndurance => 'Izdržljivost';
+
+  @override
+  String get onboardingGoalEnduranceHint => 'Traj duže i oporavljaj se brže';
+
+  @override
+  String get onboardingGoalGetStronger => 'Veća snaga';
+
+  @override
+  String get onboardingGoalGetStrongerHint => 'Diži više i obaraj rekorde';
+
+  @override
+  String get onboardingGoalLoseFat => 'Gubitak masti';
+
+  @override
+  String get onboardingGoalLoseFatHint => 'Istanji se i oseti se lakše';
+
+  @override
+  String get onboardingGoalStayFit => 'Ostani u formi';
+
+  @override
+  String get onboardingGoalStayFitHint => 'Budi zdrav, aktivan i u pokretu';
+
+  @override
+  String get onboardingGoalTitle => 'Koji ti je glavni cilj?';
+
+  @override
+  String get onboardingGoalWeight => 'Ciljna težina';
+
+  @override
+  String get onboardingGoalWeightSuggested =>
+      'Predlog za tvoj cilj. Promeni ga ili obriši.';
+
+  @override
+  String get onboardingOptional => 'Nije obavezno';
+
+  @override
+  String onboardingProgress(int current, int total) {
+    return 'Korak $current od $total';
+  }
+
+  @override
+  String get onboardingRedo => 'Ponovo podesi';
+
+  @override
+  String get onboardingRedoSubtitle => 'Cilj, dani treninga, težina i voda';
+
+  @override
+  String get onboardingSaveFailed =>
+      'Podešavanje nije sačuvano. Pitaćemo te ponovo sledeći put.';
+
+  @override
+  String get onboardingSkip => 'Preskoči';
+
+  @override
+  String get onboardingStart => 'Kreni';
+
+  @override
+  String get onboardingSummaryDays => 'Trening';
+
+  @override
+  String get onboardingSummaryGoal => 'Cilj';
+
+  @override
+  String onboardingSummaryGoalOnly(String goal) {
+    return 'Cilj: $goal';
+  }
+
+  @override
+  String get onboardingSummaryNotSet => 'Nije podešeno';
+
+  @override
+  String get onboardingSummaryWater => 'Voda';
+
+  @override
+  String onboardingSummaryWaterAuto(String amount) {
+    return '$amount dnevno (automatski)';
+  }
+
+  @override
+  String onboardingSummaryWaterCustom(String amount) {
+    return '$amount dnevno';
+  }
+
+  @override
+  String get onboardingSummaryWeight => 'Težina';
+
+  @override
+  String onboardingSummaryWeightGoal(String current, String goal) {
+    return '$current → $goal';
+  }
+
+  @override
+  String get onboardingUnits => 'Jedinice';
+
+  @override
+  String get onboardingWaterAuto =>
+      'Automatski: oko 35 ml po kilogramu telesne težine';
+
+  @override
+  String get onboardingWaterAutoNoWeight =>
+      'Automatski: dobra početna vrednost dok ne uneseš težinu';
+
+  @override
+  String get onboardingWaterBody =>
+      'Dobra hidratacija čini svaki trening boljim.';
+
+  @override
+  String get onboardingWaterCustom => 'Tvoj cilj';
+
+  @override
+  String onboardingWaterGlasses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'oko $count čaša od 250 ml',
+      few: 'oko $count čaše od 250 ml',
+      one: 'oko $count čaša od 250 ml',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onboardingWaterLess => 'Manje vode';
+
+  @override
+  String onboardingWaterLiters(String liters) {
+    return '$liters l';
+  }
+
+  @override
+  String get onboardingWaterMore => 'Više vode';
+
+  @override
+  String get onboardingWaterTitle => 'Tvoj dnevni cilj za vodu';
+
+  @override
+  String get onboardingWaterUseAuto => 'Automatski';
+
+  @override
+  String onboardingWeightInvalid(String min, String max) {
+    return 'Unesi težinu između $min i $max';
+  }
+
+  @override
+  String get onboardingWelcomeBody =>
+      'Nekoliko brzih pitanja i tvoji treninzi, niz i ciljevi su spremni. Traje manje od minuta.';
+
+  @override
+  String get onboardingWelcomeGoals =>
+      'Postavi ciljeve i prati kako ih dostižeš';
+
+  @override
+  String get onboardingWelcomeLater =>
+      'Sve ovo možeš kasnije da promeniš u Podešavanjima.';
+
+  @override
+  String get onboardingWelcomeStreak => 'Gradi niz koji te vraća u teretanu';
+
+  @override
+  String get onboardingWelcomeTitle => 'Dobro došao u Gym Bro';
+
+  @override
+  String get onboardingWelcomeTrack => 'Beleži svaki trening i lični rekord';
+
+  @override
+  String overloadLast(String sets) {
+    return 'Prošli put: $sets';
+  }
+
+  @override
+  String overloadLastReps(String reps) {
+    return 'Prošli put: $reps pon.';
+  }
+
+  @override
+  String get overloadReasonAddRep => 'Ista težina, jedno ponavljanje više';
+
+  @override
+  String overloadReasonAddWeight(String increment) {
+    return 'Sva ponavljanja prošli put → +$increment';
+  }
+
+  @override
+  String get overloadReasonBodyweight =>
+      'Jedno ponavljanje više nego prošli put';
+
+  @override
+  String overloadReasonDeload(int days) {
+    return '$days dana pauze → lakše za početak (−10%)';
+  }
+
+  @override
+  String overloadTry(String weight, int reps) {
+    return 'Probaj $weight × $reps';
+  }
+
+  @override
+  String overloadTryReps(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Probaj $count ponavljanja',
+      few: 'Probaj $count ponavljanja',
+      one: 'Probaj $count ponavljanje',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get overloadUse => 'Primeni';
+
+  @override
+  String get overloadUseHint => 'Upisuje predlog';
+
+  @override
   String get peopleAccept => 'Prihvati';
 
   @override
@@ -5966,6 +7113,97 @@ class AppLocalizationsSr extends AppLocalizations {
   String get planWorkoutFallback => 'Trening';
 
   @override
+  String get polishEmptyChallengesAction => 'Pregledaj izazove';
+
+  @override
+  String get polishEmptyChallengesJoinTitle =>
+      'Trenutno nema izazova za pridruživanje';
+
+  @override
+  String get polishEmptyChallengesTitle => 'Još nema izazova';
+
+  @override
+  String get polishEmptyNotificationsBody =>
+      'Ovde stižu lajkovi, komentari, praćenja i novosti o časovima.';
+
+  @override
+  String get polishEmptyWorkoutsAction => 'Započni prvi trening';
+
+  @override
+  String get polishEmptyWorkoutsBody => 'Zabeleži trening i pojaviće se ovde.';
+
+  @override
+  String get polishEmptyWorkoutsTitle => 'Još nema treninga';
+
+  @override
+  String get polishFeedFindPeople => 'Pronađi ljude za praćenje';
+
+  @override
+  String get polishFindPeople => 'Pronađi ljude';
+
+  @override
+  String polishFindPeopleRequests(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pronađi ljude, $count zahteva',
+      few: 'Pronađi ljude, $count zahteva',
+      one: 'Pronađi ljude, $count zahtev',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get polishSeeAll => 'Prikaži sve';
+
+  @override
+  String get polishStartChat => 'Započni razgovor';
+
+  @override
+  String get polishTabTrain => 'Trening';
+
+  @override
+  String get polishTrainChallengesSubtitle =>
+      'Takmiči se sa prijateljima i teretanom';
+
+  @override
+  String get polishTrainExercisesSubtitle => 'Biblioteka vežbi sa uputstvima';
+
+  @override
+  String get polishTrainHeroBody =>
+      'Prati plan treninga ili zabeleži slobodan trening.';
+
+  @override
+  String get polishTrainHeroTitle => 'Spreman za trening?';
+
+  @override
+  String get polishTrainLast7Days => 'Poslednjih 7 dana';
+
+  @override
+  String get polishTrainPlanTrack => 'Planiraj i prati';
+
+  @override
+  String get polishTrainProgress => 'Napredak i rekordi';
+
+  @override
+  String get polishTrainProgressSubtitle => 'Dizanja, rekordi i mere tela';
+
+  @override
+  String get polishTrainRecent => 'Nedavni treninzi';
+
+  @override
+  String get polishTrainRoutinesSubtitle => 'Tvoje rutine i planovi';
+
+  @override
+  String get polishTrainStatMinutes => 'Minuti';
+
+  @override
+  String get polishTrainStatSets => 'Serije';
+
+  @override
+  String get polishTrainStatWorkouts => 'Treninzi';
+
+  @override
   String get postShareAction => 'Podeli kao objavu';
 
   @override
@@ -6127,6 +7365,26 @@ class AppLocalizationsSr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get postingDiscard => 'Odbaci';
+
+  @override
+  String get postingDone => 'Objavljeno';
+
+  @override
+  String get postingFailed => 'Objava nije uspela.';
+
+  @override
+  String get postingInProgress => 'Objavljivanje…';
+
+  @override
+  String postingProgressLabel(int percent) {
+    return 'Objavljivanje, $percent% gotovo';
+  }
+
+  @override
+  String get postingRetry => 'Pokušaj ponovo';
 
   @override
   String get postsAdvancedSettings => 'Napredna podešavanja';
@@ -8776,6 +10034,137 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
+  String get todayAllDone => 'Sve je gotovo za danas';
+
+  @override
+  String get todayAllDoneHint =>
+      'Odlično. Odmori se ili ubaci još jedan trening.';
+
+  @override
+  String get todayCalories => 'Kalorije';
+
+  @override
+  String get todayCarbShort => 'U';
+
+  @override
+  String todayClassWith(String trainer) {
+    return 'sa $trainer';
+  }
+
+  @override
+  String get todayEntryDone => 'Gotovo';
+
+  @override
+  String get todayEntrySkipped => 'Preskočeno';
+
+  @override
+  String get todayFatShort => 'M';
+
+  @override
+  String get todayFreeDay => 'Slobodan dan';
+
+  @override
+  String get todayFreeDayHint =>
+      'Danas ništa nije planirano. Ipak ti se vežba?';
+
+  @override
+  String todayGreetingAfternoon(String name) {
+    return 'Dobar dan, $name';
+  }
+
+  @override
+  String todayGreetingEvening(String name) {
+    return 'Dobro veče, $name';
+  }
+
+  @override
+  String todayGreetingMorning(String name) {
+    return 'Dobro jutro, $name';
+  }
+
+  @override
+  String get todayKcalLogged => 'kcal upisano';
+
+  @override
+  String todayKcalOf(int target) {
+    final intl.NumberFormat targetNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String targetString = targetNumberFormat.format(target);
+
+    return 'od $targetString kcal';
+  }
+
+  @override
+  String todayKcalSemantics(int eaten) {
+    return 'Kalorije danas: $eaten kcal';
+  }
+
+  @override
+  String todayKcalTargetSemantics(int eaten, int target) {
+    return 'Kalorije danas: $eaten od $target kcal';
+  }
+
+  @override
+  String get todayNextClass => 'Sledeći čas';
+
+  @override
+  String get todayOpenDiary => 'Otvori dnevnik ishrane';
+
+  @override
+  String get todayProteinShort => 'P';
+
+  @override
+  String get todayShortcuts => 'Prečice';
+
+  @override
+  String get todayStartAnother => 'Započni još jedan';
+
+  @override
+  String get todayStartAnyway => 'Ipak započni trening';
+
+  @override
+  String todayStartFailed(String error) {
+    return 'Trening nije započet: $error';
+  }
+
+  @override
+  String get todayStartWorkout => 'Započni trening';
+
+  @override
+  String get todayTomorrow => 'Sutra';
+
+  @override
+  String get todayTraining => 'Današnji trening';
+
+  @override
+  String get todayWaitlisted => 'Lista čekanja';
+
+  @override
+  String get todayWeight => 'Težina';
+
+  @override
+  String todayWeightChange(String change) {
+    return '$change za 30 dana';
+  }
+
+  @override
+  String get todayWeightOne => 'Tvoje prvo merenje';
+
+  @override
+  String get todayWeightSteady => 'Stabilna poslednjih 30 dana';
+
+  @override
+  String get todayWeightTrend => 'Kretanje težine u poslednjih 30 dana';
+
+  @override
+  String get todayWorkoutFallback => 'Trening';
+
+  @override
+  String todayWorkoutWhen(String time, int minutes) {
+    return '$time · $minutes min';
+  }
+
+  @override
   String get trainerClassesPickerCustomer => 'Klijent';
 
   @override
@@ -10852,6 +12241,227 @@ class AppLocalizationsSr extends AppLocalizations {
       'Još ti nije dodeljen nijedan program.\nOvde se prikazuju programi koje ti dodeli trener.';
 
   @override
+  String get waterAdd => 'Dodaj';
+
+  @override
+  String waterAddCup(String amount) {
+    return 'Dodaj $amount';
+  }
+
+  @override
+  String waterAddFailed(String error) {
+    return 'Piće nije upisano: $error';
+  }
+
+  @override
+  String waterAdded(String amount) {
+    return 'Dodato $amount';
+  }
+
+  @override
+  String waterAddedGoal(String amount) {
+    return 'Dodato $amount. Dnevni cilj ispunjen!';
+  }
+
+  @override
+  String get waterAverage => 'Dnevni prosek';
+
+  @override
+  String waterBottleSemantics(String drunk, String goal, int percent) {
+    return 'Voda danas: $drunk od $goal, $percent procenata';
+  }
+
+  @override
+  String waterChartSemantics(int count, int reached) {
+    return 'Voda po danu u poslednjih $count dana, od toga $reached sa ispunjenim ciljem';
+  }
+
+  @override
+  String get waterCustom => 'Drugo';
+
+  @override
+  String get waterCustomInvalid => 'Unesi od 1 do 3000 ml';
+
+  @override
+  String get waterCustomLabel => 'Količina (ml)';
+
+  @override
+  String get waterCustomTitle => 'Dodaj vodu';
+
+  @override
+  String get waterDaysReached => 'Cilj ispunjen';
+
+  @override
+  String waterDaysReachedValue(int count, int total) {
+    return '$count od $total dana';
+  }
+
+  @override
+  String get waterGoalLine => 'Cilj';
+
+  @override
+  String get waterGoalReached => 'Cilj ispunjen!';
+
+  @override
+  String get waterHistory => 'Istorija';
+
+  @override
+  String waterHistoryDays(int count) {
+    return '$count dana';
+  }
+
+  @override
+  String waterLeft(String amount) {
+    return 'Još $amount';
+  }
+
+  @override
+  String waterLiters(String amount) {
+    return '$amount l';
+  }
+
+  @override
+  String get waterLoadFailed => 'Nismo uspeli da učitamo vodu.';
+
+  @override
+  String waterMl(String amount) {
+    return '$amount ml';
+  }
+
+  @override
+  String get waterNoEntries =>
+      'Danas još ništa. Dodirni čašu da upišeš prvo piće.';
+
+  @override
+  String waterOfGoal(String goal) {
+    return 'od $goal';
+  }
+
+  @override
+  String get waterOpenTracker => 'Otvori praćenje vode';
+
+  @override
+  String waterProgress(String drunk, String goal) {
+    return '$drunk od $goal';
+  }
+
+  @override
+  String get waterReminderBody => 'Jedna čaša sada te drži na pravom putu.';
+
+  @override
+  String waterReminderBodyLeft(String amount) {
+    return 'Još $amount do današnjeg cilja.';
+  }
+
+  @override
+  String get waterReminderChannel => 'Podsetnici za vodu';
+
+  @override
+  String get waterReminderChannelDescription =>
+      'Podsetnici da piješ vodu tokom dana';
+
+  @override
+  String get waterReminderTitle => 'Vreme je za vodu';
+
+  @override
+  String waterRemoved(String amount) {
+    return 'Uklonjeno $amount';
+  }
+
+  @override
+  String waterRingHint(String amount) {
+    return 'Dodirni da dodaš $amount, zadrži da otvoriš praćenje vode';
+  }
+
+  @override
+  String get waterSettingsAddCup => 'Dodaj veličinu';
+
+  @override
+  String get waterSettingsCups => 'Veličine čaša';
+
+  @override
+  String get waterSettingsCupsHelp =>
+      'Do četiri veličine za brzo dodavanje, od 50 do 2000 ml.';
+
+  @override
+  String get waterSettingsGoal => 'Dnevni cilj';
+
+  @override
+  String waterSettingsGoalAuto(String amount) {
+    return 'Automatski · $amount';
+  }
+
+  @override
+  String get waterSettingsGoalAutoHelp =>
+      'Oko 35 ml po kg tvoje poslednje težine (2,5 l bez nje). Dani sa treningom dodaju 500 ml.';
+
+  @override
+  String waterSettingsGoalCustom(String amount) {
+    return 'Prilagođeno · $amount';
+  }
+
+  @override
+  String get waterSettingsGoalCustomHelp =>
+      'Tvoj cilj. Dani sa treningom i dalje dodaju 500 ml.';
+
+  @override
+  String get waterSettingsGoalTitle => 'Dnevni cilj za vodu';
+
+  @override
+  String get waterSettingsLess => 'Manje';
+
+  @override
+  String get waterSettingsMore => 'Više';
+
+  @override
+  String get waterSettingsPermissionDenied =>
+      'Dozvoli obaveštenja za Gym Bro da bi dobijao podsetnike za vodu.';
+
+  @override
+  String get waterSettingsReminders => 'Podsetnici';
+
+  @override
+  String get waterSettingsRemindersHelp =>
+      'Na svaka 2 sata od 9:00 do 21:00, dok ne ispuniš dnevni cilj.';
+
+  @override
+  String get waterSettingsRemoveCup => 'Ukloni ovu veličinu';
+
+  @override
+  String get waterSettingsUseAuto => 'Automatski';
+
+  @override
+  String get waterSettingsUseCustom => 'Prilagođeno';
+
+  @override
+  String get waterStreak => 'Zaredom';
+
+  @override
+  String waterStreakValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dana',
+      one: '$count dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get waterTitle => 'Voda';
+
+  @override
+  String get waterTodayEntries => 'Današnja pića';
+
+  @override
+  String get waterUndo => 'Poništi';
+
+  @override
+  String waterWorkoutBonus(String amount) {
+    return '+$amount zbog današnjeg treninga';
+  }
+
+  @override
   String get workoutCompleteDone => 'Gotovo';
 
   @override
@@ -11140,6 +12750,310 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get workoutTrainingSaveAsCopy => 'Sačuvaj kao novi trening';
+
+  @override
+  String wrappedActiveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'u $count različitih dana',
+      one: 'u 1 danu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedBadges => 'Osvojeni bedževi';
+
+  @override
+  String get wrappedBannerBody => 'Treninzi, dizanja, nizovi i još mnogo toga.';
+
+  @override
+  String get wrappedBannerCta => 'Pogledaj';
+
+  @override
+  String get wrappedBannerKicker => 'Gym Bro Wrapped';
+
+  @override
+  String wrappedBannerTitle(String year) {
+    return 'Tvoja $year. u treningu je spremna';
+  }
+
+  @override
+  String get wrappedBestLifts => 'Tvoja najjača dizanja (procenjeni 1RM)';
+
+  @override
+  String wrappedBestMonth(String month, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treninga',
+      few: '$count treninga',
+      one: '$count trening',
+    );
+    return 'Najjači mesec: $month, $_temp0';
+  }
+
+  @override
+  String wrappedBusiestDay(String day) {
+    return 'Tvoj dan: $day';
+  }
+
+  @override
+  String wrappedChallenges(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count završenih izazova',
+      few: '$count završena izazova',
+      one: '$count završen izazov',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wrappedCheckIns(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'dolazaka',
+      few: 'dolaska',
+      one: 'dolazak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wrappedClasses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count odrađenih časova',
+      few: '$count odrađena časa',
+      one: '$count odrađen čas',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedClose => 'Zatvori';
+
+  @override
+  String get wrappedDone => 'Gotovo';
+
+  @override
+  String wrappedEmptyBody(String year) {
+    return 'U $year. ništa nije upisano. Tvoj sledeći Wrapped počinje sledećim treningom.';
+  }
+
+  @override
+  String get wrappedEmptyTitle => 'Mirna godina';
+
+  @override
+  String get wrappedFavouriteGym => 'Tvoja druga kuća';
+
+  @override
+  String wrappedFavouriteHour(String time) {
+    return 'Omiljeno vreme za trening: $time';
+  }
+
+  @override
+  String wrappedFirstWorkout(String date) {
+    return 'Sve je počelo $date.';
+  }
+
+  @override
+  String get wrappedGymKicker => 'U teretani';
+
+  @override
+  String wrappedHours(String hours) {
+    return '$hours sati treninga';
+  }
+
+  @override
+  String wrappedInARow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'treninga zaredom',
+      few: 'treninga zaredom',
+      one: 'trening zaredom',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedIntroHint => 'Dodirni za početak';
+
+  @override
+  String get wrappedIntroKicker => 'Tvoja godina treninga';
+
+  @override
+  String get wrappedIntroWord => 'Wrapped';
+
+  @override
+  String wrappedLiftDetail(String weight, int reps) {
+    return '$weight × $reps';
+  }
+
+  @override
+  String get wrappedLoadFailed => 'Nije moguće učitati tvoj Wrapped.';
+
+  @override
+  String get wrappedLongestStreak => 'Najduži niz';
+
+  @override
+  String get wrappedNext => 'Sledeće';
+
+  @override
+  String wrappedNoData(String year) {
+    return 'U $year. nije upisan nijedan trening.';
+  }
+
+  @override
+  String wrappedNotYet(String year, String date) {
+    return 'Tvoj Wrapped za $year. otvara se $date.';
+  }
+
+  @override
+  String wrappedPrCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'novih rekorda',
+      few: 'nova rekorda',
+      one: 'novi rekord',
+      zero: 'Nema novih rekorda',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedPrKicker => 'Lični rekordi';
+
+  @override
+  String get wrappedPrevious => 'Prethodno';
+
+  @override
+  String get wrappedRetry => 'Pokušaj ponovo';
+
+  @override
+  String get wrappedRhythmKicker => 'Tvoj ritam';
+
+  @override
+  String wrappedSetsReps(String sets, String reps) {
+    return '$sets serija · $reps ponavljanja';
+  }
+
+  @override
+  String get wrappedShare => 'Podeli u priču';
+
+  @override
+  String get wrappedShareFailed => 'Nije moguće napraviti sliku.';
+
+  @override
+  String wrappedSlideLabel(int index, int count) {
+    return 'Slajd $index od $count';
+  }
+
+  @override
+  String get wrappedStreakKicker => 'Doslednost';
+
+  @override
+  String get wrappedSummaryDays => 'Aktivni dani';
+
+  @override
+  String get wrappedSummaryHours => 'Sati';
+
+  @override
+  String get wrappedSummaryKicker => 'To je to';
+
+  @override
+  String get wrappedSummaryPrs => 'Rekordi';
+
+  @override
+  String get wrappedSummaryStreak => 'Najbolji niz';
+
+  @override
+  String get wrappedSummaryTop => 'Omiljena vežba';
+
+  @override
+  String get wrappedSummaryVolume => 'Podignuto';
+
+  @override
+  String get wrappedSummaryWorkouts => 'Treninzi';
+
+  @override
+  String get wrappedTitle => 'Gym Bro Wrapped';
+
+  @override
+  String get wrappedTopKicker => 'Vežbe koje si najviše radio';
+
+  @override
+  String wrappedTopSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count serija',
+      few: '$count serije',
+      one: '$count serija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wrappedVolumeCars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'To je otprilike $count automobila 🚗',
+      few: 'To su otprilike $count automobila 🚗',
+      one: 'To je otprilike $count automobil 🚗',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wrappedVolumeElephants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'To je otprilike $count slonova 🐘',
+      few: 'To su otprilike $count slona 🐘',
+      one: 'To je otprilike $count slon 🐘',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedVolumeKicker => 'Ukupno si podigao';
+
+  @override
+  String wrappedVolumePianos(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'To je otprilike $count klavira 🎹',
+      few: 'To su otprilike $count klavira 🎹',
+      one: 'To je otprilike $count klavir 🎹',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedWorkoutsKicker => 'Ove godine si odradio';
+
+  @override
+  String wrappedWorkoutsUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'treninga',
+      few: 'treninga',
+      one: 'trening',
+    );
+    return '$_temp0';
+  }
 }
 
 /// The translations for Serbian, using the Latin script (`sr_Latn`).
@@ -11449,6 +13363,290 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
+  String bodyChangeInRange(String range) {
+    return 'za $range';
+  }
+
+  @override
+  String bodyChangeSince(String date) {
+    return 'od $date';
+  }
+
+  @override
+  String get bodyCompareAfter => 'Posle';
+
+  @override
+  String get bodyCompareBefore => 'Pre';
+
+  @override
+  String bodyCompareDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dana',
+      few: '$count dana',
+      one: '$count dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bodyCompareDiff(String change, String span) {
+    return '$change za $span';
+  }
+
+  @override
+  String bodyComparePick(String which) {
+    return '$which: izaberi fotografiju';
+  }
+
+  @override
+  String get bodyCompareSliderLabel => 'Razdelnik pre i posle';
+
+  @override
+  String get bodyCompareSwap => 'Zameni pre i posle';
+
+  @override
+  String get bodyCompareTitle => 'Uporedi';
+
+  @override
+  String bodyCompareWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nedelja',
+      few: '$count nedelje',
+      one: '$count nedelju',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bodyGoalEditTitle => 'Izmeni ciljnu težinu';
+
+  @override
+  String bodyGoalEtaFlat(String goal) {
+    return 'Tvoj trend miruje, pa još nema datuma za $goal.';
+  }
+
+  @override
+  String bodyGoalEtaNoData(String goal) {
+    return 'Izmeri se nekoliko puta tokom nedelju-dve da vidiš kada ćeš stići do $goal.';
+  }
+
+  @override
+  String bodyGoalEtaOnTrack(String rate, String goal, String date) {
+    return 'Sa $rate nedeljno stići ćeš do $goal oko $date.';
+  }
+
+  @override
+  String bodyGoalEtaReached(String goal) {
+    return 'Stigao si do cilja od $goal. Svaka čast!';
+  }
+
+  @override
+  String bodyGoalEtaTooFar(String rate, String goal) {
+    return 'Sa $rate nedeljno, $goal je dalje od tri godine.';
+  }
+
+  @override
+  String bodyGoalEtaWrongWay(String rate, String goal) {
+    return 'Sa $rate nedeljno udaljavaš se od cilja $goal. Male, stalne promene se sabiraju.';
+  }
+
+  @override
+  String get bodyGoalFieldLabel => 'Ciljna težina';
+
+  @override
+  String bodyGoalInvalid(String min, String max) {
+    return 'Unesi cilj između $min i $max';
+  }
+
+  @override
+  String bodyGoalLineLabel(String value) {
+    return 'Cilj $value';
+  }
+
+  @override
+  String get bodyGoalRemove => 'Ukloni cilj';
+
+  @override
+  String get bodyGoalSetHint =>
+      'Vidi liniju cilja na grafikonu i kada ćeš stići do nje';
+
+  @override
+  String get bodyGoalSetTitle => 'Postavi ciljnu težinu';
+
+  @override
+  String get bodyGoalSheetHelp =>
+      'Nacrtaćemo je na grafikonu i proceniti kada ćeš stići do nje.';
+
+  @override
+  String bodyGoalSheetHelpCurrent(String current) {
+    return 'Tvoj trend težine je $current. Nacrtaćemo cilj na grafikonu i proceniti kada ćeš stići do njega.';
+  }
+
+  @override
+  String bodyGoalToGo(String value) {
+    return 'još $value';
+  }
+
+  @override
+  String bodyLastWeighIn(String value, String date) {
+    return 'Poslednje merenje $value · $date';
+  }
+
+  @override
+  String get bodyLegendGoal => 'Cilj';
+
+  @override
+  String get bodyLegendTrend => 'Trend';
+
+  @override
+  String get bodyLegendWeighIns => 'Merenja';
+
+  @override
+  String get bodyMetricArm => 'Ruka';
+
+  @override
+  String get bodyMetricBodyFat => 'Masnoća';
+
+  @override
+  String get bodyMetricChest => 'Grudi';
+
+  @override
+  String get bodyMetricHips => 'Kukovi';
+
+  @override
+  String get bodyMetricNeck => 'Vrat';
+
+  @override
+  String get bodyMetricThigh => 'Butina';
+
+  @override
+  String get bodyMetricWaist => 'Struk';
+
+  @override
+  String get bodyNeedAnyValue => 'Unesi težinu, masnoću ili bar jednu meru';
+
+  @override
+  String get bodyPhotoAdd => 'Dodaj fotografiju';
+
+  @override
+  String get bodyPhotoAddTitle => 'Nova fotografija napretka';
+
+  @override
+  String get bodyPhotoDeleteMessage => 'Fotografija će biti trajno uklonjena.';
+
+  @override
+  String get bodyPhotoDeleteTitle => 'Obrisati fotografiju?';
+
+  @override
+  String get bodyPhotoDeleteTooltip => 'Obriši fotografiju';
+
+  @override
+  String get bodyPhotoFromGallery => 'Izaberi iz galerije';
+
+  @override
+  String get bodyPhotoTake => 'Slikaj';
+
+  @override
+  String get bodyPhotoTooLarge => 'Ta fotografija je veća od 20 MB.';
+
+  @override
+  String get bodyPhotoWeightHelp =>
+      'Ostavi prazno da se uzme najbliže merenje.';
+
+  @override
+  String get bodyPhotoWeightOptional => 'Težina (opciono)';
+
+  @override
+  String bodyPhotosCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fotografija',
+      few: '$count fotografije',
+      one: '$count fotografija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bodyPhotosEmptyMessage =>
+      'Slikaj se spreda, sa strane i otpozadi na svakih nekoliko nedelja, pa uporedi bilo koje dve.';
+
+  @override
+  String get bodyPhotosEmptyTitle => 'Vidi koliko si napredovao';
+
+  @override
+  String get bodyPhotosPrivate => 'Samo ti ih vidiš.';
+
+  @override
+  String get bodyPhotosPrivateDetail =>
+      'Fotografije napretka se nikad ne pojavljuju u objavama, a treneri ih ne vide.';
+
+  @override
+  String get bodyPhotosTab => 'Fotografije';
+
+  @override
+  String get bodyPoseAll => 'Sve';
+
+  @override
+  String get bodyPoseBack => 'Otpozadi';
+
+  @override
+  String get bodyPoseFront => 'Spreda';
+
+  @override
+  String get bodyPoseOther => 'Ostalo';
+
+  @override
+  String get bodyPoseSide => 'Sa strane';
+
+  @override
+  String get bodyRange1y => '1G';
+
+  @override
+  String bodyRatePerWeek(String rate) {
+    return '$rate nedeljno';
+  }
+
+  @override
+  String bodyTapeOutOfRange(
+    String metric,
+    String min,
+    String max,
+    String unit,
+  ) {
+    return '$metric mora biti između $min i $max $unit';
+  }
+
+  @override
+  String get bodyTapeSection => 'Mere tela';
+
+  @override
+  String bodyTapeSectionHint(String unit) {
+    return 'Opciono, u $unit';
+  }
+
+  @override
+  String bodyTooltipTrend(String value) {
+    return 'Trend $value';
+  }
+
+  @override
+  String bodyTooltipWeighIn(String value) {
+    return 'Merenje $value';
+  }
+
+  @override
+  String get bodyTrendSeries => 'Trend težine';
+
+  @override
+  String get bodyTrendWeight => 'Trend težine';
+
+  @override
   String get businessCheckInAllTime => 'Ukupno';
 
   @override
@@ -12891,6 +15089,408 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get calendarPreviousWeek => 'Prethodna nedelja';
+
+  @override
+  String get challengeCancel => 'Otkaži';
+
+  @override
+  String get challengeCompleted => 'Završeno';
+
+  @override
+  String challengeCompletedOn(String date) {
+    return 'Završeno $date';
+  }
+
+  @override
+  String get challengeCreate => 'Novi izazov';
+
+  @override
+  String challengeCreatedBy(String name) {
+    return 'Autor: $name';
+  }
+
+  @override
+  String challengeDaysLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Još $count dana',
+      few: 'Još $count dana',
+      one: 'Još $count dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeDelete => 'Obriši izazov';
+
+  @override
+  String challengeDeleteConfirm(String title) {
+    return 'Obrisati „$title“? Briše se i napredak svih učesnika.';
+  }
+
+  @override
+  String get challengeDeleted => 'Izazov je obrisan';
+
+  @override
+  String get challengeEdit => 'Izmeni izazov';
+
+  @override
+  String get challengeEnded => 'Završen';
+
+  @override
+  String challengeEndedOn(String date) {
+    return 'Završen $date';
+  }
+
+  @override
+  String get challengeFormCreate => 'Napravi izazov';
+
+  @override
+  String get challengeFormDates => 'Kada';
+
+  @override
+  String get challengeFormDescription => 'Opis (nije obavezno)';
+
+  @override
+  String get challengeFormEnds => 'Završava se';
+
+  @override
+  String get challengeFormEndsBeforeStart => 'Mora da se završi posle početka.';
+
+  @override
+  String get challengeFormEveryone => 'Svi na Gym Bro';
+
+  @override
+  String challengeFormLength(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dana',
+      few: '$count dana',
+      one: '$count dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeFormLocked =>
+      'Kada izazov počne, ne mogu se menjati šta se računa i datum početka.';
+
+  @override
+  String challengeFormMembersOf(String gym) {
+    return 'Članovi teretane $gym';
+  }
+
+  @override
+  String get challengeFormMetric => 'Šta se računa';
+
+  @override
+  String challengeFormNotify(String gym) {
+    return 'Članovi teretane $gym dobiće obaveštenje kada ga napraviš.';
+  }
+
+  @override
+  String get challengeFormSave => 'Sačuvaj';
+
+  @override
+  String get challengeFormSaved => 'Izazov je sačuvan';
+
+  @override
+  String get challengeFormStarts => 'Počinje';
+
+  @override
+  String get challengeFormTarget => 'Cilj';
+
+  @override
+  String get challengeFormTargetInvalid => 'Unesi ceo broj veći od 0';
+
+  @override
+  String get challengeFormTitle => 'Naziv';
+
+  @override
+  String get challengeFormTitleHint => 'npr. 30 dana gvožđa';
+
+  @override
+  String get challengeFormTitleRequired => 'Daj mu naziv';
+
+  @override
+  String get challengeFormTooLong => 'Izazov traje najviše godinu dana.';
+
+  @override
+  String get challengeFormWho => 'Za koga je';
+
+  @override
+  String challengeGoal(String goal) {
+    return 'Cilj: $goal';
+  }
+
+  @override
+  String get challengeGoalReached => 'Cilj ostvaren!';
+
+  @override
+  String get challengeHowItCounts => 'Šta se računa';
+
+  @override
+  String challengeHubIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Učestvuješ u $count izazova',
+      one: 'Učestvuješ u 1 izazovu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeHubNone => 'Pridruži se izazovu, osvoji medalje';
+
+  @override
+  String challengeHubOpen(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count otvorenih za prijavu',
+      one: '1 otvoren za prijavu',
+      zero: 'Novi svakog meseca',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeHubTitle => 'Izazovi';
+
+  @override
+  String get challengeJoin => 'Pridruži se';
+
+  @override
+  String get challengeJoinChallenge => 'Pridruži se izazovu';
+
+  @override
+  String get challengeJoined => 'Unutra si! Idemo 💪';
+
+  @override
+  String get challengeJustCompleted => 'Izazov završen! 🏅';
+
+  @override
+  String get challengeJustCompletedBody =>
+      'Rasturio si. Medalja je sada na tvom profilu.';
+
+  @override
+  String get challengeLastDay => 'Poslednji dan';
+
+  @override
+  String get challengeLeaderboard => 'Rang lista';
+
+  @override
+  String get challengeLeaderboardEmpty =>
+      'Na listi još nema nikoga. Pridruži se i preuzmi vođstvo.';
+
+  @override
+  String get challengeLeave => 'Napusti izazov';
+
+  @override
+  String challengeLeaveConfirm(String title) {
+    return 'Napustiti „$title“? Možeš ponovo da se pridružiš dok traje.';
+  }
+
+  @override
+  String challengeMedalsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count medalja',
+      few: '$count medalje',
+      one: '$count medalja',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeMedalsPrivate =>
+      'Ovaj nalog je privatan. Zaprati ga da vidiš medalje.';
+
+  @override
+  String get challengeMedalsTitle => 'Medalje iz izazova';
+
+  @override
+  String get challengeMetricActiveDays => 'Aktivni dani';
+
+  @override
+  String get challengeMetricCheckIns => 'Dolasci';
+
+  @override
+  String get challengeMetricMinutes => 'Minuti';
+
+  @override
+  String get challengeMetricVolume => 'Podignuta težina';
+
+  @override
+  String get challengeMetricWorkouts => 'Treninzi';
+
+  @override
+  String challengeMonthlyActiveDaysDescription(String month, int count) {
+    return 'Treniraj $count različitih dana u mesecu $month.';
+  }
+
+  @override
+  String challengeMonthlyActiveDaysTitle(String month, int count) {
+    return 'Aktivan $month: $count dana';
+  }
+
+  @override
+  String challengeMonthlyWorkoutsDescription(String month, int count) {
+    return 'Završi $count treninga u mesecu $month. Računa se svaki trening, u teretani ili kod kuće.';
+  }
+
+  @override
+  String challengeMonthlyWorkoutsTitle(String month, int count) {
+    return '$month grind: $count treninga';
+  }
+
+  @override
+  String get challengeMuteDescription =>
+      'Završeni izazovi, novi izazovi u tvojim teretanama i godišnji pregled.';
+
+  @override
+  String get challengeMuteLabel => 'Izazovi i Wrapped';
+
+  @override
+  String challengeParticipants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count osoba',
+      few: '$count osobe',
+      one: '$count osoba',
+      zero: 'Još niko',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengePlatform => 'Gym Bro';
+
+  @override
+  String get challengeRuleActiveDays =>
+      'Svaki dan sa završenim treningom računa se jednom.';
+
+  @override
+  String challengeRuleCheckIns(String gym) {
+    return 'Svaki dan kada se prijaviš u $gym računa se jednom.';
+  }
+
+  @override
+  String get challengeRuleMinutes =>
+      'Računaju se minuti završenih treninga, najviše 4 sata po treningu.';
+
+  @override
+  String get challengeRuleVolume =>
+      'Računa se težina × ponavljanja svake upisane serije.';
+
+  @override
+  String get challengeRuleWindow =>
+      'Računaju se treninzi od početka izazova, i oni pre nego što si se pridružio.';
+
+  @override
+  String get challengeRuleWorkouts =>
+      'Računa se svaki završen trening sa bar jednom upisanom serijom. Upiši ga najkasnije do kraja sledećeg dana.';
+
+  @override
+  String challengeStartsIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Počinje za $count dana',
+      few: 'Počinje za $count dana',
+      one: 'Počinje za $count dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeStartsTomorrow => 'Počinje sutra';
+
+  @override
+  String challengeToGo(String amount) {
+    return 'Još $amount';
+  }
+
+  @override
+  String challengeUnitActiveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'aktivnih dana',
+      few: 'aktivna dana',
+      one: 'aktivan dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String challengeUnitCheckIns(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'dolazaka',
+      few: 'dolaska',
+      one: 'dolazak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeUnitMinutes => 'min';
+
+  @override
+  String challengeUnitWorkouts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'treninga',
+      few: 'treninga',
+      one: 'trening',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeUpcoming => 'Uskoro';
+
+  @override
+  String challengeYourRank(int rank) {
+    return 'Ti si #$rank';
+  }
+
+  @override
+  String get challengesEmptyJoin =>
+      'Trenutno nema otvorenih izazova. Novi počinju svakog meseca.';
+
+  @override
+  String get challengesEmptyMedals => 'Završi izazov i osvoji prvu medalju.';
+
+  @override
+  String get challengesEmptyMine =>
+      'Još nisi ni u jednom izazovu. Izaberi jedan i kreni.';
+
+  @override
+  String get challengesLoadFailed => 'Nije moguće učitati izazove.';
+
+  @override
+  String get challengesRetry => 'Pokušaj ponovo';
+
+  @override
+  String get challengesTabJoin => 'Pridruži se';
+
+  @override
+  String get challengesTabMedals => 'Medalje';
+
+  @override
+  String get challengesTabMine => 'Moji';
+
+  @override
+  String get challengesTitle => 'Izazovi';
 
   @override
   String get chatAccept => 'Prihvati';
@@ -14835,6 +17435,184 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
+  String get nativeHealthApple => 'Apple Health';
+
+  @override
+  String nativeHealthConnect(String platform) {
+    return 'Poveži $platform';
+  }
+
+  @override
+  String get nativeHealthConnectSubtitle =>
+      'Uvezi merenja težine, prikaži korake i san na početnom ekranu i čuvaj tamo treninge i vodu.';
+
+  @override
+  String nativeHealthConnectedTo(String platform) {
+    return 'Povezano sa $platform';
+  }
+
+  @override
+  String nativeHealthDenied(String platform) {
+    return 'Pristup za $platform nije odobren.';
+  }
+
+  @override
+  String get nativeHealthDisconnect => 'Prekini vezu';
+
+  @override
+  String nativeHealthDisconnected(String platform) {
+    return 'Veza sa $platform je prekinuta.';
+  }
+
+  @override
+  String get nativeHealthDisconnectedIos =>
+      'Veza je prekinuta. Da potpuno ukloniš pristup, otvori aplikaciju Zdravlje → svoj profil → Aplikacije → Gym Bro.';
+
+  @override
+  String nativeHealthFailed(String error) {
+    return 'Povezivanje nije uspelo: $error';
+  }
+
+  @override
+  String get nativeHealthGoogle => 'Health Connect';
+
+  @override
+  String get nativeHealthImportWeight => 'Uvoz merenja težine';
+
+  @override
+  String get nativeHealthImportWeightSubtitle =>
+      'Nova iz poslednjih 30 dana, najviše jedno dnevno, samo za dane bez merenja.';
+
+  @override
+  String nativeHealthImported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Uvezeno $count merenja',
+      few: 'Uvezena $count merenja',
+      one: 'Uvezeno $count merenje',
+      zero: 'Nema novih merenja',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nativeHealthInstall => 'Instaliraj';
+
+  @override
+  String nativeHealthLastChecked(String when) {
+    return 'Merenja poslednji put proverena $when';
+  }
+
+  @override
+  String get nativeHealthNeverChecked => 'Merenja još nisu proverena';
+
+  @override
+  String get nativeHealthNoData => 'Nema podataka';
+
+  @override
+  String get nativeHealthNotInstalled =>
+      'Health Connect nije instaliran ili ga treba ažurirati.';
+
+  @override
+  String get nativeHealthOnThisDevice => 'Samo na ovom uređaju';
+
+  @override
+  String get nativeHealthSection => 'Zdravlje';
+
+  @override
+  String get nativeHealthShowActivity => 'Koraci i san na početnom ekranu';
+
+  @override
+  String get nativeHealthShowActivitySubtitle =>
+      'Današnji koraci i sinoćnji san na pregledu dana.';
+
+  @override
+  String get nativeHealthSleep => 'San';
+
+  @override
+  String nativeHealthSleepDuration(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String get nativeHealthSleepLastNight => 'sinoć';
+
+  @override
+  String get nativeHealthSteps => 'Koraci';
+
+  @override
+  String get nativeHealthStepsToday => 'danas';
+
+  @override
+  String get nativeHealthSyncNow => 'Sinhronizuj';
+
+  @override
+  String nativeHealthTodaySemantics(String steps, String sleep) {
+    return '$steps koraka danas, $sleep sna sinoć';
+  }
+
+  @override
+  String nativeHealthWeighInNote(String platform) {
+    return 'Iz aplikacije $platform';
+  }
+
+  @override
+  String get nativeHealthWriteWater => 'Čuvaj vodu';
+
+  @override
+  String get nativeHealthWriteWaterSubtitle => 'Svako uneto piće se čuva.';
+
+  @override
+  String get nativeHealthWriteWorkouts => 'Čuvaj treninge';
+
+  @override
+  String get nativeHealthWriteWorkoutsSubtitle =>
+      'Završeni treninzi se čuvaju kao trening snage.';
+
+  @override
+  String get nativeRestAdd30 => '+30 s';
+
+  @override
+  String get nativeRestBody => 'Odmor između serija';
+
+  @override
+  String get nativeRestChannel => 'Tajmer odmora';
+
+  @override
+  String get nativeRestChannelDescription =>
+      'Odbrojavanje između serija tokom treninga.';
+
+  @override
+  String nativeRestNext(String name) {
+    return 'Sledeće: $name';
+  }
+
+  @override
+  String get nativeRestOverBody => 'Vreme je za sledeću seriju';
+
+  @override
+  String get nativeRestOverTitle => 'Odmor je gotov';
+
+  @override
+  String get nativeRestSkip => 'Preskoči';
+
+  @override
+  String get nativeRestTitle => 'Odmor';
+
+  @override
+  String get nativeWidgetOpenApp => 'Otvori Gym Bro da osvežiš';
+
+  @override
+  String get nativeWidgetSignedOut => 'Prijavi se u Gym Bro';
+
+  @override
+  String get nativeWidgetStreak => 'Niz';
+
+  @override
+  String get nativeWidgetToday => 'Danas';
+
+  @override
   String get nutritionAdd => 'Dodaj';
 
   @override
@@ -16201,6 +18979,289 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get nutritionYours => 'Tvoj';
 
   @override
+  String get onboardingBack => 'Nazad';
+
+  @override
+  String get onboardingBodyBody =>
+      'Nije obavezno. Na osnovu ovoga postavljamo cilj za vodu i liniju cilja na grafikonu težine.';
+
+  @override
+  String get onboardingBodyTitle => 'O tebi';
+
+  @override
+  String get onboardingContinue => 'Nastavi';
+
+  @override
+  String get onboardingCurrentWeight => 'Trenutna težina';
+
+  @override
+  String get onboardingDaysBody =>
+      'Izaberi broj koji možeš da održiš. Doslednost je važnija od intenziteta.';
+
+  @override
+  String get onboardingDaysEasy => 'Lagan početak';
+
+  @override
+  String get onboardingDaysIntense => 'Ozbiljna posvećenost';
+
+  @override
+  String get onboardingDaysSteady => 'Solidna rutina';
+
+  @override
+  String get onboardingDaysStreak =>
+      'Ispuni ga svake nedelje da bi tvoj niz ostao živ. Planovi se takođe računaju.';
+
+  @override
+  String get onboardingDaysTitle => 'Koliko dana nedeljno ćeš trenirati?';
+
+  @override
+  String onboardingDaysValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dana nedeljno',
+      few: '$count dana nedeljno',
+      one: '$count dan nedeljno',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onboardingDoneBody =>
+      'Ovo je tvoje podešavanje. Dodirni bilo šta da promeniš.';
+
+  @override
+  String get onboardingDoneTitle => 'Sve je spremno!';
+
+  @override
+  String get onboardingFinish => 'Idemo';
+
+  @override
+  String get onboardingGoalBody => 'Izaberi ono što ti je sada najvažnije.';
+
+  @override
+  String get onboardingGoalBuildMuscle => 'Izgradnja mišića';
+
+  @override
+  String get onboardingGoalBuildMuscleHint => 'Dodaj masu i oblik';
+
+  @override
+  String get onboardingGoalEndurance => 'Izdržljivost';
+
+  @override
+  String get onboardingGoalEnduranceHint => 'Traj duže i oporavljaj se brže';
+
+  @override
+  String get onboardingGoalGetStronger => 'Veća snaga';
+
+  @override
+  String get onboardingGoalGetStrongerHint => 'Diži više i obaraj rekorde';
+
+  @override
+  String get onboardingGoalLoseFat => 'Gubitak masti';
+
+  @override
+  String get onboardingGoalLoseFatHint => 'Istanji se i oseti se lakše';
+
+  @override
+  String get onboardingGoalStayFit => 'Ostani u formi';
+
+  @override
+  String get onboardingGoalStayFitHint => 'Budi zdrav, aktivan i u pokretu';
+
+  @override
+  String get onboardingGoalTitle => 'Koji ti je glavni cilj?';
+
+  @override
+  String get onboardingGoalWeight => 'Ciljna težina';
+
+  @override
+  String get onboardingGoalWeightSuggested =>
+      'Predlog za tvoj cilj. Promeni ga ili obriši.';
+
+  @override
+  String get onboardingOptional => 'Nije obavezno';
+
+  @override
+  String onboardingProgress(int current, int total) {
+    return 'Korak $current od $total';
+  }
+
+  @override
+  String get onboardingRedo => 'Ponovo podesi';
+
+  @override
+  String get onboardingRedoSubtitle => 'Cilj, dani treninga, težina i voda';
+
+  @override
+  String get onboardingSaveFailed =>
+      'Podešavanje nije sačuvano. Pitaćemo te ponovo sledeći put.';
+
+  @override
+  String get onboardingSkip => 'Preskoči';
+
+  @override
+  String get onboardingStart => 'Kreni';
+
+  @override
+  String get onboardingSummaryDays => 'Trening';
+
+  @override
+  String get onboardingSummaryGoal => 'Cilj';
+
+  @override
+  String onboardingSummaryGoalOnly(String goal) {
+    return 'Cilj: $goal';
+  }
+
+  @override
+  String get onboardingSummaryNotSet => 'Nije podešeno';
+
+  @override
+  String get onboardingSummaryWater => 'Voda';
+
+  @override
+  String onboardingSummaryWaterAuto(String amount) {
+    return '$amount dnevno (automatski)';
+  }
+
+  @override
+  String onboardingSummaryWaterCustom(String amount) {
+    return '$amount dnevno';
+  }
+
+  @override
+  String get onboardingSummaryWeight => 'Težina';
+
+  @override
+  String onboardingSummaryWeightGoal(String current, String goal) {
+    return '$current → $goal';
+  }
+
+  @override
+  String get onboardingUnits => 'Jedinice';
+
+  @override
+  String get onboardingWaterAuto =>
+      'Automatski: oko 35 ml po kilogramu telesne težine';
+
+  @override
+  String get onboardingWaterAutoNoWeight =>
+      'Automatski: dobra početna vrednost dok ne uneseš težinu';
+
+  @override
+  String get onboardingWaterBody =>
+      'Dobra hidratacija čini svaki trening boljim.';
+
+  @override
+  String get onboardingWaterCustom => 'Tvoj cilj';
+
+  @override
+  String onboardingWaterGlasses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'oko $count čaša od 250 ml',
+      few: 'oko $count čaše od 250 ml',
+      one: 'oko $count čaša od 250 ml',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onboardingWaterLess => 'Manje vode';
+
+  @override
+  String onboardingWaterLiters(String liters) {
+    return '$liters l';
+  }
+
+  @override
+  String get onboardingWaterMore => 'Više vode';
+
+  @override
+  String get onboardingWaterTitle => 'Tvoj dnevni cilj za vodu';
+
+  @override
+  String get onboardingWaterUseAuto => 'Automatski';
+
+  @override
+  String onboardingWeightInvalid(String min, String max) {
+    return 'Unesi težinu između $min i $max';
+  }
+
+  @override
+  String get onboardingWelcomeBody =>
+      'Nekoliko brzih pitanja i tvoji treninzi, niz i ciljevi su spremni. Traje manje od minuta.';
+
+  @override
+  String get onboardingWelcomeGoals =>
+      'Postavi ciljeve i prati kako ih dostižeš';
+
+  @override
+  String get onboardingWelcomeLater =>
+      'Sve ovo možeš kasnije da promeniš u Podešavanjima.';
+
+  @override
+  String get onboardingWelcomeStreak => 'Gradi niz koji te vraća u teretanu';
+
+  @override
+  String get onboardingWelcomeTitle => 'Dobro došao u Gym Bro';
+
+  @override
+  String get onboardingWelcomeTrack => 'Beleži svaki trening i lični rekord';
+
+  @override
+  String overloadLast(String sets) {
+    return 'Prošli put: $sets';
+  }
+
+  @override
+  String overloadLastReps(String reps) {
+    return 'Prošli put: $reps pon.';
+  }
+
+  @override
+  String get overloadReasonAddRep => 'Ista težina, jedno ponavljanje više';
+
+  @override
+  String overloadReasonAddWeight(String increment) {
+    return 'Sva ponavljanja prošli put → +$increment';
+  }
+
+  @override
+  String get overloadReasonBodyweight =>
+      'Jedno ponavljanje više nego prošli put';
+
+  @override
+  String overloadReasonDeload(int days) {
+    return '$days dana pauze → lakše za početak (−10%)';
+  }
+
+  @override
+  String overloadTry(String weight, int reps) {
+    return 'Probaj $weight × $reps';
+  }
+
+  @override
+  String overloadTryReps(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Probaj $count ponavljanja',
+      few: 'Probaj $count ponavljanja',
+      one: 'Probaj $count ponavljanje',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get overloadUse => 'Primeni';
+
+  @override
+  String get overloadUseHint => 'Upisuje predlog';
+
+  @override
   String get peopleAccept => 'Prihvati';
 
   @override
@@ -17104,6 +20165,97 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get planWorkoutFallback => 'Trening';
 
   @override
+  String get polishEmptyChallengesAction => 'Pregledaj izazove';
+
+  @override
+  String get polishEmptyChallengesJoinTitle =>
+      'Trenutno nema izazova za pridruživanje';
+
+  @override
+  String get polishEmptyChallengesTitle => 'Još nema izazova';
+
+  @override
+  String get polishEmptyNotificationsBody =>
+      'Ovde stižu lajkovi, komentari, praćenja i novosti o časovima.';
+
+  @override
+  String get polishEmptyWorkoutsAction => 'Započni prvi trening';
+
+  @override
+  String get polishEmptyWorkoutsBody => 'Zabeleži trening i pojaviće se ovde.';
+
+  @override
+  String get polishEmptyWorkoutsTitle => 'Još nema treninga';
+
+  @override
+  String get polishFeedFindPeople => 'Pronađi ljude za praćenje';
+
+  @override
+  String get polishFindPeople => 'Pronađi ljude';
+
+  @override
+  String polishFindPeopleRequests(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pronađi ljude, $count zahteva',
+      few: 'Pronađi ljude, $count zahteva',
+      one: 'Pronađi ljude, $count zahtev',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get polishSeeAll => 'Prikaži sve';
+
+  @override
+  String get polishStartChat => 'Započni razgovor';
+
+  @override
+  String get polishTabTrain => 'Trening';
+
+  @override
+  String get polishTrainChallengesSubtitle =>
+      'Takmiči se sa prijateljima i teretanom';
+
+  @override
+  String get polishTrainExercisesSubtitle => 'Biblioteka vežbi sa uputstvima';
+
+  @override
+  String get polishTrainHeroBody =>
+      'Prati plan treninga ili zabeleži slobodan trening.';
+
+  @override
+  String get polishTrainHeroTitle => 'Spreman za trening?';
+
+  @override
+  String get polishTrainLast7Days => 'Poslednjih 7 dana';
+
+  @override
+  String get polishTrainPlanTrack => 'Planiraj i prati';
+
+  @override
+  String get polishTrainProgress => 'Napredak i rekordi';
+
+  @override
+  String get polishTrainProgressSubtitle => 'Dizanja, rekordi i mere tela';
+
+  @override
+  String get polishTrainRecent => 'Nedavni treninzi';
+
+  @override
+  String get polishTrainRoutinesSubtitle => 'Tvoje rutine i planovi';
+
+  @override
+  String get polishTrainStatMinutes => 'Minuti';
+
+  @override
+  String get polishTrainStatSets => 'Serije';
+
+  @override
+  String get polishTrainStatWorkouts => 'Treninzi';
+
+  @override
   String get postShareAction => 'Podeli kao objavu';
 
   @override
@@ -17265,6 +20417,26 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
     );
     return '$_temp0';
   }
+
+  @override
+  String get postingDiscard => 'Odbaci';
+
+  @override
+  String get postingDone => 'Objavljeno';
+
+  @override
+  String get postingFailed => 'Objava nije uspela.';
+
+  @override
+  String get postingInProgress => 'Objavljivanje…';
+
+  @override
+  String postingProgressLabel(int percent) {
+    return 'Objavljivanje, $percent% gotovo';
+  }
+
+  @override
+  String get postingRetry => 'Pokušaj ponovo';
 
   @override
   String get postsAdvancedSettings => 'Napredna podešavanja';
@@ -19914,6 +23086,137 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
+  String get todayAllDone => 'Sve je gotovo za danas';
+
+  @override
+  String get todayAllDoneHint =>
+      'Odlično. Odmori se ili ubaci još jedan trening.';
+
+  @override
+  String get todayCalories => 'Kalorije';
+
+  @override
+  String get todayCarbShort => 'U';
+
+  @override
+  String todayClassWith(String trainer) {
+    return 'sa $trainer';
+  }
+
+  @override
+  String get todayEntryDone => 'Gotovo';
+
+  @override
+  String get todayEntrySkipped => 'Preskočeno';
+
+  @override
+  String get todayFatShort => 'M';
+
+  @override
+  String get todayFreeDay => 'Slobodan dan';
+
+  @override
+  String get todayFreeDayHint =>
+      'Danas ništa nije planirano. Ipak ti se vežba?';
+
+  @override
+  String todayGreetingAfternoon(String name) {
+    return 'Dobar dan, $name';
+  }
+
+  @override
+  String todayGreetingEvening(String name) {
+    return 'Dobro veče, $name';
+  }
+
+  @override
+  String todayGreetingMorning(String name) {
+    return 'Dobro jutro, $name';
+  }
+
+  @override
+  String get todayKcalLogged => 'kcal upisano';
+
+  @override
+  String todayKcalOf(int target) {
+    final intl.NumberFormat targetNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String targetString = targetNumberFormat.format(target);
+
+    return 'od $targetString kcal';
+  }
+
+  @override
+  String todayKcalSemantics(int eaten) {
+    return 'Kalorije danas: $eaten kcal';
+  }
+
+  @override
+  String todayKcalTargetSemantics(int eaten, int target) {
+    return 'Kalorije danas: $eaten od $target kcal';
+  }
+
+  @override
+  String get todayNextClass => 'Sledeći čas';
+
+  @override
+  String get todayOpenDiary => 'Otvori dnevnik ishrane';
+
+  @override
+  String get todayProteinShort => 'P';
+
+  @override
+  String get todayShortcuts => 'Prečice';
+
+  @override
+  String get todayStartAnother => 'Započni još jedan';
+
+  @override
+  String get todayStartAnyway => 'Ipak započni trening';
+
+  @override
+  String todayStartFailed(String error) {
+    return 'Trening nije započet: $error';
+  }
+
+  @override
+  String get todayStartWorkout => 'Započni trening';
+
+  @override
+  String get todayTomorrow => 'Sutra';
+
+  @override
+  String get todayTraining => 'Današnji trening';
+
+  @override
+  String get todayWaitlisted => 'Lista čekanja';
+
+  @override
+  String get todayWeight => 'Težina';
+
+  @override
+  String todayWeightChange(String change) {
+    return '$change za 30 dana';
+  }
+
+  @override
+  String get todayWeightOne => 'Tvoje prvo merenje';
+
+  @override
+  String get todayWeightSteady => 'Stabilna poslednjih 30 dana';
+
+  @override
+  String get todayWeightTrend => 'Kretanje težine u poslednjih 30 dana';
+
+  @override
+  String get todayWorkoutFallback => 'Trening';
+
+  @override
+  String todayWorkoutWhen(String time, int minutes) {
+    return '$time · $minutes min';
+  }
+
+  @override
   String get trainerClassesPickerCustomer => 'Klijent';
 
   @override
@@ -21990,6 +25293,227 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
       'Još ti nije dodeljen nijedan program.\nOvde se prikazuju programi koje ti dodeli trener.';
 
   @override
+  String get waterAdd => 'Dodaj';
+
+  @override
+  String waterAddCup(String amount) {
+    return 'Dodaj $amount';
+  }
+
+  @override
+  String waterAddFailed(String error) {
+    return 'Piće nije upisano: $error';
+  }
+
+  @override
+  String waterAdded(String amount) {
+    return 'Dodato $amount';
+  }
+
+  @override
+  String waterAddedGoal(String amount) {
+    return 'Dodato $amount. Dnevni cilj ispunjen!';
+  }
+
+  @override
+  String get waterAverage => 'Dnevni prosek';
+
+  @override
+  String waterBottleSemantics(String drunk, String goal, int percent) {
+    return 'Voda danas: $drunk od $goal, $percent procenata';
+  }
+
+  @override
+  String waterChartSemantics(int count, int reached) {
+    return 'Voda po danu u poslednjih $count dana, od toga $reached sa ispunjenim ciljem';
+  }
+
+  @override
+  String get waterCustom => 'Drugo';
+
+  @override
+  String get waterCustomInvalid => 'Unesi od 1 do 3000 ml';
+
+  @override
+  String get waterCustomLabel => 'Količina (ml)';
+
+  @override
+  String get waterCustomTitle => 'Dodaj vodu';
+
+  @override
+  String get waterDaysReached => 'Cilj ispunjen';
+
+  @override
+  String waterDaysReachedValue(int count, int total) {
+    return '$count od $total dana';
+  }
+
+  @override
+  String get waterGoalLine => 'Cilj';
+
+  @override
+  String get waterGoalReached => 'Cilj ispunjen!';
+
+  @override
+  String get waterHistory => 'Istorija';
+
+  @override
+  String waterHistoryDays(int count) {
+    return '$count dana';
+  }
+
+  @override
+  String waterLeft(String amount) {
+    return 'Još $amount';
+  }
+
+  @override
+  String waterLiters(String amount) {
+    return '$amount l';
+  }
+
+  @override
+  String get waterLoadFailed => 'Nismo uspeli da učitamo vodu.';
+
+  @override
+  String waterMl(String amount) {
+    return '$amount ml';
+  }
+
+  @override
+  String get waterNoEntries =>
+      'Danas još ništa. Dodirni čašu da upišeš prvo piće.';
+
+  @override
+  String waterOfGoal(String goal) {
+    return 'od $goal';
+  }
+
+  @override
+  String get waterOpenTracker => 'Otvori praćenje vode';
+
+  @override
+  String waterProgress(String drunk, String goal) {
+    return '$drunk od $goal';
+  }
+
+  @override
+  String get waterReminderBody => 'Jedna čaša sada te drži na pravom putu.';
+
+  @override
+  String waterReminderBodyLeft(String amount) {
+    return 'Još $amount do današnjeg cilja.';
+  }
+
+  @override
+  String get waterReminderChannel => 'Podsetnici za vodu';
+
+  @override
+  String get waterReminderChannelDescription =>
+      'Podsetnici da piješ vodu tokom dana';
+
+  @override
+  String get waterReminderTitle => 'Vreme je za vodu';
+
+  @override
+  String waterRemoved(String amount) {
+    return 'Uklonjeno $amount';
+  }
+
+  @override
+  String waterRingHint(String amount) {
+    return 'Dodirni da dodaš $amount, zadrži da otvoriš praćenje vode';
+  }
+
+  @override
+  String get waterSettingsAddCup => 'Dodaj veličinu';
+
+  @override
+  String get waterSettingsCups => 'Veličine čaša';
+
+  @override
+  String get waterSettingsCupsHelp =>
+      'Do četiri veličine za brzo dodavanje, od 50 do 2000 ml.';
+
+  @override
+  String get waterSettingsGoal => 'Dnevni cilj';
+
+  @override
+  String waterSettingsGoalAuto(String amount) {
+    return 'Automatski · $amount';
+  }
+
+  @override
+  String get waterSettingsGoalAutoHelp =>
+      'Oko 35 ml po kg tvoje poslednje težine (2,5 l bez nje). Dani sa treningom dodaju 500 ml.';
+
+  @override
+  String waterSettingsGoalCustom(String amount) {
+    return 'Prilagođeno · $amount';
+  }
+
+  @override
+  String get waterSettingsGoalCustomHelp =>
+      'Tvoj cilj. Dani sa treningom i dalje dodaju 500 ml.';
+
+  @override
+  String get waterSettingsGoalTitle => 'Dnevni cilj za vodu';
+
+  @override
+  String get waterSettingsLess => 'Manje';
+
+  @override
+  String get waterSettingsMore => 'Više';
+
+  @override
+  String get waterSettingsPermissionDenied =>
+      'Dozvoli obaveštenja za Gym Bro da bi dobijao podsetnike za vodu.';
+
+  @override
+  String get waterSettingsReminders => 'Podsetnici';
+
+  @override
+  String get waterSettingsRemindersHelp =>
+      'Na svaka 2 sata od 9:00 do 21:00, dok ne ispuniš dnevni cilj.';
+
+  @override
+  String get waterSettingsRemoveCup => 'Ukloni ovu veličinu';
+
+  @override
+  String get waterSettingsUseAuto => 'Automatski';
+
+  @override
+  String get waterSettingsUseCustom => 'Prilagođeno';
+
+  @override
+  String get waterStreak => 'Zaredom';
+
+  @override
+  String waterStreakValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dana',
+      one: '$count dan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get waterTitle => 'Voda';
+
+  @override
+  String get waterTodayEntries => 'Današnja pića';
+
+  @override
+  String get waterUndo => 'Poništi';
+
+  @override
+  String waterWorkoutBonus(String amount) {
+    return '+$amount zbog današnjeg treninga';
+  }
+
+  @override
   String get workoutCompleteDone => 'Gotovo';
 
   @override
@@ -22278,4 +25802,308 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get workoutTrainingSaveAsCopy => 'Sačuvaj kao novi trening';
+
+  @override
+  String wrappedActiveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'u $count različitih dana',
+      one: 'u 1 danu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedBadges => 'Osvojeni bedževi';
+
+  @override
+  String get wrappedBannerBody => 'Treninzi, dizanja, nizovi i još mnogo toga.';
+
+  @override
+  String get wrappedBannerCta => 'Pogledaj';
+
+  @override
+  String get wrappedBannerKicker => 'Gym Bro Wrapped';
+
+  @override
+  String wrappedBannerTitle(String year) {
+    return 'Tvoja $year. u treningu je spremna';
+  }
+
+  @override
+  String get wrappedBestLifts => 'Tvoja najjača dizanja (procenjeni 1RM)';
+
+  @override
+  String wrappedBestMonth(String month, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treninga',
+      few: '$count treninga',
+      one: '$count trening',
+    );
+    return 'Najjači mesec: $month, $_temp0';
+  }
+
+  @override
+  String wrappedBusiestDay(String day) {
+    return 'Tvoj dan: $day';
+  }
+
+  @override
+  String wrappedChallenges(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count završenih izazova',
+      few: '$count završena izazova',
+      one: '$count završen izazov',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wrappedCheckIns(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'dolazaka',
+      few: 'dolaska',
+      one: 'dolazak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wrappedClasses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count odrađenih časova',
+      few: '$count odrađena časa',
+      one: '$count odrađen čas',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedClose => 'Zatvori';
+
+  @override
+  String get wrappedDone => 'Gotovo';
+
+  @override
+  String wrappedEmptyBody(String year) {
+    return 'U $year. ništa nije upisano. Tvoj sledeći Wrapped počinje sledećim treningom.';
+  }
+
+  @override
+  String get wrappedEmptyTitle => 'Mirna godina';
+
+  @override
+  String get wrappedFavouriteGym => 'Tvoja druga kuća';
+
+  @override
+  String wrappedFavouriteHour(String time) {
+    return 'Omiljeno vreme za trening: $time';
+  }
+
+  @override
+  String wrappedFirstWorkout(String date) {
+    return 'Sve je počelo $date.';
+  }
+
+  @override
+  String get wrappedGymKicker => 'U teretani';
+
+  @override
+  String wrappedHours(String hours) {
+    return '$hours sati treninga';
+  }
+
+  @override
+  String wrappedInARow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'treninga zaredom',
+      few: 'treninga zaredom',
+      one: 'trening zaredom',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedIntroHint => 'Dodirni za početak';
+
+  @override
+  String get wrappedIntroKicker => 'Tvoja godina treninga';
+
+  @override
+  String get wrappedIntroWord => 'Wrapped';
+
+  @override
+  String wrappedLiftDetail(String weight, int reps) {
+    return '$weight × $reps';
+  }
+
+  @override
+  String get wrappedLoadFailed => 'Nije moguće učitati tvoj Wrapped.';
+
+  @override
+  String get wrappedLongestStreak => 'Najduži niz';
+
+  @override
+  String get wrappedNext => 'Sledeće';
+
+  @override
+  String wrappedNoData(String year) {
+    return 'U $year. nije upisan nijedan trening.';
+  }
+
+  @override
+  String wrappedNotYet(String year, String date) {
+    return 'Tvoj Wrapped za $year. otvara se $date.';
+  }
+
+  @override
+  String wrappedPrCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'novih rekorda',
+      few: 'nova rekorda',
+      one: 'novi rekord',
+      zero: 'Nema novih rekorda',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedPrKicker => 'Lični rekordi';
+
+  @override
+  String get wrappedPrevious => 'Prethodno';
+
+  @override
+  String get wrappedRetry => 'Pokušaj ponovo';
+
+  @override
+  String get wrappedRhythmKicker => 'Tvoj ritam';
+
+  @override
+  String wrappedSetsReps(String sets, String reps) {
+    return '$sets serija · $reps ponavljanja';
+  }
+
+  @override
+  String get wrappedShare => 'Podeli u priču';
+
+  @override
+  String get wrappedShareFailed => 'Nije moguće napraviti sliku.';
+
+  @override
+  String wrappedSlideLabel(int index, int count) {
+    return 'Slajd $index od $count';
+  }
+
+  @override
+  String get wrappedStreakKicker => 'Doslednost';
+
+  @override
+  String get wrappedSummaryDays => 'Aktivni dani';
+
+  @override
+  String get wrappedSummaryHours => 'Sati';
+
+  @override
+  String get wrappedSummaryKicker => 'To je to';
+
+  @override
+  String get wrappedSummaryPrs => 'Rekordi';
+
+  @override
+  String get wrappedSummaryStreak => 'Najbolji niz';
+
+  @override
+  String get wrappedSummaryTop => 'Omiljena vežba';
+
+  @override
+  String get wrappedSummaryVolume => 'Podignuto';
+
+  @override
+  String get wrappedSummaryWorkouts => 'Treninzi';
+
+  @override
+  String get wrappedTitle => 'Gym Bro Wrapped';
+
+  @override
+  String get wrappedTopKicker => 'Vežbe koje si najviše radio';
+
+  @override
+  String wrappedTopSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count serija',
+      few: '$count serije',
+      one: '$count serija',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wrappedVolumeCars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'To je otprilike $count automobila 🚗',
+      few: 'To su otprilike $count automobila 🚗',
+      one: 'To je otprilike $count automobil 🚗',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wrappedVolumeElephants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'To je otprilike $count slonova 🐘',
+      few: 'To su otprilike $count slona 🐘',
+      one: 'To je otprilike $count slon 🐘',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedVolumeKicker => 'Ukupno si podigao';
+
+  @override
+  String wrappedVolumePianos(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'To je otprilike $count klavira 🎹',
+      few: 'To su otprilike $count klavira 🎹',
+      one: 'To je otprilike $count klavir 🎹',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedWorkoutsKicker => 'Ove godine si odradio';
+
+  @override
+  String wrappedWorkoutsUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'treninga',
+      few: 'treninga',
+      one: 'trening',
+    );
+    return '$_temp0';
+  }
 }

@@ -7,6 +7,9 @@ import '../../models/chat.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../services/realtime_service.dart';
+import '../../utils/haptics.dart';
+import '../../widgets/empty_state.dart';
+import '../../widgets/skeleton.dart';
 import 'chat_notes.dart';
 import 'chat_thread_page.dart';
 import 'chat_widgets.dart';
@@ -157,6 +160,7 @@ class _ChatInboxPageState extends State<ChatInboxPage> with SingleTickerProvider
               // Notes above the chats (hidden while searching).
               header: _query.isEmpty ? NotesRow(key: _notes) : null,
               onRefresh: () async => _notes.currentState?.reload(),
+              onStartChat: _newChat,
             ),
             ConversationList(
               box: ChatBox.requests,
@@ -191,6 +195,9 @@ class ConversationList extends StatefulWidget {
   /// Runs alongside the list's own pull to refresh.
   final Future<void> Function()? onRefresh;
 
+  /// The empty inbox's "Start a chat" button.
+  final VoidCallback? onStartChat;
+
   const ConversationList({
     super.key,
     required this.box,
@@ -199,6 +206,7 @@ class ConversationList extends StatefulWidget {
     this.onCount,
     this.header,
     this.onRefresh,
+    this.onStartChat,
   });
 
   @override
@@ -491,7 +499,7 @@ class _ConversationListState extends State<ConversationList> with AutomaticKeepA
   Widget build(BuildContext context) {
     super.build(context);
     final l10n = context.l10n;
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return SkeletonList(itemCount: 9, itemBuilder: (_, _) => const SkeletonTile(leadingSize: 52));
     if (_error != null && _items.isEmpty) {
       return ChatErrorState(
         message: _error!,
@@ -508,22 +516,25 @@ class _ConversationListState extends State<ConversationList> with AutomaticKeepA
     Widget empty() => switch (widget.box) {
       _ when widget.query.isNotEmpty && _items.isNotEmpty =>
         ChatEmptyState(icon: Icons.search_off, title: l10n.chatNoResults(widget.query)),
-      ChatBox.inbox => ChatEmptyState(
+      ChatBox.inbox => EmptyState(
         icon: Icons.chat_bubble_outline,
         title: l10n.chatEmptyInbox,
-        subtitle: l10n.chatEmptyInboxHint,
+        message: l10n.chatEmptyInboxHint,
+        actionLabel: l10n.polishStartChat,
+        actionIcon: Icons.edit_square,
+        onAction: widget.onStartChat,
       ),
-      ChatBox.requests => ChatEmptyState(
+      ChatBox.requests => EmptyState(
         icon: Icons.mark_email_unread_outlined,
         title: l10n.chatEmptyRequests,
-        subtitle: l10n.chatEmptyRequestsHint,
+        message: l10n.chatEmptyRequestsHint,
       ),
-      ChatBox.archived => ChatEmptyState(icon: Icons.archive_outlined, title: l10n.chatEmptyArchived),
+      ChatBox.archived => EmptyState(icon: Icons.archive_outlined, title: l10n.chatEmptyArchived),
     };
     final header = widget.header;
     final lead = header == null ? 0 : 1;
     return RefreshIndicator(
-      onRefresh: () => Future.wait([_load(), ?widget.onRefresh?.call()]),
+      onRefresh: () => Haptics.refreshed(() => Future.wait([_load(), ?widget.onRefresh?.call()])),
       child: visible.isEmpty
           ? LayoutBuilder(
               builder: (context, constraints) => SingleChildScrollView(

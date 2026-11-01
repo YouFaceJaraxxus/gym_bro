@@ -1,0 +1,35 @@
+{
+  "polishTabTrain": "Train",
+  "polishFindPeople": "Find people",
+  "polishFindPeopleRequests": "{count, plural, =1{Find people, 1 request} other{Find people, {count} requests}}",
+  "@polishFindPeopleRequests": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "polishSeeAll": "See all",
+  "polishTrainHeroTitle": "Ready to train?",
+  "polishTrainHeroBody": "Follow a workout or log a free session.",
+  "polishTrainLast7Days": "Last 7 days",
+  "polishTrainStatWorkouts": "Workouts",
+  "polishTrainStatMinutes": "Minutes",
+  "polishTrainStatSets": "Sets",
+  "polishTrainRecent": "Recent sessions",
+  "polishTrainPlanTrack": "Plan & track",
+  "polishTrainRoutinesSubtitle": "Your routines and plans",
+  "polishTrainProgress": "Progress & PRs",
+  "polishTrainProgressSubtitle": "Lifts, records and body stats",
+  "polishTrainExercisesSubtitle": "The library, with how-tos",
+  "polishTrainChallengesSubtitle": "Compete with friends and your gym",
+  "polishEmptyWorkoutsTitle": "No workouts yet",
+  "polishEmptyWorkoutsBody": "Log a session and it will show up here.",
+  "polishEmptyWorkoutsAction": "Start your first workout",
+  "polishFeedFindPeople": "Find people to follow",
+  "polishEmptyNotificationsBody": "Likes, comments, follows and class updates show up here.",
+  "polishStartChat": "Start a chat",
+  "polishEmptyChallengesTitle": "No challenges yet",
+  "polishEmptyChallengesAction": "Browse challenges",
+  "polishEmptyChallengesJoinTitle": "Nothing to join right now"
+}

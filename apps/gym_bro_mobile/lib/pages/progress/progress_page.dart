@@ -6,15 +6,20 @@ import '../../models/streak.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../services/settings_service.dart';
+import '../../theme.dart';
 import '../../utils/device_timezone.dart';
+import '../../utils/haptics.dart';
+import '../../widgets/skeleton.dart';
 import '../../widgets/sparkline.dart';
 import '../streaks/streak_page.dart';
 import 'body_measurements_tab.dart';
 import 'exercise_progress_page.dart';
 import 'progress_format.dart';
+import 'progress_photos_tab.dart';
 
 /// Training progress for a user (null [userId] = me): summary tiles, recent
-/// PRs, per-exercise trends, and a Body tab with the weight log.
+/// PRs, per-exercise trends, a Body tab with the weight log and, for my own
+/// progress only, private progress Photos (never shown to coaches).
 class ProgressPage extends StatefulWidget {
   final String? userId;
   final String? displayName;
@@ -37,8 +42,9 @@ class _ProgressPageState extends State<ProgressPage> {
     final title = _isMe || widget.displayName == null
         ? l10n.trainingProgressTitle
         : widget.displayName!;
+    final isMe = _isMe;
     return DefaultTabController(
-      length: 2,
+      length: isMe ? 3 : 2,
       child: Scaffold(
         appBar: AppBar(
           title: Text(title),
@@ -46,13 +52,15 @@ class _ProgressPageState extends State<ProgressPage> {
             tabs: [
               Tab(text: l10n.trainingProgressTabTraining),
               Tab(text: l10n.trainingProgressTabBody),
+              if (isMe) Tab(text: l10n.bodyPhotosTab),
             ],
           ),
         ),
         body: TabBarView(
           children: [
             _TrainingTab(userId: widget.userId),
-            BodyMeasurementsTab(userId: widget.userId, canEdit: _isMe),
+            BodyMeasurementsTab(userId: widget.userId, canEdit: isMe),
+            if (isMe) const ProgressPhotosTab(),
           ],
         ),
       ),
@@ -169,7 +177,7 @@ class _TrainingTabState extends State<_TrainingTab> with AutomaticKeepAliveClien
     final text = Theme.of(context).textTheme;
     final l10n = context.l10n;
     final locale = Localizations.localeOf(context).toString();
-    if (_loading && _summary == null) return const Center(child: CircularProgressIndicator());
+    if (_loading && _summary == null) return const _TrainingSkeleton();
     if (_error != null && _summary == null) {
       return ProgressErrorView(message: _error!, onRetry: _load);
     }
@@ -177,7 +185,7 @@ class _TrainingTabState extends State<_TrainingTab> with AutomaticKeepAliveClien
 
     if (s.sessionsTotal == 0 && _exercises.isEmpty) {
       return RefreshIndicator(
-        onRefresh: _load,
+        onRefresh: () => Haptics.refreshed(_load),
         child: ListView(
           children: [
             ProgressEmptyView(
@@ -196,7 +204,7 @@ class _TrainingTabState extends State<_TrainingTab> with AutomaticKeepAliveClien
         : _exercises.where((e) => e.name.toLowerCase().contains(q)).toList();
 
     return RefreshIndicator(
-      onRefresh: _load,
+      onRefresh: () => Haptics.refreshed(_load),
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         children: [
@@ -334,6 +342,44 @@ class _TrainingTabState extends State<_TrainingTab> with AutomaticKeepAliveClien
   }
 }
 
+/// The Training tab while it loads: four stat tiles, the PR strip and
+/// exercise rows.
+class _TrainingSkeleton extends StatelessWidget {
+  const _TrainingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SkeletonList(
+      itemCount: 4,
+      padding: const EdgeInsets.only(top: 16),
+      itemBuilder: (_, _) => const SkeletonTile(square: true),
+      header: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: 1.9,
+              children: [for (var i = 0; i < 4; i++) const SkeletonBox(radius: 14)],
+            ),
+            const SizedBox(height: 28),
+            const SkeletonLine(widthFactor: 0.4, height: 14),
+            const SizedBox(height: 12),
+            const SkeletonBox(height: 128, radius: 16),
+            const SizedBox(height: 28),
+            const SkeletonLine(widthFactor: 0.3, height: 14),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _StatTile extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -378,7 +424,7 @@ class _StatTile extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   value,
-                  style: text.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                  style: AppText.stat(size: 30, color: cs.onSurface),
                 ),
               ),
               if (hint != null)

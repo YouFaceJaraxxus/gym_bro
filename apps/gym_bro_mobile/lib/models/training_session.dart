@@ -145,6 +145,9 @@ class TrainingSession {
   final DateTime updatedAt;
   final int commentCount;
 
+  /// Sets logged: the set logs when loaded, else `set_count` from the list.
+  final int setCount;
+
   /// How finishing (or logging) this session moved the athlete's streak;
   /// only on those responses.
   final StreakUpdate? streak;
@@ -164,8 +167,9 @@ class TrainingSession {
     required this.createdAt,
     required this.updatedAt,
     this.commentCount = 0,
+    int? setCount,
     this.streak,
-  });
+  }) : setCount = setCount ?? setLogs.length;
 
   factory TrainingSession.fromJson(Map<String, dynamic> json) {
     final rawLogs = json['set_logs'] as List<dynamic>? ?? [];
@@ -188,6 +192,7 @@ class TrainingSession {
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       commentCount: int.tryParse(json['comment_count']?.toString() ?? '') ?? 0,
+      setCount: rawLogs.isNotEmpty ? rawLogs.length : int.tryParse('${json['set_count']}'),
       streak: StreakUpdate.maybeFromJson(json['streak']),
     );
   }

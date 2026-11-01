@@ -1,0 +1,114 @@
+{
+  "todayGreetingMorning": "Good morning, {name}",
+  "@todayGreetingMorning": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todayGreetingAfternoon": "Good afternoon, {name}",
+  "@todayGreetingAfternoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todayGreetingEvening": "Good evening, {name}",
+  "@todayGreetingEvening": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todayTraining": "Today's training",
+  "todayStartWorkout": "Start workout",
+  "todayFreeDay": "Free day",
+  "todayFreeDayHint": "Nothing planned today. Feel like moving anyway?",
+  "todayStartAnyway": "Start a workout anyway",
+  "todayAllDone": "All done for today",
+  "todayAllDoneHint": "Nice work. Rest up, or squeeze in another session.",
+  "todayStartAnother": "Start another",
+  "todayEntryDone": "Done",
+  "todayEntrySkipped": "Skipped",
+  "todayWorkoutFallback": "Workout",
+  "todayWorkoutWhen": "{time} · {minutes} min",
+  "@todayWorkoutWhen": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "todayStartFailed": "Couldn't start the workout: {error}",
+  "@todayStartFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "todayCalories": "Calories",
+  "todayKcalOf": "of {target} kcal",
+  "@todayKcalOf": {
+    "placeholders": {
+      "target": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "todayKcalLogged": "kcal logged",
+  "todayKcalSemantics": "Calories today: {eaten} kcal",
+  "@todayKcalSemantics": {
+    "placeholders": {
+      "eaten": {
+        "type": "int"
+      }
+    }
+  },
+  "todayKcalTargetSemantics": "Calories today: {eaten} of {target} kcal",
+  "@todayKcalTargetSemantics": {
+    "placeholders": {
+      "eaten": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "todayProteinShort": "P",
+  "todayCarbShort": "C",
+  "todayFatShort": "F",
+  "todayOpenDiary": "Open the food diary",
+  "todayWeight": "Weight",
+  "todayWeightChange": "{change} in 30 days",
+  "@todayWeightChange": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "todayWeightSteady": "Steady over 30 days",
+  "todayWeightOne": "Your first weigh-in",
+  "todayWeightTrend": "Weight trend over the last 30 days",
+  "todayNextClass": "Next class",
+  "todayTomorrow": "Tomorrow",
+  "todayClassWith": "with {trainer}",
+  "@todayClassWith": {
+    "placeholders": {
+      "trainer": {
+        "type": "String"
+      }
+    }
+  },
+  "todayWaitlisted": "Waitlist",
+  "todayShortcuts": "Shortcuts"
+}

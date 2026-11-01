@@ -106,6 +106,16 @@ class SettingsService {
     bool useSystemLocale = false,
     int? weeklyWorkoutTarget,
     bool? showOnGymBoards,
+    FitnessGoal? fitnessGoal,
+    // Pass [clearGoalWeight] to remove the goal.
+    double? goalWeightKg,
+    bool clearGoalWeight = false,
+    // Pass [autoWaterGoal] to go back to the goal worked out from body weight.
+    int? waterGoalMl,
+    bool autoWaterGoal = false,
+    List<int>? waterCups,
+    bool? waterReminders,
+    bool? onboarded,
   }) async {
     final previous = settings.value;
     final changes = <String, dynamic>{
@@ -117,6 +127,14 @@ class SettingsService {
       if (useSystemLocale) 'locale': null,
       'weekly_workout_target': ?weeklyWorkoutTarget,
       'show_on_gym_boards': ?showOnGymBoards,
+      'fitness_goal': ?fitnessGoal?.api,
+      'goal_weight_kg': ?goalWeightKg,
+      if (clearGoalWeight) 'goal_weight_kg': null,
+      'water_goal_ml': ?waterGoalMl,
+      if (autoWaterGoal) 'water_goal_ml': null,
+      'water_cups': ?waterCups,
+      'water_reminders': ?waterReminders,
+      'onboarded': ?onboarded,
     };
     if (changes.isEmpty) return;
 
@@ -129,6 +147,14 @@ class SettingsService {
       clearLocale: useSystemLocale,
       weeklyWorkoutTarget: weeklyWorkoutTarget,
       showOnGymBoards: showOnGymBoards,
+      fitnessGoal: fitnessGoal?.api,
+      goalWeightKg: goalWeightKg,
+      clearGoalWeight: clearGoalWeight,
+      waterGoalMl: waterGoalMl,
+      autoWaterGoal: autoWaterGoal,
+      waterCups: waterCups,
+      waterReminders: waterReminders,
+      onboardedAt: onboarded == true ? DateTime.now() : null,
     );
     _apply(next);
     try {

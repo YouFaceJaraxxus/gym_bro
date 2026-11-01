@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget picker labels. What the widgets show comes from the app, already
+     translated (lib/services/home_widget_service.dart). -->
+<resources>
+    <string name="widget_streak_description">Your workout streak, and a heads-up when today\'s workout keeps it alive.</string>
+    <string name="widget_water_description">Today\'s water against your goal.</string>
+    <string name="widget_today_description">What\'s planned today, and your streak.</string>
+    <string name="widget_streak_title">Streak</string>
+    <string name="widget_water_title">Water</string>
+    <string name="widget_today_title">Today</string>
+    <string name="widget_streak_label">workouts in a row</string>
+    <string name="widget_open_app">Open Gym Bro to refresh</string>
+</resources>

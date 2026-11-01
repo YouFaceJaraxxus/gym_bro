@@ -12,6 +12,7 @@ import {
 import { notify } from "../_shared/notify.ts";
 import { userDropRows } from "../_shared/progress.ts";
 import { streakAfterWorkout } from "../_shared/streaks.ts";
+import { syncChallengesLater } from "../_shared/challenges.ts";
 import { libraryAccess } from "../_shared/shares.ts";
 import type {
   BodySide,
@@ -32,6 +33,11 @@ const SESSION_COLS = [
 const COMMENT_COUNT = sql<number>`(
   SELECT COUNT(*)::int FROM session_comment sc WHERE sc.session_id = training_session.id
 )`.as("comment_count");
+
+/** Sets logged in the session (the list leaves the set logs out). */
+const SET_COUNT = sql<number>`(
+  SELECT COUNT(*)::int FROM session_set_log sl WHERE sl.session_id = training_session.id
+)`.as("set_count");
 
 /** The followed training's name; null for free sessions or a deleted training. */
 const TRAINING_NAME = sql<string | null>`(
@@ -105,10 +111,13 @@ function parseInstant(v: unknown): Date | null {
 // /training-sessions/:id/end                → { id, action: 'end' }
 // /training-sessions/:id/comments           → { id, action: 'comments' }
 // /training-sessions/comments/:commentId    → { id: commentId, action: 'comment' }
+// /training-sessions/last-sets              → { id: null, action: 'last_sets' }
 
-type Action = "set_log" | "drops" | "sets" | "end" | "comments" | "comment" | null;
+type Action = "set_log" | "drops" | "sets" | "end" | "comments" | "comment" | "last_sets" | null;
 
 function parsePath(pathname: string): { id: string | null; action: Action } {
+  if (/^\/training-sessions\/last-sets\/?$/.test(pathname)) return { id: null, action: "last_sets" };
+
   const comment = pathname.match(/^\/training-sessions\/comments\/([^/]+)$/);
   if (comment) return { id: comment[1], action: "comment" };
 
@@ -277,6 +286,63 @@ async function detectPrs(userId: string, setLogId: string) {
   };
 }
 
+// ── Last sets (progressive-overload suggestions) ──────────────────────────────
+
+type LastSetsRow = {
+  exercise_id: string;
+  session_id: string;
+  started_at: Date;
+  sets: { weight_kg: number | null; reps: number | null; rep_type: RepType; side: BodySide }[];
+};
+
+/**
+ * Per exercise in `exerciseIds`: the drops `userId` logged for it in their
+ * most recent finished session that started before `before`, in logged order.
+ * Exercises are resolved like userDropRows (set log → planned drop's slot →
+ * the planned set's only exercise). One round trip; exercises never logged
+ * are left out.
+ */
+async function lastSets(userId: string, exerciseIds: string[], before: Date) {
+  const res = await sql<LastSetsRow>`
+    WITH d AS (
+      SELECT ts.id AS session_id, ts.started_at, sl.position, dl.drop_number,
+             COALESCE(
+               sl.exercise_id,
+               tse.exercise_id,
+               (SELECT CASE WHEN COUNT(*) = 1 THEN (ARRAY_AGG(x.exercise_id))[1] END
+                  FROM training_set_exercise x
+                 WHERE x.training_set_id = sl.training_set_id)
+             ) AS exercise_id,
+             dl.rep_type_actual, dl.rep_count_actual, dl.weight_kg_actual, dl.side
+        FROM training_session ts
+        JOIN session_set_log sl        ON sl.session_id = ts.id
+        JOIN session_drop_log dl       ON dl.session_set_log_id = sl.id
+        LEFT JOIN training_set_drop tsd     ON tsd.id = dl.training_set_drop_id
+        LEFT JOIN training_set_exercise tse ON tse.id = tsd.training_set_exercise_id
+       WHERE ts.user_id = ${userId}
+         AND ts.ended_at IS NOT NULL
+         AND ts.started_at < ${before.toISOString()}
+    ),
+    latest AS (
+      SELECT DISTINCT ON (exercise_id) exercise_id, session_id, started_at
+        FROM d
+       WHERE exercise_id = ANY(${exerciseIds}::uuid[])
+       ORDER BY exercise_id, started_at DESC, session_id
+    )
+    SELECT l.exercise_id, l.session_id, l.started_at,
+           json_agg(json_build_object(
+             'weight_kg', d.weight_kg_actual::float8,
+             'reps',      d.rep_count_actual,
+             'rep_type',  d.rep_type_actual,
+             'side',      d.side
+           ) ORDER BY d.position, d.drop_number) AS sets
+      FROM latest l
+      JOIN d ON d.session_id = l.session_id AND d.exercise_id = l.exercise_id
+     GROUP BY l.exercise_id, l.session_id, l.started_at
+  `.execute(db);
+  return res.rows;
+}
+
 // ── Comments ──────────────────────────────────────────────────────────────────
 // Row: { id, session_id, author_id, author_name, author_avatar_url, body,
 //        created_at, updated_at }
@@ -312,6 +378,8 @@ function readCommentBody(body: unknown): string | null {
 
 /** The athlete's streak after a workout changed; a failure here never fails the workout. */
 async function streakOrNull(userId: string) {
+  // Challenge progress and completions, after the response.
+  syncChallengesLater(userId);
   try {
     return await streakAfterWorkout(userId);
   } catch (err) {
@@ -348,6 +416,28 @@ async function handler(req: Request): Promise<Response> {
   const { caller, response } = await requireCaller(req);
   if (!caller) return response;
 
+  // ── GET /training-sessions/last-sets?exercise_ids=a,b — last time per exercise ─
+  // For progressive-overload suggestions while logging: per exercise, the sets
+  // of the caller's most recent finished session with it (?before= an ISO
+  // timestamp, e.g. when back-filling a past workout). A trainer logging for
+  // a client passes ?user_id= (same access as listing their sessions).
+  // Rows: [{ exercise_id, session_id, started_at,
+  //          sets: [{ weight_kg, reps, rep_type, side }] }]
+  if (req.method === "GET" && action === "last_sets") {
+    const ids = [...new Set((url.searchParams.get("exercise_ids") ?? "").split(",").map((s) => s.trim()).filter(Boolean))];
+    if (ids.length > 100) return jsonError("At most 100 exercise_ids", 400);
+    if (ids.some((x) => !UUID_RE.test(x))) return jsonError("exercise_ids must be UUIDs", 400);
+    const targetUserId = url.searchParams.get("user_id") ?? caller.id;
+    if (!UUID_RE.test(targetUserId)) return jsonError("user_id must be a UUID", 400);
+    if (targetUserId !== caller.id && !(await coachesUser(caller, targetUserId))) return forbidden();
+    const rawBefore = url.searchParams.get("before");
+    const before = rawBefore === null ? new Date() : parseInstant(rawBefore);
+    if (!before) return jsonError("before must be an ISO timestamp", 400);
+    if (!ids.length) return json([]);
+    return json(await lastSets(targetUserId, ids, before));
+  }
+  if (action === "last_sets") return jsonError("Method not allowed", 405);
+
   // ── GET /training-sessions — list sessions ────────────────────────────────────
   if (req.method === "GET" && !id) {
     const trainerId = url.searchParams.get("trainer_id");
@@ -355,7 +445,7 @@ async function handler(req: Request): Promise<Response> {
     const page = parseInt(url.searchParams.get("page") ?? "0");
     const pageSize = Math.min(parseInt(url.searchParams.get("page_size") ?? "20"), 100);
 
-    let query = db.selectFrom("training_session").select([...SESSION_COLS, COMMENT_COUNT, TRAINER_NAME, TRAINING_NAME]);
+    let query = db.selectFrom("training_session").select([...SESSION_COLS, COMMENT_COUNT, SET_COUNT, TRAINER_NAME, TRAINING_NAME]);
 
     if (trainerId) {
       // "Classes I'm running" view — only the trainer themself or super_user may read it.

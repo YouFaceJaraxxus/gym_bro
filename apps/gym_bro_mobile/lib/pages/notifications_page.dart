@@ -7,6 +7,9 @@ import '../models/app_notification.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/notification_router.dart';
+import '../utils/haptics.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/skeleton.dart';
 import 'invite_accept_page.dart';
 
 const _kPageSize = 20;
@@ -279,7 +282,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget _buildBody(ColorScheme cs) {
     final l10n = context.l10n;
     if (_loading) {
-      return const Center(child: CircularProgressIndicator());
+      return const SkeletonList(itemCount: 10, itemBuilder: _notificationSkeleton);
     }
     if (_error != null) {
       return Center(
@@ -305,29 +308,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final items = _cache?.items ?? [];
 
     if (items.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.notifications_none_outlined,
-              size: 56,
-              color: cs.outline,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n.shellNoNotifications,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(color: cs.outline),
-            ),
-          ],
+      return RefreshIndicator(
+        onRefresh: () => Haptics.refreshed(() => _load(refresh: true)),
+        child: EmptyState.scrollable(
+          icon: Icons.notifications_none_outlined,
+          title: l10n.shellNoNotifications,
+          message: l10n.polishEmptyNotificationsBody,
         ),
       );
     }
 
     return RefreshIndicator(
-      onRefresh: () => _load(refresh: true),
+      onRefresh: () => Haptics.refreshed(() => _load(refresh: true)),
       child: ListView.builder(
         itemCount: items.length + (_cache?.hasMore == true ? 1 : 0),
         itemBuilder: (context, index) {
@@ -555,6 +547,8 @@ class _NotificationTile extends StatelessWidget {
     NotificationType.storyReaction => Icons.favorite_border,
     NotificationType.storyMention => Icons.alternate_email,
     NotificationType.streak => Icons.local_fire_department_outlined,
+    NotificationType.challenge => Icons.emoji_events_outlined,
+    NotificationType.wrapped => Icons.auto_awesome_outlined,
   };
 
   Color _colorFor(AppNotification n, ColorScheme cs) {
@@ -591,3 +585,6 @@ class _NotificationTile extends StatelessWidget {
     return _timeAgo(context, dt);
   }
 }
+
+/// A notification row placeholder: avatar and two lines.
+Widget _notificationSkeleton(BuildContext context, int i) => SkeletonTile(lines: i.isEven ? 2 : 3);

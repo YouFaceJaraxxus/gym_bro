@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
+import '../models/challenge.dart';
 import '../models/streak.dart';
 import '../pages/streaks/gym_board_page.dart';
 import '../pages/streaks/streak_page.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../utils/device_timezone.dart';
+import 'challenge_medals.dart';
 import 'streak_widgets.dart';
 
 /// The streak line on a profile: flame + count + current badge, their best
-/// gym rank, and every badge they've ever earned (the trophy shelf). Mine
-/// opens my streak; the rank opens that gym's board. Hidden for someone
-/// who never had a streak.
+/// gym rank, every badge they've ever earned (the trophy shelf) and their
+/// challenge medals. Mine opens my streak; the rank opens that gym's board;
+/// the medals open the list. Hidden for someone who never had a streak or
+/// a medal.
 class ProfileStreakRow extends StatefulWidget {
   final String userId;
   final bool isMe;
@@ -26,6 +29,7 @@ class ProfileStreakRow extends StatefulWidget {
 class _ProfileStreakRowState extends State<ProfileStreakRow> {
   final _api = ApiService();
   StreakSummary? _streak;
+  ChallengeMedals? _medals;
 
   @override
   void initState() {
@@ -40,6 +44,7 @@ class _ProfileStreakRowState extends State<ProfileStreakRow> {
   }
 
   Future<void> _load() async {
+    _loadMedals();
     try {
       final token = await AuthManager.instance.getValidToken();
       final s = widget.isMe
@@ -51,6 +56,16 @@ class _ProfileStreakRowState extends State<ProfileStreakRow> {
     }
   }
 
+  Future<void> _loadMedals() async {
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final m = await _api.getChallengeMedals(token, userId: widget.isMe ? null : widget.userId);
+      if (mounted) setState(() => _medals = m);
+    } catch (_) {
+      // Decoration only.
+    }
+  }
+
   Future<void> _openMine() async {
     await Navigator.push(context, MaterialPageRoute(builder: (_) => const StreakPage()));
     if (mounted) _load();
@@ -59,10 +74,13 @@ class _ProfileStreakRowState extends State<ProfileStreakRow> {
   @override
   Widget build(BuildContext context) {
     final s = _streak;
-    if (s == null || (!widget.isMe && s.best == 0)) return const SizedBox.shrink();
+    final medals = _medals;
+    final hasMedals = medals != null && medals.count > 0;
+    final showStreak = s != null && (widget.isMe || s.best > 0);
+    if (!showStreak && !hasMedals) return const SizedBox.shrink();
     final l10n = context.l10n;
-    final rank = s.gymRank;
-    final earned = [for (final t in StreakTier.values) if (s.best >= t.at) t];
+    final rank = s?.gymRank;
+    final earned = [for (final t in StreakTier.values) if (s != null && s.best >= t.at) t];
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Wrap(
@@ -70,7 +88,7 @@ class _ProfileStreakRowState extends State<ProfileStreakRow> {
         runSpacing: 6,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          StreakChip(current: s.current, tier: s.tier, onTap: widget.isMe ? _openMine : null),
+          if (showStreak) StreakChip(current: s.current, tier: s.tier, onTap: widget.isMe ? _openMine : null),
           if (rank != null)
             ActionChip(
               avatar: const Icon(Icons.leaderboard_outlined, size: 18),
@@ -94,6 +112,7 @@ class _ProfileStreakRowState extends State<ProfileStreakRow> {
                 ),
               ),
             ),
+          if (hasMedals) ChallengeMedalsChip(medals: medals),
         ],
       ),
     );

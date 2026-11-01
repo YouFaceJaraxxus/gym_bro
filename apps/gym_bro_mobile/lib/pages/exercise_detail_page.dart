@@ -3,11 +3,15 @@ import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../services/auth_manager.dart';
 import '../services/api_service.dart';
+import '../widgets/app_hero.dart';
 import '../widgets/muscle_diagram.dart';
 import '../widgets/open_url.dart';
 import '../widgets/share_post.dart';
 import '../widgets/social_widgets.dart';
 import 'exercise_form_page.dart';
+
+/// Hero tag shared by an exercise's list thumbnail and its detail image.
+String exerciseImageHeroTag(String exerciseId) => 'exercise-image-$exerciseId';
 
 class ExerciseDetailPage extends StatefulWidget {
   final Exercise exercise;
@@ -105,16 +109,19 @@ class _ExerciseDetailPageState extends State<ExerciseDetailPage> {
           if (_exercise.imageUrl != null) ...[
             GestureDetector(
               onTap: () => MediaViewerPage.open(context, url: _exercise.displayImageUrl!, title: _exercise.name),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 320),
-                  child: Image.network(
-                    _exercise.displayImageUrl!,
-                    width: double.infinity,
-                    fit: BoxFit.contain,
-                    semanticLabel: l10n.trainingExercisePhoto(_exercise.name),
-                    errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+              child: AppHero(
+                tag: exerciseImageHeroTag(_exercise.id),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 320),
+                    child: Image.network(
+                      _exercise.displayImageUrl!,
+                      width: double.infinity,
+                      fit: BoxFit.contain,
+                      semanticLabel: l10n.trainingExercisePhoto(_exercise.name),
+                      errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+                    ),
                   ),
                 ),
               ),

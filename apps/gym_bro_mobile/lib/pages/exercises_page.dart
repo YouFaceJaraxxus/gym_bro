@@ -8,6 +8,9 @@ import '../services/auth_manager.dart';
 import 'exercise_detail_page.dart';
 import 'exercise_form_page.dart';
 import '../widgets/app_bottom_sheet.dart';
+import '../widgets/app_hero.dart';
+import '../widgets/empty_state.dart';
+import '../widgets/skeleton.dart';
 
 class ExercisesPage extends StatefulWidget {
   const ExercisesPage({super.key});
@@ -206,7 +209,7 @@ class _ExercisesPageState extends State<ExercisesPage> {
   Widget _buildList() {
     final l10n = context.l10n;
     if (_loading && _exercises.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return SkeletonList(itemCount: 9, itemBuilder: (_, _) => const SkeletonTile(leadingSize: 52, square: true));
     }
     if (_error != null && _exercises.isEmpty) {
       return Center(
@@ -221,10 +224,9 @@ class _ExercisesPageState extends State<ExercisesPage> {
       );
     }
     if (_exercises.isEmpty) {
-      return Center(
-        child: Text(_privateOnly
-            ? l10n.trainingExerciseNoPrivate
-            : l10n.trainingExerciseNoneFound),
+      return EmptyState(
+        icon: _privateOnly ? Icons.lock_outline : Icons.search_off,
+        title: _privateOnly ? l10n.trainingExerciseNoPrivate : l10n.trainingExerciseNoneFound,
       );
     }
     return NotificationListener<ScrollNotification>(
@@ -278,17 +280,20 @@ class _ExerciseCard extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: exercise.imageUrl != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  exercise.displayImageUrl!,
-                  width: 52,
-                  height: 52,
-                  fit: BoxFit.cover,
-                  // Square crop on the right (end position) panel of the illustration.
-                  alignment: const Alignment(0.8, 0),
-                  excludeFromSemantics: true,
-                  errorBuilder: (context, error, stack) => _placeholder(cs),
+            ? AppHero(
+                tag: exerciseImageHeroTag(exercise.id),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    exercise.displayImageUrl!,
+                    width: 52,
+                    height: 52,
+                    fit: BoxFit.cover,
+                    // Square crop on the right (end position) panel of the illustration.
+                    alignment: const Alignment(0.8, 0),
+                    excludeFromSemantics: true,
+                    errorBuilder: (context, error, stack) => _placeholder(cs),
+                  ),
                 ),
               )
             : _placeholder(cs),

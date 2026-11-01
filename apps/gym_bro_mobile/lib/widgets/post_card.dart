@@ -15,6 +15,8 @@ import '../pages/people/user_profile_page.dart';
 import '../pages/saved/save_collection_sheet.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../utils/haptics.dart';
+import 'app_hero.dart';
 import 'mentions.dart';
 import 'photo_tags.dart';
 import 'post_attachment_card.dart';
@@ -43,9 +45,14 @@ class PostCard extends StatefulWidget {
     this.expandCaption = false,
     this.linkAuthor = true,
     this.margin = const EdgeInsets.only(bottom: 8),
+    this.heroScope,
   });
 
   final Post post;
+
+  /// Where the card is shown ("feed", …): scopes the hero tags its photo and
+  /// author avatar fly with into the detail page and profile. Null: no heroes.
+  final String? heroScope;
 
   /// The post after a reaction, edit or comment-count change.
   final ValueChanged<Post>? onChanged;
@@ -172,6 +179,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
       builder: (_) => PostDetailPage(
         postId: _post.id,
         initial: _post,
+        heroScope: widget.heroScope,
         onChanged: _setPost,
         onDeleted: widget.onDeleted,
         onArchived: widget.onArchived ?? widget.onDeleted,
@@ -182,8 +190,20 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
   void _openAuthor() {
     final author = _post.author;
     if (author == null || !widget.linkAuthor) return;
-    Navigator.of(context).push(MaterialPageRoute(builder: (_) => UserProfilePage(userId: author.id)));
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => UserProfilePage(
+        userId: author.id,
+        avatarHero: _avatarHeroTag == null
+            ? null
+            : AvatarHeroInfo(tag: _avatarHeroTag!, url: author.avatarUrl, initials: author.initials),
+      ),
+    ));
   }
+
+  String? get _mediaHeroTag => widget.heroScope == null ? null : postMediaHeroTag(widget.heroScope!, _post.id);
+
+  String? get _avatarHeroTag =>
+      widget.heroScope == null ? null : avatarHeroTag('post-${widget.heroScope}', _post.id);
 
   Future<void> _onAction(_PostAction action) async {
     switch (action) {
@@ -254,6 +274,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
     try {
       final token = await AuthManager.instance.getValidToken();
       _setPost(await _api.updatePhotoTags(token, before.id, changed));
+      Haptics.tap();
       messenger.showSnackBar(SnackBar(content: Text(l10n.tagsSaved)));
     } catch (e) {
       _setPost(_post.copyWith(images: before.images));
@@ -340,6 +361,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
         locationName: locationChanged ? location : null,
       );
       _setPost(saved);
+      Haptics.tap();
       messenger.showSnackBar(SnackBar(content: Text(l10n.feedPostUpdated)));
     } catch (e) {
       _setPost(_post.copyWith(
@@ -496,6 +518,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
                 images: p.images,
                 heart: _heart,
                 onDoubleTap: _doubleTapLove,
+                heroTag: _mediaHeroTag,
               ),
             if (p.images.isNotEmpty && p.isTyped) _attachment(p, top: 10),
             if (p.content.isNotEmpty && p.images.isNotEmpty) _captionBlock(p),
@@ -539,7 +562,10 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
       avatar = UserAvatar(url: business.logo, initials: _initialsOf(business.name), radius: 18);
     } else {
       title = author?.fullName.isNotEmpty == true ? author!.fullName : l10n.nutritionDeletedUser;
-      avatar = UserAvatar(url: author?.avatarUrl, initials: author?.initials ?? '?', radius: 18, streakTier: author?.streakTier);
+      avatar = AppHero(
+        tag: author == null ? null : _avatarHeroTag,
+        child: UserAvatar(url: author?.avatarUrl, initials: author?.initials ?? '?', radius: 18, streakTier: author?.streakTier),
+      );
     }
 
     final meta = <String>[
@@ -935,11 +961,14 @@ class _ExpandableCaptionState extends State<ExpandableCaption> {
 /// double-tap → ❤️ with a heart pop. The aspect ratio follows the first item,
 /// clamped between 4:5 and 1.91:1 (like Instagram).
 class _PostMedia extends StatefulWidget {
-  const _PostMedia({required this.images, required this.heart, required this.onDoubleTap});
+  const _PostMedia({required this.images, required this.heart, required this.onDoubleTap, this.heroTag});
 
   final List<PostImage> images;
   final Animation<double> heart;
   final VoidCallback onDoubleTap;
+
+  /// Flies the first photo to/from the detail page (videos don't fly).
+  final String? heroTag;
 
   @override
   State<_PostMedia> createState() => _PostMediaState();
@@ -960,42 +989,46 @@ class _PostMediaState extends State<_PostMedia> {
       hint: l10n.feedDoubleTapToLove,
       child: AspectRatio(
         aspectRatio: ratio,
-        child: Stack(fit: StackFit.expand, children: [
-          GestureDetector(
-            onDoubleTap: widget.onDoubleTap,
-            child: PageView.builder(
-              itemCount: items.length,
-              onPageChanged: (i) => setState(() => _page = i),
-              itemBuilder: (context, i) => _MediaItem(
-                item: items[i],
-                semanticLabel: items.length > 1 ? l10n.nutritionPostPhotoOf(i + 1, items.length) : l10n.nutritionPostPhoto,
-              ),
-            ),
-          ),
-          IgnorePointer(child: Center(child: _HeartPop(animation: widget.heart))),
-          if (items.length > 1) ...[
-            Positioned(
-              top: 10,
-              right: 10,
-              child: ExcludeSemantics(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(12)),
-                  child: Text(
-                    l10n.feedMediaIndex(page + 1, items.length),
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
+        child: AppHero(
+          tag: first.isVideo ? null : widget.heroTag,
+          flightChild: MediaImage(url: first.url),
+          child: Stack(fit: StackFit.expand, children: [
+            GestureDetector(
+              onDoubleTap: widget.onDoubleTap,
+              child: PageView.builder(
+                itemCount: items.length,
+                onPageChanged: (i) => setState(() => _page = i),
+                itemBuilder: (context, i) => _MediaItem(
+                  item: items[i],
+                  semanticLabel: items.length > 1 ? l10n.nutritionPostPhotoOf(i + 1, items.length) : l10n.nutritionPostPhoto,
                 ),
               ),
             ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 8,
-              child: IgnorePointer(child: DotIndicator(count: items.length, index: page)),
-            ),
-          ],
-        ]),
+            IgnorePointer(child: Center(child: _HeartPop(animation: widget.heart))),
+            if (items.length > 1) ...[
+              Positioned(
+                top: 10,
+                right: 10,
+                child: ExcludeSemantics(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(12)),
+                    child: Text(
+                      l10n.feedMediaIndex(page + 1, items.length),
+                      style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 8,
+                child: IgnorePointer(child: DotIndicator(count: items.length, index: page)),
+              ),
+            ],
+          ]),
+        ),
       ),
     );
   }
@@ -1348,14 +1381,24 @@ class PostAdvancedSettings extends StatelessWidget {
           title: Text(l10n.postsHideLikeCount),
           subtitle: Text(l10n.postsHideLikeCountHint),
           value: hideLikeCount,
-          onChanged: enabled ? onHideLikeCountChanged : null,
+          onChanged: enabled
+              ? (v) {
+                  Haptics.select();
+                  onHideLikeCountChanged(v);
+                }
+              : null,
         ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(l10n.postsTurnOffCommenting),
           subtitle: Text(l10n.postsTurnOffCommentingHint),
           value: commentsDisabled,
-          onChanged: enabled ? onCommentsDisabledChanged : null,
+          onChanged: enabled
+              ? (v) {
+                  Haptics.select();
+                  onCommentsDisabledChanged(v);
+                }
+              : null,
         ),
       ],
     );

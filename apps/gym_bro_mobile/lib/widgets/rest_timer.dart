@@ -2,10 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/l10n.dart';
+import '../services/rest_activity_service.dart';
 
 /// Countdown between sets. Owned by the session page; [RestTimerBanner]
 /// renders it. When the countdown reaches zero it vibrates and plays the
-/// system alert sound.
+/// system alert sound. While it runs, the rest also shows outside the app
+/// (Live Activity / ongoing notification, see [RestActivityService]).
 class RestTimerController extends ChangeNotifier {
   static const presets = [60, 90, 120, 180];
 
@@ -14,8 +16,15 @@ class RestTimerController extends ChangeNotifier {
   /// Duration used by [start] when no explicit value is given.
   int defaultSeconds;
 
+  /// Shown on the lock screen while resting: the exercise just done and
+  /// what's next. Set them before [start].
+  String? exercise;
+  String? nextUp;
+
   Timer? _timer;
+  DateTime? _startedAt;
   DateTime? _endsAt;
+  bool _disposed = false;
   int _total = 0;
   int _remaining = 0;
 
@@ -29,11 +38,13 @@ class RestTimerController extends ChangeNotifier {
   void start([int? seconds]) {
     final s = seconds ?? defaultSeconds;
     _total = s;
-    _endsAt = DateTime.now().add(Duration(seconds: s));
+    _startedAt = DateTime.now();
+    _endsAt = _startedAt!.add(Duration(seconds: s));
     _remaining = s;
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(milliseconds: 250), (_) => _tick());
     notifyListeners();
+    _showActivity();
   }
 
   /// Changes the default and restarts the countdown with it.
@@ -43,13 +54,16 @@ class RestTimerController extends ChangeNotifier {
   }
 
   void addSeconds(int seconds) {
-    if (_endsAt == null) return;
+    if (_endsAt == null || _disposed) return;
     _endsAt = _endsAt!.add(Duration(seconds: seconds));
     _total += seconds;
     _tick();
+    _showActivity();
   }
 
-  void skip() => _stop();
+  void skip() {
+    if (!_disposed) _stop();
+  }
 
   void _tick() {
     final left = _endsAt!.difference(DateTime.now());
@@ -68,9 +82,23 @@ class RestTimerController extends ChangeNotifier {
   void _stop() {
     _timer?.cancel();
     _timer = null;
+    _startedAt = null;
     _endsAt = null;
     _remaining = 0;
     notifyListeners();
+    RestActivityService.instance.end();
+  }
+
+  void _showActivity() {
+    final ends = _endsAt;
+    if (ends == null) return;
+    RestActivityService.instance.show(
+      startedAt: _startedAt ?? DateTime.now(),
+      endsAt: ends,
+      exercise: exercise,
+      next: nextUp,
+      actions: RestActivityActions(onAdd: addSeconds, onSkip: skip),
+    );
   }
 
   Future<void> _alert() async {
@@ -82,6 +110,8 @@ class RestTimerController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
+    if (_timer != null) RestActivityService.instance.end();
     _timer?.cancel();
     super.dispose();
   }

@@ -1,0 +1,279 @@
+{
+  "challengesTitle": "Challenges",
+  "challengesTabMine": "Mine",
+  "challengesTabJoin": "Join",
+  "challengesTabMedals": "Medals",
+  "challengesEmptyMine": "You're not in a challenge yet. Pick one and start moving.",
+  "challengesEmptyJoin": "Nothing open to join right now. New challenges start every month.",
+  "challengesEmptyMedals": "Finish a challenge to earn your first medal.",
+  "challengesLoadFailed": "Couldn't load challenges.",
+  "challengesRetry": "Try again",
+  "challengeUpcoming": "Upcoming",
+  "challengeEnded": "Ended",
+  "challengePlatform": "Gym Bro",
+  "challengeCreate": "New challenge",
+  "challengeEdit": "Edit challenge",
+  "challengeDelete": "Delete challenge",
+  "challengeDeleteConfirm": "Delete “{title}”? Everyone's progress in it goes too.",
+  "@challengeDeleteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "challengeDeleted": "Challenge deleted",
+  "challengeJoin": "Join",
+  "challengeJoinChallenge": "Join challenge",
+  "challengeJoined": "You're in! Let's go 💪",
+  "challengeLeave": "Leave challenge",
+  "challengeLeaveConfirm": "Leave “{title}”? You can join again until it ends.",
+  "@challengeLeaveConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "challengeCancel": "Cancel",
+  "challengeDaysLeft": "{count, plural, other{{count} days left}}",
+  "@challengeDaysLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeStartsIn": "{count, plural, =1{Starts in 1 day} other{Starts in {count} days}}",
+  "@challengeStartsIn": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeLastDay": "Last day",
+  "challengeStartsTomorrow": "Starts tomorrow",
+  "challengeEndedOn": "Ended {date}",
+  "@challengeEndedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "challengeCompleted": "Completed",
+  "challengeCompletedOn": "Completed {date}",
+  "@challengeCompletedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "challengeParticipants": "{count, plural, =0{No one yet} =1{1 person} other{{count} people}}",
+  "@challengeParticipants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeLeaderboard": "Leaderboard",
+  "challengeLeaderboardEmpty": "No one on the board yet. Join and take the lead.",
+  "challengeYourRank": "You're #{rank}",
+  "@challengeYourRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeToGo": "{amount} to go",
+  "@challengeToGo": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "challengeGoalReached": "Goal reached!",
+  "challengeGoal": "Goal: {goal}",
+  "@challengeGoal": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "challengeCreatedBy": "By {name}",
+  "@challengeCreatedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "challengeHowItCounts": "How it counts",
+  "challengeMetricWorkouts": "Workouts",
+  "challengeMetricActiveDays": "Active days",
+  "challengeMetricMinutes": "Minutes",
+  "challengeMetricVolume": "Volume lifted",
+  "challengeMetricCheckIns": "Check-ins",
+  "challengeUnitWorkouts": "{count, plural, =1{workout} other{workouts}}",
+  "@challengeUnitWorkouts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeUnitActiveDays": "{count, plural, =1{active day} other{active days}}",
+  "@challengeUnitActiveDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeUnitMinutes": "min",
+  "challengeUnitCheckIns": "{count, plural, =1{check-in} other{check-ins}}",
+  "@challengeUnitCheckIns": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeRuleWorkouts": "Every finished workout with at least one logged set counts. Log it by the end of the next day.",
+  "challengeRuleActiveDays": "Every day you finish a workout counts once.",
+  "challengeRuleMinutes": "The minutes of your finished workouts count, up to 4 hours per workout.",
+  "challengeRuleVolume": "Weight × reps of every logged set counts.",
+  "challengeRuleCheckIns": "Every day you check in at {gym} counts once.",
+  "@challengeRuleCheckIns": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "challengeRuleWindow": "Workouts from the start of the challenge count, even from before you joined.",
+  "challengeMonthlyWorkoutsTitle": "{month} Grind: {count} workouts",
+  "@challengeMonthlyWorkoutsTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeMonthlyActiveDaysTitle": "Active {month}: {count} days",
+  "@challengeMonthlyActiveDaysTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeMonthlyWorkoutsDescription": "Finish {count} workouts in {month}. Any workout counts, at the gym or at home.",
+  "@challengeMonthlyWorkoutsDescription": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeMonthlyActiveDaysDescription": "Train on {count} different days in {month}.",
+  "@challengeMonthlyActiveDaysDescription": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeJustCompleted": "Challenge complete! 🏅",
+  "challengeJustCompletedBody": "You crushed it. The medal is on your profile now.",
+  "challengeFormWho": "Who it's for",
+  "challengeFormEveryone": "Everyone on Gym Bro",
+  "challengeFormMembersOf": "Members of {gym}",
+  "@challengeFormMembersOf": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "challengeFormTitle": "Name",
+  "challengeFormTitleHint": "e.g. 30 days of iron",
+  "challengeFormTitleRequired": "Give it a name",
+  "challengeFormDescription": "Description (optional)",
+  "challengeFormMetric": "What counts",
+  "challengeFormTarget": "Goal",
+  "challengeFormTargetInvalid": "Enter a whole number above 0",
+  "challengeFormDates": "When",
+  "challengeFormStarts": "Starts",
+  "challengeFormEnds": "Ends",
+  "challengeFormLength": "{count, plural, =1{1 day} other{{count} days}}",
+  "@challengeFormLength": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeFormTooLong": "A challenge lasts a year at most.",
+  "challengeFormEndsBeforeStart": "It has to end after it starts.",
+  "challengeFormLocked": "What counts and the start date are fixed once it has started.",
+  "challengeFormNotify": "Members of {gym} get a notification when you create it.",
+  "@challengeFormNotify": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "challengeFormCreate": "Create challenge",
+  "challengeFormSave": "Save",
+  "challengeFormSaved": "Challenge saved",
+  "challengeHubTitle": "Challenges",
+  "challengeHubIn": "{count, plural, =1{You're in 1 challenge} other{You're in {count} challenges}}",
+  "@challengeHubIn": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeHubNone": "Join a challenge, earn medals",
+  "challengeHubOpen": "{count, plural, =0{New ones every month} =1{1 open to join} other{{count} open to join}}",
+  "@challengeHubOpen": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeMedalsCount": "{count, plural, =1{1 medal} other{{count} medals}}",
+  "@challengeMedalsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "challengeMedalsTitle": "Challenge medals",
+  "challengeMedalsPrivate": "This account is private. Follow them to see their medals.",
+  "challengeMuteLabel": "Challenges & Wrapped",
+  "challengeMuteDescription": "Finished challenges, new ones at your gyms and your yearly recap."
+}

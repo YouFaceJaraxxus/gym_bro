@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/streak.dart';
+import '../theme.dart';
 
 /// Building blocks for workout streaks: the tier gems (on avatars, the
 /// profile shelf and the streak screen), the flame with the count, the
@@ -313,10 +314,7 @@ class StreakChip extends StatelessWidget {
               const SizedBox(width: 4),
               Text(
                 '$current',
-                style: text.labelLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
+                style: AppText.stat(size: 18, weight: FontWeight.w800, color: cs.onSurface),
               ),
               if (tier != null) ...[
                 const SizedBox(width: 6),

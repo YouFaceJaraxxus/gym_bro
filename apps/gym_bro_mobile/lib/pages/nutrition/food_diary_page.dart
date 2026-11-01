@@ -7,6 +7,7 @@ import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/share_post.dart';
 import '../../widgets/share_sheet.dart';
+import '../../widgets/water_widgets.dart';
 import 'add_food_log_page.dart';
 import 'nutrition_widgets.dart';
 import '../../widgets/app_bottom_sheet.dart';
@@ -321,6 +322,11 @@ class _FoodDiaryPageState extends State<FoodDiaryPage> {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
         children: [
           _SummaryCard(summary: summary),
+          // Water is logged for today only (quick adds count now).
+          if (!_readOnly && _isToday) ...[
+            const SizedBox(height: 12),
+            const WaterDiaryCard(),
+          ],
           if (summary.plan != null) ...[
             const SizedBox(height: 12),
             _PlanBanner(

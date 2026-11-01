@@ -4,9 +4,13 @@ import '../models/business.dart';
 import '../models/user_settings.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../services/health_sync_service.dart';
 import '../services/push_service.dart';
 import '../services/settings_service.dart';
 import '../l10n/l10n.dart';
+import 'onboarding/onboarding_page.dart';
+import '../widgets/health_settings_card.dart';
+import '../widgets/water_widgets.dart';
 import 'streaks/streak_page.dart';
 import 'typed_confirm_dialog.dart';
 
@@ -40,6 +44,7 @@ enum _MuteCategory {
     'session_comment',
   ]),
   streaks(Icons.local_fire_department_outlined, ['streak']),
+  challenges(Icons.emoji_events_outlined, ['challenge', 'wrapped']),
   staff(Icons.badge_outlined, [
     'shift_assigned',
     'member_join',
@@ -62,6 +67,7 @@ enum _MuteCategory {
     _MuteCategory.messages => l10n.shellMuteMessages,
     _MuteCategory.coaching => l10n.shellMuteCoaching,
     _MuteCategory.streaks => l10n.streakMuteLabel,
+    _MuteCategory.challenges => l10n.challengeMuteLabel,
     _MuteCategory.staff => l10n.shellMuteStaff,
   };
 
@@ -74,6 +80,7 @@ enum _MuteCategory {
     _MuteCategory.messages => l10n.shellMuteMessagesDescription,
     _MuteCategory.coaching => l10n.shellMuteCoachingDescription,
     _MuteCategory.streaks => l10n.streakMuteDescription,
+    _MuteCategory.challenges => l10n.challengeMuteDescription,
     _MuteCategory.staff => l10n.shellMuteStaffDescription,
   };
 }
@@ -416,8 +423,28 @@ class _SettingsPageState extends State<SettingsPage> {
                     value: s.showOnGymBoards,
                     onChanged: (v) => _save(() => _settings.update(showOnGymBoards: v)),
                   ),
+                  ListTile(
+                    leading: const Icon(Icons.restart_alt_rounded),
+                    title: Text(l10n.onboardingRedo),
+                    subtitle: Text(l10n.onboardingRedoSubtitle),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(fullscreenDialog: true, builder: (_) => const OnboardingPage()),
+                    ),
+                  ),
                 ],
               ),
+
+              // ── Water ────────────────────────────────────────────────────
+              _SectionTitle(l10n.waterTitle),
+              WaterSettingsCard(settings: s),
+
+              // ── Health (Apple Health / Health Connect, this device) ──────
+              if (HealthSyncService.instance.supported) ...[
+                _SectionTitle(l10n.nativeHealthSection),
+                const HealthSettingsCard(),
+              ],
 
               // ── Notifications ────────────────────────────────────────────
               _SectionTitle(l10n.shellHomeNotifications),

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="gb_widget_card">#FF14161B</color>
+    <color name="gb_flame">#FFFF7A1A</color>
+    <color name="gb_flame_off">#4DFFFFFF</color>
+    <color name="gb_water">#FF1976D2</color>
+    <color name="gb_water_light">#FF7CC4FA</color>
+    <color name="gb_risk">#FFFF5A5F</color>
+    <color name="gb_done">#FF4CC38A</color>
+    <color name="gb_muted">#9EFFFFFF</color>
+</resources>

@@ -11,7 +11,9 @@ import '../models/shared_content.dart';
 import '../models/training.dart';
 import '../models/training_session.dart';
 import '../pages/feed/create_post_page.dart';
+import '../services/post_upload_queue.dart';
 import 'drafts.dart';
+import 'posting_bar.dart';
 import 'share_sheet.dart';
 
 // "Share as post": opens the composer with a workout, meal or library item
@@ -147,8 +149,11 @@ ShareTarget mealPlanShareTarget(MealPlan m) => ShareTarget.item(
   }),
 );
 
-/// Opens the composer sharing [target] and returns the post once shared
-/// (null when cancelled, or right away for something in the future).
+/// Opens the composer sharing [target]. Posting doesn't wait: the composer
+/// closes and the upload carries on in [PostUploadQueue], followed with
+/// snackbars ("Posting…", then "Shared to your feed" or Retry). Returns the
+/// post once it's out (null when cancelled, discarded, or for something in
+/// the future).
 Future<Post?> sharePost(BuildContext context, ShareTarget target) async {
   final l10n = context.l10n;
   final messenger = ScaffoldMessenger.maybeOf(context);
@@ -156,14 +161,18 @@ Future<Post?> sharePost(BuildContext context, ShareTarget target) async {
     messenger?.showSnackBar(SnackBar(content: Text(l10n.postShareFutureBlocked)));
     return null;
   }
-  final created = await openCreateWithDrafts<Post>(
+  final queue = PostUploadQueue.instance;
+  final before = queue.items.toSet();
+  await openCreateWithDrafts<Post>(
     context,
     kind: DraftKind.post,
     fullscreenDialog: true,
-    builder: (draft) => CreatePostPage(draft: draft, share: target),
+    builder: (draft) => CreatePostPage(draft: draft, share: target, background: true),
   );
-  if (created != null) messenger?.showSnackBar(SnackBar(content: Text(l10n.postSharePosted)));
-  return created;
+  final pending = queue.items.where((p) => !before.contains(p)).firstOrNull;
+  if (pending == null) return null;
+  final posted = await followPending(messenger, pending, posted: l10n.postSharePosted, queue: queue);
+  return posted ? pending.post : null;
 }
 
 /// After logging something: "[message]" with a "Share" action (the share

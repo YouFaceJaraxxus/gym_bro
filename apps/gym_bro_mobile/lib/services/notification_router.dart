@@ -4,6 +4,8 @@ import '../l10n/l10n.dart';
 import '../models/user_profile.dart';
 import '../pages/business/business_invites_page.dart';
 import '../pages/business/business_manage_page.dart';
+import '../pages/challenges/challenge_detail_page.dart';
+import '../pages/challenges/challenges_page.dart';
 import '../pages/chat/chat_launcher.dart';
 import '../pages/classes/class_detail_page.dart';
 import '../pages/classes/class_schedule_page.dart';
@@ -24,6 +26,7 @@ import '../pages/shop/storefront_page.dart';
 import '../pages/shop/storefront_shop_page.dart';
 import '../pages/stories/story_viewer_page.dart';
 import '../pages/streaks/streak_page.dart';
+import '../pages/wrapped/wrapped_page.dart';
 import 'api_service.dart';
 import 'auth_manager.dart';
 
@@ -146,6 +149,14 @@ class NotificationRouter {
 
       case 'streak':
         await push(const StreakPage());
+
+      case 'challenge':
+        final challengeId = str('challenge_id');
+        await push(challengeId != null ? ChallengeDetailPage(challengeId: challengeId) : const ChallengesPage());
+
+      case 'wrapped':
+        final year = int.tryParse(str('year') ?? '');
+        await push(WrappedPage(year: year ?? DateTime.now().year));
 
       case 'session_comment':
         final sessionId = str('session_id');

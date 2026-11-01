@@ -5,6 +5,7 @@ import '../models/mention.dart';
 import '../models/post.dart';
 import '../pages/feed/post_detail_page.dart';
 import '../services/auth_manager.dart';
+import 'app_hero.dart';
 import 'post_card.dart';
 import 'post_attachment_card.dart';
 import 'social_widgets.dart';
@@ -38,6 +39,7 @@ class PostGrid extends StatelessWidget {
     this.padding = EdgeInsets.zero,
     this.controller,
     this.showPinned = true,
+    this.heroScope,
   });
 
   final List<Post> posts;
@@ -45,6 +47,10 @@ class PostGrid extends StatelessWidget {
 
   /// Mark pinned posts (the author's own grid); off for other lists.
   final bool showPinned;
+
+  /// Scopes the photo hero tags ([postMediaHeroTag]); pass the same scope to
+  /// the [PostDetailPage] a tap opens. Null: no heroes.
+  final String? heroScope;
   final bool shrinkWrap;
   final ScrollPhysics? physics;
   final EdgeInsetsGeometry padding;
@@ -58,12 +64,13 @@ class PostGrid extends StatelessWidget {
     padding: padding,
     gridDelegate: _gridDelegate,
     itemCount: posts.length,
-    itemBuilder: (context, i) => PostGridTile(post: posts[i], showPinned: showPinned, onTap: () => onTap(posts[i])),
+    itemBuilder: (context, i) =>
+        PostGridTile(post: posts[i], showPinned: showPinned, heroScope: heroScope, onTap: () => onTap(posts[i])),
   );
 }
 
 class SliverPostGrid extends StatelessWidget {
-  const SliverPostGrid({super.key, required this.posts, required this.onTap, this.showPinned = true});
+  const SliverPostGrid({super.key, required this.posts, required this.onTap, this.showPinned = true, this.heroScope});
 
   final List<Post> posts;
   final ValueChanged<Post> onTap;
@@ -71,21 +78,28 @@ class SliverPostGrid extends StatelessWidget {
   /// Mark pinned posts (the author's own grid); off for other lists.
   final bool showPinned;
 
+  /// See [PostGrid.heroScope].
+  final String? heroScope;
+
   @override
   Widget build(BuildContext context) => SliverGrid.builder(
     gridDelegate: _gridDelegate,
     itemCount: posts.length,
-    itemBuilder: (context, i) => PostGridTile(post: posts[i], showPinned: showPinned, onTap: () => onTap(posts[i])),
+    itemBuilder: (context, i) =>
+        PostGridTile(post: posts[i], showPinned: showPinned, heroScope: heroScope, onTap: () => onTap(posts[i])),
   );
 }
 
 /// One square tile of [PostGrid].
 class PostGridTile extends StatelessWidget {
-  const PostGridTile({super.key, required this.post, required this.onTap, this.showPinned = true});
+  const PostGridTile({super.key, required this.post, required this.onTap, this.showPinned = true, this.heroScope});
 
   final Post post;
   final VoidCallback onTap;
   final bool showPinned;
+
+  /// See [PostGrid.heroScope]; only photo tiles fly.
+  final String? heroScope;
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +157,10 @@ class PostGridTile extends StatelessWidget {
       );
     } else {
       label = caption.isNotEmpty ? caption : l10n.nutritionPostPhoto;
-      content = MediaImage(url: first.url);
+      content = AppHero(
+        tag: heroScope == null ? null : postMediaHeroTag(heroScope!, post.id),
+        child: MediaImage(url: first.url),
+      );
     }
 
     final pinned = showPinned && post.pinned;
@@ -340,6 +357,7 @@ class PagedPostGridState extends State<PagedPostGrid> with AutomaticKeepAliveCli
       builder: (_) => PostDetailPage(
         postId: post.id,
         initial: post,
+        heroScope: widget.asList ? 'paged-list' : 'paged-grid',
         onChanged: _replace,
         onDeleted: () => _remove(post.id),
       ),
@@ -383,6 +401,7 @@ class PagedPostGridState extends State<PagedPostGrid> with AutomaticKeepAliveCli
               child: PostCard(
                 key: ValueKey(post.id),
                 post: post,
+                heroScope: 'paged-list',
                 onChanged: _replace,
                 onDeleted: () => _remove(post.id),
               ),
@@ -391,7 +410,7 @@ class PagedPostGridState extends State<PagedPostGrid> with AutomaticKeepAliveCli
         },
       );
     } else {
-      body = SliverPostGrid(posts: _posts, onTap: _open, showPinned: false);
+      body = SliverPostGrid(posts: _posts, onTap: _open, showPinned: false, heroScope: 'paged-grid');
     }
     return RefreshIndicator(
       onRefresh: refresh,

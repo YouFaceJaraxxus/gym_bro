@@ -13,6 +13,8 @@ import 'pages/forgot_password_page.dart';
 import 'pages/reset_password_page.dart';
 import 'pages/people/profile_qr_page.dart';
 import 'services/auth_manager.dart';
+import 'services/health_sync_service.dart';
+import 'services/home_widget_service.dart';
 import 'services/push_service.dart';
 import 'services/settings_service.dart';
 import 'theme.dart';
@@ -28,6 +30,10 @@ Future<void> main() async {
   await SettingsService.instance.loadCached();
   // No-op unless the Firebase dart-defines are set (see push_service.dart).
   unawaited(PushService.instance.init(navigatorKey));
+  // Home-screen widgets and Apple Health / Health Connect; both no-ops where
+  // unsupported, and Health stays off until connected in Settings.
+  unawaited(HomeWidgetService.instance.init(navigatorKey));
+  unawaited(HealthSyncService.instance.init());
   runApp(const GymBroApp());
 }
 

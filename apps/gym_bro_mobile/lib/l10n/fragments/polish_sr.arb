@@ -1,0 +1,35 @@
+{
+  "polishTabTrain": "Trening",
+  "polishFindPeople": "Pronađi ljude",
+  "polishFindPeopleRequests": "{count, plural, one{Pronađi ljude, {count} zahtev} few{Pronađi ljude, {count} zahteva} other{Pronađi ljude, {count} zahteva}}",
+  "@polishFindPeopleRequests": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "polishSeeAll": "Prikaži sve",
+  "polishTrainHeroTitle": "Spreman za trening?",
+  "polishTrainHeroBody": "Prati plan treninga ili zabeleži slobodan trening.",
+  "polishTrainLast7Days": "Poslednjih 7 dana",
+  "polishTrainStatWorkouts": "Treninzi",
+  "polishTrainStatMinutes": "Minuti",
+  "polishTrainStatSets": "Serije",
+  "polishTrainRecent": "Nedavni treninzi",
+  "polishTrainPlanTrack": "Planiraj i prati",
+  "polishTrainRoutinesSubtitle": "Tvoje rutine i planovi",
+  "polishTrainProgress": "Napredak i rekordi",
+  "polishTrainProgressSubtitle": "Dizanja, rekordi i mere tela",
+  "polishTrainExercisesSubtitle": "Biblioteka vežbi sa uputstvima",
+  "polishTrainChallengesSubtitle": "Takmiči se sa prijateljima i teretanom",
+  "polishEmptyWorkoutsTitle": "Još nema treninga",
+  "polishEmptyWorkoutsBody": "Zabeleži trening i pojaviće se ovde.",
+  "polishEmptyWorkoutsAction": "Započni prvi trening",
+  "polishFeedFindPeople": "Pronađi ljude za praćenje",
+  "polishEmptyNotificationsBody": "Ovde stižu lajkovi, komentari, praćenja i novosti o časovima.",
+  "polishStartChat": "Započni razgovor",
+  "polishEmptyChallengesTitle": "Još nema izazova",
+  "polishEmptyChallengesAction": "Pregledaj izazove",
+  "polishEmptyChallengesJoinTitle": "Trenutno nema izazova za pridruživanje"
+}

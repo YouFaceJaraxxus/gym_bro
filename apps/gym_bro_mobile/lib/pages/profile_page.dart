@@ -5,7 +5,11 @@ import '../models/social.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../utils/haptics.dart';
+import '../widgets/app_hero.dart';
+import '../widgets/posting_bar.dart';
 import '../widgets/profile_streak_row.dart';
+import '../widgets/skeleton.dart';
 import '../widgets/social_widgets.dart';
 import 'home/home_widgets.dart';
 import 'archive/archive_page.dart';
@@ -88,10 +92,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _newStory() async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = context.l10n;
-    final story = await openStoryComposer(context);
-    if (story == null || !mounted) return;
-    messenger.showSnackBar(SnackBar(content: Text(l10n.storyPosted)));
-    _load();
+    final pending = await openStoryComposer(context);
+    if (pending == null || !mounted) return;
+    if (await followPending(messenger, pending, posted: l10n.storyPosted) && mounted) _load();
   }
 
   /// After editing: pick up the new name/username/avatar and counts.
@@ -126,7 +129,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final requests = _badges?.requests ?? 0;
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: _load,
+        onRefresh: () => Haptics.refreshed(_load),
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
@@ -136,7 +139,17 @@ class _ProfilePageState extends State<ProfilePage> {
               social: _social,
               error: _error,
               onRetry: _load,
-              onView: () => _open(UserProfilePage(userId: _profile.id), reload: true),
+              onView: () => _open(
+                UserProfilePage(
+                  userId: _profile.id,
+                  avatarHero: AvatarHeroInfo(
+                    tag: myAvatarHeroTag(_profile.id),
+                    url: _profile.avatarUrl,
+                    initials: _initialsOf(_profile),
+                  ),
+                ),
+                reload: true,
+              ),
               onEdit: () => _open(const EditSocialProfilePage(), reload: true),
               onOpenList: (tab) => _open(
                 PeopleListPage(userId: _profile.id, initialTab: tab, title: '@${_profile.username}'),
@@ -265,6 +278,15 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
+/// My avatar's hero tag: the app bar avatar flies into this page's card,
+/// and the card's avatar into my full profile.
+String myAvatarHeroTag(String userId) => avatarHeroTag('me', userId);
+
+String _initialsOf(UserProfile p) {
+  final initials = '${p.name.isNotEmpty ? p.name[0] : ''}${p.lastName.isNotEmpty ? p.lastName[0] : ''}'.toUpperCase();
+  return initials.isEmpty ? '?' : initials;
+}
+
 /// Compact social card: avatar, name, @username, bio snippet, counts and
 /// View / Edit profile.
 class _SocialHeaderCard extends StatelessWidget {
@@ -298,8 +320,7 @@ class _SocialHeaderCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final l10n = context.l10n;
     final s = social;
-    final initials = '${profile.name.isNotEmpty ? profile.name[0] : ''}${profile.lastName.isNotEmpty ? profile.lastName[0] : ''}'
-        .toUpperCase();
+    final initials = _initialsOf(profile);
     final bio = s?.bio?.trim() ?? '';
 
     Widget count(int? value, String label, PeopleListTab? tab) => Expanded(
@@ -314,7 +335,9 @@ class _SocialHeaderCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 6),
             child: Column(
               children: [
-                Text(value == null ? '–' : '$value', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                value == null && error == null
+                    ? const Skeleton(child: SkeletonBox(width: 28, height: 18))
+                    : Text(value == null ? '–' : '$value', style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
                 Text(
                   label,
                   maxLines: 1,
@@ -346,7 +369,10 @@ class _SocialHeaderCard extends StatelessWidget {
                     onTap: (s?.hasStory ?? false) ? onOpenStories : null,
                     onAdd: onNewStory,
                     semanticLabel: context.l10n.storyYourStory,
-                    child: UserAvatar(url: profile.avatarUrl, initials: initials.isEmpty ? '?' : initials, radius: 32),
+                    child: AppHero(
+                      tag: myAvatarHeroTag(profile.id),
+                      child: UserAvatar(url: profile.avatarUrl, initials: initials, radius: 32),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(

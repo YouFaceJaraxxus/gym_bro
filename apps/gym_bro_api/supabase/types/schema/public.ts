@@ -79,7 +79,9 @@ export type NotificationType =
   | "business_invite"
   | "business_join"
   | "business_review"
-  | "streak";
+  | "streak"
+  | "challenge"
+  | "wrapped";
 
 export type ReactionType =
   | "like"
@@ -129,7 +131,7 @@ export type ShareKind =
 export type StoryMode = "reply" | "reaction";
 export type PlanEntryKind = "workout" | "meal";
 export type ReportReason = "spam" | "harassment" | "inappropriate" | "impersonation" | "other";
-export type MediaBucket = "chat-media" | "user-media";
+export type MediaBucket = "chat-media" | "user-media" | "progress-photos";
 
 export type PaymentStatus = "pending" | "succeeded" | "failed" | "cancelled" | "refunded";
 export type PaymentKind = "invoice" | "order" | "membership";
@@ -747,6 +749,14 @@ export interface UserSettingsTable {
   show_on_gym_boards: Generated<boolean>;
   // IANA zone the app last reported; streak days are counted in it.
   timezone: string | null;
+  fitness_goal: "lose_fat" | "build_muscle" | "get_stronger" | "stay_fit" | "endurance" | null;
+  goal_weight_kg: number | string | null;
+  // NULL: worked out from body weight in the app.
+  water_goal_ml: number | null;
+  water_cups: Generated<number[]>;
+  water_reminders: Generated<boolean>;
+  // Set when the first-run flow was finished or skipped.
+  onboarded_at: string | null;
   updated_at: Generated<string>;
 }
 
@@ -869,6 +879,27 @@ export interface BodyMeasurementTable {
   measured_on: Generated<string>;
   weight_kg: NullableNumeric;
   body_fat_pct: NullableNumeric;
+  // Tape measurements, cm (000027).
+  waist_cm: NullableNumeric;
+  chest_cm: NullableNumeric;
+  hips_cm: NullableNumeric;
+  arm_cm: NullableNumeric;
+  thigh_cm: NullableNumeric;
+  neck_cm: NullableNumeric;
+  note: string | null;
+  created_at: Generated<string>;
+}
+
+// Private before/after photos in the progress-photos bucket; owner-only (000027).
+export type ProgressPhotoPose = "front" | "side" | "back" | "other";
+
+export interface ProgressPhotoTable {
+  id: Generated<string>;
+  user_id: string;
+  path: string;
+  pose: ColumnType<ProgressPhotoPose, ProgressPhotoPose | undefined, ProgressPhotoPose>;
+  taken_on: Generated<string>;
+  weight_kg: NullableNumeric;
   note: string | null;
   created_at: Generated<string>;
 }
@@ -1270,6 +1301,50 @@ export interface StreakEventTable {
   created_at: Generated<string>;
 }
 
+// One drink (sql/schemas/000026_water.sql).
+export interface WaterLogTable {
+  id: Generated<string>;
+  user_id: string;
+  ml: number;
+  logged_at: Generated<string>;
+  created_at: Generated<string>;
+}
+
+// Challenges and Wrapped (sql/schemas/000028_challenges_wrapped.sql).
+export type ChallengeMetric = "workouts" | "active_days" | "minutes" | "volume_kg" | "check_ins";
+
+export interface ChallengeTable {
+  id: Generated<string>;
+  // NULL: platform-wide; otherwise the gym.
+  business_id: string | null;
+  created_by: string | null;
+  title: string;
+  description: string | null;
+  metric: ChallengeMetric;
+  target: number;
+  // DATE columns: select with to_char (pg parses them into Dates).
+  starts_on: string;
+  ends_on: string;
+  // 'monthly:YYYY-MM:<metric>' for the automatic monthly ones.
+  auto_key: string | null;
+  created_at: Generated<string>;
+  updated_at: Generated<string>;
+}
+
+export interface ChallengeParticipantTable {
+  challenge_id: string;
+  user_id: string;
+  joined_at: Generated<string>;
+  progress: Generated<number>;
+  completed_at: string | null;
+}
+
+export interface WrappedNoticeTable {
+  user_id: string;
+  year: number;
+  sent_at: Generated<string>;
+}
+
 export interface Database {
   users: UsersTable;
   business: BusinessTable;
@@ -1325,6 +1400,7 @@ export interface Database {
   class_booking: ClassBookingTable;
   staff_shift: StaffShiftTable;
   body_measurement: BodyMeasurementTable;
+  progress_photo: ProgressPhotoTable;
   routine_assignment: RoutineAssignmentTable;
   session_comment: SessionCommentTable;
   post_comment: PostCommentTable;
@@ -1360,6 +1436,10 @@ export interface Database {
   user_note: UserNoteTable;
   workout_streak: WorkoutStreakTable;
   streak_event: StreakEventTable;
+  water_log: WaterLogTable;
+  challenge: ChallengeTable;
+  challenge_participant: ChallengeParticipantTable;
+  wrapped_notice: WrappedNoticeTable;
 }
 
 // ── CRUD helpers ──────────────────────────────────────────────────────────────

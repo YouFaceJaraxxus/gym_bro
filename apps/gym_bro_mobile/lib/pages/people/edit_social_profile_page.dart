@@ -7,6 +7,7 @@ import '../../models/social.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../utils/haptics.dart';
 import '../../widgets/image_upload_field.dart';
 import 'people_common.dart';
 
@@ -188,6 +189,7 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
         _apply(updated);
         _saving = false;
       });
+      Haptics.tap();
       showPeopleSnack(context, l10n.peopleSaved);
       Navigator.of(context).pop(true);
     } catch (e) {
@@ -204,7 +206,14 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
     }
   }
 
+  /// A switch flipped: a selection tick, then the change.
+  void _toggle(VoidCallback change) {
+    Haptics.select();
+    setState(change);
+  }
+
   Future<void> _onPrivateChanged(bool value) async {
+    Haptics.select();
     final wasPrivate = _original?.settings?.isPrivate ?? _original?.isPrivate ?? false;
     if (!value && wasPrivate) {
       final l10n = context.l10n;
@@ -427,7 +436,7 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _allowNonFollowerMessages,
-            onChanged: _saving ? null : (v) => setState(() => _allowNonFollowerMessages = v),
+            onChanged: _saving ? null : (v) => _toggle(() => _allowNonFollowerMessages = v),
             title: Text(l10n.peopleNonFollowerMessages),
             subtitle: Text(
               !_allowNonFollowerMessages
@@ -441,7 +450,7 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _showActivity,
-            onChanged: _saving ? null : (v) => setState(() => _showActivity = v),
+            onChanged: _saving ? null : (v) => _toggle(() => _showActivity = v),
             title: Text(l10n.peopleShowActivity),
             subtitle: Text(l10n.peopleShowActivityHint),
             secondary: const Icon(Icons.circle_outlined),
@@ -449,7 +458,7 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _discoverable,
-            onChanged: _saving ? null : (v) => setState(() => _discoverable = v),
+            onChanged: _saving ? null : (v) => _toggle(() => _discoverable = v),
             title: Text(l10n.peopleDiscoverable),
             subtitle: Text(l10n.peopleDiscoverableHint),
             secondary: const Icon(Icons.explore_outlined),

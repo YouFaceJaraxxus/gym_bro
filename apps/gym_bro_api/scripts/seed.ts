@@ -2061,6 +2061,15 @@ for (const s of userSettingsSeeds) {
 }
 report("user settings", added);
 
+// The demo cast skips the first-run flow.
+for (const userId of userIdByUsername.values()) {
+  await db
+    .insertInto("user_settings")
+    .values({ user_id: userId, onboarded_at: new Date().toISOString() })
+    .onConflict((oc) => oc.column("user_id").doUpdateSet({ onboarded_at: sql`COALESCE(user_settings.onboarded_at, NOW())` }))
+    .execute();
+}
+
 // ── 15. Classes & bookings ────────────────────────────────────────────────────
 // Each template becomes one weekly series per weekday covering the last two
 // and the next two weeks. Past classes have attended/no-show bookings and the
@@ -3884,6 +3893,255 @@ for (const t of (seedData.photo_tags ?? []) as PhotoTagSeed[]) {
 report("shared posts (workouts, meals, plans)", sharedPostsAdded);
 report("caption mentions", mentionsAdded);
 report("photo tags", photoTagsAdded);
+
+// ── 29. Water ─────────────────────────────────────────────────────────────────
+// Two weeks of drinks for most members, in their home gym's time zone: 3–9 a
+// day between 07:00 and 22:00 from a few usual cup sizes (today only up to
+// now), with the odd forgotten day. Each gym's first member and the food
+// diary keepers always track it. Guard: members with any water logged.
+
+const alwaysWater = new Set([...diaryUsernames, ...[...memberUsernamesByGym.values()].flatMap((l) => l.slice(0, 1))]);
+let waterLogsAdded = 0;
+for (const username of memberUsernames) {
+  const rng = rngFor("water", username);
+  if (!alwaysWater.has(username) && rng.chance(0.25)) continue; // not everyone tracks water
+  const userId = uid(username);
+  const any = await db.selectFrom("water_log").select("id").where("user_id", "=", userId).executeTakeFirst();
+  if (any) continue;
+
+  const tz = tzOf(homeBusinessOf(username) ?? "");
+  const todayLocal = localYmd(NOW_MS, tz);
+  const cups = rng.sample([200, 250, 330, 500, 750], 2);
+  const thirst = rng.float(0.7, 1.2); // some drink more than others
+  const rows = [];
+  for (let back = 13; back >= 0; back--) {
+    if (back > 0 && rng.chance(0.1)) continue; // forgot to log
+    const day = addDays(todayLocal, -back);
+    const drinks = Math.round(rng.int(3, 9) * thirst);
+    for (let i = 0; i < drinks; i++) {
+      const atMs = zonedTime(day, hhmm(rng.int(7 * 60, 22 * 60)), tz);
+      if (atMs > NOW_MS - 5 * MIN_MS) continue;
+      rows.push({ user_id: userId, ml: rng.pick(cups), logged_at: iso(atMs), created_at: iso(atMs) });
+    }
+  }
+  if (rows.length) {
+    await db.insertInto("water_log").values(rows).execute();
+    waterLogsAdded += rows.length;
+  }
+}
+report("water logs", waterLogsAdded);
+
+// ── Body progress: tape measurements ──────────────────────────────────────────
+// About half of the members who weigh in also run a tape every other weigh-in:
+// waist / hips / chest / arm / thigh / neck that move with their weight trend.
+// Progress photos aren't seeded (they're private files). Guard: members with
+// any tape value already.
+
+let tapeRowsUpdated = 0;
+{
+  const weighers = await db.selectFrom("body_measurement").select("user_id").distinct()
+    .where("weight_kg", "is not", null).execute();
+  for (const { user_id: userId } of weighers) {
+    const rng = rngFor("tape", userId);
+    if (!rng.chance(0.5)) continue;
+    const taped = await db.selectFrom("body_measurement").select("id").where("user_id", "=", userId)
+      .where((eb) => eb.or([eb("waist_cm", "is not", null), eb("neck_cm", "is not", null)])).executeTakeFirst();
+    if (taped) continue;
+    const rows = await db.selectFrom("body_measurement")
+      .select(["id", sql<number>`weight_kg::float8`.as("w")])
+      .where("user_id", "=", userId).where("weight_kg", "is not", null)
+      .orderBy("measured_on").execute();
+    if (rows.length < 2) continue;
+    const base = rows[0].w;
+    const waist = rng.float(72, 98) + (base - 75) * 0.45;
+    const hips = rng.float(90, 106) + (base - 75) * 0.3;
+    const chest = rng.float(90, 110) + (base - 75) * 0.35;
+    const arm = rng.float(29, 38) + (base - 75) * 0.12;
+    const thigh = rng.float(50, 62) + (base - 75) * 0.2;
+    const neck = rng.float(33, 41) + (base - 75) * 0.06;
+    const r1 = (n: number) => Math.round(n * 10) / 10;
+    for (const [i, row] of rows.entries()) {
+      if (i % 2 === 1 && i !== rows.length - 1) continue;
+      const d = row.w - base; // tape follows weight, plus a little noise
+      await db.updateTable("body_measurement").set({
+        waist_cm: r1(waist + d * 0.9 + rng.float(-0.4, 0.4)),
+        hips_cm: r1(hips + d * 0.5 + rng.float(-0.4, 0.4)),
+        chest_cm: r1(chest + d * 0.4 + rng.float(-0.4, 0.4)),
+        arm_cm: r1(arm + d * 0.15 + rng.float(-0.2, 0.2)),
+        thigh_cm: r1(thigh + d * 0.3 + rng.float(-0.3, 0.3)),
+        neck_cm: r1(neck + d * 0.08 + rng.float(-0.1, 0.1)),
+      }).where("id", "=", row.id).execute();
+      tapeRowsUpdated++;
+    }
+  }
+}
+report("tape measurements", tapeRowsUpdated);
+
+// ── 30. Challenges ────────────────────────────────────────────────────────────
+// This month's automatic platform challenges (same keys and wording as the
+// jobs step in _shared/challenges.ts) with a few people from every gym, and
+// three Ironclad challenges by its trainer: a running workouts one, a
+// check-in one and one that ended last week, with medals for whoever made
+// it. Progress is filled in with the API's rules (workouts with a logged set
+// and check-in days, in the gym's zone); the API keeps live ones current.
+
+let challengesAdded = 0;
+let challengeJoinsAdded = 0;
+let challengeMedals = 0;
+{
+  const ironcladName = "Ironclad Fitness";
+  const ironclad = businessIdByName.get(ironcladName) ?? null;
+  const tz = tzOf(ironcladName);
+  const today = localYmd(NOW_MS, tz);
+  const month = TODAY_UTC.slice(0, 7);
+  const [cy, cm] = month.split("-").map(Number);
+  const monthName = new Date(Date.UTC(cy, cm - 1, 1)).toLocaleString("en-US", { month: "long", timeZone: "UTC" });
+  const monthEnd = ymdUtc(Date.UTC(cy, cm, 0));
+  const ironMembers = memberUsernamesByGym.get(ironcladName) ?? [];
+  const coach = (trainerUsernamesByGym.get(ironcladName) ?? [])[0];
+  const everywhere = [...new Set([...memberUsernamesByGym.values()].flatMap((m) => m.slice(0, 3)))];
+
+  type ChallengeSeed = {
+    auto_key: string | null;
+    business_id: string | null;
+    created_by: string | null;
+    title: string;
+    description: string;
+    metric: "workouts" | "active_days" | "check_ins";
+    target: number;
+    starts_on: string;
+    ends_on: string;
+    joiners: string[];
+  };
+  const seeds: ChallengeSeed[] = [
+    {
+      auto_key: `monthly:${month}:workouts`,
+      business_id: null,
+      created_by: null,
+      title: `${monthName} Grind: 12 workouts`,
+      description: `Finish 12 workouts in ${monthName}. Any workout counts, at the gym or at home.`,
+      metric: "workouts",
+      target: 12,
+      starts_on: `${month}-01`,
+      ends_on: monthEnd,
+      joiners: everywhere,
+    },
+    {
+      auto_key: `monthly:${month}:active_days`,
+      business_id: null,
+      created_by: null,
+      title: `Active ${monthName}: 20 days`,
+      description: `Train on 20 different days in ${monthName}.`,
+      metric: "active_days",
+      target: 20,
+      starts_on: `${month}-01`,
+      ends_on: monthEnd,
+      joiners: everywhere.filter((_, i) => i % 2 === 0),
+    },
+  ];
+  if (ironclad && coach) {
+    seeds.push(
+      {
+        auto_key: null,
+        business_id: ironclad,
+        created_by: uid(coach),
+        title: "Iron Month: 10 workouts",
+        description: "Ten workouts in thirty days. Log every session, the board updates as you go. 💪",
+        metric: "workouts",
+        target: 10,
+        starts_on: addDays(today, -12),
+        ends_on: addDays(today, 17),
+        joiners: ironMembers.slice(0, 7),
+      },
+      {
+        auto_key: null,
+        business_id: ironclad,
+        created_by: uid(coach),
+        title: "Show Up: 12 check-ins",
+        description: "Scan in at the front desk on 12 different days before the month is out.",
+        metric: "check_ins",
+        target: 12,
+        starts_on: addDays(today, -5),
+        ends_on: addDays(today, 24),
+        joiners: ironMembers.slice(0, 5),
+      },
+      {
+        auto_key: null,
+        business_id: ironclad,
+        created_by: uid(coach),
+        title: "Fall Kickoff: 3 workouts",
+        description: "Three workouts in under four weeks to kick off the season.",
+        metric: "workouts",
+        target: 3,
+        starts_on: addDays(today, -30),
+        ends_on: addDays(today, -4),
+        joiners: ironMembers.slice(0, 8),
+      },
+    );
+  }
+
+  for (const s of seeds) {
+    const found = await db.selectFrom("challenge").select("id")
+      .$if(s.auto_key !== null, (q) => q.where("auto_key", "=", s.auto_key))
+      .$if(s.auto_key === null, (q) => q.where("business_id", "=", s.business_id).where("title", "=", s.title))
+      .executeTakeFirst();
+    let id = found?.id;
+    if (!id) {
+      const { joiners: _j, ...values } = s;
+      id = (await db.insertInto("challenge").values({ ...values, created_at: iso(NOW_MS - 14 * DAY_MS) })
+        .returning("id").executeTakeFirstOrThrow()).id;
+      challengesAdded++;
+    }
+    const people = s.joiners.filter((u) => userIdByUsername.has(u)).map(uid);
+    if (!people.length) continue;
+    const res = await db.insertInto("challenge_participant")
+      .values(people.map((user_id, i) => ({ challenge_id: id!, user_id, joined_at: iso(NOW_MS - (10 - i) * DAY_MS) })))
+      .onConflict((oc) => oc.columns(["challenge_id", "user_id"]).doNothing())
+      .executeTakeFirst();
+    challengeJoinsAdded += Number(res.numInsertedOrUpdatedRows ?? 0);
+
+    await sql`
+      UPDATE challenge_participant cp
+         SET progress = CASE c.metric
+           WHEN 'check_ins' THEN (
+             SELECT COUNT(DISTINCT (ci.checked_in_at AT TIME ZONE ${tz})::date) FROM check_in ci
+              WHERE ci.user_id = cp.user_id AND ci.gym_id = c.business_id AND ci.checked_in_at <= now()
+                AND (ci.checked_in_at AT TIME ZONE ${tz})::date BETWEEN c.starts_on AND c.ends_on)
+           ELSE (
+             SELECT CASE WHEN c.metric = 'active_days'
+                         THEN COUNT(DISTINCT (s.started_at AT TIME ZONE ${tz})::date) ELSE COUNT(*) END
+               FROM training_session s
+              WHERE s.user_id = cp.user_id AND s.ended_at IS NOT NULL AND s.started_at <= now()
+                AND (s.started_at AT TIME ZONE ${tz})::date BETWEEN c.starts_on AND c.ends_on
+                AND EXISTS (SELECT 1 FROM session_set_log l WHERE l.session_id = s.id))
+         END
+        FROM challenge c
+       WHERE c.id = cp.challenge_id AND c.id = ${id}
+    `.execute(db);
+
+    // Medals for a challenge that's over; the API completes live ones itself.
+    if (s.ends_on < addDays(today, -3)) {
+      const doneAt = zonedTime(s.ends_on, "20:00", tz);
+      const medals = await db.updateTable("challenge_participant")
+        .set({ completed_at: iso(doneAt) })
+        .where("challenge_id", "=", id)
+        .where("completed_at", "is", null)
+        .where(sql<boolean>`progress >= ${s.target}`)
+        .returning("user_id")
+        .execute();
+      challengeMedals += medals.length;
+      await addNotification(medals.map((m) => m.user_id), {
+        type: "challenge",
+        title: "Challenge complete! 🏅",
+        body: `You finished “${s.title}”. That medal is yours.`,
+        metadata: { kind: "completed", challenge_id: id, title: s.title },
+      }, doneAt);
+    }
+  }
+}
+report("challenges", challengesAdded);
+report("challenge participants", challengeJoinsAdded);
+report("challenge medals", challengeMedals);
 
 // ── Summary ───────────────────────────────────────────────────────────────────
 

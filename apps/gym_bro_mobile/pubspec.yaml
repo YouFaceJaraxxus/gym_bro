@@ -64,6 +64,12 @@ dependencies:
   record: ^6.2.1
   confetti: ^0.8.0
   flutter_animate: ^4.5.2
+  timezone: ^0.11.2
+  # Native platform features: Apple Health / Health Connect, home-screen
+  # widgets and the lock-screen rest timer (iOS Live Activity).
+  health: ">=13.3.1 <13.3.2" # 13.3.2 needs win32 6, which flutter_secure_storage 9 blocks
+  home_widget: ^0.10.0
+  live_activities: ^2.4.9
 
 dev_dependencies:
   flutter_test:
@@ -87,6 +93,18 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # Condensed display face for big numbers and stats (SIL OFL 1.1, see
+  # assets/fonts/OFL.txt). Bundled so nothing is fetched at runtime.
+  fonts:
+    - family: BarlowCondensed
+      fonts:
+        - asset: assets/fonts/BarlowCondensed-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/BarlowCondensed-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/BarlowCondensed-ExtraBold.ttf
+          weight: 800
 
   # To add assets to your application, add an assets section, like this:
   # assets:

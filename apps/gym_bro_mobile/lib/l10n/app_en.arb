@@ -131,6 +131,197 @@
       }
     }
   },
+  "@bodyChangeInRange": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyChangeSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyCompareDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@bodyCompareDiff": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      },
+      "span": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyComparePick": {
+    "placeholders": {
+      "which": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyCompareWeeks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@bodyGoalEtaFlat": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyGoalEtaNoData": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyGoalEtaOnTrack": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyGoalEtaReached": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyGoalEtaTooFar": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyGoalEtaWrongWay": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyGoalInvalid": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyGoalLineLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyGoalSheetHelpCurrent": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyGoalToGo": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyLastWeighIn": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyPhotosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@bodyRatePerWeek": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyTapeOutOfRange": {
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyTapeSectionHint": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyTooltipTrend": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@bodyTooltipWeighIn": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
   "@businessCheckInCameraStartFailed": {
     "placeholders": {
       "code": {
@@ -726,6 +917,193 @@
     "placeholders": {
       "time": {
         "type": "String"
+      }
+    }
+  },
+  "@challengeCompletedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@challengeCreatedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@challengeDaysLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeDeleteConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@challengeEndedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@challengeFormLength": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeFormMembersOf": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@challengeFormNotify": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@challengeGoal": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "@challengeHubIn": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeHubOpen": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeLeaveConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@challengeMedalsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeMonthlyActiveDaysDescription": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeMonthlyActiveDaysTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeMonthlyWorkoutsDescription": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeMonthlyWorkoutsTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeParticipants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeRuleCheckIns": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@challengeStartsIn": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeToGo": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@challengeUnitActiveDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeUnitCheckIns": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeUnitWorkouts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@challengeYourRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
       }
     }
   },
@@ -1418,6 +1796,89 @@
       }
     }
   },
+  "@nativeHealthConnect": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "@nativeHealthConnectedTo": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "@nativeHealthDenied": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "@nativeHealthDisconnected": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "@nativeHealthFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@nativeHealthImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@nativeHealthLastChecked": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@nativeHealthSleepDuration": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@nativeHealthTodaySemantics": {
+    "placeholders": {
+      "steps": {
+        "type": "String"
+      },
+      "sleep": {
+        "type": "String"
+      }
+    }
+  },
+  "@nativeHealthWeighInNote": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "@nativeRestNext": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@nutritionAddNamed": {
     "placeholders": {
       "name": {
@@ -1945,6 +2406,123 @@
       }
     }
   },
+  "@onboardingDaysValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@onboardingProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@onboardingSummaryGoalOnly": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "@onboardingSummaryWaterAuto": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@onboardingSummaryWaterCustom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@onboardingSummaryWeightGoal": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "@onboardingWaterGlasses": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@onboardingWaterLiters": {
+    "placeholders": {
+      "liters": {
+        "type": "String"
+      }
+    }
+  },
+  "@onboardingWeightInvalid": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "@overloadLast": {
+    "placeholders": {
+      "sets": {
+        "type": "String"
+      }
+    }
+  },
+  "@overloadLastReps": {
+    "placeholders": {
+      "reps": {
+        "type": "String"
+      }
+    }
+  },
+  "@overloadReasonAddWeight": {
+    "placeholders": {
+      "increment": {
+        "type": "String"
+      }
+    }
+  },
+  "@overloadReasonDeload": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@overloadTry": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "@overloadTryReps": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@peopleBlockTitle": {
     "placeholders": {
       "username": {
@@ -2279,6 +2857,13 @@
       }
     }
   },
+  "@polishFindPeopleRequests": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@postShareBestReps": {
     "placeholders": {
       "reps": {
@@ -2355,6 +2940,13 @@
   "@postShareWorkouts": {
     "placeholders": {
       "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@postingProgressLabel": {
+    "placeholders": {
+      "percent": {
         "type": "int"
       }
     }
@@ -3178,6 +3770,83 @@
         "type": "int"
       },
       "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@todayClassWith": {
+    "placeholders": {
+      "trainer": {
+        "type": "String"
+      }
+    }
+  },
+  "@todayGreetingAfternoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@todayGreetingEvening": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@todayGreetingMorning": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@todayKcalOf": {
+    "placeholders": {
+      "target": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "@todayKcalSemantics": {
+    "placeholders": {
+      "eaten": {
+        "type": "int"
+      }
+    }
+  },
+  "@todayKcalTargetSemantics": {
+    "placeholders": {
+      "eaten": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "@todayStartFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@todayWeightChange": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "@todayWorkoutWhen": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "minutes": {
         "type": "int"
       }
     }
@@ -4025,6 +4694,161 @@
       }
     }
   },
+  "@waterAddCup": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterAddFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterAdded": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterAddedGoal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterBottleSemantics": {
+    "placeholders": {
+      "drunk": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "@waterChartSemantics": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "reached": {
+        "type": "int"
+      }
+    }
+  },
+  "@waterDaysReachedValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@waterHistoryDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@waterLeft": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterLiters": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterMl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterOfGoal": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterProgress": {
+    "placeholders": {
+      "drunk": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterReminderBodyLeft": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterRemoved": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterRingHint": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterSettingsGoalAuto": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterSettingsGoalCustom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterStreakValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@waterWorkoutBonus": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "@workoutCompleteForClient": {
     "placeholders": {
       "name": {
@@ -4170,6 +4994,182 @@
       }
     }
   },
+  "@wrappedActiveDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedBannerTitle": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "@wrappedBestMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedBusiestDay": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "@wrappedChallenges": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedCheckIns": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedClasses": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedEmptyBody": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "@wrappedFavouriteHour": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@wrappedFirstWorkout": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@wrappedHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "@wrappedInARow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedLiftDetail": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedNoData": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "@wrappedNotYet": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@wrappedPrCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedSetsReps": {
+    "placeholders": {
+      "sets": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "String"
+      }
+    }
+  },
+  "@wrappedSlideLabel": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedTopSets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedVolumeCars": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedVolumeElephants": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedVolumePianos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@wrappedWorkoutsUnit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "accessOpenHint": "Open",
   "accessPrivate": "Private · you don't have access to this anymore",
   "accessUnavailable": "No longer available · it was deleted",
@@ -4238,6 +5238,75 @@
   "archiveViewCalendar": "Calendar",
   "archiveViewList": "List",
   "archiveWholeMonth": "All of {month}",
+  "bodyChangeInRange": "over {range}",
+  "bodyChangeSince": "since {date}",
+  "bodyCompareAfter": "After",
+  "bodyCompareBefore": "Before",
+  "bodyCompareDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "bodyCompareDiff": "{change} in {span}",
+  "bodyComparePick": "{which}: pick a photo",
+  "bodyCompareSliderLabel": "Before and after divider",
+  "bodyCompareSwap": "Swap before and after",
+  "bodyCompareTitle": "Compare",
+  "bodyCompareWeeks": "{count, plural, =1{1 week} other{{count} weeks}}",
+  "bodyGoalEditTitle": "Edit goal weight",
+  "bodyGoalEtaFlat": "Your trend is holding steady, so there's no date for {goal} yet.",
+  "bodyGoalEtaNoData": "Log a few weigh-ins over a week or two to see when you'll reach {goal}.",
+  "bodyGoalEtaOnTrack": "At {rate}/week you'll reach {goal} around {date}.",
+  "bodyGoalEtaReached": "You're at your goal of {goal}. Nice work!",
+  "bodyGoalEtaTooFar": "At {rate}/week, {goal} is more than three years away.",
+  "bodyGoalEtaWrongWay": "At {rate}/week you're moving away from {goal}. Small, steady changes add up.",
+  "bodyGoalFieldLabel": "Goal weight",
+  "bodyGoalInvalid": "Enter a goal between {min} and {max}",
+  "bodyGoalLineLabel": "Goal {value}",
+  "bodyGoalRemove": "Remove goal",
+  "bodyGoalSetHint": "See a goal line on your chart and when you'll get there",
+  "bodyGoalSetTitle": "Set a goal weight",
+  "bodyGoalSheetHelp": "We'll draw it on your chart and estimate when you'll get there.",
+  "bodyGoalSheetHelpCurrent": "Your trend weight is {current}. We'll draw the goal on your chart and estimate when you'll get there.",
+  "bodyGoalToGo": "{value} to go",
+  "bodyLastWeighIn": "Last weigh-in {value} · {date}",
+  "bodyLegendGoal": "Goal",
+  "bodyLegendTrend": "Trend",
+  "bodyLegendWeighIns": "Weigh-ins",
+  "bodyMetricArm": "Arm",
+  "bodyMetricBodyFat": "Body fat",
+  "bodyMetricChest": "Chest",
+  "bodyMetricHips": "Hips",
+  "bodyMetricNeck": "Neck",
+  "bodyMetricThigh": "Thigh",
+  "bodyMetricWaist": "Waist",
+  "bodyNeedAnyValue": "Enter a weight, body fat or at least one measurement",
+  "bodyPhotoAdd": "Add photo",
+  "bodyPhotoAddTitle": "New progress photo",
+  "bodyPhotoDeleteMessage": "The photo will be removed for good.",
+  "bodyPhotoDeleteTitle": "Delete photo?",
+  "bodyPhotoDeleteTooltip": "Delete photo",
+  "bodyPhotoFromGallery": "Choose from gallery",
+  "bodyPhotoTake": "Take a photo",
+  "bodyPhotoTooLarge": "That photo is over 20 MB.",
+  "bodyPhotoWeightHelp": "Leave empty to use your nearest weigh-in.",
+  "bodyPhotoWeightOptional": "Weight (optional)",
+  "bodyPhotosCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "bodyPhotosEmptyMessage": "Take front, side and back photos every few weeks, then compare any two.",
+  "bodyPhotosEmptyTitle": "See how far you've come",
+  "bodyPhotosPrivate": "Only you can see these.",
+  "bodyPhotosPrivateDetail": "Progress photos never appear in feeds, and trainers can't see them.",
+  "bodyPhotosTab": "Photos",
+  "bodyPoseAll": "All",
+  "bodyPoseBack": "Back",
+  "bodyPoseFront": "Front",
+  "bodyPoseOther": "Other",
+  "bodyPoseSide": "Side",
+  "bodyRange1y": "1Y",
+  "bodyRatePerWeek": "{rate} per week",
+  "bodyTapeOutOfRange": "{metric} must be between {min} and {max} {unit}",
+  "bodyTapeSection": "Body measurements",
+  "bodyTapeSectionHint": "Optional, in {unit}",
+  "bodyTooltipTrend": "Trend {value}",
+  "bodyTooltipWeighIn": "Weigh-in {value}",
+  "bodyTrendSeries": "Weight trend",
+  "bodyTrendWeight": "Trend weight",
   "businessCheckInAllTime": "All time",
   "businessCheckInAttendanceTitle": "Attendance",
   "businessCheckInBusiestHours": "Busiest hours",
@@ -4610,6 +5679,96 @@
   "calendarNothingOnDay": "Nothing on this day",
   "calendarNow": "Now, {time}",
   "calendarPreviousWeek": "Previous week",
+  "challengeCancel": "Cancel",
+  "challengeCompleted": "Completed",
+  "challengeCompletedOn": "Completed {date}",
+  "challengeCreate": "New challenge",
+  "challengeCreatedBy": "By {name}",
+  "challengeDaysLeft": "{count, plural, other{{count} days left}}",
+  "challengeDelete": "Delete challenge",
+  "challengeDeleteConfirm": "Delete “{title}”? Everyone's progress in it goes too.",
+  "challengeDeleted": "Challenge deleted",
+  "challengeEdit": "Edit challenge",
+  "challengeEnded": "Ended",
+  "challengeEndedOn": "Ended {date}",
+  "challengeFormCreate": "Create challenge",
+  "challengeFormDates": "When",
+  "challengeFormDescription": "Description (optional)",
+  "challengeFormEnds": "Ends",
+  "challengeFormEndsBeforeStart": "It has to end after it starts.",
+  "challengeFormEveryone": "Everyone on Gym Bro",
+  "challengeFormLength": "{count, plural, =1{1 day} other{{count} days}}",
+  "challengeFormLocked": "What counts and the start date are fixed once it has started.",
+  "challengeFormMembersOf": "Members of {gym}",
+  "challengeFormMetric": "What counts",
+  "challengeFormNotify": "Members of {gym} get a notification when you create it.",
+  "challengeFormSave": "Save",
+  "challengeFormSaved": "Challenge saved",
+  "challengeFormStarts": "Starts",
+  "challengeFormTarget": "Goal",
+  "challengeFormTargetInvalid": "Enter a whole number above 0",
+  "challengeFormTitle": "Name",
+  "challengeFormTitleHint": "e.g. 30 days of iron",
+  "challengeFormTitleRequired": "Give it a name",
+  "challengeFormTooLong": "A challenge lasts a year at most.",
+  "challengeFormWho": "Who it's for",
+  "challengeGoal": "Goal: {goal}",
+  "challengeGoalReached": "Goal reached!",
+  "challengeHowItCounts": "How it counts",
+  "challengeHubIn": "{count, plural, =1{You're in 1 challenge} other{You're in {count} challenges}}",
+  "challengeHubNone": "Join a challenge, earn medals",
+  "challengeHubOpen": "{count, plural, =0{New ones every month} =1{1 open to join} other{{count} open to join}}",
+  "challengeHubTitle": "Challenges",
+  "challengeJoin": "Join",
+  "challengeJoinChallenge": "Join challenge",
+  "challengeJoined": "You're in! Let's go 💪",
+  "challengeJustCompleted": "Challenge complete! 🏅",
+  "challengeJustCompletedBody": "You crushed it. The medal is on your profile now.",
+  "challengeLastDay": "Last day",
+  "challengeLeaderboard": "Leaderboard",
+  "challengeLeaderboardEmpty": "No one on the board yet. Join and take the lead.",
+  "challengeLeave": "Leave challenge",
+  "challengeLeaveConfirm": "Leave “{title}”? You can join again until it ends.",
+  "challengeMedalsCount": "{count, plural, =1{1 medal} other{{count} medals}}",
+  "challengeMedalsPrivate": "This account is private. Follow them to see their medals.",
+  "challengeMedalsTitle": "Challenge medals",
+  "challengeMetricActiveDays": "Active days",
+  "challengeMetricCheckIns": "Check-ins",
+  "challengeMetricMinutes": "Minutes",
+  "challengeMetricVolume": "Volume lifted",
+  "challengeMetricWorkouts": "Workouts",
+  "challengeMonthlyActiveDaysDescription": "Train on {count} different days in {month}.",
+  "challengeMonthlyActiveDaysTitle": "Active {month}: {count} days",
+  "challengeMonthlyWorkoutsDescription": "Finish {count} workouts in {month}. Any workout counts, at the gym or at home.",
+  "challengeMonthlyWorkoutsTitle": "{month} Grind: {count} workouts",
+  "challengeMuteDescription": "Finished challenges, new ones at your gyms and your yearly recap.",
+  "challengeMuteLabel": "Challenges & Wrapped",
+  "challengeParticipants": "{count, plural, =0{No one yet} =1{1 person} other{{count} people}}",
+  "challengePlatform": "Gym Bro",
+  "challengeRuleActiveDays": "Every day you finish a workout counts once.",
+  "challengeRuleCheckIns": "Every day you check in at {gym} counts once.",
+  "challengeRuleMinutes": "The minutes of your finished workouts count, up to 4 hours per workout.",
+  "challengeRuleVolume": "Weight × reps of every logged set counts.",
+  "challengeRuleWindow": "Workouts from the start of the challenge count, even from before you joined.",
+  "challengeRuleWorkouts": "Every finished workout with at least one logged set counts. Log it by the end of the next day.",
+  "challengeStartsIn": "{count, plural, =1{Starts in 1 day} other{Starts in {count} days}}",
+  "challengeStartsTomorrow": "Starts tomorrow",
+  "challengeToGo": "{amount} to go",
+  "challengeUnitActiveDays": "{count, plural, =1{active day} other{active days}}",
+  "challengeUnitCheckIns": "{count, plural, =1{check-in} other{check-ins}}",
+  "challengeUnitMinutes": "min",
+  "challengeUnitWorkouts": "{count, plural, =1{workout} other{workouts}}",
+  "challengeUpcoming": "Upcoming",
+  "challengeYourRank": "You're #{rank}",
+  "challengesEmptyJoin": "Nothing open to join right now. New challenges start every month.",
+  "challengesEmptyMedals": "Finish a challenge to earn your first medal.",
+  "challengesEmptyMine": "You're not in a challenge yet. Pick one and start moving.",
+  "challengesLoadFailed": "Couldn't load challenges.",
+  "challengesRetry": "Try again",
+  "challengesTabJoin": "Join",
+  "challengesTabMedals": "Medals",
+  "challengesTabMine": "Mine",
+  "challengesTitle": "Challenges",
   "chatAccept": "Accept",
   "chatAddCount": "{count, plural, =1{Add 1 person} other{Add {count} people}}",
   "chatAddPeople": "Add people",
@@ -5135,6 +6294,53 @@
   "mediaTrimWindow": "Trimmed clip, drag to move",
   "mediaUndo": "Undo",
   "mediaVideoNumber": "Video {index}",
+  "nativeHealthApple": "Apple Health",
+  "nativeHealthConnect": "Connect {platform}",
+  "nativeHealthConnectSubtitle": "Import weigh-ins, show steps and sleep on Home, and save your workouts and water there.",
+  "nativeHealthConnectedTo": "Connected to {platform}",
+  "nativeHealthDenied": "{platform} access wasn't granted.",
+  "nativeHealthDisconnect": "Disconnect",
+  "nativeHealthDisconnected": "Disconnected from {platform}.",
+  "nativeHealthDisconnectedIos": "Disconnected. To remove access completely, open the Health app → your profile → Apps → Gym Bro.",
+  "nativeHealthFailed": "Couldn't connect: {error}",
+  "nativeHealthGoogle": "Health Connect",
+  "nativeHealthImportWeight": "Import weigh-ins",
+  "nativeHealthImportWeightSubtitle": "New ones from the last 30 days, at most one a day, only on days without a measurement.",
+  "nativeHealthImported": "{count, plural, =0{No new weigh-ins} =1{Imported 1 weigh-in} other{Imported {count} weigh-ins}}",
+  "nativeHealthInstall": "Install",
+  "nativeHealthLastChecked": "Weigh-ins last checked {when}",
+  "nativeHealthNeverChecked": "Weigh-ins not checked yet",
+  "nativeHealthNoData": "No data",
+  "nativeHealthNotInstalled": "Health Connect isn't installed or needs an update.",
+  "nativeHealthOnThisDevice": "Only on this device",
+  "nativeHealthSection": "Health",
+  "nativeHealthShowActivity": "Steps and sleep on Home",
+  "nativeHealthShowActivitySubtitle": "Today's steps and last night's sleep on the Today dashboard.",
+  "nativeHealthSleep": "Sleep",
+  "nativeHealthSleepDuration": "{hours} h {minutes} min",
+  "nativeHealthSleepLastNight": "last night",
+  "nativeHealthSteps": "Steps",
+  "nativeHealthStepsToday": "today",
+  "nativeHealthSyncNow": "Sync now",
+  "nativeHealthTodaySemantics": "{steps} steps today, {sleep} of sleep last night",
+  "nativeHealthWeighInNote": "From {platform}",
+  "nativeHealthWriteWater": "Save water",
+  "nativeHealthWriteWaterSubtitle": "Each drink you log is saved.",
+  "nativeHealthWriteWorkouts": "Save workouts",
+  "nativeHealthWriteWorkoutsSubtitle": "Workouts you finish are saved as strength training.",
+  "nativeRestAdd30": "+30 s",
+  "nativeRestBody": "Rest between sets",
+  "nativeRestChannel": "Rest timer",
+  "nativeRestChannelDescription": "The countdown between sets while you train.",
+  "nativeRestNext": "Next: {name}",
+  "nativeRestOverBody": "Time for your next set",
+  "nativeRestOverTitle": "Rest's over",
+  "nativeRestSkip": "Skip",
+  "nativeRestTitle": "Rest",
+  "nativeWidgetOpenApp": "Open Gym Bro to refresh",
+  "nativeWidgetSignedOut": "Sign in to Gym Bro",
+  "nativeWidgetStreak": "Streak",
+  "nativeWidgetToday": "Today",
   "nutritionAdd": "Add",
   "nutritionAddFoodItem": "Add food item",
   "nutritionAddFoodTitle": "Add food",
@@ -5520,6 +6726,79 @@
   "nutritionYesterday": "Yesterday",
   "nutritionYourCoachFallback": "your coach",
   "nutritionYours": "Yours",
+  "onboardingBack": "Back",
+  "onboardingBodyBody": "Optional. It sets your water goal and the goal line on your weight chart.",
+  "onboardingBodyTitle": "About you",
+  "onboardingContinue": "Continue",
+  "onboardingCurrentWeight": "Current weight",
+  "onboardingDaysBody": "Pick a number you can keep up with. Consistency beats intensity.",
+  "onboardingDaysEasy": "A gentle start",
+  "onboardingDaysIntense": "Serious dedication",
+  "onboardingDaysSteady": "A solid routine",
+  "onboardingDaysStreak": "Hit it every week to keep your streak alive. Plans count too.",
+  "onboardingDaysTitle": "How many days a week will you train?",
+  "onboardingDaysValue": "{count, plural, =1{1 day a week} other{{count} days a week}}",
+  "onboardingDoneBody": "Here's your setup. Tap anything to change it.",
+  "onboardingDoneTitle": "You're all set!",
+  "onboardingFinish": "Let's go",
+  "onboardingGoalBody": "Pick the one that matters most right now.",
+  "onboardingGoalBuildMuscle": "Build muscle",
+  "onboardingGoalBuildMuscleHint": "Add size and shape",
+  "onboardingGoalEndurance": "Endurance",
+  "onboardingGoalEnduranceHint": "Go longer and recover faster",
+  "onboardingGoalGetStronger": "Get stronger",
+  "onboardingGoalGetStrongerHint": "Lift heavier and hit new PRs",
+  "onboardingGoalLoseFat": "Lose fat",
+  "onboardingGoalLoseFatHint": "Lean out and feel lighter",
+  "onboardingGoalStayFit": "Stay fit",
+  "onboardingGoalStayFitHint": "Keep healthy, active and moving",
+  "onboardingGoalTitle": "What's your main goal?",
+  "onboardingGoalWeight": "Goal weight",
+  "onboardingGoalWeightSuggested": "Suggested for your goal. Change it or clear it.",
+  "onboardingOptional": "Optional",
+  "onboardingProgress": "Step {current} of {total}",
+  "onboardingRedo": "Redo setup",
+  "onboardingRedoSubtitle": "Goal, training days, weight and water",
+  "onboardingSaveFailed": "Couldn't save your setup. We'll ask again next time.",
+  "onboardingSkip": "Skip",
+  "onboardingStart": "Get started",
+  "onboardingSummaryDays": "Training",
+  "onboardingSummaryGoal": "Goal",
+  "onboardingSummaryGoalOnly": "Goal: {goal}",
+  "onboardingSummaryNotSet": "Not set",
+  "onboardingSummaryWater": "Water",
+  "onboardingSummaryWaterAuto": "{amount} a day (auto)",
+  "onboardingSummaryWaterCustom": "{amount} a day",
+  "onboardingSummaryWeight": "Weight",
+  "onboardingSummaryWeightGoal": "{current} → {goal}",
+  "onboardingUnits": "Units",
+  "onboardingWaterAuto": "Auto: about 35 ml per kg of body weight",
+  "onboardingWaterAutoNoWeight": "Auto: a good default until you add your weight",
+  "onboardingWaterBody": "Staying hydrated makes every workout better.",
+  "onboardingWaterCustom": "Your own goal",
+  "onboardingWaterGlasses": "{count, plural, =1{about 1 glass of 250 ml} other{about {count} glasses of 250 ml}}",
+  "onboardingWaterLess": "Less water",
+  "onboardingWaterLiters": "{liters} L",
+  "onboardingWaterMore": "More water",
+  "onboardingWaterTitle": "Your daily water goal",
+  "onboardingWaterUseAuto": "Use auto",
+  "onboardingWeightInvalid": "Enter a weight between {min} and {max}",
+  "onboardingWelcomeBody": "A few quick questions and your training, streak and goals are ready. It takes under a minute.",
+  "onboardingWelcomeGoals": "Set goals and watch yourself get there",
+  "onboardingWelcomeLater": "You can change all of this later in Settings.",
+  "onboardingWelcomeStreak": "Build a streak that keeps you coming back",
+  "onboardingWelcomeTitle": "Welcome to Gym Bro",
+  "onboardingWelcomeTrack": "Log every workout and PR",
+  "overloadLast": "Last: {sets}",
+  "overloadLastReps": "Last: {reps} reps",
+  "overloadReasonAddRep": "Same weight, one more rep",
+  "overloadReasonAddWeight": "Hit all reps last time → +{increment}",
+  "overloadReasonBodyweight": "One more rep than last time",
+  "overloadReasonDeload": "{days} days off → ease back in (−10%)",
+  "overloadTry": "Try {weight} × {reps}",
+  "overloadTryReps": "{count, plural, =1{Try 1 rep} other{Try {count} reps}}",
+  "overloadUse": "Use",
+  "overloadUseHint": "Fills in the suggestion",
   "peopleAccept": "Accept",
   "peopleAddFriend": "Add friend",
   "peopleBio": "Bio",
@@ -5766,6 +7045,32 @@
   "planTotal": "Total",
   "planUnskip": "Put back on the plan",
   "planWorkoutFallback": "Workout",
+  "polishEmptyChallengesAction": "Browse challenges",
+  "polishEmptyChallengesJoinTitle": "Nothing to join right now",
+  "polishEmptyChallengesTitle": "No challenges yet",
+  "polishEmptyNotificationsBody": "Likes, comments, follows and class updates show up here.",
+  "polishEmptyWorkoutsAction": "Start your first workout",
+  "polishEmptyWorkoutsBody": "Log a session and it will show up here.",
+  "polishEmptyWorkoutsTitle": "No workouts yet",
+  "polishFeedFindPeople": "Find people to follow",
+  "polishFindPeople": "Find people",
+  "polishFindPeopleRequests": "{count, plural, =1{Find people, 1 request} other{Find people, {count} requests}}",
+  "polishSeeAll": "See all",
+  "polishStartChat": "Start a chat",
+  "polishTabTrain": "Train",
+  "polishTrainChallengesSubtitle": "Compete with friends and your gym",
+  "polishTrainExercisesSubtitle": "The library, with how-tos",
+  "polishTrainHeroBody": "Follow a workout or log a free session.",
+  "polishTrainHeroTitle": "Ready to train?",
+  "polishTrainLast7Days": "Last 7 days",
+  "polishTrainPlanTrack": "Plan & track",
+  "polishTrainProgress": "Progress & PRs",
+  "polishTrainProgressSubtitle": "Lifts, records and body stats",
+  "polishTrainRecent": "Recent sessions",
+  "polishTrainRoutinesSubtitle": "Your routines and plans",
+  "polishTrainStatMinutes": "Minutes",
+  "polishTrainStatSets": "Sets",
+  "polishTrainStatWorkouts": "Workouts",
   "postShareAction": "Share as post",
   "postShareBestReps": "best {reps} reps",
   "postShareBestSet": "best {weight} × {reps}",
@@ -5799,6 +7104,12 @@
   "postShareWorkoutFinished": "Workout finished",
   "postShareWorkoutLogged": "Workout logged",
   "postShareWorkouts": "{count, plural, =1{1 workout} other{{count} workouts}}",
+  "postingDiscard": "Discard",
+  "postingDone": "Posted",
+  "postingFailed": "Couldn't post.",
+  "postingInProgress": "Posting…",
+  "postingProgressLabel": "Posting, {percent}% done",
+  "postingRetry": "Retry",
   "postsAdvancedSettings": "Advanced settings",
   "postsAllPosts": "All posts",
   "postsCollectionEmpty": "No posts in this collection yet",
@@ -6512,6 +7823,41 @@
   "tagsTapToTag": "Tap the photo to tag people",
   "tagsTitle": "Tag people",
   "tagsTitleOf": "Tag people · {index}/{count}",
+  "todayAllDone": "All done for today",
+  "todayAllDoneHint": "Nice work. Rest up, or squeeze in another session.",
+  "todayCalories": "Calories",
+  "todayCarbShort": "C",
+  "todayClassWith": "with {trainer}",
+  "todayEntryDone": "Done",
+  "todayEntrySkipped": "Skipped",
+  "todayFatShort": "F",
+  "todayFreeDay": "Free day",
+  "todayFreeDayHint": "Nothing planned today. Feel like moving anyway?",
+  "todayGreetingAfternoon": "Good afternoon, {name}",
+  "todayGreetingEvening": "Good evening, {name}",
+  "todayGreetingMorning": "Good morning, {name}",
+  "todayKcalLogged": "kcal logged",
+  "todayKcalOf": "of {target} kcal",
+  "todayKcalSemantics": "Calories today: {eaten} kcal",
+  "todayKcalTargetSemantics": "Calories today: {eaten} of {target} kcal",
+  "todayNextClass": "Next class",
+  "todayOpenDiary": "Open the food diary",
+  "todayProteinShort": "P",
+  "todayShortcuts": "Shortcuts",
+  "todayStartAnother": "Start another",
+  "todayStartAnyway": "Start a workout anyway",
+  "todayStartFailed": "Couldn't start the workout: {error}",
+  "todayStartWorkout": "Start workout",
+  "todayTomorrow": "Tomorrow",
+  "todayTraining": "Today's training",
+  "todayWaitlisted": "Waitlist",
+  "todayWeight": "Weight",
+  "todayWeightChange": "{change} in 30 days",
+  "todayWeightOne": "Your first weigh-in",
+  "todayWeightSteady": "Steady over 30 days",
+  "todayWeightTrend": "Weight trend over the last 30 days",
+  "todayWorkoutFallback": "Workout",
+  "todayWorkoutWhen": "{time} · {minutes} min",
   "trainerClassesPickerCustomer": "Customer",
   "trainerClassesPickerCustomerPending": "Invite pending",
   "trainerClassesPickerEmpty": "No one found. You can add your followers, members of gyms where you coach, and your customers.",
@@ -7072,6 +8418,62 @@
   "trainingWorkoutsTabTrainings": "Trainings",
   "trainingWorkoutsTitle": "Workouts",
   "trainingWorkoutsToMeEmpty": "No routines assigned to you yet.\nYour coach's assignments show up here.",
+  "waterAdd": "Add",
+  "waterAddCup": "Add {amount}",
+  "waterAddFailed": "Couldn't log that drink: {error}",
+  "waterAdded": "Added {amount}",
+  "waterAddedGoal": "Added {amount}. Daily goal reached!",
+  "waterAverage": "Daily average",
+  "waterBottleSemantics": "Water today: {drunk} of {goal}, {percent} percent",
+  "waterChartSemantics": "Water per day over the last {count} days, {reached} of them at the goal",
+  "waterCustom": "Custom",
+  "waterCustomInvalid": "Enter 1 to 3000 ml",
+  "waterCustomLabel": "Amount (ml)",
+  "waterCustomTitle": "Add water",
+  "waterDaysReached": "Goal met",
+  "waterDaysReachedValue": "{count} of {total} days",
+  "waterGoalLine": "Goal",
+  "waterGoalReached": "Goal reached!",
+  "waterHistory": "History",
+  "waterHistoryDays": "{count} days",
+  "waterLeft": "{amount} to go",
+  "waterLiters": "{amount} l",
+  "waterLoadFailed": "Couldn't load your water.",
+  "waterMl": "{amount} ml",
+  "waterNoEntries": "Nothing yet today. Tap a cup to log your first drink.",
+  "waterOfGoal": "of {goal}",
+  "waterOpenTracker": "Open the water tracker",
+  "waterProgress": "{drunk} of {goal}",
+  "waterReminderBody": "A glass now keeps you on track for the day.",
+  "waterReminderBodyLeft": "{amount} to go for today's goal.",
+  "waterReminderChannel": "Water reminders",
+  "waterReminderChannelDescription": "Reminders to drink water through the day",
+  "waterReminderTitle": "Time for some water",
+  "waterRemoved": "Removed {amount}",
+  "waterRingHint": "Tap to add {amount}, hold to open the water tracker",
+  "waterSettingsAddCup": "Add a size",
+  "waterSettingsCups": "Cup sizes",
+  "waterSettingsCupsHelp": "Up to four quick-add sizes, from 50 to 2000 ml.",
+  "waterSettingsGoal": "Daily goal",
+  "waterSettingsGoalAuto": "Automatic · {amount}",
+  "waterSettingsGoalAutoHelp": "About 35 ml per kg of your latest body weight (2.5 l without one). Workout days add 500 ml.",
+  "waterSettingsGoalCustom": "Custom · {amount}",
+  "waterSettingsGoalCustomHelp": "Your own goal. Workout days still add 500 ml.",
+  "waterSettingsGoalTitle": "Daily water goal",
+  "waterSettingsLess": "Less",
+  "waterSettingsMore": "More",
+  "waterSettingsPermissionDenied": "Allow notifications for Gym Bro to get water reminders.",
+  "waterSettingsReminders": "Reminders",
+  "waterSettingsRemindersHelp": "Every 2 hours from 9:00 to 21:00, stopping once you reach the day's goal.",
+  "waterSettingsRemoveCup": "Remove this size",
+  "waterSettingsUseAuto": "Automatic",
+  "waterSettingsUseCustom": "Custom",
+  "waterStreak": "In a row",
+  "waterStreakValue": "{count, plural, =1{1 day} other{{count} days}}",
+  "waterTitle": "Water",
+  "waterTodayEntries": "Today's drinks",
+  "waterUndo": "Undo",
+  "waterWorkoutBonus": "+{amount} for today's workout",
   "workoutCompleteDone": "Done",
   "workoutCompleteDuration": "Duration",
   "workoutCompleteForClient": "Logged for {name}",
@@ -7145,5 +8547,63 @@
   "workoutTrainingRoutinesHint": "Your routines this training is part of. New ones get it at the end; set its week and day in the routine.",
   "workoutTrainingRoutinesLoading": "Loading your routines…",
   "workoutTrainingRoutinesUnavailable": "Couldn't load your routines",
-  "workoutTrainingSaveAsCopy": "Save as a new training"
+  "workoutTrainingSaveAsCopy": "Save as a new training",
+  "wrappedActiveDays": "{count, plural, =1{on 1 day} other{on {count} different days}}",
+  "wrappedBadges": "Badges earned",
+  "wrappedBannerBody": "Workouts, lifts, streaks and more.",
+  "wrappedBannerCta": "Watch it",
+  "wrappedBannerKicker": "Gym Bro Wrapped",
+  "wrappedBannerTitle": "Your {year} in training is ready",
+  "wrappedBestLifts": "Your strongest lifts (estimated 1RM)",
+  "wrappedBestMonth": "Biggest month: {month}, {count, plural, =1{1 workout} other{{count} workouts}}",
+  "wrappedBusiestDay": "{day} was your day",
+  "wrappedChallenges": "{count, plural, =1{1 challenge completed} other{{count} challenges completed}}",
+  "wrappedCheckIns": "{count, plural, =1{check-in} other{check-ins}}",
+  "wrappedClasses": "{count, plural, =1{1 class attended} other{{count} classes attended}}",
+  "wrappedClose": "Close",
+  "wrappedDone": "Done",
+  "wrappedEmptyBody": "Nothing was logged in {year}. Your next Wrapped starts with your next workout.",
+  "wrappedEmptyTitle": "A quiet year",
+  "wrappedFavouriteGym": "Your second home",
+  "wrappedFavouriteHour": "Favourite time to train: {time}",
+  "wrappedFirstWorkout": "It all started on {date}.",
+  "wrappedGymKicker": "At the gym",
+  "wrappedHours": "{hours} hours of training",
+  "wrappedInARow": "{count, plural, =1{workout in a row} other{workouts in a row}}",
+  "wrappedIntroHint": "Tap to begin",
+  "wrappedIntroKicker": "Your year in training",
+  "wrappedIntroWord": "Wrapped",
+  "wrappedLiftDetail": "{weight} × {reps}",
+  "wrappedLoadFailed": "Couldn't load your Wrapped.",
+  "wrappedLongestStreak": "Longest streak",
+  "wrappedNext": "Next",
+  "wrappedNoData": "No workouts were logged in {year}.",
+  "wrappedNotYet": "Your {year} Wrapped opens on {date}.",
+  "wrappedPrCount": "{count, plural, =0{No new PRs} =1{new PR} other{new PRs}}",
+  "wrappedPrKicker": "Personal records",
+  "wrappedPrevious": "Previous",
+  "wrappedRetry": "Try again",
+  "wrappedRhythmKicker": "Your rhythm",
+  "wrappedSetsReps": "{sets} sets · {reps} reps",
+  "wrappedShare": "Share to story",
+  "wrappedShareFailed": "Couldn't create the image.",
+  "wrappedSlideLabel": "Slide {index} of {count}",
+  "wrappedStreakKicker": "Consistency",
+  "wrappedSummaryDays": "Active days",
+  "wrappedSummaryHours": "Hours",
+  "wrappedSummaryKicker": "That's a wrap",
+  "wrappedSummaryPrs": "PRs",
+  "wrappedSummaryStreak": "Best streak",
+  "wrappedSummaryTop": "Top exercise",
+  "wrappedSummaryVolume": "Lifted",
+  "wrappedSummaryWorkouts": "Workouts",
+  "wrappedTitle": "Gym Bro Wrapped",
+  "wrappedTopKicker": "Your most-trained exercises",
+  "wrappedTopSets": "{count, plural, =1{1 set} other{{count} sets}}",
+  "wrappedVolumeCars": "{count, plural, =1{That's about 1 car 🚗} other{That's about {count} cars 🚗}}",
+  "wrappedVolumeElephants": "{count, plural, =1{That's about 1 elephant 🐘} other{That's about {count} elephants 🐘}}",
+  "wrappedVolumeKicker": "In total you lifted",
+  "wrappedVolumePianos": "{count, plural, =1{That's about 1 grand piano 🎹} other{That's about {count} grand pianos 🎹}}",
+  "wrappedWorkoutsKicker": "This year you showed up for",
+  "wrappedWorkoutsUnit": "{count, plural, =1{workout} other{workouts}}"
 }

@@ -64,10 +64,13 @@ const NOTIFICATION_TYPES: readonly NotificationType[] = [
   "post_reaction",
   "comment_reply",
   "streak",
+  "challenge",
+  "wrapped",
 ];
 
 const WEIGHT_UNITS = ["kg", "lb"] as const;
 const THEME_MODES = ["system", "light", "dark"] as const;
+const FITNESS_GOALS = ["lose_fat", "build_muscle", "get_stronger", "stay_fit", "endurance"] as const;
 
 type SettingsBody = {
   push_enabled: boolean;
@@ -78,6 +81,13 @@ type SettingsBody = {
   weekly_workout_target: number;
   show_on_gym_boards: boolean;
   timezone: string | null;
+  fitness_goal: (typeof FITNESS_GOALS)[number] | null;
+  goal_weight_kg: number | null;
+  // null: worked out from body weight on the client.
+  water_goal_ml: number | null;
+  water_cups: number[];
+  water_reminders: boolean;
+  onboarded_at: string | null;
 };
 
 const DEFAULT_SETTINGS: SettingsBody = {
@@ -89,6 +99,12 @@ const DEFAULT_SETTINGS: SettingsBody = {
   weekly_workout_target: 3,
   show_on_gym_boards: true,
   timezone: null,
+  fitness_goal: null,
+  goal_weight_kg: null,
+  water_goal_ml: null,
+  water_cups: [250, 500],
+  water_reminders: false,
+  onboarded_at: null,
 };
 
 // ── Auth helpers ──────────────────────────────────────────────────────────────
@@ -228,6 +244,12 @@ async function loadSettings(userId: string): Promise<SettingsBody & { updated_at
       "weekly_workout_target",
       "show_on_gym_boards",
       "timezone",
+      "fitness_goal",
+      sql<number | null>`goal_weight_kg::float8`.as("goal_weight_kg"),
+      "water_goal_ml",
+      "water_cups",
+      "water_reminders",
+      "onboarded_at",
       "updated_at",
     ])
     .where("user_id", "=", userId)
@@ -248,6 +270,12 @@ function parseSettings(body: Record<string, unknown>): Partial<SettingsBody> | s
     "weekly_workout_target",
     "show_on_gym_boards",
     "timezone",
+    "fitness_goal",
+    "goal_weight_kg",
+    "water_goal_ml",
+    "water_cups",
+    "water_reminders",
+    "onboarded",
   ];
   const unknown = Object.keys(body).filter((k) => !known.includes(k) && k !== "updated_at" && k !== "user_id");
   if (unknown.length > 0) return `Unknown settings: ${unknown.join(", ")}`;
@@ -297,6 +325,46 @@ function parseSettings(body: Record<string, unknown>): Partial<SettingsBody> | s
     const tz = body.timezone;
     if (tz !== null && (typeof tz !== "string" || !isTimezone(tz))) return "timezone must be an IANA zone or null";
     out.timezone = tz as string | null;
+  }
+  if ("fitness_goal" in body) {
+    const g = body.fitness_goal;
+    if (g !== null && !FITNESS_GOALS.includes(g as (typeof FITNESS_GOALS)[number])) {
+      return `fitness_goal must be one of: ${FITNESS_GOALS.join(", ")}, or null`;
+    }
+    out.fitness_goal = g as SettingsBody["fitness_goal"];
+  }
+  if ("goal_weight_kg" in body) {
+    const w = body.goal_weight_kg;
+    if (w !== null && (typeof w !== "number" || !Number.isFinite(w) || w < 20 || w > 400)) {
+      return "goal_weight_kg must be a number from 20 to 400, or null";
+    }
+    out.goal_weight_kg = w === null ? null : Math.round(w * 10) / 10;
+  }
+  if ("water_goal_ml" in body) {
+    const ml = body.water_goal_ml;
+    if (ml !== null && (typeof ml !== "number" || !Number.isInteger(ml) || ml < 500 || ml > 8000)) {
+      return "water_goal_ml must be a whole number from 500 to 8000, or null";
+    }
+    out.water_goal_ml = ml as number | null;
+  }
+  if ("water_cups" in body) {
+    const cups = body.water_cups;
+    if (
+      !Array.isArray(cups) || cups.length < 1 || cups.length > 4 ||
+      cups.some((c) => typeof c !== "number" || !Number.isInteger(c) || c < 50 || c > 2000)
+    ) {
+      return "water_cups must be 1 to 4 whole numbers from 50 to 2000 (ml)";
+    }
+    out.water_cups = cups as number[];
+  }
+  if ("water_reminders" in body) {
+    if (typeof body.water_reminders !== "boolean") return "water_reminders must be a boolean";
+    out.water_reminders = body.water_reminders;
+  }
+  // {onboarded: true} stamps onboarded_at (false clears it, to see the flow again).
+  if ("onboarded" in body) {
+    if (typeof body.onboarded !== "boolean") return "onboarded must be a boolean";
+    out.onboarded_at = body.onboarded ? new Date().toISOString() : null;
   }
   return out;
 }
@@ -764,7 +832,8 @@ Deno.serve(async (req: Request) => {
 
   // ── PUT /users/me/settings ───────────────────────────────────────────────────
   // Partial update: {push_enabled?, muted_types?, weight_unit?, theme_mode?, locale?,
-  // weekly_workout_target?, show_on_gym_boards?, timezone?}.
+  // weekly_workout_target?, show_on_gym_boards?, timezone?, fitness_goal?,
+  // goal_weight_kg?, water_goal_ml?, water_cups?, water_reminders?, onboarded?}.
   // Returns the full settings after the write.
   if (req.method === "PUT" && pathname === "/users/me/settings") {
     const body = await req.json().catch(() => null);
@@ -1031,6 +1100,7 @@ Deno.serve(async (req: Request) => {
       .where("author_id", "=", id).where("storage_path", "is not", null).execute();
     const pendingUploads = await db.selectFrom("media_upload").select(["bucket", "storage_path"])
       .where("uploader_id", "=", id).where("claimed_at", "is", null).execute();
+    const progressPhotos = await db.selectFrom("progress_photo").select("path").where("user_id", "=", id).execute();
 
     await db.transaction().execute(async (trx) => {
       await trx.deleteFrom("post").where("author_id", "=", id).where("business_id", "is", null).execute();
@@ -1050,6 +1120,10 @@ Deno.serve(async (req: Request) => {
       ...pendingUploads.filter((u) => u.bucket === "user-media").map((u) => u.storage_path),
     ]);
     await removeObjects("chat-media", pendingUploads.filter((u) => u.bucket === "chat-media").map((u) => u.storage_path));
+    await removeObjects("progress-photos", [
+      ...progressPhotos.map((p) => p.path),
+      ...pendingUploads.filter((u) => u.bucket === "progress-photos").map((u) => u.storage_path),
+    ]);
 
     if (target.auth_id) {
       const { error: authDelErr } = await supabaseAdmin.auth.admin.deleteUser(target.auth_id);

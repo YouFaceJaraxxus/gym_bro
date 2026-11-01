@@ -4,12 +4,10 @@ import '../../l10n/l10n.dart';
 import '../../media_editor/edited_media_view.dart';
 import '../../media_editor/editable_media.dart';
 import '../../media_editor/media_editor_page.dart';
-import '../../models/chat.dart';
 import '../../models/mention.dart';
 import '../../models/shared_content.dart';
 import '../../models/story.dart';
-import '../../services/api_service.dart';
-import '../../services/auth_manager.dart';
+import '../../services/post_upload_queue.dart';
 import '../../services/media_upload.dart';
 import '../../widgets/mentions.dart';
 import '../../widgets/shared_content_card.dart';
@@ -17,9 +15,13 @@ import '../../widgets/social_widgets.dart';
 import 'story_poll.dart';
 
 /// The story composer: a photo/video, text on a colour, or — with [share] —
-/// the shared thing as a card on a colour. Returns the posted story.
-Future<Story?> openStoryComposer(BuildContext context, {ShareRequest? share}) =>
-    Navigator.of(context).push<Story>(MaterialPageRoute(fullscreenDialog: true, builder: (_) => StoryComposerPage(share: share)));
+/// the shared thing as a card on a colour; with [media], that photo (e.g. a
+/// rendered recap card) ready to post. Posting doesn't wait: the story is
+/// queued ([PostUploadQueue]) and returned, so callers can follow it (the
+/// feed shows it in its "Posting…" bar; elsewhere see [followPending]).
+Future<PendingPost?> openStoryComposer(BuildContext context, {ShareRequest? share, PickedMedia? media}) =>
+    Navigator.of(context).push<PendingPost>(
+        MaterialPageRoute(fullscreenDialog: true, builder: (_) => StoryComposerPage(share: share, media: media)));
 
 /// Composes one story. Without [share] it starts as a text story; "Photo or
 /// video" switches to media (editable, with an optional caption). The
@@ -27,34 +29,34 @@ Future<Story?> openStoryComposer(BuildContext context, {ShareRequest? share}) =>
 /// text mentions people; the poll button adds a poll sticker. It's posted to
 /// "Your story" (everyone who can see my stories) or "Close friends" only.
 class StoryComposerPage extends StatefulWidget {
-  const StoryComposerPage({super.key, this.share});
+  const StoryComposerPage({super.key, this.share, this.media});
 
   final ShareRequest? share;
+
+  /// A photo or video to start with.
+  final PickedMedia? media;
 
   @override
   State<StoryComposerPage> createState() => _StoryComposerPageState();
 }
 
 class _StoryComposerPageState extends State<StoryComposerPage> {
-  final _api = ApiService();
   final _text = MentionTextEditingController();
   final _textFocus = FocusNode();
   EditableMedia? _media;
   StoryPoll? _poll;
   String _background = kStoryBackgrounds.first;
-  bool _posting = false;
 
   /// What's being posted to (for the progress on its button).
-  String _audience = kStoryAudienceEveryone;
-  double _progress = 0;
 
   ShareRequest? get _share => widget.share;
   bool get _dirty => _media != null || _poll != null || _text.text.trim().isNotEmpty;
-  bool get _canPost => !_posting && (_media != null || _share != null || _poll != null || _text.text.trim().isNotEmpty);
+  bool get _canPost => (_media != null || _share != null || _poll != null || _text.text.trim().isNotEmpty);
 
   @override
   void initState() {
     super.initState();
+    if (widget.media != null) _media = EditableMedia(widget.media!);
     _text.addListener(() => setState(() {}));
   }
 
@@ -91,56 +93,23 @@ class _StoryComposerPageState extends State<StoryComposerPage> {
       return;
     }
     FocusScope.of(context).unfocus();
-    final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.of(context);
-    setState(() {
-      _posting = true;
-      _audience = audience;
-      _progress = 0;
-    });
-    try {
-      OutgoingAttachment? attachment;
-      final media = _media;
-      if (media != null) {
-        final PickedMedia file;
-        try {
-          file = await media.export();
-        } catch (_) {
-          throw Exception(l10n.mediaEditFailed);
-        }
-        final token = await AuthManager.instance.getValidToken();
-        final slot = await _api.requestStoryUpload(token, mimeType: file.mimeType, sizeBytes: file.sizeBytes, fileName: file.fileName);
-        try {
-          await uploadFileToSlot(slot, file, onProgress: (p) {
-            if (mounted) setState(() => _progress = p);
-          });
-        } catch (_) {
-          throw Exception(l10n.socialUploadFailed);
-        }
-        attachment = file.attachment(slot.path);
-      }
-      final token = await AuthManager.instance.getValidToken();
-      final story = await _api.createStory(
-        token,
-        media: attachment,
+    // Uploads in the background; the queue keeps what was composed for a retry.
+    final pending = PostUploadQueue.instance.enqueueStory(
+      StoryComposition(
+        media: _media,
         caption: _text.markup,
-        background: attachment == null ? _background : null,
+        background: _background,
         share: _share,
         audience: audience,
         poll: _poll,
-      );
-      if (mounted) Navigator.of(context).pop(story);
-    } on FutureActivityException {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.postShareFutureBlocked)));
-    } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))));
-    } finally {
-      if (mounted) setState(() => _posting = false);
-    }
+      ),
+      l10n: context.l10n,
+    );
+    Navigator.of(context).pop(pending);
   }
 
   Future<bool> _confirmDiscard() async {
-    if (!_dirty || _posting) return !_posting;
+    if (!_dirty) return true;
     final l10n = context.l10n;
     final ok = await showDialog<bool>(
       context: context,
@@ -160,7 +129,7 @@ class _StoryComposerPageState extends State<StoryComposerPage> {
     final l10n = context.l10n;
     final media = _media;
     return PopScope(
-      canPop: !_dirty && !_posting,
+      canPop: !_dirty,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         if (await _confirmDiscard() && context.mounted) Navigator.of(context).pop();
@@ -177,21 +146,21 @@ class _StoryComposerPageState extends State<StoryComposerPage> {
                 IconButton(
                   tooltip: l10n.storyComposerPickMedia,
                   icon: const Icon(Icons.add_photo_alternate_outlined),
-                  onPressed: _posting ? null : _pickMedia,
+                  onPressed: _pickMedia,
                 ),
               IconButton(
                 key: const ValueKey('story-poll'),
                 tooltip: _poll == null ? l10n.storyPollAdd : l10n.storyPollEdit,
                 icon: const Icon(Icons.poll_outlined),
-                onPressed: _posting ? null : _editPoll,
+                onPressed: _editPoll,
               ),
               if (media != null && media.canEdit)
-                IconButton(tooltip: l10n.storyComposerEdit, icon: const Icon(Icons.tune), onPressed: _posting ? null : _edit),
+                IconButton(tooltip: l10n.storyComposerEdit, icon: const Icon(Icons.tune), onPressed: _edit),
               if (media != null)
                 IconButton(
                   tooltip: l10n.storyComposerRemoveMedia,
                   icon: const Icon(Icons.close),
-                  onPressed: _posting ? null : () => setState(() => _media = null),
+                  onPressed: () => setState(() => _media = null),
                 ),
             ],
           ),
@@ -204,7 +173,6 @@ class _StoryComposerPageState extends State<StoryComposerPage> {
                 ),
               ),
               if (media == null) _colourRow(),
-              if (_posting) LinearProgressIndicator(value: media == null || _progress == 0 ? null : _progress, minHeight: 2),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                 child: Row(children: [
@@ -212,11 +180,9 @@ class _StoryComposerPageState extends State<StoryComposerPage> {
                     child: FilledButton.icon(
                       key: const ValueKey('story-post'),
                       onPressed: _canPost ? _post : null,
-                      icon: _posting && _audience == kStoryAudienceEveryone
-                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.add_circle_outline),
+                      icon: const Icon(Icons.add_circle_outline),
                       label: Text(
-                        _posting && _audience == kStoryAudienceEveryone ? l10n.storyComposerPosting : l10n.storyYourStory,
+                        l10n.storyYourStory,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -228,11 +194,9 @@ class _StoryComposerPageState extends State<StoryComposerPage> {
                       key: const ValueKey('story-post-close-friends'),
                       style: FilledButton.styleFrom(backgroundColor: kCloseFriendsGreen, foregroundColor: Colors.white),
                       onPressed: _canPost ? () => _post(audience: kStoryAudienceCloseFriends) : null,
-                      icon: _posting && _audience == kStoryAudienceCloseFriends
-                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : const Icon(Icons.star_rounded),
+                      icon: const Icon(Icons.star_rounded),
                       label: Text(
-                        _posting && _audience == kStoryAudienceCloseFriends ? l10n.storyComposerPosting : l10n.storyCloseFriends,
+                        l10n.storyCloseFriends,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -259,7 +223,7 @@ class _StoryComposerPageState extends State<StoryComposerPage> {
     final l10n = context.l10n;
     return Stack(clipBehavior: Clip.none, children: [
       GestureDetector(
-        onTap: _posting ? null : _editPoll,
+        onTap: _editPoll,
         child: AbsorbPointer(child: StoryPollSticker(poll: _poll!, maxWidth: 280)),
       ),
       Positioned(
@@ -270,7 +234,7 @@ class _StoryComposerPageState extends State<StoryComposerPage> {
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),
-            onTap: _posting ? null : () => setState(() => _poll = null),
+            onTap: () => setState(() => _poll = null),
             child: Tooltip(
               message: l10n.storyPollRemove,
               child: const Padding(padding: EdgeInsets.all(4), child: Icon(Icons.close, size: 18, color: Colors.white)),
@@ -313,7 +277,6 @@ class _StoryComposerPageState extends State<StoryComposerPage> {
       key: const ValueKey('story-text'),
       controller: _text,
       focusNode: _textFocus,
-      enabled: !_posting,
       maxLength: 500,
       maxLines: caption ? 3 : 8,
       minLines: 1,
@@ -357,7 +320,7 @@ class _StoryComposerPageState extends State<StoryComposerPage> {
                   selected: hex == _background,
                   label: hex,
                   child: GestureDetector(
-                    onTap: _posting ? null : () => setState(() => _background = hex),
+                    onTap: () => setState(() => _background = hex),
                     child: Container(
                       width: 36,
                       height: 36,

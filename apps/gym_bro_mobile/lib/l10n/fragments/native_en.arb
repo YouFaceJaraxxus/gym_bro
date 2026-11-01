@@ -1,0 +1,132 @@
+{
+  "nativeHealthSection": "Health",
+  "nativeHealthApple": "Apple Health",
+  "nativeHealthGoogle": "Health Connect",
+  "nativeHealthConnect": "Connect {platform}",
+  "@nativeHealthConnect": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "nativeHealthConnectSubtitle": "Import weigh-ins, show steps and sleep on Home, and save your workouts and water there.",
+  "nativeHealthConnectedTo": "Connected to {platform}",
+  "@nativeHealthConnectedTo": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "nativeHealthOnThisDevice": "Only on this device",
+  "nativeHealthSyncNow": "Sync now",
+  "nativeHealthLastChecked": "Weigh-ins last checked {when}",
+  "@nativeHealthLastChecked": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "nativeHealthNeverChecked": "Weigh-ins not checked yet",
+  "nativeHealthImportWeight": "Import weigh-ins",
+  "nativeHealthImportWeightSubtitle": "New ones from the last 30 days, at most one a day, only on days without a measurement.",
+  "nativeHealthShowActivity": "Steps and sleep on Home",
+  "nativeHealthShowActivitySubtitle": "Today's steps and last night's sleep on the Today dashboard.",
+  "nativeHealthWriteWorkouts": "Save workouts",
+  "nativeHealthWriteWorkoutsSubtitle": "Workouts you finish are saved as strength training.",
+  "nativeHealthWriteWater": "Save water",
+  "nativeHealthWriteWaterSubtitle": "Each drink you log is saved.",
+  "nativeHealthDisconnect": "Disconnect",
+  "nativeHealthDisconnected": "Disconnected from {platform}.",
+  "@nativeHealthDisconnected": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "nativeHealthDisconnectedIos": "Disconnected. To remove access completely, open the Health app → your profile → Apps → Gym Bro.",
+  "nativeHealthDenied": "{platform} access wasn't granted.",
+  "@nativeHealthDenied": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "nativeHealthNotInstalled": "Health Connect isn't installed or needs an update.",
+  "nativeHealthInstall": "Install",
+  "nativeHealthFailed": "Couldn't connect: {error}",
+  "@nativeHealthFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nativeHealthImported": "{count, plural, =0{No new weigh-ins} =1{Imported 1 weigh-in} other{Imported {count} weigh-ins}}",
+  "@nativeHealthImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nativeHealthWeighInNote": "From {platform}",
+  "@nativeHealthWeighInNote": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "nativeHealthSteps": "Steps",
+  "nativeHealthStepsToday": "today",
+  "nativeHealthSleep": "Sleep",
+  "nativeHealthSleepLastNight": "last night",
+  "nativeHealthSleepDuration": "{hours} h {minutes} min",
+  "@nativeHealthSleepDuration": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "nativeHealthNoData": "No data",
+  "nativeHealthTodaySemantics": "{steps} steps today, {sleep} of sleep last night",
+  "@nativeHealthTodaySemantics": {
+    "placeholders": {
+      "steps": {
+        "type": "String"
+      },
+      "sleep": {
+        "type": "String"
+      }
+    }
+  },
+  "nativeRestTitle": "Rest",
+  "nativeRestBody": "Rest between sets",
+  "nativeRestNext": "Next: {name}",
+  "@nativeRestNext": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nativeRestAdd30": "+30 s",
+  "nativeRestSkip": "Skip",
+  "nativeRestChannel": "Rest timer",
+  "nativeRestChannelDescription": "The countdown between sets while you train.",
+  "nativeWidgetSignedOut": "Sign in to Gym Bro",
+  "nativeWidgetOpenApp": "Open Gym Bro to refresh",
+  "nativeWidgetToday": "Today",
+  "nativeWidgetStreak": "Streak",
+  "nativeRestOverTitle": "Rest's over",
+  "nativeRestOverBody": "Time for your next set"
+}

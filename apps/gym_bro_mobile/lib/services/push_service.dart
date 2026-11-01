@@ -34,6 +34,7 @@ import 'api_service.dart';
 import 'auth_manager.dart';
 import 'realtime_service.dart';
 import 'notification_router.dart';
+import 'rest_activity_service.dart' show restNotificationAction;
 import 'settings_service.dart';
 
 /// Registers this device for push, shows pushes that arrive while the app is
@@ -123,6 +124,8 @@ class PushService {
         ),
         onDidReceiveNotificationResponse: (response) =>
             _openPayload(response.payload),
+        // The rest timer notification's buttons.
+        onDidReceiveBackgroundNotificationResponse: restNotificationAction,
       );
       await _local
           .resolvePlatformSpecificImplementation<

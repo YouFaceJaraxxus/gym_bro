@@ -7,8 +7,11 @@ import '../../models/streak.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../services/settings_service.dart';
+import '../../theme.dart';
 import '../../utils/device_timezone.dart';
+import '../../utils/haptics.dart';
 import '../../widgets/app_bottom_sheet.dart';
+import '../../widgets/skeleton.dart';
 import '../../widgets/streak_widgets.dart';
 import 'gym_board_page.dart';
 
@@ -80,7 +83,7 @@ class _StreakPageState extends State<StreakPage> {
 
   Widget _buildBody() {
     final l10n = context.l10n;
-    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (_loading) return SkeletonList.cards(count: 4, height: 160);
     final s = _status;
     if (s == null) {
       return Center(
@@ -158,6 +161,7 @@ class _StreakSettingsSheetState extends State<_StreakSettingsSheet> {
     final navigator = Navigator.of(context);
     try {
       await _settings.update(weeklyWorkoutTarget: _target, showOnGymBoards: _onBoards);
+      Haptics.tap();
       navigator.pop(true);
     } catch (e) {
       if (!mounted) return;
@@ -210,7 +214,10 @@ class _StreakSettingsSheetState extends State<_StreakSettingsSheet> {
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _onBoards,
-            onChanged: (v) => setState(() => _onBoards = v),
+            onChanged: (v) {
+              Haptics.select();
+              setState(() => _onBoards = v);
+            },
             title: Text(l10n.streakShowOnBoards),
             subtitle: Text(l10n.streakShowOnBoardsHelp),
           ),
@@ -281,10 +288,7 @@ class _Hero extends StatelessWidget {
             curve: Curves.easeOutCubic,
             builder: (_, v, _) => Text(
               '$v',
-              style: text.displayMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
+              style: AppText.stat(size: 72, weight: FontWeight.w800, color: cs.onSurface),
             ),
           ),
           Text(

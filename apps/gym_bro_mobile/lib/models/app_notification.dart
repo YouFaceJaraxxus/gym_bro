@@ -50,7 +50,14 @@ enum NotificationType {
 
   /// My workout streak: at risk, saved by a freeze, ended, or a new badge
   /// (metadata.kind: at_risk | freeze_used | broken | tier).
-  streak('streak');
+  streak('streak'),
+
+  /// A challenge I finished, or a new one at my gym
+  /// (metadata.kind: completed | new, challenge_id).
+  challenge('challenge'),
+
+  /// My yearly recap is ready (metadata.year).
+  wrapped('wrapped');
 
   const NotificationType(this.apiValue);
 

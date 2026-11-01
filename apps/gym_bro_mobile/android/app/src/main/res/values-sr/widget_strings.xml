@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_streak_description">Tvoj niz treninga i upozorenje kada ga današnji trening održava.</string>
+    <string name="widget_water_description">Današnja voda u odnosu na cilj.</string>
+    <string name="widget_today_description">Šta je danas u planu i tvoj niz.</string>
+    <string name="widget_streak_title">Niz</string>
+    <string name="widget_water_title">Voda</string>
+    <string name="widget_today_title">Danas</string>
+    <string name="widget_streak_label">treninga zaredom</string>
+    <string name="widget_open_app">Otvori Gym Bro da osvežiš</string>
+</resources>

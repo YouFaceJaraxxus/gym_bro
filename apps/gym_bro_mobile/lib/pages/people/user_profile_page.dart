@@ -8,11 +8,14 @@ import '../../models/shared_content.dart';
 import '../../models/social.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../utils/haptics.dart';
+import '../../widgets/app_hero.dart';
 import '../../widgets/open_url.dart';
 import '../../widgets/person_tile.dart';
 import '../../widgets/post_grid.dart';
 import '../../widgets/profile_streak_row.dart';
 import '../../widgets/share_sheet.dart';
+import '../../widgets/skeleton.dart';
 import '../../widgets/social_widgets.dart';
 import '../chat/chat_launcher.dart';
 import '../archive/archive_page.dart';
@@ -32,10 +35,13 @@ const _kPostsPageSize = 30;
 
 /// Instagram-like profile of any user, including me.
 class UserProfilePage extends StatefulWidget {
-  const UserProfilePage({super.key, required this.userId});
+  const UserProfilePage({super.key, required this.userId, this.avatarHero});
 
   /// users.id of the person to show (may be me).
   final String userId;
+
+  /// The avatar the user tapped to get here; it flies into the header.
+  final AvatarHeroInfo? avatarHero;
   @override
   State<UserProfilePage> createState() => _UserProfilePageState();
 }
@@ -338,7 +344,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
 
     Navigator.of(context).push<void>(MaterialPageRoute(
-      builder: (_) => PostDetailPage(postId: post.id, initial: post, onDeleted: drop, onArchived: drop),
+      builder: (_) => PostDetailPage(postId: post.id, initial: post, heroScope: 'grid', onDeleted: drop, onArchived: drop),
     ));
   }
 
@@ -469,7 +475,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget _buildBody() {
     final l10n = context.l10n;
     final profile = _profile;
-    if (_loading) return Center(child: CircularProgressIndicator(semanticsLabel: l10n.commonLoading));
+    if (_loading) return _buildLoading();
     if (profile == null) {
       return RefreshIndicator(
         onRefresh: _load,
@@ -496,7 +502,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
 
     return RefreshIndicator(
-      onRefresh: () => Future.wait([_load(), if (_highlights.currentState != null) _highlights.currentState!.refresh()]),
+      onRefresh: () => Haptics.refreshed(
+        () => Future.wait([_load(), if (_highlights.currentState != null) _highlights.currentState!.refresh()]),
+      ),
       child: NotificationListener<ScrollNotification>(
         onNotification: (n) {
           if (n.metrics.pixels > n.metrics.maxScrollExtent - 600) _tab == 0 ? _loadMorePosts() : _loadMoreTagged();
@@ -545,14 +553,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
     if (_tab == 1) return _buildTagged();
     if (_postsLoading && _posts.isEmpty) {
-      return [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Center(child: CircularProgressIndicator(semanticsLabel: l10n.commonLoading)),
-          ),
-        ),
-      ];
+      return const [SliverToBoxAdapter(child: Skeleton(child: SkeletonGrid()))];
     }
     if (_postsError != null && _posts.isEmpty) {
       return [SliverToBoxAdapter(child: PeopleErrorState(message: _postsError!, onRetry: _loadPosts))];
@@ -565,7 +566,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       ];
     }
     return [
-      SliverPostGrid(posts: _posts, onTap: _openPost),
+      SliverPostGrid(posts: _posts, onTap: _openPost, heroScope: 'grid'),
       if (_postsLoadingMore)
         const SliverToBoxAdapter(
           child: Padding(
@@ -575,6 +576,68 @@ class _UserProfilePageState extends State<UserProfilePage> {
         ),
       const SliverToBoxAdapter(child: SizedBox(height: 24)),
     ];
+  }
+
+  /// The first load: the header's shape (with the tapped avatar already in
+  /// place, so its hero lands) over a placeholder grid.
+  Widget _buildLoading() {
+    final hero = widget.avatarHero;
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: Row(
+            children: [
+              hero == null
+                  ? const Skeleton(child: SkeletonCircle(size: 84))
+                  : AppHero(tag: hero.tag, child: UserAvatar(url: hero.url, initials: hero.initials, radius: 42)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Skeleton(
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < 4; i++)
+                        const Expanded(
+                          child: Column(
+                            children: [
+                              SkeletonBox(width: 28, height: 18),
+                              SizedBox(height: 6),
+                              SkeletonBox(width: 44, height: 10),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Skeleton(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SkeletonLine(widthFactor: 0.45, height: 14),
+                SizedBox(height: 8),
+                SkeletonLine(widthFactor: 0.8, height: 11),
+                SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(child: SkeletonBox(height: 36, radius: 10)),
+                    SizedBox(width: 8),
+                    Expanded(child: SkeletonBox(height: 36, radius: 10)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        const Skeleton(child: SkeletonGrid()),
+      ],
+    );
   }
 
   /// Grid / tagged switch under the header (Instagram).
@@ -612,14 +675,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   List<Widget> _buildTagged() {
     final l10n = context.l10n;
     if (_taggedLoading && _tagged.isEmpty) {
-      return [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Center(child: CircularProgressIndicator(semanticsLabel: l10n.commonLoading)),
-          ),
-        ),
-      ];
+      return const [SliverToBoxAdapter(child: Skeleton(child: SkeletonGrid()))];
     }
     if (_taggedError != null && _tagged.isEmpty) {
       return [SliverToBoxAdapter(child: PeopleErrorState(message: _taggedError!, onRetry: _loadTagged))];
@@ -635,7 +691,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       ];
     }
     return [
-      SliverPostGrid(posts: _tagged, onTap: _openPost, showPinned: false),
+      SliverPostGrid(posts: _tagged, onTap: _openPost, showPinned: false, heroScope: 'grid'),
       if (_taggedLoadingMore)
         const SliverToBoxAdapter(
           child: Padding(
@@ -666,7 +722,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 radius: 42,
                 ring: StoryRingAvatar.ringFor(hasStory: p.hasStory, hasUnseen: p.hasUnseenStory),
                 onTap: p.hasStory ? () => _openStories(p) : null,
-                child: UserAvatar(url: p.avatarUrl, initials: initials, radius: 42, online: isActiveNow(p.lastActiveAt), streakTier: p.streakTier),
+                child: AppHero(
+                  tag: widget.avatarHero?.tag,
+                  child: UserAvatar(url: p.avatarUrl, initials: initials, radius: 42, online: isActiveNow(p.lastActiveAt), streakTier: p.streakTier),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(

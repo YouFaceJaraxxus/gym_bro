@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../models/training.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../services/overload_history.dart';
 import '../services/settings_service.dart';
+import '../utils/overload.dart';
 import '../widgets/exercise_picker_sheet.dart';
+import '../widgets/overload_chip.dart';
 import '../widgets/share_post.dart';
 import '../widgets/training_picker_sheet.dart';
 import 'training_form_page.dart';
@@ -25,6 +29,10 @@ import 'workout_complete_page.dart';
 /// user's own trainings, a dialog offers to save the exercises as a new
 /// training (opens [TrainingFormPage] prefilled). Pops true once logged;
 /// when it grew my streak, [WorkoutCompletePage] follows.
+///
+/// Each exercise shows what was done last time (before [start]) with a
+/// progressive-overload suggestion, ghosted into empty fields; tapping it
+/// fills it in. No history (or offline) shows nothing.
 class LogWorkoutPage extends StatefulWidget {
   const LogWorkoutPage({
     super.key,
@@ -67,9 +75,13 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
   bool _saving = false;
   String? _error;
 
+  /// Last time's sets per exercise, for the suggestions (never awaited).
+  late final OverloadHistory _history = OverloadHistory(userId: widget.clientId, before: widget.start);
+
   @override
   void initState() {
     super.initState();
+    _history.addListener(_onHistory);
     final trainingId = widget.initialTrainingId;
     if (trainingId != null) _loadTraining(trainingId);
   }
@@ -77,7 +89,12 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
   @override
   void dispose() {
     _notes.dispose();
+    _history.dispose();
     super.dispose();
+  }
+
+  void _onHistory() {
+    if (mounted) setState(() {});
   }
 
   // ── When ────────────────────────────────────────────────────────────────────
@@ -148,6 +165,7 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
           ..addAll(detail.sets.map(_LogBlock.fromPlan).where((b) => b.exercises.isNotEmpty));
         _loadingTraining = false;
       });
+      _history.load(detail.sets.expand((s) => s.exercises).map((e) => e.exerciseId));
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -172,6 +190,7 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
   Future<void> _addExercise() async {
     final picked = await showExercisePicker(context);
     if (picked == null || !mounted) return;
+    _history.load([picked.id]);
     // Starts from the last numbers logged for the same exercise, if any.
     final previous = _blocks.reversed
         .expand((b) => b.exercises)
@@ -194,6 +213,7 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
   Future<void> _swapExercise(_LogExercise ex) async {
     final picked = await showExercisePicker(context);
     if (picked == null || !mounted) return;
+    _history.load([picked.id]);
     setState(() => ex.swapTo(picked));
   }
 
@@ -456,6 +476,8 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
                   key: ObjectKey(b),
                   block: b,
                   index: i,
+                  history: _history,
+                  workoutAt: _start,
                   onChanged: () => setState(() => _error = null),
                   onSwapExercise: _swapExercise,
                   onDuplicate: () => setState(() => _blocks.insert(i + 1, b.copy())),
@@ -685,6 +707,8 @@ class _BlockCard extends StatelessWidget {
     super.key,
     required this.block,
     required this.index,
+    required this.history,
+    required this.workoutAt,
     required this.onChanged,
     required this.onSwapExercise,
     required this.onDuplicate,
@@ -693,16 +717,45 @@ class _BlockCard extends StatelessWidget {
 
   final _LogBlock block;
   final int index;
+  final OverloadHistory history;
+
+  /// When the workout being logged happened (long breaks count up to it).
+  final DateTime workoutAt;
   final VoidCallback onChanged;
   final Future<void> Function(_LogExercise exercise) onSwapExercise;
   final VoidCallback onDuplicate;
   final VoidCallback onRemove;
+
+  OverloadSuggestion? _suggestion(_LogExercise e) {
+    final planned = e.drops
+        .where((d) => d.trainingSetDropId != null && d.repType == RepType.count && d.reps != null)
+        .firstOrNull;
+    return suggestionFor(
+      history[e.exerciseId],
+      targetReps: planned?.reps,
+      isolation: isIsolationExercise(e.exercise),
+      now: workoutAt,
+    );
+  }
+
+  /// Fills [s] into the exercise's sets without a weight (all of them when
+  /// every one has a weight already).
+  void _apply(_LogExercise e, OverloadSuggestion s) {
+    HapticFeedback.selectionClick();
+    final empty = e.drops.where((d) => d.weightKg == null).toList();
+    for (final d in empty.isEmpty ? e.drops : empty) {
+      if (d.repType == RepType.count) d.reps = s.reps;
+      d.weightKg = s.weightKg;
+    }
+    onChanged();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
     final grouped = block.exercises.length > 1;
+    final suggestions = {for (final e in block.exercises) e: _suggestion(e)};
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -766,10 +819,20 @@ class _BlockCard extends StatelessWidget {
                   ),
                 ),
               ),
+              if (suggestions[e] != null)
+                Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: OverloadChip(
+                    last: history[e.exerciseId],
+                    suggestion: suggestions[e],
+                    onApply: () => _apply(e, suggestions[e]!),
+                  ),
+                ),
               for (final (i, d) in e.drops.indexed)
                 _DropRow(
                   key: ObjectKey(d),
                   drop: d,
+                  ghost: suggestions[e],
                   label: e.drops.length < 2
                       ? null
                       : block.type == WorkoutSetType.dropset
@@ -786,10 +849,13 @@ class _BlockCard extends StatelessWidget {
 }
 
 class _DropRow extends StatefulWidget {
-  const _DropRow({super.key, required this.drop, this.label, required this.onChanged});
+  const _DropRow({super.key, required this.drop, this.label, this.ghost, required this.onChanged});
 
   final _LogDrop drop;
   final String? label;
+
+  /// Shown greyed in empty fields.
+  final OverloadSuggestion? ghost;
   final VoidCallback onChanged;
 
   @override
@@ -814,6 +880,20 @@ class _DropRowState extends State<_DropRow> {
     return r == r.truncateToDouble() ? r.toInt().toString() : r.toString();
   }
 
+  /// A suggestion filled in from outside: show it in the fields.
+  @override
+  void didUpdateWidget(covariant _DropRow old) {
+    super.didUpdateWidget(old);
+    final d = widget.drop;
+    if (d.reps != null && int.tryParse(_reps.text.trim()) != d.reps) _reps.text = '${d.reps}';
+    final w = d.weightKg;
+    if (w != null) {
+      final shown = double.tryParse(_weight.text.trim().replaceAll(',', '.'));
+      final want = _settings.toDisplayWeight(w);
+      if (shown == null || (shown - want).abs() > 0.05) _weight.text = _fmt(want);
+    }
+  }
+
   @override
   void dispose() {
     _reps.dispose();
@@ -826,6 +906,7 @@ class _DropRowState extends State<_DropRow> {
     final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
     final d = widget.drop;
+    final ghost = widget.ghost;
     return Padding(
       padding: const EdgeInsets.only(bottom: 6, right: 10),
       child: Row(
@@ -856,7 +937,7 @@ class _DropRowState extends State<_DropRow> {
                 controller: _reps,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  hintText: l10n.workoutLogReps,
+                  hintText: ghost != null ? '${ghost.reps}' : l10n.workoutLogReps,
                   isDense: true,
                 ),
                 onChanged: (v) {
@@ -873,7 +954,7 @@ class _DropRowState extends State<_DropRow> {
               controller: _weight,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
-                hintText: _settings.weightUnit.value,
+                hintText: ghost != null && ghost.hasWeight ? suggestedWeightText(ghost) : _settings.weightUnit.value,
                 suffixText: _settings.weightUnit.value,
                 isDense: true,
               ),

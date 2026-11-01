@@ -107,4 +107,83 @@ extension ProgressApi on ApiService {
     );
     if (r.statusCode >= 400) _check(r);
   }
+
+  // ── Progress photos (owner-only) ───────────────────────────────────────────
+
+  /// GET /progress-photos — mine, newest first, with signed URLs.
+  Future<List<ProgressPhoto>> getProgressPhotos(
+    String token, {
+    ProgressPose? pose,
+    DateTime? from,
+    DateTime? to,
+  }) async {
+    final q = _progressQuery({
+      'pose': pose?.api,
+      'from': from == null ? null : trainingApiDate(from),
+      'to': to == null ? null : trainingApiDate(to),
+    });
+    final r = await _client.get(Uri.parse('$_base/progress-photos$q'), headers: _headers(token));
+    _check(r);
+    return (jsonDecode(r.body) as List)
+        .map((e) => ProgressPhoto.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  /// POST /progress-photos/uploads — where to PUT the image (see uploadFileToSlot).
+  Future<UploadSlot> requestProgressPhotoUpload(
+    String token, {
+    required String mimeType,
+    required int sizeBytes,
+    String? fileName,
+  }) async {
+    final r = await _client.post(
+      Uri.parse('$_base/progress-photos/uploads'),
+      headers: _headers(token),
+      body: jsonEncode({'mime_type': mimeType, 'size_bytes': sizeBytes, 'file_name': ?fileName}),
+    );
+    _check(r);
+    return UploadSlot.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// POST /progress-photos — for an uploaded [path]. Without [weightKg] the
+  /// server snapshots the nearest weigh-in (within 7 days of [takenOn]).
+  Future<ProgressPhoto> createProgressPhoto(
+    String token, {
+    required String path,
+    required ProgressPose pose,
+    required DateTime takenOn,
+    double? weightKg,
+    String? note,
+  }) async {
+    final r = await _client.post(
+      Uri.parse('$_base/progress-photos'),
+      headers: _headers(token),
+      body: jsonEncode({
+        'path': path,
+        'pose': pose.api,
+        'taken_on': trainingApiDate(takenOn),
+        'weight_kg': ?weightKg,
+        if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
+      }),
+    );
+    _check(r);
+    return ProgressPhoto.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// PUT /progress-photos/:id — {pose?, taken_on?, weight_kg?, note?}.
+  Future<ProgressPhoto> updateProgressPhoto(String token, String id, Map<String, dynamic> data) async {
+    final r = await _client.put(
+      Uri.parse('$_base/progress-photos/$id'),
+      headers: _headers(token),
+      body: jsonEncode(data),
+    );
+    _check(r);
+    return ProgressPhoto.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
+  }
+
+  /// DELETE /progress-photos/:id — also removes the stored file.
+  Future<void> deleteProgressPhoto(String token, String id) async {
+    final r = await _client.delete(Uri.parse('$_base/progress-photos/$id'), headers: _headers(token));
+    if (r.statusCode >= 400) _check(r);
+  }
 }

@@ -48,12 +48,34 @@ Deno.test({
             ["muted_types not an array", { muted_types: "news" }],
             ["push_enabled not boolean", { push_enabled: "yes" }],
             ["bad locale", { locale: "English (US)" }],
+            ["bad fitness_goal", { fitness_goal: "bulk" }],
+            ["goal weight out of range", { goal_weight_kg: 5 }],
+            ["water goal not whole", { water_goal_ml: 2500.5 }],
+            ["water goal too high", { water_goal_ml: 9000 }],
+            ["too many cups", { water_cups: [100, 200, 300, 400, 500] }],
+            ["cup too small", { water_cups: [10] }],
+            ["water_reminders not boolean", { water_reminders: 1 }],
+            ["onboarded not boolean", { onboarded: "yes" }],
             ["empty body", {}],
           ] as const
         ) {
           const r = await call("PUT", "/users/me/settings", member.token, body);
           check(`settings reject ${name}`, r.status === 400, `status ${r.status} ${short(r.data)}`);
         }
+        const goals = await call("PUT", "/users/me/settings", member.token, {
+          fitness_goal: "build_muscle", goal_weight_kg: 82.45, water_goal_ml: 3000, water_cups: [330, 750], water_reminders: true,
+        });
+        check(
+          "member saves goals and water targets",
+          goals.status === 200 && goals.data.fitness_goal === "build_muscle" && goals.data.goal_weight_kg === 82.5 &&
+            goals.data.water_goal_ml === 3000 && goals.data.water_cups?.join() === "330,750" && goals.data.water_reminders === true,
+          short(goals.data),
+        );
+        const cleared = await call("PUT", "/users/me/settings", member.token, { goal_weight_kg: null, water_goal_ml: null });
+        check("goal weight and water goal clear to null", cleared.data?.goal_weight_kg === null && cleared.data?.water_goal_ml === null, short(cleared.data));
+        const onboarded = await call("PUT", "/users/me/settings", member.token, { onboarded: true });
+        check("onboarded stamps onboarded_at", onboarded.status === 200 && !!onboarded.data.onboarded_at, short(onboarded.data));
+
         const arr = await call("PUT", "/users/me/settings", member.token, [1, 2]);
         check("settings reject an array body", arr.status === 400, `status ${arr.status}`);
         const anon = await call("GET", "/users/me/settings");
@@ -64,7 +86,11 @@ Deno.test({
           await sql(`DELETE FROM user_settings WHERE user_id = $1`, [member.profile.id]);
         } else if (original.status === 200) {
           const { push_enabled, muted_types, weight_unit, theme_mode, locale } = original.data;
-          await call("PUT", "/users/me/settings", member.token, { push_enabled, muted_types, weight_unit, theme_mode, locale });
+          const { fitness_goal, goal_weight_kg, water_goal_ml, water_cups, water_reminders } = original.data;
+          await call("PUT", "/users/me/settings", member.token, {
+            push_enabled, muted_types, weight_unit, theme_mode, locale,
+            fitness_goal, goal_weight_kg, water_goal_ml, water_cups, water_reminders,
+          });
         }
       }
 

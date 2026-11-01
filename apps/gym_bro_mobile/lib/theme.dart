@@ -86,6 +86,15 @@ class AppTheme {
       scaffoldBackgroundColor: cs.surface,
       visualDensity: VisualDensity.standard,
       splashFactory: InkSparkle.splashFactory,
+      // Android gets the modern fade-forward push; iOS keeps its native
+      // swipe-back slide. Both collapse to an instant swap with reduce motion.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: _ReducedMotionTransitions(FadeForwardsPageTransitionsBuilder()),
+          TargetPlatform.iOS: _ReducedMotionTransitions(CupertinoPageTransitionsBuilder()),
+          TargetPlatform.macOS: _ReducedMotionTransitions(CupertinoPageTransitionsBuilder()),
+        },
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: cs.surface,
         foregroundColor: cs.onSurface,
@@ -227,6 +236,84 @@ class AppTheme {
       ),
     );
   }
+}
+
+/// Wraps a platform transition so it becomes an instant swap when the user
+/// asked the OS to reduce motion.
+class _ReducedMotionTransitions extends PageTransitionsBuilder {
+  const _ReducedMotionTransitions(this.inner);
+
+  final PageTransitionsBuilder inner;
+
+  static bool _reduce(BuildContext? context) =>
+      context != null && (MediaQuery.maybeDisableAnimationsOf(context) ?? false);
+
+  @override
+  Duration get transitionDuration => inner.transitionDuration;
+
+  @override
+  Duration get reverseTransitionDuration => inner.reverseTransitionDuration;
+
+  @override
+  DelegatedTransitionBuilder? get delegatedTransition {
+    final delegated = inner.delegatedTransition;
+    if (delegated == null) return null;
+    return (context, animation, secondaryAnimation, allowSnapshotting, child) =>
+        _reduce(context)
+            ? child
+            : delegated(context, animation, secondaryAnimation, allowSnapshotting, child);
+  }
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    if (_reduce(context)) return child;
+    return inner.buildTransitions<T>(route, context, animation, secondaryAnimation, child);
+  }
+}
+
+/// The condensed display face used for big numbers and stats (streak counts,
+/// workout totals, Wrapped slides, rings). Body text stays the system font.
+///
+/// Figures are tabular so counters don't jitter as digits change.
+class AppText {
+  AppText._();
+
+  static const String displayFamily = 'BarlowCondensed';
+
+  /// A stat-number style: [size] in logical pixels, bold by default. Pass
+  /// [color] to override the inherited text color.
+  static TextStyle stat({
+    double size = 32,
+    FontWeight weight = FontWeight.w700,
+    Color? color,
+    double? height = 1.0,
+    double? letterSpacing,
+  }) =>
+      TextStyle(
+        fontFamily: displayFamily,
+        fontSize: size,
+        fontWeight: weight,
+        color: color,
+        height: height,
+        letterSpacing: letterSpacing,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
+
+  /// Restyles [base] (e.g. `textTheme.headlineMedium`) in the display face,
+  /// keeping its size and color.
+  static TextStyle? statFrom(TextStyle? base, {FontWeight weight = FontWeight.w700, Color? color}) =>
+      base?.copyWith(
+        fontFamily: displayFamily,
+        fontWeight: weight,
+        color: color,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
 }
 
 /// Status colors Material 3 has no role for. Use through

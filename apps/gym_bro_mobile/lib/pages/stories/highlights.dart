@@ -5,6 +5,7 @@ import '../../models/mention.dart';
 import '../../models/story.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../utils/haptics.dart';
 import '../../widgets/app_bottom_sheet.dart';
 import '../../widgets/social_widgets.dart';
 import '../../widgets/video_frame_thumb.dart';
@@ -720,6 +721,7 @@ class _HighlightEditorPageState extends State<HighlightEditorPage> {
         clearCover: cover == null && detail.highlight.coverStoryId != null,
       );
       _changed();
+      Haptics.tap();
       messenger.showSnackBar(SnackBar(content: Text(l10n.storyHighlightSaved)));
       if (mounted) Navigator.of(context).pop();
     } catch (e) {

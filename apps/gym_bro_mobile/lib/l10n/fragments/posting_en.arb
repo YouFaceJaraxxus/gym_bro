@@ -1,0 +1,15 @@
+{
+  "postingInProgress": "Posting…",
+  "postingDone": "Posted",
+  "postingFailed": "Couldn't post.",
+  "postingRetry": "Retry",
+  "postingDiscard": "Discard",
+  "postingProgressLabel": "Posting, {percent}% done",
+  "@postingProgressLabel": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  }
+}

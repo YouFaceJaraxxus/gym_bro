@@ -4,6 +4,7 @@
 // Postgres numerics may arrive as strings, so every number goes through
 // [_toDouble] / [_toInt].
 
+import '../config.dart';
 import 'exercise.dart' show muscleValues;
 
 double? _toDouble(dynamic v) =>
@@ -226,13 +227,30 @@ class ExerciseProgressDetail {
   }
 }
 
-/// A body_measurement row. [measuredOn] is a local calendar date.
+/// 'YYYY-MM-DD' → a local calendar date (no UTC shift); null when unparsable.
+DateTime? _localDay(dynamic v) {
+  final parts = (v?.toString() ?? '').split('T').first.split('-');
+  if (parts.length != 3) return null;
+  final y = int.tryParse(parts[0]);
+  final m = int.tryParse(parts[1]);
+  final d = int.tryParse(parts[2]);
+  return y == null || m == null || d == null ? null : DateTime(y, m, d);
+}
+
+/// A body_measurement row. [measuredOn] is a local calendar date. Tape
+/// measurements are centimetres.
 class BodyMeasurement {
   final String id;
   final String userId;
   final DateTime measuredOn;
   final double? weightKg;
   final double? bodyFatPct;
+  final double? waistCm;
+  final double? chestCm;
+  final double? hipsCm;
+  final double? armCm;
+  final double? thighCm;
+  final double? neckCm;
   final String? note;
   final DateTime? createdAt;
 
@@ -242,33 +260,155 @@ class BodyMeasurement {
     required this.measuredOn,
     this.weightKg,
     this.bodyFatPct,
+    this.waistCm,
+    this.chestCm,
+    this.hipsCm,
+    this.armCm,
+    this.thighCm,
+    this.neckCm,
     this.note,
     this.createdAt,
   });
 
   factory BodyMeasurement.fromJson(Map<String, dynamic> json) {
-    final raw = json['measured_on']?.toString() ?? '';
-    // 'YYYY-MM-DD' → a local date (no UTC shift).
-    final parts = raw.split('T').first.split('-');
-    final measuredOn = parts.length == 3
-        ? DateTime(
-            int.parse(parts[0]),
-            int.parse(parts[1]),
-            int.parse(parts[2]),
-          )
-        : DateTime.now();
     return BodyMeasurement(
       id: json['id'] as String,
       userId: json['user_id'] as String? ?? '',
-      measuredOn: measuredOn,
+      measuredOn: _localDay(json['measured_on']) ?? DateTime.now(),
       weightKg: _toDouble(json['weight_kg']),
       bodyFatPct: _toDouble(json['body_fat_pct']),
+      waistCm: _toDouble(json['waist_cm']),
+      chestCm: _toDouble(json['chest_cm']),
+      hipsCm: _toDouble(json['hips_cm']),
+      armCm: _toDouble(json['arm_cm']),
+      thighCm: _toDouble(json['thigh_cm']),
+      neckCm: _toDouble(json['neck_cm']),
       note: json['note'] as String?,
       createdAt: _toDate(json['created_at']),
     );
   }
+
+  /// Any tape measurement logged in this entry.
+  bool get hasTape => BodyMetric.tape.any((m) => m.valueOf(this) != null);
+}
+
+/// What a body chart can show. Tape metrics are lengths in cm; the API keys
+/// match the body_measurement columns.
+enum BodyMetric {
+  weight('weight_kg'),
+  bodyFat('body_fat_pct'),
+  waist('waist_cm', min: 30, max: 250),
+  chest('chest_cm', min: 40, max: 250),
+  hips('hips_cm', min: 40, max: 250),
+  arm('arm_cm', min: 10, max: 100),
+  thigh('thigh_cm', min: 20, max: 150),
+  neck('neck_cm', min: 15, max: 80);
+
+  final String apiKey;
+
+  /// Accepted range in cm for tape metrics (matches the API).
+  final double? min;
+  final double? max;
+  const BodyMetric(this.apiKey, {this.min, this.max});
+
+  static const tape = [waist, chest, hips, arm, thigh, neck];
+
+  bool get isLength => min != null;
+
+  double? valueOf(BodyMeasurement m) => switch (this) {
+    weight => m.weightKg,
+    bodyFat => m.bodyFatPct,
+    waist => m.waistCm,
+    chest => m.chestCm,
+    hips => m.hipsCm,
+    arm => m.armCm,
+    thigh => m.thighCm,
+    neck => m.neckCm,
+  };
+}
+
+/// How a progress photo was taken.
+enum ProgressPose {
+  front,
+  side,
+  back,
+  other;
+
+  String get api => name;
+
+  static ProgressPose fromApi(dynamic v) =>
+      values.firstWhere((p) => p.name == v, orElse: () => ProgressPose.other);
+}
+
+/// A private progress photo (GET /progress-photos). Only its owner ever
+/// sees it. [url] is an absolute, short-lived signed URL.
+class ProgressPhoto {
+  final String id;
+  final String userId;
+  final ProgressPose pose;
+  final DateTime takenOn;
+  final double? weightKg;
+  final String? note;
+  final DateTime? createdAt;
+  final String? url;
+
+  const ProgressPhoto({
+    required this.id,
+    required this.userId,
+    required this.pose,
+    required this.takenOn,
+    this.weightKg,
+    this.note,
+    this.createdAt,
+    this.url,
+  });
+
+  factory ProgressPhoto.fromJson(Map<String, dynamic> json) {
+    final url = json['url'] as String?;
+    return ProgressPhoto(
+      id: json['id'] as String,
+      userId: json['user_id'] as String? ?? '',
+      pose: ProgressPose.fromApi(json['pose']),
+      takenOn: _localDay(json['taken_on']) ?? DateTime.now(),
+      weightKg: _toDouble(json['weight_kg']),
+      note: json['note'] as String?,
+      createdAt: _toDate(json['created_at']),
+      url: url == null || url.isEmpty ? null : AppConfig.resolveUrl(url),
+    );
+  }
+}
+
+/// Newest first: by date, then upload time.
+int compareProgressPhotosNewestFirst(ProgressPhoto a, ProgressPhoto b) {
+  final byDay = b.takenOn.compareTo(a.takenOn);
+  if (byDay != 0) return byDay;
+  return (b.createdAt ?? b.takenOn).compareTo(a.createdAt ?? a.takenOn);
+}
+
+/// The default before/after pair: the oldest and newest photo of the newest
+/// photo's pose; when that pose has a single photo, the oldest and newest
+/// overall. Null with fewer than two photos.
+({ProgressPhoto before, ProgressPhoto after})? defaultComparePair(List<ProgressPhoto> photos) {
+  if (photos.length < 2) return null;
+  final sorted = [...photos]..sort(compareProgressPhotosNewestFirst);
+  final newest = sorted.first;
+  final samePose = sorted.where((p) => p.pose == newest.pose).toList();
+  final pool = samePose.length >= 2 ? samePose : sorted;
+  return (before: pool.last, after: pool.first);
 }
 
 /// 'YYYY-MM-DD' for a local date, as the API expects for DATE columns.
 String trainingApiDate(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+/// Photos grouped by the month they were taken, newest month (and photo) first.
+List<({DateTime month, List<ProgressPhoto> photos})> groupProgressPhotosByMonth(List<ProgressPhoto> photos) {
+  final sorted = [...photos]..sort(compareProgressPhotosNewestFirst);
+  final out = <({DateTime month, List<ProgressPhoto> photos})>[];
+  for (final p in sorted) {
+    final month = DateTime(p.takenOn.year, p.takenOn.month);
+    if (out.isEmpty || out.last.month != month) out.add((month: month, photos: <ProgressPhoto>[]));
+    out.last.photos.add(p);
+  }
+  return out;
+}

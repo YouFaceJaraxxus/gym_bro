@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/l10n.dart';
+import 'skeleton.dart';
 
 /// A Google-Calendar-style week/day view for any timed items: a month header
 /// with week navigation, a 7-day strip (a dot on days with entries) and a day
@@ -564,6 +565,7 @@ class CalendarViewState<T> extends State<CalendarView<T>> {
                     hourHeight,
                     box.maxWidth - _gutter - 8,
                   ),
+                  if (loading && entries.isEmpty) ..._placeholderBlocks(hourHeight, box.maxWidth - _gutter - 8),
                   if (_sameDay(_day, DateTime.now()))
                     _nowLine(context, hourHeight),
                 ],
@@ -723,6 +725,18 @@ class CalendarViewState<T> extends State<CalendarView<T>> {
       ),
     );
   }
+
+  /// Shimmering stand-ins for a day's items while its week loads.
+  List<Widget> _placeholderBlocks(double hourHeight, double width) => [
+        for (final (hour, minutes) in const [(7, 60), (12, 45), (18, 90)])
+          Positioned(
+            left: _gutter + 4,
+            width: width - 3,
+            top: hour * hourHeight + 8 + 1,
+            height: minutes / 60 * hourHeight - 2,
+            child: const Skeleton(child: SkeletonBox(radius: 8)),
+          ),
+      ];
 
   List<Widget> _blocks(
     BuildContext context,

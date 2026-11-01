@@ -1,0 +1,262 @@
+{
+  "bodyPhotosTab": "Photos",
+  "bodyRange1y": "1Y",
+  "bodyTrendWeight": "Trend weight",
+  "bodyTrendSeries": "Weight trend",
+  "bodyLastWeighIn": "Last weigh-in {value} · {date}",
+  "@bodyLastWeighIn": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyRatePerWeek": "{rate} per week",
+  "@bodyRatePerWeek": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyChangeSince": "since {date}",
+  "@bodyChangeSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyChangeInRange": "over {range}",
+  "@bodyChangeInRange": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyLegendWeighIns": "Weigh-ins",
+  "bodyLegendTrend": "Trend",
+  "bodyLegendGoal": "Goal",
+  "bodyGoalLineLabel": "Goal {value}",
+  "@bodyGoalLineLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyTooltipTrend": "Trend {value}",
+  "@bodyTooltipTrend": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyTooltipWeighIn": "Weigh-in {value}",
+  "@bodyTooltipWeighIn": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyMetricBodyFat": "Body fat",
+  "bodyMetricWaist": "Waist",
+  "bodyMetricChest": "Chest",
+  "bodyMetricHips": "Hips",
+  "bodyMetricArm": "Arm",
+  "bodyMetricThigh": "Thigh",
+  "bodyMetricNeck": "Neck",
+  "bodyTapeSection": "Body measurements",
+  "bodyTapeSectionHint": "Optional, in {unit}",
+  "@bodyTapeSectionHint": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyTapeOutOfRange": "{metric} must be between {min} and {max} {unit}",
+  "@bodyTapeOutOfRange": {
+    "placeholders": {
+      "metric": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyNeedAnyValue": "Enter a weight, body fat or at least one measurement",
+  "bodyGoalSetTitle": "Set a goal weight",
+  "bodyGoalEditTitle": "Edit goal weight",
+  "bodyGoalSetHint": "See a goal line on your chart and when you'll get there",
+  "bodyGoalSheetHelp": "We'll draw it on your chart and estimate when you'll get there.",
+  "bodyGoalSheetHelpCurrent": "Your trend weight is {current}. We'll draw the goal on your chart and estimate when you'll get there.",
+  "@bodyGoalSheetHelpCurrent": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyGoalFieldLabel": "Goal weight",
+  "bodyGoalRemove": "Remove goal",
+  "bodyGoalInvalid": "Enter a goal between {min} and {max}",
+  "@bodyGoalInvalid": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyGoalToGo": "{value} to go",
+  "@bodyGoalToGo": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyGoalEtaOnTrack": "At {rate}/week you'll reach {goal} around {date}.",
+  "@bodyGoalEtaOnTrack": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyGoalEtaWrongWay": "At {rate}/week you're moving away from {goal}. Small, steady changes add up.",
+  "@bodyGoalEtaWrongWay": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyGoalEtaFlat": "Your trend is holding steady, so there's no date for {goal} yet.",
+  "@bodyGoalEtaFlat": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyGoalEtaTooFar": "At {rate}/week, {goal} is more than three years away.",
+  "@bodyGoalEtaTooFar": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyGoalEtaReached": "You're at your goal of {goal}. Nice work!",
+  "@bodyGoalEtaReached": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyGoalEtaNoData": "Log a few weigh-ins over a week or two to see when you'll reach {goal}.",
+  "@bodyGoalEtaNoData": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyPhotosPrivate": "Only you can see these.",
+  "bodyPhotosPrivateDetail": "Progress photos never appear in feeds, and trainers can't see them.",
+  "bodyPhotosEmptyTitle": "See how far you've come",
+  "bodyPhotosEmptyMessage": "Take front, side and back photos every few weeks, then compare any two.",
+  "bodyPhotosCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "@bodyPhotosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bodyPhotoAdd": "Add photo",
+  "bodyPhotoAddTitle": "New progress photo",
+  "bodyPhotoTake": "Take a photo",
+  "bodyPhotoFromGallery": "Choose from gallery",
+  "bodyPhotoTooLarge": "That photo is over 20 MB.",
+  "bodyPhotoWeightOptional": "Weight (optional)",
+  "bodyPhotoWeightHelp": "Leave empty to use your nearest weigh-in.",
+  "bodyPhotoDeleteTitle": "Delete photo?",
+  "bodyPhotoDeleteMessage": "The photo will be removed for good.",
+  "bodyPhotoDeleteTooltip": "Delete photo",
+  "bodyPoseAll": "All",
+  "bodyPoseFront": "Front",
+  "bodyPoseSide": "Side",
+  "bodyPoseBack": "Back",
+  "bodyPoseOther": "Other",
+  "bodyCompareTitle": "Compare",
+  "bodyCompareBefore": "Before",
+  "bodyCompareAfter": "After",
+  "bodyCompareSwap": "Swap before and after",
+  "bodyCompareSliderLabel": "Before and after divider",
+  "bodyComparePick": "{which}: pick a photo",
+  "@bodyComparePick": {
+    "placeholders": {
+      "which": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyCompareDiff": "{change} in {span}",
+  "@bodyCompareDiff": {
+    "placeholders": {
+      "change": {
+        "type": "String"
+      },
+      "span": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyCompareDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@bodyCompareDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bodyCompareWeeks": "{count, plural, =1{1 week} other{{count} weeks}}",
+  "@bodyCompareWeeks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

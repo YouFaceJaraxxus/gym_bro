@@ -42,9 +42,10 @@ android {
         // afterwards). Keep `namespace` above in sync with the Kotlin package of
         // MainActivity if you change that too.
         applicationId = "com.example.gym_bro_mobile"
-        // flutter_local_notifications and google_sign_in need API 24+,
+        // Health Connect (the health package) needs API 26+;
+        // flutter_local_notifications and google_sign_in need 24+,
         // mobile_scanner needs 23+.
-        minSdk = maxOf(flutter.minSdkVersion, 24)
+        minSdk = maxOf(flutter.minSdkVersion, 26)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

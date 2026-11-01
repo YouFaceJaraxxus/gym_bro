@@ -609,9 +609,14 @@ class PostDetailPage extends StatefulWidget {
     this.onChanged,
     this.onDeleted,
     this.onArchived,
+    this.heroScope,
   });
 
   final String postId;
+
+  /// The hero scope of the card or grid tile this page was opened from
+  /// ([postMediaHeroTag]); the post's photo flies in from there.
+  final String? heroScope;
 
   /// Shown immediately while the post loads.
   final Post? initial;
@@ -802,6 +807,7 @@ class _PostDetailPageState extends State<PostDetailPage> with _CommentsUi<PostDe
                         onDeleted: _onDeleted,
                         onArchived: _onArchived,
                         onOpenComments: startComment,
+                        heroScope: widget.heroScope,
                       ),
                     ),
                     SliverToBoxAdapter(child: _commentsHeader(context, post)),

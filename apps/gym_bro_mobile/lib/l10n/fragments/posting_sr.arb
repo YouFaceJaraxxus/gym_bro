@@ -1,0 +1,8 @@
+{
+  "postingInProgress": "Objavljivanje…",
+  "postingDone": "Objavljeno",
+  "postingFailed": "Objava nije uspela.",
+  "postingRetry": "Pokušaj ponovo",
+  "postingDiscard": "Odbaci",
+  "postingProgressLabel": "Objavljivanje, {percent}% gotovo"
+}

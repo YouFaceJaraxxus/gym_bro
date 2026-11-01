@@ -300,6 +300,287 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String bodyChangeInRange(String range) {
+    return 'over $range';
+  }
+
+  @override
+  String bodyChangeSince(String date) {
+    return 'since $date';
+  }
+
+  @override
+  String get bodyCompareAfter => 'After';
+
+  @override
+  String get bodyCompareBefore => 'Before';
+
+  @override
+  String bodyCompareDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bodyCompareDiff(String change, String span) {
+    return '$change in $span';
+  }
+
+  @override
+  String bodyComparePick(String which) {
+    return '$which: pick a photo';
+  }
+
+  @override
+  String get bodyCompareSliderLabel => 'Before and after divider';
+
+  @override
+  String get bodyCompareSwap => 'Swap before and after';
+
+  @override
+  String get bodyCompareTitle => 'Compare';
+
+  @override
+  String bodyCompareWeeks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weeks',
+      one: '1 week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bodyGoalEditTitle => 'Edit goal weight';
+
+  @override
+  String bodyGoalEtaFlat(String goal) {
+    return 'Your trend is holding steady, so there\'s no date for $goal yet.';
+  }
+
+  @override
+  String bodyGoalEtaNoData(String goal) {
+    return 'Log a few weigh-ins over a week or two to see when you\'ll reach $goal.';
+  }
+
+  @override
+  String bodyGoalEtaOnTrack(String rate, String goal, String date) {
+    return 'At $rate/week you\'ll reach $goal around $date.';
+  }
+
+  @override
+  String bodyGoalEtaReached(String goal) {
+    return 'You\'re at your goal of $goal. Nice work!';
+  }
+
+  @override
+  String bodyGoalEtaTooFar(String rate, String goal) {
+    return 'At $rate/week, $goal is more than three years away.';
+  }
+
+  @override
+  String bodyGoalEtaWrongWay(String rate, String goal) {
+    return 'At $rate/week you\'re moving away from $goal. Small, steady changes add up.';
+  }
+
+  @override
+  String get bodyGoalFieldLabel => 'Goal weight';
+
+  @override
+  String bodyGoalInvalid(String min, String max) {
+    return 'Enter a goal between $min and $max';
+  }
+
+  @override
+  String bodyGoalLineLabel(String value) {
+    return 'Goal $value';
+  }
+
+  @override
+  String get bodyGoalRemove => 'Remove goal';
+
+  @override
+  String get bodyGoalSetHint =>
+      'See a goal line on your chart and when you\'ll get there';
+
+  @override
+  String get bodyGoalSetTitle => 'Set a goal weight';
+
+  @override
+  String get bodyGoalSheetHelp =>
+      'We\'ll draw it on your chart and estimate when you\'ll get there.';
+
+  @override
+  String bodyGoalSheetHelpCurrent(String current) {
+    return 'Your trend weight is $current. We\'ll draw the goal on your chart and estimate when you\'ll get there.';
+  }
+
+  @override
+  String bodyGoalToGo(String value) {
+    return '$value to go';
+  }
+
+  @override
+  String bodyLastWeighIn(String value, String date) {
+    return 'Last weigh-in $value · $date';
+  }
+
+  @override
+  String get bodyLegendGoal => 'Goal';
+
+  @override
+  String get bodyLegendTrend => 'Trend';
+
+  @override
+  String get bodyLegendWeighIns => 'Weigh-ins';
+
+  @override
+  String get bodyMetricArm => 'Arm';
+
+  @override
+  String get bodyMetricBodyFat => 'Body fat';
+
+  @override
+  String get bodyMetricChest => 'Chest';
+
+  @override
+  String get bodyMetricHips => 'Hips';
+
+  @override
+  String get bodyMetricNeck => 'Neck';
+
+  @override
+  String get bodyMetricThigh => 'Thigh';
+
+  @override
+  String get bodyMetricWaist => 'Waist';
+
+  @override
+  String get bodyNeedAnyValue =>
+      'Enter a weight, body fat or at least one measurement';
+
+  @override
+  String get bodyPhotoAdd => 'Add photo';
+
+  @override
+  String get bodyPhotoAddTitle => 'New progress photo';
+
+  @override
+  String get bodyPhotoDeleteMessage => 'The photo will be removed for good.';
+
+  @override
+  String get bodyPhotoDeleteTitle => 'Delete photo?';
+
+  @override
+  String get bodyPhotoDeleteTooltip => 'Delete photo';
+
+  @override
+  String get bodyPhotoFromGallery => 'Choose from gallery';
+
+  @override
+  String get bodyPhotoTake => 'Take a photo';
+
+  @override
+  String get bodyPhotoTooLarge => 'That photo is over 20 MB.';
+
+  @override
+  String get bodyPhotoWeightHelp => 'Leave empty to use your nearest weigh-in.';
+
+  @override
+  String get bodyPhotoWeightOptional => 'Weight (optional)';
+
+  @override
+  String bodyPhotosCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos',
+      one: '1 photo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bodyPhotosEmptyMessage =>
+      'Take front, side and back photos every few weeks, then compare any two.';
+
+  @override
+  String get bodyPhotosEmptyTitle => 'See how far you\'ve come';
+
+  @override
+  String get bodyPhotosPrivate => 'Only you can see these.';
+
+  @override
+  String get bodyPhotosPrivateDetail =>
+      'Progress photos never appear in feeds, and trainers can\'t see them.';
+
+  @override
+  String get bodyPhotosTab => 'Photos';
+
+  @override
+  String get bodyPoseAll => 'All';
+
+  @override
+  String get bodyPoseBack => 'Back';
+
+  @override
+  String get bodyPoseFront => 'Front';
+
+  @override
+  String get bodyPoseOther => 'Other';
+
+  @override
+  String get bodyPoseSide => 'Side';
+
+  @override
+  String get bodyRange1y => '1Y';
+
+  @override
+  String bodyRatePerWeek(String rate) {
+    return '$rate per week';
+  }
+
+  @override
+  String bodyTapeOutOfRange(
+    String metric,
+    String min,
+    String max,
+    String unit,
+  ) {
+    return '$metric must be between $min and $max $unit';
+  }
+
+  @override
+  String get bodyTapeSection => 'Body measurements';
+
+  @override
+  String bodyTapeSectionHint(String unit) {
+    return 'Optional, in $unit';
+  }
+
+  @override
+  String bodyTooltipTrend(String value) {
+    return 'Trend $value';
+  }
+
+  @override
+  String bodyTooltipWeighIn(String value) {
+    return 'Weigh-in $value';
+  }
+
+  @override
+  String get bodyTrendSeries => 'Weight trend';
+
+  @override
+  String get bodyTrendWeight => 'Trend weight';
+
+  @override
   String get businessCheckInAllTime => 'All time';
 
   @override
@@ -1724,6 +2005,399 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendarPreviousWeek => 'Previous week';
+
+  @override
+  String get challengeCancel => 'Cancel';
+
+  @override
+  String get challengeCompleted => 'Completed';
+
+  @override
+  String challengeCompletedOn(String date) {
+    return 'Completed $date';
+  }
+
+  @override
+  String get challengeCreate => 'New challenge';
+
+  @override
+  String challengeCreatedBy(String name) {
+    return 'By $name';
+  }
+
+  @override
+  String challengeDaysLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeDelete => 'Delete challenge';
+
+  @override
+  String challengeDeleteConfirm(String title) {
+    return 'Delete “$title”? Everyone\'s progress in it goes too.';
+  }
+
+  @override
+  String get challengeDeleted => 'Challenge deleted';
+
+  @override
+  String get challengeEdit => 'Edit challenge';
+
+  @override
+  String get challengeEnded => 'Ended';
+
+  @override
+  String challengeEndedOn(String date) {
+    return 'Ended $date';
+  }
+
+  @override
+  String get challengeFormCreate => 'Create challenge';
+
+  @override
+  String get challengeFormDates => 'When';
+
+  @override
+  String get challengeFormDescription => 'Description (optional)';
+
+  @override
+  String get challengeFormEnds => 'Ends';
+
+  @override
+  String get challengeFormEndsBeforeStart => 'It has to end after it starts.';
+
+  @override
+  String get challengeFormEveryone => 'Everyone on Gym Bro';
+
+  @override
+  String challengeFormLength(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeFormLocked =>
+      'What counts and the start date are fixed once it has started.';
+
+  @override
+  String challengeFormMembersOf(String gym) {
+    return 'Members of $gym';
+  }
+
+  @override
+  String get challengeFormMetric => 'What counts';
+
+  @override
+  String challengeFormNotify(String gym) {
+    return 'Members of $gym get a notification when you create it.';
+  }
+
+  @override
+  String get challengeFormSave => 'Save';
+
+  @override
+  String get challengeFormSaved => 'Challenge saved';
+
+  @override
+  String get challengeFormStarts => 'Starts';
+
+  @override
+  String get challengeFormTarget => 'Goal';
+
+  @override
+  String get challengeFormTargetInvalid => 'Enter a whole number above 0';
+
+  @override
+  String get challengeFormTitle => 'Name';
+
+  @override
+  String get challengeFormTitleHint => 'e.g. 30 days of iron';
+
+  @override
+  String get challengeFormTitleRequired => 'Give it a name';
+
+  @override
+  String get challengeFormTooLong => 'A challenge lasts a year at most.';
+
+  @override
+  String get challengeFormWho => 'Who it\'s for';
+
+  @override
+  String challengeGoal(String goal) {
+    return 'Goal: $goal';
+  }
+
+  @override
+  String get challengeGoalReached => 'Goal reached!';
+
+  @override
+  String get challengeHowItCounts => 'How it counts';
+
+  @override
+  String challengeHubIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You\'re in $count challenges',
+      one: 'You\'re in 1 challenge',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeHubNone => 'Join a challenge, earn medals';
+
+  @override
+  String challengeHubOpen(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count open to join',
+      one: '1 open to join',
+      zero: 'New ones every month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeHubTitle => 'Challenges';
+
+  @override
+  String get challengeJoin => 'Join';
+
+  @override
+  String get challengeJoinChallenge => 'Join challenge';
+
+  @override
+  String get challengeJoined => 'You\'re in! Let\'s go 💪';
+
+  @override
+  String get challengeJustCompleted => 'Challenge complete! 🏅';
+
+  @override
+  String get challengeJustCompletedBody =>
+      'You crushed it. The medal is on your profile now.';
+
+  @override
+  String get challengeLastDay => 'Last day';
+
+  @override
+  String get challengeLeaderboard => 'Leaderboard';
+
+  @override
+  String get challengeLeaderboardEmpty =>
+      'No one on the board yet. Join and take the lead.';
+
+  @override
+  String get challengeLeave => 'Leave challenge';
+
+  @override
+  String challengeLeaveConfirm(String title) {
+    return 'Leave “$title”? You can join again until it ends.';
+  }
+
+  @override
+  String challengeMedalsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count medals',
+      one: '1 medal',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeMedalsPrivate =>
+      'This account is private. Follow them to see their medals.';
+
+  @override
+  String get challengeMedalsTitle => 'Challenge medals';
+
+  @override
+  String get challengeMetricActiveDays => 'Active days';
+
+  @override
+  String get challengeMetricCheckIns => 'Check-ins';
+
+  @override
+  String get challengeMetricMinutes => 'Minutes';
+
+  @override
+  String get challengeMetricVolume => 'Volume lifted';
+
+  @override
+  String get challengeMetricWorkouts => 'Workouts';
+
+  @override
+  String challengeMonthlyActiveDaysDescription(String month, int count) {
+    return 'Train on $count different days in $month.';
+  }
+
+  @override
+  String challengeMonthlyActiveDaysTitle(String month, int count) {
+    return 'Active $month: $count days';
+  }
+
+  @override
+  String challengeMonthlyWorkoutsDescription(String month, int count) {
+    return 'Finish $count workouts in $month. Any workout counts, at the gym or at home.';
+  }
+
+  @override
+  String challengeMonthlyWorkoutsTitle(String month, int count) {
+    return '$month Grind: $count workouts';
+  }
+
+  @override
+  String get challengeMuteDescription =>
+      'Finished challenges, new ones at your gyms and your yearly recap.';
+
+  @override
+  String get challengeMuteLabel => 'Challenges & Wrapped';
+
+  @override
+  String challengeParticipants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+      zero: 'No one yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengePlatform => 'Gym Bro';
+
+  @override
+  String get challengeRuleActiveDays =>
+      'Every day you finish a workout counts once.';
+
+  @override
+  String challengeRuleCheckIns(String gym) {
+    return 'Every day you check in at $gym counts once.';
+  }
+
+  @override
+  String get challengeRuleMinutes =>
+      'The minutes of your finished workouts count, up to 4 hours per workout.';
+
+  @override
+  String get challengeRuleVolume => 'Weight × reps of every logged set counts.';
+
+  @override
+  String get challengeRuleWindow =>
+      'Workouts from the start of the challenge count, even from before you joined.';
+
+  @override
+  String get challengeRuleWorkouts =>
+      'Every finished workout with at least one logged set counts. Log it by the end of the next day.';
+
+  @override
+  String challengeStartsIn(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Starts in $count days',
+      one: 'Starts in 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeStartsTomorrow => 'Starts tomorrow';
+
+  @override
+  String challengeToGo(String amount) {
+    return '$amount to go';
+  }
+
+  @override
+  String challengeUnitActiveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'active days',
+      one: 'active day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String challengeUnitCheckIns(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'check-ins',
+      one: 'check-in',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeUnitMinutes => 'min';
+
+  @override
+  String challengeUnitWorkouts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'workouts',
+      one: 'workout',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeUpcoming => 'Upcoming';
+
+  @override
+  String challengeYourRank(int rank) {
+    return 'You\'re #$rank';
+  }
+
+  @override
+  String get challengesEmptyJoin =>
+      'Nothing open to join right now. New challenges start every month.';
+
+  @override
+  String get challengesEmptyMedals =>
+      'Finish a challenge to earn your first medal.';
+
+  @override
+  String get challengesEmptyMine =>
+      'You\'re not in a challenge yet. Pick one and start moving.';
+
+  @override
+  String get challengesLoadFailed => 'Couldn\'t load challenges.';
+
+  @override
+  String get challengesRetry => 'Try again';
+
+  @override
+  String get challengesTabJoin => 'Join';
+
+  @override
+  String get challengesTabMedals => 'Medals';
+
+  @override
+  String get challengesTabMine => 'Mine';
+
+  @override
+  String get challengesTitle => 'Challenges';
 
   @override
   String get chatAccept => 'Accept';
@@ -3685,6 +4359,183 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get nativeHealthApple => 'Apple Health';
+
+  @override
+  String nativeHealthConnect(String platform) {
+    return 'Connect $platform';
+  }
+
+  @override
+  String get nativeHealthConnectSubtitle =>
+      'Import weigh-ins, show steps and sleep on Home, and save your workouts and water there.';
+
+  @override
+  String nativeHealthConnectedTo(String platform) {
+    return 'Connected to $platform';
+  }
+
+  @override
+  String nativeHealthDenied(String platform) {
+    return '$platform access wasn\'t granted.';
+  }
+
+  @override
+  String get nativeHealthDisconnect => 'Disconnect';
+
+  @override
+  String nativeHealthDisconnected(String platform) {
+    return 'Disconnected from $platform.';
+  }
+
+  @override
+  String get nativeHealthDisconnectedIos =>
+      'Disconnected. To remove access completely, open the Health app → your profile → Apps → Gym Bro.';
+
+  @override
+  String nativeHealthFailed(String error) {
+    return 'Couldn\'t connect: $error';
+  }
+
+  @override
+  String get nativeHealthGoogle => 'Health Connect';
+
+  @override
+  String get nativeHealthImportWeight => 'Import weigh-ins';
+
+  @override
+  String get nativeHealthImportWeightSubtitle =>
+      'New ones from the last 30 days, at most one a day, only on days without a measurement.';
+
+  @override
+  String nativeHealthImported(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Imported $count weigh-ins',
+      one: 'Imported 1 weigh-in',
+      zero: 'No new weigh-ins',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nativeHealthInstall => 'Install';
+
+  @override
+  String nativeHealthLastChecked(String when) {
+    return 'Weigh-ins last checked $when';
+  }
+
+  @override
+  String get nativeHealthNeverChecked => 'Weigh-ins not checked yet';
+
+  @override
+  String get nativeHealthNoData => 'No data';
+
+  @override
+  String get nativeHealthNotInstalled =>
+      'Health Connect isn\'t installed or needs an update.';
+
+  @override
+  String get nativeHealthOnThisDevice => 'Only on this device';
+
+  @override
+  String get nativeHealthSection => 'Health';
+
+  @override
+  String get nativeHealthShowActivity => 'Steps and sleep on Home';
+
+  @override
+  String get nativeHealthShowActivitySubtitle =>
+      'Today\'s steps and last night\'s sleep on the Today dashboard.';
+
+  @override
+  String get nativeHealthSleep => 'Sleep';
+
+  @override
+  String nativeHealthSleepDuration(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String get nativeHealthSleepLastNight => 'last night';
+
+  @override
+  String get nativeHealthSteps => 'Steps';
+
+  @override
+  String get nativeHealthStepsToday => 'today';
+
+  @override
+  String get nativeHealthSyncNow => 'Sync now';
+
+  @override
+  String nativeHealthTodaySemantics(String steps, String sleep) {
+    return '$steps steps today, $sleep of sleep last night';
+  }
+
+  @override
+  String nativeHealthWeighInNote(String platform) {
+    return 'From $platform';
+  }
+
+  @override
+  String get nativeHealthWriteWater => 'Save water';
+
+  @override
+  String get nativeHealthWriteWaterSubtitle => 'Each drink you log is saved.';
+
+  @override
+  String get nativeHealthWriteWorkouts => 'Save workouts';
+
+  @override
+  String get nativeHealthWriteWorkoutsSubtitle =>
+      'Workouts you finish are saved as strength training.';
+
+  @override
+  String get nativeRestAdd30 => '+30 s';
+
+  @override
+  String get nativeRestBody => 'Rest between sets';
+
+  @override
+  String get nativeRestChannel => 'Rest timer';
+
+  @override
+  String get nativeRestChannelDescription =>
+      'The countdown between sets while you train.';
+
+  @override
+  String nativeRestNext(String name) {
+    return 'Next: $name';
+  }
+
+  @override
+  String get nativeRestOverBody => 'Time for your next set';
+
+  @override
+  String get nativeRestOverTitle => 'Rest\'s over';
+
+  @override
+  String get nativeRestSkip => 'Skip';
+
+  @override
+  String get nativeRestTitle => 'Rest';
+
+  @override
+  String get nativeWidgetOpenApp => 'Open Gym Bro to refresh';
+
+  @override
+  String get nativeWidgetSignedOut => 'Sign in to Gym Bro';
+
+  @override
+  String get nativeWidgetStreak => 'Streak';
+
+  @override
+  String get nativeWidgetToday => 'Today';
+
+  @override
   String get nutritionAdd => 'Add';
 
   @override
@@ -5040,6 +5891,284 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nutritionYours => 'Yours';
 
   @override
+  String get onboardingBack => 'Back';
+
+  @override
+  String get onboardingBodyBody =>
+      'Optional. It sets your water goal and the goal line on your weight chart.';
+
+  @override
+  String get onboardingBodyTitle => 'About you';
+
+  @override
+  String get onboardingContinue => 'Continue';
+
+  @override
+  String get onboardingCurrentWeight => 'Current weight';
+
+  @override
+  String get onboardingDaysBody =>
+      'Pick a number you can keep up with. Consistency beats intensity.';
+
+  @override
+  String get onboardingDaysEasy => 'A gentle start';
+
+  @override
+  String get onboardingDaysIntense => 'Serious dedication';
+
+  @override
+  String get onboardingDaysSteady => 'A solid routine';
+
+  @override
+  String get onboardingDaysStreak =>
+      'Hit it every week to keep your streak alive. Plans count too.';
+
+  @override
+  String get onboardingDaysTitle => 'How many days a week will you train?';
+
+  @override
+  String onboardingDaysValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days a week',
+      one: '1 day a week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onboardingDoneBody =>
+      'Here\'s your setup. Tap anything to change it.';
+
+  @override
+  String get onboardingDoneTitle => 'You\'re all set!';
+
+  @override
+  String get onboardingFinish => 'Let\'s go';
+
+  @override
+  String get onboardingGoalBody => 'Pick the one that matters most right now.';
+
+  @override
+  String get onboardingGoalBuildMuscle => 'Build muscle';
+
+  @override
+  String get onboardingGoalBuildMuscleHint => 'Add size and shape';
+
+  @override
+  String get onboardingGoalEndurance => 'Endurance';
+
+  @override
+  String get onboardingGoalEnduranceHint => 'Go longer and recover faster';
+
+  @override
+  String get onboardingGoalGetStronger => 'Get stronger';
+
+  @override
+  String get onboardingGoalGetStrongerHint => 'Lift heavier and hit new PRs';
+
+  @override
+  String get onboardingGoalLoseFat => 'Lose fat';
+
+  @override
+  String get onboardingGoalLoseFatHint => 'Lean out and feel lighter';
+
+  @override
+  String get onboardingGoalStayFit => 'Stay fit';
+
+  @override
+  String get onboardingGoalStayFitHint => 'Keep healthy, active and moving';
+
+  @override
+  String get onboardingGoalTitle => 'What\'s your main goal?';
+
+  @override
+  String get onboardingGoalWeight => 'Goal weight';
+
+  @override
+  String get onboardingGoalWeightSuggested =>
+      'Suggested for your goal. Change it or clear it.';
+
+  @override
+  String get onboardingOptional => 'Optional';
+
+  @override
+  String onboardingProgress(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get onboardingRedo => 'Redo setup';
+
+  @override
+  String get onboardingRedoSubtitle => 'Goal, training days, weight and water';
+
+  @override
+  String get onboardingSaveFailed =>
+      'Couldn\'t save your setup. We\'ll ask again next time.';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingStart => 'Get started';
+
+  @override
+  String get onboardingSummaryDays => 'Training';
+
+  @override
+  String get onboardingSummaryGoal => 'Goal';
+
+  @override
+  String onboardingSummaryGoalOnly(String goal) {
+    return 'Goal: $goal';
+  }
+
+  @override
+  String get onboardingSummaryNotSet => 'Not set';
+
+  @override
+  String get onboardingSummaryWater => 'Water';
+
+  @override
+  String onboardingSummaryWaterAuto(String amount) {
+    return '$amount a day (auto)';
+  }
+
+  @override
+  String onboardingSummaryWaterCustom(String amount) {
+    return '$amount a day';
+  }
+
+  @override
+  String get onboardingSummaryWeight => 'Weight';
+
+  @override
+  String onboardingSummaryWeightGoal(String current, String goal) {
+    return '$current → $goal';
+  }
+
+  @override
+  String get onboardingUnits => 'Units';
+
+  @override
+  String get onboardingWaterAuto => 'Auto: about 35 ml per kg of body weight';
+
+  @override
+  String get onboardingWaterAutoNoWeight =>
+      'Auto: a good default until you add your weight';
+
+  @override
+  String get onboardingWaterBody =>
+      'Staying hydrated makes every workout better.';
+
+  @override
+  String get onboardingWaterCustom => 'Your own goal';
+
+  @override
+  String onboardingWaterGlasses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'about $count glasses of 250 ml',
+      one: 'about 1 glass of 250 ml',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get onboardingWaterLess => 'Less water';
+
+  @override
+  String onboardingWaterLiters(String liters) {
+    return '$liters L';
+  }
+
+  @override
+  String get onboardingWaterMore => 'More water';
+
+  @override
+  String get onboardingWaterTitle => 'Your daily water goal';
+
+  @override
+  String get onboardingWaterUseAuto => 'Use auto';
+
+  @override
+  String onboardingWeightInvalid(String min, String max) {
+    return 'Enter a weight between $min and $max';
+  }
+
+  @override
+  String get onboardingWelcomeBody =>
+      'A few quick questions and your training, streak and goals are ready. It takes under a minute.';
+
+  @override
+  String get onboardingWelcomeGoals => 'Set goals and watch yourself get there';
+
+  @override
+  String get onboardingWelcomeLater =>
+      'You can change all of this later in Settings.';
+
+  @override
+  String get onboardingWelcomeStreak =>
+      'Build a streak that keeps you coming back';
+
+  @override
+  String get onboardingWelcomeTitle => 'Welcome to Gym Bro';
+
+  @override
+  String get onboardingWelcomeTrack => 'Log every workout and PR';
+
+  @override
+  String overloadLast(String sets) {
+    return 'Last: $sets';
+  }
+
+  @override
+  String overloadLastReps(String reps) {
+    return 'Last: $reps reps';
+  }
+
+  @override
+  String get overloadReasonAddRep => 'Same weight, one more rep';
+
+  @override
+  String overloadReasonAddWeight(String increment) {
+    return 'Hit all reps last time → +$increment';
+  }
+
+  @override
+  String get overloadReasonBodyweight => 'One more rep than last time';
+
+  @override
+  String overloadReasonDeload(int days) {
+    return '$days days off → ease back in (−10%)';
+  }
+
+  @override
+  String overloadTry(String weight, int reps) {
+    return 'Try $weight × $reps';
+  }
+
+  @override
+  String overloadTryReps(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Try $count reps',
+      one: 'Try 1 rep',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get overloadUse => 'Use';
+
+  @override
+  String get overloadUseHint => 'Fills in the suggestion';
+
+  @override
   String get peopleAccept => 'Accept';
 
   @override
@@ -5937,6 +7066,95 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planWorkoutFallback => 'Workout';
 
   @override
+  String get polishEmptyChallengesAction => 'Browse challenges';
+
+  @override
+  String get polishEmptyChallengesJoinTitle => 'Nothing to join right now';
+
+  @override
+  String get polishEmptyChallengesTitle => 'No challenges yet';
+
+  @override
+  String get polishEmptyNotificationsBody =>
+      'Likes, comments, follows and class updates show up here.';
+
+  @override
+  String get polishEmptyWorkoutsAction => 'Start your first workout';
+
+  @override
+  String get polishEmptyWorkoutsBody =>
+      'Log a session and it will show up here.';
+
+  @override
+  String get polishEmptyWorkoutsTitle => 'No workouts yet';
+
+  @override
+  String get polishFeedFindPeople => 'Find people to follow';
+
+  @override
+  String get polishFindPeople => 'Find people';
+
+  @override
+  String polishFindPeopleRequests(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Find people, $count requests',
+      one: 'Find people, 1 request',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get polishSeeAll => 'See all';
+
+  @override
+  String get polishStartChat => 'Start a chat';
+
+  @override
+  String get polishTabTrain => 'Train';
+
+  @override
+  String get polishTrainChallengesSubtitle =>
+      'Compete with friends and your gym';
+
+  @override
+  String get polishTrainExercisesSubtitle => 'The library, with how-tos';
+
+  @override
+  String get polishTrainHeroBody => 'Follow a workout or log a free session.';
+
+  @override
+  String get polishTrainHeroTitle => 'Ready to train?';
+
+  @override
+  String get polishTrainLast7Days => 'Last 7 days';
+
+  @override
+  String get polishTrainPlanTrack => 'Plan & track';
+
+  @override
+  String get polishTrainProgress => 'Progress & PRs';
+
+  @override
+  String get polishTrainProgressSubtitle => 'Lifts, records and body stats';
+
+  @override
+  String get polishTrainRecent => 'Recent sessions';
+
+  @override
+  String get polishTrainRoutinesSubtitle => 'Your routines and plans';
+
+  @override
+  String get polishTrainStatMinutes => 'Minutes';
+
+  @override
+  String get polishTrainStatSets => 'Sets';
+
+  @override
+  String get polishTrainStatWorkouts => 'Workouts';
+
+  @override
   String get postShareAction => 'Share as post';
 
   @override
@@ -6093,6 +7311,26 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get postingDiscard => 'Discard';
+
+  @override
+  String get postingDone => 'Posted';
+
+  @override
+  String get postingFailed => 'Couldn\'t post.';
+
+  @override
+  String get postingInProgress => 'Posting…';
+
+  @override
+  String postingProgressLabel(int percent) {
+    return 'Posting, $percent% done';
+  }
+
+  @override
+  String get postingRetry => 'Retry';
 
   @override
   String get postsAdvancedSettings => 'Advanced settings';
@@ -8706,6 +9944,137 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get todayAllDone => 'All done for today';
+
+  @override
+  String get todayAllDoneHint =>
+      'Nice work. Rest up, or squeeze in another session.';
+
+  @override
+  String get todayCalories => 'Calories';
+
+  @override
+  String get todayCarbShort => 'C';
+
+  @override
+  String todayClassWith(String trainer) {
+    return 'with $trainer';
+  }
+
+  @override
+  String get todayEntryDone => 'Done';
+
+  @override
+  String get todayEntrySkipped => 'Skipped';
+
+  @override
+  String get todayFatShort => 'F';
+
+  @override
+  String get todayFreeDay => 'Free day';
+
+  @override
+  String get todayFreeDayHint =>
+      'Nothing planned today. Feel like moving anyway?';
+
+  @override
+  String todayGreetingAfternoon(String name) {
+    return 'Good afternoon, $name';
+  }
+
+  @override
+  String todayGreetingEvening(String name) {
+    return 'Good evening, $name';
+  }
+
+  @override
+  String todayGreetingMorning(String name) {
+    return 'Good morning, $name';
+  }
+
+  @override
+  String get todayKcalLogged => 'kcal logged';
+
+  @override
+  String todayKcalOf(int target) {
+    final intl.NumberFormat targetNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String targetString = targetNumberFormat.format(target);
+
+    return 'of $targetString kcal';
+  }
+
+  @override
+  String todayKcalSemantics(int eaten) {
+    return 'Calories today: $eaten kcal';
+  }
+
+  @override
+  String todayKcalTargetSemantics(int eaten, int target) {
+    return 'Calories today: $eaten of $target kcal';
+  }
+
+  @override
+  String get todayNextClass => 'Next class';
+
+  @override
+  String get todayOpenDiary => 'Open the food diary';
+
+  @override
+  String get todayProteinShort => 'P';
+
+  @override
+  String get todayShortcuts => 'Shortcuts';
+
+  @override
+  String get todayStartAnother => 'Start another';
+
+  @override
+  String get todayStartAnyway => 'Start a workout anyway';
+
+  @override
+  String todayStartFailed(String error) {
+    return 'Couldn\'t start the workout: $error';
+  }
+
+  @override
+  String get todayStartWorkout => 'Start workout';
+
+  @override
+  String get todayTomorrow => 'Tomorrow';
+
+  @override
+  String get todayTraining => 'Today\'s training';
+
+  @override
+  String get todayWaitlisted => 'Waitlist';
+
+  @override
+  String get todayWeight => 'Weight';
+
+  @override
+  String todayWeightChange(String change) {
+    return '$change in 30 days';
+  }
+
+  @override
+  String get todayWeightOne => 'Your first weigh-in';
+
+  @override
+  String get todayWeightSteady => 'Steady over 30 days';
+
+  @override
+  String get todayWeightTrend => 'Weight trend over the last 30 days';
+
+  @override
+  String get todayWorkoutFallback => 'Workout';
+
+  @override
+  String todayWorkoutWhen(String time, int minutes) {
+    return '$time · $minutes min';
+  }
+
+  @override
   String get trainerClassesPickerCustomer => 'Customer';
 
   @override
@@ -10736,6 +12105,227 @@ class AppLocalizationsEn extends AppLocalizations {
       'No routines assigned to you yet.\nYour coach\'s assignments show up here.';
 
   @override
+  String get waterAdd => 'Add';
+
+  @override
+  String waterAddCup(String amount) {
+    return 'Add $amount';
+  }
+
+  @override
+  String waterAddFailed(String error) {
+    return 'Couldn\'t log that drink: $error';
+  }
+
+  @override
+  String waterAdded(String amount) {
+    return 'Added $amount';
+  }
+
+  @override
+  String waterAddedGoal(String amount) {
+    return 'Added $amount. Daily goal reached!';
+  }
+
+  @override
+  String get waterAverage => 'Daily average';
+
+  @override
+  String waterBottleSemantics(String drunk, String goal, int percent) {
+    return 'Water today: $drunk of $goal, $percent percent';
+  }
+
+  @override
+  String waterChartSemantics(int count, int reached) {
+    return 'Water per day over the last $count days, $reached of them at the goal';
+  }
+
+  @override
+  String get waterCustom => 'Custom';
+
+  @override
+  String get waterCustomInvalid => 'Enter 1 to 3000 ml';
+
+  @override
+  String get waterCustomLabel => 'Amount (ml)';
+
+  @override
+  String get waterCustomTitle => 'Add water';
+
+  @override
+  String get waterDaysReached => 'Goal met';
+
+  @override
+  String waterDaysReachedValue(int count, int total) {
+    return '$count of $total days';
+  }
+
+  @override
+  String get waterGoalLine => 'Goal';
+
+  @override
+  String get waterGoalReached => 'Goal reached!';
+
+  @override
+  String get waterHistory => 'History';
+
+  @override
+  String waterHistoryDays(int count) {
+    return '$count days';
+  }
+
+  @override
+  String waterLeft(String amount) {
+    return '$amount to go';
+  }
+
+  @override
+  String waterLiters(String amount) {
+    return '$amount l';
+  }
+
+  @override
+  String get waterLoadFailed => 'Couldn\'t load your water.';
+
+  @override
+  String waterMl(String amount) {
+    return '$amount ml';
+  }
+
+  @override
+  String get waterNoEntries =>
+      'Nothing yet today. Tap a cup to log your first drink.';
+
+  @override
+  String waterOfGoal(String goal) {
+    return 'of $goal';
+  }
+
+  @override
+  String get waterOpenTracker => 'Open the water tracker';
+
+  @override
+  String waterProgress(String drunk, String goal) {
+    return '$drunk of $goal';
+  }
+
+  @override
+  String get waterReminderBody => 'A glass now keeps you on track for the day.';
+
+  @override
+  String waterReminderBodyLeft(String amount) {
+    return '$amount to go for today\'s goal.';
+  }
+
+  @override
+  String get waterReminderChannel => 'Water reminders';
+
+  @override
+  String get waterReminderChannelDescription =>
+      'Reminders to drink water through the day';
+
+  @override
+  String get waterReminderTitle => 'Time for some water';
+
+  @override
+  String waterRemoved(String amount) {
+    return 'Removed $amount';
+  }
+
+  @override
+  String waterRingHint(String amount) {
+    return 'Tap to add $amount, hold to open the water tracker';
+  }
+
+  @override
+  String get waterSettingsAddCup => 'Add a size';
+
+  @override
+  String get waterSettingsCups => 'Cup sizes';
+
+  @override
+  String get waterSettingsCupsHelp =>
+      'Up to four quick-add sizes, from 50 to 2000 ml.';
+
+  @override
+  String get waterSettingsGoal => 'Daily goal';
+
+  @override
+  String waterSettingsGoalAuto(String amount) {
+    return 'Automatic · $amount';
+  }
+
+  @override
+  String get waterSettingsGoalAutoHelp =>
+      'About 35 ml per kg of your latest body weight (2.5 l without one). Workout days add 500 ml.';
+
+  @override
+  String waterSettingsGoalCustom(String amount) {
+    return 'Custom · $amount';
+  }
+
+  @override
+  String get waterSettingsGoalCustomHelp =>
+      'Your own goal. Workout days still add 500 ml.';
+
+  @override
+  String get waterSettingsGoalTitle => 'Daily water goal';
+
+  @override
+  String get waterSettingsLess => 'Less';
+
+  @override
+  String get waterSettingsMore => 'More';
+
+  @override
+  String get waterSettingsPermissionDenied =>
+      'Allow notifications for Gym Bro to get water reminders.';
+
+  @override
+  String get waterSettingsReminders => 'Reminders';
+
+  @override
+  String get waterSettingsRemindersHelp =>
+      'Every 2 hours from 9:00 to 21:00, stopping once you reach the day\'s goal.';
+
+  @override
+  String get waterSettingsRemoveCup => 'Remove this size';
+
+  @override
+  String get waterSettingsUseAuto => 'Automatic';
+
+  @override
+  String get waterSettingsUseCustom => 'Custom';
+
+  @override
+  String get waterStreak => 'In a row';
+
+  @override
+  String waterStreakValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get waterTitle => 'Water';
+
+  @override
+  String get waterTodayEntries => 'Today\'s drinks';
+
+  @override
+  String get waterUndo => 'Undo';
+
+  @override
+  String waterWorkoutBonus(String amount) {
+    return '+$amount for today\'s workout';
+  }
+
+  @override
   String get workoutCompleteDone => 'Done';
 
   @override
@@ -11023,4 +12613,297 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workoutTrainingSaveAsCopy => 'Save as a new training';
+
+  @override
+  String wrappedActiveDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'on $count different days',
+      one: 'on 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedBadges => 'Badges earned';
+
+  @override
+  String get wrappedBannerBody => 'Workouts, lifts, streaks and more.';
+
+  @override
+  String get wrappedBannerCta => 'Watch it';
+
+  @override
+  String get wrappedBannerKicker => 'Gym Bro Wrapped';
+
+  @override
+  String wrappedBannerTitle(String year) {
+    return 'Your $year in training is ready';
+  }
+
+  @override
+  String get wrappedBestLifts => 'Your strongest lifts (estimated 1RM)';
+
+  @override
+  String wrappedBestMonth(String month, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count workouts',
+      one: '1 workout',
+    );
+    return 'Biggest month: $month, $_temp0';
+  }
+
+  @override
+  String wrappedBusiestDay(String day) {
+    return '$day was your day';
+  }
+
+  @override
+  String wrappedChallenges(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count challenges completed',
+      one: '1 challenge completed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wrappedCheckIns(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'check-ins',
+      one: 'check-in',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wrappedClasses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count classes attended',
+      one: '1 class attended',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedClose => 'Close';
+
+  @override
+  String get wrappedDone => 'Done';
+
+  @override
+  String wrappedEmptyBody(String year) {
+    return 'Nothing was logged in $year. Your next Wrapped starts with your next workout.';
+  }
+
+  @override
+  String get wrappedEmptyTitle => 'A quiet year';
+
+  @override
+  String get wrappedFavouriteGym => 'Your second home';
+
+  @override
+  String wrappedFavouriteHour(String time) {
+    return 'Favourite time to train: $time';
+  }
+
+  @override
+  String wrappedFirstWorkout(String date) {
+    return 'It all started on $date.';
+  }
+
+  @override
+  String get wrappedGymKicker => 'At the gym';
+
+  @override
+  String wrappedHours(String hours) {
+    return '$hours hours of training';
+  }
+
+  @override
+  String wrappedInARow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'workouts in a row',
+      one: 'workout in a row',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedIntroHint => 'Tap to begin';
+
+  @override
+  String get wrappedIntroKicker => 'Your year in training';
+
+  @override
+  String get wrappedIntroWord => 'Wrapped';
+
+  @override
+  String wrappedLiftDetail(String weight, int reps) {
+    return '$weight × $reps';
+  }
+
+  @override
+  String get wrappedLoadFailed => 'Couldn\'t load your Wrapped.';
+
+  @override
+  String get wrappedLongestStreak => 'Longest streak';
+
+  @override
+  String get wrappedNext => 'Next';
+
+  @override
+  String wrappedNoData(String year) {
+    return 'No workouts were logged in $year.';
+  }
+
+  @override
+  String wrappedNotYet(String year, String date) {
+    return 'Your $year Wrapped opens on $date.';
+  }
+
+  @override
+  String wrappedPrCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'new PRs',
+      one: 'new PR',
+      zero: 'No new PRs',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedPrKicker => 'Personal records';
+
+  @override
+  String get wrappedPrevious => 'Previous';
+
+  @override
+  String get wrappedRetry => 'Try again';
+
+  @override
+  String get wrappedRhythmKicker => 'Your rhythm';
+
+  @override
+  String wrappedSetsReps(String sets, String reps) {
+    return '$sets sets · $reps reps';
+  }
+
+  @override
+  String get wrappedShare => 'Share to story';
+
+  @override
+  String get wrappedShareFailed => 'Couldn\'t create the image.';
+
+  @override
+  String wrappedSlideLabel(int index, int count) {
+    return 'Slide $index of $count';
+  }
+
+  @override
+  String get wrappedStreakKicker => 'Consistency';
+
+  @override
+  String get wrappedSummaryDays => 'Active days';
+
+  @override
+  String get wrappedSummaryHours => 'Hours';
+
+  @override
+  String get wrappedSummaryKicker => 'That\'s a wrap';
+
+  @override
+  String get wrappedSummaryPrs => 'PRs';
+
+  @override
+  String get wrappedSummaryStreak => 'Best streak';
+
+  @override
+  String get wrappedSummaryTop => 'Top exercise';
+
+  @override
+  String get wrappedSummaryVolume => 'Lifted';
+
+  @override
+  String get wrappedSummaryWorkouts => 'Workouts';
+
+  @override
+  String get wrappedTitle => 'Gym Bro Wrapped';
+
+  @override
+  String get wrappedTopKicker => 'Your most-trained exercises';
+
+  @override
+  String wrappedTopSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sets',
+      one: '1 set',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wrappedVolumeCars(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'That\'s about $count cars 🚗',
+      one: 'That\'s about 1 car 🚗',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String wrappedVolumeElephants(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'That\'s about $count elephants 🐘',
+      one: 'That\'s about 1 elephant 🐘',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedVolumeKicker => 'In total you lifted';
+
+  @override
+  String wrappedVolumePianos(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'That\'s about $count grand pianos 🎹',
+      one: 'That\'s about 1 grand piano 🎹',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wrappedWorkoutsKicker => 'This year you showed up for';
+
+  @override
+  String wrappedWorkoutsUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'workouts',
+      one: 'workout',
+    );
+    return '$_temp0';
+  }
 }

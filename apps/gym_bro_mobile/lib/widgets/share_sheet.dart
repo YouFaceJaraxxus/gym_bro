@@ -12,6 +12,7 @@ import '../pages/stories/story_composer_page.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'post_attachment_card.dart';
+import 'posting_bar.dart';
 import 'share_post.dart';
 import 'shared_content_card.dart';
 import 'social_widgets.dart';
@@ -68,7 +69,9 @@ Future<void> showShareSheet(BuildContext context, ShareRequest request) async {
   if (!context.mounted || action == null) return;
   switch (action) {
     case _QuickAction.story:
-      await openStoryComposer(context, share: request);
+      final messenger = ScaffoldMessenger.maybeOf(context);
+      final pending = await openStoryComposer(context, share: request);
+      if (pending != null) unawaited(followPending(messenger, pending, posted: l10n.storyPosted));
     case _QuickAction.post:
       await sharePost(context, request.postTarget!);
   }

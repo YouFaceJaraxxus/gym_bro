@@ -43,6 +43,10 @@
 	<string>Gym Bro uses your camera to take photos and videos for posts and chats, profile and progress photos, and to scan gym check-in QR codes and product barcodes.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Gym Bro uses your microphone to record voice messages in chats and sound with the videos you take for posts and chats.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>If you connect Apple Health, Gym Bro reads your weigh-ins (to add them to your body measurements), and today's steps and last night's sleep (shown on Home).</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>If you connect Apple Health, Gym Bro saves the workouts you finish and the water you log there.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>If you choose to, Gym Bro uses your approximate location (rounded to about a kilometre) to suggest people who train nearby. Your exact location is never shared.</string>
 	<key>NSAppTransportSecurity</key>
@@ -54,6 +58,8 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

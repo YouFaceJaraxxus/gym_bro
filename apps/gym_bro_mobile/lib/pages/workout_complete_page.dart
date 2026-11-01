@@ -11,6 +11,7 @@ import '../models/streak.dart';
 import '../models/training.dart';
 import '../models/training_session.dart';
 import '../services/settings_service.dart';
+import '../theme.dart';
 import '../widgets/share_post.dart';
 import '../widgets/share_sheet.dart';
 import '../widgets/streak_widgets.dart';
@@ -273,11 +274,7 @@ class _StatTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     final fg = highlight ? cs.onTertiaryContainer : cs.onSurface;
-    final style = text.titleLarge?.copyWith(
-      fontWeight: FontWeight.w800,
-      color: fg,
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
+    final style = AppText.stat(size: 30, weight: FontWeight.w800, color: fg);
     Widget tile = Card(
       margin: EdgeInsets.zero,
       color: highlight ? cs.tertiaryContainer : null,
@@ -419,10 +416,7 @@ class _FlameCount extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final l10n = context.l10n;
     final lit = streak.current > 0;
-    final style = text.displaySmall?.copyWith(
-      fontWeight: FontWeight.w900,
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
+    final style = AppText.stat(size: 52, weight: FontWeight.w800, color: cs.onSurface);
 
     Widget flame = StreakFlame(size: 56, lit: lit);
     Widget count = Text('${streak.current}', style: style);

@@ -69,6 +69,11 @@ Nobody has a single account type (migration 000023):
   logs a session for someone they coach (`POST /training-sessions {user_id}`,
   an accepted client or a member of a gym they work at) and becomes its
   trainer, which lets them edit it and its sets too.
+- **Last sets** (`GET /training-sessions/last-sets?exercise_ids=a,b`, optional
+  `before=` ISO timestamp and `user_id=` for a coach): per exercise, the sets
+  (`weight_kg`, `reps`, `rep_type`, `side`) of the most recent finished
+  session with it and its `started_at`, in one query. The app builds its
+  progressive-overload suggestions from it while logging.
 - Super users pass every permission check, and `GET /businesses?all=1` lists
   every business.
 
@@ -145,6 +150,102 @@ logged in `admin_audit_log`. In the app: Home → Admin → Database.
   file. Signed URLs are relative to the Supabase origin (the local edge runtime
   only knows the Docker-internal URL). Unused upload slots are swept by
   `POST /jobs/run`.
+
+## Water
+
+`water_log` (migration 000026) keeps one row per drink (1–3000 ml, an
+instant). Days are local to the `tz` query parameter (the app's IANA zone),
+else `user_settings.timezone`, else UTC. The daily goal is
+`user_settings.water_goal_ml`, or ~35 ml per kg of the latest body weight
+(rounded to 50 ml, 1.5–5 l; 2.5 l without one), plus 500 ml on a day with a
+finished workout (`supabase/functions/water-logs/rules.ts`).
+
+- `GET /water-logs/today?tz=`: `{date, total_ml, goal_ml, base_goal_ml,
+  workout_bonus_ml, auto_goal, weight_kg, worked_out, entries[]}` (newest first).
+- `GET /water-logs/history?days=30&tz=`: one row per local day, oldest first,
+  days without water included (`days` 1–90), each with its goal.
+- `POST /water-logs?tz=` `{ml, logged_at?}` (up to 30 days back, not in the
+  future) → `201 {entry, today}`.
+- `DELETE /water-logs/:id?tz=`: one of my own drinks (undo) → `{today}`.
+
+The app's reminders are local notifications (every ~2 hours, 09:00–21:00)
+scheduled on the device; nothing is sent from the server.
+
+## Body progress
+
+`body_measurement` keeps weight (kg), body-fat % and, since migration 000027,
+optional tape measurements in cm (`waist_cm` 30–250, `chest_cm` 40–250,
+`hips_cm` 40–250, `arm_cm` 10–100, `thigh_cm` 20–150, `neck_cm` 15–80; one
+decimal). A row needs at least one value of any kind. The goal weight is
+`user_settings.goal_weight_kg`; the trend line, weekly rate and goal ETA are
+worked out in the app.
+
+- `GET /body-measurements?user_id=&from=&to=`: oldest first; coaches and super
+  users may pass a coached member's `user_id`.
+- `POST /body-measurements` `{measured_on?, weight_kg?, body_fat_pct?, waist_cm?,
+  chest_cm?, hips_cm?, arm_cm?, thigh_cm?, neck_cm?, note?}`; `PUT /:id` takes
+  any subset (null clears); `DELETE /:id`. Owner (or super user) only.
+
+Progress photos (`progress_photo`, private `progress-photos` bucket, images up
+to 20 MB) are **owner-only**: no coach, super-user or feed read path. Upload
+works like other private media (slot → PUT to Storage → reference the path).
+
+- `GET /progress-photos?pose=front|side|back|other&from=&to=`: mine, newest
+  first, each with a signed `url` (`?user_id=` of anyone else is 403).
+- `POST /progress-photos/uploads` `{mime_type, size_bytes, file_name?}` → slot.
+- `POST /progress-photos` `{path, pose?, taken_on?, weight_kg?, note?}` → 201.
+  Without `weight_kg` the nearest weigh-in within 7 days of `taken_on` is
+  snapshotted; `weight_kg: null` stores none.
+- `PUT /progress-photos/:id` `{pose?, taken_on?, weight_kg?, note?}`;
+  `DELETE /progress-photos/:id` also removes the file. Someone else's photo is 404.
+
+## Challenges and Wrapped
+
+**Challenges** (migration 000028, rules in `_shared/challenges.ts`) are
+time-boxed goals people join: `workouts`, `active_days`, `minutes`,
+`volume_kg` or (gym challenges only) `check_ins` between two local dates.
+`business_id` null = platform-wide (super users, plus "<Month> Grind: 12
+workouts" and "Active <Month>: 20 days" created by `POST /jobs/run` with an
+`auto_key` per month); otherwise a gym challenge made by its owners, staff or
+trainers and visible to its active members and team. Progress counts like
+streaks (finished workouts with a set, logged by the end of the next day,
+days in each participant's zone; minutes cap a workout at 4 h; check-ins
+count days), including workouts from before joining. It's cached in
+`challenge_participant.progress` and recomputed while live (until 3 days
+after the end): on read, after a workout is logged/changed/deleted, and by
+the jobs step. Reaching the target sets `completed_at` once (never taken
+back) and sends a `challenge` notification; members get one when a new gym
+challenge is created.
+
+- `GET /challenges?status=current|past&gym_id=&joined=1&tz=` → `{today,
+  items, can_create_platform, creatable_gyms}`; each item has `status`,
+  `days_left`, `participants`, `me {joined, progress, completed_at}`, `can_edit`.
+- `GET /challenges/:id` adds `creator`, `leaderboard` (top 50, without
+  blocked people or anyone who turned off `show_on_gym_boards`, except me)
+  and `my_rank`.
+- `POST /challenges` `{business_id?, title, description?, metric, target,
+  starts_on, ends_on}`; `PATCH` / `DELETE /challenges/:id` by the creator,
+  the gym's owners or super users (metric and start are fixed once started).
+- `POST` / `DELETE /challenges/:id/join` until it ends.
+- `GET /challenges/completed?user_id=` → `{count, items, private}`: profile
+  medals. Blocked → 404; a private account shows its count only to
+  non-followers.
+
+**Wrapped** (`GET /wrapped/:year?tz=`, `_shared/wrapped.ts`) is the
+caller's own yearly recap, computed on request (≈20 ms on seeded users):
+totals (workouts, active days, minutes, volume, sets, reps), top 5 exercises
+by sets and by volume, PR count and best e1RM lifts (Epley, as on the
+progress screen), workouts by weekday/hour/month with the busiest of each,
+check-ins, favourite gym, classes attended, the longest streak reached that
+year (the highest `streak_event` that year, or the live streak's length at
+Dec 31), streak badges earned and challenges completed. Late-logged workouts
+count here. The current year opens on December 1 (local); past years
+whenever they have workouts or check-ins. Otherwise it answers 200
+`{year, available: false, available_from, reason: not_yet | no_data}`.
+`GET /wrapped` lists the years. Super users can open the current year early
+with `?preview=1`. In December the jobs step sends one `wrapped`
+notification per user who trained that year (from 10:00 local on Dec 1,
+remembered in `wrapped_notice`).
 
 ## Filling a database
 

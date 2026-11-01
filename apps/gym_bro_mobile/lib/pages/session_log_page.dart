@@ -9,9 +9,12 @@ import '../models/training_session.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/offline/outbox.dart' show QueuedOfflineException;
+import '../services/overload_history.dart';
 import '../services/settings_service.dart';
 import '../utils/one_rep_max.dart';
+import '../utils/overload.dart';
 import '../widgets/exercise_picker_sheet.dart';
+import '../widgets/overload_chip.dart';
 import '../widgets/plate_calculator_sheet.dart';
 import '../widgets/rest_timer.dart';
 import '../widgets/app_bottom_sheet.dart';
@@ -24,6 +27,9 @@ import 'workout_complete_page.dart';
 /// After each logged set a rest countdown starts; a trophy pops up when the
 /// API reports a personal record; sets logged offline stay visible as
 /// pending until the outbox syncs them. Finishing opens [WorkoutCompletePage].
+/// A PR set's row stays gold. Each exercise shows last time's sets and a
+/// progressive-overload suggestion (ghosted into empty fields, one tap fills
+/// it in) once its history loads; without history or offline there's none.
 ///
 /// A trainer passes [clientId] (and [clientName]) to run the session for
 /// someone they coach; it's saved as the client's, with the trainer on it.
@@ -32,11 +38,15 @@ class SessionLogPage extends StatefulWidget {
   final String? clientId;
   final String? clientName;
 
+  /// The planned workout this session confirms (marked done once logged).
+  final String? planEntryId;
+
   const SessionLogPage({
     super.key,
     this.training,
     this.clientId,
     this.clientName,
+    this.planEntryId,
   });
 
   @override
@@ -65,6 +75,12 @@ class _SessionLogPageState extends State<SessionLogPage> {
   final Map<int, List<_LoggedDrop>> _loggedDrops = {};
   final Set<int> _pendingSets = {};
 
+  /// Sets that were a PR → the exercise it was for (null when unknown).
+  final Map<int, String?> _prSets = {};
+
+  /// Last time's sets per exercise, for the suggestions (never awaited).
+  late final OverloadHistory _history = OverloadHistory(userId: widget.clientId);
+
   /// Last weight (kg) the user entered; pre-fills the plate calculator.
   double? _lastWeightKg;
 
@@ -72,6 +88,11 @@ class _SessionLogPageState extends State<SessionLogPage> {
   void initState() {
     super.initState();
     _startSession();
+    _history.addListener(_onHistory);
+    _history.load([
+      for (final set in widget.training?.sets ?? const <TrainingSet>[])
+        for (final ex in set.exercises) ex.exerciseId,
+    ]);
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() => _elapsed += const Duration(seconds: 1));
     });
@@ -81,9 +102,14 @@ class _SessionLogPageState extends State<SessionLogPage> {
   void dispose() {
     _timer.cancel();
     _rest.dispose();
+    _history.dispose();
     _prOverlay?.remove();
     _prOverlay = null;
     super.dispose();
+  }
+
+  void _onHistory() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _startSession() async {
@@ -97,6 +123,7 @@ class _SessionLogPageState extends State<SessionLogPage> {
         token,
         trainingId: widget.training?.id,
         userId: widget.clientId,
+        planEntryId: widget.planEntryId,
       );
       if (!mounted) return;
       setState(() {
@@ -165,8 +192,15 @@ class _SessionLogPageState extends State<SessionLogPage> {
     required String Function(String? exerciseId) exerciseName,
     int? restSeconds,
     double? weightKg,
+    String? nextUp,
   }) {
+    // A light tap for every set; a PR gets its own thump below.
+    if (result?.isPr != true) HapticFeedback.lightImpact();
     if (weightKg != null && weightKg > 0) _lastWeightKg = weightKg;
+    // Shown with the rest on the lock screen.
+    _rest
+      ..exercise = exerciseName(null)
+      ..nextUp = nextUp;
     _rest.start(restSeconds != null && restSeconds > 0 ? restSeconds : null);
 
     final messenger = ScaffoldMessenger.of(context);
@@ -191,6 +225,21 @@ class _SessionLogPageState extends State<SessionLogPage> {
           ? l10n.trainingLogNewPrWithE1rm(name, _settings.formatWeight(e1rm))
           : l10n.trainingLogNewPr(name));
     }
+  }
+
+  /// The exercises of the first set still to log after [index] (wrapping
+  /// around), for the rest on the lock screen.
+  String? _nextUpAfter(List<TrainingSet> sets, int index) {
+    for (var k = 1; k < sets.length; k++) {
+      final j = (index + k) % sets.length;
+      if (_loggedDrops.containsKey(j)) continue;
+      final names = [
+        for (final ex in sets[j].exercises)
+          if ((ex.exercise?.name ?? '').isNotEmpty) ex.exercise!.name,
+      ];
+      return names.isEmpty ? null : names.join(' + ');
+    }
+    return null;
   }
 
   /// A trophy popping up over the page for a moment, with a thump.
@@ -302,6 +351,7 @@ class _SessionLogPageState extends State<SessionLogPage> {
                   ? _FreeFormLogger(
                       session: _session!,
                       api: _api,
+                      history: _history,
                       onLogged: _onSetLogged,
                     )
                   : ListView.builder(
@@ -317,10 +367,14 @@ class _SessionLogPageState extends State<SessionLogPage> {
                           api: _api,
                           loggedDrops: _loggedDrops[i] ?? [],
                           pending: _pendingSets.contains(i),
+                          history: _history,
+                          isPr: _prSets.containsKey(i),
+                          prExerciseId: _prSets[i],
                           onLogged: (drops, result, queued) {
                             setState(() {
                               _loggedDrops[i] = drops;
                               if (queued) _pendingSets.add(i);
+                              if (result != null && result.isPr) _prSets[i] = result.prExerciseId;
                             });
                             final heaviest = drops
                                 .map((d) => d.weightKg ?? 0)
@@ -330,6 +384,7 @@ class _SessionLogPageState extends State<SessionLogPage> {
                               queued: queued,
                               restSeconds: set.restSeconds,
                               weightKg: heaviest,
+                              nextUp: _nextUpAfter(sets, i),
                               exerciseName: (id) {
                                 final name =
                                     drops.where((d) => d.exerciseId == id).firstOrNull?.exerciseName ??
@@ -355,6 +410,7 @@ typedef _OnSetLogged = void Function({
   required String Function(String? exerciseId) exerciseName,
   int? restSeconds,
   double? weightKg,
+  String? nextUp,
 });
 
 // ── Structured set logger ─────────────────────────────────────────────────────
@@ -366,6 +422,11 @@ class _SetLogger extends StatefulWidget {
   final ApiService api;
   final List<_LoggedDrop> loggedDrops;
   final bool pending;
+  final OverloadHistory history;
+
+  /// Logged as a PR (for [prExerciseId] when known).
+  final bool isPr;
+  final String? prExerciseId;
   final void Function(List<_LoggedDrop> drops, SessionSetLog? result, bool queued) onLogged;
 
   const _SetLogger({
@@ -376,6 +437,9 @@ class _SetLogger extends StatefulWidget {
     required this.api,
     required this.loggedDrops,
     required this.pending,
+    required this.history,
+    this.isPr = false,
+    this.prExerciseId,
     required this.onLogged,
   });
 
@@ -415,6 +479,55 @@ class _SetLoggerState extends State<_SetLogger> {
       }
     }
     return result;
+  }
+
+  /// What to try for each exercise in the set, from last time.
+  Map<String, OverloadSuggestion> _suggestions() {
+    final out = <String, OverloadSuggestion>{};
+    for (final ex in widget.set.exercises) {
+      final target = ex.drops.where((d) => d.repType == RepType.count && d.repCount != null).firstOrNull?.repCount;
+      final s = suggestionFor(
+        widget.history[ex.exerciseId],
+        targetReps: target,
+        isolation: isIsolationExercise(ex.exercise),
+      );
+      if (s != null) out[ex.exerciseId] = s;
+    }
+    return out;
+  }
+
+  /// Fills [s] into the exercise's rows that have no weight yet (all of its
+  /// rows when every one has a weight already).
+  void _applySuggestion(String exerciseId, OverloadSuggestion s) {
+    HapticFeedback.selectionClick();
+    final rows = [for (final (i, d) in _drops.indexed) if (d.exerciseId == exerciseId) i];
+    final empty = rows.where((i) => _drops[i].weightKg == null).toList();
+    setState(() {
+      for (final i in empty.isEmpty ? rows : empty) {
+        final d = _drops[i];
+        _drops[i] = d.copyWith(
+          repCount: d.repType == RepType.count ? s.reps : null,
+          weightKg: s.weightKg,
+          clearWeight: s.weightKg == null,
+        );
+      }
+    });
+  }
+
+  /// The row that set the PR: the best e1RM of the PR's exercise.
+  int? _prRow() {
+    if (!widget.isPr || !_done) return null;
+    int? best;
+    double bestE1rm = -1;
+    for (final (i, d) in _drops.indexed) {
+      if (widget.prExerciseId != null && d.exerciseId != widget.prExerciseId) continue;
+      final e = d.repType == RepType.count ? epleyOneRepMax(d.weightKg, d.repCount) ?? 0 : 0.0;
+      if (best == null || e > bestE1rm) {
+        best = i;
+        bestE1rm = e;
+      }
+    }
+    return best;
   }
 
   Future<void> _logSet() async {
@@ -461,6 +574,8 @@ class _SetLoggerState extends State<_SetLogger> {
     final l10n = context.l10n;
     final pending = widget.pending;
     final rest = widget.set.restSeconds;
+    final suggestions = _done ? const <String, OverloadSuggestion>{} : _suggestions();
+    final prRow = _prRow();
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
@@ -470,7 +585,9 @@ class _SetLoggerState extends State<_SetLogger> {
               ? Colors.transparent
               : pending
                   ? cs.tertiary
-                  : cs.primary,
+                  : widget.isPr
+                      ? _PrCelebration._gold
+                      : cs.primary,
           width: 1.5,
         ),
       ),
@@ -513,14 +630,23 @@ class _SetLoggerState extends State<_SetLogger> {
               ],
             ),
             const SizedBox(height: 8),
+            if (!_done)
+              for (final ex in widget.set.exercises.where((e) => suggestions.containsKey(e.exerciseId)))
+                OverloadChip(
+                  last: widget.history[ex.exerciseId],
+                  suggestion: suggestions[ex.exerciseId],
+                  onApply: () => _applySuggestion(ex.exerciseId, suggestions[ex.exerciseId]!),
+                ),
             ..._drops.asMap().entries.map((entry) {
               final i = entry.key;
               final d = entry.value;
-              return _DropLogRow(
+              final row = _DropLogRow(
                 drop: d,
                 enabled: !_done,
+                ghost: suggestions[d.exerciseId],
                 onChange: (updated) => setState(() => _drops[i] = updated),
               );
+              return i == prRow ? _GoldPrHighlight(child: row) : row;
             }),
           ],
         ),
@@ -556,9 +682,10 @@ class _AdHocResult {
 class _FreeFormLogger extends StatefulWidget {
   final TrainingSession session;
   final ApiService api;
+  final OverloadHistory history;
   final _OnSetLogged onLogged;
 
-  const _FreeFormLogger({required this.session, required this.api, required this.onLogged});
+  const _FreeFormLogger({required this.session, required this.api, required this.history, required this.onLogged});
 
   @override
   State<_FreeFormLogger> createState() => _FreeFormLoggerState();
@@ -576,6 +703,7 @@ class _FreeFormLoggerState extends State<_FreeFormLogger> {
       builder: (_) => _AdHocSetSheet(
         session: widget.session,
         api: widget.api,
+        history: widget.history,
         position: _logged.length,
         initialExercise: _lastExercise,
         onExercisePicked: (e) => _lastExercise = e,
@@ -615,7 +743,7 @@ class _FreeFormLoggerState extends State<_FreeFormLogger> {
                   itemCount: _logged.length,
                   itemBuilder: (context, i) {
                     final entry = _logged[i];
-                    return MergeSemantics(
+                    final tile = MergeSemantics(
                       child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor:
@@ -637,6 +765,11 @@ class _FreeFormLoggerState extends State<_FreeFormLogger> {
                         if (entry.isPr) l10n.trainingLogNewPrShort,
                       ].join(' · ')),
                       ),
+                    );
+                    if (!entry.isPr) return tile;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: _GoldPrHighlight(showTrophy: false, child: tile),
                     );
                   },
                 ),
@@ -662,6 +795,7 @@ class _FreeFormLoggerState extends State<_FreeFormLogger> {
 class _AdHocSetSheet extends StatefulWidget {
   final TrainingSession session;
   final ApiService api;
+  final OverloadHistory history;
   final int position;
   final Exercise? initialExercise;
   final ValueChanged<Exercise> onExercisePicked;
@@ -669,6 +803,7 @@ class _AdHocSetSheet extends StatefulWidget {
   const _AdHocSetSheet({
     required this.session,
     required this.api,
+    required this.history,
     required this.position,
     this.initialExercise,
     required this.onExercisePicked,
@@ -691,19 +826,42 @@ class _AdHocSetSheetState extends State<_AdHocSetSheet> {
   void initState() {
     super.initState();
     _exercise = widget.initialExercise;
+    widget.history.addListener(_onHistory);
+    widget.history.load([_exercise?.id]);
   }
 
   @override
   void dispose() {
+    widget.history.removeListener(_onHistory);
     _reps.dispose();
     _weight.dispose();
     super.dispose();
+  }
+
+  void _onHistory() {
+    if (mounted) setState(() {});
+  }
+
+  OverloadSuggestion? get _suggestion => suggestionFor(
+        widget.history[_exercise?.id],
+        isolation: isIsolationExercise(_exercise),
+      );
+
+  void _applySuggestion(OverloadSuggestion s) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _repType = RepType.count;
+      _reps.text = '${s.reps}';
+      _weight.text = suggestedWeightText(s);
+      _error = null;
+    });
   }
 
   Future<void> _pickExercise() async {
     final picked = await showExercisePicker(context);
     if (picked != null && mounted) {
       widget.onExercisePicked(picked);
+      widget.history.load([picked.id]);
       setState(() {
         _exercise = picked;
         _error = null;
@@ -796,6 +954,7 @@ class _AdHocSetSheetState extends State<_AdHocSetSheet> {
     final e1rm = _repType == RepType.count
         ? epleyOneRepMax(_weightKg, int.tryParse(_reps.text.trim()))
         : null;
+    final suggestion = _suggestion;
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom + 16,
@@ -824,6 +983,12 @@ class _AdHocSetSheetState extends State<_AdHocSetSheet> {
               ),
             ),
             const SizedBox(height: 12),
+            if (suggestion != null)
+              OverloadChip(
+                last: widget.history[_exercise?.id],
+                suggestion: suggestion,
+                onApply: _saving ? null : () => _applySuggestion(suggestion),
+              ),
             DropdownButtonFormField<RepType>(
               initialValue: _repType,
               decoration: InputDecoration(labelText: l10n.trainingLogRepType),
@@ -840,7 +1005,10 @@ class _AdHocSetSheetState extends State<_AdHocSetSheet> {
                   Expanded(
                     child: TextField(
                       controller: _reps,
-                      decoration: InputDecoration(labelText: l10n.trainingRepTypeCount),
+                      decoration: InputDecoration(
+                        labelText: l10n.trainingRepTypeCount,
+                        hintText: suggestion != null ? '${suggestion.reps}' : null,
+                      ),
                       keyboardType: TextInputType.number,
                       onChanged: (_) => setState(() {}),
                     ),
@@ -853,7 +1021,9 @@ class _AdHocSetSheetState extends State<_AdHocSetSheet> {
                     decoration: InputDecoration(
                       labelText: l10n.trainingLogWeight,
                       suffixText: unit,
-                      hintText: l10n.trainingLogBodyweightHint,
+                      hintText: suggestion != null && suggestion.hasWeight
+                          ? suggestedWeightText(suggestion)
+                          : l10n.trainingLogBodyweightHint,
                     ),
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     onChanged: (_) => setState(() {}),
@@ -896,9 +1066,12 @@ class _AdHocSetSheetState extends State<_AdHocSetSheet> {
 class _DropLogRow extends StatefulWidget {
   final _LoggedDrop drop;
   final bool enabled;
+
+  /// Shown greyed in empty fields.
+  final OverloadSuggestion? ghost;
   final ValueChanged<_LoggedDrop> onChange;
 
-  const _DropLogRow({required this.drop, required this.onChange, this.enabled = true});
+  const _DropLogRow({required this.drop, required this.onChange, this.enabled = true, this.ghost});
 
   @override
   State<_DropLogRow> createState() => _DropLogRowState();
@@ -922,6 +1095,22 @@ class _DropLogRowState extends State<_DropLogRow> {
     return r == r.truncateToDouble() ? r.toInt().toString() : r.toString();
   }
 
+  /// A suggestion filled in from outside: show it in the fields.
+  @override
+  void didUpdateWidget(covariant _DropLogRow old) {
+    super.didUpdateWidget(old);
+    final d = widget.drop;
+    if (d.repCount != old.drop.repCount && d.repCount != null && int.tryParse(_reps.text.trim()) != d.repCount) {
+      _reps.text = '${d.repCount}';
+    }
+    final w = d.weightKg;
+    if (w != old.drop.weightKg && w != null) {
+      final shown = double.tryParse(_weight.text.trim().replaceAll(',', '.'));
+      final want = _settings.toDisplayWeight(w);
+      if (shown == null || (shown - want).abs() > 0.05) _weight.text = _fmt(want);
+    }
+  }
+
   @override
   void dispose() {
     _reps.dispose();
@@ -933,6 +1122,7 @@ class _DropLogRowState extends State<_DropLogRow> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final d = widget.drop;
+    final ghost = widget.ghost;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -949,7 +1139,7 @@ class _DropLogRowState extends State<_DropLogRow> {
                 enabled: widget.enabled,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  hintText: l10n.trainingRepTypeCount,
+                  hintText: ghost != null ? '${ghost.reps}' : l10n.trainingRepTypeCount,
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                 ),
@@ -960,13 +1150,14 @@ class _DropLogRowState extends State<_DropLogRow> {
             Text(d.repType.label(l10n), style: const TextStyle(fontSize: 12)),
           const SizedBox(width: 8),
           SizedBox(
-            width: 64,
+            // Room for a ghosted suggestion like "13.75".
+            width: 76,
             child: TextField(
               controller: _weight,
               enabled: widget.enabled,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
-                hintText: _settings.weightUnit.value,
+                hintText: ghost != null && ghost.hasWeight ? suggestedWeightText(ghost) : _settings.weightUnit.value,
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               ),
@@ -1096,5 +1287,54 @@ class _PrCelebration extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// ── Gold PR row ───────────────────────────────────────────────────────────────
+
+/// A set that was a PR: gold-tinted with a small trophy. Shimmers twice when
+/// it appears (not with reduced motion); the highlight stays.
+class _GoldPrHighlight extends StatelessWidget {
+  final Widget child;
+  final bool showTrophy;
+
+  const _GoldPrHighlight({required this.child, this.showTrophy = true});
+
+  @override
+  Widget build(BuildContext context) {
+    const gold = _PrCelebration._gold;
+    const light = _PrCelebration._goldLight;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final calm = MediaQuery.disableAnimationsOf(context);
+    Widget box = Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      padding: EdgeInsets.fromLTRB(showTrophy ? 8 : 0, showTrophy ? 4 : 0, showTrophy ? 6 : 0, 0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        gradient: LinearGradient(colors: [
+          gold.withValues(alpha: dark ? 0.24 : 0.20),
+          light.withValues(alpha: dark ? 0.08 : 0.32),
+        ]),
+        border: Border.all(color: gold.withValues(alpha: dark ? 0.65 : 0.8), width: 1.2),
+      ),
+      child: showTrophy
+          ? Row(children: [
+              Expanded(child: child),
+              Padding(
+                padding: const EdgeInsets.only(left: 6, bottom: 4),
+                child: Icon(Icons.emoji_events_rounded,
+                    color: gold, size: 18, semanticLabel: context.l10n.trainingLogNewPrShort),
+              ),
+            ])
+          : child,
+    );
+    if (!calm) {
+      box = box
+          .animate()
+          .shimmer(delay: 150.ms, duration: 1100.ms, color: light.withValues(alpha: 0.9))
+          .then(delay: 500.ms)
+          .shimmer(duration: 1100.ms, color: light.withValues(alpha: 0.9));
+    }
+    return box;
   }
 }

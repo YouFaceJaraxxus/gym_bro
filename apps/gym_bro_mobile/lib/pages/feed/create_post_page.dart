@@ -14,6 +14,7 @@ import '../../models/post.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../services/media_upload.dart';
+import '../../services/post_upload_queue.dart';
 import '../../widgets/drafts.dart';
 import '../../widgets/mentions.dart';
 import '../../widgets/photo_tags.dart';
@@ -24,23 +25,9 @@ import '../../widgets/social_widgets.dart';
 /// Server limit for photos/videos per post.
 const kMaxPostMedia = 10;
 
-class _Item {
-  _Item(this.media);
-
-  final EditableMedia media;
-  Key get key => media.key;
-  double progress = 0;
-
-  /// Storage path of the published (edited) file once uploaded, and the
-  /// edits it was made with — a retry skips it unless they changed since.
-  String? publishedPath;
-  MediaEdit? publishedEdit;
-
-  /// People pinned on it (photos only).
-  List<PhotoTag> tags = const [];
-
-  bool get isVideo => media.isVideo;
-}
+/// A photo/video being composed: progress and upload state live on it, so
+/// a failed attempt resumes where it stopped.
+typedef _Item = PostMediaItem;
 
 /// Compose a personal post: up to ten photos/videos (reorderable, each
 /// editable — or all at once — and with people tagged on photos), caption
@@ -48,10 +35,17 @@ class _Item {
 /// its signed slot with progress, then creates the post and pops with it.
 /// Leaving offers to save a draft.
 ///
+/// With [background] posting doesn't wait: what was composed goes to
+/// [PostUploadQueue] (the feed shows its "Posting…" bar) and the page pops
+/// with null right away. The draft it came from is deleted once posted.
+///
 /// With [share] it's a typed post sharing a workout, meal or library item:
 /// the card is shown and caption/media become optional.
 class CreatePostPage extends StatefulWidget {
-  const CreatePostPage({super.key, this.pickOnOpen = false, this.draft, this.share});
+  const CreatePostPage({super.key, this.pickOnOpen = false, this.draft, this.share, this.background = false});
+
+  /// Hand the upload to [PostUploadQueue] and close right away.
+  final bool background;
 
   /// Open the camera/gallery sheet right away.
   final bool pickOnOpen;
@@ -343,6 +337,17 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
     }
   }
 
+  /// What's composed, ready to publish.
+  PostComposition _composition() => PostComposition(
+    items: List.of(_items),
+    caption: _caption.markup.trim(),
+    visibility: _visibility,
+    share: _share,
+    hideLikeCount: _hideLikeCount,
+    commentsDisabled: _commentsDisabled,
+    locationName: _location.text,
+  );
+
   Future<void> _post() async {
     if (!_canPost) {
       if (!_dirty && _share == null) {
@@ -352,71 +357,26 @@ class _CreatePostPageState extends State<CreatePostPage> with DraftableForm {
     }
     FocusScope.of(context).unfocus();
     final l10n = context.l10n;
+    if (widget.background) {
+      // The queue keeps what was composed (for a retry) and deletes the
+      // draft once it's posted; the feed shows the progress.
+      PostUploadQueue.instance.enqueue(_composition(), l10n: l10n, onPosted: draftPublished);
+      Navigator.of(context).pop();
+      return;
+    }
     setState(() => _posting = true);
     try {
-      final published = <PickedMedia>[];
-      for (var i = 0; i < _items.length; i++) {
-        final item = _items[i];
-        final m = item.media;
-        // Edits are baked in now; an unedited draft photo is already uploaded.
-        setState(() {
-          _uploadingIndex = i;
-          _processing = !m.edit.isIdentity;
-          item.progress = 0;
-        });
-        final PickedMedia file;
-        try {
-          file = await m.export(onProgress: (p) {
-            if (mounted) setState(() => item.progress = p);
+      final post = await publishComposition(
+        _api,
+        _composition(),
+        l10n: l10n,
+        onProgress: (p) {
+          if (!mounted) return;
+          setState(() {
+            _uploadingIndex = p.index;
+            _processing = p.processing;
           });
-        } catch (_) {
-          throw Exception(l10n.mediaEditFailed);
-        }
-        published.add(file);
-        if (item.publishedPath != null && item.publishedEdit == m.edit) continue;
-        if (identical(file, m.original) && m.uploadedPath != null) {
-          item.publishedPath = m.uploadedPath;
-          item.publishedEdit = m.edit;
-          continue;
-        }
-        setState(() {
-          _processing = false;
-          item.progress = 0;
-        });
-        final token = await AuthManager.instance.getValidToken();
-        final slot = await _api.requestPostUpload(
-          token,
-          mimeType: file.mimeType,
-          sizeBytes: file.sizeBytes,
-          fileName: file.fileName,
-        );
-        try {
-          await uploadFileToSlot(slot, file, onProgress: (p) {
-            if (mounted) setState(() => item.progress = p);
-          });
-        } catch (_) {
-          throw Exception(l10n.socialUploadFailed);
-        }
-        item.publishedPath = slot.path;
-        item.publishedEdit = m.edit;
-        item.progress = 1;
-      }
-      if (!mounted) return;
-      setState(() {
-        _uploadingIndex = -1;
-        _processing = false;
-      });
-      final token = await AuthManager.instance.getValidToken();
-      final post = await _api.createPersonalPost(
-        token,
-        caption: _caption.markup.trim(),
-        visibility: _visibility,
-        media: [for (var i = 0; i < _items.length; i++) published[i].attachment(_items[i].publishedPath!)],
-        tags: [for (final it in _items) it.isVideo ? const <PhotoTag>[] : it.tags],
-        share: _share,
-        hideLikeCount: _hideLikeCount ? true : null,
-        commentsDisabled: _commentsDisabled ? true : null,
-        locationName: _location.text,
+        },
       );
       await draftPublished();
       if (!mounted) return;

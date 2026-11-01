@@ -1,0 +1,57 @@
+{
+  "overloadLast": "Last: {sets}",
+  "@overloadLast": {
+    "placeholders": {
+      "sets": {
+        "type": "String"
+      }
+    }
+  },
+  "overloadLastReps": "Last: {reps} reps",
+  "@overloadLastReps": {
+    "placeholders": {
+      "reps": {
+        "type": "String"
+      }
+    }
+  },
+  "overloadTry": "Try {weight} × {reps}",
+  "@overloadTry": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      },
+      "reps": {
+        "type": "int"
+      }
+    }
+  },
+  "overloadTryReps": "{count, plural, =1{Try 1 rep} other{Try {count} reps}}",
+  "@overloadTryReps": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "overloadReasonAddWeight": "Hit all reps last time → +{increment}",
+  "@overloadReasonAddWeight": {
+    "placeholders": {
+      "increment": {
+        "type": "String"
+      }
+    }
+  },
+  "overloadReasonAddRep": "Same weight, one more rep",
+  "overloadReasonBodyweight": "One more rep than last time",
+  "overloadReasonDeload": "{days} days off → ease back in (−10%)",
+  "@overloadReasonDeload": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "overloadUse": "Use",
+  "overloadUseHint": "Fills in the suggestion"
+}

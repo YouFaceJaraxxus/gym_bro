@@ -10,11 +10,25 @@ import {
 } from "../_shared/auth.ts";
 import type { BodyMeasurementTable } from "../../types/schema/public.ts";
 
-// Body weight / body-fat log. Users write only their own rows; coaches (and
-// super users) can read a coached member's log with ?user_id=.
+// Body weight / body-fat / tape-measurement log. Users write only their own
+// rows; coaches (and super users) can read a coached member's log with
+// ?user_id=. A row needs at least one value.
 //
 // Row shape: { id, user_id, measured_on: 'YYYY-MM-DD', weight_kg: number|null,
-//              body_fat_pct: number|null, note, created_at }
+//              body_fat_pct: number|null, waist_cm, chest_cm, hips_cm,
+//              arm_cm, thigh_cm, neck_cm (number|null, cm), note, created_at }
+
+/** Tape measurements (cm) and their accepted ranges (match the DB CHECK). */
+const TAPE = {
+  waist_cm: [30, 250],
+  chest_cm: [40, 250],
+  hips_cm: [40, 250],
+  arm_cm: [10, 100],
+  thigh_cm: [20, 150],
+  neck_cm: [15, 80],
+} as const;
+type TapeKey = keyof typeof TAPE;
+const TAPE_KEYS = Object.keys(TAPE) as TapeKey[];
 
 const COLS = [
   "id",
@@ -22,6 +36,12 @@ const COLS = [
   sql<string>`to_char(measured_on, 'YYYY-MM-DD')`.as("measured_on"),
   sql<number | null>`weight_kg::float8`.as("weight_kg"),
   sql<number | null>`body_fat_pct::float8`.as("body_fat_pct"),
+  sql<number | null>`waist_cm::float8`.as("waist_cm"),
+  sql<number | null>`chest_cm::float8`.as("chest_cm"),
+  sql<number | null>`hips_cm::float8`.as("hips_cm"),
+  sql<number | null>`arm_cm::float8`.as("arm_cm"),
+  sql<number | null>`thigh_cm::float8`.as("thigh_cm"),
+  sql<number | null>`neck_cm::float8`.as("neck_cm"),
   "note",
   "created_at",
 ] as const;
@@ -42,7 +62,9 @@ type Fields = {
   weight_kg?: number | null;
   body_fat_pct?: number | null;
   note?: string | null;
-};
+} & { [K in TapeKey]?: number | null };
+
+const VALUE_KEYS = ["weight_kg", "body_fat_pct", ...TAPE_KEYS] as const;
 
 /** Returns the validated subset of fields present in `body`, or an error. */
 function readFields(body: Record<string, unknown>): { fields: Fields; error?: string } {
@@ -66,6 +88,20 @@ function readFields(body: Record<string, unknown>): { fields: Fields; error?: st
     if (key === "weight_kg" && n >= 10000) return { fields, error: "weight_kg is too large" };
     fields[key] = n;
   }
+  for (const key of TAPE_KEYS) {
+    const v = body[key];
+    if (v === undefined) continue;
+    if (v === null || v === "") {
+      fields[key] = null;
+      continue;
+    }
+    const n = typeof v === "number" ? v : Number(v);
+    const [min, max] = TAPE[key];
+    if (!Number.isFinite(n) || n < min || n > max) {
+      return { fields, error: `${key} must be between ${min} and ${max} cm` };
+    }
+    fields[key] = Math.round(n * 10) / 10;
+  }
   if (body.note !== undefined) {
     fields.note = typeof body.note === "string" && body.note.trim() ? body.note.trim() : null;
   }
@@ -82,7 +118,7 @@ function pgErrorResponse(e: unknown): Response {
     case "23503":
       return jsonError("Referenced record does not exist", 400, { detail: err.detail });
     case "23514":
-      return jsonError("A measurement needs a weight or a body-fat value", 400);
+      return jsonError("A measurement needs a weight, body-fat or tape value", 400);
     case "23502":
     case "22P02":
     case "22003":
@@ -129,14 +165,15 @@ async function handler(req: Request): Promise<Response> {
     }
     const { fields, error } = readFields(body);
     if (error) return jsonError(error, 400);
-    if (fields.weight_kg == null && fields.body_fat_pct == null) {
-      return jsonError("weight_kg or body_fat_pct is required", 400);
+    if (VALUE_KEYS.every((k) => fields[k] == null)) {
+      return jsonError("weight_kg, body_fat_pct or a tape measurement is required", 400);
     }
 
     const insert: Insertable<BodyMeasurementTable> = {
       user_id: caller.id,
       weight_kg: fields.weight_kg ?? null,
       body_fat_pct: fields.body_fat_pct ?? null,
+      ...Object.fromEntries(TAPE_KEYS.map((k) => [k, fields[k] ?? null])),
       note: fields.note ?? null,
       ...(fields.measured_on && { measured_on: fields.measured_on }),
     };

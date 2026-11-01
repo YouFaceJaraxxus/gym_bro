@@ -1,13 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../l10n/l10n.dart';
 import '../../models/draft.dart';
 import '../../models/post.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../services/post_upload_queue.dart';
+import '../../utils/haptics.dart';
 import '../../widgets/drafts.dart';
+import '../../widgets/empty_state.dart';
 import '../../widgets/post_card.dart';
+import '../../widgets/posting_bar.dart';
+import '../../widgets/skeleton.dart';
 import '../../widgets/social_widgets.dart';
+import '../people/discover_page.dart';
 import '../reels/reels_page.dart';
 import '../stories/story_composer_page.dart';
 import '../stories/story_tray.dart';
@@ -28,6 +37,10 @@ class _FeedState {
 /// The social feed tab body (it lives inside the home shell's Scaffold):
 /// a "share something" row (with the [ReelsPage] entry), Home / Explore
 /// switch and an endless list of [PostCard]s with pull-to-refresh.
+///
+/// New posts publish in the background ([PostUploadQueue]): a "Posting…"
+/// bar sits at the top while they upload, and each one fades into the top
+/// of Home once it's out.
 class FeedPage extends StatefulWidget {
   const FeedPage({super.key});
 
@@ -44,19 +57,58 @@ class _FeedPageState extends State<FeedPage> {
   final _tray = GlobalKey<StoryTrayState>();
   bool _explore = false;
 
+  final _queue = PostUploadQueue.instance;
+  StreamSubscription<Post>? _postedSub;
+
+  /// Queued posts already seen (a new one brings Home to the top).
+  final Set<String> _seenPending = {};
+
+  /// Posts that just came out of the queue: they fade in once.
+  final Set<String> _fresh = {};
+
   _FeedState get _current => _feeds[_explore]!;
 
   @override
   void initState() {
     super.initState();
     _scroll.addListener(_onScroll);
+    _seenPending.addAll(_queue.items.map((p) => p.id));
+    _queue.addListener(_onQueue);
+    _postedSub = _queue.posted.listen(_onPosted);
     _load(false);
   }
 
   @override
   void dispose() {
+    _queue.removeListener(_onQueue);
+    _postedSub?.cancel();
     _scroll.dispose();
     super.dispose();
+  }
+
+  /// A post was just queued: show Home from the top, where its bar is.
+  void _onQueue() {
+    var added = false;
+    for (final p in _queue.items) {
+      if (_seenPending.add(p.id)) added = true;
+    }
+    if (!added || !mounted) return;
+    _switchMode(false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scroll.hasClients) _scroll.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+    });
+  }
+
+  /// A queued post is out: it slides into the top of Home.
+  void _onPosted(Post post) {
+    if (!mounted) return;
+    Haptics.tap();
+    final home = _feeds[false]!;
+    setState(() {
+      _fresh.add(post.id);
+      home.posts = [post, ...home.posts.where((p) => p.id != post.id)];
+    });
+    Future.delayed(const Duration(seconds: 2), () => _fresh.remove(post.id));
   }
 
   String _msg(Object e) => e.toString().replaceFirst('Exception: ', '');
@@ -152,7 +204,9 @@ class _FeedPageState extends State<FeedPage> {
       context,
       kind: DraftKind.post,
       fullscreenDialog: true,
-      builder: (draft) => CreatePostPage(pickOnOpen: pick && draft == null, draft: draft),
+      // Uploads in the background: the page closes right away (null) and
+      // the post arrives through [_onPosted].
+      builder: (draft) => CreatePostPage(pickOnOpen: pick && draft == null, draft: draft, background: true),
     );
     if (created == null || !mounted) return;
     final home = _feeds[false]!;
@@ -165,23 +219,24 @@ class _FeedPageState extends State<FeedPage> {
   }
 
   Future<void> _newStory() async {
-    final messenger = ScaffoldMessenger.of(context);
-    final l10n = context.l10n;
-    final story = await openStoryComposer(context);
-    if (story == null || !mounted) return;
-    messenger.showSnackBar(SnackBar(content: Text(l10n.storyPosted)));
-    _tray.currentState?.refresh();
+    // Queued: its progress shows in the "Posting…" bar, and the tray
+    // reloads once it's out.
+    final pending = await openStoryComposer(context);
+    if (pending != null) Haptics.tap();
   }
 
   @override
   Widget build(BuildContext context) {
     final st = _current;
     return RefreshIndicator(
-      onRefresh: () => Future.wait([_load(_explore), if (_tray.currentState != null) _tray.currentState!.refresh()]),
+      onRefresh: () => Haptics.refreshed(
+        () => Future.wait([_load(_explore), if (_tray.currentState != null) _tray.currentState!.refresh()]),
+      ),
       child: CustomScrollView(
         controller: _scroll,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
+          SliverToBoxAdapter(child: _constrained(PostingBar(queue: _queue))),
           SliverToBoxAdapter(child: _constrained(StoryTray(key: _tray))),
           SliverToBoxAdapter(child: _constrained(_composerRow(context))),
           SliverToBoxAdapter(child: _constrained(_modeSwitch(context))),
@@ -270,7 +325,13 @@ class _FeedPageState extends State<FeedPage> {
     final cs = Theme.of(context).colorScheme;
     if (st.posts.isEmpty) {
       if (st.loading || !st.loaded && st.error == null) {
-        return const [SliverFillRemaining(hasScrollBody: false, child: Center(child: CircularProgressIndicator()))];
+        return [
+          SliverToBoxAdapter(
+            child: _constrained(
+              const Skeleton(child: Column(children: [SkeletonPostCard(), SkeletonPostCard()])),
+            ),
+          ),
+        ];
       }
       if (st.error != null) {
         return [
@@ -294,34 +355,30 @@ class _FeedPageState extends State<FeedPage> {
       return [
         SliverFillRemaining(
           hasScrollBody: false,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Icon(_explore ? Icons.explore_outlined : Icons.dynamic_feed_outlined, size: 52, color: cs.outline),
-                const SizedBox(height: 16),
-                Text(
-                  _explore ? l10n.feedEmptyExploreTitle : l10n.feedEmptyHomeTitle,
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.center,
+          child: _explore
+              ? EmptyState(
+                  icon: Icons.explore_outlined,
+                  title: l10n.feedEmptyExploreTitle,
+                  message: l10n.feedEmptyExploreBody,
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    EmptyState(
+                      icon: Icons.dynamic_feed_outlined,
+                      title: l10n.feedEmptyHomeTitle,
+                      message: l10n.feedEmptyHomeBody,
+                      actionLabel: l10n.polishFeedFindPeople,
+                      actionIcon: Icons.person_search_outlined,
+                      onAction: () => openDiscover(context),
+                    ),
+                    TextButton.icon(
+                      onPressed: () => _switchMode(true),
+                      icon: const Icon(Icons.explore_outlined),
+                      label: Text(l10n.feedExploreAction),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  _explore ? l10n.feedEmptyExploreBody : l10n.feedEmptyHomeBody,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: cs.onSurfaceVariant),
-                ),
-                if (!_explore) ...[
-                  const SizedBox(height: 16),
-                  FilledButton.tonalIcon(
-                    onPressed: () => _switchMode(true),
-                    icon: const Icon(Icons.explore_outlined),
-                    label: Text(l10n.feedExploreAction),
-                  ),
-                ],
-              ]),
-            ),
-          ),
         ),
       ];
     }
@@ -331,12 +388,20 @@ class _FeedPageState extends State<FeedPage> {
         itemCount: st.posts.length,
         itemBuilder: (context, i) {
           final post = st.posts[i];
-          return _constrained(PostCard(
+          Widget card = PostCard(
             key: ValueKey(post.id),
             post: post,
+            heroScope: 'feed',
             onChanged: _replace,
             onDeleted: () => _remove(post.id),
-          ));
+          );
+          if (_fresh.contains(post.id) && !MediaQuery.disableAnimationsOf(context)) {
+            card = card
+                .animate(key: ValueKey('fresh-${post.id}'))
+                .fadeIn(duration: 350.ms)
+                .slideY(begin: -0.08, end: 0, duration: 350.ms, curve: Curves.easeOutCubic);
+          }
+          return _constrained(card);
         },
       ),
       SliverToBoxAdapter(

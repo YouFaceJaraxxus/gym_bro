@@ -1,0 +1,137 @@
+{
+  "onboardingSkip": "Skip",
+  "onboardingBack": "Back",
+  "onboardingContinue": "Continue",
+  "onboardingStart": "Get started",
+  "onboardingFinish": "Let's go",
+  "onboardingProgress": "Step {current} of {total}",
+  "@onboardingProgress": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingWelcomeTitle": "Welcome to Gym Bro",
+  "onboardingWelcomeBody": "A few quick questions and your training, streak and goals are ready. It takes under a minute.",
+  "onboardingWelcomeTrack": "Log every workout and PR",
+  "onboardingWelcomeStreak": "Build a streak that keeps you coming back",
+  "onboardingWelcomeGoals": "Set goals and watch yourself get there",
+  "onboardingWelcomeLater": "You can change all of this later in Settings.",
+  "onboardingGoalTitle": "What's your main goal?",
+  "onboardingGoalBody": "Pick the one that matters most right now.",
+  "onboardingGoalLoseFat": "Lose fat",
+  "onboardingGoalLoseFatHint": "Lean out and feel lighter",
+  "onboardingGoalBuildMuscle": "Build muscle",
+  "onboardingGoalBuildMuscleHint": "Add size and shape",
+  "onboardingGoalGetStronger": "Get stronger",
+  "onboardingGoalGetStrongerHint": "Lift heavier and hit new PRs",
+  "onboardingGoalStayFit": "Stay fit",
+  "onboardingGoalStayFitHint": "Keep healthy, active and moving",
+  "onboardingGoalEndurance": "Endurance",
+  "onboardingGoalEnduranceHint": "Go longer and recover faster",
+  "onboardingDaysTitle": "How many days a week will you train?",
+  "onboardingDaysBody": "Pick a number you can keep up with. Consistency beats intensity.",
+  "onboardingDaysValue": "{count, plural, =1{1 day a week} other{{count} days a week}}",
+  "@onboardingDaysValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingDaysEasy": "A gentle start",
+  "onboardingDaysSteady": "A solid routine",
+  "onboardingDaysIntense": "Serious dedication",
+  "onboardingDaysStreak": "Hit it every week to keep your streak alive. Plans count too.",
+  "onboardingBodyTitle": "About you",
+  "onboardingBodyBody": "Optional. It sets your water goal and the goal line on your weight chart.",
+  "onboardingUnits": "Units",
+  "onboardingCurrentWeight": "Current weight",
+  "onboardingGoalWeight": "Goal weight",
+  "onboardingOptional": "Optional",
+  "onboardingGoalWeightSuggested": "Suggested for your goal. Change it or clear it.",
+  "onboardingWeightInvalid": "Enter a weight between {min} and {max}",
+  "@onboardingWeightInvalid": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingWaterTitle": "Your daily water goal",
+  "onboardingWaterBody": "Staying hydrated makes every workout better.",
+  "onboardingWaterAuto": "Auto: about 35 ml per kg of body weight",
+  "onboardingWaterAutoNoWeight": "Auto: a good default until you add your weight",
+  "onboardingWaterCustom": "Your own goal",
+  "onboardingWaterUseAuto": "Use auto",
+  "onboardingWaterLess": "Less water",
+  "onboardingWaterMore": "More water",
+  "onboardingWaterLiters": "{liters} L",
+  "@onboardingWaterLiters": {
+    "placeholders": {
+      "liters": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingWaterGlasses": "{count, plural, =1{about 1 glass of 250 ml} other{about {count} glasses of 250 ml}}",
+  "@onboardingWaterGlasses": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingDoneTitle": "You're all set!",
+  "onboardingDoneBody": "Here's your setup. Tap anything to change it.",
+  "onboardingSummaryGoal": "Goal",
+  "onboardingSummaryDays": "Training",
+  "onboardingSummaryWeight": "Weight",
+  "onboardingSummaryWater": "Water",
+  "onboardingSummaryNotSet": "Not set",
+  "onboardingSummaryWeightGoal": "{current} → {goal}",
+  "@onboardingSummaryWeightGoal": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingSummaryGoalOnly": "Goal: {goal}",
+  "@onboardingSummaryGoalOnly": {
+    "placeholders": {
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingSummaryWaterAuto": "{amount} a day (auto)",
+  "@onboardingSummaryWaterAuto": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingSummaryWaterCustom": "{amount} a day",
+  "@onboardingSummaryWaterCustom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingSaveFailed": "Couldn't save your setup. We'll ask again next time.",
+  "onboardingRedo": "Redo setup",
+  "onboardingRedoSubtitle": "Goal, training days, weight and water"
+}

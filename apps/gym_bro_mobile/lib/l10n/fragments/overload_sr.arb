@@ -1,0 +1,12 @@
+{
+  "overloadLast": "Prošli put: {sets}",
+  "overloadLastReps": "Prošli put: {reps} pon.",
+  "overloadTry": "Probaj {weight} × {reps}",
+  "overloadTryReps": "{count, plural, one{Probaj {count} ponavljanje} few{Probaj {count} ponavljanja} other{Probaj {count} ponavljanja}}",
+  "overloadReasonAddWeight": "Sva ponavljanja prošli put → +{increment}",
+  "overloadReasonAddRep": "Ista težina, jedno ponavljanje više",
+  "overloadReasonBodyweight": "Jedno ponavljanje više nego prošli put",
+  "overloadReasonDeload": "{days} dana pauze → lakše za početak (−10%)",
+  "overloadUse": "Primeni",
+  "overloadUseHint": "Upisuje predlog"
+}

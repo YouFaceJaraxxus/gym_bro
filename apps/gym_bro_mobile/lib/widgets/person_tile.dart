@@ -6,6 +6,7 @@ import '../pages/people/people_common.dart';
 import '../pages/people/user_profile_page.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../utils/haptics.dart';
 import 'social_widgets.dart';
 import 'app_bottom_sheet.dart';
 
@@ -95,6 +96,8 @@ Future<void> _runRelationshipAction(
   required void Function(Relationship rel) apply,
 }) async {
   final messenger = ScaffoldMessenger.of(context);
+  // Follow, unfollow, friend and block changes all tick once.
+  Haptics.tap();
   apply(optimistic);
   try {
     final token = await AuthManager.instance.getValidToken();

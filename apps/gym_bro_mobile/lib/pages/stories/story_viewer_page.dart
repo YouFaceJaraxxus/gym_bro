@@ -74,10 +74,12 @@ Future<void> openStoryById(BuildContext context, String storyId) async {
 Route<void> _route(Widget page) => PageRouteBuilder<void>(
   opaque: true,
   pageBuilder: (_, _, _) => page,
-  transitionsBuilder: (_, animation, _, child) => FadeTransition(
-    opacity: animation,
-    child: ScaleTransition(scale: Tween(begin: 0.94, end: 1.0).animate(animation), child: child),
-  ),
+  transitionsBuilder: (context, animation, _, child) => MediaQuery.disableAnimationsOf(context)
+      ? child
+      : FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(scale: Tween(begin: 0.94, end: 1.0).animate(animation), child: child),
+        ),
 );
 
 /// One person's stories in the viewer: loaded on demand ([user]) or given.
