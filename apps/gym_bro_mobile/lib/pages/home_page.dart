@@ -8,18 +8,11 @@ import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/auth_service.dart';
 import '../services/realtime_service.dart';
-import 'home/owner_businesses_page.dart';
-import 'home/employee_members_page.dart';
-import 'home/employee_home_page.dart';
-import 'home/employee_trainer_home_page.dart';
-import 'home/super_user_home_page.dart';
-import 'home/owner_users_page.dart';
-import 'home/vendor_shop_page.dart';
+import 'home/home_menu_page.dart';
 import '../widgets/offline_banner.dart';
 import '../widgets/social_widgets.dart';
 import 'home/home_widgets.dart';
 import 'classes/class_schedule_page.dart';
-import 'classes/trainer_classes_page.dart';
 import 'chat/chat_inbox_page.dart';
 import 'feed/feed_page.dart';
 import 'notifications_page.dart';
@@ -27,94 +20,32 @@ import 'people/discover_page.dart';
 import 'gym_hub_page.dart';
 import 'profile_page.dart';
 
-// ── Per-role nav tab definitions ──────────────────────────────────────────────
+// ── Nav tabs ──────────────────────────────────────────────────────────────────
 
-/// One bottom-nav destination. Labels are resolved at build time so they
-/// follow the app language.
+/// One bottom-nav destination. Everyone gets the same five: Home is a menu
+/// of what the user can do (built from what they are: member, trainer, on a
+/// gym's or shop's team, admin), the rest are shared. Labels are resolved at
+/// build time so they follow the app language.
 enum _Tab {
-  home(Icons.home_outlined),
-  businesses(Icons.business_outlined),
-  schedule(Icons.calendar_today_outlined),
-  classes(Icons.sports_gymnastics_outlined),
-  members(Icons.people_outline),
-  myShop(Icons.storefront_outlined),
-  users(Icons.manage_accounts_outlined),
-  feed(Icons.dynamic_feed_outlined),
-  discover(Icons.travel_explore),
-  gym(Icons.fitness_center);
+  home(Icons.space_dashboard_outlined, Icons.space_dashboard),
+  feed(Icons.dynamic_feed_outlined, Icons.dynamic_feed),
+  discover(Icons.explore_outlined, Icons.explore),
+  schedule(Icons.calendar_month_outlined, Icons.calendar_month),
+  gym(Icons.fitness_center_outlined, Icons.fitness_center);
 
-  const _Tab(this.icon);
+  const _Tab(this.icon, this.selectedIcon);
 
   final IconData icon;
+  final IconData selectedIcon;
 
   String label(AppLocalizations l10n) => switch (this) {
     _Tab.home => l10n.shellTabHome,
-    _Tab.businesses => l10n.shellTabBusinesses,
-    _Tab.schedule => l10n.shellTabSchedule,
-    _Tab.classes => l10n.shellTabClasses,
-    _Tab.members => l10n.shellTabMembers,
-    _Tab.myShop => l10n.shellTabMyShop,
-    _Tab.users => l10n.shellTabUsers,
     _Tab.feed => l10n.shellTabFeed,
     _Tab.discover => l10n.shellTabDiscover,
+    _Tab.schedule => l10n.shellTabSchedule,
     _Tab.gym => l10n.shellTabGym,
   };
 }
-
-// Profile lives in the app bar, not in the tabs.
-//
-// Members, owners, trainers and vendors: Home is the feed, then the role's own
-// tabs, then the member tabs (Schedule, Discover, Gym). Owner stats sit on top
-// of Businesses; membership/billing is reached from Profile.
-const _memberEndTabs = <_Tab>[_Tab.schedule, _Tab.discover, _Tab.gym];
-
-const _memberTabs = <_Tab>[_Tab.home, ..._memberEndTabs];
-
-const _ownerTabs = <_Tab>[_Tab.home, _Tab.businesses, ..._memberEndTabs];
-
-// Customers live inside Classes (its third tab), so trainers have no Members tab.
-const _trainerTabs = <_Tab>[_Tab.home, _Tab.classes, ..._memberEndTabs];
-
-const _vendorTabs = <_Tab>[_Tab.home, _Tab.myShop, ..._memberEndTabs];
-
-// Employees, employee-trainers and super users keep a dashboard on Home and a
-// separate Feed tab.
-const _sharedTabs = <_Tab>[_Tab.feed, _Tab.discover, _Tab.gym];
-
-const _employeeTabs = <_Tab>[
-  _Tab.home,
-  _Tab.members,
-  _Tab.schedule,
-  ..._sharedTabs,
-];
-
-const _employeeTrainerTabs = <_Tab>[
-  _Tab.home,
-  _Tab.members,
-  _Tab.classes,
-  _Tab.schedule,
-  ..._sharedTabs,
-];
-
-// Everyone has a personal Schedule (classes, planned and logged workouts and
-// meals), super users included.
-const _superUserTabs = <_Tab>[
-  _Tab.home,
-  _Tab.businesses,
-  _Tab.users,
-  _Tab.schedule,
-  ..._sharedTabs,
-];
-
-List<_Tab> _tabsForRole(UserRole role) => switch (role) {
-  UserRole.owner => _ownerTabs,
-  UserRole.member => _memberTabs,
-  UserRole.trainer => _trainerTabs,
-  UserRole.employee => _employeeTabs,
-  UserRole.employeeTrainer => _employeeTrainerTabs,
-  UserRole.shopVendor => _vendorTabs,
-  UserRole.superUser => _superUserTabs,
-};
 
 // ── HomePage shell ────────────────────────────────────────────────────────────
 
@@ -161,7 +92,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _loadProfile() async {
     // Show the cached profile immediately to avoid a loading spinner, but
-    // always fetch fresh from the API so the role is never stale.
+    // always fetch fresh from the API so what the user can do is never stale.
     final cached = AuthManager.instance.profile;
     if (cached != null) {
       setState(() {
@@ -300,9 +231,8 @@ class _HomePageState extends State<HomePage> {
 
     final l10n = context.l10n;
     final profile = _profile!;
-    final tabs = _tabsForRole(profile.role);
-    // The role (and so the tab count) can change after a profile refresh.
-    if (_tabIndex >= tabs.length) _tabIndex = 0;
+    const tabs = _Tab.values;
+    final badges = _badges.requests;
 
     return Scaffold(
       appBar: AppBar(
@@ -384,18 +314,17 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tabIndex,
-        onDestinationSelected: (i) => setState(() => _tabIndex = i),
-        // Icon-only look; labels are still exposed to screen readers.
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+        onDestinationSelected: (i) {
+          // Coming back to Home picks up new roles, invites and reviews.
+          if (tabs[i] == _Tab.home && _tabIndex != i) _loadProfile();
+          setState(() => _tabIndex = i);
+        },
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: [
           for (final tab in tabs)
             NavigationDestination(
-              icon: tab == _Tab.discover && _badges.requests > 0
-                  ? Badge(
-                      label: Text('${_badges.requests}'),
-                      child: Icon(tab.icon),
-                    )
-                  : Icon(tab.icon),
+              icon: _tabIcon(tab, tab.icon, profile, badges),
+              selectedIcon: _tabIcon(tab, tab.selectedIcon, profile, badges),
               label: tab.label(l10n),
               tooltip: tab.label(l10n),
             ),
@@ -404,25 +333,33 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Home shows open team invites; Discover, follow and friend requests.
+  Widget _tabIcon(_Tab tab, IconData icon, UserProfile profile, int requests) {
+    final count = switch (tab) {
+      _Tab.home => profile.pendingInvites,
+      _Tab.discover => requests,
+      _ => 0,
+    };
+    if (count == 0) return Icon(icon);
+    return Badge(
+      label: ExcludeSemantics(child: Text(count > 99 ? '99+' : '$count')),
+      child: Icon(icon),
+    );
+  }
+
   Widget _buildBody(UserProfile profile, int index) {
-    final role = profile.role;
-    return switch (_tabsForRole(role)[index]) {
-      // Home is the feed, except for the roles that keep a dashboard.
-      _Tab.home => switch (role) {
-        UserRole.employee => EmployeeHomePage(profile: profile),
-        UserRole.employeeTrainer => EmployeeTrainerHomePage(profile: profile),
-        UserRole.superUser => SuperUserHomePage(profile: profile),
-        _ => const FeedPage(),
-      },
-      // Owners get their stats on top; super users have them on Home.
-      _Tab.businesses => OwnerBusinessesPage(showStats: role == UserRole.owner),
-      _Tab.users => const OwnerUsersPage(),
-      _Tab.members => EmployeeMembersPage(profile: profile),
-      _Tab.classes => const TrainerClassesPage(),
-      _Tab.schedule => const ClassSchedulePage(),
-      _Tab.myShop => VendorShopPage(profile: profile),
+    return switch (_Tab.values[index]) {
+      _Tab.home => HomeMenuPage(
+        profile: profile,
+        onProfileChanged: (updated) async {
+          await AuthManager.instance.updateProfile(updated);
+          if (mounted) setState(() => _profile = updated);
+        },
+        onRefresh: _loadProfile,
+      ),
       _Tab.feed => const FeedPage(),
       _Tab.discover => const DiscoverPage(),
+      _Tab.schedule => const ClassSchedulePage(),
       _Tab.gym => GymHubPage(profile: profile),
     };
   }

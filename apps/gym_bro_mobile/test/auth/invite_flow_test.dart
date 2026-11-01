@@ -11,7 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_bro_mobile/models/app_notification.dart';
-import 'package:gym_bro_mobile/models/user_profile.dart';
+import 'package:gym_bro_mobile/models/business.dart';
+import 'package:gym_bro_mobile/pages/business/business_widgets.dart' show businessRoleLabel;
 import 'package:gym_bro_mobile/pages/invite_accept_page.dart';
 import 'package:gym_bro_mobile/services/auth_manager.dart';
 
@@ -60,7 +61,7 @@ void main() {
         ok(signinJson(
           accessToken: 'invite-access',
           refreshToken: 'invite-refresh',
-          profile: profileJson(id: 'u-priya', username: 'priyanair', name: 'Priya', lastName: 'Nair', role: 'employee'),
+          profile: profileJson(id: 'u-priya', username: 'priyanair', name: 'Priya', lastName: 'Nair', businesses: [myBusinessJson(roles: ['staff'])]),
         )),
       );
       await openVerify(tester);
@@ -77,7 +78,7 @@ void main() {
       final auth = AuthManager.instance;
       expect(auth.hasSession, isTrue);
       expect(auth.profile!.id, 'u-priya');
-      expect(auth.profile!.role, UserRole.employee);
+      expect(auth.profile!.staffedGyms.single.name, 'Ironclad Fitness');
       final stored = await tester.runAsync(() => const FlutterSecureStorage().readAll());
       expect(stored!['access_token'], 'invite-access');
       expect(stored['refresh_token'], 'invite-refresh');
@@ -159,19 +160,19 @@ void main() {
   });
 
   group('InviteAcceptPage (in-app invite for an existing account)', () {
-    AppNotification gymInvite({String status = 'pending', String employeeType = 'employee_trainer'}) =>
+    AppNotification gymInvite({String status = 'pending', String role = 'trainer'}) =>
         AppNotification.fromJson({
           'id': 'n-1',
           'user_id': 'u-priya',
-          'type': 'employee_gym_invite',
-          'title': "You've been invited to join Iron Temple",
-          'body': 'You have a pending invitation to work at Iron Temple as Employee Trainer.',
+          'type': 'business_invite',
+          'title': 'Join Iron Temple as Trainer',
+          'body': 'Marcus Bennett invited you to join Iron Temple as Trainer.',
           'metadata': {
             'invite_status': status,
             'inviter_id': 'u-marcus',
-            'gym_id': 'g-1',
-            'gym_name': 'Iron Temple',
-            'employee_type': employeeType,
+            'business_id': 'g-1',
+            'business_name': 'Iron Temple',
+            'role': role,
           },
           'is_read': false,
           'created_at': '2026-10-20T09:00:00.000Z',
@@ -180,10 +181,10 @@ void main() {
     AppNotification shopInvite() => AppNotification.fromJson({
           'id': 'n-2',
           'user_id': 'u-ravi',
-          'type': 'vendor_shop_invite',
-          'title': "You've been invited to join Protein Hub",
-          'body': 'You have a pending invitation to work at Protein Hub as a Vendor.',
-          'metadata': {'invite_status': 'pending', 'inviter_id': 'u-marcus', 'shop_id': 's-1', 'shop_name': 'Protein Hub'},
+          'type': 'business_invite',
+          'title': 'Join Protein Hub as Staff',
+          'body': 'Marcus Bennett invited you to join Protein Hub as Staff.',
+          'metadata': {'invite_status': 'pending', 'inviter_id': 'u-marcus', 'business_id': 's-1', 'business_name': 'Protein Hub', 'role': 'staff'},
           'is_read': false,
           'created_at': '2026-10-20T09:00:00.000Z',
         });
@@ -230,26 +231,30 @@ void main() {
     testWidgets('shows the gym, role and invite text', (tester) async {
       await openInvite(tester, gymInvite());
 
-      expect(find.text("You've been invited to join Iron Temple"), findsOneWidget);
-      expect(find.text(en.shellInviteBody('Iron Temple', en.shellRoleEmployeeTrainer)), findsOneWidget);
-      expect(find.text('You have a pending invitation to work at Iron Temple as Employee Trainer.'), findsOneWidget);
+      expect(find.text('Join Iron Temple as Trainer'), findsOneWidget);
+      expect(find.text(en.shellInviteBody('Iron Temple', businessRoleLabel(en, BusinessRole.trainer))), findsOneWidget);
+      expect(find.text('Marcus Bennett invited you to join Iron Temple as Trainer.'), findsOneWidget);
       expect(find.text(en.shellInviteAccept('Iron Temple')), findsOneWidget);
       expect(find.text(en.shellInviteDecline), findsOneWidget);
     });
 
-    testWidgets('accept → POST /notifications/:id/accept with the token, pops true', (tester) async {
+    testWidgets('accept → POST /notifications/:id/accept, refreshes my profile, pops true', (tester) async {
       final n = gymInvite();
       backend.on('POST /notifications/n-1/accept', ok(answered(n, 'accepted')));
+      backend.on('GET /users/me', ok(profileJson(isTrainer: true, businesses: [myBusinessJson(id: 'g-1', name: 'Iron Temple', roles: ['trainer'])])));
       final results = await openInvite(tester, n);
 
       await tester.tap(find.text(en.shellInviteAccept('Iron Temple')));
       await tester.pumpAndSettle();
 
-      final req = backend.only;
-      expect(describe(req), 'POST /notifications/n-1/accept');
+      expect(backend.requests.map(describe), ['POST /notifications/n-1/accept', 'GET /users/me']);
+      final req = backend.last('POST /notifications/n-1/accept');
       expect(req.headers['authorization'], 'Bearer member-token');
       expect(req.body, isEmpty);
       expect(results, [true]);
+      // Joining a team changes what I can do: the new roles are in my profile.
+      expect(AuthManager.instance.profile!.businessesAs(BusinessRole.trainer).single.id, 'g-1');
+      expect(AuthManager.instance.profile!.isTrainer, isTrue);
       expect(find.byType(InviteAcceptPage), findsNothing);
     });
 
@@ -258,7 +263,7 @@ void main() {
       backend.on('POST /notifications/n-2/decline', ok(answered(n, 'declined')));
       final results = await openInvite(tester, n);
 
-      expect(find.text(en.shellInviteBody('Protein Hub', en.shellRoleVendor)), findsOneWidget);
+      expect(find.text(en.shellInviteBody('Protein Hub', businessRoleLabel(en, BusinessRole.staff))), findsOneWidget);
       await tester.tap(find.text(en.shellInviteDecline));
       await tester.pumpAndSettle();
 
@@ -282,9 +287,9 @@ void main() {
     });
 
     testWidgets('an already answered invite shows its status and no buttons', (tester) async {
-      await openInvite(tester, gymInvite(status: 'accepted', employeeType: 'employee'));
+      await openInvite(tester, gymInvite(status: 'accepted', role: 'staff'));
 
-      expect(find.text(en.shellInviteJoined('Iron Temple', en.shellRoleEmployee)), findsOneWidget);
+      expect(find.text(en.shellInviteJoined('Iron Temple', businessRoleLabel(en, BusinessRole.staff))), findsOneWidget);
       expect(find.text(en.shellInviteDecline), findsNothing);
       expect(backend.requests, isEmpty);
     });

@@ -35,9 +35,9 @@ Deno.test({
     await t.step("1. gym announcements", async () => {
       let postId: string | null = null;
       try {
-        const gyms = (await call("GET", "/social/me", becky.token)).data?.gyms as any[];
-        const summit = (Array.isArray(gyms) ? gyms : []).find((b) => b.name === SUMMIT);
-        check("trainer's profile lists their gym", !!summit, short(gyms));
+        const me = (await call("GET", "/social/me", becky.token)).data;
+        const summit = (Array.isArray(me?.trainer_at) ? me.trainer_at : []).find((b: any) => b.name === SUMMIT);
+        check("trainer's profile says where they train", me?.is_trainer === true && !!summit && (me.gyms as any[]).length === 0, short(me?.trainer_at));
         assertAll();
 
         const post = await call("POST", "/posts", becky.token, {

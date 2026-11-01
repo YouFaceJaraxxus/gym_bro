@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/l10n.dart';
-import '../models/business.dart';
 import '../models/meal_plan.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
@@ -31,41 +30,15 @@ class CoachableMember {
 /// Formats a date-only value for [locale] ("Oct 13, 2026" / "13. okt 2026.").
 String formatPlanDate(DateTime d, String locale) => DateFormat.yMMMd(locale).format(d);
 
-/// Members of every gym where [me] is a gym owner, employee,
-/// employee-trainer or trainer (super users: every gym). Excludes [me].
+/// Members of every approved gym where [me] is on the team (owner, staff or
+/// trainer) — every gym for a super user. Excludes [me].
 Future<List<CoachableMember>> loadCoachableMembers(
   ApiService api,
   String token,
   UserProfile me,
 ) async {
-  final isSuper = me.role == UserRole.superUser;
-  final results = await Future.wait([
-    api.getBusinesses(token),
-    if (!isSuper) ...[
-      api.getGymOwners(token, userId: me.id),
-      api.getEmployees(token, userId: me.id),
-      api.getEmployeeTrainers(token, userId: me.id),
-      api.getTrainers(token, userId: me.id),
-    ],
-  ]);
-  final businesses = results[0] as List<Business>;
-  final gyms = {
-    for (final b in businesses)
-      if (b.type == 'gym') b.id: b.name,
-  };
-
-  final Set<String> gymIds;
-  if (isSuper) {
-    gymIds = gyms.keys.toSet();
-  } else {
-    gymIds = <String>{};
-    for (final rows in results.skip(1)) {
-      for (final r in rows as List<Map<String, dynamic>>) {
-        final gymId = r['gym_id'] as String?;
-        if (gymId != null && gyms.containsKey(gymId)) gymIds.add(gymId);
-      }
-    }
-  }
+  final gyms = {for (final g in await api.gymsFor(token, me)) g.id: g.name};
+  final gymIds = gyms.keys;
   if (gymIds.isEmpty) return [];
 
   final ids = gymIds.toList();

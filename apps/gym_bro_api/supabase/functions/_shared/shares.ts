@@ -162,8 +162,8 @@ async function resolveOne(viewer: Caller, s: StoredShare): Promise<SharePreview>
       return shown(s, { ...u, bio: u.bio?.slice(0, 160) ?? null });
     }
     case "business": {
-      const b = await db.selectFrom("business").select(["id", "name", "logo", "type", "location"]).where("id", "=", id)
-        .executeTakeFirst();
+      const b = await db.selectFrom("business").select(["id", "name", "logo", "has_gym", "has_shop", "location"])
+        .where("id", "=", id).where("status", "=", "approved").executeTakeFirst();
       return b ? shown(s, b) : gone(s, "unavailable");
     }
     case "shop_item": {
@@ -195,7 +195,7 @@ async function resolvePost(viewer: Caller, s: StoredShare, id: string): Promise<
       ? db.selectFrom("users").select(PUBLIC_USER_COLS).where("id", "=", row.author_id).executeTakeFirst()
       : undefined,
     row.business_id
-      ? db.selectFrom("business").select(["id", "name", "logo", "type"]).where("id", "=", row.business_id)
+      ? db.selectFrom("business").select(["id", "name", "logo", "has_gym", "has_shop"]).where("id", "=", row.business_id)
         .executeTakeFirst()
       : undefined,
     db.selectFrom("post_image").select(sql<number>`count(*)::int`.as("n")).where("post_id", "=", id)

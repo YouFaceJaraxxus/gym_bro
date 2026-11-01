@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
+import '../models/check_in.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
-import 'exercises_page.dart';
-import 'workouts_page.dart';
-import 'sessions_page.dart';
-import 'meal_plans_page.dart';
-import 'posts_page.dart';
+import 'business/business_profile_page.dart';
+import 'business/business_search_page.dart';
+import 'business/business_widgets.dart';
 import 'checkin/member_check_in_page.dart';
-import 'classes/class_schedule_page.dart';
-import 'nutrition/food_diary_page.dart';
-import 'progress/progress_page.dart';
+import 'shop/buy_membership_page.dart';
 import 'shop/storefront_page.dart';
 
+/// The Gym tab: places. The gyms the user is a member of (to their profile),
+/// checking in, buying a membership, the store, and finding gyms and shops.
+/// Personal tools (workouts, nutrition, …) live in the Home menu.
 class GymHubPage extends StatefulWidget {
   const GymHubPage({super.key, this.profile});
 
@@ -24,223 +24,109 @@ class GymHubPage extends StatefulWidget {
 }
 
 class _GymHubPageState extends State<GymHubPage> {
-  UserProfile? get profile => widget.profile;
-
-  /// Whether the user is a member of any gym (shows the check-in card).
-  bool _isMember = false;
+  /// Gyms the user is a member of; null while loading.
+  List<CheckInGym>? _gyms;
 
   @override
   void initState() {
     super.initState();
-    _loadMembership();
+    _loadGyms();
   }
 
-  Future<void> _loadMembership() async {
-    final p = profile;
-    if (p == null) return;
+  Future<void> _loadGyms() async {
     try {
       final token = await AuthManager.instance.getValidToken();
-      final rows = await ApiService().getMembers(token, userId: p.id);
-      if (mounted) setState(() => _isMember = rows.isNotEmpty);
+      final rows = await ApiService().getCheckInGyms(token);
+      if (mounted) setState(() => _gyms = rows.where((g) => g.isMember).toList());
     } catch (_) {
-      // The card just stays hidden; everything else on the hub works.
+      // The list just stays empty; everything else on the hub works.
+      if (mounted) setState(() => _gyms = const []);
     }
   }
 
   void _push(Widget page) =>
       Navigator.push(context, MaterialPageRoute(builder: (_) => page));
 
-  /// Resolves the (business id, business name, canPost) the current user
-  /// belongs to, trying every role relationship in turn. Returns null if none
-  /// is found (e.g. a super_user with no personal membership/staff role).
-  Future<({String id, String name, bool canPost})?> _resolveBusiness() async {
-    final p = profile;
-    if (p == null) return null;
-    final token = await AuthManager.instance.getValidToken();
-    final api = ApiService();
-
-    Future<String?> firstGymId(
-      Future<List<Map<String, dynamic>>> Function() fetch,
-      String key,
-    ) async {
-      final rows = await fetch();
-      return rows.isNotEmpty ? rows.first[key] as String? : null;
-    }
-
-    final staffGymId =
-        await firstGymId(
-          () => api.getEmployees(token, userId: p.id),
-          'gym_id',
-        ) ??
-        await firstGymId(
-          () => api.getTrainers(token, userId: p.id),
-          'gym_id',
-        ) ??
-        await firstGymId(
-          () => api.getEmployeeTrainers(token, userId: p.id),
-          'gym_id',
-        ) ??
-        await firstGymId(() => api.getGymOwners(token, userId: p.id), 'gym_id');
-
-    final gymId =
-        staffGymId ??
-        await firstGymId(() => api.getMembers(token, userId: p.id), 'gym_id');
-
-    if (gymId != null) {
-      final business = await api.getBusiness(token, gymId);
-      return (id: gymId, name: business.name, canPost: staffGymId != null);
-    }
-
-    final shopId =
-        await firstGymId(
-          () => api.getShopOwners(token, userId: p.id),
-          'shop_id',
-        ) ??
-        await firstGymId(
-          () => api.getShopVendors(token, userId: p.id),
-          'shop_id',
-        );
-    if (shopId != null) {
-      final business = await api.getBusiness(token, shopId);
-      return (id: shopId, name: business.name, canPost: true);
-    }
-
-    return null;
-  }
-
-  Future<void> _openCommunity() async {
-    ({String id, String name, bool canPost})? resolved;
-    try {
-      resolved = await _resolveBusiness();
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            context.l10n.shellHubCommunityOpenFailed(
-              e.toString().replaceFirst('Exception: ', ''),
-            ),
-          ),
-          action: SnackBarAction(
-            label: context.l10n.commonRetry,
-            onPressed: _openCommunity,
-          ),
-        ),
-      );
-      return;
-    }
-    if (!mounted) return;
-    if (resolved == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.shellHubNotLinked)));
-      return;
-    }
-    final target = resolved;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PostsPage(
-          businessId: target.id,
-          businessName: target.name,
-          canPost: target.canPost,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 32, 20, 32),
-      children: [
-        if (_isMember) ...[
+    final gyms = _gyms ?? const <CheckInGym>[];
+    return RefreshIndicator(
+      onRefresh: _loadGyms,
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+        children: [
+          if (gyms.isNotEmpty) ...[
+            Text(l10n.rolesHubMyGyms, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 112,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: gyms.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
+                itemBuilder: (context, i) {
+                  final g = gyms[i];
+                  return SizedBox(
+                    width: 96,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () => _push(BusinessProfilePage(businessId: g.gymId)),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 6),
+                          BusinessAvatar(
+                            logo: g.logo,
+                            hasGym: true,
+                            hasShop: false,
+                            radius: 32,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            g.name,
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            _HubCard(
+              icon: Icons.qr_code_2,
+              label: l10n.shellHubCheckIn,
+              subtitle: l10n.shellHubCheckInSubtitle,
+              onTap: () => _push(const MemberCheckInPage()),
+            ),
+            const SizedBox(height: 14),
+          ],
           _HubCard(
-            icon: Icons.qr_code_2,
-            label: l10n.shellHubCheckIn,
-            subtitle: l10n.shellHubCheckInSubtitle,
-            onTap: () => _push(const MemberCheckInPage()),
+            icon: Icons.card_membership_outlined,
+            label: l10n.rolesMenuBuyMembership,
+            subtitle: l10n.rolesHubBuyMembershipSubtitle,
+            onTap: () => _push(const BuyMembershipPage()),
           ),
           const SizedBox(height: 14),
-        ],
-        _HubCard(
-          icon: Icons.event_available_outlined,
-          label: l10n.shellTabSchedule,
-          subtitle: l10n.planScheduleHubSubtitle,
-          onTap: () => _push(const ClassSchedulePage()),
-        ),
-        const SizedBox(height: 14),
-        _HubCard(
-          icon: Icons.sports_gymnastics_outlined,
-          label: l10n.shellHubExercises,
-          subtitle: l10n.shellHubExercisesSubtitle,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ExercisesPage()),
+          _HubCard(
+            icon: Icons.storefront_outlined,
+            label: l10n.shellHubStore,
+            subtitle: l10n.shellHubStoreSubtitle,
+            onTap: () => _push(const StorefrontPage()),
           ),
-        ),
-        const SizedBox(height: 14),
-        _HubCard(
-          icon: Icons.menu_book_outlined,
-          label: l10n.shellHubWorkouts,
-          subtitle: l10n.shellHubWorkoutsSubtitle,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const WorkoutsPage()),
-          ),
-        ),
-        const SizedBox(height: 14),
-        _HubCard(
-          icon: Icons.timer_outlined,
-          label: l10n.shellHubSessions,
-          subtitle: l10n.shellHubSessionsSubtitle,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const SessionsPage()),
-          ),
-        ),
-        const SizedBox(height: 14),
-        _HubCard(
-          icon: Icons.show_chart,
-          label: l10n.shellHubProgress,
-          subtitle: l10n.shellMyProgressSubtitle,
-          onTap: () => _push(const ProgressPage()),
-        ),
-        const SizedBox(height: 14),
-        _HubCard(
-          icon: Icons.menu_book,
-          label: l10n.shellHubFoodDiary,
-          subtitle: l10n.shellHubFoodDiarySubtitle,
-          onTap: () => _push(const FoodDiaryPage()),
-        ),
-        const SizedBox(height: 14),
-        _HubCard(
-          icon: Icons.restaurant_menu_outlined,
-          label: l10n.shellHubMealPlans,
-          subtitle: l10n.shellHubMealPlansSubtitle,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const MealPlansPage()),
-          ),
-        ),
-        const SizedBox(height: 14),
-        _HubCard(
-          icon: Icons.storefront_outlined,
-          label: l10n.shellHubStore,
-          subtitle: l10n.shellHubStoreSubtitle,
-          onTap: () => _push(const StorefrontPage()),
-        ),
-        if (profile != null) ...[
           const SizedBox(height: 14),
           _HubCard(
-            icon: Icons.forum_outlined,
-            label: l10n.shellHubCommunity,
-            subtitle: l10n.shellHubCommunitySubtitle,
-            onTap: _openCommunity,
+            icon: Icons.travel_explore,
+            label: l10n.rolesSearchTitle,
+            subtitle: l10n.rolesHubFindSubtitle,
+            onTap: () => _push(const BusinessSearchPage()),
           ),
         ],
-      ],
+      ),
     );
   }
 }

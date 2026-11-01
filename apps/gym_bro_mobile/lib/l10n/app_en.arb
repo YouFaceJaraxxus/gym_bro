@@ -1,5 +1,98 @@
 {
   "@@locale": "en",
+  "@adminDbDeleteAction": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@adminDbDeleteMessage": {
+    "placeholders": {
+      "table": {
+        "type": "String"
+      }
+    }
+  },
+  "@adminDbDeleteTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@adminDbDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@adminDbFilterTables": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@adminDbForceHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@adminDbImpactDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@adminDbNewRow": {
+    "placeholders": {
+      "table": {
+        "type": "String"
+      }
+    }
+  },
+  "@adminDbOpenReferenced": {
+    "placeholders": {
+      "table": {
+        "type": "String"
+      }
+    }
+  },
+  "@adminDbRefSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "@adminDbShowing": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@adminDbTableSummary": {
+    "placeholders": {
+      "rows": {
+        "type": "int"
+      },
+      "columns": {
+        "type": "int"
+      }
+    }
+  },
   "@archiveDayLabel": {
     "placeholders": {
       "day": {
@@ -182,19 +275,6 @@
       }
     }
   },
-  "@businessGymChangeRoleMessage": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "role": {
-        "type": "String"
-      },
-      "gym": {
-        "type": "String"
-      }
-    }
-  },
   "@businessGymDeleteMembershipMessage": {
     "placeholders": {
       "type": {
@@ -210,13 +290,6 @@
     }
   },
   "@businessGymDetailMore": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "@businessGymDetailStaffCount": {
     "placeholders": {
       "count": {
         "type": "int"
@@ -282,20 +355,6 @@
       }
     }
   },
-  "@businessGymRoleChangedTo": {
-    "placeholders": {
-      "role": {
-        "type": "String"
-      }
-    }
-  },
-  "@businessGymStaffTitle": {
-    "placeholders": {
-      "gym": {
-        "type": "String"
-      }
-    }
-  },
   "@businessGymTypePerMonth": {
     "placeholders": {
       "name": {
@@ -355,13 +414,6 @@
       }
     }
   },
-  "@businessMgmtMoreCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "@businessMgmtPayNow": {
     "placeholders": {
       "amount": {
@@ -387,23 +439,6 @@
     "placeholders": {
       "quantity": {
         "type": "int"
-      }
-    }
-  },
-  "@businessMgmtRemoveVendorFromShopMessage": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "shopName": {
-        "type": "String"
-      }
-    }
-  },
-  "@businessMgmtShopVendorsTitle": {
-    "placeholders": {
-      "shopName": {
-        "type": "String"
       }
     }
   },
@@ -1156,6 +1191,13 @@
   "@customersRemoveFromClassTitle": {
     "placeholders": {
       "title": {
+        "type": "String"
+      }
+    }
+  },
+  "@customersSessionWith": {
+    "placeholders": {
+      "name": {
         "type": "String"
       }
     }
@@ -2333,6 +2375,183 @@
       }
     }
   },
+  "@rolesInviteToJoin": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesInvitedAs": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesInvitesAs": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesInvitesFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesInvitesJoined": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesManageLeaveTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesMenuInvitesBanner": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@rolesMiscTeamCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@rolesProfileFollowers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@rolesReviewApplied": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesReviewBlockTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesReviewDone": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesReviewNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesReviewRejectTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesSettingsStopTrainerBody": {
+    "placeholders": {
+      "gyms": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesTeamActionsFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesTeamAddRoleSelf": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesTeamCancelInvite": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesTeamInviteAs": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesTeamInviteTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesTeamRemoveAs": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesTeamStopBeing": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesTeamTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "@rolesTeamYou": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "@shareSheetFailed": {
     "placeholders": {
       "error": {
@@ -2438,21 +2657,7 @@
       }
     }
   },
-  "@shellEditBusiness": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "@shellEditUser": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "@shellHello": {
     "placeholders": {
       "name": {
         "type": "String"
@@ -2469,13 +2674,6 @@
   "@shellHomeViewingAs": {
     "placeholders": {
       "name": {
-        "type": "String"
-      }
-    }
-  },
-  "@shellHubCommunityOpenFailed": {
-    "placeholders": {
-      "error": {
         "type": "String"
       }
     }
@@ -2528,23 +2726,9 @@
       }
     }
   },
-  "@shellMemberCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "@shellNoLongerMember": {
     "placeholders": {
       "name": {
-        "type": "String"
-      }
-    }
-  },
-  "@shellNoMembersMatch": {
-    "placeholders": {
-      "query": {
         "type": "String"
       }
     }
@@ -2556,23 +2740,9 @@
       }
     }
   },
-  "@shellOrdersForShop": {
-    "placeholders": {
-      "shop": {
-        "type": "String"
-      }
-    }
-  },
   "@shellResetLinkSent": {
     "placeholders": {
       "email": {
-        "type": "String"
-      }
-    }
-  },
-  "@shellSessionStartedInProgress": {
-    "placeholders": {
-      "time": {
         "type": "String"
       }
     }
@@ -2668,13 +2838,6 @@
     }
   },
   "@shellUserSearchAddLabel": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "@shellWelcome": {
     "placeholders": {
       "name": {
         "type": "String"
@@ -3705,6 +3868,45 @@
   "accessOpenHint": "Open",
   "accessPrivate": "Private · you don't have access to this anymore",
   "accessUnavailable": "No longer available · it was deleted",
+  "adminDbAddRow": "Add row",
+  "adminDbDeleteAction": "{count, plural, =1{Delete 1 row} other{Delete {count} rows}}",
+  "adminDbDeleteMessage": "This can't be undone. Type the table name ({table}) to confirm.",
+  "adminDbDeleteRow": "Delete row",
+  "adminDbDeleteTitle": "{count, plural, =1{Delete this row?} other{Delete {count} rows?}}",
+  "adminDbDeleteUserNote": "Their login account is deleted too.",
+  "adminDbDeleted": "{count, plural, =1{Deleted 1 row} other{Deleted {count} rows}}",
+  "adminDbFilterTables": "Filter {count} tables",
+  "adminDbForce": "Also delete what's in the way",
+  "adminDbForceHint": "Deletes those rows and everything under them first: {count, plural, =1{1 row} other{{count} rows}} in total besides this one.",
+  "adminDbHasDefault": "empty = default",
+  "adminDbImpactBlocking": "In the way (the delete is refused while these exist)",
+  "adminDbImpactDeleted": "Deleted with it ({count, plural, =1{1 row} other{{count} rows}})",
+  "adminDbImpactIntro": "Deleting this row also affects other data:",
+  "adminDbImpactNothing": "Nothing else points at this row.",
+  "adminDbImpactNulled": "Left in place, link emptied",
+  "adminDbImpactTitle": "Before you delete",
+  "adminDbInsert": "Insert",
+  "adminDbInserted": "Row added",
+  "adminDbInvalidJson": "Not valid JSON",
+  "adminDbLoadMore": "Load more",
+  "adminDbNeedsJsonArray": "Needs a JSON array, e.g. [\"a\", \"b\"]",
+  "adminDbNewRow": "New {table} row",
+  "adminDbOnDeleteCascade": "deleted with it",
+  "adminDbOnDeleteRestrict": "block deleting it",
+  "adminDbOnDeleteSetNull": "emptied when it's deleted",
+  "adminDbOpenReferenced": "Open in {table}",
+  "adminDbRefSummary": "{count, plural, =1{1 row} other{{count} rows}} · {action}",
+  "adminDbReferencedBy": "Referenced by",
+  "adminDbReviewSubtitle": "Verify new gyms and shops as real",
+  "adminDbSave": "Save",
+  "adminDbSaved": "Saved",
+  "adminDbSearchRows": "Search text columns or paste an id",
+  "adminDbSetNull": "Set to NULL",
+  "adminDbSetValue": "Enter a value",
+  "adminDbShowing": "Showing {shown} of {total}",
+  "adminDbTableSummary": "{rows, plural, =1{1 row} other{{rows} rows}} · {columns} columns",
+  "adminDbTitle": "Database",
+  "adminDbWarning": "You're editing live data directly. Changes skip the app's checks and can't be undone; every change is logged.",
   "appTitle": "Gym Bro",
   "archiveDayLabel": "{day}, {count, plural, =0{nothing} =1{1 item} other{{count} items}}",
   "archiveLoadFailed": "Couldn't load your archive",
@@ -3807,24 +4009,15 @@
   "businessCheckInVisitsThisMonth": "Visits this month",
   "businessCheckInVisitsUnit": "{count, plural, =1{visit} other{visits}}",
   "businessCheckInYesterday": "Yesterday",
-  "businessGymAddEmployee": "Add employee",
   "businessGymAddExistingUser": "Add existing user",
   "businessGymAddExistingUserHint": "Search users already in the system",
   "businessGymAddMember": "Add member",
-  "businessGymAllGyms": "All gyms",
-  "businessGymAllMembersTitle": "All members",
-  "businessGymAllStaffTitle": "All staff",
-  "businessGymAlreadyEmployee": "Already an employee at this gym",
   "businessGymAlreadyMember": "Already a member",
   "businessGymAssign": "Assign",
   "businessGymAssignMembership": "Assign membership",
   "businessGymCancelMembership": "Cancel membership",
   "businessGymCancelMembershipMessage": "{member}'s {type} membership will be marked inactive. Billing history is kept.",
   "businessGymCancelMembershipTitle": "Cancel membership?",
-  "businessGymChange": "Change",
-  "businessGymChangeRoleMessage": "Change {name}'s role to {role} at {gym}?",
-  "businessGymChangeRoleTitle": "Change role?",
-  "businessGymClearSearch": "Clear search",
   "businessGymDeleteMembershipMessage": "This permanently deletes the {type} membership and its invoices. Use Cancel instead to keep the history.",
   "businessGymDeleteMembershipTitle": "Delete membership?",
   "businessGymDetailAttendance": "Attendance",
@@ -3832,7 +4025,6 @@
   "businessGymDetailManage": "Manage",
   "businessGymDetailManageMembers": "Manage members",
   "businessGymDetailManageMembershipTypes": "Manage membership types",
-  "businessGymDetailManageStaff": "Manage staff",
   "businessGymDetailMembers": "Members",
   "businessGymDetailMembersCount": "{count, plural, =1{1 member} other{{count} members}}",
   "businessGymDetailMembershipTypes": "Membership types",
@@ -3841,26 +4033,15 @@
   "businessGymDetailPosts": "Posts",
   "businessGymDetailScanCheckIns": "Scan check-ins",
   "businessGymDetailSchedule": "Schedule",
-  "businessGymDetailStaff": "Staff",
-  "businessGymDetailStaffCount": "{count, plural, =1{1 staff member} other{{count} staff members}}",
   "businessGymDuration": "Duration",
-  "businessGymEditEmployee": "Edit employee",
   "businessGymEditMember": "Edit member",
   "businessGymEmail": "Email",
-  "businessGymEmailAlreadyEmployed": "This email is already employed at this gym",
-  "businessGymEmployeeActions": "Employee actions",
   "businessGymExtend": "Extend",
   "businessGymExtendMembership": "Extend membership",
   "businessGymExtendedUntil": "Extended until {date}",
-  "businessGymFilterAll": "All",
   "businessGymFirstName": "First name",
   "businessGymFormAddLogo": "Add logo",
-  "businessGymFormCreate": "Create business",
   "businessGymFormDelete": "Delete business",
-  "businessGymFormDeleteGymAction": "Delete gym",
-  "businessGymFormDeleteGymMessage": "This permanently deletes the gym with all its members, staff, membership types, memberships, invoices and posts.",
-  "businessGymFormDeleteShopAction": "Delete shop",
-  "businessGymFormDeleteShopMessage": "This permanently deletes the shop with all its items, vendors and posts.",
   "businessGymFormDeleteTitle": "Delete {name}?",
   "businessGymFormDeleted": "{name} deleted",
   "businessGymFormFrom": "From",
@@ -3869,19 +4050,13 @@
   "businessGymFormSaveChanges": "Save changes",
   "businessGymFormSelectWorkingDay": "Select at least one working day",
   "businessGymFormTitleEdit": "Edit business",
-  "businessGymFormTitleNew": "New business",
   "businessGymFormTo": "To",
-  "businessGymFormType": "Type",
-  "businessGymFormTypeGym": "Gym",
-  "businessGymFormTypeShop": "Shop",
   "businessGymFormWorkingDays": "Working days",
   "businessGymFormWorkingHours": "Working hours",
   "businessGymGym": "Gym",
-  "businessGymInviteAndAdd": "Invite & add",
   "businessGymInviteMemberTitle": "Invite member",
   "businessGymInviteNewMember": "Invite new member",
   "businessGymInviteNewMemberHint": "Send an invite link by email",
-  "businessGymInviteNewUserPrompt": "Can't find them? Invite a new user",
   "businessGymInviteResent": "Invite resent",
   "businessGymInviteResentSuccess": "Invite resent successfully",
   "businessGymKeep": "Keep",
@@ -3895,32 +4070,18 @@
   "businessGymMembershipTypeNotFound": "Membership type not found for this gym",
   "businessGymMemberships": "Memberships",
   "businessGymMonths": "{months, plural, =1{1 month} other{{months} months}}",
-  "businessGymNoMembersFound": "No members found",
   "businessGymNoMembersYet": "No members yet",
   "businessGymNoMembershipAt": "No membership at {gym}",
   "businessGymNoMembershipTypes": "This gym has no membership types yet — add one first.",
-  "businessGymNoStaffFound": "No staff found",
-  "businessGymNoStaffYet": "No staff yet",
   "businessGymPlusMonths": "{months, plural, =1{+1 month} other{+{months} months}}",
   "businessGymRemove": "Remove",
   "businessGymRemoveFromGym": "Remove from gym",
   "businessGymRemoveFromGymMessage": "This will remove {name} from {gym}.",
   "businessGymRemoveMemberMessage": "This will remove the member from this gym.",
   "businessGymRemoveMemberTitle": "Remove member?",
-  "businessGymRemoveStaffMessage": "This will remove them from this gym.",
-  "businessGymRemoveStaffTitle": "Remove staff member?",
   "businessGymResendInvite": "Resend invite",
-  "businessGymRole": "Role",
-  "businessGymRoleChangedTo": "Role changed to {role}",
-  "businessGymRoleEmployee": "Employee",
-  "businessGymRoleEmployeeTrainer": "Employee trainer",
-  "businessGymRoleEmployeeTrainerShort": "Emp. trainer",
   "businessGymRoleMember": "Member",
-  "businessGymRoleVendor": "Vendor",
-  "businessGymSearchMembersHint": "Search members…",
-  "businessGymSearchStaffHint": "Search staff…",
   "businessGymSendInvite": "Send invite",
-  "businessGymStaffTitle": "{gym} — Staff",
   "businessGymStatusActive": "Active",
   "businessGymStatusCancelled": "Cancelled",
   "businessGymStatusExpired": "Expired",
@@ -3938,10 +4099,8 @@
   "businessMgmtAddItem": "Add item",
   "businessMgmtAddProductPhoto": "Add product photo",
   "businessMgmtAddType": "Add type",
-  "businessMgmtAddVendor": "Add vendor",
   "businessMgmtAll": "All",
   "businessMgmtAllGyms": "All gyms",
-  "businessMgmtAlreadyVendor": "Already a vendor for this shop",
   "businessMgmtAutoRenewOn": "Auto-renew on",
   "businessMgmtAutoRenewTurnedOff": "Auto-renew turned off",
   "businessMgmtBillingHistory": "Billing history",
@@ -3956,19 +4115,11 @@
   "businessMgmtEditItem": "Edit item",
   "businessMgmtEditMembershipType": "Edit membership type",
   "businessMgmtEditNamed": "Edit {name}",
-  "businessMgmtEditVendor": "Edit vendor",
-  "businessMgmtEmail": "Email",
-  "businessMgmtEmailAlreadyVendor": "This email is already a vendor for this shop",
   "businessMgmtExtendOrBuy": "Extend or buy a membership",
-  "businessMgmtFirstName": "First name",
   "businessMgmtGym": "Gym",
   "businessMgmtGymInvoicesTitle": "{gymName} — Invoices",
   "businessMgmtInStock": "In stock",
   "businessMgmtInvalidNumber": "Enter a valid number",
-  "businessMgmtInviteAndAddVendor": "Invite & add vendor",
-  "businessMgmtInviteNewUser": "Can't find them? Invite a new user",
-  "businessMgmtInviteResent": "Invite resent",
-  "businessMgmtInviteResentSuccess": "Invite resent successfully",
   "businessMgmtInvoice": "Invoice",
   "businessMgmtInvoiceMarkedPaid": "Invoice marked paid",
   "businessMgmtInvoiceMarkedUnpaid": "Invoice marked unpaid",
@@ -3979,8 +4130,6 @@
   "businessMgmtItemActive": "Active",
   "businessMgmtItemInactive": "Inactive",
   "businessMgmtItems": "Items",
-  "businessMgmtLastName": "Last name",
-  "businessMgmtManage": "Manage",
   "businessMgmtMarkPaid": "Mark paid",
   "businessMgmtMarkUnpaid": "Mark unpaid",
   "businessMgmtMarkVoid": "Mark void",
@@ -3989,7 +4138,6 @@
   "businessMgmtMembershipHistory": "Membership history",
   "businessMgmtMembershipTypesTitle": "{gymName} · Membership types",
   "businessMgmtMonthlyCost": "Monthly cost",
-  "businessMgmtMoreCount": "+ {count} more",
   "businessMgmtName": "Name",
   "businessMgmtNewItem": "New item",
   "businessMgmtNewMembershipType": "New membership type",
@@ -4002,7 +4150,6 @@
   "businessMgmtNoMembershipTypesYet": "No membership types yet",
   "businessMgmtNoPaidInvoices": "No paid invoices",
   "businessMgmtNoUnpaidInvoices": "No unpaid invoices",
-  "businessMgmtNoVendorsYet": "No vendors yet",
   "businessMgmtNoVoidInvoices": "No void invoices",
   "businessMgmtOrders": "Orders",
   "businessMgmtOrdersSubtitle": "Customer orders, payments and pickups",
@@ -4015,18 +4162,9 @@
   "businessMgmtPosts": "Posts",
   "businessMgmtPrice": "Price",
   "businessMgmtQuantity": "Qty: {quantity}",
-  "businessMgmtRemove": "Remove",
-  "businessMgmtRemoveFromShop": "Remove from shop",
-  "businessMgmtRemoveVendorFromShopMessage": "This will remove {name} from {shopName}.",
-  "businessMgmtRemoveVendorMessage": "This will remove them from this shop.",
-  "businessMgmtRemoveVendorTitle": "Remove vendor?",
   "businessMgmtRenewMembership": "Renew membership",
   "businessMgmtRenewsMonthly": "Renews automatically every month",
-  "businessMgmtResendInvite": "Resend invite",
   "businessMgmtSaveChanges": "Save changes",
-  "businessMgmtShop": "Shop",
-  "businessMgmtShopVendorsTitle": "{shopName} — Vendors",
-  "businessMgmtStaffVendors": "Staff / Vendors",
   "businessMgmtTurnOff": "Turn off",
   "businessMgmtTurnOffAutoRenew": "Turn off auto-renew",
   "businessMgmtTurnOffAutoRenewMessage": "Your membership stays active until {date} and won't be charged again.",
@@ -4036,9 +4174,6 @@
   "businessMgmtTypeInactive": "Inactive",
   "businessMgmtUnknownMember": "Unknown member",
   "businessMgmtUnpaidSummary": "{count, plural, =1{1 unpaid invoice} other{{count} unpaid invoices}} · {amount} due",
-  "businessMgmtUsername": "Username",
-  "businessMgmtVendor": "Vendor",
-  "businessMgmtVendorActions": "Vendor actions",
   "businessOrderStatusCancelled": "Cancelled",
   "businessOrderStatusFulfilled": "Fulfilled",
   "businessOrderStatusPaid": "Paid",
@@ -4501,6 +4636,7 @@
   "customersInviteToClasses": "{count, plural, =1{Invite to 1 class} other{Invite to {count} classes}}",
   "customersInvited": "Invite sent",
   "customersJustAdd": "Just add",
+  "customersLogPastSession": "Log a past session",
   "customersNoActiveClasses": "You have no active classes to invite them to yet.",
   "customersNoClasses": "You don't run any classes yet. Create one in the Classes tab.",
   "customersNoMatches": "No customers match your search",
@@ -4519,6 +4655,9 @@
   "customersRemoved": "Customer removed",
   "customersRemovedFromClass": "Removed from the class",
   "customersSearch": "Search customers",
+  "customersSessionWith": "With {name}",
+  "customersStartSession": "Start a session",
+  "customersStartSessionSubtitle": "Track it live; it's saved to their sessions with you as the trainer",
   "customersStatusAccepted": "Customer",
   "customersStatusPending": "Invite pending",
   "customersViewProfile": "View profile",
@@ -5288,7 +5427,6 @@
   "planRemovedRoutine": "You were taken off this routine on {date}. What you planned and logged before then stays here.",
   "planRestoredSnack": "Back on your plan",
   "planScheduleEmptyDay": "Nothing on this day. Tap an hour to log a workout or a meal.",
-  "planScheduleHubSubtitle": "Your classes, workouts and meals",
   "planSkip": "Skip",
   "planSkippedSnack": "Skipped",
   "planSlotLabel": "{time}, log a workout or a meal",
@@ -5441,6 +5579,164 @@
   "reactionSad": "Sad",
   "reactionStrong": "Strong",
   "reactionWow": "Wow",
+  "rolesBecameTrainer": "You're a trainer now. Your trainer tools are on Home.",
+  "rolesBecomeTrainerBody": "You'll get trainer tools in your Home menu: classes, timetables and clients. To show up as a trainer at a gym, its owner invites you and you accept.",
+  "rolesBecomeTrainerConfirm": "Become a trainer",
+  "rolesBecomeTrainerTitle": "Become a trainer?",
+  "rolesFormApply": "Send for review",
+  "rolesFormBio": "About",
+  "rolesFormDeleteMessage": "This permanently deletes the business with its members, memberships, invoices, products, team and posts.",
+  "rolesFormGymHint": "Memberships, classes, check-ins",
+  "rolesFormIntro": "Tell people about your gym or shop. Our team checks every new business before it goes live; you can finish the profile meanwhile.",
+  "rolesFormPhone": "Phone",
+  "rolesFormPickSide": "Pick gym, shop or both",
+  "rolesFormShopHint": "Products and orders",
+  "rolesFormSides": "What it is",
+  "rolesFormSidesHint": "A business can be both. You can switch either on or off later.",
+  "rolesFormSubmittedBody": "We'll let you know when it's approved. Until then you can find it under My gyms & shops and keep editing its profile.",
+  "rolesFormSubmittedTitle": "Sent for review",
+  "rolesFormWebsite": "Website",
+  "rolesFormWebsiteInvalid": "Start with http:// or https://",
+  "rolesHubBuyMembershipSubtitle": "Join a gym or renew",
+  "rolesHubFindSubtitle": "Search by name or place",
+  "rolesHubMyGyms": "My gyms",
+  "rolesInviteAccept": "Accept",
+  "rolesInviteDecline": "Decline",
+  "rolesInviteToJoin": "{business} invited you to join as {role}.",
+  "rolesInvitedAs": "Invited · {role}",
+  "rolesInvitesAs": "Join as {role}",
+  "rolesInvitesDeclined": "Invite declined",
+  "rolesInvitesEmpty": "No open invites",
+  "rolesInvitesFrom": "{name} invited you to join as {role}",
+  "rolesInvitesJoined": "You joined {business}",
+  "rolesInvitesTitle": "Team invites",
+  "rolesInvitesTrainerNote": "Accepting turns on your trainer tools and lists you as a trainer there.",
+  "rolesKindGym": "Gym",
+  "rolesKindGymAndShop": "Gym & shop",
+  "rolesKindShop": "Shop",
+  "rolesManage": "Manage",
+  "rolesManageBlockedTitle": "Blocked",
+  "rolesManageEditProfile": "Edit profile",
+  "rolesManageEditProfileSubtitle": "Name, logo, about, hours, contact",
+  "rolesManageGymDashboard": "Gym dashboard",
+  "rolesManageGymDashboardSubtitle": "Members, memberships, invoices, schedule, check-ins",
+  "rolesManageLeave": "Leave team",
+  "rolesManageLeaveBody": "You'll lose every role you have here. An owner can invite you again.",
+  "rolesManageLeaveTitle": "Leave {business}?",
+  "rolesManagePendingBody": "Our team is checking this business. You can finish the profile meanwhile; the team, memberships, products and posts unlock once it's approved.",
+  "rolesManagePendingTitle": "Waiting for review",
+  "rolesManagePosts": "Posts",
+  "rolesManagePostsSubtitle": "Post as the business",
+  "rolesManageProductsSubtitle": "Add and edit what you sell",
+  "rolesManageProfileGroup": "Profile & team",
+  "rolesManageRejectedHint": "Fix what's mentioned above in the profile, then send it again.",
+  "rolesManageRejectedTitle": "Not approved",
+  "rolesManageResubmit": "Send for review again",
+  "rolesManageResubmitted": "Sent for review",
+  "rolesManageScheduleSubtitle": "Classes and shifts at this gym",
+  "rolesManageTeam": "Team",
+  "rolesManageTeamSubtitle": "Who runs this place",
+  "rolesManageTeamSubtitleOwner": "Invite staff, trainers and co-owners",
+  "rolesManageViewProfile": "View profile",
+  "rolesMenuAdmin": "Admin",
+  "rolesMenuBecomeTrainer": "Become a trainer",
+  "rolesMenuBecomeTrainerSubtitle": "Classes, clients and coaching tools for the people you train",
+  "rolesMenuBuyMembership": "Buy a membership",
+  "rolesMenuDoMore": "Do more",
+  "rolesMenuInvitesBanner": "{count, plural, =1{You're invited to join a team} other{You have {count} team invites}}",
+  "rolesMenuInvitesReview": "Review",
+  "rolesMenuMemberships": "Memberships & orders",
+  "rolesMenuMyBusinesses": "My gyms & shops",
+  "rolesMenuMyShifts": "My shifts",
+  "rolesMenuNutrition": "Nutrition",
+  "rolesMenuOwnerOverview": "Owner overview",
+  "rolesMenuRegisterBusiness": "Register a gym or shop",
+  "rolesMenuRegisterBusinessSubtitle": "Our team checks it before it goes live",
+  "rolesMenuRegisterBusinessSubtitleAdmin": "Goes live straight away",
+  "rolesMenuReviewQueue": "Verification requests",
+  "rolesMenuTrainer": "Trainer",
+  "rolesMenuTrainerClasses": "My classes",
+  "rolesMenuTrainerClients": "Clients",
+  "rolesMenuTrainerSessions": "Coached sessions",
+  "rolesMenuTrainerTimetables": "Timetables",
+  "rolesMenuTraining": "Training",
+  "rolesMiscManageTeam": "Manage team",
+  "rolesMiscMember": "Member",
+  "rolesMiscOwner": "Owner",
+  "rolesMiscOwnerOf": "Owner of",
+  "rolesMiscStaff": "Staff",
+  "rolesMiscSuperUser": "Super user",
+  "rolesMiscSuperUserHint": "Reviews businesses and manages users",
+  "rolesMiscTeam": "Team",
+  "rolesMiscTeamCount": "{count, plural, =1{1 on the team} other{{count} on the team}}",
+  "rolesMiscTeamHint": "Owners, staff and trainers, and open invites",
+  "rolesMiscTrainer": "Trainer",
+  "rolesMiscTrainerAt": "Trainer at",
+  "rolesProfileAllPosts": "See all",
+  "rolesProfileFollow": "Follow",
+  "rolesProfileFollowers": "{count, plural, =1{1 follower} other{{count} followers}}",
+  "rolesProfileFollowing": "Following",
+  "rolesProfileMemberships": "Memberships",
+  "rolesProfileOwners": "Owners",
+  "rolesProfilePosts": "Posts",
+  "rolesProfileProducts": "Products",
+  "rolesProfileTrainers": "Trainers",
+  "rolesProfileYouAre": "You're",
+  "rolesReviewApplied": "Applied {date}",
+  "rolesReviewApprove": "Approve",
+  "rolesReviewBlock": "Block",
+  "rolesReviewBlockTitle": "Block {business}?",
+  "rolesReviewDone": "{business}: {status}",
+  "rolesReviewEmpty": "Nothing here",
+  "rolesReviewNote": "Note: {note}",
+  "rolesReviewReason": "Reason",
+  "rolesReviewReasonHint": "The owner sees this",
+  "rolesReviewReject": "Reject",
+  "rolesReviewRejectTitle": "Reject {business}?",
+  "rolesReviewUnblock": "Approve again",
+  "rolesRoleCoOwner": "Co-owner",
+  "rolesRoleOwner": "Owner",
+  "rolesRoleStaff": "Staff",
+  "rolesRoleTrainer": "Trainer",
+  "rolesSearchAll": "All",
+  "rolesSearchEmpty": "Nothing found",
+  "rolesSearchHint": "Name or location",
+  "rolesSearchTitle": "Find gyms & shops",
+  "rolesSettingsStopTrainer": "Stop",
+  "rolesSettingsStopTrainerBody": "You'll also stop being a trainer at {gyms}. Your clients and classes stay.",
+  "rolesSettingsStopTrainerTitle": "Stop being a trainer?",
+  "rolesSettingsTrainer": "I'm a trainer",
+  "rolesSettingsTrainerSubtitle": "Trainer tools in your Home menu",
+  "rolesStatusApproved": "Approved",
+  "rolesStatusBlocked": "Blocked",
+  "rolesStatusPending": "Pending review",
+  "rolesStatusRejected": "Not approved",
+  "rolesTeamActionsFor": "Actions for {name}",
+  "rolesTeamAddRoleSelf": "Make me {role} too",
+  "rolesTeamByEmail": "By email",
+  "rolesTeamByEmailHint": "Someone already on Gym Bro just needs their email. For someone new, add their name and a username too; they'll get an email to set up their account, then the invite.",
+  "rolesTeamCancelInvite": "Cancel {role} invite",
+  "rolesTeamEmail": "Email",
+  "rolesTeamExplainer": "Owners and trainers show on the public profile; staff don't. New people join once they accept the invite.",
+  "rolesTeamFindPerson": "On Gym Bro",
+  "rolesTeamFirstName": "First name",
+  "rolesTeamInvite": "Invite",
+  "rolesTeamInviteAs": "Invite as {role}",
+  "rolesTeamInviteRole": "As",
+  "rolesTeamInviteSent": "Invite sent",
+  "rolesTeamInviteTitle": "Invite to {business}",
+  "rolesTeamLastName": "Last name",
+  "rolesTeamOwnerHint": "Everything an owner can do, including the team, pricing and deleting the business.",
+  "rolesTeamRemoveAs": "Remove as {role}",
+  "rolesTeamRoleAdded": "Role added",
+  "rolesTeamSendInvite": "Send invite",
+  "rolesTeamStaffHint": "Front desk and shop: members, memberships, invoices, products, orders and the profile. Not shown on the profile.",
+  "rolesTeamStopBeing": "Stop being {role}",
+  "rolesTeamTitle": "Team · {business}",
+  "rolesTeamTrainerHint": "Teaches classes, coaches members and posts. Shown as \"Trainer at\" on their profile.",
+  "rolesTeamUsername": "Username",
+  "rolesTeamYou": "{name} (you)",
+  "rolesVerified": "Verified by Gym Bro",
   "settingsLanguage": "Language",
   "settingsLanguageEnglish": "English",
   "settingsLanguageSerbian": "Srpski",
@@ -5512,12 +5808,7 @@
   "shellActivateAccount": "Activate account",
   "shellActivateInviteIntro": "Enter the 6-digit code from your invite email along with the email address and a password you'd like to use.",
   "shellActivateInviteTitle": "Activate invite",
-  "shellAddBusiness": "Add business",
   "shellAddUser": "Add user",
-  "shellAdminBusinessesSubtitle": "Manage gyms & shops",
-  "shellAdminInvoicesSubtitle": "View all membership invoices",
-  "shellAdminPanel": "Admin panel",
-  "shellAdminUsersSubtitle": "Manage all accounts",
   "shellAlreadyYourEmail": "That's already your email",
   "shellAuthEmail": "Email",
   "shellAuthFirstName": "First name",
@@ -5536,7 +5827,6 @@
   "shellChatsUnread": "{count, plural, =1{Messages, 1 unread chat} other{Messages, {count} unread chats}}",
   "shellCheckEmailBody": "We sent you a confirmation link. Please verify your email before logging in.",
   "shellCheckEmailTitle": "Check your email",
-  "shellChooseShop": "Choose a shop",
   "shellClearSearch": "Clear search",
   "shellConfirmNewEmailTitle": "Confirm your new email",
   "shellConfirmNewPassword": "Confirm new password",
@@ -5554,7 +5844,6 @@
   "shellDeleteConfirmWord": "DELETE",
   "shellDeleteUserMessage": "This permanently deletes {name}'s account, memberships and billing history. This cannot be undone.",
   "shellDeleteUserTitle": "Delete {name}?",
-  "shellEditBusiness": "Edit {name}",
   "shellEditUser": "Edit {name}",
   "shellEditUserTitle": "Edit user",
   "shellForgotPasswordIntro": "Enter your email and we'll send you a link to reset your password.",
@@ -5564,10 +5853,8 @@
   "shellGoogleFailed": "Google sign-in failed",
   "shellGoogleNoIdToken": "Google did not return an ID token",
   "shellGoogleNotSupported": "Google sign-in is not supported on this device",
-  "shellGyms": "Gyms",
   "shellHaveAccountLogIn": "Already have an account? Log in",
   "shellHaveInviteCode": "Have an invite code?",
-  "shellHello": "Hello, {name}",
   "shellHidePassword": "Hide password",
   "shellHidePasswords": "Hide passwords",
   "shellHomeBackToLogin": "Back to login",
@@ -5580,23 +5867,14 @@
   "shellHubCheckIn": "Check in",
   "shellHubCheckInSubtitle": "Show your code at the front desk",
   "shellHubClassesSubtitle": "Browse and book group classes",
-  "shellHubCommunity": "Community",
-  "shellHubCommunityOpenFailed": "Couldn't open community: {error}",
-  "shellHubCommunitySubtitle": "Posts and announcements from your gym",
   "shellHubExercises": "Exercises",
-  "shellHubExercisesSubtitle": "Browse and manage exercises",
   "shellHubFoodDiary": "Food diary",
-  "shellHubFoodDiarySubtitle": "Log meals and track macros",
   "shellHubMealPlans": "Meal plans",
-  "shellHubMealPlansSubtitle": "Food, recipes and nutrition",
-  "shellHubNotLinked": "You're not linked to a gym or shop yet",
   "shellHubProgress": "Progress",
   "shellHubSessions": "Sessions",
-  "shellHubSessionsSubtitle": "Log and review your sessions",
   "shellHubStore": "Store",
   "shellHubStoreSubtitle": "Supplements, gear and your orders",
   "shellHubWorkouts": "Workouts",
-  "shellHubWorkoutsSubtitle": "Trainings and routines",
   "shellImageAddPhoto": "Add photo",
   "shellImageChange": "Change photo",
   "shellImageChooseFromGallery": "Choose from gallery",
@@ -5624,8 +5902,6 @@
   "shellLogIn": "Log in",
   "shellLogInInstead": "Log in instead",
   "shellMarkAllRead": "Mark all read",
-  "shellMemberCount": "{count, plural, =1{1 member} other{{count} members}}",
-  "shellMembersYouCoach": "Members you coach",
   "shellMuteBilling": "Billing",
   "shellMuteBillingDescription": "Invoices, payments and expiring memberships",
   "shellMuteClasses": "Classes",
@@ -5653,21 +5929,14 @@
   "shellNewPassword": "New password",
   "shellNewUserTitle": "New user",
   "shellNoAccountSignUp": "Don't have an account? Sign up",
-  "shellNoBusinesses": "No businesses yet",
-  "shellNoCoachedMembers": "No members at the gyms you coach at yet",
   "shellNoLongerMember": "{name} is no longer a member",
-  "shellNoMembersMatch": "No members match \"{query}\"",
   "shellNoNotifications": "No notifications yet",
-  "shellNoSessionsToday": "No sessions with you today",
   "shellNoUsers": "No users yet",
   "shellNoUsersFound": "No users found",
-  "shellNotAVendor": "You're not a vendor at any shop yet",
-  "shellNotAssignedToGym": "Not assigned to any gym yet",
   "shellNotificationUnread": "Unread",
   "shellOffline": "You're offline — showing saved data",
   "shellOfflinePending": "{count, plural, =1{You're offline — showing saved data · 1 change waiting to sync} other{You're offline — showing saved data · {count} changes waiting to sync}}",
   "shellOr": "or",
-  "shellOrdersForShop": "Orders · {shop}",
   "shellOwnerAllInvoices": "All invoices",
   "shellPasswordChanged": "Password changed",
   "shellPasswordsDontMatch": "Passwords do not match",
@@ -5680,25 +5949,10 @@
   "shellResetLinkSent": "We sent a password reset link to {email}.",
   "shellResetPasswordIntro": "Enter a new password for your account.",
   "shellResetPasswordTitle": "Reset password",
-  "shellRole": "Role",
-  "shellRoleEmployee": "Employee",
-  "shellRoleEmployeeTrainer": "Employee / Trainer",
-  "shellRoleEmployeeTrainerShort": "Emp. trainer",
-  "shellRoleGymOwner": "Gym owner",
-  "shellRoleMember": "Member",
-  "shellRoleOwner": "Owner",
-  "shellRoleShopOwner": "Shop owner",
-  "shellRoleShopVendor": "Shop vendor",
-  "shellRoleSuperUser": "Super user",
-  "shellRoleTrainer": "Trainer",
-  "shellRoleVendor": "Vendor",
   "shellSaveChanges": "Save changes",
-  "shellScanCheckIns": "Scan check-ins",
-  "shellSearchMembers": "Search members",
   "shellSendLink": "Send link",
   "shellSendMePushesAbout": "Send me pushes about",
   "shellSendResetLink": "Send reset link",
-  "shellSessionStartedInProgress": "Started {time} · in progress",
   "shellSetNewPassword": "Set new password",
   "shellSettings": "Settings",
   "shellSettingsAccount": "Account",
@@ -5708,7 +5962,6 @@
   "shellSettingsTheme": "Theme",
   "shellSettingsUnits": "Units",
   "shellSettingsWeight": "Weight",
-  "shellShops": "Shops",
   "shellShowMore": "Show more",
   "shellShowPassword": "Show password",
   "shellShowPasswords": "Show passwords",
@@ -5731,15 +5984,12 @@
   "shellStatsNoneExpiring": "No memberships expiring in the next two weeks",
   "shellStatsStaff": "Staff",
   "shellStatsUnpaidInvoices": "Unpaid invoices",
-  "shellTabBusinesses": "Businesses",
   "shellTabClasses": "Classes",
   "shellTabDiscover": "Discover",
   "shellTabFeed": "Feed",
   "shellTabGym": "Gym",
   "shellTabHome": "Home",
-  "shellTabMembers": "Members",
   "shellTabMembership": "Membership",
-  "shellTabMyShop": "My Shop",
   "shellTabProfile": "Profile",
   "shellTabSchedule": "Schedule",
   "shellTabUsers": "Users",
@@ -5753,7 +6003,6 @@
   "shellTimeMinutesAgo": "{count, plural, =1{1 minute ago} other{{count} minutes ago}}",
   "shellTimeMinutesShort": "{count}m",
   "shellTimeNow": "now",
-  "shellTodaysSessions": "Today's sessions",
   "shellTypeToConfirm": "Type {text} to confirm.",
   "shellUnitKilograms": "Kilograms",
   "shellUnitPounds": "Pounds",
@@ -5761,9 +6010,6 @@
   "shellUserSearchAddLabel": "Add {name}",
   "shellUserSearchAdding": "Adding",
   "shellUserSearchHint": "Search by name or username",
-  "shellWelcome": "Welcome, {name}",
-  "shellYourGym": "Your gym",
-  "shellYourGyms": "Your gyms",
   "socialActiveAgo": "Active {when}",
   "socialActiveNow": "Active now",
   "socialCamera": "Camera",
@@ -6408,8 +6654,6 @@
   "trainingSideBoth": "Both",
   "trainingSideLeft": "Left",
   "trainingSideRight": "Right",
-  "trainingStaffRoleEmployee": "Employee",
-  "trainingStaffRoleEmployeeTrainer": "Employee / Trainer",
   "trainingStaffRoleTrainer": "Trainer",
   "trainingWeekProgram": "{weeks}-Week Program",
   "trainingWorkoutsAssignedByMe": "By me ({count})",

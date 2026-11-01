@@ -62,7 +62,14 @@ Map<String, dynamic> _meJson() => {
       'name': 'Liam',
       'last_name': "O'Connor",
       'avatar_url': 'https://api.dicebear.com/9.x/avataaars/png?seed=liamoconnor&size=256',
-      'role': 'member',
+      'is_trainer': true,
+      'owner_of': [
+        {'id': 'b-shop', 'name': 'Peak Supply', 'logo': null, 'has_gym': false, 'has_shop': true},
+      ],
+      'trainer_at': [
+        {'id': 'g1', 'name': 'Ironclad Fitness', 'logo': 'https://picsum.photos/seed/gym-logo/800/400', 'has_gym': true, 'has_shop': true},
+        {'id': 'g2', 'name': 'Harbor Boxing', 'has_gym': true},
+      ],
       'bio': 'Chasing a 200kg deadlift.',
       'interests': ['powerlifting', 'meal prep', 'running'],
       'is_private': false,
@@ -94,7 +101,6 @@ Map<String, dynamic> _ingridJson() => {
       'name': 'Ingrid',
       'last_name': 'Larsen',
       'avatar_url': null,
-      'role': 'member',
       'bio': 'Cross-country skier turned lifter.',
       'interests': ['running', 'cycling'],
       'is_private': true,
@@ -118,7 +124,11 @@ void _expectMe(PublicProfile p) {
   expect(p.name, 'Liam');
   expect(p.lastName, "O'Connor");
   expect(p.avatarUrl, 'https://api.dicebear.com/9.x/avataaars/png?seed=liamoconnor&size=256');
-  expect(p.role, 'member');
+  expect(p.isTrainer, isTrue);
+  expect(p.ownerOf.map((b) => (b.id, b.name, b.logo, b.hasGym, b.hasShop)), [('b-shop', 'Peak Supply', null, false, true)]);
+  expect(p.trainerAt.map((b) => b.name), ['Ironclad Fitness', 'Harbor Boxing']);
+  expect(p.trainerAt.first.logo, 'https://picsum.photos/seed/gym-logo/800/400');
+  expect((p.trainerAt.last.hasGym, p.trainerAt.last.hasShop), (true, false), reason: 'absent sides default to false');
   expect(p.bio, 'Chasing a 200kg deadlift.');
   expect(p.interests, ['powerlifting', 'meal prep', 'running']);
   expect(p.isPrivate, isFalse);
@@ -279,6 +289,9 @@ void main() {
 
       _expectRequest(backend.only, 'GET', '/social/users/u-ingrid');
       expect(p.id, 'u-ingrid');
+      expect(p.isTrainer, isFalse, reason: 'no affiliations: plain member');
+      expect(p.ownerOf, isEmpty);
+      expect(p.trainerAt, isEmpty);
       expect(p.avatarUrl, isNull);
       expect(p.isPrivate, isTrue);
       expect(p.isMe, isFalse);

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
-import '../models/business.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -9,8 +8,8 @@ import 'app_bottom_sheet.dart';
 // Shared "pick a member I coach" sheet: used for routine assignment and
 // available to any feature that targets one of the caller's members.
 
-/// A gym member the current user coaches (owner, employee, employee-trainer
-/// or trainer at one of the member's gyms; super users: everyone).
+/// A gym member the current user coaches (owner, staff or trainer at one of
+/// the member's gyms).
 class CoachedMember {
   final String userId;
   final String name;
@@ -38,40 +37,15 @@ class CoachedMemberPick {
   const CoachedMemberPick({required this.userId, required this.name, this.isSelf = false});
 }
 
-/// Members of every gym where [me] works or trains (super users: every gym),
-/// excluding [me], sorted by name.
+/// Members of every approved gym where [me] is on the team (owner, staff or
+/// trainer) — every gym for a super user — excluding [me], sorted by name.
 Future<List<CoachedMember>> loadCoachedMembers(
   ApiService api,
   String token,
   UserProfile me,
 ) async {
-  final isSuper = me.role == UserRole.superUser;
-  final results = await Future.wait<Object>([
-    api.getBusinesses(token),
-    if (!isSuper) ...[
-      api.getGymOwners(token, userId: me.id),
-      api.getEmployees(token, userId: me.id),
-      api.getEmployeeTrainers(token, userId: me.id),
-      api.getTrainers(token, userId: me.id),
-    ],
-  ]);
-  final businesses = results[0] as List<Business>;
-  final gyms = {
-    for (final b in businesses)
-      if (b.type == 'gym') b.id: b.name,
-  };
-
-  final gymIds = <String>{};
-  if (isSuper) {
-    gymIds.addAll(gyms.keys);
-  } else {
-    for (final rows in results.skip(1)) {
-      for (final r in rows as List<Map<String, dynamic>>) {
-        final gymId = r['gym_id'] as String?;
-        if (gymId != null && gyms.containsKey(gymId)) gymIds.add(gymId);
-      }
-    }
-  }
+  final gyms = {for (final g in await api.gymsFor(token, me)) g.id: g.name};
+  final gymIds = gyms.keys;
   if (gymIds.isEmpty) return [];
 
   final ids = gymIds.toList();

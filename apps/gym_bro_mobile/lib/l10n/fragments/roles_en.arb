@@ -1,0 +1,318 @@
+{
+  "rolesRoleOwner": "Owner",
+  "rolesRoleStaff": "Staff",
+  "rolesRoleTrainer": "Trainer",
+  "rolesRoleCoOwner": "Co-owner",
+  "rolesStatusPending": "Pending review",
+  "rolesStatusApproved": "Approved",
+  "rolesStatusRejected": "Not approved",
+  "rolesStatusBlocked": "Blocked",
+  "rolesKindGym": "Gym",
+  "rolesKindShop": "Shop",
+  "rolesKindGymAndShop": "Gym & shop",
+  "rolesInvitedAs": "Invited · {role}",
+  "@rolesInvitedAs": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesMenuTraining": "Training",
+  "rolesMenuNutrition": "Nutrition",
+  "rolesMenuMemberships": "Memberships & orders",
+  "rolesMenuBuyMembership": "Buy a membership",
+  "rolesMenuTrainer": "Trainer",
+  "rolesMenuTrainerClasses": "My classes",
+  "rolesMenuTrainerTimetables": "Timetables",
+  "rolesMenuTrainerClients": "Clients",
+  "rolesMenuTrainerSessions": "Coached sessions",
+  "rolesMenuMyBusinesses": "My gyms & shops",
+  "rolesMenuOwnerOverview": "Owner overview",
+  "rolesMenuMyShifts": "My shifts",
+  "rolesMenuDoMore": "Do more",
+  "rolesMenuBecomeTrainer": "Become a trainer",
+  "rolesMenuBecomeTrainerSubtitle": "Classes, clients and coaching tools for the people you train",
+  "rolesMenuRegisterBusiness": "Register a gym or shop",
+  "rolesMenuRegisterBusinessSubtitle": "Our team checks it before it goes live",
+  "rolesMenuRegisterBusinessSubtitleAdmin": "Goes live straight away",
+  "rolesMenuAdmin": "Admin",
+  "rolesMenuReviewQueue": "Verification requests",
+  "rolesMenuInvitesBanner": "{count, plural, =1{You're invited to join a team} other{You have {count} team invites}}",
+  "@rolesMenuInvitesBanner": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rolesMenuInvitesReview": "Review",
+  "rolesBecomeTrainerTitle": "Become a trainer?",
+  "rolesBecomeTrainerBody": "You'll get trainer tools in your Home menu: classes, timetables and clients. To show up as a trainer at a gym, its owner invites you and you accept.",
+  "rolesBecomeTrainerConfirm": "Become a trainer",
+  "rolesBecameTrainer": "You're a trainer now. Your trainer tools are on Home.",
+  "rolesFormIntro": "Tell people about your gym or shop. Our team checks every new business before it goes live; you can finish the profile meanwhile.",
+  "rolesFormBio": "About",
+  "rolesFormWebsite": "Website",
+  "rolesFormWebsiteInvalid": "Start with http:// or https://",
+  "rolesFormPhone": "Phone",
+  "rolesFormSides": "What it is",
+  "rolesFormSidesHint": "A business can be both. You can switch either on or off later.",
+  "rolesFormGymHint": "Memberships, classes, check-ins",
+  "rolesFormShopHint": "Products and orders",
+  "rolesFormPickSide": "Pick gym, shop or both",
+  "rolesFormApply": "Send for review",
+  "rolesFormSubmittedTitle": "Sent for review",
+  "rolesFormSubmittedBody": "We'll let you know when it's approved. Until then you can find it under My gyms & shops and keep editing its profile.",
+  "rolesFormDeleteMessage": "This permanently deletes the business with its members, memberships, invoices, products, team and posts.",
+  "rolesHubMyGyms": "My gyms",
+  "rolesHubBuyMembershipSubtitle": "Join a gym or renew",
+  "rolesHubFindSubtitle": "Search by name or place",
+  "rolesSearchTitle": "Find gyms & shops",
+  "rolesSearchHint": "Name or location",
+  "rolesSearchAll": "All",
+  "rolesSearchEmpty": "Nothing found",
+  "rolesManage": "Manage",
+  "rolesProfileFollowers": "{count, plural, =1{1 follower} other{{count} followers}}",
+  "@rolesProfileFollowers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rolesProfileFollow": "Follow",
+  "rolesProfileFollowing": "Following",
+  "rolesProfileYouAre": "You're",
+  "rolesProfileOwners": "Owners",
+  "rolesProfileTrainers": "Trainers",
+  "rolesProfileMemberships": "Memberships",
+  "rolesProfileProducts": "Products",
+  "rolesProfilePosts": "Posts",
+  "rolesProfileAllPosts": "See all",
+  "rolesInviteToJoin": "{business} invited you to join as {role}.",
+  "@rolesInviteToJoin": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesInviteAccept": "Accept",
+  "rolesInviteDecline": "Decline",
+  "rolesManageViewProfile": "View profile",
+  "rolesManageProfileGroup": "Profile & team",
+  "rolesManageEditProfile": "Edit profile",
+  "rolesManageEditProfileSubtitle": "Name, logo, about, hours, contact",
+  "rolesManageTeam": "Team",
+  "rolesManageTeamSubtitleOwner": "Invite staff, trainers and co-owners",
+  "rolesManageTeamSubtitle": "Who runs this place",
+  "rolesManagePosts": "Posts",
+  "rolesManagePostsSubtitle": "Post as the business",
+  "rolesManageGymDashboard": "Gym dashboard",
+  "rolesManageGymDashboardSubtitle": "Members, memberships, invoices, schedule, check-ins",
+  "rolesManageScheduleSubtitle": "Classes and shifts at this gym",
+  "rolesManageProductsSubtitle": "Add and edit what you sell",
+  "rolesManagePendingTitle": "Waiting for review",
+  "rolesManagePendingBody": "Our team is checking this business. You can finish the profile meanwhile; the team, memberships, products and posts unlock once it's approved.",
+  "rolesManageRejectedTitle": "Not approved",
+  "rolesManageRejectedHint": "Fix what's mentioned above in the profile, then send it again.",
+  "rolesManageResubmit": "Send for review again",
+  "rolesManageResubmitted": "Sent for review",
+  "rolesManageBlockedTitle": "Blocked",
+  "rolesManageLeave": "Leave team",
+  "rolesManageLeaveTitle": "Leave {business}?",
+  "@rolesManageLeaveTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesManageLeaveBody": "You'll lose every role you have here. An owner can invite you again.",
+  "rolesTeamTitle": "Team · {business}",
+  "@rolesTeamTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesTeamExplainer": "Owners and trainers show on the public profile; staff don't. New people join once they accept the invite.",
+  "rolesTeamInvite": "Invite",
+  "rolesTeamInviteSent": "Invite sent",
+  "rolesTeamRoleAdded": "Role added",
+  "rolesTeamYou": "{name} (you)",
+  "@rolesTeamYou": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesTeamActionsFor": "Actions for {name}",
+  "@rolesTeamActionsFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesTeamRemoveAs": "Remove as {role}",
+  "@rolesTeamRemoveAs": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesTeamStopBeing": "Stop being {role}",
+  "@rolesTeamStopBeing": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesTeamCancelInvite": "Cancel {role} invite",
+  "@rolesTeamCancelInvite": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesTeamInviteAs": "Invite as {role}",
+  "@rolesTeamInviteAs": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesTeamAddRoleSelf": "Make me {role} too",
+  "@rolesTeamAddRoleSelf": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesTeamInviteTitle": "Invite to {business}",
+  "@rolesTeamInviteTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesTeamInviteRole": "As",
+  "rolesTeamStaffHint": "Front desk and shop: members, memberships, invoices, products, orders and the profile. Not shown on the profile.",
+  "rolesTeamTrainerHint": "Teaches classes, coaches members and posts. Shown as \"Trainer at\" on their profile.",
+  "rolesTeamOwnerHint": "Everything an owner can do, including the team, pricing and deleting the business.",
+  "rolesTeamFindPerson": "On Gym Bro",
+  "rolesTeamByEmail": "By email",
+  "rolesTeamByEmailHint": "Someone already on Gym Bro just needs their email. For someone new, add their name and a username too; they'll get an email to set up their account, then the invite.",
+  "rolesTeamEmail": "Email",
+  "rolesTeamFirstName": "First name",
+  "rolesTeamLastName": "Last name",
+  "rolesTeamUsername": "Username",
+  "rolesTeamSendInvite": "Send invite",
+  "rolesInvitesTitle": "Team invites",
+  "rolesInvitesEmpty": "No open invites",
+  "rolesInvitesAs": "Join as {role}",
+  "@rolesInvitesAs": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesInvitesFrom": "{name} invited you to join as {role}",
+  "@rolesInvitesFrom": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesInvitesTrainerNote": "Accepting turns on your trainer tools and lists you as a trainer there.",
+  "rolesInvitesJoined": "You joined {business}",
+  "@rolesInvitesJoined": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesInvitesDeclined": "Invite declined",
+  "rolesReviewEmpty": "Nothing here",
+  "rolesReviewApplied": "Applied {date}",
+  "@rolesReviewApplied": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesReviewNote": "Note: {note}",
+  "@rolesReviewNote": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesReviewApprove": "Approve",
+  "rolesReviewReject": "Reject",
+  "rolesReviewBlock": "Block",
+  "rolesReviewUnblock": "Approve again",
+  "rolesReviewRejectTitle": "Reject {business}?",
+  "@rolesReviewRejectTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesReviewBlockTitle": "Block {business}?",
+  "@rolesReviewBlockTitle": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesReviewReason": "Reason",
+  "rolesReviewReasonHint": "The owner sees this",
+  "rolesReviewDone": "{business}: {status}",
+  "@rolesReviewDone": {
+    "placeholders": {
+      "business": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesSettingsTrainer": "I'm a trainer",
+  "rolesSettingsTrainerSubtitle": "Trainer tools in your Home menu",
+  "rolesSettingsStopTrainerTitle": "Stop being a trainer?",
+  "rolesSettingsStopTrainerBody": "You'll also stop being a trainer at {gyms}. Your clients and classes stay.",
+  "@rolesSettingsStopTrainerBody": {
+    "placeholders": {
+      "gyms": {
+        "type": "String"
+      }
+    }
+  },
+  "rolesSettingsStopTrainer": "Stop",
+  "rolesVerified": "Verified by Gym Bro"
+}

@@ -596,17 +596,6 @@
   "businessMgmtOrdersSubtitle": "Customer orders, payments and pickups",
   "businessMgmtPosts": "Posts",
   "businessMgmtAddItem": "Add item",
-  "businessMgmtStaffVendors": "Staff / Vendors",
-  "businessMgmtManage": "Manage",
-  "businessMgmtNoVendorsYet": "No vendors yet",
-  "businessMgmtMoreCount": "+ {count} more",
-  "@businessMgmtMoreCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "businessMgmtItems": "Items",
   "businessMgmtNoItemsYet": "No items yet",
   "businessMgmtItemInactive": "Inactive",
@@ -634,45 +623,6 @@
   "businessMgmtClearDate": "Clear date",
   "businessMgmtPickDate": "Pick date",
   "businessMgmtSaveChanges": "Save changes",
-  "businessMgmtShopVendorsTitle": "{shopName} — Vendors",
-  "@businessMgmtShopVendorsTitle": {
-    "placeholders": {
-      "shopName": {
-        "type": "String"
-      }
-    }
-  },
-  "businessMgmtInviteResent": "Invite resent",
-  "businessMgmtInviteResentSuccess": "Invite resent successfully",
-  "businessMgmtRemoveVendorTitle": "Remove vendor?",
-  "businessMgmtRemoveVendorMessage": "This will remove them from this shop.",
-  "businessMgmtRemoveVendorFromShopMessage": "This will remove {name} from {shopName}.",
-  "@businessMgmtRemoveVendorFromShopMessage": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "shopName": {
-        "type": "String"
-      }
-    }
-  },
-  "businessMgmtRemove": "Remove",
-  "businessMgmtAddVendor": "Add vendor",
-  "businessMgmtEditVendor": "Edit vendor",
-  "businessMgmtResendInvite": "Resend invite",
-  "businessMgmtVendorActions": "Vendor actions",
-  "businessMgmtInviteNewUser": "Can't find them? Invite a new user",
-  "businessMgmtEmail": "Email",
-  "businessMgmtFirstName": "First name",
-  "businessMgmtLastName": "Last name",
-  "businessMgmtUsername": "Username",
-  "businessMgmtAlreadyVendor": "Already a vendor for this shop",
-  "businessMgmtEmailAlreadyVendor": "This email is already a vendor for this shop",
-  "businessMgmtInviteAndAddVendor": "Invite & add vendor",
-  "businessMgmtVendor": "Vendor",
-  "businessMgmtShop": "Shop",
-  "businessMgmtRemoveFromShop": "Remove from shop",
   "businessMgmtInvoice": "Invoice",
   "businessMgmtInvoices": "Invoices",
   "businessMgmtGymInvoicesTitle": "{gymName} — Invoices",
@@ -808,7 +758,6 @@
     }
   },
   "businessGymFormTitleEdit": "Edit business",
-  "businessGymFormTitleNew": "New business",
   "businessGymFormSelectWorkingDay": "Select at least one working day",
   "businessGymFormDeleteTitle": "Delete {name}?",
   "@businessGymFormDeleteTitle": {
@@ -818,10 +767,6 @@
       }
     }
   },
-  "businessGymFormDeleteGymMessage": "This permanently deletes the gym with all its members, staff, membership types, memberships, invoices and posts.",
-  "businessGymFormDeleteShopMessage": "This permanently deletes the shop with all its items, vendors and posts.",
-  "businessGymFormDeleteGymAction": "Delete gym",
-  "businessGymFormDeleteShopAction": "Delete shop",
   "businessGymFormDeleted": "{name} deleted",
   "@businessGymFormDeleted": {
     "placeholders": {
@@ -833,31 +778,15 @@
   "businessGymFormAddLogo": "Add logo",
   "businessGymFormName": "Name",
   "businessGymFormLocation": "Location",
-  "businessGymFormType": "Type",
-  "businessGymFormTypeGym": "Gym",
-  "businessGymFormTypeShop": "Shop",
   "businessGymFormWorkingHours": "Working hours",
   "businessGymFormFrom": "From",
   "businessGymFormTo": "To",
   "businessGymFormWorkingDays": "Working days",
   "businessGymFormSaveChanges": "Save changes",
-  "businessGymFormCreate": "Create business",
   "businessGymFormDelete": "Delete business",
   "businessGymRoleMember": "Member",
-  "businessGymRoleEmployee": "Employee",
-  "businessGymRoleEmployeeTrainer": "Employee trainer",
-  "businessGymRoleEmployeeTrainerShort": "Emp. trainer",
-  "businessGymRoleVendor": "Vendor",
   "businessGymDetailMembersCount": "{count, plural, =1{1 member} other{{count} members}}",
   "@businessGymDetailMembersCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "businessGymDetailStaffCount": "{count, plural, =1{1 staff member} other{{count} staff members}}",
-  "@businessGymDetailStaffCount": {
     "placeholders": {
       "count": {
         "type": "int"
@@ -870,13 +799,11 @@
   "businessGymDetailAttendance": "Attendance",
   "businessGymDetailScanCheckIns": "Scan check-ins",
   "businessGymDetailMembers": "Members",
-  "businessGymDetailStaff": "Staff",
   "businessGymDetailMembershipTypes": "Membership types",
   "businessGymDetailMembershipTypesHint": "Set up pricing plans members can be enrolled in.",
   "businessGymDetailManage": "Manage",
   "businessGymDetailManageMembers": "Manage members",
   "businessGymDetailManageMembershipTypes": "Manage membership types",
-  "businessGymDetailManageStaff": "Manage staff",
   "businessGymDetailMore": "+ {count} more",
   "@businessGymDetailMore": {
     "placeholders": {
@@ -886,7 +813,6 @@
     }
   },
   "businessGymNoMembersYet": "No members yet",
-  "businessGymNoStaffYet": "No staff yet",
   "businessGymMembersTitle": "{gym} — Members",
   "@businessGymMembersTitle": {
     "placeholders": {
@@ -1009,56 +935,5 @@
     }
   },
   "businessGymViewProgress": "View progress",
-  "businessGymRemoveFromGym": "Remove from gym",
-  "businessGymStaffTitle": "{gym} — Staff",
-  "@businessGymStaffTitle": {
-    "placeholders": {
-      "gym": {
-        "type": "String"
-      }
-    }
-  },
-  "businessGymRemoveStaffTitle": "Remove staff member?",
-  "businessGymRemoveStaffMessage": "This will remove them from this gym.",
-  "businessGymAddEmployee": "Add employee",
-  "businessGymEditEmployee": "Edit employee",
-  "businessGymEmployeeActions": "Employee actions",
-  "businessGymRole": "Role",
-  "businessGymInviteNewUserPrompt": "Can't find them? Invite a new user",
-  "businessGymAlreadyEmployee": "Already an employee at this gym",
-  "businessGymInviteAndAdd": "Invite & add",
-  "businessGymEmailAlreadyEmployed": "This email is already employed at this gym",
-  "businessGymChangeRoleTitle": "Change role?",
-  "businessGymChangeRoleMessage": "Change {name}'s role to {role} at {gym}?",
-  "@businessGymChangeRoleMessage": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      },
-      "role": {
-        "type": "String"
-      },
-      "gym": {
-        "type": "String"
-      }
-    }
-  },
-  "businessGymChange": "Change",
-  "businessGymRoleChangedTo": "Role changed to {role}",
-  "@businessGymRoleChangedTo": {
-    "placeholders": {
-      "role": {
-        "type": "String"
-      }
-    }
-  },
-  "businessGymAllMembersTitle": "All members",
-  "businessGymSearchMembersHint": "Search members…",
-  "businessGymClearSearch": "Clear search",
-  "businessGymAllGyms": "All gyms",
-  "businessGymNoMembersFound": "No members found",
-  "businessGymAllStaffTitle": "All staff",
-  "businessGymSearchStaffHint": "Search staff…",
-  "businessGymFilterAll": "All",
-  "businessGymNoStaffFound": "No staff found"
+  "businessGymRemoveFromGym": "Remove from gym"
 }

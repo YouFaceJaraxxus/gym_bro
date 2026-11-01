@@ -9,7 +9,7 @@ import {
   jsonError,
 } from "../../supabase/functions/_shared/auth.ts";
 
-const caller = (id: string, role = "member") => ({ id, role }) as unknown as Caller;
+const caller = (id: string, is_super_user = false) => ({ id, is_super_user, is_trainer: false }) as unknown as Caller;
 
 Deno.test("json() serialises the body with a JSON content type", async () => {
   const res = json({ ok: true, n: 1 }, 201);
@@ -35,17 +35,17 @@ Deno.test("forbidden() is a 403 with a default message", async () => {
   assertEquals((await forbidden("nope").json()).error, "nope");
 });
 
-Deno.test("isSuperUser only for the super_user role", () => {
-  assertEquals(isSuperUser({ role: "super_user" }), true);
-  for (const role of ["member", "owner", "trainer", "employee", "employee_trainer", "shop_vendor"]) {
-    assertEquals(isSuperUser({ role }), false, role);
-  }
+Deno.test("isSuperUser follows the is_super_user flag (being a trainer doesn't matter)", () => {
+  assertEquals(isSuperUser({ is_super_user: true }), true);
+  assertEquals(isSuperUser({ is_super_user: false }), false);
+  assertEquals(isSuperUser(caller("t1")), false);
+  assertEquals(isSuperUser({ ...caller("t1"), is_trainer: true } as Caller), false);
 });
 
 Deno.test("canEditAuthored: author or super user", () => {
   assertEquals(canEditAuthored(caller("u1"), "u1"), true);
   assertEquals(canEditAuthored(caller("u1"), "u2"), false);
   assertEquals(canEditAuthored(caller("u1"), null), false);
-  assertEquals(canEditAuthored(caller("admin", "super_user"), "u2"), true);
-  assertEquals(canEditAuthored(caller("admin", "super_user"), null), true);
+  assertEquals(canEditAuthored(caller("admin", true), "u2"), true);
+  assertEquals(canEditAuthored(caller("admin", true), null), true);
 });

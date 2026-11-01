@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_bro_mobile/l10n/app_localizations.dart';
-import 'package:gym_bro_mobile/models/user_profile.dart';
+import 'package:gym_bro_mobile/pages/business/business_invites_page.dart';
+import 'package:gym_bro_mobile/pages/business/business_manage_page.dart';
 import 'package:gym_bro_mobile/pages/chat/chat_thread_page.dart';
 import 'package:gym_bro_mobile/pages/classes/class_detail_page.dart';
 import 'package:gym_bro_mobile/pages/classes/my_shifts_page.dart';
@@ -23,7 +24,6 @@ import 'package:gym_bro_mobile/pages/session_detail_page.dart';
 import 'package:gym_bro_mobile/pages/shop/order_detail_page.dart';
 import 'package:gym_bro_mobile/pages/shop/storefront_page.dart';
 import 'package:gym_bro_mobile/pages/shop/storefront_shop_page.dart';
-import 'package:gym_bro_mobile/pages/shop_detail_page.dart';
 import 'package:gym_bro_mobile/services/auth_manager.dart';
 import 'package:gym_bro_mobile/services/notification_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,7 +39,8 @@ class _Pushes extends NavigatorObserver {
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) => routes.add(route);
 }
 
-Map<String, dynamic> _business(String id, String name, String type) => {
+/// GET /businesses/:id as the signed-in user sees it.
+Map<String, dynamic> _business(String id, String name, {List<String> myRoles = const []}) => {
       'id': id,
       'name': name,
       'location': 'Knez Mihailova 1, Belgrade',
@@ -47,7 +48,10 @@ Map<String, dynamic> _business(String id, String name, String type) => {
       'working_hours_from': '06:00:00',
       'working_hours_to': '23:00:00',
       'working_weekdays': [1, 2, 3, 4, 5, 6],
-      'type': type,
+      'has_gym': true,
+      'has_shop': false,
+      'status': 'approved',
+      'my_roles': myRoles,
     };
 
 void main() {
@@ -66,10 +70,10 @@ void main() {
     backend.uninstall();
   });
 
-  Future<void> signIn(WidgetTester tester, {String role = 'owner'}) async {
+  Future<void> signIn(WidgetTester tester, {bool superUser = false}) async {
     await tester.runAsync(() async {
       await AuthManager.instance.setSession(signinJson(accessToken: 'tok'),
-          profileData: profileJson(id: 'u-me', role: role));
+          profileData: profileJson(id: 'u-me', isSuperUser: superUser));
       await pumpEventQueue();
     });
     backend.requests.clear();
@@ -78,8 +82,8 @@ void main() {
   /// Opens [type] with [metadata] from a host screen and returns the routes
   /// pushed (the host's own route excluded).
   Future<List<Route<dynamic>>> open(WidgetTester tester, String type, Map<String, dynamic> metadata,
-      {bool signedIn = true, String role = 'owner'}) async {
-    if (signedIn) await signIn(tester, role: role);
+      {bool signedIn = true, bool superUser = false}) async {
+    if (signedIn) await signIn(tester, superUser: superUser);
     late BuildContext hostContext;
     await tester.pumpWidget(MaterialApp(
       locale: const Locale('en'),
@@ -117,9 +121,30 @@ void main() {
     expect(await open(tester, 'class_reminder', {'class_id': 'c-1'}, signedIn: false), isEmpty);
   });
 
-  for (final type in ['employee_gym_invite', 'vendor_shop_invite', 'member_invite']) {
-    testWidgets('$type opens the notifications list', (tester) async {
-      pageOf<NotificationsPage>(tester, await open(tester, type, {'invite_status': 'pending', 'gym_id': 'g-1'}));
+  testWidgets('business_invite opens my team invites', (tester) async {
+    pageOf<BusinessInvitesPage>(
+        tester, await open(tester, 'business_invite', {'invite_status': 'pending', 'business_id': 'g-1', 'role': 'trainer'}));
+  });
+
+  testWidgets('member_invite opens the notifications list (answered there)', (tester) async {
+    pageOf<NotificationsPage>(tester, await open(tester, 'member_invite', {'invite_status': 'pending', 'gym_id': 'g-1'}));
+  });
+
+  for (final type in ['business_join', 'business_review']) {
+    testWidgets('$type opens the business dashboard', (tester) async {
+      final page = pageOf<BusinessManagePage>(
+          tester, await open(tester, type, {'business_id': 'g-1', 'user_id': 'u-2', 'role': 'staff', 'status': 'approved'}));
+      expect(page.businessId, 'g-1');
+    });
+
+    testWidgets('$type without a business id opens nothing', (tester) async {
+      expect(await open(tester, type, {'status': 'approved'}), isEmpty);
+    });
+  }
+
+  for (final type in ['employee_gym_invite', 'vendor_shop_invite', 'employee_join', 'vendor_join']) {
+    testWidgets('retired type $type opens nothing', (tester) async {
+      expect(await open(tester, type, {'gym_id': 'g-1', 'shop_id': 's-1', 'invite_status': 'pending'}), isEmpty);
     });
   }
 
@@ -249,7 +274,7 @@ void main() {
     });
 
     testWidgets('fetches GET /businesses/:id for the name when metadata has none', (tester) async {
-      backend.on('GET /businesses/g-1', ok(_business('g-1', 'Iron Temple', 'gym')));
+      backend.on('GET /businesses/g-1', ok(_business('g-1', 'Iron Temple')));
 
       final page = pageOf<PostsPage>(tester, await open(tester, 'news', {'business_id': 'g-1'}));
 
@@ -293,72 +318,56 @@ void main() {
     pageOf<StorefrontPage>(tester, await open(tester, 'shop_item_update', {'shop_item_id': 'i-1'}));
   });
 
-  group('*_join (opens the business only for its managers)', () {
-    testWidgets('member_join: owner of the gym → GET /gym-owners?user_id=me → gym page', (tester) async {
-      backend.on('GET /gym-owners', ok([
-        {'id': 'go-1', 'user_id': 'u-me', 'gym_id': 'g-1'},
-      ]));
+  group('member_join (opens the gym only for its owners and staff)', () {
+    for (final roles in [['owner'], ['staff']]) {
+      testWidgets('${roles.single} of the gym → GET /businesses/:id → gym page', (tester) async {
+        backend.on('GET /businesses/g-1', ok(_business('g-1', 'Iron Temple (renamed)', myRoles: roles)));
 
-      final page = pageOf<GymDetailPage>(
-          tester, await open(tester, 'member_join', {'gym_id': 'g-1', 'user_id': 'u-2', 'gym_name': 'Iron Temple'}));
+        final page = pageOf<GymDetailPage>(
+            tester, await open(tester, 'member_join', {'gym_id': 'g-1', 'user_id': 'u-2', 'gym_name': 'Iron Temple'}));
 
-      expect((page.gymId, page.gymName), ('g-1', 'Iron Temple'));
-      final r = backend.requests.firstWhere((r) => pathOf(r) == '/gym-owners');
-      expect(r.url.queryParameters, {'user_id': 'u-me'});
-      expect(r.headers['authorization'], 'Bearer tok');
-    });
+        expect((page.gymId, page.gymName), ('g-1', 'Iron Temple'), reason: "the notification's name wins");
+        final r = backend.last('GET /businesses/g-1');
+        expect(r.headers['authorization'], 'Bearer tok');
+      });
+    }
 
-    testWidgets('employee_join without gym_name looks the name up', (tester) async {
-      backend.on('GET /gym-owners', ok([
-        {'id': 'go-1', 'user_id': 'u-me', 'gym_id': 'g-1'},
-      ]));
-      backend.on('GET /businesses/g-1', ok(_business('g-1', 'Iron Temple', 'gym')));
-
-      final page = pageOf<GymDetailPage>(
-          tester, await open(tester, 'employee_join', {'gym_id': 'g-1', 'user_id': 'u-2', 'employee_type': 'employee'}));
-
+    testWidgets('without gym_name the business name is used', (tester) async {
+      backend.on('GET /businesses/g-1', ok(_business('g-1', 'Iron Temple', myRoles: ['owner'])));
+      final page = pageOf<GymDetailPage>(tester, await open(tester, 'member_join', {'gym_id': 'g-1', 'user_id': 'u-2'}));
       expect(page.gymName, 'Iron Temple');
     });
 
-    testWidgets('not an owner of that gym → nothing (e.g. the member\'s own "welcome" notification)', (tester) async {
-      backend.on('GET /gym-owners', ok([
-        {'id': 'go-9', 'user_id': 'u-me', 'gym_id': 'g-other'},
-      ]));
-      expect(await open(tester, 'member_join', {'gym_id': 'g-1', 'user_id': 'u-me'}, role: 'member'), isEmpty);
+    testWidgets('a trainer there, or not on the team → nothing', (tester) async {
+      backend.on('GET /businesses/g-1', ok(_business('g-1', 'Iron Temple', myRoles: ['trainer'])));
+      expect(await open(tester, 'member_join', {'gym_id': 'g-1', 'user_id': 'u-2'}), isEmpty);
+      backend.on('GET /businesses/g-1', ok(_business('g-1', 'Iron Temple')));
+      expect(await open(tester, 'member_join', {'gym_id': 'g-1', 'user_id': 'u-2'}), isEmpty);
     });
 
-    testWidgets('vendor_join: shop owner → GET /shop-owners?user_id=me → shop page', (tester) async {
-      backend.on('GET /shop-owners', ok([
-        {'id': 'so-1', 'user_id': 'u-me', 'shop_id': 's-1'},
-      ]));
-      backend.on('GET /businesses/s-1', ok(_business('s-1', 'Protein Hub', 'shop')));
-
-      final page = pageOf<ShopDetailPage>(tester, await open(tester, 'vendor_join', {'shop_id': 's-1', 'user_id': 'u-2'}));
-
-      expect((page.shopId, page.shopName), ('s-1', 'Protein Hub'));
-      expect(page.vendorMode, isFalse);
-      expect(backend.requests.firstWhere((r) => pathOf(r) == '/shop-owners').url.queryParameters, {'user_id': 'u-me'});
-      expect(backend.requests.where((r) => pathOf(r) == '/gym-owners'), isEmpty);
+    testWidgets("the new member's own welcome notification opens nothing, no requests", (tester) async {
+      expect(await open(tester, 'member_join', {'gym_id': 'g-1', 'user_id': 'u-me'}), isEmpty);
+      expect(backend.requests.where((r) => pathOf(r).startsWith('/businesses')), isEmpty);
     });
 
-    testWidgets('a super user skips the ownership check', (tester) async {
+    testWidgets('a super user opens any gym', (tester) async {
+      backend.on('GET /businesses/g-1', ok(_business('g-1', 'Iron Temple')));
       final page = pageOf<GymDetailPage>(
         tester,
-        await open(tester, 'member_join', {'gym_id': 'g-1', 'user_id': 'u-2', 'gym_name': 'Iron Temple'}, role: 'super_user'),
+        await open(tester, 'member_join', {'gym_id': 'g-1', 'user_id': 'u-2', 'gym_name': 'Iron Temple'}, superUser: true),
       );
       expect(page.gymId, 'g-1');
-      expect(backend.requests.where((r) => pathOf(r) == '/gym-owners'), isEmpty);
-      expect(AuthManager.instance.profile!.role, UserRole.superUser);
+      expect(AuthManager.instance.profile!.isSuperUser, isTrue);
     });
 
-    testWidgets('an ownership lookup error opens nothing', (tester) async {
-      backend.on('GET /gym-owners', err(500, 'boom'));
+    testWidgets('a lookup error opens nothing', (tester) async {
+      backend.on('GET /businesses/g-1', err(500, 'boom'));
       expect(await open(tester, 'member_join', {'gym_id': 'g-1', 'gym_name': 'Iron Temple'}), isEmpty);
     });
 
-    testWidgets('no business id → nothing, no requests', (tester) async {
-      expect(await open(tester, 'employee_join', {'user_id': 'u-2'}), isEmpty);
-      expect(backend.requests.where((r) => pathOf(r).contains('owners')), isEmpty);
+    testWidgets('no gym id → nothing, no requests', (tester) async {
+      expect(await open(tester, 'member_join', {'user_id': 'u-2'}), isEmpty);
+      expect(backend.requests.where((r) => pathOf(r).startsWith('/businesses')), isEmpty);
     });
   });
 

@@ -76,8 +76,6 @@
   "trainingBookingCancelled": "Cancelled",
   "trainingBookingAttended": "Attended",
   "trainingBookingNoShow": "No-show",
-  "trainingStaffRoleEmployee": "Employee",
-  "trainingStaffRoleEmployeeTrainer": "Employee / Trainer",
   "trainingStaffRoleTrainer": "Trainer",
   "trainingScheduleNextDay": "{range} (+1 day)",
   "@trainingScheduleNextDay": {

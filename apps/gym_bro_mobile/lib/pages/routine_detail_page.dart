@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/l10n.dart';
 import '../models/routine.dart';
-import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../theme.dart';
@@ -116,8 +115,8 @@ class _RoutineDetailPageState extends State<RoutineDetailPage> {
     final isOwner = profile != null && profile.id == routine.authorId;
     // The API lets anyone start a public routine (or their own) themselves;
     // coaches can also assign it to members they coach.
-    final canEnrol = isOwner || routine.isPublic || profile?.role == UserRole.superUser;
-    final canAssign = canEnrol && isCoachRole(profile?.role);
+    final canEnrol = isOwner || routine.isPublic || (profile?.isSuperUser ?? false);
+    final canAssign = canEnrol && canCoach(profile);
 
     return Scaffold(
       floatingActionButton: canAssign

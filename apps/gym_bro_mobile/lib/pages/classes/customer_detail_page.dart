@@ -4,7 +4,9 @@ import '../../models/class_series.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/social_widgets.dart';
+import '../log_workout_page.dart';
 import '../member_progress_page.dart';
+import '../session_log_page.dart';
 import '../people/user_profile_page.dart';
 import 'customers_tab.dart';
 import 'schedule_widgets.dart';
@@ -154,6 +156,26 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
     ),
   );
 
+  /// Runs a session now, saved as theirs with me as the trainer.
+  void _startSession() => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) =>
+          SessionLogPage(clientId: _customer.userId, clientName: _name),
+    ),
+  );
+
+  /// Logs one that already happened (e.g. forgot to track it live).
+  void _logPastSession() => Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => LogWorkoutPage(
+        start: DateTime.now().subtract(const Duration(hours: 1)),
+        clientId: _customer.userId,
+      ),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -234,6 +256,26 @@ class _CustomerDetailPageState extends State<CustomerDetailPage> {
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: _openProgress,
+            ),
+            // Sessions don't depend on gyms: any client who accepted me.
+            ListTile(
+              enabled: c.accepted && !_gone,
+              leading: const Icon(Icons.play_circle_outline),
+              title: Text(l10n.customersStartSession),
+              subtitle: Text(
+                c.accepted
+                    ? l10n.customersStartSessionSubtitle
+                    : l10n.customersProgressLocked,
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _startSession,
+            ),
+            ListTile(
+              enabled: c.accepted && !_gone,
+              leading: const Icon(Icons.history),
+              title: Text(l10n.customersLogPastSession),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _logPastSession,
             ),
             const Divider(),
             Padding(

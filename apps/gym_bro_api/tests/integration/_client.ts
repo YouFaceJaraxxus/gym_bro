@@ -100,7 +100,11 @@ export function dayFromToday(days: number): string {
 
 export const IRONCLAD = "Ironclad Fitness";
 
-/** The seeded users the feature suites act as. */
+/**
+ * The seeded users the feature suites act as: a member, Ironclad's owner, a
+ * trainer and a staff member there (`employee`), the super user, and staff of
+ * the owner's shop (`vendor`).
+ */
 export async function seededUsers() {
   const [member, owner, trainer, employee, superU, vendor] = await Promise.all([
     signin("liam.oconnor@example.com"),
@@ -110,9 +114,14 @@ export async function seededUsers() {
     signin("chloe.anderson@example.com"),
     signin("ravi.deshmukh@example.com"),
   ]);
-  const gyms = (await call("GET", "/businesses", owner.token)).data as any[];
-  const gym = gyms.find((b) => b.type === "gym" && b.name === IRONCLAD) ?? gyms.find((b) => b.type === "gym");
-  return { member, owner, trainer, employee, superU, vendor, gym };
+  const [gyms, shops] = await Promise.all([
+    call("GET", "/businesses", owner.token).then((r) => r.data as any[]),
+    call("GET", "/businesses?side=shop", vendor.token).then((r) => r.data as any[]),
+  ]);
+  const gym = gyms.find((b) => b.has_gym && b.name === IRONCLAD) ?? gyms.find((b) => b.has_gym);
+  // Where `vendor` (Ravi) is shop staff: Peak Performance, owned by `owner`.
+  const shop = shops.find((b) => b.has_shop);
+  return { member, owner, trainer, employee, superU, vendor, gym, shop };
 }
 
 /** A 1×1 PNG, for upload tests. */

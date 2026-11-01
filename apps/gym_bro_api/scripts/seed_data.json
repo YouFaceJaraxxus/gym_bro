@@ -3,7 +3,11 @@
     {
       "name": "Ironclad Fitness",
       "location": "482 Halsey Street, Brooklyn, NY 11233",
-      "type": "gym",
+      "has_gym": true,
+      "has_shop": false,
+      "bio": "Brooklyn's home of heavy iron since 2009. Six squat racks, two platforms, coaching for every level.",
+      "website": "https://ironclad.example.com",
+      "phone": "+1 718 555 0142",
       "working_hours_from": "05:00:00",
       "working_hours_to": "23:00:00",
       "working_weekdays": [
@@ -23,7 +27,11 @@
     {
       "name": "Peak Performance Supply Co.",
       "location": "17 Court Street, Brooklyn, NY 11201",
-      "type": "shop",
+      "has_gym": false,
+      "has_shop": true,
+      "bio": "Supplements, straps and everything in between. Ironclad members get 10% off at the counter.",
+      "website": "https://peaksupply.example.com",
+      "phone": "+1 718 555 0178",
       "working_hours_from": "09:00:00",
       "working_hours_to": "19:00:00",
       "working_weekdays": [
@@ -42,7 +50,11 @@
     {
       "name": "Summit Strength Collective",
       "location": "1420 Larimer Street, Denver, CO 80202",
-      "type": "gym",
+      "has_gym": true,
+      "has_shop": false,
+      "bio": "Strength and conditioning in LoDo. Classes from sunrise to late, and a coach on the floor all day.",
+      "website": "https://summitstrength.example.com",
+      "phone": "+1 303 555 0119",
       "working_hours_from": "05:00:00",
       "working_hours_to": "22:00:00",
       "working_weekdays": [
@@ -62,7 +74,11 @@
     {
       "name": "Coastal Barbell Club",
       "location": "3311 Adams Avenue, San Diego, CA 92116",
-      "type": "gym",
+      "has_gym": true,
+      "has_shop": true,
+      "bio": "Olympic lifting and powerlifting club in Normal Heights, with a pro shop at the front desk.",
+      "website": "https://coastalbarbell.example.com",
+      "phone": "+1 619 555 0163",
       "working_hours_from": "06:00:00",
       "working_hours_to": "22:00:00",
       "working_weekdays": [
@@ -82,7 +98,11 @@
     {
       "name": "Trailhead Outdoor & Fitness Supply",
       "location": "1500 Larimer Street, Denver, CO 80202",
-      "type": "shop",
+      "has_gym": false,
+      "has_shop": true,
+      "bio": "Gear for the trail and the gym, two doors down from Summit.",
+      "website": null,
+      "phone": "+1 303 555 0187",
       "working_hours_from": "09:00:00",
       "working_hours_to": "19:00:00",
       "working_weekdays": [
@@ -97,6 +117,30 @@
       "timezone": "America/Denver",
       "latitude": 39.7477,
       "longitude": -104.9985
+    },
+    {
+      "name": "Tanaka Judo & Conditioning",
+      "location": "88 Wyckoff Avenue, Brooklyn, NY 11237",
+      "has_gym": true,
+      "has_shop": false,
+      "bio": "Judo classes for kids and adults, plus strength and conditioning for grapplers.",
+      "website": null,
+      "phone": "+1 718 555 0131",
+      "status": "pending",
+      "working_hours_from": "07:00:00",
+      "working_hours_to": "21:00:00",
+      "working_weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "logo_image_key": "tanaka-judo-logo",
+      "timezone": "America/New_York",
+      "latitude": 40.7036,
+      "longitude": -73.9213
     }
   ],
   "personas": [
@@ -105,11 +149,20 @@
       "email": "marcus.bennett@example.com",
       "first_name": "Marcus",
       "last_name": "Bennett",
-      "role": "owner",
       "avatar_key": "marcusbennett",
-      "businesses": [
-        "Ironclad Fitness",
-        "Peak Performance Supply Co."
+      "team": [
+        {
+          "business": "Ironclad Fitness",
+          "roles": [
+            "owner"
+          ]
+        },
+        {
+          "business": "Peak Performance Supply Co.",
+          "roles": [
+            "owner"
+          ]
+        }
       ]
     },
     {
@@ -117,10 +170,14 @@
       "email": "elena.vasquez@example.com",
       "first_name": "Elena",
       "last_name": "Vasquez",
-      "role": "trainer",
       "avatar_key": "elenavasquez",
-      "businesses": [
-        "Ironclad Fitness"
+      "team": [
+        {
+          "business": "Ironclad Fitness",
+          "roles": [
+            "trainer"
+          ]
+        }
       ]
     },
     {
@@ -128,10 +185,14 @@
       "email": "jamal.carter@example.com",
       "first_name": "Jamal",
       "last_name": "Carter",
-      "role": "trainer",
       "avatar_key": "jamalcarter",
-      "businesses": [
-        "Ironclad Fitness"
+      "team": [
+        {
+          "business": "Ironclad Fitness",
+          "roles": [
+            "trainer"
+          ]
+        }
       ]
     },
     {
@@ -139,10 +200,14 @@
       "email": "priya.nair@example.com",
       "first_name": "Priya",
       "last_name": "Nair",
-      "role": "employee",
       "avatar_key": "priyanair",
-      "businesses": [
-        "Ironclad Fitness"
+      "team": [
+        {
+          "business": "Ironclad Fitness",
+          "roles": [
+            "staff"
+          ]
+        }
       ]
     },
     {
@@ -150,10 +215,14 @@
       "email": "tobias.schmidt@example.com",
       "first_name": "Tobias",
       "last_name": "Schmidt",
-      "role": "employee",
       "avatar_key": "tobiasschmidt",
-      "businesses": [
-        "Ironclad Fitness"
+      "team": [
+        {
+          "business": "Ironclad Fitness",
+          "roles": [
+            "staff"
+          ]
+        }
       ]
     },
     {
@@ -161,10 +230,15 @@
       "email": "aisha.mohammed@example.com",
       "first_name": "Aisha",
       "last_name": "Mohammed",
-      "role": "employee_trainer",
       "avatar_key": "aishamohammed",
-      "businesses": [
-        "Ironclad Fitness"
+      "team": [
+        {
+          "business": "Ironclad Fitness",
+          "roles": [
+            "staff",
+            "trainer"
+          ]
+        }
       ]
     },
     {
@@ -172,9 +246,8 @@
       "email": "liam.oconnor@example.com",
       "first_name": "Liam",
       "last_name": "O'Connor",
-      "role": "member",
       "avatar_key": "liamoconnor",
-      "businesses": [
+      "member_of": [
         "Ironclad Fitness"
       ]
     },
@@ -183,9 +256,8 @@
       "email": "sofia.rossi@example.com",
       "first_name": "Sofia",
       "last_name": "Rossi",
-      "role": "member",
       "avatar_key": "sofiarossi",
-      "businesses": [
+      "member_of": [
         "Ironclad Fitness"
       ]
     },
@@ -194,10 +266,17 @@
       "email": "kenji.tanaka@example.com",
       "first_name": "Kenji",
       "last_name": "Tanaka",
-      "role": "member",
       "avatar_key": "kenjitanaka",
-      "businesses": [
+      "member_of": [
         "Ironclad Fitness"
+      ],
+      "team": [
+        {
+          "business": "Tanaka Judo & Conditioning",
+          "roles": [
+            "owner"
+          ]
+        }
       ]
     },
     {
@@ -205,9 +284,8 @@
       "email": "grace.okafor@example.com",
       "first_name": "Grace",
       "last_name": "Okafor",
-      "role": "member",
       "avatar_key": "graceokafor",
-      "businesses": [
+      "member_of": [
         "Ironclad Fitness"
       ]
     },
@@ -216,9 +294,8 @@
       "email": "daniel.kim@example.com",
       "first_name": "Daniel",
       "last_name": "Kim",
-      "role": "member",
       "avatar_key": "danielkim",
-      "businesses": [
+      "member_of": [
         "Ironclad Fitness"
       ]
     },
@@ -227,9 +304,8 @@
       "email": "natalia.petrova@example.com",
       "first_name": "Natalia",
       "last_name": "Petrova",
-      "role": "member",
       "avatar_key": "nataliapetrova",
-      "businesses": [
+      "member_of": [
         "Ironclad Fitness"
       ]
     },
@@ -238,10 +314,14 @@
       "email": "ravi.deshmukh@example.com",
       "first_name": "Ravi",
       "last_name": "Deshmukh",
-      "role": "shop_vendor",
       "avatar_key": "ravideshmukh",
-      "businesses": [
-        "Peak Performance Supply Co."
+      "team": [
+        {
+          "business": "Peak Performance Supply Co.",
+          "roles": [
+            "staff"
+          ]
+        }
       ]
     },
     {
@@ -249,20 +329,28 @@
       "email": "chloe.anderson@example.com",
       "first_name": "Chloe",
       "last_name": "Anderson",
-      "role": "super_user",
       "avatar_key": "chloeanderson",
-      "businesses": []
+      "is_super_user": true
     },
     {
       "username": "hannahkessler",
       "email": "hannah.kessler@example.com",
       "first_name": "Hannah",
       "last_name": "Kessler",
-      "role": "owner",
       "avatar_key": "hannahkessler",
-      "businesses": [
-        "Summit Strength Collective",
-        "Trailhead Outdoor & Fitness Supply"
+      "team": [
+        {
+          "business": "Summit Strength Collective",
+          "roles": [
+            "owner"
+          ]
+        },
+        {
+          "business": "Trailhead Outdoor & Fitness Supply",
+          "roles": [
+            "owner"
+          ]
+        }
       ]
     },
     {
@@ -270,10 +358,14 @@
       "email": "becky.morrison@example.com",
       "first_name": "Becky",
       "last_name": "Morrison",
-      "role": "trainer",
       "avatar_key": "beckymorrison",
-      "businesses": [
-        "Summit Strength Collective"
+      "team": [
+        {
+          "business": "Summit Strength Collective",
+          "roles": [
+            "trainer"
+          ]
+        }
       ]
     },
     {
@@ -281,10 +373,14 @@
       "email": "tyson.walker@example.com",
       "first_name": "Tyson",
       "last_name": "Walker",
-      "role": "employee",
       "avatar_key": "tysonwalker",
-      "businesses": [
-        "Summit Strength Collective"
+      "team": [
+        {
+          "business": "Summit Strength Collective",
+          "roles": [
+            "staff"
+          ]
+        }
       ]
     },
     {
@@ -292,10 +388,15 @@
       "email": "imani.newsome@example.com",
       "first_name": "Imani",
       "last_name": "Newsome",
-      "role": "employee_trainer",
       "avatar_key": "imaninewsome",
-      "businesses": [
-        "Summit Strength Collective"
+      "team": [
+        {
+          "business": "Summit Strength Collective",
+          "roles": [
+            "staff",
+            "trainer"
+          ]
+        }
       ]
     },
     {
@@ -303,10 +404,14 @@
       "email": "camille.wright@example.com",
       "first_name": "Camille",
       "last_name": "Wright",
-      "role": "shop_vendor",
       "avatar_key": "camillewright",
-      "businesses": [
-        "Trailhead Outdoor & Fitness Supply"
+      "team": [
+        {
+          "business": "Trailhead Outdoor & Fitness Supply",
+          "roles": [
+            "staff"
+          ]
+        }
       ]
     },
     {
@@ -314,10 +419,15 @@
       "email": "andrew.foster@example.com",
       "first_name": "Andrew",
       "last_name": "Foster",
-      "role": "owner",
       "avatar_key": "andrewfoster",
-      "businesses": [
-        "Coastal Barbell Club"
+      "team": [
+        {
+          "business": "Coastal Barbell Club",
+          "roles": [
+            "owner",
+            "trainer"
+          ]
+        }
       ]
     },
     {
@@ -325,10 +435,14 @@
       "email": "renata.alves@example.com",
       "first_name": "Renata",
       "last_name": "Alves",
-      "role": "trainer",
       "avatar_key": "renataalves",
-      "businesses": [
-        "Coastal Barbell Club"
+      "team": [
+        {
+          "business": "Coastal Barbell Club",
+          "roles": [
+            "trainer"
+          ]
+        }
       ]
     },
     {
@@ -336,10 +450,14 @@
       "email": "jordan.park@example.com",
       "first_name": "Jordan",
       "last_name": "Park",
-      "role": "employee",
       "avatar_key": "jordanpark",
-      "businesses": [
-        "Coastal Barbell Club"
+      "team": [
+        {
+          "business": "Coastal Barbell Club",
+          "roles": [
+            "staff"
+          ]
+        }
       ]
     },
     {
@@ -347,9 +465,8 @@
       "email": "victor.huang@example.com",
       "first_name": "Victor",
       "last_name": "Huang",
-      "role": "member",
       "avatar_key": "victorhuang",
-      "businesses": [
+      "member_of": [
         "Ironclad Fitness"
       ]
     },
@@ -358,9 +475,8 @@
       "email": "ingrid.larsen@example.com",
       "first_name": "Ingrid",
       "last_name": "Larsen",
-      "role": "member",
       "avatar_key": "ingridlarsen",
-      "businesses": [
+      "member_of": [
         "Ironclad Fitness"
       ]
     },
@@ -369,9 +485,8 @@
       "email": "maya.flores@example.com",
       "first_name": "Maya",
       "last_name": "Flores",
-      "role": "member",
       "avatar_key": "mayaflores",
-      "businesses": [
+      "member_of": [
         "Summit Strength Collective"
       ]
     },
@@ -380,9 +495,8 @@
       "email": "ethan.brooks@example.com",
       "first_name": "Ethan",
       "last_name": "Brooks",
-      "role": "member",
       "avatar_key": "ethanbrooks",
-      "businesses": [
+      "member_of": [
         "Summit Strength Collective"
       ]
     },
@@ -391,9 +505,8 @@
       "email": "zoe.harrington@example.com",
       "first_name": "Zoe",
       "last_name": "Harrington",
-      "role": "member",
       "avatar_key": "zoeharrington",
-      "businesses": [
+      "member_of": [
         "Summit Strength Collective"
       ]
     },
@@ -402,9 +515,8 @@
       "email": "lucas.ferreira@example.com",
       "first_name": "Lucas",
       "last_name": "Ferreira",
-      "role": "member",
       "avatar_key": "lucasferreira",
-      "businesses": [
+      "member_of": [
         "Summit Strength Collective"
       ]
     },
@@ -413,9 +525,8 @@
       "email": "isabel.gomez@example.com",
       "first_name": "Isabel",
       "last_name": "Gomez",
-      "role": "member",
       "avatar_key": "isabelgomez",
-      "businesses": [
+      "member_of": [
         "Summit Strength Collective"
       ]
     },
@@ -424,9 +535,8 @@
       "email": "olivia.mercer@example.com",
       "first_name": "Olivia",
       "last_name": "Mercer",
-      "role": "member",
       "avatar_key": "oliviamercer",
-      "businesses": [
+      "member_of": [
         "Coastal Barbell Club"
       ]
     },
@@ -435,9 +545,8 @@
       "email": "noah.sullivan@example.com",
       "first_name": "Noah",
       "last_name": "Sullivan",
-      "role": "member",
       "avatar_key": "noahsullivan",
-      "businesses": [
+      "member_of": [
         "Coastal Barbell Club"
       ]
     },
@@ -446,9 +555,8 @@
       "email": "amelia.chang@example.com",
       "first_name": "Amelia",
       "last_name": "Chang",
-      "role": "member",
       "avatar_key": "ameliachang",
-      "businesses": [
+      "member_of": [
         "Coastal Barbell Club"
       ]
     },
@@ -457,9 +565,8 @@
       "email": "gabriel.santos@example.com",
       "first_name": "Gabriel",
       "last_name": "Santos",
-      "role": "member",
       "avatar_key": "gabrielsantos",
-      "businesses": [
+      "member_of": [
         "Coastal Barbell Club"
       ]
     },
@@ -468,12 +575,45 @@
       "email": "harper.reyes@example.com",
       "first_name": "Harper",
       "last_name": "Reyes",
-      "role": "member",
       "avatar_key": "harperreyes",
-      "businesses": [
+      "member_of": [
         "Coastal Barbell Club"
       ]
     }
+  ],
+  "business_follows": [
+    [
+      "liamoconnor",
+      "Peak Performance Supply Co."
+    ],
+    [
+      "sofiarossi",
+      "Peak Performance Supply Co."
+    ],
+    [
+      "kenjitanaka",
+      "Peak Performance Supply Co."
+    ],
+    [
+      "mayaflores",
+      "Trailhead Outdoor & Fitness Supply"
+    ],
+    [
+      "ethanbrooks",
+      "Trailhead Outdoor & Fitness Supply"
+    ],
+    [
+      "liamoconnor",
+      "Summit Strength Collective"
+    ],
+    [
+      "harperreyes",
+      "Summit Strength Collective"
+    ],
+    [
+      "victorhuang",
+      "Coastal Barbell Club"
+    ]
   ],
   "exercises": [
     {
@@ -3725,6 +3865,30 @@
       "price": 25.0,
       "quantity": 999,
       "shop_name": "Trailhead Outdoor & Fitness Supply"
+    },
+    {
+      "name": "Coastal Barbell Club Lifting Belt",
+      "description": "10mm lever belt in club navy, stitched with the Coastal Barbell logo.",
+      "type": "equipment",
+      "price": 89.0,
+      "quantity": 12,
+      "shop_name": "Coastal Barbell Club"
+    },
+    {
+      "name": "Weightlifting Chalk Block - 8 Pack",
+      "description": "Magnesium carbonate chalk blocks for a dry, secure grip.",
+      "type": "equipment",
+      "price": 14.5,
+      "quantity": 40,
+      "shop_name": "Coastal Barbell Club"
+    },
+    {
+      "name": "Electrolyte Drink Mix - 30 Servings",
+      "description": "Sugar-free sodium, potassium and magnesium mix for long sessions.",
+      "type": "supplement",
+      "price": 29.99,
+      "quantity": 35,
+      "shop_name": "Coastal Barbell Club"
     }
   ],
   "posts": [
@@ -5277,6 +5441,24 @@
       "items": [
         {
           "name": "Altitude Training Mask",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "buyer": "oliviamercer",
+      "shop": "Coastal Barbell Club",
+      "status": "fulfilled",
+      "days_ago": 6,
+      "payment_method": "pay_at_pickup",
+      "note": "Picked up after Saturday's session",
+      "items": [
+        {
+          "name": "Coastal Barbell Club Lifting Belt",
+          "quantity": 1
+        },
+        {
+          "name": "Weightlifting Chalk Block - 8 Pack",
           "quantity": 1
         }
       ]

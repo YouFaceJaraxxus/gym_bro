@@ -6,14 +6,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gym_bro_mobile/l10n/app_localizations.dart';
 
-/// The `profile` returned next to the session (SAFE_COLUMNS of `users`).
+/// A business the user is on the team of, as in `profile.businesses`.
+Map<String, dynamic> myBusinessJson({
+  String id = 'ff453a60-28ca-4cdd-a919-c6ecd344ab65',
+  String name = 'Ironclad Fitness',
+  bool hasGym = true,
+  bool hasShop = false,
+  String status = 'approved',
+  List<String> roles = const ['owner'],
+}) =>
+    {
+      'id': id,
+      'name': name,
+      'logo': null,
+      'has_gym': hasGym,
+      'has_shop': hasShop,
+      'status': status,
+      'review_note': null,
+      'roles': roles,
+    };
+
+/// The `profile` returned next to the session (SAFE_COLUMNS of `users`, plus
+/// the businesses the user is on the team of and their unanswered invites).
 Map<String, dynamic> profileJson({
   String id = '8d0b05de-7c18-441b-9536-aaa042eaeaaa',
   String username = 'liamoconnor',
   String email = 'liam.oconnor@example.com',
   String name = 'Liam',
   String lastName = "O'Connor",
-  String role = 'member',
+  bool isSuperUser = false,
+  bool isTrainer = false,
+  List<Map<String, dynamic>> businesses = const [],
+  int pendingInvites = 0,
   String? avatarUrl = 'https://api.dicebear.com/9.x/avataaars/png?seed=liamoconnor&size=256',
 }) =>
     {
@@ -22,8 +46,11 @@ Map<String, dynamic> profileJson({
       'email': email,
       'name': name,
       'last_name': lastName,
-      'role': role,
+      'is_super_user': isSuperUser,
+      'is_trainer': isTrainer,
       'avatar_url': avatarUrl,
+      'businesses': businesses,
+      'pending_invites': pendingInvites,
       'auth_id': '774941e4-d9e1-4097-9e3d-823aaa9ba6a3',
       'created_at': '2026-09-15T16:05:42.372Z',
       'updated_at': '2026-10-28T18:40:23.199Z',

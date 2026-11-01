@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import '../models/admin_db.dart';
 import '../models/app_notification.dart';
 import '../models/business.dart';
 import '../models/exercise.dart';
@@ -38,6 +39,8 @@ import 'auth_manager.dart';
 import 'offline/offline_support.dart';
 
 part 'api/account_api.dart';
+part 'api/admin_api.dart';
+part 'api/business_api.dart';
 part 'api/payments_api.dart';
 part 'api/orders_api.dart';
 part 'api/classes_api.dart';
@@ -123,50 +126,6 @@ class ApiService {
     }
   }
 
-  // ── Businesses ──────────────────────────────────────────────────────────────
-
-  Future<List<Business>> getBusinesses(String token) async {
-    final r = await _client.get(
-      Uri.parse('$_base/businesses'),
-      headers: _headers(token),
-    );
-    _check(r);
-    return (jsonDecode(r.body) as List)
-        .map((e) => Business.fromJson(e as Map<String, dynamic>))
-        .toList();
-  }
-
-  Future<Business> getBusiness(String token, String id) async {
-    final r = await _client.get(
-      Uri.parse('$_base/businesses/$id'),
-      headers: _headers(token),
-    );
-    _check(r);
-    return Business.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
-  }
-
-  Future<Business> createBusiness(
-      String token, Map<String, dynamic> data) async {
-    final r = await _client.post(
-      Uri.parse('$_base/businesses'),
-      headers: _headers(token),
-      body: jsonEncode(data),
-    );
-    _check(r);
-    return Business.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
-  }
-
-  Future<Business> updateBusiness(
-      String token, String id, Map<String, dynamic> data) async {
-    final r = await _client.put(
-      Uri.parse('$_base/businesses/$id'),
-      headers: _headers(token),
-      body: jsonEncode(data),
-    );
-    _check(r);
-    return Business.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
-  }
-
   // ── Users ───────────────────────────────────────────────────────────────────
 
   Future<List<UserProfile>> getUsers(String token) async {
@@ -221,9 +180,8 @@ class ApiService {
     required String username,
     required String name,
     required String lastName,
-    required String role,
   }) async {
-    // The Bearer token lets the API honor `role` for super users.
+    // A super user's Bearer token gets the account confirmed straight away.
     final r = await _client.post(
       Uri.parse('$_base/users/signup'),
       headers: _headers(token),
@@ -233,7 +191,6 @@ class ApiService {
         'username': username,
         'name': name,
         'last_name': lastName,
-        'role': role,
       }),
     );
     _check(r);
@@ -286,32 +243,6 @@ class ApiService {
     if (lower.endsWith('.png')) return MediaType('image', 'png');
     if (lower.endsWith('.webp')) return MediaType('image', 'webp');
     return MediaType('image', 'jpeg');
-  }
-
-  // ── Gym / Shop owners ───────────────────────────────────────────────────────
-
-  /// Returns gym_owner rows: [{id, user_id, gym_id}, ...]
-  Future<List<Map<String, dynamic>>> getGymOwners(
-      String token, {String? userId}) async {
-    final q = userId != null ? '?user_id=$userId' : '';
-    final r = await _client.get(
-      Uri.parse('$_base/gym-owners$q'),
-      headers: _headers(token),
-    );
-    _check(r);
-    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
-  }
-
-  /// Returns shop_owner rows: [{id, user_id, shop_id}, ...]
-  Future<List<Map<String, dynamic>>> getShopOwners(
-      String token, {String? userId}) async {
-    final q = userId != null ? '?user_id=$userId' : '';
-    final r = await _client.get(
-      Uri.parse('$_base/shop-owners$q'),
-      headers: _headers(token),
-    );
-    _check(r);
-    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
   }
 
   // ── Members ─────────────────────────────────────────────────────────────────
@@ -382,144 +313,6 @@ class ApiService {
       body: jsonEncode({'email': email}),
     );
     _check(r);
-  }
-
-  // ── Employees ───────────────────────────────────────────────────────────────
-
-  /// Returns employee rows: [{id, user_id, gym_id}, ...]
-  Future<List<Map<String, dynamic>>> getEmployees(
-      String token, {String? gymId, String? userId}) async {
-    final params = <String>[];
-    if (gymId != null) params.add('gym_id=$gymId');
-    if (userId != null) params.add('user_id=$userId');
-    final q = params.isEmpty ? '' : '?${params.join('&')}';
-    final r = await _client.get(
-      Uri.parse('$_base/employees$q'),
-      headers: _headers(token),
-    );
-    _check(r);
-    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
-  }
-
-  /// Add an employee or employee-trainer to a gym.
-  ///
-  /// Provide either [userId] (existing user) or [email] + [name] + [lastName]
-  /// + [username] (new user to create). [employeeType] must be `"employee"` or
-  /// `"employee_trainer"`.
-  Future<Map<String, dynamic>> addEmployee(
-    String token, {
-    String? userId,
-    String? email,
-    String? name,
-    String? lastName,
-    String? username,
-    required String gymId,
-    required String employeeType,
-  }) async {
-    final body = <String, dynamic>{
-      'gym_id': gymId,
-      'employee_type': employeeType,
-    };
-    if (userId != null) {
-      body['user_id'] = userId;
-    } else {
-      body['email'] = email;
-      if (name != null) body['name'] = name;
-      if (lastName != null) body['last_name'] = lastName;
-      if (username != null) body['username'] = username;
-    }
-    final r = await _client.post(
-      Uri.parse('$_base/employees'),
-      headers: _headers(token),
-      body: jsonEncode(body),
-    );
-    _check(r);
-    return jsonDecode(r.body) as Map<String, dynamic>;
-  }
-
-  Future<void> removeEmployee(String token, String employeeId) async {
-    final r = await _client.delete(
-      Uri.parse('$_base/employees/$employeeId'),
-      headers: _headers(token),
-    );
-    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
-  }
-
-  // ── Employee-trainers ────────────────────────────────────────────────────────
-
-  /// Returns employee_trainer rows with user info embedded:
-  /// [{id, user_id, gym_id, email, name, last_name, username, role}, ...]
-  Future<List<Map<String, dynamic>>> getEmployeeTrainers(
-      String token, {String? gymId, String? userId}) async {
-    final params = <String>[];
-    if (gymId != null) params.add('gym_id=$gymId');
-    if (userId != null) params.add('user_id=$userId');
-    final q = params.isEmpty ? '' : '?${params.join('&')}';
-    final r = await _client.get(
-      Uri.parse('$_base/employee-trainers$q'),
-      headers: _headers(token),
-    );
-    _check(r);
-    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
-  }
-
-  Future<void> removeEmployeeTrainer(String token, String id) async {
-    final r = await _client.delete(
-      Uri.parse('$_base/employee-trainers/$id'),
-      headers: _headers(token),
-    );
-    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
-  }
-
-  // ── Shop vendors ─────────────────────────────────────────────────────────────
-
-  Future<List<Map<String, dynamic>>> getShopVendors(
-      String token, {String? shopId, String? userId}) async {
-    final params = <String>[];
-    if (shopId != null) params.add('shop_id=$shopId');
-    if (userId != null) params.add('user_id=$userId');
-    final q = params.isEmpty ? '' : '?${params.join('&')}';
-    final r = await _client.get(
-      Uri.parse('$_base/shop-vendors$q'),
-      headers: _headers(token),
-    );
-    _check(r);
-    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
-  }
-
-  Future<Map<String, dynamic>> addShopVendor(
-    String token, {
-    String? userId,
-    String? email,
-    String? name,
-    String? lastName,
-    String? username,
-    required String shopId,
-  }) async {
-    final body = <String, dynamic>{'shop_id': shopId};
-    if (userId != null) {
-      body['user_id'] = userId;
-    } else {
-      body['email'] = email;
-      if (name != null) body['name'] = name;
-      if (lastName != null) body['last_name'] = lastName;
-      if (username != null) body['username'] = username;
-    }
-    final r = await _client.post(
-      Uri.parse('$_base/shop-vendors'),
-      headers: _headers(token),
-      body: jsonEncode(body),
-    );
-    _check(r);
-    return jsonDecode(r.body) as Map<String, dynamic>;
-  }
-
-  Future<void> removeShopVendor(String token, String vendorId) async {
-    final r = await _client.delete(
-      Uri.parse('$_base/shop-vendors/$vendorId'),
-      headers: _headers(token),
-    );
-    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
   }
 
   // ── Shop items ──────────────────────────────────────────────────────────────
@@ -893,11 +686,14 @@ class ApiService {
     return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
   }
 
+  /// POST /training-sessions — starts one now. A trainer passes [userId] to
+  /// run it for someone they coach (they become its trainer).
   Future<TrainingSession> startTrainingSession(
     String token, {
     String? trainingId,
     String? trainerId,
     String? notes,
+    String? userId,
   }) async {
     final r = await _client.post(
       Uri.parse('$_base/training-sessions'),
@@ -906,6 +702,7 @@ class ApiService {
         'training_id': trainingId,
         'trainer_id': trainerId,
         'notes': notes,
+        'user_id': ?userId,
       }),
     );
     _check(r);
@@ -1389,23 +1186,6 @@ class ApiService {
     return MembershipInvoice.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
   }
 
-  // ── Trainers ────────────────────────────────────────────────────────────────
-
-  /// Returns trainer rows: [{id, user_id, gym_id}, ...]
-  Future<List<Map<String, dynamic>>> getTrainers(
-      String token, {String? gymId, String? userId}) async {
-    final params = <String>[];
-    if (gymId != null) params.add('gym_id=$gymId');
-    if (userId != null) params.add('user_id=$userId');
-    final q = params.isEmpty ? '' : '?${params.join('&')}';
-    final r = await _client.get(
-      Uri.parse('$_base/trainers$q'),
-      headers: _headers(token),
-    );
-    _check(r);
-    return (jsonDecode(r.body) as List).cast<Map<String, dynamic>>();
-  }
-
   // ── Posts ───────────────────────────────────────────────────────────────────
 
   Future<List<Post>> getPosts(
@@ -1485,15 +1265,6 @@ class ApiService {
     if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
   }
 
-  /// DELETE /businesses/:id — removes the business and everything under it.
-  Future<void> deleteBusiness(String token, String id) async {
-    final r = await _client.delete(
-      Uri.parse('$_base/businesses/$id'),
-      headers: _headers(token),
-    );
-    if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
-  }
-
   /// GET /businesses/stats — aggregates over the gyms the caller manages.
   Future<BusinessStats> getBusinessStats(String token) async {
     final r = await _client.get(
@@ -1502,28 +1273,6 @@ class ApiService {
     );
     _check(r);
     return BusinessStats.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
-  }
-
-  /// PUT /employees/role — moves a staff member between employee and
-  /// employee_trainer at [gymId]. [employeeType] is `"employee"` or
-  /// `"employee_trainer"`. Returns the new staff row (incl. `id`).
-  Future<Map<String, dynamic>> changeEmployeeRole(
-    String token, {
-    required String userId,
-    required String gymId,
-    required String employeeType,
-  }) async {
-    final r = await _client.put(
-      Uri.parse('$_base/employees/role'),
-      headers: _headers(token),
-      body: jsonEncode({
-        'user_id': userId,
-        'gym_id': gymId,
-        'employee_type': employeeType,
-      }),
-    );
-    _check(r);
-    return jsonDecode(r.body) as Map<String, dynamic>;
   }
 
   /// PUT /membership-invoices/:id — mark an invoice paid / unpaid / void.

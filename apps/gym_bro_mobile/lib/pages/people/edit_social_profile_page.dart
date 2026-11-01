@@ -169,14 +169,18 @@ class _EditSocialProfilePageState extends State<EditSocialProfilePage> {
       // Keep the rest of the app (drawer, posts, chat) in sync.
       final me = AuthManager.instance.profile;
       if (me != null) {
+        // Not copyWith: a removed avatar must clear it.
         await AuthManager.instance.updateProfile(UserProfile(
           id: me.id,
           username: updated.username,
           email: me.email,
           name: updated.name,
           lastName: updated.lastName,
-          role: me.role,
           avatarUrl: updated.avatarUrl,
+          isSuperUser: me.isSuperUser,
+          isTrainer: me.isTrainer,
+          businesses: me.businesses,
+          pendingInvites: me.pendingInvites,
         ));
       }
       if (!mounted) return;

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../models/app_notification.dart';
+import '../models/business.dart';
+import 'business/business_widgets.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 
@@ -22,15 +24,8 @@ class _InviteAcceptPageState extends State<InviteAcceptPage> {
   String _entityName(AppLocalizations l10n) =>
       _n.entityName ?? l10n.shellInviteOrganisationFallback;
 
-  String _roleLabel(AppLocalizations l10n) {
-    if (_n.type == NotificationType.vendorShopInvite) {
-      return l10n.shellRoleVendor;
-    }
-    return switch (_n.employeeType) {
-      'employee_trainer' => l10n.shellRoleEmployeeTrainer,
-      _ => l10n.shellRoleEmployee,
-    };
-  }
+  String _roleLabel(AppLocalizations l10n) =>
+      businessRoleLabel(l10n, _n.businessRole ?? BusinessRole.staff);
 
   Future<void> _respond(bool accept) async {
     setState(() => _loading = true);
@@ -40,6 +35,10 @@ class _InviteAcceptPageState extends State<InviteAcceptPage> {
         await _api.acceptInvite(token, _n.id);
       } else {
         await _api.declineInvite(token, _n.id);
+      }
+      // Joining a team changes what the user can do (their Home menu).
+      if (accept) {
+        await AuthManager.instance.updateProfile(await _api.getMe(token));
       }
       if (mounted) Navigator.pop(context, accept);
     } catch (e) {
@@ -72,9 +71,9 @@ class _InviteAcceptPageState extends State<InviteAcceptPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Icon(
-              _n.type == NotificationType.vendorShopInvite
-                  ? Icons.storefront_outlined
-                  : Icons.fitness_center_outlined,
+              _n.businessRole == BusinessRole.trainer
+                  ? Icons.sports_outlined
+                  : Icons.group_add_outlined,
               size: 64,
               color: cs.primary,
             ),

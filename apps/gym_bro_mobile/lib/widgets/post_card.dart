@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../pages/business/business_profile_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -63,7 +64,7 @@ class PostCard extends StatefulWidget {
   /// text + images in their own form).
   final VoidCallback? onEdit;
 
-  /// Tapping a business post's header.
+  /// Tapping a business post's header (default: its profile).
   final VoidCallback? onBusinessTap;
 
   /// Show the whole caption (detail page) instead of three lines + "more".
@@ -548,7 +549,16 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
       if (p.updatedAt.difference(p.createdAt).inMinutes >= 1) l10n.nutritionEditedLower,
     ];
 
-    final onHeaderTap = isBusiness ? widget.onBusinessTap : (widget.linkAuthor && author != null ? _openAuthor : null);
+    // A business post's header opens the business profile unless told otherwise.
+    final onHeaderTap = isBusiness
+        ? (widget.onBusinessTap ??
+            (widget.linkAuthor && business != null
+                ? () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => BusinessProfilePage(businessId: business.id)),
+                    )
+                : null))
+        : (widget.linkAuthor && author != null ? _openAuthor : null);
     final me = AuthManager.instance.profile?.id;
     final mine = p.isPersonal && me != null && p.authorId == me;
     final actions = <_PostAction>[

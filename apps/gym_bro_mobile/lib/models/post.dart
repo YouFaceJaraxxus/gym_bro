@@ -415,21 +415,26 @@ class ShareTarget {
   }
 }
 
-/// The gym/shop a business post belongs to.
+/// The gym/shop a business post belongs to (a business can be both).
 class PostBusiness {
   final String id;
   final String name;
   final String? logo;
-  final String type;
+  final bool hasGym;
+  final bool hasShop;
 
-  const PostBusiness({required this.id, required this.name, this.logo, this.type = 'gym'});
+  const PostBusiness({required this.id, required this.name, this.logo, this.hasGym = true, this.hasShop = false});
+
+  /// A shop without a gym side (shown with a storefront icon).
+  bool get isShopOnly => hasShop && !hasGym;
 
   static PostBusiness? maybeFromJson(Object? json) => json is Map<String, dynamic>
       ? PostBusiness(
           id: json['id'] as String,
           name: json['name'] as String? ?? '',
           logo: json['logo'] as String?,
-          type: json['type'] as String? ?? 'gym',
+          hasGym: json['has_gym'] as bool? ?? false,
+          hasShop: json['has_shop'] as bool? ?? false,
         )
       : null;
 }

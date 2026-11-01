@@ -1,11 +1,8 @@
 {
   "shellTabHome": "Home",
-  "shellTabBusinesses": "Businesses",
   "shellTabMembership": "Membership",
   "shellTabSchedule": "Schedule",
   "shellTabClasses": "Classes",
-  "shellTabMembers": "Members",
-  "shellTabMyShop": "My Shop",
   "shellTabUsers": "Users",
   "shellTabGym": "Gym",
   "shellTabProfile": "Profile",
@@ -30,13 +27,6 @@
       }
     }
   },
-  "shellRoleOwner": "Owner",
-  "shellRoleTrainer": "Trainer",
-  "shellRoleEmployee": "Employee",
-  "shellRoleEmployeeTrainer": "Employee / Trainer",
-  "shellRoleMember": "Member",
-  "shellRoleShopVendor": "Shop vendor",
-  "shellRoleSuperUser": "Super user",
   "shellStatsMembers": "Members",
   "shellStatsGymCount": "{count, plural, =1{1 gym} other{{count} gyms}}",
   "@shellStatsGymCount": {
@@ -85,50 +75,10 @@
       }
     }
   },
-  "shellWelcome": "Welcome, {name}",
-  "@shellWelcome": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "shellHello": "Hello, {name}",
-  "@shellHello": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "shellOwnerAllInvoices": "All invoices",
-  "shellYourGym": "Your gym",
-  "shellYourGyms": "Your gyms",
-  "shellNotAssignedToGym": "Not assigned to any gym yet",
-  "shellMemberCount": "{count, plural, =1{1 member} other{{count} members}}",
-  "@shellMemberCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "shellInvoices": "Invoices",
-  "shellScanCheckIns": "Scan check-ins",
   "shellMyMembership": "My membership",
   "shellMyMembershipSubtitle": "Plan, billing and invoices",
-  "shellNoBusinesses": "No businesses yet",
-  "shellGyms": "Gyms",
-  "shellShops": "Shops",
-  "shellAddBusiness": "Add business",
-  "shellEditBusiness": "Edit {name}",
-  "@shellEditBusiness": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "shellNoUsers": "No users yet",
   "shellAddUser": "Add user",
   "shellEditUser": "Edit {name}",
@@ -139,43 +89,8 @@
       }
     }
   },
-  "shellAdminPanel": "Admin panel",
-  "shellAdminBusinessesSubtitle": "Manage gyms & shops",
-  "shellAdminUsersSubtitle": "Manage all accounts",
-  "shellAdminInvoicesSubtitle": "View all membership invoices",
   "shellPlatformOverview": "Platform overview",
-  "shellTodaysSessions": "Today's sessions",
-  "shellNoSessionsToday": "No sessions with you today",
-  "shellSessionStartedInProgress": "Started {time} · in progress",
-  "@shellSessionStartedInProgress": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "shellMembersYouCoach": "Members you coach",
-  "shellSearchMembers": "Search members",
   "shellClearSearch": "Clear search",
-  "shellNoCoachedMembers": "No members at the gyms you coach at yet",
-  "shellNoMembersMatch": "No members match \"{query}\"",
-  "@shellNoMembersMatch": {
-    "placeholders": {
-      "query": {
-        "type": "String"
-      }
-    }
-  },
-  "shellNotAVendor": "You're not a vendor at any shop yet",
-  "shellOrdersForShop": "Orders · {shop}",
-  "@shellOrdersForShop": {
-    "placeholders": {
-      "shop": {
-        "type": "String"
-      }
-    }
-  },
-  "shellChooseShop": "Choose a shop",
   "shellLogIn": "Log in",
   "shellAuthEmail": "Email",
   "shellAuthPassword": "Password",
@@ -303,10 +218,6 @@
     }
   },
   "shellUserSearchAdding": "Adding",
-  "shellRoleEmployeeTrainerShort": "Emp. trainer",
-  "shellRoleGymOwner": "Gym owner",
-  "shellRoleShopOwner": "Shop owner",
-  "shellRoleVendor": "Vendor",
   "shellImpersonateTitle": "Sign in as {name}?",
   "@shellImpersonateTitle": {
     "placeholders": {
@@ -327,7 +238,6 @@
   "shellEditUserTitle": "Edit user",
   "shellNewUserTitle": "New user",
   "shellSignInAsThisUser": "Sign in as this user",
-  "shellRole": "Role",
   "shellCreateUser": "Create user",
   "shellInviteOrganisationFallback": "the organisation",
   "shellInvitationTitle": "Invitation",
@@ -363,33 +273,17 @@
     }
   },
   "shellInviteDeclined": "You declined this invitation",
-  "shellHubCommunityOpenFailed": "Couldn't open community: {error}",
-  "@shellHubCommunityOpenFailed": {
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "shellHubNotLinked": "You're not linked to a gym or shop yet",
   "shellHubCheckIn": "Check in",
   "shellHubCheckInSubtitle": "Show your code at the front desk",
   "shellHubClassesSubtitle": "Browse and book group classes",
   "shellHubExercises": "Exercises",
-  "shellHubExercisesSubtitle": "Browse and manage exercises",
   "shellHubWorkouts": "Workouts",
-  "shellHubWorkoutsSubtitle": "Trainings and routines",
   "shellHubSessions": "Sessions",
-  "shellHubSessionsSubtitle": "Log and review your sessions",
   "shellHubProgress": "Progress",
   "shellHubFoodDiary": "Food diary",
-  "shellHubFoodDiarySubtitle": "Log meals and track macros",
   "shellHubMealPlans": "Meal plans",
-  "shellHubMealPlansSubtitle": "Food, recipes and nutrition",
   "shellHubStore": "Store",
   "shellHubStoreSubtitle": "Supplements, gear and your orders",
-  "shellHubCommunity": "Community",
-  "shellHubCommunitySubtitle": "Posts and announcements from your gym",
   "shellMuteClasses": "Classes",
   "shellMuteClassesDescription": "Class reminders, changes and cancellations",
   "shellMuteBilling": "Billing",

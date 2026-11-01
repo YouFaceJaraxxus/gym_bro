@@ -18,14 +18,14 @@ Deno.test({
     // Six sign-ins, not seededUsers(): this suite needs different members.
     const [owner, employee, trainer, active, expired, outsider] = await Promise.all([
       signin("marcus.bennett@example.com"), // Ironclad owner
-      signin("priya.nair@example.com"), // Ironclad employee (and trainer)
+      signin("priya.nair@example.com"), // Ironclad staff
       signin("elena.vasquez@example.com"), // Ironclad trainer only: not front desk
       signin("victor.huang@example.com"), // Ironclad member, active Basic membership
       signin("natalia.petrova@example.com"), // Ironclad member, membership ended 19 days before seeding
-      signin("jordan.park@example.com"), // Coastal Barbell Club employee
+      signin("jordan.park@example.com"), // Coastal Barbell Club staff
     ]);
     const gyms = (await call("GET", "/businesses", owner.token)).data as any[];
-    const gym = gyms.find((b) => b.type === "gym" && b.name === IRONCLAD);
+    const gym = gyms.find((b) => b.has_gym && b.name === IRONCLAD);
     const outsiderGyms = (await call("GET", "/check-ins/gyms", outsider.token)).data as any[];
     const otherGym = outsiderGyms?.find((g) => g.is_staff);
     check("found both gyms", !!gym && !!otherGym && otherGym.gym_id !== gym.id, short(outsiderGyms));
@@ -60,7 +60,7 @@ Deno.test({
         check("token for a malformed gym_id is 400", malformed.status === 400, `status ${malformed.status}`);
         const unknown = await call("GET", `/check-ins/token?gym_id=${crypto.randomUUID()}`, active.token);
         check("token for an unknown gym is 404", unknown.status === 404, `status ${unknown.status}`);
-        const shopTok = await call("GET", `/check-ins/token?gym_id=${gyms.find((b) => b.type === "shop")?.id ?? crypto.randomUUID()}`, active.token);
+        const shopTok = await call("GET", `/check-ins/token?gym_id=${gyms.find((b) => b.has_shop && !b.has_gym)?.id ?? crypto.randomUUID()}`, active.token);
         check("a shop isn't a gym (404)", shopTok.status === 404, `status ${shopTok.status}`);
         const trainerTok = await call("GET", `/check-ins/token?gym_id=${gym.id}`, trainer.token);
         check("plain trainer (not a member) can't get a token", trainerTok.status === 403, `status ${trainerTok.status}`);
@@ -141,7 +141,8 @@ Deno.test({
         const ghost = await call("POST", "/check-ins", employee.token, { gym_id: gym.id, user_id: crypto.randomUUID() });
         check("manual check-in of an unknown user is 400", ghost.status === 400, `status ${ghost.status}`);
         const badGym = await call("POST", "/check-ins", employee.token, { gym_id: "nope", user_id: active.profile.id });
-        check("manual check-in with a malformed gym_id is 400", badGym.status === 400, `status ${badGym.status} ${short(badGym.data)}`);
+        // Permission checks reject a malformed business id before it reaches Postgres.
+        check("manual check-in with a malformed gym_id is refused (403)", badGym.status === 403, `status ${badGym.status} ${short(badGym.data)}`);
         const onlyGym = await call("POST", "/check-ins", employee.token, { gym_id: gym.id });
         check("manual check-in without user_id is 400", onlyGym.status === 400, `status ${onlyGym.status}`);
         assertAll();

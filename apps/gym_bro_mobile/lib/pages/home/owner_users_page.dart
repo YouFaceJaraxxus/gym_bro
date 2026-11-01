@@ -132,17 +132,20 @@ class _UserTile extends StatelessWidget {
   final UserProfile user;
   final VoidCallback onEdit;
 
-  Color _roleColor(BuildContext context, UserRole role) {
-    final cs = Theme.of(context).colorScheme;
-    return switch (role) {
-      UserRole.owner => cs.primaryContainer,
-      UserRole.superUser => cs.errorContainer,
-      _ => cs.secondaryContainer,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    Widget badge(String label, Color color) => Chip(
+      label: Text(label),
+      backgroundColor: color,
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+    );
+    final badges = [
+      if (user.isSuperUser) badge(l10n.rolesMiscSuperUser, cs.errorContainer),
+      if (user.isTrainer) badge(l10n.rolesMiscTrainer, cs.secondaryContainer),
+    ];
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
@@ -154,23 +157,20 @@ class _UserTile extends StatelessWidget {
           ),
         ),
         title: Text(user.fullName),
-        subtitle: Text(user.email),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Chip(
-              label: Text(user.role.label(context.l10n)),
-              backgroundColor: _roleColor(context, user.role),
-              visualDensity: VisualDensity.compact,
-              padding: EdgeInsets.zero,
-            ),
-            const SizedBox(width: 4),
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              onPressed: onEdit,
-              tooltip: context.l10n.shellEditUser(user.fullName),
-            ),
-          ],
+        subtitle: badges.isEmpty
+            ? Text(user.email)
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(user.email),
+                  const SizedBox(height: 4),
+                  Wrap(spacing: 4, runSpacing: 4, children: badges),
+                ],
+              ),
+        trailing: IconButton(
+          icon: const Icon(Icons.edit_outlined),
+          onPressed: onEdit,
+          tooltip: l10n.shellEditUser(user.fullName),
         ),
       ),
     );

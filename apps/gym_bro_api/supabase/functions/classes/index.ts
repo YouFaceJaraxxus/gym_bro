@@ -10,6 +10,7 @@ import {
   jsonError,
   requireCaller,
 } from "../_shared/auth.ts";
+import { teamBusinessIdsSql } from "../_shared/business.ts";
 import { notify } from "../_shared/notify.ts";
 import { displayName, isBlockedBetween, isFollowing } from "../_shared/social.ts";
 import {
@@ -92,24 +93,16 @@ function trimOrNull(value: unknown): string | null {
 /** Gyms where the user has any relationship: member, staff, trainer or owner. */
 async function relatedGymIds(userId: string): Promise<Set<string>> {
   const { rows } = await sql<{ gym_id: string }>`
-    SELECT gym_id FROM member           WHERE user_id = ${userId}
-    UNION SELECT gym_id FROM trainer          WHERE user_id = ${userId}
-    UNION SELECT gym_id FROM employee         WHERE user_id = ${userId}
-    UNION SELECT gym_id FROM employee_trainer WHERE user_id = ${userId}
-    UNION SELECT gym_id FROM gym_owner        WHERE user_id = ${userId}
+    SELECT gym_id FROM member WHERE user_id = ${userId}
+    UNION SELECT business_id FROM (${teamBusinessIdsSql(userId)}) t
   `.execute(db);
   return new Set(rows.map((r) => r.gym_id));
 }
 
-/** Gyms where the user coaches (canCoachAtGym): owners, employees, employee-trainers, trainers. */
+/** Gyms where the user coaches (canCoachAtGym): owners, staff and trainers. */
 async function coachGymIds(userId: string): Promise<Set<string>> {
-  const { rows } = await sql<{ gym_id: string }>`
-    SELECT gym_id FROM trainer          WHERE user_id = ${userId}
-    UNION SELECT gym_id FROM employee         WHERE user_id = ${userId}
-    UNION SELECT gym_id FROM employee_trainer WHERE user_id = ${userId}
-    UNION SELECT gym_id FROM gym_owner        WHERE user_id = ${userId}
-  `.execute(db);
-  return new Set(rows.map((r) => r.gym_id));
+  const { rows } = await teamBusinessIdsSql(userId).execute(db);
+  return new Set(rows.map((r) => r.business_id));
 }
 
 async function isMember(userId: string, gymId: string): Promise<boolean> {
@@ -124,9 +117,8 @@ async function isMember(userId: string, gymId: string): Promise<boolean> {
 
 /** True when the user can be assigned as a class trainer at the gym. */
 async function isTrainerAtGym(userId: string, gymId: string): Promise<boolean> {
-  const { rows } = await sql<{ ok: number }>`
-    SELECT 1 AS ok FROM trainer WHERE user_id = ${userId} AND gym_id = ${gymId}
-    UNION SELECT 1 FROM employee_trainer WHERE user_id = ${userId} AND gym_id = ${gymId}
+  const { rows } = await sql<{ business_id: string }>`
+    SELECT business_id FROM (${teamBusinessIdsSql(userId, ["trainer"])}) t WHERE business_id = ${gymId}
   `.execute(db);
   return rows.length > 0;
 }
@@ -261,7 +253,7 @@ async function handler(req: Request): Promise<Response> {
   // assigned there: [{gym_id, gym_name, can_staff, trainers: [{user_id, name, last_name}]}]
   if (req.method === "GET" && action === "coaching_gyms") {
     const gymIds = isSuperUser(caller)
-      ? (await db.selectFrom("gym").select("id").execute()).map((g) => g.id)
+      ? (await db.selectFrom("business").select("id").where("has_gym", "=", true).execute()).map((g) => g.id)
       : [...await coachGymIds(caller.id)];
     if (gymIds.length === 0) return json([]);
 
@@ -276,8 +268,8 @@ async function handler(req: Request): Promise<Response> {
                           ORDER BY u.name, u.last_name)
           FROM users u
           WHERE u.id IN (
-            SELECT user_id FROM trainer WHERE gym_id = b.id
-            UNION SELECT user_id FROM employee_trainer WHERE gym_id = b.id
+            SELECT user_id FROM business_member
+            WHERE business_id = b.id AND role = 'trainer' AND status = 'active'
           )
         ), '[]'::json) AS trainers
       FROM business b

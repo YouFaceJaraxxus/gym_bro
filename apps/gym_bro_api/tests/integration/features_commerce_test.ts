@@ -14,7 +14,7 @@ Deno.test({
   ...suite,
   async fn(t) {
     const { check, assertAll } = checker();
-    const { member, owner, employee, superU, vendor, gym } = await seededUsers();
+    const { member, owner, employee, superU, vendor, gym, shop } = await seededUsers();
     const canCleanDb = await dbAvailable();
 
     await t.step("3. check-ins: token, scan, duplicate, tamper, manual, stats, history", async () => {
@@ -120,8 +120,7 @@ Deno.test({
       let shopId = "";
       try {
         const shops = await call("GET", "/orders/shops", member.token);
-        const vendorRows = (await call("GET", `/shop-vendors?user_id=${vendor.profile.id}`, vendor.token)).data as any[];
-        shopId = vendorRows?.[0]?.shop_id ?? "";
+        shopId = shop?.id ?? "";
         check("storefront lists the vendor's shop", shops.status === 200 && (shops.data as any[]).some((s) => s.id === shopId), short(shops.data));
 
         const items = ((await call("GET", `/shop-items?shop_id=${shopId}&active_only=true`)).data as any[])
@@ -451,7 +450,7 @@ Deno.test({
       const tag = `it-${crypto.randomUUID().slice(0, 8)}`;
       const orderIds: string[] = [];
       let itemId = "";
-      const shopId = ((await call("GET", `/shop-vendors?user_id=${vendor.profile.id}`, vendor.token)).data as any[])?.[0]?.shop_id ?? "";
+      const shopId: string = shop?.id ?? "";
       try {
         // Shop items: vendor/owner writes, public reads.
         const add = (b: Record<string, unknown>, tok = vendor.token) => call("POST", "/shop-items", tok, b);

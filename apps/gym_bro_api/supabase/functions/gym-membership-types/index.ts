@@ -1,7 +1,7 @@
 import { db } from "../_shared/config.ts";
 import { canManageGym, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
 import type { GymMembershipTypeInsert, GymMembershipTypeUpdate } from "../../types/schema/public.ts";
-import { pgCode } from "../_shared/roles.ts";
+import { pgCode } from "../_shared/business.ts";
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 

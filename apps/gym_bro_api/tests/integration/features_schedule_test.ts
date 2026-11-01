@@ -37,14 +37,19 @@ Deno.test({
     assertAll();
     const member2 = await signin(otherRow.email);
 
-    // The employee doubles as a trainer here: someone else a class can be
-    // handed to, and a person with several staff roles. The seed doesn't make
-    // them one, so add the row (and take it away again at the end).
-    const trainerRows = (await call("GET", `/trainers?gym_id=${gym.id}`, owner.token)).data as any[];
-    const addedTrainer = trainerRows?.some((r) => r.user_id === employee.profile.id)
-      ? null
-      : await call("POST", "/trainers", owner.token, { user_id: employee.profile.id, gym_id: gym.id });
-    check("the employee is also a trainer", !addedTrainer || addedTrainer.status === 201, short(addedTrainer?.data));
+    // The employee (staff) doubles as a trainer here: someone else a class can
+    // be handed to, and a person with several roles at one gym. The seed
+    // doesn't make them one, so the owner invites them as a trainer and they
+    // accept (switched off again at the end, which drops the trainer role).
+    const wasTrainer = employee.profile.is_trainer === true;
+    const team = (await call("GET", `/businesses/${gym.id}/team`, owner.token)).data as any[];
+    const alreadyTrains = (team ?? []).find((p) => p.user_id === employee.profile.id)?.roles
+      ?.some((r: any) => r.role === "trainer" && r.status === "active");
+    if (!alreadyTrains) {
+      const inv = await call("POST", `/businesses/${gym.id}/team`, owner.token, { user_id: employee.profile.id, role: "trainer" });
+      const ok = await call("POST", `/businesses/${gym.id}/invites/trainer/accept`, employee.token);
+      check("the employee is also a trainer", inv.status === 201 && ok.status === 200 && ok.data.my_roles?.includes("trainer"), short(ok.data));
+    }
     assertAll();
 
     await t.step("1. classes: create, book, waitlist, attendance, series cancel", async () => {
@@ -671,7 +676,7 @@ Deno.test({
         const me = ((staffEmp.data?.staff ?? []) as any[]).find((s) => s.user_id === employee.profile.id);
         check(
           "employee sees the staff list read-only, with every role per person",
-          staffEmp.status === 200 && staffEmp.data.can_manage === false && me?.roles.includes("employee") && me?.roles.includes("trainer"),
+          staffEmp.status === 200 && staffEmp.data.can_manage === false && me?.roles.includes("staff") && me?.roles.includes("trainer"),
           short(me),
         );
         check("member can't list schedulable staff", (await call("GET", `/shifts/staff?gym_id=${gym.id}`, member.token)).status === 403);
@@ -812,6 +817,11 @@ Deno.test({
       assertAll();
     });
 
-    if (addedTrainer?.data?.id) await call("DELETE", `/trainers/${addedTrainer.data.id}`, owner.token);
+    if (!alreadyTrains) {
+      if (wasTrainer) await call("DELETE", `/businesses/${gym.id}/team/${employee.profile.id}?role=trainer`, owner.token);
+      else await call("PUT", "/users/me/trainer", employee.token, { enabled: false });
+      await deleteNotifications(employee.token, (n) => n.type === "business_invite" && n.metadata?.business_id === gym.id && n.metadata?.role === "trainer");
+      await deleteNotifications(owner.token, (n) => n.type === "business_join" && n.metadata?.user_id === employee.profile.id);
+    }
   },
 });

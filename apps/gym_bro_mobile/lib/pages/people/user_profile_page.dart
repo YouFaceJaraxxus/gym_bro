@@ -6,7 +6,6 @@ import '../../models/people.dart';
 import '../../models/post.dart';
 import '../../models/shared_content.dart';
 import '../../models/social.dart';
-import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../widgets/open_url.dart';
@@ -16,6 +15,7 @@ import '../../widgets/share_sheet.dart';
 import '../../widgets/social_widgets.dart';
 import '../chat/chat_launcher.dart';
 import '../archive/archive_page.dart';
+import '../business/business_profile_page.dart';
 import '../feed/post_detail_page.dart';
 import '../stories/highlights.dart';
 import '../stories/story_tray.dart';
@@ -651,7 +651,6 @@ class _UserProfilePageState extends State<UserProfilePage> {
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     final locked = !p.canViewContent || _blocked;
-    final role = UserRole.fromString(p.role);
     final activeText = lastActiveText(l10n, p.lastActiveAt);
     final initials = p.summary.initials;
 
@@ -704,14 +703,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
             children: [
               Text(p.fullName.isEmpty ? p.username : p.fullName, style: text.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
               if (p.isPrivate) Icon(Icons.lock_outline, size: 16, color: cs.onSurfaceVariant, semanticLabel: l10n.peopleLocked),
-              if (role != UserRole.member)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(color: cs.secondaryContainer, borderRadius: BorderRadius.circular(12)),
-                  child: Text(role.label(l10n), style: text.labelSmall?.copyWith(color: cs.onSecondaryContainer)),
-                ),
             ],
           ),
+          // "Trainer" / "Trainer at A, B" and "Owner of X, Y" (staff roles are never shown).
+          if (p.trainerAt.isNotEmpty)
+            _AffiliationLine(icon: Icons.sports_outlined, label: l10n.rolesMiscTrainerAt, businesses: p.trainerAt)
+          else if (p.isTrainer)
+            _AffiliationLine(icon: Icons.sports_outlined, label: l10n.rolesMiscTrainer),
+          if (p.ownerOf.isNotEmpty)
+            _AffiliationLine(icon: Icons.storefront_outlined, label: l10n.rolesMiscOwnerOf, businesses: p.ownerOf),
           if (activeText != null) ...[
             const SizedBox(height: 2),
             Text(
@@ -958,6 +958,53 @@ class _ExpandableBioState extends State<_ExpandableBio> {
           ),
         );
       },
+    );
+  }
+}
+
+/// One "Trainer at …" / "Owner of …" line; each business opens its profile.
+class _AffiliationLine extends StatelessWidget {
+  const _AffiliationLine({required this.icon, required this.label, this.businesses = const []});
+
+  final IconData icon;
+  final String label;
+  final List<BusinessRef> businesses;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final style = Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant);
+    final linkStyle = style?.copyWith(color: cs.onSurface, fontWeight: FontWeight.w600);
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 1),
+            child: Icon(icon, size: 16, color: cs.onSurfaceVariant),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(businesses.isEmpty ? label : '$label ', style: style),
+                for (var i = 0; i < businesses.length; i++)
+                  Semantics(
+                    link: true,
+                    child: InkWell(
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(builder: (_) => BusinessProfilePage(businessId: businesses[i].id)),
+                      ),
+                      child: Text(i < businesses.length - 1 ? '${businesses[i].name}, ' : businesses[i].name, style: linkStyle),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

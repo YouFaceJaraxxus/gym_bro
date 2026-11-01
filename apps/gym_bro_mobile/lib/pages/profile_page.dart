@@ -217,14 +217,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTap: () => _open(ProfileQrPage(profile: _social!)),
               ),
             const Divider(),
-            if (_profile.role == UserRole.member)
-              ListTile(
-                leading: const Icon(Icons.card_membership_outlined),
-                title: Text(l10n.shellMyMembership),
-                subtitle: Text(l10n.shellMyMembershipSubtitle),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => pushTabPage<void>(context, l10n.shellMyMembership, MembershipPage(profile: _profile)),
-              ),
+            // Anyone can hold gym memberships, whatever else they do.
+            ListTile(
+              leading: const Icon(Icons.card_membership_outlined),
+              title: Text(l10n.shellMyMembership),
+              subtitle: Text(l10n.shellMyMembershipSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => pushTabPage<void>(context, l10n.shellMyMembership, MembershipPage(profile: _profile)),
+            ),
             ListTile(
               leading: const Icon(Icons.show_chart),
               title: Text(l10n.shellMyProgress),
@@ -369,17 +369,21 @@ class _SocialHeaderCard extends StatelessWidget {
                           spacing: 6,
                           crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: cs.secondaryContainer,
-                                borderRadius: BorderRadius.circular(12),
+                            for (final label in [
+                              if (profile.isSuperUser) l10n.rolesMiscSuperUser,
+                              if (profile.isTrainer) l10n.rolesMiscTrainer,
+                            ])
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: cs.secondaryContainer,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  label,
+                                  style: text.labelSmall?.copyWith(color: cs.onSecondaryContainer),
+                                ),
                               ),
-                              child: Text(
-                                profile.role.label(l10n),
-                                style: text.labelSmall?.copyWith(color: cs.onSecondaryContainer),
-                              ),
-                            ),
                             if (s?.isPrivate ?? false)
                               Icon(Icons.lock_outline, size: 14, color: cs.onSurfaceVariant, semanticLabel: l10n.peopleLocked),
                           ],

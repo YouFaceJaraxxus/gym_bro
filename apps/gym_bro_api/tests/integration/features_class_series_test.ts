@@ -318,6 +318,33 @@ Deno.test({
         const accept = await call("POST", `/customers/invites/${T}/accept`, vendor.token);
         const trainers = (await call("GET", "/customers/trainers", vendor.token)).data as any[];
         check("accepting makes it mutual", accept.status === 200 && trainers?.some((x) => x.id === T), short(trainers));
+
+        // Sessions follow the client link, not gyms: the vendor isn't a member anywhere.
+        const stranger = await call("POST", "/training-sessions", outsider.token, { user_id: V, notes: "nope" });
+        check("someone who doesn't coach them can't log their session", stranger.status === 403, `status ${stranger.status}`);
+        const logged = await call("POST", "/training-sessions", trainer.token, {
+          user_id: V,
+          trainer_id: outsider.profile.id,
+          notes: "with my trainer",
+        });
+        check(
+          "the trainer logs a session for their client, as its trainer",
+          logged.status === 201 && logged.data.user_id === V && logged.data.trainer_id === T,
+          short(logged.data),
+        );
+        const sessionId = logged.data?.id;
+        const edited = await call("PUT", `/training-sessions/${sessionId}`, trainer.token, { notes: "edited by trainer" });
+        check("…and can edit it", edited.status === 200 && edited.data.notes === "edited by trainer", short(edited.data));
+        const theirs = (await call("GET", "/training-sessions", vendor.token)).data as any[];
+        check("it's in the client's own sessions", theirs?.some((x) => x.id === sessionId), short(theirs));
+        const told = await sql<{ n: number }>(
+          `SELECT count(*)::int AS n FROM notification WHERE user_id = $1 AND metadata->>'session_id' = $2`,
+          [V, sessionId],
+        );
+        check("the client is told", (told?.[0]?.n ?? 0) === 1, short(told));
+        const removed = await call("DELETE", `/training-sessions/${sessionId}`, trainer.token);
+        check("the trainer can delete a session they ran", removed.status === 204, `status ${removed.status}`);
+        await sql(`DELETE FROM notification WHERE metadata->>'session_id' = $1`, [sessionId]);
         const remove = await call("DELETE", `/customers/${V}`, trainer.token);
         const after = (await call("GET", "/customers", trainer.token)).data as any[];
         check("the trainer can remove a customer", remove.status === 204 && !after?.some((c) => c.user_id === V));

@@ -2,8 +2,8 @@ import { sql } from "npm:kysely@^0.27";
 import { removeObjects } from "../_shared/media.ts";
 import { db, supabaseAdmin, supabaseUrl, supabaseAnonKey } from "../_shared/config.ts";
 import {
-  canManageShop,
   canStaffGym,
+  canStaffShop,
   isSuperUser,
   json,
   jsonError,
@@ -12,14 +12,8 @@ import {
   staffsAnyBusiness,
   type Caller,
 } from "../_shared/auth.ts";
-import { pgCode } from "../_shared/roles.ts";
-import type {
-  AuthSession,
-  NotificationType,
-  UserInsert,
-  UserRole,
-  UserUpdate,
-} from "../../types/schema/public.ts";
+import { myBusinesses, pendingInviteCount, pgCode } from "../_shared/business.ts";
+import type { AuthSession, NotificationType, UserInsert, UserUpdate } from "../../types/schema/public.ts";
 
 const SAFE_COLUMNS = [
   "id",
@@ -27,7 +21,8 @@ const SAFE_COLUMNS = [
   "email",
   "name",
   "last_name",
-  "role",
+  "is_super_user",
+  "is_trainer",
   "avatar_url",
   "auth_id",
   "created_at",
@@ -35,21 +30,12 @@ const SAFE_COLUMNS = [
 ] as const;
 
 /** What any signed-in user may see about someone else. */
-const PUBLIC_COLUMNS = ["id", "username", "name", "last_name", "role", "avatar_url"] as const;
-
-const USER_ROLES: readonly UserRole[] = [
-  "owner",
-  "trainer",
-  "employee",
-  "employee_trainer",
-  "member",
-  "super_user",
-  "shop_vendor",
-];
+const PUBLIC_COLUMNS = ["id", "username", "name", "last_name", "is_trainer", "avatar_url"] as const;
 
 const NOTIFICATION_TYPES: readonly NotificationType[] = [
-  "employee_gym_invite",
-  "vendor_shop_invite",
+  "business_invite",
+  "business_join",
+  "business_review",
   "member_invite",
   "news",
   "events",
@@ -62,8 +48,6 @@ const NOTIFICATION_TYPES: readonly NotificationType[] = [
   "invoice_issued",
   "member_subscription_extended",
   "member_join",
-  "employee_join",
-  "vendor_join",
   "post_comment",
   "shift_assigned",
   "order_update",
@@ -138,22 +122,34 @@ async function optionalSuperCaller(req: Request): Promise<Caller | null> {
 
 /**
  * True when the caller may (re)send an invite to `userId` or see their email:
- * they staff a gym where that user is a member/employee/trainer, or manage a
- * shop where they're a vendor.
+ * they staff a gym where that user is a member, or are owner or staff of a
+ * business where that user is on the team or was invited to it.
  */
 async function canInvite(caller: Caller, userId: string): Promise<boolean> {
   if (isSuperUser(caller)) return true;
-  for (const table of ["member", "employee", "employee_trainer", "trainer"] as const) {
-    const rows = await db.selectFrom(table).select("gym_id").where("user_id", "=", userId).execute();
-    for (const { gym_id } of rows) {
-      if (await canStaffGym(caller, gym_id)) return true;
-    }
+  const gyms = await db.selectFrom("member").select("gym_id").where("user_id", "=", userId).execute();
+  for (const { gym_id } of gyms) {
+    if (await canStaffGym(caller, gym_id)) return true;
   }
-  const vendorRows = await db.selectFrom("shop_vendor").select("shop_id").where("user_id", "=", userId).execute();
-  for (const { shop_id } of vendorRows) {
-    if (await canManageShop(caller, shop_id)) return true;
+  const teams = await db.selectFrom("business_member").select("business_id").distinct()
+    .where("user_id", "=", userId).execute();
+  for (const { business_id } of teams) {
+    if ((await canStaffGym(caller, business_id)) || (await canStaffShop(caller, business_id))) return true;
   }
   return false;
+}
+
+/**
+ * The signed-in user's own profile plus what they do: the businesses they're
+ * on the team of (with their roles) and unanswered team invites. The app
+ * builds its menu from this.
+ */
+async function withAccess<T extends { id: string }>(profile: T) {
+  const [businesses, pending_invites] = await Promise.all([
+    myBusinesses(profile.id),
+    pendingInviteCount(profile.id),
+  ]);
+  return { ...profile, businesses, pending_invites };
 }
 
 function isUniqueViolation(err: unknown): boolean {
@@ -316,12 +312,10 @@ Deno.serve(async (req: Request) => {
   // Creates a Supabase Auth user + public profile. Never touches an existing
   // account: people who were invited by a gym or shop activate their account
   // with the code from the invite email (POST /users/verify-invite).
-  //
-  // `role` (and `gym_id` for a gym role) are only honored when the request is
-  // made by a super user creating an account for someone else.
+  // A super user creating an account for someone else gets it confirmed.
   if (req.method === "POST" && segment === "signup") {
     const body = await req.json().catch(() => null);
-    const { email, password, username, name, last_name, role, gym_id } = body ?? {};
+    const { email, password, username, name, last_name } = body ?? {};
 
     if (!email || !password || !username || !name || !last_name) {
       return jsonError("Missing required fields: email, password, username, name, last_name", 400);
@@ -331,8 +325,6 @@ Deno.serve(async (req: Request) => {
     }
 
     const superCaller = await optionalSuperCaller(req);
-    if (role && !superCaller) return jsonError("Only a super user can choose a role", 403);
-    if (role && !USER_ROLES.includes(role)) return jsonError(`Invalid role: ${role}`, 400);
 
     // ── Existing account ──────────────────────────────────────────────────────
     const existingProfile = await db
@@ -381,16 +373,7 @@ Deno.serve(async (req: Request) => {
       name,
       last_name,
       auth_id: data.user.id,
-      ...(role && { role }),
     };
-
-    const gymRoleTables = {
-      trainer: "trainer",
-      member: "member",
-      employee: "employee",
-      employee_trainer: "employee_trainer",
-    } as const;
-    type GymRole = keyof typeof gymRoleTables;
 
     let user;
     try {
@@ -406,16 +389,6 @@ Deno.serve(async (req: Request) => {
       throw err;
     }
 
-    let role_assignment = null;
-    if (superCaller && role && gym_id && role in gymRoleTables) {
-      const table = gymRoleTables[role as GymRole];
-      role_assignment = await db
-        .insertInto(table)
-        .values({ user_id: user.id, gym_id })
-        .returningAll()
-        .executeTakeFirstOrThrow();
-    }
-
     // admin.createUser never emails anyone: ask GoTrue for the confirmation
     // email, whose link opens the app signed in. A send failure doesn't undo
     // the signup (POST /users/forgot-password also confirms the address).
@@ -427,7 +400,7 @@ Deno.serve(async (req: Request) => {
       if (!sent.ok) console.error(`signup: confirmation email to ${email} failed (${sent.status}): ${await sent.text()}`);
     }
 
-    return json({ message: "Check your email to verify your account.", user, role_assignment }, 201);
+    return json({ message: "Check your email to verify your account.", user }, 201);
   }
 
   // ── POST /users/signin ────────────────────────────────────────────────────────
@@ -451,7 +424,7 @@ Deno.serve(async (req: Request) => {
       .where("auth_id", "=", session.user.id)
       .executeTakeFirst();
 
-    return json({ ...session, profile });
+    return json({ ...session, profile: profile && await withAccess(profile) });
   }
 
   // ── POST /users/google ────────────────────────────────────────────────────────
@@ -522,7 +495,7 @@ Deno.serve(async (req: Request) => {
       if (!profile) return jsonError("Couldn't pick a username, please try again", 409);
     }
 
-    return json({ ...session, profile });
+    return json({ ...session, profile: profile && await withAccess(profile) });
   }
 
   // ── POST /users/verify-invite ─────────────────────────────────────────────────
@@ -583,7 +556,7 @@ Deno.serve(async (req: Request) => {
       .where("auth_id", "=", session.user.id)
       .executeTakeFirst();
 
-    return json({ ...session, profile });
+    return json({ ...session, profile: profile && await withAccess(profile) });
   }
 
   // ── POST /users/forgot-password ──────────────────────────────────────────────
@@ -634,7 +607,7 @@ Deno.serve(async (req: Request) => {
       .executeTakeFirst();
     if (profile) profile.email = await syncConfirmedEmail(profile, user.email);
 
-    return json({ authenticated: true, profile });
+    return json({ authenticated: true, profile: profile && await withAccess(profile) });
   }
 
   // ── Auth wall — all routes below require a valid JWT ──────────────────────────
@@ -797,7 +770,7 @@ Deno.serve(async (req: Request) => {
         throw err;
       });
     if (!target) return jsonError("User not found", 404);
-    if (target.role === "super_user") return jsonError("You can't sign in as another super user", 403);
+    if (target.is_super_user) return jsonError("You can't sign in as another super user", 403);
     if (!target.auth_id) return jsonError("This user has no login account yet", 409);
 
     const { data: authData, error: authErr } = await supabaseAdmin.auth.admin.getUserById(target.auth_id);
@@ -817,7 +790,7 @@ Deno.serve(async (req: Request) => {
       })
       .execute();
 
-    return json({ ...minted.session, profile: target });
+    return json({ ...minted.session, profile: await withAccess(target) });
   }
 
   // ── POST /users/resend-invite ─────────────────────────────────────────────────
@@ -846,6 +819,24 @@ Deno.serve(async (req: Request) => {
     return json({ success: true });
   }
 
+  // ── PUT /users/me/trainer {enabled} ───────────────────────────────────────────
+  // Anyone can be a trainer. Switching it off also leaves every gym they train
+  // at (and drops open trainer invites); their clients and classes stay.
+  if (req.method === "PUT" && pathname === "/users/me/trainer") {
+    const body = await req.json().catch(() => null);
+    if (typeof body?.enabled !== "boolean") return jsonError("enabled (boolean) is required", 400);
+    await db.transaction().execute(async (trx) => {
+      await trx.updateTable("users").set({ is_trainer: body.enabled }).where("id", "=", caller.id).execute();
+      if (!body.enabled) {
+        await trx.deleteFrom("business_member").where("user_id", "=", caller.id).where("role", "=", "trainer")
+          .execute();
+      }
+    });
+    const profile = await db.selectFrom("users").select(SAFE_COLUMNS).where("id", "=", caller.id)
+      .executeTakeFirstOrThrow();
+    return json(await withAccess(profile));
+  }
+
   // ── GET /users/me ─────────────────────────────────────────────────────────────
   // Also picks up a confirmed email change (see POST /users/change-email).
   if (req.method === "GET" && segment === "me") {
@@ -857,7 +848,7 @@ Deno.serve(async (req: Request) => {
 
     if (!profile) return jsonError("Profile not found", 404);
     profile.email = await syncConfirmedEmail(profile, caller.authUser.email);
-    return json(profile);
+    return json(await withAccess(profile));
   }
 
   // ── GET /users — optional ?email= filter ─────────────────────────────────────
@@ -900,13 +891,13 @@ Deno.serve(async (req: Request) => {
 
     if (!u) return jsonError("User not found", 404);
     if (u.id === caller.id || (await canInvite(caller, u.id))) return json(u);
-    const { id: userId, username, name, last_name, role, avatar_url } = u;
-    return json({ id: userId, username, name, last_name, role, avatar_url });
+    const { id: userId, username, name, last_name, is_trainer, avatar_url } = u;
+    return json({ id: userId, username, name, last_name, is_trainer, avatar_url });
   }
 
   // ── PUT /users/:id ────────────────────────────────────────────────────────────
   // Users edit their own display fields. Only a super user can edit someone
-  // else, change an email address, or change a role.
+  // else, change an email address, or make someone a super user.
   if (req.method === "PUT" && id) {
     const isSelf = id === caller.id;
     const isSuper = isSuperUser(caller);
@@ -918,7 +909,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const allowed = isSuper
-      ? ["username", "name", "last_name", "avatar_url", "email", "role"]
+      ? ["username", "name", "last_name", "avatar_url", "email", "is_super_user"]
       : ["username", "name", "last_name", "avatar_url"];
     const rejected = Object.keys(body).filter((k) => !allowed.includes(k) && !["id", "created_at", "updated_at", "auth_id"].includes(k));
     if (rejected.length > 0) {
@@ -929,8 +920,11 @@ Deno.serve(async (req: Request) => {
     for (const key of allowed) {
       if (key in body) (update as Record<string, unknown>)[key] = body[key];
     }
-    if (update.role !== undefined && !USER_ROLES.includes(update.role as UserRole)) {
-      return jsonError(`Invalid role: ${update.role}`, 400);
+    if (update.is_super_user !== undefined && typeof update.is_super_user !== "boolean") {
+      return jsonError("is_super_user must be a boolean", 400);
+    }
+    if (update.is_super_user === false && id === caller.id) {
+      return jsonError("You can't remove your own super user access", 400);
     }
     if (Object.keys(update).length === 0) return jsonError("Nothing to update", 400);
 
@@ -981,9 +975,9 @@ Deno.serve(async (req: Request) => {
       .executeTakeFirst();
     if (!target) return jsonError("User not found", 404);
 
-    const ownsGym = await db.selectFrom("gym_owner").select("id").where("user_id", "=", id).executeTakeFirst();
-    const ownsShop = await db.selectFrom("shop_owner").select("id").where("user_id", "=", id).executeTakeFirst();
-    if (ownsGym || ownsShop) {
+    const owns = await db.selectFrom("business_member").select("business_id")
+      .where("user_id", "=", id).where("role", "=", "owner").where("status", "=", "active").executeTakeFirst();
+    if (owns) {
       return jsonError("This account owns a gym or shop. Delete those businesses first.", 409);
     }
 
@@ -1003,12 +997,8 @@ Deno.serve(async (req: Request) => {
 
     await db.transaction().execute(async (trx) => {
       await trx.deleteFrom("post").where("author_id", "=", id).where("business_id", "is", null).execute();
-      // employee_trainer references trainer, so it goes first.
-      await trx.deleteFrom("employee_trainer").where("user_id", "=", id).execute();
-      await trx.deleteFrom("employee").where("user_id", "=", id).execute();
-      await trx.deleteFrom("trainer").where("user_id", "=", id).execute();
+      // Team roles and follows cascade with the user.
       await trx.deleteFrom("member").where("user_id", "=", id).execute();
-      await trx.deleteFrom("shop_vendor").where("user_id", "=", id).execute();
 
       const membershipIds = trx.selectFrom("membership").select("id").where("user_id", "=", id);
       await trx.deleteFrom("membership_invoice").where("membership_id", "in", membershipIds).execute();

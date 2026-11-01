@@ -68,12 +68,18 @@ void main() {
         'id': _gymId,
         'label': 'Ironclad Fitness',
         'subtitle': 'Knez Mihailova 1',
-        'business_type': 'gym',
+        'has_gym': true,
+        'has_shop': true,
         'image_url': null,
       })!;
       expect(s.kind, MentionKind.business);
-      expect(s.businessType, 'gym');
+      expect((s.hasGym, s.hasShop), (true, true));
+      expect(s.isShopOnly, isFalse, reason: 'a gym with a shop shows as a gym');
       expect(s.mention, _gym);
+      final shop = MentionSuggestion.maybeFromJson({'kind': 'business', 'id': 's-1', 'label': 'Peak Supply', 'has_shop': true})!;
+      expect((shop.hasGym, shop.isShopOnly), (false, true));
+      final user = MentionSuggestion.maybeFromJson({'kind': 'user', 'id': _elenaId, 'label': 'Elena'})!;
+      expect((user.hasGym, user.hasShop), (false, false), reason: 'people have no sides');
       expect(MentionSuggestion.maybeFromJson({'kind': 'team', 'id': 'x', 'label': 'A'}), isNull);
       // A person without a name falls back to the username.
       expect(MentionSuggestion.maybeFromJson({'kind': 'user', 'id': _elenaId, 'label': '', 'username': 'elena'})!.label, 'elena');

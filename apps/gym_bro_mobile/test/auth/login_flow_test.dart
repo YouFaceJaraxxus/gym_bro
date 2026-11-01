@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gym_bro_mobile/models/user_profile.dart';
 import 'package:gym_bro_mobile/services/auth_manager.dart';
 import 'package:gym_bro_mobile/services/auth_service.dart';
 import 'package:http/http.dart' as http;
@@ -39,7 +38,7 @@ void main() {
   Finder signInButton() => find.widgetWithText(FilledButton, en.shellLogIn);
 
   testWidgets('sign in: POST /users/signin, session + profile stored, replaced by /home', (tester) async {
-    backend.on('POST /users/signin', ok(signinJson(profile: profileJson(role: 'trainer'))));
+    backend.on('POST /users/signin', ok(signinJson(profile: profileJson(isTrainer: true))));
     await openLogin(tester);
 
     await tester.enterText(field(en.shellAuthEmail), '  liam.oconnor@example.com ');
@@ -53,12 +52,12 @@ void main() {
     final auth = AuthManager.instance;
     expect(auth.hasSession, isTrue);
     expect(auth.profile!.id, '8d0b05de-7c18-441b-9536-aaa042eaeaaa');
-    expect(auth.profile!.role, UserRole.trainer);
+    expect(auth.profile!.isTrainer, isTrue);
     expect(await tester.runAsync(auth.getValidToken), 'access-1');
     final stored = await tester.runAsync(() => const FlutterSecureStorage().readAll());
     expect(stored!['access_token'], 'access-1');
     expect(stored['refresh_token'], 'refresh-1');
-    expect(stored['user_profile'], contains('"role":"trainer"'));
+    expect(stored['user_profile'], contains('"is_trainer":true'));
 
     expect(find.text('<home>'), findsOneWidget);
     expect(routes.events, ['replace /login -> /home']);

@@ -1,13 +1,7 @@
-import type { Kysely } from "npm:kysely@^0.27";
 import { db } from "../_shared/config.ts";
 import { forbidden, isSuperUser, json, jsonError, requireCaller } from "../_shared/auth.ts";
-import { businessName, gymOwnerIds, notify, shopOwnerIds } from "../_shared/notify.ts";
-import { pgCode, reconcileRoles } from "../_shared/roles.ts";
-import type {
-  Database,
-  NotificationInsert,
-  NotificationType,
-} from "../../types/schema/public.ts";
+import { answerBusinessInvite, BUSINESS_ROLES } from "../_shared/business.ts";
+import type { BusinessRole, NotificationInsert, NotificationType } from "../../types/schema/public.ts";
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -25,25 +19,13 @@ function parseAction(pathname: string): { id: string; action: string } | null {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-/**
- * True when the user who sent an invite may still invite people to the
- * business: super user, or owner of the gym / shop.
- */
-async function inviterCanStillInvite(
-  inviterId: unknown,
-  kind: "gym" | "shop",
-  businessId: string,
-): Promise<boolean> {
-  if (typeof inviterId !== "string" || !inviterId) return false;
-  const inviter = await db.selectFrom("users").select("role").where("id", "=", inviterId).executeTakeFirst();
-  if (!inviter) return false;
-  if (inviter.role === "super_user") return true;
-  const row = kind === "gym"
-    ? await db.selectFrom("gym_owner").select("id").where("user_id", "=", inviterId)
-      .where("gym_id", "=", businessId).executeTakeFirst()
-    : await db.selectFrom("shop_owner").select("id").where("user_id", "=", inviterId)
-      .where("shop_id", "=", businessId).executeTakeFirst();
-  return !!row;
+/** The business and role a business_invite notification is about. */
+function inviteTarget(meta: Record<string, unknown>): { businessId: string; role: BusinessRole } | null {
+  const businessId = meta.business_id;
+  const role = meta.role;
+  if (typeof businessId !== "string" || !UUID_RE.test(businessId)) return null;
+  if (typeof role !== "string" || !(BUSINESS_ROLES as string[]).includes(role)) return null;
+  return { businessId, role: role as BusinessRole };
 }
 
 function setInviteStatus(id: string, meta: Record<string, unknown>, status: "accepted" | "declined") {
@@ -53,32 +35,6 @@ function setInviteStatus(id: string, meta: Record<string, unknown>, status: "acc
     .where("id", "=", id)
     .returningAll()
     .executeTakeFirstOrThrow();
-}
-
-/**
- * Runs the role-row inserts and marks the invite accepted in one transaction.
- * Returns null (after marking the invite declined) if the business is gone.
- */
-async function acceptInTransaction(
-  id: string,
-  meta: Record<string, unknown>,
-  insertRows: (trx: Kysely<Database>) => Promise<void>,
-) {
-  try {
-    return await db.transaction().execute(async (trx) => {
-      await insertRows(trx);
-      return trx
-        .updateTable("notification")
-        .set({ is_read: true, metadata: { ...meta, invite_status: "accepted" } })
-        .where("id", "=", id)
-        .returningAll()
-        .executeTakeFirstOrThrow();
-    });
-  } catch (err) {
-    if (pgCode(err) !== "23503") throw err;
-    await setInviteStatus(id, meta, "declined");
-    return null;
-  }
 }
 
 // ── Handler ───────────────────────────────────────────────────────────────────
@@ -121,94 +77,15 @@ Deno.serve(async (req: Request) => {
       return jsonError("Invite is no longer pending", 409);
     }
 
-    const fullName = `${caller.name} ${caller.last_name}`.trim();
-
-    if (notif.type === "employee_gym_invite") {
-      const gymId = meta.gym_id as string;
-      const employeeType = meta.employee_type === "employee_trainer" ? "employee_trainer" : "employee";
-      if (!gymId) return jsonError("Invite is missing gym_id", 400);
-
-      // The inviter may have lost access since the invite was sent.
-      if (!(await inviterCanStillInvite(meta.inviter_id, "gym", gymId))) {
-        await setInviteStatus(notif.id, meta, "declined");
-        return jsonError("This invite is no longer valid", 409);
-      }
-
-      const updated = await acceptInTransaction(notif.id, meta, async (trx) => {
-        if (employeeType === "employee") {
-          await trx
-            .insertInto("employee")
-            .values({ user_id: caller.id, gym_id: gymId })
-            .onConflict((oc) => oc.columns(["user_id", "gym_id"]).doNothing())
-            .execute();
-          await reconcileRoles(trx, [caller.id]);
-        } else {
-          // employee_trainer: find or create the trainer row first
-          let trainerRow = await trx
-            .selectFrom("trainer")
-            .select(["id"])
-            .where("user_id", "=", caller.id)
-            .where("gym_id", "=", gymId)
-            .executeTakeFirst();
-          if (!trainerRow) {
-            trainerRow = await trx
-              .insertInto("trainer")
-              .values({ user_id: caller.id, gym_id: gymId })
-              .returning(["id"])
-              .executeTakeFirstOrThrow();
-          }
-          await trx
-            .insertInto("employee_trainer")
-            .values({ user_id: caller.id, gym_id: gymId, trainer_id: trainerRow.id })
-            .onConflict((oc) => oc.columns(["user_id", "gym_id"]).doNothing())
-            .execute();
-          await reconcileRoles(trx, [caller.id]);
-        }
-      });
-      if (!updated) return jsonError("This invite is no longer valid", 409);
-
-      const gymName = (meta.gym_name as string | undefined) ?? await businessName(gymId);
-      await notify((await gymOwnerIds(gymId)).filter((id) => id !== caller.id), {
-        type: "employee_join",
-        title: `${fullName} joined ${gymName}`,
-        body: `${fullName} accepted your invitation to join ${gymName} as ${
-          employeeType === "employee_trainer" ? "Employee Trainer" : "Employee"
-        }.`,
-        metadata: { gym_id: gymId, user_id: caller.id, employee_type: employeeType },
-      });
-      return json(updated);
+    const target = notif.type === "business_invite" ? inviteTarget(meta) : null;
+    if (!target) return jsonError("Not an invite notification", 400);
+    const res = await answerBusinessInvite(caller, target.businessId, target.role, true);
+    if (!res.ok) {
+      // The invite was withdrawn or the business is gone.
+      if (res.status === 404) await setInviteStatus(notif.id, meta, "declined");
+      return jsonError(res.status === 404 ? "This invite is no longer valid" : res.error, 409);
     }
-
-    if (notif.type === "vendor_shop_invite") {
-      const shopId = meta.shop_id as string;
-      if (!shopId) return jsonError("Invite is missing shop_id", 400);
-
-      if (!(await inviterCanStillInvite(meta.inviter_id, "shop", shopId))) {
-        await setInviteStatus(notif.id, meta, "declined");
-        return jsonError("This invite is no longer valid", 409);
-      }
-
-      const updated = await acceptInTransaction(notif.id, meta, async (trx) => {
-        await trx
-          .insertInto("shop_vendor")
-          .values({ user_id: caller.id, shop_id: shopId })
-          .onConflict((oc) => oc.columns(["user_id", "shop_id"]).doNothing())
-          .execute();
-        await reconcileRoles(trx, [caller.id]);
-      });
-      if (!updated) return jsonError("This invite is no longer valid", 409);
-
-      const shopName = (meta.shop_name as string | undefined) ?? await businessName(shopId);
-      await notify((await shopOwnerIds(shopId)).filter((id) => id !== caller.id), {
-        type: "vendor_join",
-        title: `${fullName} joined ${shopName}`,
-        body: `${fullName} accepted your invitation to join ${shopName} as a Vendor.`,
-        metadata: { shop_id: shopId, user_id: caller.id },
-      });
-      return json(updated);
-    }
-
-    return jsonError("Not an invite notification", 400);
+    return json(await db.selectFrom("notification").selectAll().where("id", "=", notif.id).executeTakeFirstOrThrow());
   }
 
   // ── POST /notifications/:id/decline ──────────────────────────────────────────
@@ -226,6 +103,8 @@ Deno.serve(async (req: Request) => {
       return jsonError("Invite is no longer pending", 409);
     }
 
+    const target = notif.type === "business_invite" ? inviteTarget(meta) : null;
+    if (target) await answerBusinessInvite(caller, target.businessId, target.role, false);
     return json(await setInviteStatus(notif.id, meta, "declined"));
   }
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
+import '../models/business.dart';
 import '../models/user_search_result.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -266,7 +267,7 @@ class _UserTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final initials = user.name.isNotEmpty ? user.name[0].toUpperCase() : '?';
     final l10n = context.l10n;
-    final chips = _roleChips(l10n, user.roleEntries);
+    final chips = _roleChips(l10n, user);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -311,33 +312,13 @@ class _UserTile extends StatelessWidget {
     );
   }
 
-  static String? _roleLabel(AppLocalizations l10n, String type) =>
-      switch (type) {
-        'member' => l10n.shellRoleMember,
-        'employee' => l10n.shellRoleEmployee,
-        'employee_trainer' => l10n.shellRoleEmployeeTrainerShort,
-        'trainer' => l10n.shellRoleTrainer,
-        'gym_owner' => l10n.shellRoleGymOwner,
-        'shop_owner' => l10n.shellRoleShopOwner,
-        'shop_vendor' => l10n.shellRoleVendor,
-        _ => null,
-      };
-
-  List<Widget> _roleChips(AppLocalizations l10n, List<UserRoleEntry> entries) {
-    final seen = <String>{};
-    final chips = <Widget>[];
-
-    for (final e in entries) {
-      if (!seen.add(e.type)) continue;
-      chips.add(_chip(_roleLabel(l10n, e.type) ?? e.type));
-      if (chips.length >= 3) break;
-    }
-
-    final remaining = entries.map((e) => e.type).toSet().length - chips.length;
-    if (remaining > 0) chips.add(_chip('+$remaining'));
-
-    return chips;
-  }
+  /// What they are: a gym member, a trainer, and team roles they hold.
+  List<Widget> _roleChips(AppLocalizations l10n, UserSearchResult user) => [
+    if (user.memberEntries.isNotEmpty) _chip(l10n.rolesMiscMember),
+    if (user.isTrainer) _chip(l10n.rolesMiscTrainer),
+    if (user.holds(BusinessRole.owner)) _chip(l10n.rolesMiscOwner),
+    if (user.holds(BusinessRole.staff)) _chip(l10n.rolesMiscStaff),
+  ];
 
   Widget _chip(String label) => Chip(
     label: Text(label, style: const TextStyle(fontSize: 10)),

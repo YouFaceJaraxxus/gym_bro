@@ -2,10 +2,9 @@ import { type Kysely, sql } from "npm:kysely@^0.27";
 import { db } from "../_shared/config.ts";
 import {
   type Caller,
-  canCoachAtGym,
   canEditAuthored,
-  canManageBusiness,
-  canStaffShop,
+  canEditBusinessProfile,
+  canPostAsBusiness,
   forbidden,
   isSuperUser,
   json,
@@ -356,7 +355,8 @@ async function decoratePosts(posts: PostRow[], caller: Caller | null) {
       : Promise.resolve([] as { post_id: string; reaction: ReactionType }[]),
     userSummaries(posts.map((p) => p.author_id)),
     businessIds.length
-      ? db.selectFrom("business").select(["id", "name", "logo", "type"]).where("id", "in", businessIds).execute()
+      ? db.selectFrom("business").select(["id", "name", "logo", "has_gym", "has_shop"]).where("id", "in", businessIds)
+        .execute()
       : Promise.resolve([]),
     caller
       ? db.selectFrom("post_save").select("post_id").where("user_id", "=", caller.id).where("post_id", "in", ids)
@@ -451,23 +451,23 @@ type CommentRow = {
   deleted_at: string | null;
 };
 
-/** Who may comment: business gym posts → members & staff; anything else → whoever can see it. */
+/** Who may comment: a gym's posts → its members & team; anything else → whoever can see it. */
 async function canCommentOn(caller: Caller, post: PostRow): Promise<boolean> {
   if (!post.business_id) return true; // visibility was already checked
-  const business = await db.selectFrom("business").select(["id", "type"]).where("id", "=", post.business_id)
+  const business = await db.selectFrom("business").select(["id", "has_gym"]).where("id", "=", post.business_id)
     .executeTakeFirst();
-  if (!business || business.type !== "gym") return true;
-  if (await canCoachAtGym(caller, business.id)) return true;
+  if (!business || !business.has_gym) return true;
+  if (await canPostAsBusiness(caller, business.id)) return true;
   const member = await db.selectFrom("member").select("id").where("user_id", "=", caller.id)
     .where("gym_id", "=", business.id).executeTakeFirst();
   return !!member;
 }
 
-/** Can delete others' comments: the business owner, or the personal post's author. */
+/** Can delete others' comments: the business's owners and staff, or the personal post's author. */
 async function moderates(caller: Caller | null, post: { business_id: string | null; author_id: string | null }) {
   if (!caller) return false;
   if (isSuperUser(caller)) return true;
-  if (post.business_id) return await canManageBusiness(caller, post.business_id);
+  if (post.business_id) return await canEditBusinessProfile(caller, post.business_id);
   return post.author_id === caller.id;
 }
 
@@ -659,13 +659,9 @@ async function feed(caller: Caller, mode: FeedMode, limit: number, offset: numbe
       FROM friendship WHERE (requester_id = ${me} OR addressee_id = ${me}) AND status = 'accepted'
     ),
     my_businesses AS (
-      SELECT gym_id AS id FROM member WHERE user_id = ${me}
-      UNION SELECT gym_id FROM trainer WHERE user_id = ${me}
-      UNION SELECT gym_id FROM employee WHERE user_id = ${me}
-      UNION SELECT gym_id FROM employee_trainer WHERE user_id = ${me}
-      UNION SELECT gym_id FROM gym_owner WHERE user_id = ${me}
-      UNION SELECT shop_id FROM shop_owner WHERE user_id = ${me}
-      UNION SELECT shop_id FROM shop_vendor WHERE user_id = ${me}
+      SELECT business_id AS id FROM business_follow WHERE user_id = ${me}
+      UNION SELECT gym_id FROM member WHERE user_id = ${me}
+      UNION SELECT business_id FROM business_member WHERE user_id = ${me} AND status = 'active'
     ),
     interactions AS (
       SELECT p.author_id AS id, count(*) AS n FROM post_reaction r JOIN post p ON p.id = r.post_id
@@ -925,7 +921,8 @@ async function handler(req: Request): Promise<Response> {
           .where("post_tag.user_id", "=", taggedId).where("post_tag.comment_id", "is", null))
       ).where(visibleTo(caller?.id ?? null)).where("archived_at", "is", null);
     } else if (businessId) {
-      q = q.where("business_id", "=", businessId);
+      if (!UUID_RE.test(businessId)) return jsonError("Business not found", 404);
+      q = q.where("business_id", "=", businessId).where(visibleTo(caller?.id ?? null));
     } else {
       if (!UUID_RE.test(authorId!)) return jsonError("User not found", 404);
       const author = await db.selectFrom("users").select(["id", "is_private"]).where("id", "=", authorId!)
@@ -1066,7 +1063,8 @@ async function handler(req: Request): Promise<Response> {
           .orderBy("u.username").limit(6).execute()
         : Promise.resolve([]),
       kinds.includes("business") && q.length > 0
-        ? db.selectFrom("business").select(["id", "name", "location", "logo", "type"])
+        ? db.selectFrom("business").select(["id", "name", "location", "logo", "has_gym", "has_shop"])
+          .where("status", "=", "approved")
           .where((eb) => eb.or([eb("name", "ilike", prefix), eb("name", "ilike", wordPrefix)]))
           .orderBy("name").limit(4).execute()
         : Promise.resolve([]),
@@ -1092,7 +1090,8 @@ async function handler(req: Request): Promise<Response> {
         id: b.id,
         label: b.name,
         subtitle: b.location,
-        business_type: b.type,
+        has_gym: b.has_gym,
+        has_shop: b.has_shop,
         image_url: b.logo,
       })),
       ...products.map((i) => ({ kind: "shop_item", id: i.id, label: i.name, subtitle: i.shop_name, image_url: i.image_url })),
@@ -1401,15 +1400,12 @@ async function handler(req: Request): Promise<Response> {
       return json(decorated, 201);
     }
 
-    // Business post: an announcement from staff.
+    // Business post: from its owners, staff or trainers.
     if (!content) return jsonError("Missing required fields: business_id, content", 400);
-    const business = await db.selectFrom("business").select(["id", "name", "type"]).where("id", "=", business_id)
+    const business = await db.selectFrom("business").select(["id", "name", "has_gym"]).where("id", "=", business_id)
       .executeTakeFirst();
     if (!business) return jsonError("Business not found", 404);
-    const allowed = business.type === "gym"
-      ? await canCoachAtGym(caller, business_id)
-      : await canStaffShop(caller, business_id);
-    if (!allowed) return forbidden("Only business staff can post");
+    if (!(await canPostAsBusiness(caller, business_id))) return forbidden("Only the business's team can post");
 
     const { text, mentions } = await prepareText(String(content), caller.id);
     const post = await db.transaction().execute(async (trx) => {
@@ -1421,7 +1417,7 @@ async function handler(req: Request): Promise<Response> {
     });
     await notifyTags(caller, post, { mentions, pinned: [], text });
 
-    if (business.type === "gym") {
+    if (business.has_gym) {
       const members = await db.selectFrom("member").select("user_id").where("gym_id", "=", business_id).execute();
       await notify(
         members.map((m) => m.user_id).filter((uid) => uid !== caller.id),

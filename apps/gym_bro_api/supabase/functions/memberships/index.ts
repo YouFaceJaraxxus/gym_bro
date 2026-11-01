@@ -13,7 +13,7 @@ import {
 } from "../_shared/auth.ts";
 import { businessName, notify } from "../_shared/notify.ts";
 import type { MembershipInsert, MembershipUpdate } from "../../types/schema/public.ts";
-import { pgCode } from "../_shared/roles.ts";
+import { pgCode } from "../_shared/business.ts";
 import { cancelSubscriptionAtPeriodEnd, StripeError, stripeEnabled } from "../_shared/stripe.ts";
 
 // ── Path parsing ──────────────────────────────────────────────────────────────

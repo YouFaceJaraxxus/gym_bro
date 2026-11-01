@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_bro_mobile/config.dart';
 import 'package:gym_bro_mobile/models/app_notification.dart';
+import 'package:gym_bro_mobile/models/business.dart';
 import 'package:gym_bro_mobile/models/post.dart';
 import 'package:gym_bro_mobile/models/reaction.dart';
 
@@ -34,13 +35,14 @@ final commentNotif = {
 final inviteNotif = {
   'id': 'n-invite',
   'user_id': liamId,
-  'type': 'employee_gym_invite',
-  'title': 'Marcus Bennett invited you to join Ironclad Fitness',
+  'type': 'business_invite',
+  'title': 'Join Ironclad Fitness as Trainer',
   'body': null,
   'metadata': {
-    'gym_id': gymId,
-    'gym_name': 'Ironclad Fitness',
-    'employee_type': 'employee_trainer',
+    'business_id': gymId,
+    'business_name': 'Ironclad Fitness',
+    'role': 'trainer',
+    'inviter_id': marcusId,
     'invite_status': 'pending',
   },
   'is_read': true,
@@ -90,7 +92,7 @@ final postJson = {
     'last_name': 'Bennett',
     'avatar_url': 'https://api.dicebear.com/9.x/avataaars/png?seed=marcusbennett&size=256',
   },
-  'business': {'id': gymId, 'name': 'Ironclad Fitness', 'logo': 'https://picsum.photos/seed/gym-logo/800/400', 'type': 'gym'},
+  'business': {'id': gymId, 'name': 'Ironclad Fitness', 'logo': 'https://picsum.photos/seed/gym-logo/800/400', 'has_gym': true, 'has_shop': true},
   'reactions': {
     'counts': {'like': 6, 'fire': '2'},
     'total': 8,
@@ -135,13 +137,13 @@ void main() {
       expect(c.inviteStatus, isNull);
 
       final inv = page.items[1];
-      expect(inv.type, NotificationType.employeeGymInvite);
+      expect(inv.type, NotificationType.businessInvite);
       expect(inv.body, isNull);
       expect(inv.isRead, isTrue);
       expect(inv.inviteStatus, InviteStatus.pending);
-      expect(inv.gymId, gymId);
+      expect(inv.businessId, gymId);
       expect(inv.entityName, 'Ironclad Fitness');
-      expect(inv.employeeType, 'employee_trainer');
+      expect(inv.businessRole, BusinessRole.trainer);
 
       expect(page.items[2].type, NotificationType.news, reason: 'unknown types fall back to news');
       expect(page.items[2].metadata, isNull);
@@ -220,7 +222,8 @@ void main() {
       expect(p.author!.lastName, 'Bennett');
       expect(p.business!.id, gymId);
       expect(p.business!.name, 'Ironclad Fitness');
-      expect(p.business!.type, 'gym');
+      expect((p.business!.hasGym, p.business!.hasShop), (true, true));
+      expect(p.business!.isShopOnly, isFalse);
 
       expect(p.images, hasLength(2), reason: 'media without a url is dropped');
       final img = p.images[0];

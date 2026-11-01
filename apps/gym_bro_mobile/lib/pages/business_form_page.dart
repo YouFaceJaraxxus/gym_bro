@@ -6,6 +6,9 @@ import '../services/auth_manager.dart';
 import '../widgets/image_upload_field.dart';
 import 'typed_confirm_dialog.dart';
 
+/// Applies for a new gym/shop (pending until a super user approves it), or
+/// edits a business's profile. Owners also switch the gym and shop sides and
+/// can delete it; staff edit the rest.
 class BusinessFormPage extends StatefulWidget {
   const BusinessFormPage({super.key, this.business});
 
@@ -22,8 +25,12 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
 
   late final TextEditingController _nameCtrl;
   late final TextEditingController _locationCtrl;
+  late final TextEditingController _bioCtrl;
+  late final TextEditingController _websiteCtrl;
+  late final TextEditingController _phoneCtrl;
 
-  late String _type;
+  late bool _hasGym;
+  late bool _hasShop;
   late TimeOfDay _fromTime;
   late TimeOfDay _toTime;
   late Set<int> _weekdays;
@@ -35,13 +42,23 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
 
   bool get _isEditing => widget.business != null;
 
+  /// Sides and deleting are the owner's (or a super user's) call.
+  bool get _canManage =>
+      !_isEditing ||
+      widget.business!.isOwner ||
+      (AuthManager.instance.profile?.isSuperUser ?? false);
+
   @override
   void initState() {
     super.initState();
     final b = widget.business;
     _nameCtrl = TextEditingController(text: b?.name ?? '');
     _locationCtrl = TextEditingController(text: b?.location ?? '');
-    _type = b?.type ?? 'gym';
+    _bioCtrl = TextEditingController(text: b?.bio ?? '');
+    _websiteCtrl = TextEditingController(text: b?.website ?? '');
+    _phoneCtrl = TextEditingController(text: b?.phone ?? '');
+    _hasGym = b?.hasGym ?? true;
+    _hasShop = b?.hasShop ?? false;
     _fromTime = b != null
         ? _parseTime(b.workingHoursFrom)
         : const TimeOfDay(hour: 9, minute: 0);
@@ -57,6 +74,9 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
   void dispose() {
     _nameCtrl.dispose();
     _locationCtrl.dispose();
+    _bioCtrl.dispose();
+    _websiteCtrl.dispose();
+    _phoneCtrl.dispose();
     super.dispose();
   }
 
@@ -91,6 +111,10 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
       setState(() => _error = context.l10n.businessGymFormSelectWorkingDay);
       return;
     }
+    if (!_hasGym && !_hasShop) {
+      setState(() => _error = context.l10n.rolesFormPickSide);
+      return;
+    }
 
     setState(() {
       _loading = true;
@@ -103,7 +127,10 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
       final data = {
         'name': _nameCtrl.text.trim(),
         'location': _locationCtrl.text.trim(),
-        'type': _type,
+        'bio': _bioCtrl.text.trim(),
+        'website': _websiteCtrl.text.trim(),
+        'phone': _phoneCtrl.text.trim(),
+        if (_canManage) ...{'has_gym': _hasGym, 'has_shop': _hasShop},
         'working_hours_from': _formatTime(_fromTime),
         'working_hours_to': _formatTime(_toTime),
         'working_weekdays': sortedDays,
@@ -113,7 +140,9 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
       if (_isEditing) {
         await _api.updateBusiness(token, widget.business!.id, data);
       } else {
-        await _api.createBusiness(token, data);
+        final created = await _api.createBusiness(token, data);
+        // Applications wait for review; say so before leaving.
+        if (mounted && !created.isApproved) await _showSubmitted();
       }
 
       if (mounted) Navigator.pop(context, true);
@@ -125,21 +154,34 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
     }
   }
 
+  Future<void> _showSubmitted() {
+    final l10n = context.l10n;
+    return showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: const Icon(Icons.hourglass_top_outlined),
+        title: Text(l10n.rolesFormSubmittedTitle),
+        content: Text(l10n.rolesFormSubmittedBody),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.commonOk),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _delete() async {
     final business = widget.business!;
     final l10n = context.l10n;
-    final isGym = business.type == 'gym';
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => TypedConfirmDialog(
         title: l10n.businessGymFormDeleteTitle(business.name),
-        message: isGym
-            ? l10n.businessGymFormDeleteGymMessage
-            : l10n.businessGymFormDeleteShopMessage,
+        message: l10n.rolesFormDeleteMessage,
         confirmText: business.name,
-        actionLabel: isGym
-            ? l10n.businessGymFormDeleteGymAction
-            : l10n.businessGymFormDeleteShopAction,
+        actionLabel: l10n.businessGymFormDelete,
       ),
     );
     if (confirmed != true || !mounted) return;
@@ -175,7 +217,7 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
       appBar: AppBar(
           title: Text(_isEditing
               ? l10n.businessGymFormTitleEdit
-              : l10n.businessGymFormTitleNew)),
+              : l10n.rolesMenuRegisterBusiness)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Form(
@@ -183,6 +225,14 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (!_isEditing) ...[
+                Text(
+                  l10n.rolesFormIntro,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+                const SizedBox(height: 16),
+              ],
               ImagePickerField(
                 imageUrl: _logo,
                 folder: 'businesses',
@@ -209,24 +259,62 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
                     : null,
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                key: ValueKey(_type),
-                initialValue: _type,
-                decoration:
-                    InputDecoration(labelText: l10n.businessGymFormType),
-                items: [
-                  DropdownMenuItem(
-                      value: 'gym', child: Text(l10n.businessGymFormTypeGym)),
-                  DropdownMenuItem(
-                      value: 'shop',
-                      child: Text(l10n.businessGymFormTypeShop)),
-                ],
-                // Type is immutable after creation.
-                onChanged: _isEditing
-                    ? null
-                    : (v) {
-                        if (v != null) setState(() => _type = v);
-                      },
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _bioCtrl,
+                maxLength: 500,
+                minLines: 2,
+                maxLines: 5,
+                decoration: InputDecoration(labelText: l10n.rolesFormBio),
+              ),
+              TextFormField(
+                controller: _websiteCtrl,
+                keyboardType: TextInputType.url,
+                decoration: InputDecoration(
+                  labelText: l10n.rolesFormWebsite,
+                  hintText: 'https://',
+                ),
+                validator: (v) {
+                  final t = v?.trim() ?? '';
+                  if (t.isEmpty) return null;
+                  return RegExp(r'^https?://\S+$').hasMatch(t)
+                      ? null
+                      : l10n.rolesFormWebsiteInvalid;
+                },
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _phoneCtrl,
+                keyboardType: TextInputType.phone,
+                maxLength: 40,
+                decoration: InputDecoration(labelText: l10n.rolesFormPhone),
+              ),
+              const SizedBox(height: 8),
+              Text(l10n.rolesFormSides,
+                  style: Theme.of(context).textTheme.labelLarge),
+              const SizedBox(height: 4),
+              Text(
+                l10n.rolesFormSidesHint,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: const Icon(Icons.fitness_center),
+                title: Text(l10n.rolesKindGym),
+                subtitle: Text(l10n.rolesFormGymHint),
+                value: _hasGym,
+                onChanged:
+                    _canManage ? (v) => setState(() => _hasGym = v) : null,
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: const Icon(Icons.storefront_outlined),
+                title: Text(l10n.rolesKindShop),
+                subtitle: Text(l10n.rolesFormShopHint),
+                value: _hasShop,
+                onChanged:
+                    _canManage ? (v) => setState(() => _hasShop = v) : null,
               ),
               const SizedBox(height: 24),
               Text(l10n.businessGymFormWorkingHours,
@@ -294,9 +382,9 @@ class _BusinessFormPageState extends State<BusinessFormPage> {
                       )
                     : Text(_isEditing
                         ? l10n.businessGymFormSaveChanges
-                        : l10n.businessGymFormCreate),
+                        : l10n.rolesFormApply),
               ),
-              if (_isEditing) ...[
+              if (_isEditing && _canManage) ...[
                 const SizedBox(height: 32),
                 OutlinedButton.icon(
                   onPressed: (_loading || _deleting) ? null : _delete,

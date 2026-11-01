@@ -9,7 +9,8 @@ import {
   jsonError,
   requireCaller,
 } from "../_shared/auth.ts";
-import { businessName, gymOwnerIds, notify, optionalSecret } from "../_shared/notify.ts";
+import { businessName, notify, optionalSecret } from "../_shared/notify.ts";
+import { businessTeamIds } from "../_shared/business.ts";
 import {
   cancelSubscriptionAtPeriodEnd,
   fromMinorUnits,
@@ -445,6 +446,11 @@ async function applyMembershipPurchase(
     .onConflict((oc) => oc.columns(["user_id", "gym_id"]).doNothing())
     .returning("id")
     .executeTakeFirst();
+  if (member) {
+    // New members follow the gym's profile.
+    await trx.insertInto("business_follow").values({ user_id: p.userId, business_id: type.gym_id })
+      .onConflict((oc) => oc.doNothing()).execute();
+  }
 
   const subFields = p.subscriptionId ? { auto_renew: true, stripe_subscription_id: p.subscriptionId } : {};
   const existing = await activeMembershipAt(trx, p.userId, type.gym_id).forUpdate().executeTakeFirst();
@@ -500,10 +506,7 @@ async function notifyFulfilled(f: Fulfilled): Promise<void> {
     const order = await db.selectFrom("invoice").select(["shop_id"]).where("id", "=", p.order_id)
       .executeTakeFirst();
     if (order?.shop_id && !f.refundIntentId) {
-      const staff = await db.selectFrom("shop_owner").select("user_id").where("shop_id", "=", order.shop_id)
-        .union(db.selectFrom("shop_vendor").select("user_id").where("shop_id", "=", order.shop_id))
-        .execute();
-      await notify(staff.map((s) => s.user_id), {
+      await notify(await businessTeamIds(order.shop_id, ["owner", "staff"]), {
         type: "purchase_made",
         title: "Order paid",
         body: `An order was paid by card (${amount}).`,
@@ -519,7 +522,7 @@ async function notifyFulfilled(f: Fulfilled): Promise<void> {
       db.selectFrom("users").select(["name", "last_name"]).where("id", "=", p.user_id).executeTakeFirst(),
     ]);
     const fullName = user ? `${user.name} ${user.last_name}`.trim() : "A new member";
-    const owners = (await gymOwnerIds(gymId)).filter((id) => id !== p.user_id);
+    const owners = (await businessTeamIds(gymId)).filter((id) => id !== p.user_id);
     await notify(owners, {
       type: "member_join",
       title: `${fullName} joined ${gymName}`,
@@ -734,9 +737,10 @@ Deno.serve(async (req: Request) => {
   // ── GET /payments/gyms — gyms with active membership types (buy flow) ────────
   if (route.name === "gyms" && req.method === "GET") {
     const gyms = await db
-      .selectFrom("gym")
-      .innerJoin("business as b", "b.id", "gym.id")
+      .selectFrom("business as b")
       .select(["b.id", "b.name", "b.location", "b.logo"])
+      .where("b.has_gym", "=", true)
+      .where("b.status", "=", "approved")
       .orderBy("b.name")
       .execute();
     const types = await db

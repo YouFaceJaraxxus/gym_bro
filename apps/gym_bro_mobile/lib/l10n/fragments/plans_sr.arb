@@ -9,7 +9,6 @@
   "planMealItemsKcal": "{count, plural, =1{1 namirnica} few{{count} namirnice} other{{count} namirnica}} · {kcal} kcal",
   "planSlotLabel": "{time}, upiši trening ili obrok",
   "planScheduleEmptyDay": "Ništa za ovaj dan. Dodirni sat da upišeš trening ili obrok.",
-  "planScheduleHubSubtitle": "Tvoji časovi, treninzi i obroci",
   "planLogWorkout": "Upiši trening",
   "planLogWorkoutHint": "Vežbe, serije i težine",
   "planLogMeal": "Upiši obrok",

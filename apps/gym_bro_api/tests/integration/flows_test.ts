@@ -1,9 +1,10 @@
 // deno-lint-ignore-file no-explicit-any
 // Write flows (ported from the flows smoke script) plus an end-to-end gym
-// lifecycle: price → join → sell → invoice → pay → check in → delete.
+// lifecycle: apply → approve → price → join → sell → invoice → pay → check in → delete.
 // Everything it creates or changes is restored/deleted, in `finally` blocks so
 // a failing check never leaves test data behind.
-import { call, checker, dayFromToday, deleteNotifications, short, signin, suite } from "./_client.ts";
+import { call, checker, dayFromToday, deleteNotifications, notificationsOf, short, signin, suite } from "./_client.ts";
+import { sql } from "./_db.ts";
 
 Deno.test({
   name: "write flows",
@@ -15,7 +16,7 @@ Deno.test({
     const member = await signin("liam.oconnor@example.com");
     const trainer = await signin("elena.vasquez@example.com");
     const superU = await signin("chloe.anderson@example.com");
-    const gym = ((await call("GET", "/businesses", owner.token)).data as any[]).find((b) => b.type === "gym");
+    const gym = ((await call("GET", "/businesses", owner.token)).data as any[]).find((b) => b.has_gym);
 
     await t.step("invoice status round trip", async () => {
       const invs = (await call("GET", `/membership-invoices?gym_id=${gym.id}`, owner.token)).data as any[];
@@ -34,20 +35,26 @@ Deno.test({
       assertAll();
     });
 
-    await t.step("employee role change round trip", async () => {
-      const emps = (await call("GET", `/employees?gym_id=${gym.id}`, owner.token)).data as any[];
-      if (emps.length) {
-        const e = emps[0];
-        try {
-          const toEt = await call("PUT", "/employees/role", owner.token, { user_id: e.user_id, gym_id: gym.id, employee_type: "employee_trainer" });
-          check("owner promotes employee to employee-trainer", toEt.status === 200 && toEt.data.employee_type === "employee_trainer", short(toEt.data));
-        } finally {
-          const back = await call("PUT", "/employees/role", owner.token, { user_id: e.user_id, gym_id: gym.id, employee_type: "employee" });
-          check("and back to employee", back.status === 200 && back.data.employee_type === "employee", short(back.data));
-        }
-        const memberTry = await call("PUT", "/employees/role", member.token, { user_id: e.user_id, gym_id: gym.id, employee_type: "employee_trainer" });
-        check("member can't change staff roles", memberTry.status === 403, `status ${memberTry.status}`);
-      } else check("gym has employees to test with", false);
+    await t.step("staff also coaching: trainer invite, accept, give it back", async () => {
+      const staff = await signin("priya.nair@example.com"); // Ironclad staff, not a trainer
+      const rolesOf = async () => ((await call("GET", "/users/me", staff.token)).data?.businesses as any[] ?? []).find((b) => b.id === gym.id)?.roles ?? [];
+      check("staff starts as staff only", JSON.stringify(await rolesOf()) === JSON.stringify(["staff"]) && staff.profile.is_trainer === false, JSON.stringify(await rolesOf()));
+      try {
+        const memberTry = await call("POST", `/businesses/${gym.id}/team`, member.token, { user_id: staff.profile.id, role: "trainer" });
+        check("member can't hand out roles", memberTry.status === 403, `status ${memberTry.status}`);
+        const inv = await call("POST", `/businesses/${gym.id}/team`, owner.token, { user_id: staff.profile.id, role: "trainer" });
+        check("owner offers staff a trainer role", inv.status === 201 && inv.data.invited === true, short(inv.data));
+        const ok = await call("POST", `/businesses/${gym.id}/invites/trainer/accept`, staff.token);
+        check("staff accepts", ok.status === 200 && ok.data.my_roles?.includes("staff") && ok.data.my_roles?.includes("trainer"), short(ok.data?.my_roles));
+        const me = await call("GET", "/users/me", staff.token);
+        check("now staff + trainer, and a trainer", me.data?.is_trainer === true && JSON.stringify(await rolesOf()) === JSON.stringify(["staff", "trainer"]), short(me.data?.businesses));
+      } finally {
+        const off = await call("PUT", "/users/me/trainer", staff.token, { enabled: false });
+        check("switching trainer off gives the trainer role back", off.status === 200 && off.data.is_trainer === false, short(off.data));
+        check("still staff", JSON.stringify(await rolesOf()) === JSON.stringify(["staff"]), JSON.stringify(await rolesOf()));
+        await deleteNotifications(staff.token, (n) => n.type === "business_invite" && n.metadata?.business_id === gym.id && n.metadata?.role === "trainer");
+        await deleteNotifications(owner.token, (n) => n.type === "business_join" && n.metadata?.user_id === staff.profile.id);
+      }
       assertAll();
     });
 
@@ -106,8 +113,8 @@ Deno.test({
       const stamp = Date.now();
       const email = `flow-${stamp}@example.com`;
       let deleted = false;
-      const created = await call("POST", "/users/signup", superU.token, { email, password: "start123", username: `flow${stamp}`, name: "Flow", last_name: "Test", role: "trainer" });
-      check("super user creates an account with a role", created.status === 201 && created.data.user.role === "trainer", short(created.data));
+      const created = await call("POST", "/users/signup", superU.token, { email, password: "start123", username: `flow${stamp}`, name: "Flow", last_name: "Test" });
+      check("super user creates an account (a plain user)", created.status === 201 && created.data.user.is_super_user === false && created.data.user.is_trainer === false, short(created.data));
       try {
         const tmp = await signin(email, "start123");
         const badPw = await call("POST", "/users/change-password", tmp.token, { current_password: "wrong", new_password: "next1234" });
@@ -136,11 +143,17 @@ Deno.test({
 
     await t.step("throwaway gym: price, join, sell, invoice, pay, check in, delete", async () => {
       const name = `Flow Gym ${Date.now()}`;
-      const biz = await call("POST", "/businesses", owner.token, { name, location: "Test", type: "gym", working_hours_from: "06:00", working_hours_to: "22:00", working_weekdays: [1, 2, 3, 4, 5] });
-      check("owner creates a gym", biz.status === 201, short(biz.data));
+      const biz = await call("POST", "/businesses", owner.token, { name, location: "Test", has_gym: true, working_hours_from: "06:00", working_hours_to: "22:00", working_weekdays: [1, 2, 3, 4, 5] });
+      check("owner applies for a gym (pending review)", biz.status === 201 && biz.data.status === "pending", short(biz.data));
       const bizId = biz.data.id ?? biz.data.business?.id;
       let deleted = false;
       try {
+        const early = await call("POST", "/gym-membership-types", owner.token, { name: "Flow", monthly_cost: 10, gym_id: bizId });
+        check("no pricing before approval", early.status === 403, `status ${early.status}`);
+        const approve = await call("POST", `/businesses/${bizId}/review`, superU.token, { status: "approved" });
+        check("super user approves it", approve.status === 200 && approve.data.status === "approved", short(approve.data));
+        const told = (await notificationsOf(owner.token)).find((n) => n.type === "business_review" && n.metadata?.business_id === bizId);
+        check("owner is told it's approved", told?.metadata?.status === "approved", short(told));
         const type = await call("POST", "/gym-membership-types", owner.token, { name: "Flow", monthly_cost: 10, gym_id: bizId });
         check("owner prices a membership", type.status === 201, short(type.data));
         const join = await call("POST", "/members", owner.token, { gym_id: bizId, user_id: member.profile.id });
@@ -180,6 +193,7 @@ Deno.test({
         if (!deleted && bizId) await call("DELETE", `/businesses/${bizId}`, owner.token);
         // Every notice the flow caused names the gym.
         for (const s of [member, owner]) await deleteNotifications(s.token, (n) => `${n.title} ${n.body}`.includes(name));
+        if (bizId) await sql(`DELETE FROM admin_audit_log WHERE metadata->>'business_id' = $1`, [bizId]);
       }
       assertAll();
     });

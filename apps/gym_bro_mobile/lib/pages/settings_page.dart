@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/business.dart';
 import '../models/user_settings.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -40,8 +41,9 @@ enum _MuteCategory {
   staff(Icons.badge_outlined, [
     'shift_assigned',
     'member_join',
-    'employee_join',
-    'vendor_join',
+    'business_invite',
+    'business_join',
+    'business_review',
   ]);
 
   const _MuteCategory(this.icon, this.types);
@@ -115,6 +117,51 @@ class _SettingsPageState extends State<SettingsPage> {
       next.removeAll(c.types);
     }
     _save(() => _settings.update(mutedTypes: next));
+  }
+
+  /// Trainer tools on or off. Off also leaves every gym they train at, so
+  /// that needs a confirmation when they train somewhere.
+  Future<void> _setTrainer(bool enabled) async {
+    final l10n = context.l10n;
+    final profile = AuthManager.instance.profile;
+    if (profile == null) return;
+    final gyms = profile.businessesAs(BusinessRole.trainer).toList();
+    if (!enabled && gyms.isNotEmpty) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l10n.rolesSettingsStopTrainerTitle),
+          content: Text(
+            l10n.rolesSettingsStopTrainerBody(gyms.map((g) => g.name).join(', ')),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l10n.commonCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l10n.rolesSettingsStopTrainer),
+            ),
+          ],
+        ),
+      );
+      if (ok != true || !mounted) return;
+    }
+    setState(() => _busy = true);
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final updated = await ApiService().setTrainer(token, enabled: enabled);
+      await AuthManager.instance.updateProfile(updated);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   Future<void> _changeEmail() async {
@@ -403,6 +450,13 @@ class _SettingsPageState extends State<SettingsPage> {
               _SectionTitle(l10n.shellSettingsAccount),
               _SettingCard(
                 children: [
+                  SwitchListTile(
+                    secondary: const Icon(Icons.sports_outlined),
+                    title: Text(l10n.rolesSettingsTrainer),
+                    subtitle: Text(l10n.rolesSettingsTrainerSubtitle),
+                    value: AuthManager.instance.profile?.isTrainer ?? false,
+                    onChanged: _busy ? null : _setTrainer,
+                  ),
                   ListTile(
                     leading: const Icon(Icons.alternate_email),
                     title: Text(l10n.shellChangeEmail),

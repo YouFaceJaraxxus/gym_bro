@@ -5,20 +5,23 @@ import { sql } from "npm:kysely@^0.27";
 // in chat (_shared/shares.ts), so every place answers the same way.
 
 /**
- * `post` is visible to the viewer: business posts to everyone; a personal
+ * `post` is visible to the viewer: an approved business's posts to everyone; a personal
  * post to its author, and — unless archived or either one blocked the
  * other — to accepted followers, people tagged on it, and everyone when
  * it's 'public' on a public account.
  */
+const businessLive = sql<boolean>`(post.business_id IS NOT NULL
+  AND EXISTS (SELECT 1 FROM business vb WHERE vb.id = post.business_id AND vb.status = 'approved'))`;
+
 export function postVisibleSql(viewerId: string | null) {
   if (!viewerId) {
-    return sql<boolean>`(post.business_id IS NOT NULL OR (post.archived_at IS NULL AND post.visibility = 'public'
-      AND NOT (SELECT is_private FROM users WHERE id = post.author_id)))`;
+    return sql<boolean>`(${businessLive} OR (post.business_id IS NULL AND post.archived_at IS NULL
+      AND post.visibility = 'public' AND NOT (SELECT is_private FROM users WHERE id = post.author_id)))`;
   }
   return sql<boolean>`(
-    post.business_id IS NOT NULL
-    OR post.author_id = ${viewerId}
-    OR (
+    ${businessLive}
+    OR (post.business_id IS NULL AND post.author_id = ${viewerId})
+    OR (post.business_id IS NULL AND
       post.archived_at IS NULL
       AND NOT is_blocked_between(post.author_id, ${viewerId})
       AND (

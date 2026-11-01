@@ -1,0 +1,134 @@
+{
+  "adminDbTitle": "Database",
+  "adminDbWarning": "You're editing live data directly. Changes skip the app's checks and can't be undone; every change is logged.",
+  "adminDbReviewSubtitle": "Verify new gyms and shops as real",
+  "adminDbFilterTables": "Filter {count} tables",
+  "@adminDbFilterTables": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminDbTableSummary": "{rows, plural, =1{1 row} other{{rows} rows}} · {columns} columns",
+  "@adminDbTableSummary": {
+    "placeholders": {
+      "rows": {
+        "type": "int"
+      },
+      "columns": {
+        "type": "int"
+      }
+    }
+  },
+  "adminDbAddRow": "Add row",
+  "adminDbSearchRows": "Search text columns or paste an id",
+  "adminDbShowing": "Showing {shown} of {total}",
+  "@adminDbShowing": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "adminDbLoadMore": "Load more",
+  "adminDbNewRow": "New {table} row",
+  "@adminDbNewRow": {
+    "placeholders": {
+      "table": {
+        "type": "String"
+      }
+    }
+  },
+  "adminDbInsert": "Insert",
+  "adminDbSave": "Save",
+  "adminDbInserted": "Row added",
+  "adminDbSaved": "Saved",
+  "adminDbHasDefault": "empty = default",
+  "adminDbSetNull": "Set to NULL",
+  "adminDbSetValue": "Enter a value",
+  "adminDbInvalidJson": "Not valid JSON",
+  "adminDbNeedsJsonArray": "Needs a JSON array, e.g. [\"a\", \"b\"]",
+  "adminDbOpenReferenced": "Open in {table}",
+  "@adminDbOpenReferenced": {
+    "placeholders": {
+      "table": {
+        "type": "String"
+      }
+    }
+  },
+  "adminDbReferencedBy": "Referenced by",
+  "adminDbRefSummary": "{count, plural, =1{1 row} other{{count} rows}} · {action}",
+  "@adminDbRefSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "action": {
+        "type": "String"
+      }
+    }
+  },
+  "adminDbOnDeleteCascade": "deleted with it",
+  "adminDbOnDeleteSetNull": "emptied when it's deleted",
+  "adminDbOnDeleteRestrict": "block deleting it",
+  "adminDbDeleteRow": "Delete row",
+  "adminDbImpactTitle": "Before you delete",
+  "adminDbImpactIntro": "Deleting this row also affects other data:",
+  "adminDbImpactNothing": "Nothing else points at this row.",
+  "adminDbImpactDeleted": "Deleted with it ({count, plural, =1{1 row} other{{count} rows}})",
+  "@adminDbImpactDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminDbImpactNulled": "Left in place, link emptied",
+  "adminDbImpactBlocking": "In the way (the delete is refused while these exist)",
+  "adminDbForce": "Also delete what's in the way",
+  "adminDbForceHint": "Deletes those rows and everything under them first: {count, plural, =1{1 row} other{{count} rows}} in total besides this one.",
+  "@adminDbForceHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminDbDeleteAction": "{count, plural, =1{Delete 1 row} other{Delete {count} rows}}",
+  "@adminDbDeleteAction": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminDbDeleteTitle": "{count, plural, =1{Delete this row?} other{Delete {count} rows?}}",
+  "@adminDbDeleteTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "adminDbDeleteMessage": "This can't be undone. Type the table name ({table}) to confirm.",
+  "@adminDbDeleteMessage": {
+    "placeholders": {
+      "table": {
+        "type": "String"
+      }
+    }
+  },
+  "adminDbDeleteUserNote": "Their login account is deleted too.",
+  "adminDbDeleted": "{count, plural, =1{Deleted 1 row} other{Deleted {count} rows}}",
+  "@adminDbDeleted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

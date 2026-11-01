@@ -327,7 +327,7 @@ export async function canSeeFoodItem(
   caller: Caller,
   item: { id: string; is_public: boolean; is_system: boolean; author_id: string | null },
 ): Promise<boolean> {
-  if (item.is_public || item.is_system || item.author_id === caller.id || caller.role === "super_user") return true;
+  if (item.is_public || item.is_system || item.author_id === caller.id || caller.is_super_user) return true;
   return callerHasAssignedAccessToMealPlan(caller, await mealPlansUsingFoodItem(item.id));
 }
 
@@ -336,7 +336,7 @@ export async function canSeeRecipe(
   caller: Caller,
   recipe: { id: string; is_public: boolean; is_system: boolean; author_id: string | null },
 ): Promise<boolean> {
-  if (recipe.is_public || recipe.is_system || recipe.author_id === caller.id || caller.role === "super_user") {
+  if (recipe.is_public || recipe.is_system || recipe.author_id === caller.id || caller.is_super_user) {
     return true;
   }
   return callerHasAssignedAccessToMealPlan(caller, await mealPlansUsingRecipe(recipe.id));

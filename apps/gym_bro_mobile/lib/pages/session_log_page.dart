@@ -22,10 +22,20 @@ import '../widgets/app_bottom_sheet.dart';
 /// After each logged set a rest countdown starts; a "New PR!" snackbar shows
 /// when the API reports a personal record; sets logged offline stay visible
 /// as pending until the outbox syncs them.
+///
+/// A trainer passes [clientId] (and [clientName]) to run the session for
+/// someone they coach; it's saved as the client's, with the trainer on it.
 class SessionLogPage extends StatefulWidget {
   final Training? training;
+  final String? clientId;
+  final String? clientName;
 
-  const SessionLogPage({super.key, this.training});
+  const SessionLogPage({
+    super.key,
+    this.training,
+    this.clientId,
+    this.clientName,
+  });
 
   @override
   State<SessionLogPage> createState() => _SessionLogPageState();
@@ -78,6 +88,7 @@ class _SessionLogPageState extends State<SessionLogPage> {
       final session = await _api.startTrainingSession(
         token,
         trainingId: widget.training?.id,
+        userId: widget.clientId,
       );
       if (!mounted) return;
       setState(() {
@@ -227,7 +238,17 @@ class _SessionLogPageState extends State<SessionLogPage> {
       valueListenable: _settings.weightUnit,
       builder: (context, _, _) => Scaffold(
         appBar: AppBar(
-          title: Text(widget.training?.name ?? l10n.trainingSessionFree),
+          title: widget.clientName == null
+              ? Text(widget.training?.name ?? l10n.trainingSessionFree)
+              : ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    widget.training?.name ?? l10n.trainingSessionFree,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(l10n.customersSessionWith(widget.clientName!)),
+                ),
           actions: [
             Center(
               child: Text(

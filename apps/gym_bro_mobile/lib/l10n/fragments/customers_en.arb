@@ -73,5 +73,16 @@
   },
   "customersRemoveCustomerMessage": "They're also taken off your classes and their upcoming sessions are cancelled. You won't be able to see their progress anymore.",
   "customersRemoved": "Customer removed",
-  "customersNotFound": "This person is no longer your customer."
+  "customersNotFound": "This person is no longer your customer.",
+  "customersStartSession": "Start a session",
+  "customersStartSessionSubtitle": "Track it live; it's saved to their sessions with you as the trainer",
+  "customersLogPastSession": "Log a past session",
+  "customersSessionWith": "With {name}",
+  "@customersSessionWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

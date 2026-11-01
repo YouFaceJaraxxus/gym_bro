@@ -10,7 +10,7 @@ import {
 } from "../_shared/auth.ts";
 import { notify } from "../_shared/notify.ts";
 import type { InvoiceStatus, MembershipInvoiceInsert } from "../../types/schema/public.ts";
-import { pgCode } from "../_shared/roles.ts";
+import { pgCode } from "../_shared/business.ts";
 
 const STATUSES: InvoiceStatus[] = ["unpaid", "paid", "void"];
 

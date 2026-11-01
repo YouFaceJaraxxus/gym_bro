@@ -143,10 +143,11 @@ export async function mentionRecipients(executor: Kysely<Database>, refs: Mentio
   const items = refs.filter((r) => r.kind === "shop_item").map((r) => r.id);
   const owners = businesses.length || items.length
     ? (await sql<{ user_id: string }>`
-        SELECT user_id FROM gym_owner WHERE gym_id = ANY(${businesses}::uuid[])
-        UNION SELECT user_id FROM shop_owner WHERE shop_id = ANY(${businesses}::uuid[])
-        UNION SELECT so.user_id FROM shop_owner so JOIN shop_item si ON si.shop_id = so.shop_id
-               WHERE si.id = ANY(${items}::uuid[])
+        SELECT user_id FROM business_member
+        WHERE role = 'owner' AND status = 'active' AND (
+          business_id = ANY(${businesses}::uuid[])
+          OR business_id IN (SELECT shop_id FROM shop_item WHERE id = ANY(${items}::uuid[]))
+        )
       `.execute(executor)).rows.map((r) => r.user_id)
     : [];
   return {

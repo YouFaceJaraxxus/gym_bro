@@ -243,7 +243,7 @@ class SharedContent {
   String? get name => _str('name');
   String? get logo => _str('logo');
   String? get location => _str('location');
-  String? get businessType => _str('type');
+  bool get businessHasShopOnly => preview['has_shop'] == true && preview['has_gym'] != true;
   String? get imageUrl => _str('image_url');
   double? get price => double.tryParse(preview['price']?.toString() ?? '');
   String? get shopName => _str('shop_name');

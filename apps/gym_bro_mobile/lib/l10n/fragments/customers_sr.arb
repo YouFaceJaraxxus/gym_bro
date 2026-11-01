@@ -38,5 +38,9 @@
   "customersRemoveCustomerTitle": "Ukloniti {name}?",
   "customersRemoveCustomerMessage": "Biće uklonjen/a i sa tvojih časova, a predstojeći termini se otkazuju. Više nećeš moći da vidiš njihov napredak.",
   "customersRemoved": "Klijent je uklonjen",
-  "customersNotFound": "Ova osoba više nije tvoj klijent."
+  "customersNotFound": "Ova osoba više nije tvoj klijent.",
+  "customersStartSession": "Započni trening",
+  "customersStartSessionSubtitle": "Prati ga uživo; čuva se u njihovim treninzima sa tobom kao trenerom",
+  "customersLogPastSession": "Unesi prošli trening",
+  "customersSessionWith": "Sa: {name}"
 }

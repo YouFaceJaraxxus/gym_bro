@@ -28,7 +28,7 @@ Deno.serve(async (req: Request) => {
   const like = `%${q}%`;
   const starts = `${q}%`;
 
-  // Correlated subqueries aggregate each role table into a JSON array.
+  // Correlated subqueries aggregate gym memberships and team roles into JSON arrays.
   // When q is empty, ILIKE '%%' matches all rows → browse mode (ordered by name).
   const result = await sql`
     SELECT
@@ -37,42 +37,17 @@ Deno.serve(async (req: Request) => {
       u.email,
       u.name,
       u.last_name,
-      u.role,
+      u.is_trainer,
       COALESCE(
         (SELECT json_agg(json_build_object('id', m.id, 'gym_id', m.gym_id))
          FROM member m WHERE m.user_id = u.id),
         '[]'::json
       ) AS member_entries,
       COALESCE(
-        (SELECT json_agg(json_build_object('id', e.id, 'gym_id', e.gym_id))
-         FROM employee e WHERE e.user_id = u.id),
+        (SELECT json_agg(json_build_object('business_id', bm.business_id, 'role', bm.role, 'status', bm.status))
+         FROM business_member bm WHERE bm.user_id = u.id),
         '[]'::json
-      ) AS employee_entries,
-      COALESCE(
-        (SELECT json_agg(json_build_object('id', et.id, 'gym_id', et.gym_id))
-         FROM employee_trainer et WHERE et.user_id = u.id),
-        '[]'::json
-      ) AS employee_trainer_entries,
-      COALESCE(
-        (SELECT json_agg(json_build_object('id', t.id, 'gym_id', t.gym_id))
-         FROM trainer t WHERE t.user_id = u.id),
-        '[]'::json
-      ) AS trainer_entries,
-      COALESCE(
-        (SELECT json_agg(json_build_object('id', go.id, 'gym_id', go.gym_id))
-         FROM gym_owner go WHERE go.user_id = u.id),
-        '[]'::json
-      ) AS gym_owner_entries,
-      COALESCE(
-        (SELECT json_agg(json_build_object('id', so.id, 'shop_id', so.shop_id))
-         FROM shop_owner so WHERE so.user_id = u.id),
-        '[]'::json
-      ) AS shop_owner_entries,
-      COALESCE(
-        (SELECT json_agg(json_build_object('id', sv.id, 'shop_id', sv.shop_id))
-         FROM shop_vendor sv WHERE sv.user_id = u.id),
-        '[]'::json
-      ) AS shop_vendor_entries
+      ) AS team_entries
     FROM users u
     WHERE
       u.username ILIKE ${like}

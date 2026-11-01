@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../l10n/l10n.dart';
-import '../models/business.dart';
 import '../models/membership.dart';
 import '../models/payment.dart';
-import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'shop/order_widgets.dart' show PaymentsConfigCache;
@@ -37,7 +35,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
   final _api = ApiService();
 
   /// Gyms the user can see invoices for (empty until resolved).
-  List<Business> _gyms = [];
+  List<({String id, String name})> _gyms = [];
   bool _isSuper = false;
   String? _selectedGymId;
   late InvoiceStatus? _status = widget.initialStatus;
@@ -72,31 +70,15 @@ class _InvoicesPageState extends State<InvoicesPage> {
     }
   }
 
-  /// Collects every gym the user owns or works at (super user: all gyms).
+  /// The gyms the user owns or staffs; every gym for a super user.
   Future<void> _resolveGyms() async {
-    final token = await AuthManager.instance.getValidToken();
+    await AuthManager.instance.ensureProfile();
     final profile = AuthManager.instance.profile;
     if (profile == null) throw Exception('No profile');
-    _isSuper = profile.role == UserRole.superUser;
-
-    List<Business> gyms;
-    if (_isSuper) {
-      gyms = (await _api.getBusinesses(
-        token,
-      )).where((b) => b.type == 'gym').toList();
-    } else {
-      final rows = await Future.wait([
-        _api.getGymOwners(token, userId: profile.id),
-        _api.getEmployees(token, userId: profile.id),
-        _api.getEmployeeTrainers(token, userId: profile.id),
-      ]);
-      final ids = {
-        for (final list in rows)
-          for (final r in list) r['gym_id'] as String,
-      };
-      gyms = await Future.wait(ids.map((id) => _api.getBusiness(token, id)));
-      gyms.sort((a, b) => a.name.compareTo(b.name));
-    }
+    _isSuper = profile.isSuperUser;
+    final token = await AuthManager.instance.getValidToken();
+    final gyms = (await _api.gymsFor(token, profile, frontDesk: true))
+      ..sort((a, b) => a.name.compareTo(b.name));
     if (mounted) setState(() => _gyms = gyms);
   }
 

@@ -186,8 +186,23 @@ Deno.test({
       check("users can't change their own email through PUT", ownEmail.status === 403, `status ${ownEmail.status}`);
       const takenName = await call("PUT", `/users/${member.profile.id}`, member.token, { username: owner.profile.username });
       check("taking someone else's username is 409", takenName.status === 409, `status ${takenName.status}`);
-      const badRole = await call("PUT", `/users/${member.profile.id}`, superU.token, { role: "wizard" });
-      check("super user setting an unknown role is 400", badRole.status === 400, `status ${badRole.status}`);
+      const oldRole = await call("PUT", `/users/${member.profile.id}`, superU.token, { role: "owner" });
+      check("there's no role to set any more (403)", oldRole.status === 403, `status ${oldRole.status}`);
+      const badFlag = await call("PUT", `/users/${member.profile.id}`, superU.token, { is_super_user: "yes" });
+      check("super user setting a non-boolean is_super_user is 400", badFlag.status === 400, `status ${badFlag.status}`);
+      const dropSelf = await call("PUT", `/users/${superU.profile.id}`, superU.token, { is_super_user: false });
+      check("a super user can't remove their own access", dropSelf.status === 400, `status ${dropSelf.status}`);
+      try {
+        const grant = await call("PUT", `/users/${member.profile.id}`, superU.token, { is_super_user: true });
+        check("super user makes someone a super user", grant.status === 200 && grant.data.is_super_user === true, short(grant.data));
+        const review = await call("GET", "/businesses/review", member.token);
+        check("…who can then open the review queue", review.status === 200 && Array.isArray(review.data), `status ${review.status}`);
+      } finally {
+        const revoke = await call("PUT", `/users/${member.profile.id}`, superU.token, { is_super_user: false });
+        check("and takes it away again", revoke.status === 200 && revoke.data.is_super_user === false, short(revoke.data));
+      }
+      const queue = await call("GET", "/businesses/review", member.token);
+      check("without it the review queue is 403", queue.status === 403, `status ${queue.status}`);
       const ghost = await call("PUT", `/users/${crypto.randomUUID()}`, superU.token, { name: "x" });
       check("super user editing an unknown user is 404", ghost.status === 404, `status ${ghost.status}`);
       try {

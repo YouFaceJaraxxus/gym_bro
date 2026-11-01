@@ -7,9 +7,9 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../models/hashtag.dart';
 import '../models/mention.dart';
+import '../pages/business/business_profile_page.dart';
 import '../pages/hashtags/hashtag_page.dart';
 import '../pages/people/user_profile_page.dart';
-import '../pages/posts_page.dart';
 import '../pages/shop/storefront_shop_page.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
@@ -414,7 +414,7 @@ class MentionSuggestionTile extends StatelessWidget {
     final s = suggestion;
     final kindLabel = switch (s.kind) {
       MentionKind.user => null,
-      MentionKind.business => s.businessType == 'shop' ? l10n.tagsKindShop : l10n.tagsKindGym,
+      MentionKind.business => s.isShopOnly ? l10n.tagsKindShop : l10n.tagsKindGym,
       MentionKind.shopItem => l10n.tagsKindProduct,
     };
     final subtitle = [?kindLabel, if (s.subtitle?.isNotEmpty == true) s.subtitle!].join(' · ');
@@ -463,7 +463,7 @@ class MentionThumb extends StatelessWidget {
     final icon = Icon(
       switch (s.kind) {
         MentionKind.shopItem => Icons.shopping_bag_outlined,
-        _ => s.businessType == 'shop' ? Icons.storefront_outlined : Icons.fitness_center,
+        _ => s.isShopOnly ? Icons.storefront_outlined : Icons.fitness_center,
       },
       size: size * 0.55,
       color: cs.onSecondaryContainer,
@@ -615,26 +615,18 @@ bool hasRichLinks(String text) => hasMentions(text) || hasHashtags(text);
 Future<void> openHashtag(BuildContext context, String tag) =>
     Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => HashtagPage(tag: tag)));
 
-/// Opens what [mention] points at: a person's profile, a gym's feed or a
-/// shop's storefront, or a product in its shop.
+/// Opens what [mention] points at: a person's or a business's profile, or a
+/// product in its shop.
 Future<void> openMention(BuildContext context, Mention mention) async {
   final nav = Navigator.of(context);
   final messenger = ScaffoldMessenger.maybeOf(context);
   final l10n = context.l10n;
   Future<void> push(Widget page) => nav.push<void>(MaterialPageRoute(builder: (_) => page));
   if (mention.kind == MentionKind.user) return push(UserProfilePage(userId: mention.id));
+  if (mention.kind == MentionKind.business) return push(BusinessProfilePage(businessId: mention.id));
   final api = ApiService();
   try {
     final token = await AuthManager.instance.getValidToken();
-    if (mention.kind == MentionKind.business) {
-      final b = await api.getBusiness(token, mention.id);
-      await push(
-        b.type == 'shop'
-            ? StorefrontShopPage(shopId: b.id, shopName: b.name)
-            : PostsPage(businessId: b.id, businessName: b.name),
-      );
-      return;
-    }
     final item = await api.getShopItem(token, mention.id);
     final shop = await api.getBusiness(token, item.shopId);
     await push(StorefrontShopPage(shopId: shop.id, shopName: shop.name, initialItemId: item.id));

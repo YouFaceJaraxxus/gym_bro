@@ -59,7 +59,7 @@ class ShiftStaffMember {
   final String lastName;
   final String? avatarUrl;
 
-  /// Any of 'employee', 'employee_trainer', 'trainer'.
+  /// Their team roles at the gym: 'staff' and/or 'trainer'.
   final List<String> roles;
 
   const ShiftStaffMember({
@@ -75,8 +75,7 @@ class ShiftStaffMember {
   String roleLabel(AppLocalizations l10n) => roles
       .map(
         (r) => switch (r) {
-          'employee' => l10n.trainingStaffRoleEmployee,
-          'employee_trainer' => l10n.trainingStaffRoleEmployeeTrainer,
+          'staff' => l10n.rolesMiscStaff,
           'trainer' => l10n.trainingStaffRoleTrainer,
           _ => r,
         },

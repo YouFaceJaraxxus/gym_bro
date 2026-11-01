@@ -54,8 +54,6 @@
   "trainingBookingCancelled": "Otkazano",
   "trainingBookingAttended": "Prisustvovao/la",
   "trainingBookingNoShow": "Nije došao/la",
-  "trainingStaffRoleEmployee": "Zaposleni",
-  "trainingStaffRoleEmployeeTrainer": "Zaposleni / trener",
   "trainingStaffRoleTrainer": "Trener",
   "trainingScheduleNextDay": "{range} (+1 dan)",
   "trainingScheduleMinutes": "{minutes} min",

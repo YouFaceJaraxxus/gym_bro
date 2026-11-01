@@ -1,107 +1,208 @@
 // deno-lint-ignore-file no-explicit-any
-// Businesses and the people in them: business CRUD + stats, co-owners (gym
-// and shop), employees (invite → accept, role changes, removal), employee-
-// trainers, trainers, shop vendors, members, what each role can do after a
-// change, and that staff of one gym can't touch another. Everything happens in
-// a throwaway gym + shop owned by a throwaway owner (so stats are exact), with
-// a second throwaway account as the staff member whose roles change. Both
-// businesses are deleted through the API (which also checks the cascade), the
-// two accounts are deleted by the super user, and notifications the flow sent
-// to seeded users are removed in `finally`.
-import { call, checker, dayFromToday, deleteNotifications, notificationsOf, seededUsers, short, signin, suite } from "./_client.ts";
-import { deleteNotificationsWhere, sql } from "./_db.ts";
+// Businesses and the people in them: applying for a business (pending) and
+// the super user's review (reject → resubmit → approve), profile edits and
+// the gym/shop sides, team invites (accept / decline, by notification or by
+// the business's invite route), what owners, staff and trainers may each do,
+// "Owner of" / "Trainer at" on profiles, follows, leaving the team (the last
+// owner can't), switching trainer mode on and off, gym members, isolation
+// from another gym, and the delete cascade.
+//
+// Everything happens in a throwaway gym (G) + shop (S) applied for by a
+// throwaway owner (T), with two more throwaway accounts: U (staff) and W
+// (trainer). Both businesses are deleted through the API (which also checks
+// the cascade), the three accounts are deleted by the super user, and
+// notifications the flow sent to seeded users are removed in `finally`.
+import { call, checker, dayFromToday, deleteNotifications, notificationsOf, type Session, seededUsers, short, signin, suite } from "./_client.ts";
+import { dbAvailable, deleteNotificationsWhere, sql } from "./_db.ts";
 
 const uid = () => crypto.randomUUID().slice(0, 8);
 
 Deno.test({
-  name: "features: businesses, owners, staff, members",
+  name: "features: businesses, review, team roles, members",
   ...suite,
   async fn(t) {
     const { check, assertAll } = checker();
     const { member, owner, employee, superU, vendor, gym } = await seededUsers();
 
-    // T owns the throwaway gym G and shop S; U is the account whose roles change.
     const tag = uid();
     const pw = `pw-${crypto.randomUUID()}`;
-    const mk = (who: string, role?: string) =>
+    const mk = (who: string) =>
       call("POST", "/users/signup", superU.token, {
-        email: `it-${who}-${tag}@example.com`, password: pw, username: `it${who}${tag}`, name: "IT", last_name: who, role,
+        email: `it-${who}-${tag}@example.com`, password: pw, username: `it${who}${tag}`, name: "IT", last_name: who,
       });
-    const tRes = await mk("owner", "owner");
-    const uRes = await mk("staff");
-    if (tRes.status !== 201 || uRes.status !== 201) throw new Error(`throwaway signup: ${short(tRes.data)} ${short(uRes.data)}`);
-    const T = await signin(`it-owner-${tag}@example.com`, pw);
-    const U = await signin(`it-staff-${tag}@example.com`, pw);
-    const roleOf = async (id: string) => (await call("GET", `/users/${id}`, superU.token)).data?.role;
-    const noticeFor = async (token: string, type: string, key: string, value: string) =>
-      (await notificationsOf(token)).find((n) => n.type === type && n.metadata?.[key] === value && n.metadata?.invite_status === "pending");
+    const created = await Promise.all([mk("owner"), mk("staff"), mk("coach")]);
+    if (created.some((r) => r.status !== 201)) throw new Error(`throwaway signup: ${created.map((r) => short(r.data)).join(" ")}`);
+    const [T, U, W] = await Promise.all([
+      signin(`it-owner-${tag}@example.com`, pw),
+      signin(`it-staff-${tag}@example.com`, pw),
+      signin(`it-coach-${tag}@example.com`, pw),
+    ]);
+
+    const me = async (s: Session) => (await call("GET", "/users/me", s.token)).data;
+    const rolesAt = async (s: Session, businessId: string): Promise<string[]> =>
+      ((await me(s))?.businesses as any[] ?? []).find((b) => b.id === businessId)?.roles ?? [];
+    const profileOf = async (id: string, viewer = member) => (await call("GET", `/social/users/${id}`, viewer.token)).data;
+    const pendingInvite = async (s: Session, businessId: string, role: string) =>
+      (await notificationsOf(s.token)).find((n) =>
+        n.type === "business_invite" && n.metadata?.business_id === businessId && n.metadata?.role === role &&
+        n.metadata?.invite_status === "pending"
+      );
+    const ids = (rows: any[] | undefined) => (rows ?? []).map((r) => r.id);
 
     let G = "";
     let S = "";
+    let superBiz = "";
+    const everCreated: string[] = []; // for the audit-log cleanup
     try {
-      await t.step("1. businesses: create, validate, list, read, update, authz, stats", async () => {
+      await t.step("1. applying: create (pending), validate, review (reject → resubmit → approve)", async () => {
         const base = { location: "Test St 1", working_hours_from: "06:00", working_hours_to: "22:00", working_weekdays: [1, 2, 3, 4, 5] };
-        const missing = await call("POST", "/businesses", T.token, { name: `it-${tag}`, type: "gym" });
+        const missing = await call("POST", "/businesses", T.token, { name: `it-${tag}`, has_gym: true });
         check("create without hours/location is 400", missing.status === 400, `status ${missing.status}`);
+        const noSide = await call("POST", "/businesses", T.token, { ...base, name: `it-${tag}` });
+        check("create that is neither a gym nor a shop is 400", noSide.status === 400, `status ${noSide.status}`);
         const badType = await call("POST", "/businesses", T.token, { ...base, name: `it-${tag}`, type: "spa" });
         check("create with an unknown type is 400", badType.status === 400, `status ${badType.status}`);
+        const badSite = await call("POST", "/businesses", T.token, { ...base, name: `it-${tag}`, has_gym: true, website: "ftp://x" });
+        check("create with a non-http website is 400", badSite.status === 400, `status ${badSite.status}`);
 
-        const g = await call("POST", "/businesses", T.token, { ...base, name: `it-gym-${tag}`, type: "gym", latitude: 44.8, longitude: 20.4 });
+        const g = await call("POST", "/businesses", T.token, {
+          ...base, name: `it-gym-${tag}`, has_gym: true, latitude: 44.8, longitude: 20.4, bio: "Test gym", website: "https://gym.example.com",
+        });
         G = g.data?.id ?? "";
-        check("owner creates a gym", g.status === 201 && g.data.type === "gym" && Number(g.data.latitude) === 44.8, short(g.data));
+        everCreated.push(G);
+        check(
+          "anyone can apply for a gym: it starts pending, with them as owner",
+          g.status === 201 && g.data.status === "pending" && g.data.has_gym === true && g.data.has_shop === false &&
+            Number(g.data.latitude) === 44.8 && g.data.bio === "Test gym" && JSON.stringify(g.data.my_roles) === JSON.stringify(["owner"]) &&
+            ids(g.data.owners).join() === T.profile.id && g.data.is_following === true,
+          short(g.data),
+        );
         const s = await call("POST", "/businesses", T.token, { ...base, name: `it-shop-${tag}`, type: "shop", latitude: "x" });
         S = s.data?.id ?? "";
-        check("owner creates a shop (non-numeric latitude dropped)", s.status === 201 && s.data.type === "shop" && s.data.latitude === null, short(s.data));
+        everCreated.push(S);
+        check(
+          "`type` still picks one side (non-numeric latitude dropped)",
+          s.status === 201 && s.data.status === "pending" && s.data.has_shop === true && s.data.has_gym === false && s.data.latitude === null,
+          short(s.data),
+        );
         assertAll();
 
-        // A plain member can create a business too; it should make them its owner.
-        const x = await call("POST", "/businesses", U.token, { ...base, name: `it-x-${tag}`, type: "shop" });
-        try {
-          check("member creates a business", x.status === 201, short(x.data));
-          const xOwners = await call("GET", `/shop-owners?shop_id=${x.data?.id}`, U.token);
-          check("creator gets the owner row", xOwners.status === 200 && (xOwners.data as any[]).some((o) => o.user_id === U.profile.id), short(xOwners.data));
-          check("creating a business sets users.role to owner", (await roleOf(U.profile.id)) === "owner", `role ${await roleOf(U.profile.id)}`);
-        } finally {
-          if (x.data?.id) await call("DELETE", `/businesses/${x.data.id}`, U.token);
-        }
-        check("deleting their only business leaves them a member", (await roleOf(U.profile.id)) === "member", `role ${await roleOf(U.profile.id)}`);
+        // While pending: only the team and super users see it, and owner tools wait.
+        const hidden = await call("GET", `/businesses/${G}`, member.token);
+        check("a pending business is hidden from everyone else (404)", hidden.status === 404, `status ${hidden.status}`);
+        const asSuper = await call("GET", `/businesses/${G}`, superU.token);
+        check("super user sees it", asSuper.status === 200 && asSuper.data.status === "pending", `status ${asSuper.status}`);
+        const search = await call("GET", `/businesses/search?q=${tag}`, member.token);
+        check("search leaves pending businesses out", search.status === 200 && (search.data as any[]).length === 0, short(search.data));
+        const myList = await call("GET", "/businesses", T.token);
+        check(
+          "the owner lists their applications with status",
+          myList.status === 200 && ids(myList.data).sort().join() === [G, S].sort().join() &&
+            (myList.data as any[]).every((b) => b.status === "pending" && JSON.stringify(b.my_roles) === JSON.stringify(["owner"])),
+          short(myList.data),
+        );
+        const tMe = await me(T);
+        check("…and so does their profile (Home menu)", (tMe?.businesses as any[])?.some((b) => b.id === G && b.status === "pending"), short(tMe?.businesses));
+        const followPending = await call("PUT", `/businesses/${G}/follow`, member.token);
+        check("a pending business can't be followed (404)", followPending.status === 404, `status ${followPending.status}`);
+        for (
+          const [what, r] of [
+            ["set prices", await call("POST", "/gym-membership-types", T.token, { name: "x", monthly_cost: 1, gym_id: G })],
+            ["invite a team", await call("POST", `/businesses/${G}/team`, T.token, { user_id: U.profile.id, role: "staff" })],
+            ["add members", await call("POST", "/members", T.token, { gym_id: G, user_id: member.profile.id })],
+            ["post as the gym", await call("POST", "/posts", T.token, { business_id: G, content: "hello" })],
+            ["sell in the shop", await call("POST", "/shop-items", T.token, { shop_id: S, type: "equipment", name: "x", price: 1, quantity: 1 })],
+          ] as const
+        ) check(`owner can't ${what} while pending`, r.status === 403, `status ${r.status}`);
+        const fix = await call("PUT", `/businesses/${G}`, T.token, { phone: "+1 555 0100" });
+        check("…but can fix the profile before review", fix.status === 200 && fix.data.phone === "+1 555 0100", short(fix.data));
+        const tProfile = await profileOf(T.profile.id);
+        check("a pending business isn't shown as 'Owner of'", (tProfile?.owner_of as any[])?.length === 0, short(tProfile?.owner_of));
 
-        const mine = await call("GET", "/businesses", T.token);
-        check("owner lists exactly their businesses", mine.status === 200 && (mine.data as any[]).map((b) => b.id).sort().join() === [G, S].sort().join(), short(mine.data));
-        const gymsOnly = await call("GET", "/businesses?type=gym", T.token);
-        check("?type=gym filters", gymsOnly.status === 200 && (gymsOnly.data as any[]).length === 1 && gymsOnly.data[0].id === G, short(gymsOnly.data));
+        // The review queue.
+        const queueDenied = await call("GET", "/businesses/review", T.token);
+        check("only super users see the review queue", queueDenied.status === 403, `status ${queueDenied.status}`);
+        const queue = await call("GET", "/businesses/review", superU.token);
+        const row = (queue.data as any[])?.find((b) => b.id === G);
+        check(
+          "the queue lists the application with its applicant",
+          queue.status === 200 && row?.applicant_id === T.profile.id && row?.applicant_email === `it-owner-${tag}@example.com`,
+          short(row),
+        );
+        const badQueue = await call("GET", "/businesses/review?status=nope", superU.token);
+        check("unknown queue status is 400", badQueue.status === 400, `status ${badQueue.status}`);
+        const review = (body: unknown, s: Session = superU, id = G) => call("POST", `/businesses/${id}/review`, s.token, body);
+        check("an owner can't review their own business", (await review({ status: "approved" }, T)).status === 403);
+        check("review to an unknown status is 400", (await review({ status: "pending" })).status === 400);
+        check("rejecting without a note is 400", (await review({ status: "rejected" })).status === 400);
+        const rejected = await review({ status: "rejected", note: `Add a phone number ${tag}` });
+        check("super user rejects with a note", rejected.status === 200 && rejected.data.status === "rejected", short(rejected.data));
+        const toldNo = (await notificationsOf(T.token)).find((n) => n.type === "business_review" && n.metadata?.business_id === G);
+        check("the owner is told why", toldNo?.metadata?.status === "rejected" && String(toldNo?.body).includes(tag), short(toldNo));
+        const seenByOwner = await call("GET", `/businesses/${G}`, T.token);
+        check("the owner sees the review note", seenByOwner.data?.review_note === `Add a phone number ${tag}`, short(seenByOwner.data));
+        check("someone else can't resubmit", (await call("POST", `/businesses/${G}/resubmit`, member.token)).status === 403);
+        const resubmit = await call("POST", `/businesses/${G}/resubmit`, T.token);
+        check("the owner resubmits it (pending again)", resubmit.status === 200 && resubmit.data.status === "pending", short(resubmit.data));
+        const again = await call("POST", `/businesses/${G}/resubmit`, T.token);
+        check("only a rejected business can be resubmitted (409)", again.status === 409, `status ${again.status}`);
+        const approved = await review({ status: "approved" });
+        const approvedS = await review({ status: "approved" }, superU, S);
+        check("super user approves both", approved.data?.status === "approved" && approvedS.data?.status === "approved", `${short(approved.data)} ${short(approvedS.data)}`);
+        const toldYes = (await notificationsOf(T.token)).filter((n) => n.type === "business_review" && n.metadata?.status === "approved");
+        check("the owner is told each is approved", [G, S].every((id) => toldYes.some((n) => n.metadata.business_id === id)), `n=${toldYes.length}`);
+
+        const sup = await call("POST", "/businesses", superU.token, { ...base, name: `it-super-${tag}`, has_shop: true });
+        superBiz = sup.data?.id ?? "";
+        everCreated.push(superBiz);
+        check("a super user's business is approved straight away", sup.status === 201 && sup.data.status === "approved", short(sup.data));
+        if (superBiz && (await call("DELETE", `/businesses/${superBiz}`, superU.token)).status === 204) superBiz = "";
+        assertAll();
+      });
+
+      await t.step("2. businesses once approved: list, search, read, update, authz, stats", async () => {
+        const gymsOnly = await call("GET", "/businesses?side=gym", T.token);
+        check("?side=gym filters", gymsOnly.status === 200 && ids(gymsOnly.data).join() === G, short(gymsOnly.data));
         const shopsOnly = await call("GET", "/businesses?type=shop", T.token);
-        check("?type=shop filters", shopsOnly.status === 200 && (shopsOnly.data as any[]).length === 1 && shopsOnly.data[0].id === S, short(shopsOnly.data));
+        check("?type=shop still filters", shopsOnly.status === 200 && ids(shopsOnly.data).join() === S, short(shopsOnly.data));
         const memberList = await call("GET", "/businesses", member.token);
-        check("member with no businesses gets []", memberList.status === 200 && (memberList.data as any[]).length === 0, short(memberList.data));
-        const superList = await call("GET", "/businesses?type=gym", superU.token);
-        check("super user lists every gym", superList.status === 200 && [G, gym.id].every((id) => (superList.data as any[]).some((b) => b.id === id)) && (superList.data as any[]).every((b) => b.type === "gym"), `status ${superList.status}`);
+        check("a member on no team gets []", memberList.status === 200 && (memberList.data as any[]).length === 0, short(memberList.data));
+        const found = await call("GET", "/businesses/search?side=gym&limit=50", member.token);
+        check(
+          "search finds approved gyms only",
+          found.status === 200 && [G, gym.id].every((id) => ids(found.data).includes(id)) && !ids(found.data).includes(S) &&
+            (found.data as any[]).every((b) => b.has_gym && b.status === "approved"),
+          `status ${found.status}`,
+        );
 
         const read = await call("GET", `/businesses/${G}`, member.token);
-        check("any signed-in user reads a business", read.status === 200 && read.data.name === `it-gym-${tag}`, short(read.data));
-        const anon = await call("GET", `/businesses/${G}`);
-        check("anonymous read is 401", anon.status === 401, `status ${anon.status}`);
-        const unknown = await call("GET", `/businesses/${crypto.randomUUID()}`, member.token);
-        check("unknown business is 404", unknown.status === 404, `status ${unknown.status}`);
+        check(
+          "any signed-in user reads an approved business (no review note)",
+          read.status === 200 && read.data.name === `it-gym-${tag}` && read.data.follower_count === 1 && read.data.is_following === false &&
+            !("review_note" in read.data) && JSON.stringify(read.data.my_roles) === "[]",
+          short(read.data),
+        );
+        check("anonymous read is 401", (await call("GET", `/businesses/${G}`)).status === 401);
+        check("unknown business is 404", (await call("GET", `/businesses/${crypto.randomUUID()}`, member.token)).status === 404);
 
-        const upd = await call("PUT", `/businesses/${G}`, T.token, { name: `it-gym2-${tag}`, working_hours_to: "23:00", type: "shop" });
-        check("owner updates the gym (type is ignored)", upd.status === 200 && upd.data.name === `it-gym2-${tag}` && upd.data.working_hours_to.startsWith("23:00") && upd.data.type === "gym", short(upd.data));
-        const onlyType = await call("PUT", `/businesses/${G}`, T.token, { type: "shop" });
-        check("type-only update is 400 (immutable)", onlyType.status === 400, `status ${onlyType.status}`);
-        const empty = await call("PUT", `/businesses/${G}`, T.token, {});
-        check("empty update is 400", empty.status === 400, `status ${empty.status}`);
-        for (const [who, s] of [["member", member], ["another gym's owner", owner], ["another gym's employee", employee]] as const) {
+        const upd = await call("PUT", `/businesses/${G}`, T.token, { name: `it-gym2-${tag}`, working_hours_to: "23:00", website: "" });
+        check(
+          "owner updates the gym (empty website clears it)",
+          upd.status === 200 && upd.data.name === `it-gym2-${tag}` && upd.data.working_hours_to.startsWith("23:00") && upd.data.website === null,
+          short(upd.data),
+        );
+        check("a 501-character bio is 400", (await call("PUT", `/businesses/${G}`, T.token, { bio: "x".repeat(501) })).status === 400);
+        check("an empty name is 400", (await call("PUT", `/businesses/${G}`, T.token, { name: " " })).status === 400);
+        check("empty update is 400", (await call("PUT", `/businesses/${G}`, T.token, {})).status === 400);
+        for (const [who, s] of [["member", member], ["another gym's owner", owner], ["another gym's staff", employee]] as const) {
           const r = await call("PUT", `/businesses/${G}`, s.token, { name: "hijack" });
           check(`${who} can't update the gym`, r.status === 403, `status ${r.status}`);
         }
-        const updUnknown = await call("PUT", `/businesses/${crypto.randomUUID()}`, T.token, { name: "x" });
-        check("updating an unknown business is 404", updUnknown.status === 404, `status ${updUnknown.status}`);
+        check("updating an unknown business is 404", (await call("PUT", `/businesses/${crypto.randomUUID()}`, T.token, { name: "x" })).status === 404);
         const superUpd = await call("PUT", `/businesses/${S}`, superU.token, { location: "Super St 2" });
         check("super user updates any business", superUpd.status === 200 && superUpd.data.location === "Super St 2", short(superUpd.data));
-        const delUnknown = await call("DELETE", `/businesses/${crypto.randomUUID()}`, T.token);
-        check("deleting an unknown business is 404", delUnknown.status === 404, `status ${delUnknown.status}`);
-        const delOther = await call("DELETE", `/businesses/${G}`, owner.token);
-        check("another gym's owner can't delete the gym", delOther.status === 403, `status ${delOther.status}`);
+        check("deleting an unknown business is 404", (await call("DELETE", `/businesses/${crypto.randomUUID()}`, T.token)).status === 404);
+        check("another gym's owner can't delete the gym", (await call("DELETE", `/businesses/${G}`, owner.token)).status === 403);
 
         const stats = await call("GET", "/businesses/stats", T.token);
         check(
@@ -115,261 +216,288 @@ Deno.test({
         assertAll();
       });
 
-      await t.step("2. co-owners: gym-owners and shop-owners (super user only)", async () => {
-        const byOwner = await call("POST", "/gym-owners", T.token, { user_id: U.profile.id, gym_id: G });
-        check("owner can't add a co-owner", byOwner.status === 403, `status ${byOwner.status}`);
-        const missing = await call("POST", "/gym-owners", superU.token, { gym_id: G });
-        check("co-owner without user_id is 400", missing.status === 400, `status ${missing.status}`);
-        const badUser = await call("POST", "/gym-owners", superU.token, { user_id: crypto.randomUUID(), gym_id: G });
-        check("co-owner with an unknown user is 400", badUser.status === 400, `status ${badUser.status}`);
-
-        const add = await call("POST", "/gym-owners", superU.token, { user_id: U.profile.id, gym_id: G });
-        check("super user adds a gym co-owner", add.status === 201 && add.data.gym_id === G, short(add.data));
-        const dup = await call("POST", "/gym-owners", superU.token, { user_id: U.profile.id, gym_id: G });
-        check("adding the same co-owner twice is 409", dup.status === 409, `status ${dup.status}`);
-        check("co-owner's role becomes owner", (await roleOf(U.profile.id)) === "owner");
-
-        const list = await call("GET", `/gym-owners?gym_id=${G}`, member.token);
-        check(
-          "gym-owners lists both owners with names (no emails)",
-          list.status === 200 && [T.profile.id, U.profile.id].every((id) => (list.data as any[]).some((o) => o.user_id === id)) &&
-            (list.data as any[]).every((o) => !("email" in o) && typeof o.name === "string"),
-          short(list.data),
-        );
-        const byUser = await call("GET", `/gym-owners?user_id=${U.profile.id}`, member.token);
-        check("?user_id= filters", byUser.status === 200 && (byUser.data as any[]).length === 1 && byUser.data[0].gym_id === G, short(byUser.data));
-        const one = await call("GET", `/gym-owners/${add.data.id}`, member.token);
-        check("read one gym-owner row", one.status === 200 && one.data.user_id === U.profile.id, short(one.data));
-        const none = await call("GET", `/gym-owners/${crypto.randomUUID()}`, member.token);
-        check("unknown gym-owner row is 404", none.status === 404, `status ${none.status}`);
-
-        // What the co-owner can now do — and can't (the shop is still T's alone).
-        const coBiz = await call("GET", "/businesses", U.token);
-        check("co-owner sees the gym in their businesses", coBiz.status === 200 && (coBiz.data as any[]).some((b) => b.id === G), short(coBiz.data));
-        const coUpd = await call("PUT", `/businesses/${G}`, U.token, { location: "Co St 3" });
-        check("co-owner updates the gym", coUpd.status === 200 && coUpd.data.location === "Co St 3", short(coUpd.data));
-        const coType = await call("POST", "/gym-membership-types", U.token, { name: `it-co-${tag}`, monthly_cost: 1, gym_id: G });
-        check("co-owner manages pricing", coType.status === 201, short(coType.data));
-        if (coType.data?.id) await call("DELETE", `/gym-membership-types/${coType.data.id}`, U.token);
-        const coShop = await call("PUT", `/businesses/${S}`, U.token, { location: "nope" });
-        check("gym co-owner can't update the owner's shop", coShop.status === 403, `status ${coShop.status}`);
-
-        const delByOwner = await call("DELETE", `/gym-owners/${add.data.id}`, T.token);
-        check("owner can't remove a co-owner", delByOwner.status === 403, `status ${delByOwner.status}`);
-        const del = await call("DELETE", `/gym-owners/${add.data.id}`, superU.token);
-        check("super user removes the co-owner", del.status === 204, `status ${del.status}`);
-        check("removed co-owner is a member again", (await roleOf(U.profile.id)) === "member");
-        const after = await call("PUT", `/businesses/${G}`, U.token, { location: "again" });
-        check("removed co-owner can't update the gym", after.status === 403, `status ${after.status}`);
-        const delAgain = await call("DELETE", `/gym-owners/${add.data.id}`, superU.token);
-        check("removing it again is 404", delAgain.status === 404, `status ${delAgain.status}`);
-
-        // Shop co-owners.
-        const sByOwner = await call("POST", "/shop-owners", T.token, { user_id: U.profile.id, shop_id: S });
-        check("owner can't add a shop co-owner", sByOwner.status === 403, `status ${sByOwner.status}`);
-        const sMissing = await call("POST", "/shop-owners", superU.token, { user_id: U.profile.id });
-        check("shop co-owner without shop_id is 400", sMissing.status === 400, `status ${sMissing.status}`);
-        const sBadShop = await call("POST", "/shop-owners", superU.token, { user_id: U.profile.id, shop_id: crypto.randomUUID() });
-        check("shop co-owner of an unknown shop is 400", sBadShop.status === 400, `status ${sBadShop.status}`);
-        const sAdd = await call("POST", "/shop-owners", superU.token, { user_id: U.profile.id, shop_id: S });
-        check("super user adds a shop co-owner", sAdd.status === 201 && sAdd.data.shop_id === S, short(sAdd.data));
-        const sDup = await call("POST", "/shop-owners", superU.token, { user_id: U.profile.id, shop_id: S });
-        check("adding the same shop co-owner twice is 409", sDup.status === 409, `status ${sDup.status}`);
-        const sList = await call("GET", `/shop-owners?shop_id=${S}`, member.token);
-        check("shop-owners lists both", sList.status === 200 && (sList.data as any[]).length === 2, short(sList.data));
-        const sByUser = await call("GET", `/shop-owners?user_id=${U.profile.id}`, member.token);
-        check("shop-owners ?user_id= filters", sByUser.status === 200 && (sByUser.data as any[]).every((o) => o.user_id === U.profile.id && o.shop_id === S), short(sByUser.data));
-        const sOne = await call("GET", `/shop-owners/${sAdd.data.id}`, member.token);
-        check("read one shop-owner row", sOne.status === 200 && sOne.data.user_id === U.profile.id, short(sOne.data));
-        const sNone = await call("GET", `/shop-owners/${crypto.randomUUID()}`, member.token);
-        check("unknown shop-owner row is 404", sNone.status === 404, `status ${sNone.status}`);
-        const sUpd = await call("PUT", `/businesses/${S}`, U.token, { location: "Shop St 4" });
-        check("shop co-owner updates the shop", sUpd.status === 200, `status ${sUpd.status}`);
-        const sItem = await call("POST", "/shop-items", U.token, { shop_id: S, type: "equipment", name: `it-co-${tag}`, price: 1, quantity: 1 });
-        check("shop co-owner manages items", sItem.status === 201, short(sItem.data));
-        if (sItem.data?.id) await call("DELETE", `/shop-items/${sItem.data.id}`, U.token);
-        const sDelByOwner = await call("DELETE", `/shop-owners/${sAdd.data.id}`, T.token);
-        check("owner can't remove a shop co-owner", sDelByOwner.status === 403, `status ${sDelByOwner.status}`);
-        const sDel = await call("DELETE", `/shop-owners/${sAdd.data.id}`, superU.token);
-        check("super user removes the shop co-owner", sDel.status === 204, `status ${sDel.status}`);
-        check("removed shop co-owner is a member again", (await roleOf(U.profile.id)) === "member");
-        const sDelAgain = await call("DELETE", `/shop-owners/${sAdd.data.id}`, superU.token);
-        check("removing the shop co-owner again is 404", sDelAgain.status === 404, `status ${sDelAgain.status}`);
+      await t.step("3. sides: the owner turns the gym and shop on and off (at least one)", async () => {
+        const both = await call("PUT", `/businesses/${G}`, T.token, { has_shop: true });
+        check("owner adds a shop to the gym", both.status === 200 && both.data.has_gym && both.data.has_shop, short(both.data));
+        const item = await call("POST", "/shop-items", T.token, { shop_id: G, type: "equipment", name: `it-side-${tag}`, price: 1, quantity: 1 });
+        check("…and sells there", item.status === 201, short(item.data));
+        if (item.data?.id) await call("DELETE", `/shop-items/${item.data.id}`, T.token);
+        const none = await call("PUT", `/businesses/${G}`, T.token, { has_gym: false, has_shop: false });
+        check("turning both off is 400", none.status === 400, `status ${none.status}`);
+        const shopOnly = await call("PUT", `/businesses/${G}`, T.token, { has_gym: false });
+        check("owner turns the gym side off", shopOnly.status === 200 && !shopOnly.data.has_gym && shopOnly.data.has_shop, short(shopOnly.data));
+        const noGym = await call("POST", "/gym-membership-types", T.token, { name: "x", monthly_cost: 1, gym_id: G });
+        check("gym tools stop working without the gym side", noGym.status === 403, `status ${noGym.status}`);
+        const back = await call("PUT", `/businesses/${G}`, T.token, { has_gym: true, has_shop: false });
+        check("and back to just a gym", back.status === 200 && back.data.has_gym && !back.data.has_shop, short(back.data));
+        const other = await call("PUT", `/businesses/${G}`, owner.token, { has_shop: true });
+        check("another business's owner can't switch sides", other.status === 403, `status ${other.status}`);
         assertAll();
       });
 
-      await t.step("3. employees: invite, decline, accept, role changes, removal", async () => {
-        const v = (b: Record<string, unknown>) => call("POST", "/employees", T.token, b);
-        const noGym = await v({ user_id: U.profile.id });
-        check("employee without gym_id is 400", noGym.status === 400, `status ${noGym.status}`);
-        const badType = await v({ user_id: U.profile.id, gym_id: G, employee_type: "manager" });
-        check("unknown employee_type is 400", badType.status === 400, `status ${badType.status}`);
-        const unknownGym = await v({ user_id: U.profile.id, gym_id: crypto.randomUUID() });
-        check("unknown gym is 404", unknownGym.status === 404, `status ${unknownGym.status}`);
-        const noTarget = await v({ gym_id: G });
-        check("neither user_id nor email is 400", noTarget.status === 400, `status ${noTarget.status}`);
-        const self = await v({ user_id: T.profile.id, gym_id: G });
-        check("owner can't add themself", self.status === 400, `status ${self.status}`);
-        const ghost = await v({ user_id: crypto.randomUUID(), gym_id: G });
-        check("unknown user_id is 404", ghost.status === 404, `status ${ghost.status}`);
+      await t.step("4. team invites: validate, decline, accept (notification or invite route)", async () => {
+        const invite = (b: Record<string, unknown>, s: Session = T, id = G) => call("POST", `/businesses/${id}/team`, s.token, b);
+        check("an unknown role is 400", (await invite({ user_id: U.profile.id, role: "manager" })).status === 400);
+        check("a missing role is 400", (await invite({ user_id: U.profile.id })).status === 400);
+        check("neither user_id nor email is 400", (await invite({ role: "staff" })).status === 400);
+        check("unknown user_id is 404", (await invite({ user_id: crypto.randomUUID(), role: "staff" })).status === 404);
+        check("malformed user_id is 404", (await invite({ user_id: "nope", role: "staff" })).status === 404);
+        check("unknown business is 404", (await invite({ user_id: U.profile.id, role: "staff" }, T, crypto.randomUUID())).status === 404);
         // New-account branch, stopped before any invite email goes out.
-        const noNames = await v({ gym_id: G, email: `it-nobody-${tag}@example.com` });
-        check("new email without names is 400", noNames.status === 400, `status ${noNames.status}`);
-        const takenName = await v({ gym_id: G, email: `it-nobody-${tag}@example.com`, name: "N", last_name: "B", username: member.profile.username });
-        check("new email with a taken username is 409", takenName.status === 409, `status ${takenName.status}`);
-        for (const [who, s] of [["member", member], ["another gym's owner", owner], ["another gym's employee", employee]] as const) {
-          const r = await call("POST", "/employees", s.token, { user_id: U.profile.id, gym_id: G });
-          check(`${who} can't hire at the gym`, r.status === 403, `status ${r.status}`);
+        check("new email without names is 400", (await invite({ role: "staff", email: `it-nobody-${tag}@example.com` })).status === 400);
+        check(
+          "new email with a taken username is 409",
+          (await invite({ role: "staff", email: `it-nobody-${tag}@example.com`, name: "N", last_name: "B", username: member.profile.username })).status === 409,
+        );
+        for (const [who, s] of [["member", member], ["another gym's owner", owner], ["another gym's staff", employee]] as const) {
+          check(`${who} can't invite to the gym`, (await invite({ user_id: U.profile.id, role: "staff" }, s)).status === 403);
         }
 
-        // Invite → decline → re-invite → accept.
-        const inv1 = await v({ user_id: U.profile.id, gym_id: G });
-        check("owner invites an existing user", inv1.status === 200 && inv1.data.invited === true, short(inv1.data));
-        const n1 = await noticeFor(U.token, "employee_gym_invite", "gym_id", G);
-        check("invitee gets a pending invite", !!n1 && n1.metadata.employee_type === "employee", short(n1));
-        check("pending invite grants nothing", (await call("POST", "/members", U.token, { gym_id: G, user_id: member.profile.id })).status === 403);
-        const strangerAccept = await call("POST", `/notifications/${n1?.id}/accept`, member.token);
-        check("someone else can't accept the invite", strangerAccept.status === 403, `status ${strangerAccept.status}`);
-        const decline = await call("POST", `/notifications/${n1?.id}/decline`, U.token);
-        check("invitee declines", decline.status === 200 && decline.data.metadata?.invite_status === "declined", short(decline.data));
-        const lateAccept = await call("POST", `/notifications/${n1?.id}/accept`, U.token);
-        check("a declined invite can't be accepted", lateAccept.status === 409, `status ${lateAccept.status}`);
-        check("declining hires nobody", !((await call("GET", `/employees?gym_id=${G}`, T.token)).data as any[]).length);
+        // U: invited as staff → declines → invited again → accepts from the notification.
+        const inv1 = await invite({ user_id: U.profile.id, role: "staff" });
+        check("owner invites an existing user as staff", inv1.status === 201 && inv1.data.invited === true && inv1.data.role === "staff", short(inv1.data));
+        const n1 = await pendingInvite(U, G, "staff");
+        check("the invitee gets a business_invite", !!n1 && n1.metadata.inviter_id === T.profile.id && n1.title.includes(tag), short(n1));
+        const listed = await call("GET", "/businesses/invites", U.token);
+        check(
+          "…listed under their invites, and counted on their profile",
+          (listed.data as any[])?.some((i) => i.business_id === G && i.role === "staff" && i.inviter_id === T.profile.id) &&
+            (await me(U))?.pending_invites === 1,
+          short(listed.data),
+        );
+        check("an open invite grants nothing", (await call("POST", "/members", U.token, { gym_id: G, user_id: member.profile.id })).status === 403);
+        check("…not even the team list", (await call("GET", `/businesses/${G}/team`, U.token)).status === 403);
+        const ownerTeam = await call("GET", `/businesses/${G}/team`, T.token);
+        const uEntry = (ownerTeam.data as any[])?.find((p) => p.user_id === U.profile.id);
+        check("the owner sees the open invite on the team", uEntry?.roles?.[0]?.role === "staff" && uEntry.roles[0].status === "invited" && !!uEntry.email, short(uEntry));
+        check("inviting again while it's open is 409", (await invite({ user_id: U.profile.id, role: "staff" })).status === 409);
+        check("someone else can't accept it", (await call("POST", `/notifications/${n1?.id}/accept`, member.token)).status === 403);
+        const decline = await call("POST", `/businesses/${G}/invites/staff/decline`, U.token);
+        check("the invitee declines from the business's invite route", decline.status === 200 && JSON.stringify(decline.data.my_roles) === "[]", short(decline.data));
+        const n1After = (await notificationsOf(U.token)).find((n) => n.id === n1?.id);
+        check("…which marks the notification declined", n1After?.metadata?.invite_status === "declined", short(n1After));
+        check("…and leaves no invite behind", ((await call("GET", "/businesses/invites", U.token)).data as any[]).length === 0);
+        check("a declined invite can't be accepted (404)", (await call("POST", `/businesses/${G}/invites/staff/accept`, U.token)).status === 404);
 
-        await v({ user_id: U.profile.id, gym_id: G });
-        const n2 = await noticeFor(U.token, "employee_gym_invite", "gym_id", G);
+        await invite({ user_id: U.profile.id, role: "staff" });
+        const n2 = await pendingInvite(U, G, "staff");
         const accept = await call("POST", `/notifications/${n2?.id}/accept`, U.token);
-        check("invitee accepts", accept.status === 200 && accept.data.metadata?.invite_status === "accepted", short(accept.data));
-        const joined = (await notificationsOf(T.token)).find((n) => n.type === "employee_join" && n.metadata?.user_id === U.profile.id);
-        check("owner is told the employee joined", !!joined && joined.metadata.gym_id === G, short(joined));
-        check("employee's role is employee", (await roleOf(U.profile.id)) === "employee");
-        const again = await v({ user_id: U.profile.id, gym_id: G });
-        check("inviting a current employee is 409", again.status === 409, `status ${again.status}`);
+        check("the invitee accepts from the notification", accept.status === 200 && accept.data.metadata?.invite_status === "accepted", short(accept.data));
+        const joined = (await notificationsOf(T.token)).find((n) => n.type === "business_join" && n.metadata?.user_id === U.profile.id);
+        check("the owner is told they joined", joined?.metadata?.business_id === G && joined.metadata.role === "staff", short(joined));
+        const uMe = await me(U);
+        check(
+          "they're active staff (and not a trainer)",
+          JSON.stringify(await rolesAt(U, G)) === JSON.stringify(["staff"]) && uMe?.is_trainer === false && uMe?.pending_invites === 0,
+          short(uMe),
+        );
+        check("inviting someone to a role they hold is 409", (await invite({ user_id: U.profile.id, role: "staff" })).status === 409);
+        check("joining follows the business", (await call("GET", `/businesses/${G}`, U.token)).data?.is_following === true);
 
-        const staffAsOwner = await call("GET", `/employees?gym_id=${G}`, T.token);
-        const empRow = (staffAsOwner.data as any[])?.find((e) => e.user_id === U.profile.id);
-        check("owner sees the employee with email", staffAsOwner.status === 200 && empRow?.email === `it-staff-${tag}@example.com` && empRow.role === "employee", short(empRow));
-        const staffAsStranger = await call("GET", `/employees?gym_id=${G}`, member.token);
-        check("outsiders see the employee without email", staffAsStranger.status === 200 && (staffAsStranger.data as any[]).every((e) => !("email" in e)), short(staffAsStranger.data));
-        const byUser = await call("GET", `/employees?user_id=${U.profile.id}`, U.token);
-        check("employee lists own rows (with email)", byUser.status === 200 && byUser.data.length === 1 && byUser.data[0].email, short(byUser.data));
-        const oneEmp = await call("GET", `/employees/${empRow?.id}`, member.token);
-        check("read one employee row (email redacted)", oneEmp.status === 200 && oneEmp.data.user_id === U.profile.id && !("email" in oneEmp.data), short(oneEmp.data));
-        check("unknown employee row is 404", (await call("GET", `/employees/${crypto.randomUUID()}`, T.token)).status === 404);
+        // A trainer invite U turns down: no trainer flag.
+        await invite({ user_id: U.profile.id, role: "trainer" });
+        const n3 = await pendingInvite(U, G, "trainer");
+        const declineN = await call("POST", `/notifications/${n3?.id}/decline`, U.token);
+        check("declining a trainer invite from the notification", declineN.status === 200 && declineN.data.metadata?.invite_status === "declined", short(declineN.data));
+        check("…leaves them staff only, not a trainer", JSON.stringify(await rolesAt(U, G)) === JSON.stringify(["staff"]) && (await me(U))?.is_trainer === false);
 
-        // What the employee can now do at G (front desk) — and can't (management, other gyms).
+        // W: invited as a trainer and accepts from the business's invite route.
+        await invite({ user_id: W.profile.id, role: "trainer" });
+        const wAccept = await call("POST", `/businesses/${G}/invites/trainer/accept`, W.token);
+        check("a trainer invite accepted from the invite route", wAccept.status === 200 && JSON.stringify(wAccept.data.my_roles) === JSON.stringify(["trainer"]), short(wAccept.data));
+        check("accepting a trainer role makes them a trainer", (await me(W))?.is_trainer === true);
+        const wNote = (await notificationsOf(W.token)).find((n) => n.type === "business_invite" && n.metadata?.business_id === G);
+        check("…and marks its notification accepted", wNote?.metadata?.invite_status === "accepted", short(wNote));
+        check("accepting twice is 404 (nothing open)", (await call("POST", `/businesses/${G}/invites/trainer/accept`, W.token)).status === 404);
+        check("an unknown role in the invite route is 404", (await call("POST", `/businesses/${G}/invites/boss/accept`, W.token)).status === 404);
+
+        // The owner coaches too: adding yourself needs no invite.
+        const self = await invite({ user_id: T.profile.id, role: "trainer" });
+        check("an owner adds themselves as a trainer straight away", self.status === 201 && self.data.invited === false, short(self.data));
+        check("…holding both roles", JSON.stringify(await rolesAt(T, G)) === JSON.stringify(["owner", "trainer"]) && (await me(T))?.is_trainer === true);
+        check("adding an owner as owner again is 409", (await invite({ user_id: T.profile.id, role: "owner" })).status === 409);
+        assertAll();
+      });
+
+      await t.step("5. permission tiers: owner vs staff vs trainer", async () => {
+        // Staff (U): front desk and profile, not management.
+        const staffBio = await call("PUT", `/businesses/${G}`, U.token, { bio: `Edited by staff ${tag}` });
+        check("staff edit the profile", staffBio.status === 200 && staffBio.data.bio === `Edited by staff ${tag}`, short(staffBio.data));
         const addMember = await call("POST", "/members", U.token, { gym_id: G, user_id: member.profile.id });
-        check("employee adds a member", addMember.status === 201 && addMember.data.gym_id === G, short(addMember.data));
+        check("staff add a member", addMember.status === 201 && addMember.data.gym_id === G, short(addMember.data));
         const welcome = (await notificationsOf(member.token)).find((n) => n.type === "member_join" && n.metadata?.gym_id === G);
-        check("new member gets a welcome notification", !!welcome, short(welcome));
+        check("the new member gets a welcome notification", !!welcome, short(welcome));
         const ownerJoin = (await notificationsOf(T.token)).find((n) => n.type === "member_join" && n.metadata?.user_id === member.profile.id);
-        check("owner is told about the new member", !!ownerJoin && ownerJoin.metadata.gym_id === G, short(ownerJoin));
-        const empSeesEmails = await call("GET", `/members?gym_id=${G}`, U.token);
-        check("employee sees member emails", empSeesEmails.status === 200 && (empSeesEmails.data as any[]).some((m) => m.user_id === member.profile.id && m.email), short(empSeesEmails.data));
+        check("the owner is told about the new member", ownerJoin?.metadata?.gym_id === G, short(ownerJoin));
+        const staffRoster = await call("GET", `/members?gym_id=${G}`, U.token);
+        check("staff see member emails", (staffRoster.data as any[])?.some((m) => m.user_id === member.profile.id && m.email), short(staffRoster.data));
+        const staffTeam = await call("GET", `/businesses/${G}/team`, U.token);
+        check("staff see the whole team with emails", staffTeam.status === 200 && (staffTeam.data as any[]).every((p) => typeof p.email === "string"), short(staffTeam.data));
+        const staffPost = await call("POST", "/posts", U.token, { business_id: G, content: `Staff post ${tag}` });
+        check("staff post as the gym", staffPost.status === 201, short(staffPost.data));
+        if (staffPost.data?.id) await call("DELETE", `/posts/${staffPost.data.id}`, U.token);
         for (
           const [what, r] of [
-            ["update the gym", await call("PUT", `/businesses/${G}`, U.token, { location: "x" })],
-            ["hire", await call("POST", "/employees", U.token, { user_id: member.profile.id, gym_id: G })],
-            ["change staff roles", await call("PUT", "/employees/role", U.token, { user_id: U.profile.id, gym_id: G, employee_type: "employee_trainer" })],
+            ["switch sides", await call("PUT", `/businesses/${G}`, U.token, { has_shop: true })],
+            ["invite", await call("POST", `/businesses/${G}/team`, U.token, { user_id: member.profile.id, role: "staff" })],
+            ["remove a trainer", await call("DELETE", `/businesses/${G}/team/${W.profile.id}?role=trainer`, U.token)],
             ["set prices", await call("POST", "/gym-membership-types", U.token, { name: "x", monthly_cost: 1, gym_id: G })],
-            ["add members at another gym", await call("POST", "/members", U.token, { gym_id: gym.id, user_id: member.profile.id })],
+            ["delete the gym", await call("DELETE", `/businesses/${G}`, U.token)],
+            ["review it", await call("POST", `/businesses/${G}/review`, U.token, { status: "approved" })],
+            ["add members at another gym", await call("POST", "/members", U.token, { gym_id: gym.id, user_id: vendor.profile.id })],
           ] as const
-        ) check(`employee can't ${what}`, r.status === 403, `status ${r.status}`);
+        ) check(`staff can't ${what}`, r.status === 403, `status ${r.status}`);
+        check("staff get no owner stats", (await call("GET", "/businesses/stats", U.token)).data?.gyms === 0);
 
-        // Role changes.
-        const role = (b: Record<string, unknown>, tok = T.token) => call("PUT", "/employees/role", tok, b);
-        check("role change without gym_id is 400", (await role({ user_id: U.profile.id, employee_type: "employee" })).status === 400);
-        check("role change to an unknown type is 400", (await role({ user_id: U.profile.id, gym_id: G, employee_type: "boss" })).status === 400);
-        check("another gym's owner can't change roles here", (await role({ user_id: U.profile.id, gym_id: G, employee_type: "employee_trainer" }, owner.token)).status === 403);
-        check("role change for a non-staff user is 404", (await role({ user_id: member.profile.id, gym_id: G, employee_type: "employee_trainer" })).status === 404);
-        const toEt = await role({ user_id: U.profile.id, gym_id: G, employee_type: "employee_trainer" });
-        check("owner promotes to employee-trainer", toEt.status === 200 && toEt.data.employee_type === "employee_trainer" && toEt.data.role === "employee_trainer", short(toEt.data));
-        const ets = (await call("GET", `/employee-trainers?gym_id=${G}`, T.token)).data as any[];
-        const emps = (await call("GET", `/employees?gym_id=${G}`, T.token)).data as any[];
-        check("moved from employees to employee-trainers", ets.some((e) => e.user_id === U.profile.id) && !emps.some((e) => e.user_id === U.profile.id), `ets ${ets.length} emps ${emps.length}`);
-        const trainers1 = (await call("GET", `/trainers?gym_id=${G}`, member.token)).data as any[];
-        check("promotion creates the trainer row", trainers1.some((r) => r.user_id === U.profile.id));
-        const same = await role({ user_id: U.profile.id, gym_id: G, employee_type: "employee_trainer" });
-        check("same role again is an idempotent 200", same.status === 200 && same.data.id === toEt.data.id, short(same.data));
-        const back = await role({ user_id: U.profile.id, gym_id: G, employee_type: "employee" });
-        check("owner demotes back to employee", back.status === 200 && back.data.employee_type === "employee" && back.data.role === "employee", short(back.data));
-        const leftover = ((await call("GET", `/trainers?gym_id=${G}`, member.token)).data as any[]).find((r) => r.user_id === U.profile.id);
-        check("demotion leaves the trainer row in place", !!leftover);
-        if (leftover) await call("DELETE", `/trainers/${leftover.id}`, T.token);
+        // Trainer (W): posts and coaching, not the profile or the front desk.
+        const trainerPost = await call("POST", "/posts", W.token, { business_id: G, content: `Trainer post ${tag}` });
+        check("trainers post as the gym", trainerPost.status === 201, short(trainerPost.data));
+        if (trainerPost.data?.id) await call("DELETE", `/posts/${trainerPost.data.id}`, W.token);
+        const coachRoster = await call("GET", `/members?gym_id=${G}`, W.token);
+        check("trainers see member emails (to coach them)", (coachRoster.data as any[])?.some((m) => m.user_id === member.profile.id && m.email), short(coachRoster.data));
+        const trainerTeam = await call("GET", `/businesses/${G}/team`, W.token);
+        check(
+          "trainers see the active team without emails",
+          trainerTeam.status === 200 && (trainerTeam.data as any[]).every((p) => !("email" in p) && p.roles.every((r: any) => r.status === "active")),
+          short(trainerTeam.data),
+        );
+        for (
+          const [what, r] of [
+            ["edit the profile", await call("PUT", `/businesses/${G}`, W.token, { bio: "x" })],
+            ["add members", await call("POST", "/members", W.token, { gym_id: G, user_id: vendor.profile.id })],
+            ["invite", await call("POST", `/businesses/${G}/team`, W.token, { user_id: member.profile.id, role: "trainer" })],
+            ["set prices", await call("POST", "/gym-membership-types", W.token, { name: "x", monthly_cost: 1, gym_id: G })],
+          ] as const
+        ) check(`trainers can't ${what}`, r.status === 403, `status ${r.status}`);
 
-        // Removal.
-        const empId = back.data?.id;
-        check("employee can't remove themself", (await call("DELETE", `/employees/${empId}`, U.token)).status === 403);
-        check("another gym's owner can't remove them", (await call("DELETE", `/employees/${empId}`, owner.token)).status === 403);
-        const fire = await call("DELETE", `/employees/${empId}`, T.token);
-        check("owner removes the employee", fire.status === 204, `status ${fire.status}`);
-        check("removed employee is a member again", (await roleOf(U.profile.id)) === "member");
-        const afterFire = await call("POST", "/members", U.token, { gym_id: G, user_id: vendor.profile.id });
-        check("removed employee can't add members", afterFire.status === 403, `status ${afterFire.status}`);
-        check("removing again is 404", (await call("DELETE", `/employees/${empId}`, T.token)).status === 404);
+        // Owner (T): pricing, which staff can't.
+        const price = await call("POST", "/gym-membership-types", T.token, { name: `it-tier-${tag}`, monthly_cost: 1, gym_id: G });
+        check("the owner sets prices", price.status === 201, short(price.data));
+        if (price.data?.id) await call("DELETE", `/gym-membership-types/${price.data.id}`, T.token);
         assertAll();
       });
 
-      await t.step("4. employee-trainers and trainers: add directly, coach access, removal", async () => {
-        const et = (b: Record<string, unknown>, tok = T.token) => call("POST", "/employee-trainers", tok, b);
-        check("employee-trainer without gym_id is 400", (await et({ user_id: U.profile.id })).status === 400);
-        check("member can't add employee-trainers", (await et({ user_id: U.profile.id, gym_id: G }, member.token)).status === 403);
-        check("another gym's owner can't add here", (await et({ user_id: U.profile.id, gym_id: G }, owner.token)).status === 403);
-        check("unknown user is 400", (await et({ user_id: crypto.randomUUID(), gym_id: G })).status === 400);
-        const add = await et({ user_id: U.profile.id, gym_id: G });
-        check("owner adds an employee-trainer", add.status === 201 && add.data.gym_id === G && !!add.data.trainer_id, short(add.data));
-        check("adding twice is 409", (await et({ user_id: U.profile.id, gym_id: G })).status === 409);
-        check("their role is employee_trainer", (await roleOf(U.profile.id)) === "employee_trainer");
-        const one = await call("GET", `/employee-trainers/${add.data?.id}`, member.token);
-        check("read one employee-trainer (email redacted for outsiders)", one.status === 200 && one.data.user_id === U.profile.id && !("email" in one.data), short(one.data));
-        const mine = await call("GET", `/employee-trainers?user_id=${U.profile.id}`, U.token);
-        check("employee-trainer lists own rows with email", mine.status === 200 && mine.data.length === 1 && !!mine.data[0].email, short(mine.data));
-        check("unknown employee-trainer is 404", (await call("GET", `/employee-trainers/${crypto.randomUUID()}`, T.token)).status === 404);
-        const trainerRow = ((await call("GET", `/trainers?gym_id=${G}`, member.token)).data as any[]).find((r) => r.id === add.data?.trainer_id);
-        check("the linked trainer row exists", !!trainerRow && trainerRow.user_id === U.profile.id);
-        const etAddsMember = await call("POST", "/members", U.token, { gym_id: G, user_id: vendor.profile.id });
-        check("employee-trainer does front-desk work (adds a member)", etAddsMember.status === 201, short(etAddsMember.data));
-        if (etAddsMember.data?.id) await call("DELETE", `/members/${etAddsMember.data.id}`, U.token);
-        check("employee-trainer can't remove themself", (await call("DELETE", `/employee-trainers/${add.data?.id}`, U.token)).status === 403);
-        const del = await call("DELETE", `/employee-trainers/${add.data?.id}`, T.token);
-        check("owner removes the employee-trainer", del.status === 204, `status ${del.status}`);
-        check("removal deletes the linked trainer row", !((await call("GET", `/trainers?gym_id=${G}`, member.token)).data as any[]).some((r) => r.user_id === U.profile.id));
-        check("removed employee-trainer is a member again", (await roleOf(U.profile.id)) === "member");
-        check("removing again is 404", (await call("DELETE", `/employee-trainers/${add.data?.id}`, T.token)).status === 404);
+      await t.step("6. profiles: Owner of / Trainer at (staff never shown), follows", async () => {
+        const tP = await profileOf(T.profile.id);
+        check(
+          "the owner's profile: owner of G and trainer at G",
+          tP?.is_trainer === true && ids(tP.owner_of).includes(G) && ids(tP.trainer_at).includes(G) && !("role" in tP),
+          short({ owner_of: tP?.owner_of, trainer_at: tP?.trainer_at }),
+        );
+        const uP = await profileOf(U.profile.id);
+        check("staff aren't shown anywhere", uP?.is_trainer === false && uP.owner_of.length === 0 && uP.trainer_at.length === 0, short(uP));
+        const wP = await profileOf(W.profile.id);
+        check("the trainer's profile: trainer at G", wP?.is_trainer === true && ids(wP.trainer_at).join() === G && wP.owner_of.length === 0, short(wP?.trainer_at));
+        const biz = await call("GET", `/businesses/${G}`, member.token);
+        check(
+          "the business lists owners and trainers, not staff",
+          ids(biz.data?.owners).join() === T.profile.id && [T.profile.id, W.profile.id].every((id) => ids(biz.data?.trainers).includes(id)) &&
+            !ids(biz.data?.trainers).includes(U.profile.id),
+          short({ owners: biz.data?.owners, trainers: biz.data?.trainers }),
+        );
 
-        // Plain trainers coach (see member emails) but don't do front-desk work.
-        const tr = (b: Record<string, unknown>, tok = T.token) => call("POST", "/trainers", tok, b);
-        check("trainer without user_id is 400", (await tr({ gym_id: G })).status === 400);
-        check("employee of another gym can't add trainers here", (await tr({ user_id: U.profile.id, gym_id: G }, employee.token)).status === 403);
-        check("trainer with an unknown user is 400", (await tr({ user_id: crypto.randomUUID(), gym_id: G })).status === 400);
-        const addT = await tr({ user_id: U.profile.id, gym_id: G });
-        check("owner adds a trainer", addT.status === 201 && addT.data.gym_id === G, short(addT.data));
-        check("adding the trainer twice is 409", (await tr({ user_id: U.profile.id, gym_id: G })).status === 409);
-        check("their role is trainer", (await roleOf(U.profile.id)) === "trainer");
-        const byUser = await call("GET", `/trainers?user_id=${U.profile.id}`, member.token);
-        check("trainers ?user_id= filters (no emails)", byUser.status === 200 && byUser.data.length === 1 && !("email" in byUser.data[0]), short(byUser.data));
-        const oneT = await call("GET", `/trainers/${addT.data?.id}`, member.token);
-        check("read one trainer", oneT.status === 200 && oneT.data.user_id === U.profile.id, short(oneT.data));
-        check("unknown trainer is 404", (await call("GET", `/trainers/${crypto.randomUUID()}`, member.token)).status === 404);
-        const roster = await call("GET", `/members?gym_id=${G}`, U.token);
-        check("trainer sees member emails", roster.status === 200 && (roster.data as any[]).some((m) => m.user_id === member.profile.id && m.email), short(roster.data));
-        const trainerAdds = await call("POST", "/members", U.token, { gym_id: G, user_id: vendor.profile.id });
-        check("trainer can't add members", trainerAdds.status === 403, `status ${trainerAdds.status}`);
-        check("trainer can't remove themself", (await call("DELETE", `/trainers/${addT.data?.id}`, U.token)).status === 403);
-        const delT = await call("DELETE", `/trainers/${addT.data?.id}`, T.token);
-        check("owner removes the trainer", delT.status === 204, `status ${delT.status}`);
-        check("removed trainer is a member again", (await roleOf(U.profile.id)) === "member");
-        const rosterAfter = await call("GET", `/members?gym_id=${G}`, U.token);
-        check("removed trainer no longer sees member emails", rosterAfter.status === 200 && (rosterAfter.data as any[]).every((m) => !("email" in m)), short(rosterAfter.data));
-        check("removing the trainer again is 404", (await call("DELETE", `/trainers/${addT.data?.id}`, T.token)).status === 404);
+        // Seeded people: Andrew owns and coaches at Coastal; Priya is staff (not shown).
+        const andrew = await signin("andrew.foster@example.com");
+        const aP = await profileOf(andrew.profile.id);
+        check(
+          "seeded owner who also coaches",
+          aP?.owner_of?.some((b: any) => b.name === "Coastal Barbell Club" && b.has_gym && b.has_shop) &&
+            aP?.trainer_at?.some((b: any) => b.name === "Coastal Barbell Club"),
+          short({ owner_of: aP?.owner_of, trainer_at: aP?.trainer_at }),
+        );
+        const marcusP = await profileOf(owner.profile.id);
+        check("seeded owner of a gym and a shop", marcusP?.owner_of?.length === 2 && marcusP.trainer_at.length === 0, short(marcusP?.owner_of));
+        const priyaP = await profileOf(employee.profile.id);
+        check("seeded staff show no affiliation", priyaP?.owner_of?.length === 0 && priyaP.trainer_at.length === 0 && priyaP.is_trainer === false, short(priyaP));
+
+        // Following.
+        const before = (await call("GET", `/businesses/${G}`, vendor.token)).data;
+        const follow = await call("PUT", `/businesses/${G}/follow`, vendor.token);
+        check("anyone follows an approved business", follow.status === 200 && follow.data.is_following === true, short(follow.data));
+        const twice = await call("PUT", `/businesses/${G}/follow`, vendor.token);
+        const after = (await call("GET", `/businesses/${G}`, vendor.token)).data;
+        check(
+          "following is idempotent and counted",
+          twice.status === 200 && after?.is_following === true && after.follower_count === before.follower_count + 1,
+          `${before?.follower_count} → ${after?.follower_count}`,
+        );
+        const unfollow = await call("DELETE", `/businesses/${G}/follow`, vendor.token);
+        const gone = (await call("GET", `/businesses/${G}`, vendor.token)).data;
+        check("unfollow", unfollow.status === 200 && unfollow.data.is_following === false && gone?.follower_count === before.follower_count, short(gone));
+        check("following an unknown business is 404", (await call("PUT", `/businesses/${crypto.randomUUID()}/follow`, vendor.token)).status === 404);
         assertAll();
       });
 
-      await t.step("5. members: add by id/email, validation, roster, resend-invite, removal, stats", async () => {
-        const m = (b: Record<string, unknown>, tok = T.token) => call("POST", "/members", tok, b);
+      await t.step("7. leaving the team: the last owner can't; owners remove and cancel", async () => {
+        const leave = (who: Session, userId: string, role?: string) =>
+          call("DELETE", `/businesses/${G}/team/${userId}${role ? `?role=${role}` : ""}`, who.token);
+        const last = await leave(T, T.profile.id, "owner");
+        check("the last owner can't leave (409)", last.status === 409, `status ${last.status} ${short(last.data)}`);
+        check("…not even by leaving every role", (await leave(T, T.profile.id)).status === 409);
+        check("an unknown ?role= is 400", (await leave(T, U.profile.id, "boss")).status === 400);
+
+        // U becomes a co-owner, then steps down again.
+        await call("POST", `/businesses/${G}/team`, T.token, { user_id: U.profile.id, role: "owner" });
+        await call("POST", `/businesses/${G}/invites/owner/accept`, U.token);
+        check("a co-owner holds owner and staff", JSON.stringify(await rolesAt(U, G)) === JSON.stringify(["owner", "staff"]));
+        const coPrice = await call("POST", "/gym-membership-types", U.token, { name: `it-co-${tag}`, monthly_cost: 1, gym_id: G });
+        check("a co-owner manages pricing", coPrice.status === 201, short(coPrice.data));
+        if (coPrice.data?.id) await call("DELETE", `/gym-membership-types/${coPrice.data.id}`, U.token);
+        const stepDown = await leave(U, U.profile.id, "owner");
+        check("with another owner, an owner can step down", stepDown.status === 204, `status ${stepDown.status}`);
+        check("…keeping their other roles", JSON.stringify(await rolesAt(U, G)) === JSON.stringify(["staff"]));
+
+        // W leaves on their own.
+        const wLeaves = await leave(W, W.profile.id, "trainer");
+        check("a trainer leaves the gym", wLeaves.status === 204, `status ${wLeaves.status}`);
+        const wP = await profileOf(W.profile.id);
+        check("…which drops 'Trainer at', not trainer mode", wP?.trainer_at?.length === 0 && wP.is_trainer === true, short(wP));
+        check("leaving again is 404", (await leave(W, W.profile.id, "trainer")).status === 404);
+
+        // The owner cancels an open invite; the notification then can't be accepted.
+        await call("POST", `/businesses/${G}/team`, T.token, { user_id: W.profile.id, role: "staff" });
+        const wInvite = await pendingInvite(W, G, "staff");
+        const cancel = await leave(T, W.profile.id, "staff");
+        check("the owner cancels an invite", cancel.status === 204 && ((await call("GET", "/businesses/invites", W.token)).data as any[]).length === 0, `status ${cancel.status}`);
+        const stale = await call("POST", `/notifications/${wInvite?.id}/accept`, W.token);
+        check("its notification can't be accepted any more (409)", stale.status === 409, `status ${stale.status} ${short(stale.data)}`);
+
+        // The owner removes U's staff role.
+        const fire = await leave(T, U.profile.id, "staff");
+        check("the owner removes a staff member", fire.status === 204, `status ${fire.status}`);
+        check("…who loses front-desk access", (await call("POST", "/members", U.token, { gym_id: G, user_id: vendor.profile.id })).status === 403);
+        check("…and the team list", (await call("GET", `/businesses/${G}/team`, U.token)).status === 403);
+        check("removing again is 404", (await leave(T, U.profile.id, "staff")).status === 404);
+        assertAll();
+      });
+
+      await t.step("8. trainer mode: PUT /users/me/trainer", async () => {
+        check("it needs a session", (await call("PUT", "/users/me/trainer", undefined, { enabled: true })).status === 401);
+        check("enabled is required", (await call("PUT", "/users/me/trainer", U.token, {})).status === 400);
+        check("enabled must be a boolean", (await call("PUT", "/users/me/trainer", U.token, { enabled: "yes" })).status === 400);
+        const on = await call("PUT", "/users/me/trainer", U.token, { enabled: true });
+        check("anyone can become a trainer, no gym needed", on.status === 200 && on.data.is_trainer === true && Array.isArray(on.data.businesses), short(on.data));
+        const uP = await profileOf(U.profile.id);
+        check("…shown on their profile", uP?.is_trainer === true && uP.trainer_at.length === 0, short(uP));
+        const off = await call("PUT", "/users/me/trainer", U.token, { enabled: false });
+        check("…and switch it off again", off.status === 200 && off.data.is_trainer === false, short(off.data));
+
+        // Switching off also leaves every gym they train at.
+        await call("POST", `/businesses/${G}/team`, T.token, { user_id: W.profile.id, role: "trainer" });
+        await call("POST", `/businesses/${G}/invites/trainer/accept`, W.token);
+        check("W trains at G again", JSON.stringify(await rolesAt(W, G)) === JSON.stringify(["trainer"]));
+        const wOff = await call("PUT", "/users/me/trainer", W.token, { enabled: false });
+        check("switching trainer mode off", wOff.status === 200 && wOff.data.is_trainer === false, short(wOff.data));
+        const biz = await call("GET", `/businesses/${G}`, member.token);
+        check("…drops their trainer roles", !ids(biz.data?.trainers).includes(W.profile.id) && (await rolesAt(W, G)).length === 0, short(biz.data?.trainers));
+        assertAll();
+      });
+
+      await t.step("9. members: add by id/email, validation, roster, resend-invite, removal, stats", async () => {
+        const m = (b: Record<string, unknown>, s: Session = T) => call("POST", "/members", s.token, b);
         check("member without gym_id is 400", (await m({ user_id: vendor.profile.id })).status === 400);
         check("member of an unknown gym is 404", (await m({ user_id: vendor.profile.id, gym_id: crypto.randomUUID() })).status === 404);
-        check("member can't add members", (await m({ user_id: vendor.profile.id, gym_id: G }, member.token)).status === 403);
+        check("member can't add members", (await m({ user_id: vendor.profile.id, gym_id: G }, member)).status === 403);
         check("neither user_id nor email is 400", (await m({ gym_id: G })).status === 400);
         check("unknown user_id is 400", (await m({ gym_id: G, user_id: crypto.randomUUID() })).status === 400);
         check("new email without names is 400", (await m({ gym_id: G, email: `it-nobody-${tag}@example.com` })).status === 400);
@@ -381,7 +509,7 @@ Deno.test({
         check("adding an existing member again is 409", dup.status === 409, `status ${dup.status}`);
         const byEmail = await m({ gym_id: G, email: vendor.profile.email ?? "ravi.deshmukh@example.com" });
         check("owner adds an existing user by email", byEmail.status === 201 && byEmail.data.user_id === vendor.profile.id, short(byEmail.data));
-        check("adding a member leaves users.role alone", (await roleOf(vendor.profile.id)) === "shop_vendor");
+        check("being a member gives no team role", (await rolesAt(vendor, G)).length === 0);
 
         const asOwner = (await call("GET", `/members?gym_id=${G}`, T.token)).data as any[];
         check("roster has both members with emails for the owner", asOwner.length === 2 && asOwner.every((r) => !!r.email), short(asOwner));
@@ -394,6 +522,8 @@ Deno.test({
         const liamRow = asOwner.find((r) => r.user_id === member.profile.id);
         const myGyms = await call("GET", `/members?user_id=${member.profile.id}`, member.token);
         check("?user_id= lists a user's gyms", myGyms.status === 200 && [G, gym.id].every((g) => (myGyms.data as any[]).some((r) => r.gym_id === g)), short(myGyms.data));
+        const liamP = await profileOf(member.profile.id, T);
+        check("their profile lists the gyms they're a member of", ids(liamP?.gyms).includes(G) && ids(liamP?.gyms).includes(gym.id), short(liamP?.gyms));
         const one = await call("GET", `/members/${liamRow?.id}`, vendor.token);
         check("read one member row", one.status === 200 && one.data.user_id === member.profile.id && one.data.gym_id === G, short(one.data));
         check("unknown member row is 404", (await call("GET", `/members/${crypto.randomUUID()}`, T.token)).status === 404);
@@ -434,41 +564,46 @@ Deno.test({
         assertAll();
       });
 
-      await t.step("6. gym isolation: staff of one gym can't touch another", async () => {
+      await t.step("10. gym isolation: the team of one gym can't touch another", async () => {
         const typeId = ((await call("GET", `/gym-membership-types?gym_id=${G}`, T.token)).data as any[])[0]?.id;
         const msId = ((await call("GET", `/memberships?gym_id=${G}`, T.token)).data as any[])[0]?.id;
         const invId = ((await call("GET", `/membership-invoices?gym_id=${G}`, T.token)).data as any[])[0]?.id;
         const liamRowG = ((await call("GET", `/members?gym_id=${G}`, T.token)).data as any[]).find((r) => r.user_id === member.profile.id);
         const ironRoster = (await call("GET", `/members?gym_id=${gym.id}`, owner.token)).data as any[];
         const ironMember = ironRoster.find((r) => r.user_id === member.profile.id);
-        const ironEmp = ((await call("GET", `/employees?gym_id=${gym.id}`, owner.token)).data as any[])[0];
-        const ironTrainer = ((await call("GET", `/trainers?gym_id=${gym.id}`, owner.token)).data as any[])[0];
-        check("fixtures found", !!(typeId && msId && invId && liamRowG && ironMember && ironEmp && ironTrainer));
+        const ironTeam = (await call("GET", `/businesses/${gym.id}/team`, owner.token)).data as any[];
+        const hasRole = (p: any, role: string) => p.roles.some((r: any) => r.role === role && r.status === "active");
+        const ironStaff = ironTeam?.find((p) => hasRole(p, "staff"));
+        const ironTrainer = ironTeam?.find((p) => hasRole(p, "trainer"));
+        check("fixtures found", !!(typeId && msId && invId && liamRowG && ironMember && ironStaff && ironTrainer));
         assertAll();
 
         const denied: [string, Promise<{ status: number }>][] = [
-          // Ironclad's owner and employee against the throwaway gym.
+          // Ironclad's owner and staff against the throwaway gym.
           ["Ironclad owner deletes G's member", call("DELETE", `/members/${liamRowG.id}`, owner.token)],
           ["Ironclad owner edits G's price", call("PUT", `/gym-membership-types/${typeId}`, owner.token, { monthly_cost: 0 })],
           ["Ironclad owner deletes G's type", call("DELETE", `/gym-membership-types/${typeId}`, owner.token)],
-          ["Ironclad employee sells G's membership", call("POST", "/memberships", employee.token, { user_id: member.profile.id, current_membership_type_id: typeId, from_date: dayFromToday(0), to_date: dayFromToday(30) })],
-          ["Ironclad employee extends G's membership", call("PUT", `/memberships/${msId}`, employee.token, { to_date: dayFromToday(365) })],
-          ["Ironclad employee deletes G's membership", call("DELETE", `/memberships/${msId}`, employee.token)],
-          ["Ironclad employee invoices G's membership", call("POST", "/membership-invoices", employee.token, { membership_id: msId })],
-          ["Ironclad employee marks G's invoice paid", call("PUT", `/membership-invoices/${invId}`, employee.token, { status: "paid" })],
-          ["Ironclad employee reads G's invoice", call("GET", `/membership-invoices/${invId}`, employee.token)],
-          ["Ironclad employee deletes G's invoice", call("DELETE", `/membership-invoices/${invId}`, employee.token)],
-          ["Ironclad employee adds a member to G", call("POST", "/members", employee.token, { gym_id: G, user_id: vendor.profile.id })],
+          ["Ironclad owner removes G's owner", call("DELETE", `/businesses/${G}/team/${T.profile.id}`, owner.token)],
+          ["Ironclad staff edit G's profile", call("PUT", `/businesses/${G}`, employee.token, { bio: "x" })],
+          ["Ironclad staff sell G's membership", call("POST", "/memberships", employee.token, { user_id: member.profile.id, current_membership_type_id: typeId, from_date: dayFromToday(0), to_date: dayFromToday(30) })],
+          ["Ironclad staff extend G's membership", call("PUT", `/memberships/${msId}`, employee.token, { to_date: dayFromToday(365) })],
+          ["Ironclad staff delete G's membership", call("DELETE", `/memberships/${msId}`, employee.token)],
+          ["Ironclad staff invoice G's membership", call("POST", "/membership-invoices", employee.token, { membership_id: msId })],
+          ["Ironclad staff mark G's invoice paid", call("PUT", `/membership-invoices/${invId}`, employee.token, { status: "paid" })],
+          ["Ironclad staff read G's invoice", call("GET", `/membership-invoices/${invId}`, employee.token)],
+          ["Ironclad staff delete G's invoice", call("DELETE", `/membership-invoices/${invId}`, employee.token)],
+          ["Ironclad staff add a member to G", call("POST", "/members", employee.token, { gym_id: G, user_id: vendor.profile.id })],
           // G's owner against Ironclad.
           ["G owner adds a member to Ironclad", call("POST", "/members", T.token, { gym_id: gym.id, user_id: vendor.profile.id })],
           ["G owner removes an Ironclad member", call("DELETE", `/members/${ironMember.id}`, T.token)],
-          ["G owner hires at Ironclad", call("POST", "/employees", T.token, { user_id: vendor.profile.id, gym_id: gym.id })],
-          ["G owner fires an Ironclad employee", call("DELETE", `/employees/${ironEmp.id}`, T.token)],
-          ["G owner changes an Ironclad role", call("PUT", "/employees/role", T.token, { user_id: ironEmp.user_id, gym_id: gym.id, employee_type: "employee_trainer" })],
-          ["G owner removes an Ironclad trainer", call("DELETE", `/trainers/${ironTrainer.id}`, T.token)],
-          ["G owner adds an Ironclad trainer", call("POST", "/trainers", T.token, { user_id: vendor.profile.id, gym_id: gym.id })],
+          ["G owner hires at Ironclad", call("POST", `/businesses/${gym.id}/team`, T.token, { user_id: vendor.profile.id, role: "staff" })],
+          ["G owner removes Ironclad staff", call("DELETE", `/businesses/${gym.id}/team/${ironStaff.user_id}?role=staff`, T.token)],
+          ["G owner removes an Ironclad trainer", call("DELETE", `/businesses/${gym.id}/team/${ironTrainer.user_id}?role=trainer`, T.token)],
+          ["G owner adds an Ironclad trainer", call("POST", `/businesses/${gym.id}/team`, T.token, { user_id: vendor.profile.id, role: "trainer" })],
+          ["G owner lists Ironclad's team", call("GET", `/businesses/${gym.id}/team`, T.token)],
           ["G owner prices Ironclad", call("POST", "/gym-membership-types", T.token, { name: "x", monthly_cost: 1, gym_id: gym.id })],
           ["G owner edits Ironclad", call("PUT", `/businesses/${gym.id}`, T.token, { name: "x" })],
+          ["G owner switches Ironclad's sides", call("PUT", `/businesses/${gym.id}`, T.token, { has_shop: true })],
           ["G owner deletes Ironclad", call("DELETE", `/businesses/${gym.id}`, T.token)],
         ];
         for (const [what, p] of denied) {
@@ -480,94 +615,42 @@ Deno.test({
         const ironRosterAsT = await call("GET", `/members?gym_id=${gym.id}`, T.token);
         check("G's owner sees Ironclad's roster without emails", ironRosterAsT.status === 200 && (ironRosterAsT.data as any[]).every((r) => !("email" in r)), `status ${ironRosterAsT.status}`);
         check("Ironclad roster untouched", ((await call("GET", `/members?gym_id=${gym.id}`, owner.token)).data as any[]).length === ironRoster.length);
+        const ironTeamAfter = (await call("GET", `/businesses/${gym.id}/team`, owner.token)).data as any[];
+        check("Ironclad team untouched", ironTeamAfter?.length === ironTeam.length);
         assertAll();
       });
 
-      await t.step("7. shop vendors: invite, accept, vendor rights, removal", async () => {
-        const v = (b: Record<string, unknown>, tok = T.token) => call("POST", "/shop-vendors", tok, b);
-        check("vendor without shop_id is 400", (await v({ user_id: U.profile.id })).status === 400);
-        check("vendor at an unknown shop is 404", (await v({ user_id: U.profile.id, shop_id: crypto.randomUUID() })).status === 404);
-        check("member can't add vendors", (await v({ user_id: U.profile.id, shop_id: S }, member.token)).status === 403);
-        check("another shop's vendor can't add vendors here", (await v({ user_id: U.profile.id, shop_id: S }, vendor.token)).status === 403);
-        check("neither user_id nor email is 400", (await v({ shop_id: S })).status === 400);
-        check("owner can't add themself", (await v({ user_id: T.profile.id, shop_id: S })).status === 400);
-        check("unknown user_id is 404", (await v({ user_id: crypto.randomUUID(), shop_id: S })).status === 404);
-        check("new email without names is 400", (await v({ shop_id: S, email: `it-nobody-${tag}@example.com` })).status === 400);
-        check(
-          "new email with a taken username is 409",
-          (await v({ shop_id: S, email: `it-nobody-${tag}@example.com`, name: "N", last_name: "B", username: vendor.profile.username })).status === 409,
-        );
+      await t.step("11. blocking and deleting businesses cascades (orders, items, members, memberships, team, follows)", async () => {
+        // A blocked business stops working for its team and disappears for everyone else.
+        const block = await call("POST", `/businesses/${S}/review`, superU.token, { status: "blocked", note: `Blocked ${tag}` });
+        check("super user blocks the shop", block.status === 200 && block.data.status === "blocked", short(block.data));
+        const blockedItem = await call("POST", "/shop-items", T.token, { shop_id: S, type: "equipment", name: "x", price: 1, quantity: 1 });
+        check("a blocked shop's owner can't sell", blockedItem.status === 403, `status ${blockedItem.status}`);
+        check("…or edit its profile", (await call("PUT", `/businesses/${S}`, T.token, { bio: "x" })).status === 403);
+        check("…and it's hidden from others", (await call("GET", `/businesses/${S}`, member.token)).status === 404);
+        check("…but can't withdraw it either (403)", (await call("DELETE", `/businesses/${S}`, T.token)).status === 403);
+        const unblock = await call("POST", `/businesses/${S}/review`, superU.token, { status: "approved" });
+        check("approving it again restores it", unblock.data?.status === "approved", short(unblock.data));
 
-        const inv = await v({ user_id: U.profile.id, shop_id: S });
-        check("owner invites a vendor", inv.status === 200 && inv.data.invited === true, short(inv.data));
-        const n = await noticeFor(U.token, "vendor_shop_invite", "shop_id", S);
-        check("invitee gets a pending vendor invite", !!n);
-        check("pending vendor invite grants nothing", (await call("POST", "/shop-items", U.token, { shop_id: S, type: "equipment", name: "x", price: 1, quantity: 1 })).status === 403);
-        const accept = await call("POST", `/notifications/${n?.id}/accept`, U.token);
-        check("invitee accepts", accept.status === 200 && accept.data.metadata?.invite_status === "accepted", short(accept.data));
-        const again = await call("POST", `/notifications/${n?.id}/accept`, U.token);
-        check("accepting twice is 409", again.status === 409, `status ${again.status}`);
-        const joined = (await notificationsOf(T.token)).find((x) => x.type === "vendor_join" && x.metadata?.shop_id === S);
-        check("owner is told the vendor joined", !!joined && joined.metadata.user_id === U.profile.id, short(joined));
-        check("vendor's role is shop_vendor", (await roleOf(U.profile.id)) === "shop_vendor");
-        check("inviting a current vendor is 409", (await v({ user_id: U.profile.id, shop_id: S })).status === 409);
-
-        const asOwner = (await call("GET", `/shop-vendors?shop_id=${S}`, T.token)).data as any[];
-        const row = asOwner.find((r) => r.user_id === U.profile.id);
-        check("owner lists the vendor with email", !!row?.email && row.role === "shop_vendor", short(asOwner));
-        const asStranger = (await call("GET", `/shop-vendors?shop_id=${S}`, member.token)).data as any[];
-        check("outsiders see vendors without email", asStranger.length === 1 && !("email" in asStranger[0]), short(asStranger));
-        const one = await call("GET", `/shop-vendors/${row?.id}`, U.token);
-        check("vendor reads own row with email", one.status === 200 && !!one.data.email, short(one.data));
-        check("unknown vendor row is 404", (await call("GET", `/shop-vendors/${crypto.randomUUID()}`, T.token)).status === 404);
-
-        // Vendor rights: items yes, staff/business/other shops no.
-        const item = await call("POST", "/shop-items", U.token, { shop_id: S, type: "supplement", name: `it-v-${tag}`, price: 9.99, quantity: 3 });
-        check("vendor adds an item", item.status === 201, short(item.data));
-        const vendorShopId = ((await call("GET", `/shop-vendors?user_id=${vendor.profile.id}`, vendor.token)).data as any[])[0]?.shop_id;
-        for (
-          const [what, r] of [
-            ["add vendors", await v({ user_id: member.profile.id, shop_id: S }, U.token)],
-            ["remove themself", await call("DELETE", `/shop-vendors/${row?.id}`, U.token)],
-            ["update the shop", await call("PUT", `/businesses/${S}`, U.token, { location: "x" })],
-            ["sell at another shop", await call("POST", "/shop-items", U.token, { shop_id: vendorShopId, type: "equipment", name: "x", price: 1, quantity: 1 })],
-          ] as const
-        ) check(`vendor can't ${what}`, r.status === 403, `status ${r.status}`);
-        check("another shop's vendor can't remove this vendor", (await call("DELETE", `/shop-vendors/${row?.id}`, vendor.token)).status === 403);
-
-        // Taking a gym job while still a vendor, then losing it.
-        await call("POST", "/employees", T.token, { user_id: U.profile.id, gym_id: G });
-        const ge = await noticeFor(U.token, "employee_gym_invite", "gym_id", G);
-        await call("POST", `/notifications/${ge?.id}/accept`, U.token);
-        const empRow = ((await call("GET", `/employees?gym_id=${G}`, T.token)).data as any[]).find((e) => e.user_id === U.profile.id);
-        check("vendor also became an employee", !!empRow);
-        await call("DELETE", `/employees/${empRow?.id}`, T.token);
-        // users.role follows the jobs the user still holds; the shop_vendor row remains.
-        check("losing the gym job keeps the vendor role", (await roleOf(U.profile.id)) === "shop_vendor", `role ${await roleOf(U.profile.id)}`);
-
-        const del = await call("DELETE", `/shop-vendors/${row?.id}`, T.token);
-        check("owner removes the vendor", del.status === 204, `status ${del.status}`);
-        check("removed vendor is a member", (await roleOf(U.profile.id)) === "member");
-        const after = await call("PUT", `/shop-items/${item.data?.id}`, U.token, { price: 1 });
-        check("removed vendor can't edit items", after.status === 403, `status ${after.status}`);
-        check("removing again is 404", (await call("DELETE", `/shop-vendors/${row?.id}`, T.token)).status === 404);
-        assertAll();
-      });
-
-      await t.step("8. deleting businesses cascades (orders, items, members, memberships, staff)", async () => {
-        // U back on staff so the cascade has a role to reconcile.
-        await call("POST", "/employee-trainers", T.token, { user_id: U.profile.id, gym_id: G });
-        const item = ((await call("GET", `/shop-items?shop_id=${S}`)).data as any[])[0];
-        const order = await call("POST", "/orders", member.token, { shop_id: S, items: [{ shop_item_id: item?.id, quantity: 1 }], payment_method: "pay_at_pickup" });
+        // U back on the team (staff + trainer) so the cascade has roles to remove.
+        for (const role of ["staff", "trainer"]) {
+          await call("POST", `/businesses/${G}/team`, T.token, { user_id: U.profile.id, role });
+          await call("POST", `/businesses/${G}/invites/${role}/accept`, U.token);
+        }
+        check("U is staff + trainer again", JSON.stringify(await rolesAt(U, G)) === JSON.stringify(["staff", "trainer"]));
+        const item = await call("POST", "/shop-items", T.token, { shop_id: S, type: "equipment", name: `it-c-${tag}`, price: 2, quantity: 5 });
+        const order = await call("POST", "/orders", member.token, { shop_id: S, items: [{ shop_item_id: item.data?.id, quantity: 1 }], payment_method: "pay_at_pickup" });
         check("member orders from the shop", order.status === 201, short(order.data));
+        await call("PUT", `/businesses/${S}/follow`, member.token);
         const msId = ((await call("GET", `/memberships?gym_id=${G}`, T.token)).data as any[])[0]?.id;
         const invId = ((await call("GET", `/membership-invoices?gym_id=${G}`, T.token)).data as any[])[0]?.id;
 
         const delShop = await call("DELETE", `/businesses/${S}`, T.token);
         check("owner deletes the shop", delShop.status === 204, `status ${delShop.status} ${short(delShop.data)}`);
+        const shopId = S;
         if (delShop.status === 204) S = "";
         check("its orders are gone", (await call("GET", `/orders/${order.data?.id}`, member.token)).status === 404);
-        check("its items are gone", (await call("GET", `/shop-items/${item?.id}`)).status === 404);
+        check("its items are gone", (await call("GET", `/shop-items/${item.data?.id}`)).status === 404);
 
         const delGym = await call("DELETE", `/businesses/${G}`, T.token);
         check("owner deletes the gym", delGym.status === 204, `status ${delGym.status} ${short(delGym.data)}`);
@@ -577,21 +660,33 @@ Deno.test({
         check("its members are gone", ((await call("GET", `/members?gym_id=${gymId}`, T.token)).data as any[]).length === 0);
         check("its memberships are gone", (await call("GET", `/memberships/${msId}`, member.token)).status === 404);
         check("its invoices are gone", (await call("GET", `/membership-invoices/${invId}`, member.token)).status === 404);
-        check("its staff are gone", ((await call("GET", `/trainers?gym_id=${gymId}`, T.token)).data as any[]).length === 0);
-        check("staff role is reconciled", (await roleOf(U.profile.id)) === "member");
+        check("its team is gone", (await me(U))?.businesses?.length === 0 && (await me(T))?.businesses?.length === 0);
+        if (await dbAvailable()) {
+          const left = await sql<{ n: number }>(
+            `SELECT (SELECT COUNT(*) FROM business_member WHERE business_id = ANY($1::uuid[]))
+                  + (SELECT COUNT(*) FROM business_follow WHERE business_id = ANY($1::uuid[])) AS n`,
+            [[gymId, shopId]],
+          );
+          check("no team or follower rows are left", Number(left?.[0]?.n) === 0, short(left));
+        }
         const stats = await call("GET", "/businesses/stats", T.token);
         check("owner with no gyms has empty stats", stats.status === 200 && stats.data.gyms === 0, short(stats.data));
         assertAll();
       });
     } finally {
       for (const id of [S, G]) if (id) await call("DELETE", `/businesses/${id}`, T.token);
+      if (superBiz) await call("DELETE", `/businesses/${superBiz}`, superU.token);
       // Every notice the flow sent names the throwaway gym/shop, so the tag finds them.
       const mentionsTag = (n: any) => `${n.title} ${n.body}`.includes(tag);
       await deleteNotifications(member.token, mentionsTag);
       await deleteNotifications(vendor.token, mentionsTag);
-      await deleteNotificationsWhere("user_id", [T.profile.id, U.profile.id]);
+      await deleteNotificationsWhere("user_id", [T.profile.id, U.profile.id, W.profile.id]);
       await sql(`DELETE FROM notification WHERE title LIKE $1 OR body LIKE $1`, [`%${tag}%`]);
-      for (const id of [T.profile.id, U.profile.id]) {
+      await sql(
+        `DELETE FROM admin_audit_log WHERE actor_id = $1 AND action LIKE 'business_%' AND metadata->>'business_id' = ANY($2::text[])`,
+        [superU.profile.id, everCreated.filter(Boolean)],
+      );
+      for (const id of [T.profile.id, U.profile.id, W.profile.id]) {
         const del = await call("DELETE", `/users/${id}`, superU.token);
         if (del.status !== 204) console.warn(`couldn't delete throwaway user ${id}: ${del.status} ${short(del.data)}`);
       }

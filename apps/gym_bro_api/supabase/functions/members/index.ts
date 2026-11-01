@@ -1,8 +1,8 @@
 import { db, supabaseAdmin } from "../_shared/config.ts";
 import { canCoachAtGym, canStaffGym, forbidden, json, jsonError, redactEmails, requireCaller } from "../_shared/auth.ts";
-import { gymOwnerIds, notify } from "../_shared/notify.ts";
+import { notify } from "../_shared/notify.ts";
 import type { UserInsert } from "../../types/schema/public.ts";
-import { pgCode } from "../_shared/roles.ts";
+import { businessTeamIds, pgCode } from "../_shared/business.ts";
 
 // ── Path parsing ──────────────────────────────────────────────────────────────
 
@@ -18,15 +18,17 @@ function parsePath(pathname: string): { id: string | null; action: string | null
 async function getGymName(gymId: string): Promise<string | null> {
   const row = await db
     .selectFrom("business")
-    .innerJoin("gym", "gym.id", "business.id")
     .select(["business.name"])
-    .where("gym.id", "=", gymId)
+    .where("business.id", "=", gymId)
+    .where("business.has_gym", "=", true)
     .executeTakeFirst();
   return row?.name ?? null;
 }
 
-/** Tells the new member and the gym owners about the join. */
+/** Has the new member follow the gym, and tells them and the gym owners about the join. */
 async function notifyMemberJoined(userId: string, gymId: string, gymName: string): Promise<void> {
+  await db.insertInto("business_follow").values({ user_id: userId, business_id: gymId })
+    .onConflict((oc) => oc.doNothing()).execute();
   const u = await db
     .selectFrom("users")
     .select(["name", "last_name"])
@@ -41,7 +43,7 @@ async function notifyMemberJoined(userId: string, gymId: string, gymName: string
     body: `Welcome to ${gymName}!`,
     metadata,
   });
-  const owners = (await gymOwnerIds(gymId)).filter((id) => id !== userId);
+  const owners = (await businessTeamIds(gymId)).filter((id) => id !== userId);
   await notify(owners, {
     type: "member_join",
     title: `${fullName} joined ${gymName}`,
@@ -82,7 +84,7 @@ Deno.serve(async (req: Request) => {
       existingUserId = existing?.id ?? null;
     }
 
-    // ── Existing user: add the member row (users.role is left alone) ──────────
+    // ── Existing user: add the member row ─────────────────────────────────────
     if (existingUserId) {
       try {
         const row = await db
@@ -161,7 +163,6 @@ Deno.serve(async (req: Request) => {
         "users.username",
         "users.email",
         "users.avatar_url",
-        "users.role",
       ]);
     if (userId) query = query.where("member.user_id", "=", userId);
     if (gymId) query = query.where("member.gym_id", "=", gymId);
@@ -177,7 +178,6 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── DELETE /members/:id ───────────────────────────────────────────────────────
-  // users.role is never 'member'-specific beyond the default, so nothing to reset.
   if (req.method === "DELETE" && id && !action) {
     const existing = await db
       .selectFrom("member")

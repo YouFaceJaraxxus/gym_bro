@@ -1,7 +1,7 @@
 import { db } from "../_shared/config.ts";
 import { canStaffShop, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
 import type { ShopItemInsert, ShopItemType, ShopItemUpdate } from "../../types/schema/public.ts";
-import { pgCode } from "../_shared/roles.ts";
+import { pgCode } from "../_shared/business.ts";
 import { businessName, notify } from "../_shared/notify.ts";
 
 const COLS = [

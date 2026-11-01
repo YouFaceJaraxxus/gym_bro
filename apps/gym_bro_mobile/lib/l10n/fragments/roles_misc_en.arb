@@ -1,0 +1,21 @@
+{
+  "rolesMiscSuperUser": "Super user",
+  "rolesMiscSuperUserHint": "Reviews businesses and manages users",
+  "rolesMiscTrainer": "Trainer",
+  "rolesMiscTrainerAt": "Trainer at",
+  "rolesMiscOwnerOf": "Owner of",
+  "rolesMiscOwner": "Owner",
+  "rolesMiscStaff": "Staff",
+  "rolesMiscMember": "Member",
+  "rolesMiscTeam": "Team",
+  "rolesMiscTeamHint": "Owners, staff and trainers, and open invites",
+  "rolesMiscManageTeam": "Manage team",
+  "rolesMiscTeamCount": "{count, plural, =1{1 on the team} other{{count} on the team}}",
+  "@rolesMiscTeamCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

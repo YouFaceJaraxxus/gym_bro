@@ -67,6 +67,8 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 import { normalizeMentions, validMentions } from "../supabase/functions/_shared/mentions.ts";
 import type {
   BookingStatus,
+  BusinessRole,
+  BusinessStatus,
   Database,
   DailyMealPlanSlotEntryInsert,
   DrinkSubtype,
@@ -87,7 +89,6 @@ import type {
   TrainingSetDropInsert,
   TrainingSetExerciseInsert,
   TrainingSetInsert,
-  UserRole,
   WorkoutSetType,
 } from "../supabase/types/schema/public.ts";
 
@@ -444,7 +445,16 @@ type SeedBusiness = {
   location: string;
   latitude: number;
   longitude: number;
-  type: "gym" | "shop";
+  // A gym, a shop or both.
+  has_gym: boolean;
+  has_shop: boolean;
+  bio: string | null;
+  website: string | null;
+  phone: string | null;
+  // Default "approved" (with the super user as reviewer). A "pending" one is an
+  // application waiting in the super user's review queue: its owner is on the
+  // team, but nothing else (members, classes, posts) is seeded for it.
+  status?: BusinessStatus;
   working_hours_from: string;
   working_hours_to: string;
   working_weekdays: number[];
@@ -457,13 +467,14 @@ type SeedPersona = {
   email: string;
   first_name: string;
   last_name: string;
-  role: UserRole;
   avatar_key: string;
-  // Names of the business(es) this persona has a role-join row for — a gym for
-  // trainer/member/employee/employee_trainer, a shop for shop_vendor, and
-  // potentially several of either for owner. Empty for business-less roles
-  // like super_user.
-  businesses: string[];
+  // Platform admin: reviews business applications.
+  is_super_user?: boolean;
+  // Gyms they hold a membership at (member rows).
+  member_of?: string[];
+  // What they are at each business (active business_member rows). A trainer
+  // role anywhere also switches on users.is_trainer.
+  team?: { business: string; roles: BusinessRole[] }[];
 };
 type SeedExercise = {
   name: string;
@@ -632,6 +643,8 @@ type SeedShopOrder = {
 
 const businesses: SeedBusiness[] = seedData.businesses;
 const personas: SeedPersona[] = seedData.personas;
+// [username, business name]: profiles people follow besides their own gym.
+const businessFollows: [string, string][] = seedData.business_follows;
 const exercises: SeedExercise[] = seedData.exercises;
 const trainings: SeedTraining[] = seedData.trainings;
 const routines: SeedRoutine[] = seedData.routines;
@@ -675,33 +688,44 @@ for (const f of foodItems) {
 }
 
 // Pure derivations from the persona list — no DB round-trip needed, so these
-// are ready before any inserts happen and can be used throughout.
+// are ready before any inserts happen and can be used throughout. Only
+// approved businesses count: a pending application has nothing seeded yet.
 const personaByUsername = new Map(personas.map((p) => [p.username, p]));
 const businessByName = new Map(businesses.map((b) => [b.name, b]));
-const gymBusinesses = businesses.filter((b) => b.type === "gym");
+const statusOf = (b: SeedBusiness): BusinessStatus => b.status ?? "approved";
+const isLive = (name: string) => {
+  const b = businessByName.get(name);
+  return !!b && statusOf(b) === "approved";
+};
+const gymBusinesses = businesses.filter((b) => b.has_gym && statusOf(b) === "approved");
+/** Where a persona spends their time: the gym they're a member of, else the first business they work at. */
+const homeBusinessOf = (username: string): string | undefined => {
+  const p = personaByUsername.get(username);
+  return p?.member_of?.[0] ?? p?.team?.[0]?.business;
+};
+const rolesAt = (username: string, businessName: string): BusinessRole[] =>
+  personaByUsername.get(username)?.team?.find((t) => t.business === businessName)?.roles ?? [];
+const isTrainerPersona = (p: SeedPersona) => (p.team ?? []).some((t) => t.roles.includes("trainer"));
 const memberUsernamesByGym = new Map<string, string[]>();
-const trainerUsernamesByGym = new Map<string, string[]>(); // trainers + employee-trainers
-const deskStaffUsernamesByGym = new Map<string, string[]>(); // employees + employee-trainers
+const trainerUsernamesByGym = new Map<string, string[]>(); // trainer role (owners who coach too)
+const deskStaffUsernamesByGym = new Map<string, string[]>(); // staff role at a gym
 const ownerUsernameByBusiness = new Map<string, string>();
 const ownerUsernamesByBusiness = new Map<string, string[]>();
-const vendorUsernamesByShop = new Map<string, string[]>();
+const shopStaffUsernamesByShop = new Map<string, string[]>(); // staff role at a shop
 const push = (map: Map<string, string[]>, key: string, value: string) =>
   (map.get(key) ?? map.set(key, []).get(key)!).push(value);
 for (const p of personas) {
-  const homeBusiness = p.businesses[0];
-  if (p.role === "member" && homeBusiness) push(memberUsernamesByGym, homeBusiness, p.username);
-  if ((p.role === "trainer" || p.role === "employee_trainer") && homeBusiness) {
-    push(trainerUsernamesByGym, homeBusiness, p.username);
-  }
-  if ((p.role === "employee" || p.role === "employee_trainer") && homeBusiness) {
-    push(deskStaffUsernamesByGym, homeBusiness, p.username);
-  }
-  if (p.role === "shop_vendor" && homeBusiness) push(vendorUsernamesByShop, homeBusiness, p.username);
-  if (p.role === "owner") {
-    for (const b of p.businesses) {
-      if (!ownerUsernameByBusiness.has(b)) ownerUsernameByBusiness.set(b, p.username);
-      push(ownerUsernamesByBusiness, b, p.username);
+  for (const gym of p.member_of ?? []) if (isLive(gym)) push(memberUsernamesByGym, gym, p.username);
+  for (const { business: name, roles } of p.team ?? []) {
+    const b = businessByName.get(name);
+    if (!b || !isLive(name)) continue;
+    if (roles.includes("owner")) {
+      if (!ownerUsernameByBusiness.has(name)) ownerUsernameByBusiness.set(name, p.username);
+      push(ownerUsernamesByBusiness, name, p.username);
     }
+    if (b.has_gym && roles.includes("trainer")) push(trainerUsernamesByGym, name, p.username);
+    if (b.has_gym && roles.includes("staff")) push(deskStaffUsernamesByGym, name, p.username);
+    if (b.has_shop && roles.includes("staff")) push(shopStaffUsernamesByShop, name, p.username);
   }
 }
 const fullName = (username: string) => {
@@ -717,10 +741,18 @@ function lapsedOn(username: string): string | null {
 }
 
 // ── 1. Businesses ─────────────────────────────────────────────────────────────
+// Approved ones were "reviewed" by the super user when they were set up; the
+// pending one is an application still in the review queue. created_by and
+// reviewed_by are filled in once the people exist (section 2).
 
 const businessIdByName = new Map<string, string>();
-const businessTypeByName = new Map<string, "gym" | "shop">();
 let added = 0;
+
+/** When a seeded business was set up (approved ones long ago, applications this week). */
+const businessCreatedMs = (b: SeedBusiness) =>
+  statusOf(b) === "approved"
+    ? NOW_MS - rngFor("business-created", b.name).int(420, 720) * DAY_MS
+    : NOW_MS - rngFor("business-created", b.name).int(30, 60) * HOUR_MS;
 
 for (const b of businesses) {
   const existing = await db.selectFrom("business").select(["id"]).where("name", "=", b.name).executeTakeFirst();
@@ -731,7 +763,17 @@ for (const b of businesses) {
     await db.updateTable("business")
       .set({ latitude: b.latitude, longitude: b.longitude })
       .where("id", "=", id).where("latitude", "is", null).execute();
+    // Profile fields arrived with migration 000023; fill in what's empty and
+    // switch on a side the seed data added (never switch one off).
+    await db.updateTable("business").set({ bio: b.bio }).where("id", "=", id).where("bio", "is", null).execute();
+    await db.updateTable("business").set({ website: b.website }).where("id", "=", id).where("website", "is", null)
+      .execute();
+    await db.updateTable("business").set({ phone: b.phone }).where("id", "=", id).where("phone", "is", null).execute();
+    if (b.has_gym) await db.updateTable("business").set({ has_gym: true }).where("id", "=", id).execute();
+    if (b.has_shop) await db.updateTable("business").set({ has_shop: true }).where("id", "=", id).execute();
   } else {
+    const createdMs = businessCreatedMs(b);
+    const approved = statusOf(b) === "approved";
     const row = await db
       .insertInto("business")
       .values({
@@ -743,21 +785,25 @@ for (const b of businesses) {
         working_hours_from: b.working_hours_from,
         working_hours_to: b.working_hours_to,
         working_weekdays: b.working_weekdays,
-        type: b.type,
+        has_gym: b.has_gym,
+        has_shop: b.has_shop,
+        status: statusOf(b),
+        bio: b.bio,
+        website: b.website,
+        phone: b.phone,
+        created_at: iso(createdMs),
+        reviewed_at: approved ? iso(createdMs + 2 * DAY_MS) : null,
       })
       .returning(["id"])
       .executeTakeFirstOrThrow();
     id = row.id;
-    if (b.type === "gym") await db.insertInto("gym").values({ id }).execute();
-    else await db.insertInto("shop").values({ id }).execute();
     added++;
   }
   businessIdByName.set(b.name, id);
-  businessTypeByName.set(b.name, b.type);
 }
 report("businesses", added);
 
-// ── 2. Personas (auth users + profile rows + role-join rows) ─────────────────
+// ── 2. Personas (auth users, profile rows, memberships and business teams) ───
 
 /** Finds an existing auth user by email, paging through the admin API. */
 async function findAuthUserId(email: string): Promise<string | null> {
@@ -773,7 +819,6 @@ async function findAuthUserId(email: string): Promise<string | null> {
 
 const userIdByUsername = new Map<string, string>();
 let usersAdded = 0;
-let roleRowsAdded = 0;
 
 for (const p of personas) {
   const existingProfile = await db
@@ -792,6 +837,11 @@ for (const p of personas) {
       if (error) throw new Error(`Failed to reset the password of ${p.email}: ${error.message}`);
       console.log(`  ~ password reset for "${p.username}"`);
     }
+    // Flags the seed data added since this user was seeded (never cleared).
+    if (p.is_super_user) {
+      await db.updateTable("users").set({ is_super_user: true }).where("id", "=", userId).execute();
+    }
+    if (isTrainerPersona(p)) await db.updateTable("users").set({ is_trainer: true }).where("id", "=", userId).execute();
   } else {
     let authUserId: string;
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
@@ -819,7 +869,8 @@ for (const p of personas) {
         email: p.email,
         name: p.first_name,
         last_name: p.last_name,
-        role: p.role,
+        is_super_user: p.is_super_user ?? false,
+        is_trainer: isTrainerPersona(p),
         avatar_url: avatarUrl(p.avatar_key),
         auth_id: authUserId,
       })
@@ -827,109 +878,145 @@ for (const p of personas) {
       .executeTakeFirstOrThrow();
     userId = row.id;
     usersAdded++;
-    console.log(`  + user "${p.username}" (${p.role})`);
+    const what = [
+      p.is_super_user ? "super user" : null,
+      ...(p.team ?? []).map((t) => `${t.roles.join(" + ")} at ${t.business}`),
+      ...(p.member_of ?? []).map((g) => `member of ${g}`),
+    ].filter(Boolean).join("; ");
+    console.log(`  + user "${p.username}" (${what || "member"})`);
   }
   userIdByUsername.set(p.username, userId);
-
-  // Role-join rows for every business this persona is tied to (idempotent:
-  // only insert — and only notify the business owner — if not already present).
-  const roleTable = {
-    trainer: "trainer" as const,
-    member: "member" as const,
-    employee: "employee" as const,
-    employee_trainer: "employee_trainer" as const,
-  }[p.role as "trainer" | "member" | "employee" | "employee_trainer"];
-
-  for (const businessName of p.businesses) {
-    const businessId = businessIdByName.get(businessName);
-    const businessType = businessTypeByName.get(businessName);
-    if (!businessId || !businessType) {
-      console.warn(`  ! unknown business "${businessName}" referenced by persona "${p.username}" — skipping`);
-      continue;
-    }
-
-    let didInsert = false;
-    if (p.role === "owner") {
-      if (businessType === "gym") {
-        const exists = await db
-          .selectFrom("gym_owner")
-          .select("id")
-          .where("user_id", "=", userId)
-          .where("gym_id", "=", businessId)
-          .executeTakeFirst();
-        if (!exists) {
-          await db.insertInto("gym_owner").values({ user_id: userId, gym_id: businessId }).execute();
-          didInsert = true;
-        }
-      } else {
-        const exists = await db
-          .selectFrom("shop_owner")
-          .select("id")
-          .where("user_id", "=", userId)
-          .where("shop_id", "=", businessId)
-          .executeTakeFirst();
-        if (!exists) {
-          await db.insertInto("shop_owner").values({ user_id: userId, shop_id: businessId }).execute();
-          didInsert = true;
-        }
-      }
-    } else if (p.role === "shop_vendor") {
-      const exists = await db
-        .selectFrom("shop_vendor")
-        .select("id")
-        .where("user_id", "=", userId)
-        .where("shop_id", "=", businessId)
-        .executeTakeFirst();
-      if (!exists) {
-        await db.insertInto("shop_vendor").values({ user_id: userId, shop_id: businessId }).execute();
-        didInsert = true;
-      }
-    } else if (roleTable) {
-      const exists = await db
-        .selectFrom(roleTable)
-        .select("id")
-        .where("user_id", "=", userId)
-        .where("gym_id", "=", businessId)
-        .executeTakeFirst();
-      if (!exists) {
-        await db.insertInto(roleTable).values({ user_id: userId, gym_id: businessId }).execute();
-        didInsert = true;
-      }
-    }
-    if (didInsert) roleRowsAdded++;
-
-    // Notify the business owner the first time someone joins their business.
-    if (didInsert && p.role !== "owner") {
-      const ownerUsername = ownerUsernameByBusiness.get(businessName);
-      const ownerId = ownerUsername ? userIdByUsername.get(ownerUsername) : undefined;
-      if (ownerId) {
-        const notifType: NotificationType = p.role === "shop_vendor"
-          ? "vendor_join"
-          : p.role === "member"
-          ? "member_join"
-          : "employee_join";
-        await db
-          .insertInto("notification")
-          .values({
-            user_id: ownerId,
-            type: notifType,
-            title: `${p.first_name} ${p.last_name} joined ${businessName}`,
-            body: null,
-            metadata: { user_id: userId, username: p.username, role: p.role },
-          })
-          .execute();
-        notificationsAdded++;
-      }
-    }
-  }
 }
 report("users", usersAdded);
-report("business role rows", roleRowsAdded);
 
-const trainerUsername = personas.find((p) => p.role === "trainer")!.username;
-const trainerId = userIdByUsername.get(trainerUsername)!;
-const memberUsernames = personas.filter((p) => p.role === "member").map((p) => p.username);
 const uid = (username: string) => userIdByUsername.get(username)!;
+const superUserId = userIdByUsername.get(personas.find((p) => p.is_super_user)?.username ?? "") ?? null;
+
+// Who set each business up (its first owner) and who approved it.
+for (const b of businesses) {
+  const id = businessIdByName.get(b.name)!;
+  const founder = personas.find((p) => (p.team ?? []).some((t) => t.business === b.name && t.roles.includes("owner")));
+  if (founder) {
+    await db.updateTable("business").set({ created_by: uid(founder.username) })
+      .where("id", "=", id).where("created_by", "is", null).execute();
+  }
+  if (statusOf(b) === "approved" && superUserId) {
+    await db.updateTable("business").set({ reviewed_by: superUserId })
+      .where("id", "=", id).where("status", "=", "approved").where("reviewed_by", "is", null).execute();
+  }
+}
+
+// Team rows: owners first (so a business has an owner before anyone joins),
+// all active. Each new staff/trainer row sends the owners the business_join
+// notification the invites API sends on accepting. Guard: per (business,
+// person, role).
+let teamRowsAdded = 0;
+const teamRows = personas
+  .flatMap((p) => (p.team ?? []).flatMap((t) => t.roles.map((role) => ({ p, business: t.business, role }))))
+  .sort((a, b) => Number(b.role === "owner") - Number(a.role === "owner"));
+for (const { p, business: name, role } of teamRows) {
+  const b = businessByName.get(name);
+  const businessId = businessIdByName.get(name);
+  if (!b || !businessId) {
+    console.warn(`  ! unknown business "${name}" referenced by persona "${p.username}" — skipping`);
+    continue;
+  }
+  const userId = uid(p.username);
+  const createdMs = businessCreatedMs(b);
+  const joinedMs = role === "owner"
+    ? createdMs
+    : Math.min(createdMs + rngFor("team-joined", p.username, name, role).int(3, 300) * DAY_MS, NOW_MS - 3 * DAY_MS);
+  const ownerUsername = ownerUsernameByBusiness.get(name);
+  const res = await db
+    .insertInto("business_member")
+    .values({
+      business_id: businessId,
+      user_id: userId,
+      role,
+      status: "active",
+      invited_by: role === "owner" || !ownerUsername ? null : uid(ownerUsername),
+      created_at: iso(joinedMs - DAY_MS),
+      joined_at: iso(joinedMs),
+    })
+    .onConflict((oc) => oc.columns(["business_id", "user_id", "role"]).doNothing())
+    .executeTakeFirst();
+  if (Number(res.numInsertedOrUpdatedRows ?? 0) === 0) continue;
+  teamRowsAdded++;
+  if (role !== "owner" && isLive(name)) {
+    const who = fullName(p.username);
+    const label = { owner: "a co-owner", staff: "staff", trainer: "a trainer" }[role];
+    const owners = (ownerUsernamesByBusiness.get(name) ?? []).filter((u) => u !== p.username).map(uid);
+    await addNotification(owners, {
+      type: "business_join",
+      title: `${who} joined ${name}`,
+      body: `${who} accepted your invitation to join ${name} as ${label}.`,
+      metadata: { business_id: businessId, user_id: userId, role },
+    }, joinedMs);
+  }
+}
+report("business team rows", teamRowsAdded);
+
+// Gym memberships (member rows) with the member_join notifications the
+// members API sends. Guard: per (member, gym).
+let memberRowsAdded = 0;
+for (const p of personas) {
+  for (const gymName of p.member_of ?? []) {
+    const gymId = businessIdByName.get(gymName);
+    if (!gymId || !isLive(gymName)) {
+      console.warn(`  ! persona "${p.username}" is a member of unknown or unapproved gym "${gymName}" — skipping`);
+      continue;
+    }
+    const userId = uid(p.username);
+    const exists = await db.selectFrom("member").select("id")
+      .where("user_id", "=", userId).where("gym_id", "=", gymId).executeTakeFirst();
+    if (exists) continue;
+    await db.insertInto("member").values({ user_id: userId, gym_id: gymId }).execute();
+    memberRowsAdded++;
+    const who = fullName(p.username);
+    const owners = (ownerUsernamesByBusiness.get(gymName) ?? []).map(uid);
+    await addNotification(owners, {
+      type: "member_join",
+      title: `${who} joined ${gymName}`,
+      body: `${who} is now a member of ${gymName}.`,
+      metadata: { gym_id: gymId, user_id: userId },
+    }, NOW_MS - rngFor("member-joined", p.username, gymName).int(60, 400) * DAY_MS);
+  }
+}
+report("gym members", memberRowsAdded);
+
+// Business follows: members follow their gym, the team their business (as
+// joining does in the API), plus the profiles people follow from seed_data.
+let businessFollowsAdded = 0;
+const followPairs: [string, string][] = [
+  ...personas.flatMap((p) => (p.member_of ?? []).map((g) => [p.username, g] as [string, string])),
+  ...personas.flatMap((p) => (p.team ?? []).map((t) => [p.username, t.business] as [string, string])),
+  ...businessFollows,
+];
+for (const [username, name] of followPairs) {
+  const userId = userIdByUsername.get(username);
+  const businessId = businessIdByName.get(name);
+  if (!userId || !businessId) {
+    console.warn(`  ! business follow "${username}" → "${name}" references an unknown persona or business — skipping`);
+    continue;
+  }
+  const res = await db
+    .insertInto("business_follow")
+    .values({
+      user_id: userId,
+      business_id: businessId,
+      created_at: iso(NOW_MS - rngFor("business-follow", username, name).int(5, 300) * DAY_MS),
+    })
+    .onConflict((oc) => oc.doNothing())
+    .executeTakeFirst();
+  businessFollowsAdded += Number(res.numInsertedOrUpdatedRows ?? 0);
+}
+report("business follows", businessFollowsAdded);
+
+// The demo coach: the first persona with a trainer role (authors the public
+// library) — Elena at Ironclad.
+const trainerUsername = personas.find(isTrainerPersona)!.username;
+const trainerId = userIdByUsername.get(trainerUsername)!;
+const memberUsernames = personas.filter((p) => (p.member_of ?? []).length > 0).map((p) => p.username);
 
 // ── 3. Exercises ──────────────────────────────────────────────────────────────
 
@@ -1559,7 +1646,7 @@ report("shop products", added);
 // New posts are spread over the last ~4 weeks (oldest first, in data order).
 
 function businessIdForAuthor(username: string): string | null {
-  const homeBusiness = personaByUsername.get(username)?.businesses[0];
+  const homeBusiness = homeBusinessOf(username);
   return homeBusiness ? businessIdByName.get(homeBusiness) ?? null : null;
 }
 
@@ -2486,29 +2573,33 @@ const seededPosts = await db
     "post.content",
     "post.created_at",
     "business.name as business_name",
-    "business.type as business_type",
   ])
   .where("post.content", "in", posts.map((p) => p.content))
   .execute();
 
-function communityOf(businessName: string, type: "gym" | "shop"): string[] {
-  if (type === "gym") {
-    return [
+function communityOf(businessName: string): string[] {
+  const b = businessByName.get(businessName);
+  const out: string[] = [];
+  if (b?.has_gym) {
+    out.push(
       ...(memberUsernamesByGym.get(businessName) ?? []),
       ...(trainerUsernamesByGym.get(businessName) ?? []),
       ...(deskStaffUsernamesByGym.get(businessName) ?? []),
       ...(ownerUsernamesByBusiness.get(businessName) ?? []),
-    ];
+    );
   }
-  const owners = ownerUsernamesByBusiness.get(businessName) ?? [];
-  const sisterGyms = gymBusinesses.filter((g) =>
-    (ownerUsernamesByBusiness.get(g.name) ?? []).some((o) => owners.includes(o))
-  );
-  return [
-    ...owners,
-    ...(vendorUsernamesByShop.get(businessName) ?? []),
-    ...sisterGyms.flatMap((g) => memberUsernamesByGym.get(g.name) ?? []),
-  ];
+  if (b?.has_shop) {
+    const owners = ownerUsernamesByBusiness.get(businessName) ?? [];
+    const sisterGyms = gymBusinesses.filter((g) =>
+      (ownerUsernamesByBusiness.get(g.name) ?? []).some((o) => owners.includes(o))
+    );
+    out.push(
+      ...owners,
+      ...(shopStaffUsernamesByShop.get(businessName) ?? []),
+      ...sisterGyms.flatMap((g) => memberUsernamesByGym.get(g.name) ?? []),
+    );
+  }
+  return out;
 }
 
 let likesAdded = 0;
@@ -2516,7 +2607,7 @@ for (const post of seededPosts) {
   const liked = await db.selectFrom("post_reaction").select("user_id").where("post_id", "=", post.id).executeTakeFirst();
   if (liked) continue;
   const rng = rngFor("likes", post.content);
-  const community = [...new Set(communityOf(post.business_name, post.business_type))]
+  const community = [...new Set(communityOf(post.business_name))]
     .map(uid).filter((id) => id && id !== post.author_id);
   const postMs = toMs(post.created_at);
   const likers = rng.sample(community, Math.round(community.length * rng.float(0.2, 0.7)));
@@ -2610,7 +2701,7 @@ for (const thread of postCommentThreads) {
   if (!post) continue;
   const commented = await db.selectFrom("post_comment").select("id").where("post_id", "=", post.id).executeTakeFirst();
   if (commented) continue;
-  const audience = [...new Set(communityOf(post.business_name, post.business_type))].map(uid).filter(Boolean);
+  const audience = [...new Set(communityOf(post.business_name))].map(uid).filter(Boolean);
   postCommentsAdded += await seedThread(post, thread, post.business_name, audience);
 }
 report("post comments", postCommentsAdded);
@@ -2819,7 +2910,7 @@ const diaryUsernames = [
 let foodLogsAdded = 0;
 for (const username of diaryUsernames) {
   const userId = uid(username);
-  const tz = tzOf(personaByUsername.get(username)?.businesses[0] ?? "");
+  const tz = tzOf(homeBusinessOf(username) ?? "");
   const todayLocal = localYmd(NOW_MS, tz);
   const recent = await db.selectFrom("food_log").select("id")
     .where("user_id", "=", userId)
@@ -2868,7 +2959,7 @@ report("food diary entries", foodLogsAdded);
 // does: one `invoice` row per order with `invoice_item` unit_price snapshots
 // (the trigger keeps invoice.total in sync), stock reserved when the order is
 // created and returned when it was cancelled, `purchase_made` to the shop's
-// owners and vendors, `order_update` to the buyer for each status change.
+// owners and staff, `order_update` to the buyer for each status change.
 // Card orders carry no payment row (see the header) — the card payment's own
 // notification (`payment_received`) is therefore not seeded either.
 // Guard: per (buyer, shop) — a buyer with any order at that shop is skipped,
@@ -2902,7 +2993,7 @@ for (const [key, group] of orderGroups) {
   const todayLocal = localYmd(NOW_MS, tz);
   const shopStaff = [
     ...(ownerUsernamesByBusiness.get(shopName) ?? []),
-    ...(vendorUsernamesByShop.get(shopName) ?? []),
+    ...(shopStaffUsernamesByShop.get(shopName) ?? []),
   ].map(uid);
 
   for (const o of group) {
@@ -3016,7 +3107,7 @@ for (const p of personas) {
   const current = await db.selectFrom("users").select("bio").where("id", "=", userId).executeTakeFirstOrThrow();
   if (current.bio) continue;
   const rng = rngFor("social-profile", p.username);
-  const home = businessByName.get(p.businesses[0] ?? "") ?? businesses[0];
+  const home = businessByName.get(homeBusinessOf(p.username) ?? "") ?? businesses[0];
   const sharesLocation = rng.chance(0.7);
   const round2 = (v: number) => Math.round(v * 100) / 100;
   // ~0.06° ≈ 5–7 km of jitter.
@@ -3067,8 +3158,8 @@ if (!anyFollow) {
     }
   };
 
-  const roleOf = (u: string) => personaByUsername.get(u)!.role;
   for (const gym of gymBusinesses) {
+    const isMember = (u: string) => (memberUsernamesByGym.get(gym.name) ?? []).includes(u);
     const community = [...new Set([
       ...(memberUsernamesByGym.get(gym.name) ?? []),
       ...(trainerUsernamesByGym.get(gym.name) ?? []),
@@ -3079,13 +3170,13 @@ if (!anyFollow) {
       for (const b of community) {
         if (a === b) continue;
         const rng = rngFor("follow", a, b);
-        const ra = roleOf(a), rb = roleOf(b);
-        const coachB = rb === "trainer" || rb === "employee_trainer";
-        const p = ra === "member" && rb === "member" ? 0.5
-          : ra === "member" && coachB ? 0.85
-          : ra === "member" && rb === "owner" ? 0.4
-          : ra === "member" ? 0.3
-          : rb === "member" ? 0.35
+        const memberA = isMember(a), memberB = isMember(b);
+        const coachB = rolesAt(b, gym.name).includes("trainer");
+        const p = memberA && memberB ? 0.5
+          : memberA && coachB ? 0.85
+          : memberA && rolesAt(b, gym.name).includes("owner") ? 0.4
+          : memberA ? 0.3
+          : memberB ? 0.35
           : 0.75;
         if (!rng.chance(p)) continue;
         // Private accounts accepted most requests; the rest are still pending.
@@ -3472,7 +3563,7 @@ type MemberRoutine = {
 type SharedPostSeed = { author: string; type: string; ref?: string; caption: string; hours_ago: number };
 type PhotoTagSeed = { post_starts_with: string; tags: { user: string; x: number; y: number }[] };
 
-const homeTz = (username: string) => tzOf(personaByUsername.get(username)?.businesses[0] ?? "");
+const homeTz = (username: string) => tzOf(homeBusinessOf(username) ?? "");
 
 let memberRoutinesAdded = 0;
 let selfEnrollmentsAdded = 0;

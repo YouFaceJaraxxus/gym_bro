@@ -149,6 +149,36 @@ class GymRef {
       GymRef(id: json['id'] as String, name: json['name'] as String? ?? '', logo: json['logo'] as String?);
 }
 
+/// A business someone owns or trains at, shown on their profile.
+class BusinessRef {
+  final String id;
+  final String name;
+  final String? logo;
+  final bool hasGym;
+  final bool hasShop;
+
+  const BusinessRef({
+    required this.id,
+    required this.name,
+    this.logo,
+    this.hasGym = false,
+    this.hasShop = false,
+  });
+
+  factory BusinessRef.fromJson(Map<String, dynamic> json) => BusinessRef(
+        id: json['id'] as String,
+        name: json['name'] as String? ?? '',
+        logo: json['logo'] as String?,
+        hasGym: json['has_gym'] as bool? ?? false,
+        hasShop: json['has_shop'] as bool? ?? false,
+      );
+
+  static List<BusinessRef> listFrom(dynamic json) => [
+        for (final e in (json as List<dynamic>? ?? []))
+          BusinessRef.fromJson(e as Map<String, dynamic>),
+      ];
+}
+
 /// Who may message me directly (anyone else lands in message requests).
 /// My own privacy settings (GET /social/me only).
 class ProfileSettings {
@@ -186,9 +216,14 @@ class PublicProfile {
   final String name;
   final String lastName;
   final String? avatarUrl;
-  final String role;
   final String? bio;
   final List<String> interests;
+
+  /// "Trainer" / "Trainer at …" / "Owner of …": approved businesses and
+  /// accepted roles only (staff roles are never shown).
+  final bool isTrainer;
+  final List<BusinessRef> ownerOf;
+  final List<BusinessRef> trainerAt;
 
   /// "https://…" link shown under the bio.
   final String? website;
@@ -231,9 +266,11 @@ class PublicProfile {
     required this.name,
     required this.lastName,
     this.avatarUrl,
-    this.role = 'member',
     this.bio,
     this.interests = const [],
+    this.isTrainer = false,
+    this.ownerOf = const [],
+    this.trainerAt = const [],
     this.website,
     this.isPrivate = false,
     this.isMe = false,
@@ -271,9 +308,11 @@ class PublicProfile {
       name: json['name'] as String? ?? '',
       lastName: json['last_name'] as String? ?? '',
       avatarUrl: json['avatar_url'] as String?,
-      role: json['role'] as String? ?? 'member',
       bio: json['bio'] as String?,
       interests: (json['interests'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
+      isTrainer: json['is_trainer'] as bool? ?? false,
+      ownerOf: BusinessRef.listFrom(json['owner_of']),
+      trainerAt: BusinessRef.listFrom(json['trainer_at']),
       website: json['website'] as String?,
       isPrivate: json['is_private'] as bool? ?? false,
       isMe: json['is_me'] as bool? ?? false,

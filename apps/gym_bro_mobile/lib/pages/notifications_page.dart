@@ -520,8 +520,7 @@ class _NotificationTile extends StatelessWidget {
   }
 
   IconData _iconFor(NotificationType t) => switch (t) {
-    NotificationType.employeeGymInvite => Icons.fitness_center_outlined,
-    NotificationType.vendorShopInvite => Icons.storefront_outlined,
+    NotificationType.businessInvite => Icons.group_add_outlined,
     NotificationType.memberInvite => Icons.person_add_alt_outlined,
     NotificationType.news => Icons.newspaper_outlined,
     NotificationType.events => Icons.event_outlined,
@@ -535,8 +534,8 @@ class _NotificationTile extends StatelessWidget {
     NotificationType.memberSubscriptionExtended =>
       Icons.card_membership_outlined,
     NotificationType.memberJoin => Icons.person_outlined,
-    NotificationType.employeeJoin => Icons.badge_outlined,
-    NotificationType.vendorJoin => Icons.storefront_outlined,
+    NotificationType.businessJoin => Icons.badge_outlined,
+    NotificationType.businessReview => Icons.verified_outlined,
     NotificationType.postComment => Icons.chat_bubble_outline,
     NotificationType.shiftAssigned => Icons.schedule_outlined,
     NotificationType.orderUpdate => Icons.local_shipping_outlined,

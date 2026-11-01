@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
+import '../models/business.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import 'checkin/attendance_page.dart';
 import 'checkin/check_in_scanner_page.dart';
+import 'business/business_team_page.dart';
 import 'classes/gym_schedule_page.dart';
-import 'gym_employees_page.dart';
 import 'gym_members_page.dart';
 import 'invoices_page.dart';
 import 'membership_types_page.dart';
@@ -25,8 +26,8 @@ class GymDetailPage extends StatefulWidget {
 class _GymDetailPageState extends State<GymDetailPage> {
   final _api = ApiService();
 
-  /// Employees and employee-trainers; [isTrainer] picks the role label.
-  List<({UserProfile user, bool isTrainer})> _staff = [];
+  /// People holding an active role on the business's team.
+  int _teamCount = 0;
   List<UserProfile> _members = [];
   bool _loading = true;
   String? _error;
@@ -44,23 +45,16 @@ class _GymDetailPageState extends State<GymDetailPage> {
     });
     try {
       final token = await AuthManager.instance.getValidToken();
-      final results = await Future.wait([
-        _api.getEmployees(token, gymId: widget.gymId),
-        _api.getEmployeeTrainers(token, gymId: widget.gymId),
+      final results = await Future.wait<Object>([
+        _api.getBusinessTeam(token, widget.gymId),
         _api.getMembers(token, gymId: widget.gymId),
       ]);
-      final employeeRows = results[0];
-      final employeeTrainerRows = results[1];
-      final memberRows = results[2];
+      final team = results[0] as List<TeamMember>;
+      final memberRows = results[1] as List<Map<String, dynamic>>;
 
       if (mounted) {
         setState(() {
-          _staff = [
-            for (final r in employeeRows)
-              (user: UserProfile.fromRoleRow(r), isTrainer: false),
-            for (final r in employeeTrainerRows)
-              (user: UserProfile.fromRoleRow(r), isTrainer: true),
-          ];
+          _teamCount = team.where((m) => m.roles.any((r) => r.active)).length;
           _members = memberRows.map(UserProfile.fromRoleRow).toList();
           _loading = false;
         });
@@ -149,9 +143,7 @@ class _GymDetailPageState extends State<GymDetailPage> {
                         const SizedBox(height: 4),
                         _StatChip(
                           icon: Icons.badge_outlined,
-                          label: l10n.businessGymDetailStaffCount(
-                            _staff.length,
-                          ),
+                          label: l10n.rolesMiscTeamCount(_teamCount),
                         ),
                       ],
                     ),
@@ -318,12 +310,12 @@ class _GymDetailPageState extends State<GymDetailPage> {
             ),
             const SizedBox(height: 24),
 
-            // ── Employees section ──────────────────────────────────────
+            // ── Team section ───────────────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  l10n.businessGymDetailStaff,
+                  l10n.rolesMiscTeam,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 TextButton.icon(
@@ -331,9 +323,9 @@ class _GymDetailPageState extends State<GymDetailPage> {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => GymEmployeesPage(
-                          gymId: widget.gymId,
-                          gymName: widget.gymName,
+                        builder: (_) => BusinessTeamPage(
+                          businessId: widget.gymId,
+                          businessName: widget.gymName,
                         ),
                       ),
                     );
@@ -342,25 +334,18 @@ class _GymDetailPageState extends State<GymDetailPage> {
                   icon: const Icon(Icons.open_in_new, size: 16),
                   label: Text(
                     l10n.businessGymDetailManage,
-                    semanticsLabel: l10n.businessGymDetailManageStaff,
+                    semanticsLabel: l10n.rolesMiscManageTeam,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            if (_staff.isEmpty)
-              _EmptyHint(
-                icon: Icons.badge_outlined,
-                label: l10n.businessGymNoStaffYet,
-              )
-            else
-              for (final s in _staff)
-                _UserRow(
-                  user: s.user,
-                  trailing: s.isTrainer
-                      ? l10n.businessGymRoleEmployeeTrainerShort
-                      : l10n.businessGymRoleEmployee,
-                ),
+            const SizedBox(height: 4),
+            Text(
+              l10n.rolesMiscTeamHint,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.outline,
+              ),
+            ),
           ],
         ),
       ),
@@ -387,9 +372,8 @@ class _StatChip extends StatelessWidget {
 }
 
 class _UserRow extends StatelessWidget {
-  const _UserRow({required this.user, this.trailing});
+  const _UserRow({required this.user});
   final UserProfile user;
-  final String? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -400,9 +384,6 @@ class _UserRow extends StatelessWidget {
       ),
       title: Text(user.fullName),
       subtitle: user.email.isNotEmpty ? Text(user.email) : null,
-      trailing: trailing == null
-          ? null
-          : Text(trailing!, style: Theme.of(context).textTheme.bodySmall),
     );
   }
 }

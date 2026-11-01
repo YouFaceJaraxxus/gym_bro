@@ -2,6 +2,7 @@ import { sql } from "npm:kysely@^0.27";
 import { db } from "../_shared/config.ts";
 import { type Caller, isSuperUser, json, jsonError, requireCaller } from "../_shared/auth.ts";
 import { notify } from "../_shared/notify.ts";
+import { affiliationsOf } from "../_shared/business.ts";
 import { broadcastToUsers } from "../_shared/realtime.ts";
 import {
   blockedIds,
@@ -122,7 +123,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 const PROFILE_COLS = [
   ...PUBLIC_USER_COLS,
-  "role",
+  "is_trainer",
   "bio",
   "interests",
   "is_private",
@@ -139,7 +140,7 @@ type ProfileRow = {
   name: string;
   last_name: string;
   avatar_url: string | null;
-  role: string;
+  is_trainer: boolean;
   bio: string | null;
   interests: string[];
   is_private: boolean;
@@ -182,16 +183,12 @@ async function mutualFriends(meId: string, otherId: string, limit: number, offse
   return { total: rows[0]?.total ?? 0, users: rows.map(({ total: _t, ...u }) => u) };
 }
 
+/** Gyms they're a member of. (Where they own or train is in affiliations; staff roles are never shown.) */
 async function gymsOf(userId: string) {
   const { rows } = await sql<{ id: string; name: string; logo: string | null }>`
     SELECT DISTINCT b.id, b.name, b.logo FROM business b
-    JOIN (
-      SELECT gym_id FROM member WHERE user_id = ${userId}
-      UNION SELECT gym_id FROM trainer WHERE user_id = ${userId}
-      UNION SELECT gym_id FROM employee WHERE user_id = ${userId}
-      UNION SELECT gym_id FROM employee_trainer WHERE user_id = ${userId}
-      UNION SELECT gym_id FROM gym_owner WHERE user_id = ${userId}
-    ) g ON g.gym_id = b.id
+    JOIN member m ON m.gym_id = b.id AND m.user_id = ${userId}
+    WHERE b.status = 'approved'
     ORDER BY b.name
   `.execute(db);
   return rows;
@@ -212,7 +209,7 @@ async function storyRing(viewerId: string, authorId: string) {
 
 async function buildProfile(caller: Caller, u: ProfileRow) {
   const isMe = u.id === caller.id;
-  const [c, rel, canView, gyms, mutual, stories, mute, closeFriend] = await Promise.all([
+  const [c, rel, canView, gyms, mutual, stories, mute, closeFriend, affiliations] = await Promise.all([
     counts(u.id),
     isMe ? Promise.resolve(null) : relationship(caller.id, u.id),
     canSeeContentOf(caller.id, u),
@@ -227,7 +224,9 @@ async function buildProfile(caller: Caller, u: ProfileRow) {
       ? Promise.resolve(undefined)
       : db.selectFrom("close_friend").select("friend_id").where("user_id", "=", caller.id)
         .where("friend_id", "=", u.id).executeTakeFirst(),
+    affiliationsOf([u.id]),
   ]);
+  const a = affiliations.get(u.id);
   const connected = !!rel && (rel.friendship === "friends" || (rel.following === "accepted" && rel.followed_by === "accepted"));
   const showActivity = u.show_activity_status && (isMe || connected);
   return {
@@ -236,8 +235,11 @@ async function buildProfile(caller: Caller, u: ProfileRow) {
     name: u.name,
     last_name: u.last_name,
     avatar_url: u.avatar_url,
-    role: u.role,
     bio: u.bio,
+    // "Trainer at …" / "Owner of …": public, like a bio line.
+    is_trainer: u.is_trainer,
+    owner_of: a?.owner_of ?? [],
+    trainer_at: a?.trainer_at ?? [],
     interests: u.interests,
     website: u.website,
     is_private: u.is_private,
@@ -345,10 +347,7 @@ async function suggestions(meId: string, limit: number, offset: number): Promise
     ),
     my_gyms AS (
       SELECT gym_id FROM member WHERE user_id = ${meId}
-      UNION SELECT gym_id FROM trainer WHERE user_id = ${meId}
-      UNION SELECT gym_id FROM employee WHERE user_id = ${meId}
-      UNION SELECT gym_id FROM employee_trainer WHERE user_id = ${meId}
-      UNION SELECT gym_id FROM gym_owner WHERE user_id = ${meId}
+      UNION SELECT business_id FROM business_member WHERE user_id = ${meId} AND status = 'active'
     ),
     excluded AS (
       SELECT ${meId}::uuid AS id
@@ -365,10 +364,7 @@ async function suggestions(meId: string, limit: number, offset: number): Promise
     ),
     gym_people AS (
       SELECT user_id, gym_id FROM member
-      UNION SELECT user_id, gym_id FROM trainer
-      UNION SELECT user_id, gym_id FROM employee
-      UNION SELECT user_id, gym_id FROM employee_trainer
-      UNION SELECT user_id, gym_id FROM gym_owner
+      UNION SELECT user_id, business_id FROM business_member WHERE status = 'active'
     ),
     same_gym AS (
       SELECT gp.user_id, array_agg(DISTINCT b.name ORDER BY b.name) AS gyms
@@ -969,10 +965,7 @@ async function handler(req: Request): Promise<Response> {
     const { rows } = await sql<UserSummary>`
       WITH my_gyms AS (
         SELECT gym_id FROM member WHERE user_id = ${caller.id}
-        UNION SELECT gym_id FROM trainer WHERE user_id = ${caller.id}
-        UNION SELECT gym_id FROM employee WHERE user_id = ${caller.id}
-        UNION SELECT gym_id FROM employee_trainer WHERE user_id = ${caller.id}
-        UNION SELECT gym_id FROM gym_owner WHERE user_id = ${caller.id}
+        UNION SELECT business_id FROM business_member WHERE user_id = ${caller.id} AND status = 'active'
       )
       SELECT u.id, u.username, u.name, u.last_name, u.avatar_url
       FROM users u

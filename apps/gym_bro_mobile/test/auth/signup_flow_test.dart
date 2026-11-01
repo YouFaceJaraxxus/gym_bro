@@ -125,7 +125,7 @@ void main() {
     expect(backend.requests.map(describe), ['POST /users/signup'], reason: 'nothing else is sent');
 
     // And activating from there signs in.
-    backend.on('POST /users/verify-invite', ok(signinJson(profile: profileJson(role: 'employee'))));
+    backend.on('POST /users/verify-invite', ok(signinJson(profile: profileJson(businesses: [myBusinessJson(roles: ['staff'])]))));
     await tester.enterText(field(en.shellInviteCode), '123456');
     await tester.enterText(field(en.shellNewPassword), 'newpass1');
     await tester.enterText(field(en.shellConfirmPassword), 'newpass1');

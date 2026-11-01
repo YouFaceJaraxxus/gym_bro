@@ -10,6 +10,7 @@ import {
   jsonError,
   requireCaller,
 } from "../_shared/auth.ts";
+import { teamBusinessIdsSql } from "../_shared/business.ts";
 import { notify } from "../_shared/notify.ts";
 import { displayName } from "../_shared/social.ts";
 import {
@@ -279,9 +280,8 @@ function checkTimetable(s: { repeat: ClassRepeat; weekdays: number[]; starts_on:
 }
 
 async function isTrainerAtGym(userId: string, gymId: string): Promise<boolean> {
-  const { rows } = await sql<{ ok: number }>`
-    SELECT 1 AS ok FROM trainer WHERE user_id = ${userId} AND gym_id = ${gymId}
-    UNION SELECT 1 FROM employee_trainer WHERE user_id = ${userId} AND gym_id = ${gymId}
+  const { rows } = await sql<{ business_id: string }>`
+    SELECT business_id FROM (${teamBusinessIdsSql(userId, ["trainer"])}) t WHERE business_id = ${gymId}
   `.execute(db);
   return rows.length > 0;
 }

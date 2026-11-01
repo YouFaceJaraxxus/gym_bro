@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 import '../models/user_profile.dart';
+import '../pages/business/business_invites_page.dart';
+import '../pages/business/business_manage_page.dart';
 import '../pages/chat/chat_launcher.dart';
 import '../pages/classes/class_detail_page.dart';
 import '../pages/classes/class_schedule_page.dart';
@@ -20,7 +22,6 @@ import '../pages/session_detail_page.dart';
 import '../pages/shop/order_detail_page.dart';
 import '../pages/shop/storefront_page.dart';
 import '../pages/shop/storefront_shop_page.dart';
-import '../pages/shop_detail_page.dart';
 import '../pages/stories/story_viewer_page.dart';
 import 'api_service.dart';
 import 'auth_manager.dart';
@@ -28,8 +29,8 @@ import 'auth_manager.dart';
 /// Opens the screen a notification refers to. Shared by the notifications
 /// list and push-notification taps (foreground, background and cold start).
 ///
-/// Invites are not handled here: the notifications list opens its own
-/// accept/decline page, and a push tap on an invite opens the list.
+/// Team invites open the invites page; gym member invites are answered in the
+/// notifications list, so a push tap on one opens the list.
 class NotificationRouter {
   NotificationRouter._();
 
@@ -55,10 +56,16 @@ class NotificationRouter {
     }
 
     switch (type) {
-      case 'employee_gym_invite':
-      case 'vendor_shop_invite':
+      case 'business_invite':
+        await push(const BusinessInvitesPage());
+
       case 'member_invite':
         await push(const NotificationsPage());
+
+      // Someone joined my team, or my business was reviewed: its dashboard.
+      case 'business_join' || 'business_review':
+        final businessId = str('business_id');
+        if (businessId != null) await push(BusinessManagePage(businessId: businessId));
 
       case 'class_reminder':
       case 'events':
@@ -164,10 +171,8 @@ class NotificationRouter {
         );
 
       case 'member_join':
-      case 'employee_join':
-      case 'vendor_join':
         if (!context.mounted) return;
-        await _openManagedBusiness(context, type, metadata, profile);
+        await _openStaffedGym(context, metadata, profile);
 
       default:
         // Nothing to open: marking it read is enough.
@@ -181,40 +186,27 @@ class NotificationRouter {
         body: MembershipPage(profile: profile),
       );
 
-  /// Opens the gym / shop from a *_join notification, but only when the
-  /// current user manages that business.
-  static Future<void> _openManagedBusiness(
+  /// Opens the gym dashboard from a member_join notification, but only when
+  /// the current user owns or staffs that gym (the new member gets one too).
+  static Future<void> _openStaffedGym(
     BuildContext context,
-    String type,
     Map<String, dynamic> metadata,
     UserProfile profile,
   ) async {
-    final gymId = metadata['gym_id'] as String?;
-    final shopId = metadata['shop_id'] as String?;
-    final isShop = type == 'vendor_join' || (gymId == null && shopId != null);
-    final businessId =
-        (isShop ? shopId : gymId) ?? metadata['business_id'] as String?;
-    if (businessId == null) return;
+    final gymId = (metadata['gym_id'] ?? metadata['business_id']) as String?;
+    if (gymId == null || metadata['user_id'] == profile.id) return;
 
-    final api = ApiService();
     try {
       final token = await AuthManager.instance.getValidToken();
-      if (profile.role != UserRole.superUser) {
-        final rows = isShop
-            ? await api.getShopOwners(token, userId: profile.id)
-            : await api.getGymOwners(token, userId: profile.id);
-        final key = isShop ? 'shop_id' : 'gym_id';
-        if (!rows.any((r) => r[key] == businessId)) return;
-      }
-      final name =
-          (metadata['gym_name'] ?? metadata['shop_name']) as String? ??
-          (await api.getBusiness(token, businessId)).name;
+      final gym = await ApiService().getBusiness(token, gymId);
+      if (!profile.isSuperUser && !gym.isOwner && !gym.isStaff) return;
       if (!context.mounted) return;
       await Navigator.of(context).push<void>(
         MaterialPageRoute(
-          builder: (_) => isShop
-              ? ShopDetailPage(shopId: businessId, shopName: name)
-              : GymDetailPage(gymId: businessId, gymName: name),
+          builder: (_) => GymDetailPage(
+            gymId: gymId,
+            gymName: metadata['gym_name'] as String? ?? gym.name,
+          ),
         ),
       );
     } catch (e) {

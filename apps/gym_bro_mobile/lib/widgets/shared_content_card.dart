@@ -461,7 +461,7 @@ class _BusinessCard extends StatelessWidget {
     final c = content;
     final product = c.kind == ShareKind.shopItem;
     final image = product ? c.imageUrl : c.logo;
-    final kindLabel = product ? l10n.sharedKindProduct : (c.businessType == 'shop' ? l10n.sharedKindShop : l10n.sharedKindGym);
+    final kindLabel = product ? l10n.sharedKindProduct : (c.businessHasShopOnly ? l10n.sharedKindShop : l10n.sharedKindGym);
     final subtitle = product
         ? [
             if (c.price != null) formatMoney(c.price!, PaymentsConfigCache.current.currency, l10n.localeName),
@@ -485,7 +485,7 @@ class _BusinessCard extends StatelessWidget {
                       child: Icon(
                         product
                             ? Icons.shopping_bag_outlined
-                            : (c.businessType == 'shop' ? Icons.storefront_outlined : Icons.fitness_center),
+                            : (c.businessHasShopOnly ? Icons.storefront_outlined : Icons.fitness_center),
                         color: cs.onPrimaryContainer,
                       ),
                     ),

@@ -1,6 +1,7 @@
 import { sql } from "npm:kysely@^0.27";
 import { db } from "../_shared/config.ts";
 import { forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
+import { teamBusinessIdsSql } from "../_shared/business.ts";
 import { notify } from "../_shared/notify.ts";
 import { displayName } from "../_shared/social.ts";
 import {
@@ -121,10 +122,7 @@ async function handler(req: Request): Promise<Response> {
     const pattern = `%${q.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
     const { rows } = await sql`
       WITH coached AS (
-        SELECT gym_id FROM trainer WHERE user_id = ${caller.id}
-        UNION SELECT gym_id FROM employee_trainer WHERE user_id = ${caller.id}
-        UNION SELECT gym_id FROM employee WHERE user_id = ${caller.id}
-        UNION SELECT gym_id FROM gym_owner WHERE user_id = ${caller.id}
+        SELECT business_id AS gym_id FROM (${teamBusinessIdsSql(caller.id)}) t
       )
       SELECT u.id, u.username, u.name, u.last_name, u.avatar_url,
         EXISTS (SELECT 1 FROM follow f WHERE f.follower_id = u.id AND f.followee_id = ${caller.id}

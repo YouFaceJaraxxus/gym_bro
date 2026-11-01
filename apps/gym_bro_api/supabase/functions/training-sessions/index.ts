@@ -126,6 +126,8 @@ function parsePath(pathname: string): { id: string | null; action: Action } {
   return { id: null, action: null };
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // ── Access ────────────────────────────────────────────────────────────────────
 
 /** Owner, the session's trainer, anyone who coaches the owner, or super. */
@@ -138,8 +140,13 @@ async function canReadSession(
   return await coachesUser(caller, session.user_id);
 }
 
-function canWriteSession(caller: Caller, session: { user_id: string }): boolean {
-  return session.user_id === caller.id || isSuperUser(caller);
+/**
+ * The athlete, the trainer who ran it (gym or no gym), or super. Trainers
+ * log and edit sessions for the people they coach.
+ */
+function canWriteSession(caller: Caller, session: { user_id: string; trainer_id: string | null }): boolean {
+  if (session.user_id === caller.id || isSuperUser(caller)) return true;
+  return caller.is_trainer && session.trainer_id === caller.id;
 }
 
 /** Loads a set log together with the owner of its session. */
@@ -147,9 +154,25 @@ async function findSetLog(setLogId: string) {
   return await db
     .selectFrom("session_set_log")
     .innerJoin("training_session", "training_session.id", "session_set_log.session_id")
-    .select(["session_set_log.id", "session_set_log.session_id", "training_session.user_id"])
+    .select([
+      "session_set_log.id",
+      "session_set_log.session_id",
+      "training_session.user_id",
+      "training_session.trainer_id",
+    ])
     .where("session_set_log.id", "=", setLogId)
     .executeTakeFirst();
+}
+
+/** Tells a client their trainer logged a session for them. */
+async function notifyClient(trainer: Caller, clientId: string, sessionId: string) {
+  const name = `${trainer.name} ${trainer.last_name}`.trim();
+  await notify([clientId], {
+    type: "training",
+    title: `${name} logged a session with you`,
+    body: "It's in your sessions and counts towards your progress.",
+    metadata: { session_id: sessionId, trainer_id: trainer.id },
+  });
 }
 
 // ── Nested fetch ──────────────────────────────────────────────────────────────
@@ -366,7 +389,10 @@ async function handler(req: Request): Promise<Response> {
   }
 
   // ── POST /training-sessions — start a session, or log a finished one ─────────
-  // Body: { training_id?, trainer_id?, notes? } starts one now. Logging one
+  // Body: { training_id?, trainer_id?, notes? } starts one now. A trainer logs
+  // one for someone they coach with { user_id } (trainer_id is then them):
+  // an accepted client, or a member of a gym they work at. Belonging to a gym
+  // isn't needed. Logging one
   // from a calendar slot adds { started_at, ended_at, sets: [{ training_set_id?,
   // exercise_id?, position?, note?, drops }] } and returns the full detail; no
   // PR detection for those. The slot may be in the future (logged ahead of
@@ -374,7 +400,19 @@ async function handler(req: Request): Promise<Response> {
   // plan_entry_id: the planned workout this session confirms (marks it done).
   if (req.method === "POST" && !id) {
     const body = await req.json().catch(() => null);
-    const { training_id, trainer_id, notes, started_at, ended_at, sets, plan_entry_id } = body ?? {};
+    const { training_id, notes, started_at, ended_at, sets, plan_entry_id } = body ?? {};
+    let trainer_id = body?.trainer_id;
+
+    // Whose session it is: mine, or a client's when I'm their trainer.
+    const athleteId: string = typeof body?.user_id === "string" ? body.user_id : caller.id;
+    const forClient = athleteId !== caller.id;
+    if (forClient) {
+      if (!UUID_RE.test(athleteId)) return jsonError("User not found", 404);
+      if (!caller.is_trainer || !(await coachesUser(caller, athleteId))) {
+        return forbidden("You can only log sessions for people you coach");
+      }
+      trainer_id = caller.id;
+    }
 
     const startedAt = started_at == null ? null : parseInstant(started_at);
     const endedAt = ended_at == null ? null : parseInstant(ended_at);
@@ -394,22 +432,20 @@ async function handler(req: Request): Promise<Response> {
         ? await db.selectFrom("plan_entry").select(["user_id", "kind"]).where("id", "=", plan_entry_id)
           .executeTakeFirst().catch(() => undefined)
         : undefined;
-      if (!entry || entry.user_id !== caller.id) return jsonError("Planned workout not found", 404);
+      if (!entry || entry.user_id !== athleteId) return jsonError("Planned workout not found", 404);
       if (entry.kind !== "workout") return jsonError("That plan entry isn't a workout", 400);
     }
 
     if (trainer_id) {
-      const [trainer, employeeTrainer] = await Promise.all([
-        db.selectFrom("trainer").select("id").where("user_id", "=", trainer_id).executeTakeFirst(),
-        db.selectFrom("employee_trainer").select("id").where("user_id", "=", trainer_id).executeTakeFirst(),
-      ]);
-      if (!trainer && !employeeTrainer) {
+      const trainer = await db.selectFrom("users").select("id").where("id", "=", trainer_id)
+        .where("is_trainer", "=", true).executeTakeFirst().catch(() => undefined);
+      if (!trainer) {
         return jsonError("trainer_id must be a user who is a trainer", 400);
       }
     }
 
     const insert: TrainingSessionInsert = {
-      user_id: caller.id,
+      user_id: athleteId,
       training_id: training_id ?? null,
       trainer_id: trainer_id ?? null,
       notes: notes ?? null,
@@ -424,6 +460,7 @@ async function handler(req: Request): Promise<Response> {
         .values(insert)
         .returning(SESSION_COLS)
         .executeTakeFirstOrThrow();
+      if (forClient) await notifyClient(caller, athleteId, session.id);
       return json({ ...session, comment_count: 0 }, 201);
     }
 
@@ -453,6 +490,7 @@ async function handler(req: Request): Promise<Response> {
       return session.id;
     });
 
+    if (forClient) await notifyClient(caller, athleteId, sessionId);
     return json(await fetchSessionDetail(sessionId), 201);
   }
 
@@ -460,7 +498,7 @@ async function handler(req: Request): Promise<Response> {
   if (req.method === "PUT" && id && !action) {
     const session = await db
       .selectFrom("training_session")
-      .select(["id", "user_id"])
+      .select(["id", "user_id", "trainer_id"])
       .where("id", "=", id)
       .executeTakeFirst();
     if (!session) return jsonError("Session not found", 404);
@@ -487,7 +525,7 @@ async function handler(req: Request): Promise<Response> {
   if (req.method === "POST" && id && action === "end") {
     const session = await db
       .selectFrom("training_session")
-      .select(["id", "user_id"])
+      .select(["id", "user_id", "trainer_id"])
       .where("id", "=", id)
       .executeTakeFirst();
     if (!session) return jsonError("Session not found", 404);
@@ -508,7 +546,7 @@ async function handler(req: Request): Promise<Response> {
   if (req.method === "POST" && id && action === "sets") {
     const session = await db
       .selectFrom("training_session")
-      .select(["id", "user_id"])
+      .select(["id", "user_id", "trainer_id"])
       .where("id", "=", id)
       .executeTakeFirst();
     if (!session) return jsonError("Session not found", 404);
@@ -719,7 +757,7 @@ async function handler(req: Request): Promise<Response> {
   if (req.method === "DELETE" && id && !action) {
     const session = await db
       .selectFrom("training_session")
-      .select(["user_id"])
+      .select(["user_id", "trainer_id"])
       .where("id", "=", id)
       .executeTakeFirst();
     if (!session) return jsonError("Session not found", 404);

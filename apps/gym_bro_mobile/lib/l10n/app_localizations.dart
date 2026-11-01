@@ -117,6 +117,240 @@ abstract class AppLocalizations {
   /// **'No longer available · it was deleted'**
   String get accessUnavailable;
 
+  /// No description provided for @adminDbAddRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Add row'**
+  String get adminDbAddRow;
+
+  /// No description provided for @adminDbDeleteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Delete 1 row} other{Delete {count} rows}}'**
+  String adminDbDeleteAction(int count);
+
+  /// No description provided for @adminDbDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This can\'t be undone. Type the table name ({table}) to confirm.'**
+  String adminDbDeleteMessage(String table);
+
+  /// No description provided for @adminDbDeleteRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete row'**
+  String get adminDbDeleteRow;
+
+  /// No description provided for @adminDbDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Delete this row?} other{Delete {count} rows?}}'**
+  String adminDbDeleteTitle(int count);
+
+  /// No description provided for @adminDbDeleteUserNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Their login account is deleted too.'**
+  String get adminDbDeleteUserNote;
+
+  /// No description provided for @adminDbDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Deleted 1 row} other{Deleted {count} rows}}'**
+  String adminDbDeleted(int count);
+
+  /// No description provided for @adminDbFilterTables.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter {count} tables'**
+  String adminDbFilterTables(int count);
+
+  /// No description provided for @adminDbForce.
+  ///
+  /// In en, this message translates to:
+  /// **'Also delete what\'s in the way'**
+  String get adminDbForce;
+
+  /// No description provided for @adminDbForceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletes those rows and everything under them first: {count, plural, =1{1 row} other{{count} rows}} in total besides this one.'**
+  String adminDbForceHint(int count);
+
+  /// No description provided for @adminDbHasDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'empty = default'**
+  String get adminDbHasDefault;
+
+  /// No description provided for @adminDbImpactBlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'In the way (the delete is refused while these exist)'**
+  String get adminDbImpactBlocking;
+
+  /// No description provided for @adminDbImpactDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted with it ({count, plural, =1{1 row} other{{count} rows}})'**
+  String adminDbImpactDeleted(int count);
+
+  /// No description provided for @adminDbImpactIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting this row also affects other data:'**
+  String get adminDbImpactIntro;
+
+  /// No description provided for @adminDbImpactNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing else points at this row.'**
+  String get adminDbImpactNothing;
+
+  /// No description provided for @adminDbImpactNulled.
+  ///
+  /// In en, this message translates to:
+  /// **'Left in place, link emptied'**
+  String get adminDbImpactNulled;
+
+  /// No description provided for @adminDbImpactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you delete'**
+  String get adminDbImpactTitle;
+
+  /// No description provided for @adminDbInsert.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert'**
+  String get adminDbInsert;
+
+  /// No description provided for @adminDbInserted.
+  ///
+  /// In en, this message translates to:
+  /// **'Row added'**
+  String get adminDbInserted;
+
+  /// No description provided for @adminDbInvalidJson.
+  ///
+  /// In en, this message translates to:
+  /// **'Not valid JSON'**
+  String get adminDbInvalidJson;
+
+  /// No description provided for @adminDbLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get adminDbLoadMore;
+
+  /// No description provided for @adminDbNeedsJsonArray.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs a JSON array, e.g. [\"a\", \"b\"]'**
+  String get adminDbNeedsJsonArray;
+
+  /// No description provided for @adminDbNewRow.
+  ///
+  /// In en, this message translates to:
+  /// **'New {table} row'**
+  String adminDbNewRow(String table);
+
+  /// No description provided for @adminDbOnDeleteCascade.
+  ///
+  /// In en, this message translates to:
+  /// **'deleted with it'**
+  String get adminDbOnDeleteCascade;
+
+  /// No description provided for @adminDbOnDeleteRestrict.
+  ///
+  /// In en, this message translates to:
+  /// **'block deleting it'**
+  String get adminDbOnDeleteRestrict;
+
+  /// No description provided for @adminDbOnDeleteSetNull.
+  ///
+  /// In en, this message translates to:
+  /// **'emptied when it\'s deleted'**
+  String get adminDbOnDeleteSetNull;
+
+  /// No description provided for @adminDbOpenReferenced.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in {table}'**
+  String adminDbOpenReferenced(String table);
+
+  /// No description provided for @adminDbRefSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 row} other{{count} rows}} · {action}'**
+  String adminDbRefSummary(int count, String action);
+
+  /// No description provided for @adminDbReferencedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Referenced by'**
+  String get adminDbReferencedBy;
+
+  /// No description provided for @adminDbReviewSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify new gyms and shops as real'**
+  String get adminDbReviewSubtitle;
+
+  /// No description provided for @adminDbSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get adminDbSave;
+
+  /// No description provided for @adminDbSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get adminDbSaved;
+
+  /// No description provided for @adminDbSearchRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Search text columns or paste an id'**
+  String get adminDbSearchRows;
+
+  /// No description provided for @adminDbSetNull.
+  ///
+  /// In en, this message translates to:
+  /// **'Set to NULL'**
+  String get adminDbSetNull;
+
+  /// No description provided for @adminDbSetValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a value'**
+  String get adminDbSetValue;
+
+  /// No description provided for @adminDbShowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing {shown} of {total}'**
+  String adminDbShowing(int shown, int total);
+
+  /// No description provided for @adminDbTableSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{rows, plural, =1{1 row} other{{rows} rows}} · {columns} columns'**
+  String adminDbTableSummary(int rows, int columns);
+
+  /// No description provided for @adminDbTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Database'**
+  String get adminDbTitle;
+
+  /// No description provided for @adminDbWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re editing live data directly. Changes skip the app\'s checks and can\'t be undone; every change is logged.'**
+  String get adminDbWarning;
+
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
@@ -733,12 +967,6 @@ abstract class AppLocalizations {
   /// **'Yesterday'**
   String get businessCheckInYesterday;
 
-  /// No description provided for @businessGymAddEmployee.
-  ///
-  /// In en, this message translates to:
-  /// **'Add employee'**
-  String get businessGymAddEmployee;
-
   /// No description provided for @businessGymAddExistingUser.
   ///
   /// In en, this message translates to:
@@ -756,30 +984,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add member'**
   String get businessGymAddMember;
-
-  /// No description provided for @businessGymAllGyms.
-  ///
-  /// In en, this message translates to:
-  /// **'All gyms'**
-  String get businessGymAllGyms;
-
-  /// No description provided for @businessGymAllMembersTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'All members'**
-  String get businessGymAllMembersTitle;
-
-  /// No description provided for @businessGymAllStaffTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'All staff'**
-  String get businessGymAllStaffTitle;
-
-  /// No description provided for @businessGymAlreadyEmployee.
-  ///
-  /// In en, this message translates to:
-  /// **'Already an employee at this gym'**
-  String get businessGymAlreadyEmployee;
 
   /// No description provided for @businessGymAlreadyMember.
   ///
@@ -816,30 +1020,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel membership?'**
   String get businessGymCancelMembershipTitle;
-
-  /// No description provided for @businessGymChange.
-  ///
-  /// In en, this message translates to:
-  /// **'Change'**
-  String get businessGymChange;
-
-  /// No description provided for @businessGymChangeRoleMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Change {name}\'s role to {role} at {gym}?'**
-  String businessGymChangeRoleMessage(String name, String role, String gym);
-
-  /// No description provided for @businessGymChangeRoleTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Change role?'**
-  String get businessGymChangeRoleTitle;
-
-  /// No description provided for @businessGymClearSearch.
-  ///
-  /// In en, this message translates to:
-  /// **'Clear search'**
-  String get businessGymClearSearch;
 
   /// No description provided for @businessGymDeleteMembershipMessage.
   ///
@@ -882,12 +1062,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage membership types'**
   String get businessGymDetailManageMembershipTypes;
-
-  /// No description provided for @businessGymDetailManageStaff.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage staff'**
-  String get businessGymDetailManageStaff;
 
   /// No description provided for @businessGymDetailMembers.
   ///
@@ -937,29 +1111,11 @@ abstract class AppLocalizations {
   /// **'Schedule'**
   String get businessGymDetailSchedule;
 
-  /// No description provided for @businessGymDetailStaff.
-  ///
-  /// In en, this message translates to:
-  /// **'Staff'**
-  String get businessGymDetailStaff;
-
-  /// No description provided for @businessGymDetailStaffCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 staff member} other{{count} staff members}}'**
-  String businessGymDetailStaffCount(int count);
-
   /// No description provided for @businessGymDuration.
   ///
   /// In en, this message translates to:
   /// **'Duration'**
   String get businessGymDuration;
-
-  /// No description provided for @businessGymEditEmployee.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit employee'**
-  String get businessGymEditEmployee;
 
   /// No description provided for @businessGymEditMember.
   ///
@@ -972,18 +1128,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Email'**
   String get businessGymEmail;
-
-  /// No description provided for @businessGymEmailAlreadyEmployed.
-  ///
-  /// In en, this message translates to:
-  /// **'This email is already employed at this gym'**
-  String get businessGymEmailAlreadyEmployed;
-
-  /// No description provided for @businessGymEmployeeActions.
-  ///
-  /// In en, this message translates to:
-  /// **'Employee actions'**
-  String get businessGymEmployeeActions;
 
   /// No description provided for @businessGymExtend.
   ///
@@ -1003,12 +1147,6 @@ abstract class AppLocalizations {
   /// **'Extended until {date}'**
   String businessGymExtendedUntil(String date);
 
-  /// No description provided for @businessGymFilterAll.
-  ///
-  /// In en, this message translates to:
-  /// **'All'**
-  String get businessGymFilterAll;
-
   /// No description provided for @businessGymFirstName.
   ///
   /// In en, this message translates to:
@@ -1021,41 +1159,11 @@ abstract class AppLocalizations {
   /// **'Add logo'**
   String get businessGymFormAddLogo;
 
-  /// No description provided for @businessGymFormCreate.
-  ///
-  /// In en, this message translates to:
-  /// **'Create business'**
-  String get businessGymFormCreate;
-
   /// No description provided for @businessGymFormDelete.
   ///
   /// In en, this message translates to:
   /// **'Delete business'**
   String get businessGymFormDelete;
-
-  /// No description provided for @businessGymFormDeleteGymAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete gym'**
-  String get businessGymFormDeleteGymAction;
-
-  /// No description provided for @businessGymFormDeleteGymMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'This permanently deletes the gym with all its members, staff, membership types, memberships, invoices and posts.'**
-  String get businessGymFormDeleteGymMessage;
-
-  /// No description provided for @businessGymFormDeleteShopAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete shop'**
-  String get businessGymFormDeleteShopAction;
-
-  /// No description provided for @businessGymFormDeleteShopMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'This permanently deletes the shop with all its items, vendors and posts.'**
-  String get businessGymFormDeleteShopMessage;
 
   /// No description provided for @businessGymFormDeleteTitle.
   ///
@@ -1105,35 +1213,11 @@ abstract class AppLocalizations {
   /// **'Edit business'**
   String get businessGymFormTitleEdit;
 
-  /// No description provided for @businessGymFormTitleNew.
-  ///
-  /// In en, this message translates to:
-  /// **'New business'**
-  String get businessGymFormTitleNew;
-
   /// No description provided for @businessGymFormTo.
   ///
   /// In en, this message translates to:
   /// **'To'**
   String get businessGymFormTo;
-
-  /// No description provided for @businessGymFormType.
-  ///
-  /// In en, this message translates to:
-  /// **'Type'**
-  String get businessGymFormType;
-
-  /// No description provided for @businessGymFormTypeGym.
-  ///
-  /// In en, this message translates to:
-  /// **'Gym'**
-  String get businessGymFormTypeGym;
-
-  /// No description provided for @businessGymFormTypeShop.
-  ///
-  /// In en, this message translates to:
-  /// **'Shop'**
-  String get businessGymFormTypeShop;
 
   /// No description provided for @businessGymFormWorkingDays.
   ///
@@ -1153,12 +1237,6 @@ abstract class AppLocalizations {
   /// **'Gym'**
   String get businessGymGym;
 
-  /// No description provided for @businessGymInviteAndAdd.
-  ///
-  /// In en, this message translates to:
-  /// **'Invite & add'**
-  String get businessGymInviteAndAdd;
-
   /// No description provided for @businessGymInviteMemberTitle.
   ///
   /// In en, this message translates to:
@@ -1176,12 +1254,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send an invite link by email'**
   String get businessGymInviteNewMemberHint;
-
-  /// No description provided for @businessGymInviteNewUserPrompt.
-  ///
-  /// In en, this message translates to:
-  /// **'Can\'t find them? Invite a new user'**
-  String get businessGymInviteNewUserPrompt;
 
   /// No description provided for @businessGymInviteResent.
   ///
@@ -1261,12 +1333,6 @@ abstract class AppLocalizations {
   /// **'{months, plural, =1{1 month} other{{months} months}}'**
   String businessGymMonths(int months);
 
-  /// No description provided for @businessGymNoMembersFound.
-  ///
-  /// In en, this message translates to:
-  /// **'No members found'**
-  String get businessGymNoMembersFound;
-
   /// No description provided for @businessGymNoMembersYet.
   ///
   /// In en, this message translates to:
@@ -1284,18 +1350,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This gym has no membership types yet — add one first.'**
   String get businessGymNoMembershipTypes;
-
-  /// No description provided for @businessGymNoStaffFound.
-  ///
-  /// In en, this message translates to:
-  /// **'No staff found'**
-  String get businessGymNoStaffFound;
-
-  /// No description provided for @businessGymNoStaffYet.
-  ///
-  /// In en, this message translates to:
-  /// **'No staff yet'**
-  String get businessGymNoStaffYet;
 
   /// No description provided for @businessGymPlusMonths.
   ///
@@ -1333,53 +1387,11 @@ abstract class AppLocalizations {
   /// **'Remove member?'**
   String get businessGymRemoveMemberTitle;
 
-  /// No description provided for @businessGymRemoveStaffMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'This will remove them from this gym.'**
-  String get businessGymRemoveStaffMessage;
-
-  /// No description provided for @businessGymRemoveStaffTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove staff member?'**
-  String get businessGymRemoveStaffTitle;
-
   /// No description provided for @businessGymResendInvite.
   ///
   /// In en, this message translates to:
   /// **'Resend invite'**
   String get businessGymResendInvite;
-
-  /// No description provided for @businessGymRole.
-  ///
-  /// In en, this message translates to:
-  /// **'Role'**
-  String get businessGymRole;
-
-  /// No description provided for @businessGymRoleChangedTo.
-  ///
-  /// In en, this message translates to:
-  /// **'Role changed to {role}'**
-  String businessGymRoleChangedTo(String role);
-
-  /// No description provided for @businessGymRoleEmployee.
-  ///
-  /// In en, this message translates to:
-  /// **'Employee'**
-  String get businessGymRoleEmployee;
-
-  /// No description provided for @businessGymRoleEmployeeTrainer.
-  ///
-  /// In en, this message translates to:
-  /// **'Employee trainer'**
-  String get businessGymRoleEmployeeTrainer;
-
-  /// No description provided for @businessGymRoleEmployeeTrainerShort.
-  ///
-  /// In en, this message translates to:
-  /// **'Emp. trainer'**
-  String get businessGymRoleEmployeeTrainerShort;
 
   /// No description provided for @businessGymRoleMember.
   ///
@@ -1387,35 +1399,11 @@ abstract class AppLocalizations {
   /// **'Member'**
   String get businessGymRoleMember;
 
-  /// No description provided for @businessGymRoleVendor.
-  ///
-  /// In en, this message translates to:
-  /// **'Vendor'**
-  String get businessGymRoleVendor;
-
-  /// No description provided for @businessGymSearchMembersHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Search members…'**
-  String get businessGymSearchMembersHint;
-
-  /// No description provided for @businessGymSearchStaffHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Search staff…'**
-  String get businessGymSearchStaffHint;
-
   /// No description provided for @businessGymSendInvite.
   ///
   /// In en, this message translates to:
   /// **'Send invite'**
   String get businessGymSendInvite;
-
-  /// No description provided for @businessGymStaffTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'{gym} — Staff'**
-  String businessGymStaffTitle(String gym);
 
   /// No description provided for @businessGymStatusActive.
   ///
@@ -1519,12 +1507,6 @@ abstract class AppLocalizations {
   /// **'Add type'**
   String get businessMgmtAddType;
 
-  /// No description provided for @businessMgmtAddVendor.
-  ///
-  /// In en, this message translates to:
-  /// **'Add vendor'**
-  String get businessMgmtAddVendor;
-
   /// No description provided for @businessMgmtAll.
   ///
   /// In en, this message translates to:
@@ -1536,12 +1518,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All gyms'**
   String get businessMgmtAllGyms;
-
-  /// No description provided for @businessMgmtAlreadyVendor.
-  ///
-  /// In en, this message translates to:
-  /// **'Already a vendor for this shop'**
-  String get businessMgmtAlreadyVendor;
 
   /// No description provided for @businessMgmtAutoRenewOn.
   ///
@@ -1627,35 +1603,11 @@ abstract class AppLocalizations {
   /// **'Edit {name}'**
   String businessMgmtEditNamed(String name);
 
-  /// No description provided for @businessMgmtEditVendor.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit vendor'**
-  String get businessMgmtEditVendor;
-
-  /// No description provided for @businessMgmtEmail.
-  ///
-  /// In en, this message translates to:
-  /// **'Email'**
-  String get businessMgmtEmail;
-
-  /// No description provided for @businessMgmtEmailAlreadyVendor.
-  ///
-  /// In en, this message translates to:
-  /// **'This email is already a vendor for this shop'**
-  String get businessMgmtEmailAlreadyVendor;
-
   /// No description provided for @businessMgmtExtendOrBuy.
   ///
   /// In en, this message translates to:
   /// **'Extend or buy a membership'**
   String get businessMgmtExtendOrBuy;
-
-  /// No description provided for @businessMgmtFirstName.
-  ///
-  /// In en, this message translates to:
-  /// **'First name'**
-  String get businessMgmtFirstName;
 
   /// No description provided for @businessMgmtGym.
   ///
@@ -1680,30 +1632,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter a valid number'**
   String get businessMgmtInvalidNumber;
-
-  /// No description provided for @businessMgmtInviteAndAddVendor.
-  ///
-  /// In en, this message translates to:
-  /// **'Invite & add vendor'**
-  String get businessMgmtInviteAndAddVendor;
-
-  /// No description provided for @businessMgmtInviteNewUser.
-  ///
-  /// In en, this message translates to:
-  /// **'Can\'t find them? Invite a new user'**
-  String get businessMgmtInviteNewUser;
-
-  /// No description provided for @businessMgmtInviteResent.
-  ///
-  /// In en, this message translates to:
-  /// **'Invite resent'**
-  String get businessMgmtInviteResent;
-
-  /// No description provided for @businessMgmtInviteResentSuccess.
-  ///
-  /// In en, this message translates to:
-  /// **'Invite resent successfully'**
-  String get businessMgmtInviteResentSuccess;
 
   /// No description provided for @businessMgmtInvoice.
   ///
@@ -1765,18 +1693,6 @@ abstract class AppLocalizations {
   /// **'Items'**
   String get businessMgmtItems;
 
-  /// No description provided for @businessMgmtLastName.
-  ///
-  /// In en, this message translates to:
-  /// **'Last name'**
-  String get businessMgmtLastName;
-
-  /// No description provided for @businessMgmtManage.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage'**
-  String get businessMgmtManage;
-
   /// No description provided for @businessMgmtMarkPaid.
   ///
   /// In en, this message translates to:
@@ -1824,12 +1740,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Monthly cost'**
   String get businessMgmtMonthlyCost;
-
-  /// No description provided for @businessMgmtMoreCount.
-  ///
-  /// In en, this message translates to:
-  /// **'+ {count} more'**
-  String businessMgmtMoreCount(int count);
 
   /// No description provided for @businessMgmtName.
   ///
@@ -1903,12 +1813,6 @@ abstract class AppLocalizations {
   /// **'No unpaid invoices'**
   String get businessMgmtNoUnpaidInvoices;
 
-  /// No description provided for @businessMgmtNoVendorsYet.
-  ///
-  /// In en, this message translates to:
-  /// **'No vendors yet'**
-  String get businessMgmtNoVendorsYet;
-
   /// No description provided for @businessMgmtNoVoidInvoices.
   ///
   /// In en, this message translates to:
@@ -1981,36 +1885,6 @@ abstract class AppLocalizations {
   /// **'Qty: {quantity}'**
   String businessMgmtQuantity(int quantity);
 
-  /// No description provided for @businessMgmtRemove.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove'**
-  String get businessMgmtRemove;
-
-  /// No description provided for @businessMgmtRemoveFromShop.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove from shop'**
-  String get businessMgmtRemoveFromShop;
-
-  /// No description provided for @businessMgmtRemoveVendorFromShopMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'This will remove {name} from {shopName}.'**
-  String businessMgmtRemoveVendorFromShopMessage(String name, String shopName);
-
-  /// No description provided for @businessMgmtRemoveVendorMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'This will remove them from this shop.'**
-  String get businessMgmtRemoveVendorMessage;
-
-  /// No description provided for @businessMgmtRemoveVendorTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove vendor?'**
-  String get businessMgmtRemoveVendorTitle;
-
   /// No description provided for @businessMgmtRenewMembership.
   ///
   /// In en, this message translates to:
@@ -2023,35 +1897,11 @@ abstract class AppLocalizations {
   /// **'Renews automatically every month'**
   String get businessMgmtRenewsMonthly;
 
-  /// No description provided for @businessMgmtResendInvite.
-  ///
-  /// In en, this message translates to:
-  /// **'Resend invite'**
-  String get businessMgmtResendInvite;
-
   /// No description provided for @businessMgmtSaveChanges.
   ///
   /// In en, this message translates to:
   /// **'Save changes'**
   String get businessMgmtSaveChanges;
-
-  /// No description provided for @businessMgmtShop.
-  ///
-  /// In en, this message translates to:
-  /// **'Shop'**
-  String get businessMgmtShop;
-
-  /// No description provided for @businessMgmtShopVendorsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'{shopName} — Vendors'**
-  String businessMgmtShopVendorsTitle(String shopName);
-
-  /// No description provided for @businessMgmtStaffVendors.
-  ///
-  /// In en, this message translates to:
-  /// **'Staff / Vendors'**
-  String get businessMgmtStaffVendors;
 
   /// No description provided for @businessMgmtTurnOff.
   ///
@@ -2106,24 +1956,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 unpaid invoice} other{{count} unpaid invoices}} · {amount} due'**
   String businessMgmtUnpaidSummary(int count, String amount);
-
-  /// No description provided for @businessMgmtUsername.
-  ///
-  /// In en, this message translates to:
-  /// **'Username'**
-  String get businessMgmtUsername;
-
-  /// No description provided for @businessMgmtVendor.
-  ///
-  /// In en, this message translates to:
-  /// **'Vendor'**
-  String get businessMgmtVendor;
-
-  /// No description provided for @businessMgmtVendorActions.
-  ///
-  /// In en, this message translates to:
-  /// **'Vendor actions'**
-  String get businessMgmtVendorActions;
 
   /// No description provided for @businessOrderStatusCancelled.
   ///
@@ -4897,6 +4729,12 @@ abstract class AppLocalizations {
   /// **'Just add'**
   String get customersJustAdd;
 
+  /// No description provided for @customersLogPastSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a past session'**
+  String get customersLogPastSession;
+
   /// No description provided for @customersNoActiveClasses.
   ///
   /// In en, this message translates to:
@@ -5004,6 +4842,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search customers'**
   String get customersSearch;
+
+  /// No description provided for @customersSessionWith.
+  ///
+  /// In en, this message translates to:
+  /// **'With {name}'**
+  String customersSessionWith(String name);
+
+  /// No description provided for @customersStartSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a session'**
+  String get customersStartSession;
+
+  /// No description provided for @customersStartSessionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track it live; it\'s saved to their sessions with you as the trainer'**
+  String get customersStartSessionSubtitle;
 
   /// No description provided for @customersStatusAccepted.
   ///
@@ -9619,12 +9475,6 @@ abstract class AppLocalizations {
   /// **'Nothing on this day. Tap an hour to log a workout or a meal.'**
   String get planScheduleEmptyDay;
 
-  /// No description provided for @planScheduleHubSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Your classes, workouts and meals'**
-  String get planScheduleHubSubtitle;
-
   /// No description provided for @planSkip.
   ///
   /// In en, this message translates to:
@@ -10537,6 +10387,954 @@ abstract class AppLocalizations {
   /// **'Wow'**
   String get reactionWow;
 
+  /// No description provided for @rolesBecameTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re a trainer now. Your trainer tools are on Home.'**
+  String get rolesBecameTrainer;
+
+  /// No description provided for @rolesBecomeTrainerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll get trainer tools in your Home menu: classes, timetables and clients. To show up as a trainer at a gym, its owner invites you and you accept.'**
+  String get rolesBecomeTrainerBody;
+
+  /// No description provided for @rolesBecomeTrainerConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Become a trainer'**
+  String get rolesBecomeTrainerConfirm;
+
+  /// No description provided for @rolesBecomeTrainerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Become a trainer?'**
+  String get rolesBecomeTrainerTitle;
+
+  /// No description provided for @rolesFormApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Send for review'**
+  String get rolesFormApply;
+
+  /// No description provided for @rolesFormBio.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get rolesFormBio;
+
+  /// No description provided for @rolesFormDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes the business with its members, memberships, invoices, products, team and posts.'**
+  String get rolesFormDeleteMessage;
+
+  /// No description provided for @rolesFormGymHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Memberships, classes, check-ins'**
+  String get rolesFormGymHint;
+
+  /// No description provided for @rolesFormIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell people about your gym or shop. Our team checks every new business before it goes live; you can finish the profile meanwhile.'**
+  String get rolesFormIntro;
+
+  /// No description provided for @rolesFormPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get rolesFormPhone;
+
+  /// No description provided for @rolesFormPickSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick gym, shop or both'**
+  String get rolesFormPickSide;
+
+  /// No description provided for @rolesFormShopHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Products and orders'**
+  String get rolesFormShopHint;
+
+  /// No description provided for @rolesFormSides.
+  ///
+  /// In en, this message translates to:
+  /// **'What it is'**
+  String get rolesFormSides;
+
+  /// No description provided for @rolesFormSidesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A business can be both. You can switch either on or off later.'**
+  String get rolesFormSidesHint;
+
+  /// No description provided for @rolesFormSubmittedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll let you know when it\'s approved. Until then you can find it under My gyms & shops and keep editing its profile.'**
+  String get rolesFormSubmittedBody;
+
+  /// No description provided for @rolesFormSubmittedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent for review'**
+  String get rolesFormSubmittedTitle;
+
+  /// No description provided for @rolesFormWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get rolesFormWebsite;
+
+  /// No description provided for @rolesFormWebsiteInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with http:// or https://'**
+  String get rolesFormWebsiteInvalid;
+
+  /// No description provided for @rolesHubBuyMembershipSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a gym or renew'**
+  String get rolesHubBuyMembershipSubtitle;
+
+  /// No description provided for @rolesHubFindSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or place'**
+  String get rolesHubFindSubtitle;
+
+  /// No description provided for @rolesHubMyGyms.
+  ///
+  /// In en, this message translates to:
+  /// **'My gyms'**
+  String get rolesHubMyGyms;
+
+  /// No description provided for @rolesInviteAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get rolesInviteAccept;
+
+  /// No description provided for @rolesInviteDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get rolesInviteDecline;
+
+  /// No description provided for @rolesInviteToJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'{business} invited you to join as {role}.'**
+  String rolesInviteToJoin(String business, String role);
+
+  /// No description provided for @rolesInvitedAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Invited · {role}'**
+  String rolesInvitedAs(String role);
+
+  /// No description provided for @rolesInvitesAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Join as {role}'**
+  String rolesInvitesAs(String role);
+
+  /// No description provided for @rolesInvitesDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite declined'**
+  String get rolesInvitesDeclined;
+
+  /// No description provided for @rolesInvitesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No open invites'**
+  String get rolesInvitesEmpty;
+
+  /// No description provided for @rolesInvitesFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} invited you to join as {role}'**
+  String rolesInvitesFrom(String name, String role);
+
+  /// No description provided for @rolesInvitesJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'You joined {business}'**
+  String rolesInvitesJoined(String business);
+
+  /// No description provided for @rolesInvitesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Team invites'**
+  String get rolesInvitesTitle;
+
+  /// No description provided for @rolesInvitesTrainerNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepting turns on your trainer tools and lists you as a trainer there.'**
+  String get rolesInvitesTrainerNote;
+
+  /// No description provided for @rolesKindGym.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym'**
+  String get rolesKindGym;
+
+  /// No description provided for @rolesKindGymAndShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym & shop'**
+  String get rolesKindGymAndShop;
+
+  /// No description provided for @rolesKindShop.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get rolesKindShop;
+
+  /// No description provided for @rolesManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get rolesManage;
+
+  /// No description provided for @rolesManageBlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get rolesManageBlockedTitle;
+
+  /// No description provided for @rolesManageEditProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get rolesManageEditProfile;
+
+  /// No description provided for @rolesManageEditProfileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, logo, about, hours, contact'**
+  String get rolesManageEditProfileSubtitle;
+
+  /// No description provided for @rolesManageGymDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym dashboard'**
+  String get rolesManageGymDashboard;
+
+  /// No description provided for @rolesManageGymDashboardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Members, memberships, invoices, schedule, check-ins'**
+  String get rolesManageGymDashboardSubtitle;
+
+  /// No description provided for @rolesManageLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave team'**
+  String get rolesManageLeave;
+
+  /// No description provided for @rolesManageLeaveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll lose every role you have here. An owner can invite you again.'**
+  String get rolesManageLeaveBody;
+
+  /// No description provided for @rolesManageLeaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave {business}?'**
+  String rolesManageLeaveTitle(String business);
+
+  /// No description provided for @rolesManagePendingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Our team is checking this business. You can finish the profile meanwhile; the team, memberships, products and posts unlock once it\'s approved.'**
+  String get rolesManagePendingBody;
+
+  /// No description provided for @rolesManagePendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for review'**
+  String get rolesManagePendingTitle;
+
+  /// No description provided for @rolesManagePosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get rolesManagePosts;
+
+  /// No description provided for @rolesManagePostsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Post as the business'**
+  String get rolesManagePostsSubtitle;
+
+  /// No description provided for @rolesManageProductsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add and edit what you sell'**
+  String get rolesManageProductsSubtitle;
+
+  /// No description provided for @rolesManageProfileGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile & team'**
+  String get rolesManageProfileGroup;
+
+  /// No description provided for @rolesManageRejectedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix what\'s mentioned above in the profile, then send it again.'**
+  String get rolesManageRejectedHint;
+
+  /// No description provided for @rolesManageRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not approved'**
+  String get rolesManageRejectedTitle;
+
+  /// No description provided for @rolesManageResubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send for review again'**
+  String get rolesManageResubmit;
+
+  /// No description provided for @rolesManageResubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent for review'**
+  String get rolesManageResubmitted;
+
+  /// No description provided for @rolesManageScheduleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Classes and shifts at this gym'**
+  String get rolesManageScheduleSubtitle;
+
+  /// No description provided for @rolesManageTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get rolesManageTeam;
+
+  /// No description provided for @rolesManageTeamSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who runs this place'**
+  String get rolesManageTeamSubtitle;
+
+  /// No description provided for @rolesManageTeamSubtitleOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite staff, trainers and co-owners'**
+  String get rolesManageTeamSubtitleOwner;
+
+  /// No description provided for @rolesManageViewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'View profile'**
+  String get rolesManageViewProfile;
+
+  /// No description provided for @rolesMenuAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get rolesMenuAdmin;
+
+  /// No description provided for @rolesMenuBecomeTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Become a trainer'**
+  String get rolesMenuBecomeTrainer;
+
+  /// No description provided for @rolesMenuBecomeTrainerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Classes, clients and coaching tools for the people you train'**
+  String get rolesMenuBecomeTrainerSubtitle;
+
+  /// No description provided for @rolesMenuBuyMembership.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy a membership'**
+  String get rolesMenuBuyMembership;
+
+  /// No description provided for @rolesMenuDoMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Do more'**
+  String get rolesMenuDoMore;
+
+  /// No description provided for @rolesMenuInvitesBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{You\'re invited to join a team} other{You have {count} team invites}}'**
+  String rolesMenuInvitesBanner(int count);
+
+  /// No description provided for @rolesMenuInvitesReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get rolesMenuInvitesReview;
+
+  /// No description provided for @rolesMenuMemberships.
+  ///
+  /// In en, this message translates to:
+  /// **'Memberships & orders'**
+  String get rolesMenuMemberships;
+
+  /// No description provided for @rolesMenuMyBusinesses.
+  ///
+  /// In en, this message translates to:
+  /// **'My gyms & shops'**
+  String get rolesMenuMyBusinesses;
+
+  /// No description provided for @rolesMenuMyShifts.
+  ///
+  /// In en, this message translates to:
+  /// **'My shifts'**
+  String get rolesMenuMyShifts;
+
+  /// No description provided for @rolesMenuNutrition.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition'**
+  String get rolesMenuNutrition;
+
+  /// No description provided for @rolesMenuOwnerOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner overview'**
+  String get rolesMenuOwnerOverview;
+
+  /// No description provided for @rolesMenuRegisterBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Register a gym or shop'**
+  String get rolesMenuRegisterBusiness;
+
+  /// No description provided for @rolesMenuRegisterBusinessSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Our team checks it before it goes live'**
+  String get rolesMenuRegisterBusinessSubtitle;
+
+  /// No description provided for @rolesMenuRegisterBusinessSubtitleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes live straight away'**
+  String get rolesMenuRegisterBusinessSubtitleAdmin;
+
+  /// No description provided for @rolesMenuReviewQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification requests'**
+  String get rolesMenuReviewQueue;
+
+  /// No description provided for @rolesMenuTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainer'**
+  String get rolesMenuTrainer;
+
+  /// No description provided for @rolesMenuTrainerClasses.
+  ///
+  /// In en, this message translates to:
+  /// **'My classes'**
+  String get rolesMenuTrainerClasses;
+
+  /// No description provided for @rolesMenuTrainerClients.
+  ///
+  /// In en, this message translates to:
+  /// **'Clients'**
+  String get rolesMenuTrainerClients;
+
+  /// No description provided for @rolesMenuTrainerSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Coached sessions'**
+  String get rolesMenuTrainerSessions;
+
+  /// No description provided for @rolesMenuTrainerTimetables.
+  ///
+  /// In en, this message translates to:
+  /// **'Timetables'**
+  String get rolesMenuTrainerTimetables;
+
+  /// No description provided for @rolesMenuTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get rolesMenuTraining;
+
+  /// No description provided for @rolesMiscManageTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage team'**
+  String get rolesMiscManageTeam;
+
+  /// No description provided for @rolesMiscMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get rolesMiscMember;
+
+  /// No description provided for @rolesMiscOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get rolesMiscOwner;
+
+  /// No description provided for @rolesMiscOwnerOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner of'**
+  String get rolesMiscOwnerOf;
+
+  /// No description provided for @rolesMiscStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get rolesMiscStaff;
+
+  /// No description provided for @rolesMiscSuperUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Super user'**
+  String get rolesMiscSuperUser;
+
+  /// No description provided for @rolesMiscSuperUserHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews businesses and manages users'**
+  String get rolesMiscSuperUserHint;
+
+  /// No description provided for @rolesMiscTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get rolesMiscTeam;
+
+  /// No description provided for @rolesMiscTeamCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 on the team} other{{count} on the team}}'**
+  String rolesMiscTeamCount(int count);
+
+  /// No description provided for @rolesMiscTeamHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Owners, staff and trainers, and open invites'**
+  String get rolesMiscTeamHint;
+
+  /// No description provided for @rolesMiscTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainer'**
+  String get rolesMiscTrainer;
+
+  /// No description provided for @rolesMiscTrainerAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainer at'**
+  String get rolesMiscTrainerAt;
+
+  /// No description provided for @rolesProfileAllPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get rolesProfileAllPosts;
+
+  /// No description provided for @rolesProfileFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get rolesProfileFollow;
+
+  /// No description provided for @rolesProfileFollowers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 follower} other{{count} followers}}'**
+  String rolesProfileFollowers(int count);
+
+  /// No description provided for @rolesProfileFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get rolesProfileFollowing;
+
+  /// No description provided for @rolesProfileMemberships.
+  ///
+  /// In en, this message translates to:
+  /// **'Memberships'**
+  String get rolesProfileMemberships;
+
+  /// No description provided for @rolesProfileOwners.
+  ///
+  /// In en, this message translates to:
+  /// **'Owners'**
+  String get rolesProfileOwners;
+
+  /// No description provided for @rolesProfilePosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get rolesProfilePosts;
+
+  /// No description provided for @rolesProfileProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get rolesProfileProducts;
+
+  /// No description provided for @rolesProfileTrainers.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainers'**
+  String get rolesProfileTrainers;
+
+  /// No description provided for @rolesProfileYouAre.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re'**
+  String get rolesProfileYouAre;
+
+  /// No description provided for @rolesReviewApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied {date}'**
+  String rolesReviewApplied(String date);
+
+  /// No description provided for @rolesReviewApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get rolesReviewApprove;
+
+  /// No description provided for @rolesReviewBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get rolesReviewBlock;
+
+  /// No description provided for @rolesReviewBlockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block {business}?'**
+  String rolesReviewBlockTitle(String business);
+
+  /// No description provided for @rolesReviewDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{business}: {status}'**
+  String rolesReviewDone(String business, String status);
+
+  /// No description provided for @rolesReviewEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here'**
+  String get rolesReviewEmpty;
+
+  /// No description provided for @rolesReviewNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note: {note}'**
+  String rolesReviewNote(String note);
+
+  /// No description provided for @rolesReviewReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get rolesReviewReason;
+
+  /// No description provided for @rolesReviewReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The owner sees this'**
+  String get rolesReviewReasonHint;
+
+  /// No description provided for @rolesReviewReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get rolesReviewReject;
+
+  /// No description provided for @rolesReviewRejectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject {business}?'**
+  String rolesReviewRejectTitle(String business);
+
+  /// No description provided for @rolesReviewUnblock.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve again'**
+  String get rolesReviewUnblock;
+
+  /// No description provided for @rolesRoleCoOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Co-owner'**
+  String get rolesRoleCoOwner;
+
+  /// No description provided for @rolesRoleOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get rolesRoleOwner;
+
+  /// No description provided for @rolesRoleStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff'**
+  String get rolesRoleStaff;
+
+  /// No description provided for @rolesRoleTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainer'**
+  String get rolesRoleTrainer;
+
+  /// No description provided for @rolesSearchAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get rolesSearchAll;
+
+  /// No description provided for @rolesSearchEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get rolesSearchEmpty;
+
+  /// No description provided for @rolesSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name or location'**
+  String get rolesSearchHint;
+
+  /// No description provided for @rolesSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find gyms & shops'**
+  String get rolesSearchTitle;
+
+  /// No description provided for @rolesSettingsStopTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get rolesSettingsStopTrainer;
+
+  /// No description provided for @rolesSettingsStopTrainerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll also stop being a trainer at {gyms}. Your clients and classes stay.'**
+  String rolesSettingsStopTrainerBody(String gyms);
+
+  /// No description provided for @rolesSettingsStopTrainerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop being a trainer?'**
+  String get rolesSettingsStopTrainerTitle;
+
+  /// No description provided for @rolesSettingsTrainer.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m a trainer'**
+  String get rolesSettingsTrainer;
+
+  /// No description provided for @rolesSettingsTrainerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trainer tools in your Home menu'**
+  String get rolesSettingsTrainerSubtitle;
+
+  /// No description provided for @rolesStatusApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get rolesStatusApproved;
+
+  /// No description provided for @rolesStatusBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get rolesStatusBlocked;
+
+  /// No description provided for @rolesStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending review'**
+  String get rolesStatusPending;
+
+  /// No description provided for @rolesStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not approved'**
+  String get rolesStatusRejected;
+
+  /// No description provided for @rolesTeamActionsFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions for {name}'**
+  String rolesTeamActionsFor(String name);
+
+  /// No description provided for @rolesTeamAddRoleSelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Make me {role} too'**
+  String rolesTeamAddRoleSelf(String role);
+
+  /// No description provided for @rolesTeamByEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'By email'**
+  String get rolesTeamByEmail;
+
+  /// No description provided for @rolesTeamByEmailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone already on Gym Bro just needs their email. For someone new, add their name and a username too; they\'ll get an email to set up their account, then the invite.'**
+  String get rolesTeamByEmailHint;
+
+  /// No description provided for @rolesTeamCancelInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel {role} invite'**
+  String rolesTeamCancelInvite(String role);
+
+  /// No description provided for @rolesTeamEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get rolesTeamEmail;
+
+  /// No description provided for @rolesTeamExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Owners and trainers show on the public profile; staff don\'t. New people join once they accept the invite.'**
+  String get rolesTeamExplainer;
+
+  /// No description provided for @rolesTeamFindPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'On Gym Bro'**
+  String get rolesTeamFindPerson;
+
+  /// No description provided for @rolesTeamFirstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get rolesTeamFirstName;
+
+  /// No description provided for @rolesTeamInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get rolesTeamInvite;
+
+  /// No description provided for @rolesTeamInviteAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite as {role}'**
+  String rolesTeamInviteAs(String role);
+
+  /// No description provided for @rolesTeamInviteRole.
+  ///
+  /// In en, this message translates to:
+  /// **'As'**
+  String get rolesTeamInviteRole;
+
+  /// No description provided for @rolesTeamInviteSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite sent'**
+  String get rolesTeamInviteSent;
+
+  /// No description provided for @rolesTeamInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite to {business}'**
+  String rolesTeamInviteTitle(String business);
+
+  /// No description provided for @rolesTeamLastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get rolesTeamLastName;
+
+  /// No description provided for @rolesTeamOwnerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything an owner can do, including the team, pricing and deleting the business.'**
+  String get rolesTeamOwnerHint;
+
+  /// No description provided for @rolesTeamRemoveAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove as {role}'**
+  String rolesTeamRemoveAs(String role);
+
+  /// No description provided for @rolesTeamRoleAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Role added'**
+  String get rolesTeamRoleAdded;
+
+  /// No description provided for @rolesTeamSendInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Send invite'**
+  String get rolesTeamSendInvite;
+
+  /// No description provided for @rolesTeamStaffHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Front desk and shop: members, memberships, invoices, products, orders and the profile. Not shown on the profile.'**
+  String get rolesTeamStaffHint;
+
+  /// No description provided for @rolesTeamStopBeing.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop being {role}'**
+  String rolesTeamStopBeing(String role);
+
+  /// No description provided for @rolesTeamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Team · {business}'**
+  String rolesTeamTitle(String business);
+
+  /// No description provided for @rolesTeamTrainerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Teaches classes, coaches members and posts. Shown as \"Trainer at\" on their profile.'**
+  String get rolesTeamTrainerHint;
+
+  /// No description provided for @rolesTeamUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get rolesTeamUsername;
+
+  /// No description provided for @rolesTeamYou.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (you)'**
+  String rolesTeamYou(String name);
+
+  /// No description provided for @rolesVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified by Gym Bro'**
+  String get rolesVerified;
+
   /// No description provided for @settingsLanguage.
   ///
   /// In en, this message translates to:
@@ -10963,41 +11761,11 @@ abstract class AppLocalizations {
   /// **'Activate invite'**
   String get shellActivateInviteTitle;
 
-  /// No description provided for @shellAddBusiness.
-  ///
-  /// In en, this message translates to:
-  /// **'Add business'**
-  String get shellAddBusiness;
-
   /// No description provided for @shellAddUser.
   ///
   /// In en, this message translates to:
   /// **'Add user'**
   String get shellAddUser;
-
-  /// No description provided for @shellAdminBusinessesSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage gyms & shops'**
-  String get shellAdminBusinessesSubtitle;
-
-  /// No description provided for @shellAdminInvoicesSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'View all membership invoices'**
-  String get shellAdminInvoicesSubtitle;
-
-  /// No description provided for @shellAdminPanel.
-  ///
-  /// In en, this message translates to:
-  /// **'Admin panel'**
-  String get shellAdminPanel;
-
-  /// No description provided for @shellAdminUsersSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage all accounts'**
-  String get shellAdminUsersSubtitle;
 
   /// No description provided for @shellAlreadyYourEmail.
   ///
@@ -11107,12 +11875,6 @@ abstract class AppLocalizations {
   /// **'Check your email'**
   String get shellCheckEmailTitle;
 
-  /// No description provided for @shellChooseShop.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose a shop'**
-  String get shellChooseShop;
-
   /// No description provided for @shellClearSearch.
   ///
   /// In en, this message translates to:
@@ -11215,12 +11977,6 @@ abstract class AppLocalizations {
   /// **'Delete {name}?'**
   String shellDeleteUserTitle(String name);
 
-  /// No description provided for @shellEditBusiness.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit {name}'**
-  String shellEditBusiness(String name);
-
   /// No description provided for @shellEditUser.
   ///
   /// In en, this message translates to:
@@ -11275,12 +12031,6 @@ abstract class AppLocalizations {
   /// **'Google sign-in is not supported on this device'**
   String get shellGoogleNotSupported;
 
-  /// No description provided for @shellGyms.
-  ///
-  /// In en, this message translates to:
-  /// **'Gyms'**
-  String get shellGyms;
-
   /// No description provided for @shellHaveAccountLogIn.
   ///
   /// In en, this message translates to:
@@ -11292,12 +12042,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Have an invite code?'**
   String get shellHaveInviteCode;
-
-  /// No description provided for @shellHello.
-  ///
-  /// In en, this message translates to:
-  /// **'Hello, {name}'**
-  String shellHello(String name);
 
   /// No description provided for @shellHidePassword.
   ///
@@ -11371,35 +12115,11 @@ abstract class AppLocalizations {
   /// **'Browse and book group classes'**
   String get shellHubClassesSubtitle;
 
-  /// No description provided for @shellHubCommunity.
-  ///
-  /// In en, this message translates to:
-  /// **'Community'**
-  String get shellHubCommunity;
-
-  /// No description provided for @shellHubCommunityOpenFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Couldn\'t open community: {error}'**
-  String shellHubCommunityOpenFailed(String error);
-
-  /// No description provided for @shellHubCommunitySubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Posts and announcements from your gym'**
-  String get shellHubCommunitySubtitle;
-
   /// No description provided for @shellHubExercises.
   ///
   /// In en, this message translates to:
   /// **'Exercises'**
   String get shellHubExercises;
-
-  /// No description provided for @shellHubExercisesSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Browse and manage exercises'**
-  String get shellHubExercisesSubtitle;
 
   /// No description provided for @shellHubFoodDiary.
   ///
@@ -11407,29 +12127,11 @@ abstract class AppLocalizations {
   /// **'Food diary'**
   String get shellHubFoodDiary;
 
-  /// No description provided for @shellHubFoodDiarySubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Log meals and track macros'**
-  String get shellHubFoodDiarySubtitle;
-
   /// No description provided for @shellHubMealPlans.
   ///
   /// In en, this message translates to:
   /// **'Meal plans'**
   String get shellHubMealPlans;
-
-  /// No description provided for @shellHubMealPlansSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Food, recipes and nutrition'**
-  String get shellHubMealPlansSubtitle;
-
-  /// No description provided for @shellHubNotLinked.
-  ///
-  /// In en, this message translates to:
-  /// **'You\'re not linked to a gym or shop yet'**
-  String get shellHubNotLinked;
 
   /// No description provided for @shellHubProgress.
   ///
@@ -11442,12 +12144,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sessions'**
   String get shellHubSessions;
-
-  /// No description provided for @shellHubSessionsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Log and review your sessions'**
-  String get shellHubSessionsSubtitle;
 
   /// No description provided for @shellHubStore.
   ///
@@ -11466,12 +12162,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Workouts'**
   String get shellHubWorkouts;
-
-  /// No description provided for @shellHubWorkoutsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Trainings and routines'**
-  String get shellHubWorkoutsSubtitle;
 
   /// No description provided for @shellImageAddPhoto.
   ///
@@ -11635,18 +12325,6 @@ abstract class AppLocalizations {
   /// **'Mark all read'**
   String get shellMarkAllRead;
 
-  /// No description provided for @shellMemberCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 member} other{{count} members}}'**
-  String shellMemberCount(int count);
-
-  /// No description provided for @shellMembersYouCoach.
-  ///
-  /// In en, this message translates to:
-  /// **'Members you coach'**
-  String get shellMembersYouCoach;
-
   /// No description provided for @shellMuteBilling.
   ///
   /// In en, this message translates to:
@@ -11809,41 +12487,17 @@ abstract class AppLocalizations {
   /// **'Don\'t have an account? Sign up'**
   String get shellNoAccountSignUp;
 
-  /// No description provided for @shellNoBusinesses.
-  ///
-  /// In en, this message translates to:
-  /// **'No businesses yet'**
-  String get shellNoBusinesses;
-
-  /// No description provided for @shellNoCoachedMembers.
-  ///
-  /// In en, this message translates to:
-  /// **'No members at the gyms you coach at yet'**
-  String get shellNoCoachedMembers;
-
   /// No description provided for @shellNoLongerMember.
   ///
   /// In en, this message translates to:
   /// **'{name} is no longer a member'**
   String shellNoLongerMember(String name);
 
-  /// No description provided for @shellNoMembersMatch.
-  ///
-  /// In en, this message translates to:
-  /// **'No members match \"{query}\"'**
-  String shellNoMembersMatch(String query);
-
   /// No description provided for @shellNoNotifications.
   ///
   /// In en, this message translates to:
   /// **'No notifications yet'**
   String get shellNoNotifications;
-
-  /// No description provided for @shellNoSessionsToday.
-  ///
-  /// In en, this message translates to:
-  /// **'No sessions with you today'**
-  String get shellNoSessionsToday;
 
   /// No description provided for @shellNoUsers.
   ///
@@ -11856,18 +12510,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No users found'**
   String get shellNoUsersFound;
-
-  /// No description provided for @shellNotAVendor.
-  ///
-  /// In en, this message translates to:
-  /// **'You\'re not a vendor at any shop yet'**
-  String get shellNotAVendor;
-
-  /// No description provided for @shellNotAssignedToGym.
-  ///
-  /// In en, this message translates to:
-  /// **'Not assigned to any gym yet'**
-  String get shellNotAssignedToGym;
 
   /// No description provided for @shellNotificationUnread.
   ///
@@ -11892,12 +12534,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'or'**
   String get shellOr;
-
-  /// No description provided for @shellOrdersForShop.
-  ///
-  /// In en, this message translates to:
-  /// **'Orders · {shop}'**
-  String shellOrdersForShop(String shop);
 
   /// No description provided for @shellOwnerAllInvoices.
   ///
@@ -11971,95 +12607,11 @@ abstract class AppLocalizations {
   /// **'Reset password'**
   String get shellResetPasswordTitle;
 
-  /// No description provided for @shellRole.
-  ///
-  /// In en, this message translates to:
-  /// **'Role'**
-  String get shellRole;
-
-  /// No description provided for @shellRoleEmployee.
-  ///
-  /// In en, this message translates to:
-  /// **'Employee'**
-  String get shellRoleEmployee;
-
-  /// No description provided for @shellRoleEmployeeTrainer.
-  ///
-  /// In en, this message translates to:
-  /// **'Employee / Trainer'**
-  String get shellRoleEmployeeTrainer;
-
-  /// No description provided for @shellRoleEmployeeTrainerShort.
-  ///
-  /// In en, this message translates to:
-  /// **'Emp. trainer'**
-  String get shellRoleEmployeeTrainerShort;
-
-  /// No description provided for @shellRoleGymOwner.
-  ///
-  /// In en, this message translates to:
-  /// **'Gym owner'**
-  String get shellRoleGymOwner;
-
-  /// No description provided for @shellRoleMember.
-  ///
-  /// In en, this message translates to:
-  /// **'Member'**
-  String get shellRoleMember;
-
-  /// No description provided for @shellRoleOwner.
-  ///
-  /// In en, this message translates to:
-  /// **'Owner'**
-  String get shellRoleOwner;
-
-  /// No description provided for @shellRoleShopOwner.
-  ///
-  /// In en, this message translates to:
-  /// **'Shop owner'**
-  String get shellRoleShopOwner;
-
-  /// No description provided for @shellRoleShopVendor.
-  ///
-  /// In en, this message translates to:
-  /// **'Shop vendor'**
-  String get shellRoleShopVendor;
-
-  /// No description provided for @shellRoleSuperUser.
-  ///
-  /// In en, this message translates to:
-  /// **'Super user'**
-  String get shellRoleSuperUser;
-
-  /// No description provided for @shellRoleTrainer.
-  ///
-  /// In en, this message translates to:
-  /// **'Trainer'**
-  String get shellRoleTrainer;
-
-  /// No description provided for @shellRoleVendor.
-  ///
-  /// In en, this message translates to:
-  /// **'Vendor'**
-  String get shellRoleVendor;
-
   /// No description provided for @shellSaveChanges.
   ///
   /// In en, this message translates to:
   /// **'Save changes'**
   String get shellSaveChanges;
-
-  /// No description provided for @shellScanCheckIns.
-  ///
-  /// In en, this message translates to:
-  /// **'Scan check-ins'**
-  String get shellScanCheckIns;
-
-  /// No description provided for @shellSearchMembers.
-  ///
-  /// In en, this message translates to:
-  /// **'Search members'**
-  String get shellSearchMembers;
 
   /// No description provided for @shellSendLink.
   ///
@@ -12078,12 +12630,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send reset link'**
   String get shellSendResetLink;
-
-  /// No description provided for @shellSessionStartedInProgress.
-  ///
-  /// In en, this message translates to:
-  /// **'Started {time} · in progress'**
-  String shellSessionStartedInProgress(String time);
 
   /// No description provided for @shellSetNewPassword.
   ///
@@ -12138,12 +12684,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Weight'**
   String get shellSettingsWeight;
-
-  /// No description provided for @shellShops.
-  ///
-  /// In en, this message translates to:
-  /// **'Shops'**
-  String get shellShops;
 
   /// No description provided for @shellShowMore.
   ///
@@ -12277,12 +12817,6 @@ abstract class AppLocalizations {
   /// **'Unpaid invoices'**
   String get shellStatsUnpaidInvoices;
 
-  /// No description provided for @shellTabBusinesses.
-  ///
-  /// In en, this message translates to:
-  /// **'Businesses'**
-  String get shellTabBusinesses;
-
   /// No description provided for @shellTabClasses.
   ///
   /// In en, this message translates to:
@@ -12313,23 +12847,11 @@ abstract class AppLocalizations {
   /// **'Home'**
   String get shellTabHome;
 
-  /// No description provided for @shellTabMembers.
-  ///
-  /// In en, this message translates to:
-  /// **'Members'**
-  String get shellTabMembers;
-
   /// No description provided for @shellTabMembership.
   ///
   /// In en, this message translates to:
   /// **'Membership'**
   String get shellTabMembership;
-
-  /// No description provided for @shellTabMyShop.
-  ///
-  /// In en, this message translates to:
-  /// **'My Shop'**
-  String get shellTabMyShop;
 
   /// No description provided for @shellTabProfile.
   ///
@@ -12409,12 +12931,6 @@ abstract class AppLocalizations {
   /// **'now'**
   String get shellTimeNow;
 
-  /// No description provided for @shellTodaysSessions.
-  ///
-  /// In en, this message translates to:
-  /// **'Today\'s sessions'**
-  String get shellTodaysSessions;
-
   /// No description provided for @shellTypeToConfirm.
   ///
   /// In en, this message translates to:
@@ -12456,24 +12972,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search by name or username'**
   String get shellUserSearchHint;
-
-  /// No description provided for @shellWelcome.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome, {name}'**
-  String shellWelcome(String name);
-
-  /// No description provided for @shellYourGym.
-  ///
-  /// In en, this message translates to:
-  /// **'Your gym'**
-  String get shellYourGym;
-
-  /// No description provided for @shellYourGyms.
-  ///
-  /// In en, this message translates to:
-  /// **'Your gyms'**
-  String get shellYourGyms;
 
   /// No description provided for @socialActiveAgo.
   ///
@@ -16342,18 +16840,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Right'**
   String get trainingSideRight;
-
-  /// No description provided for @trainingStaffRoleEmployee.
-  ///
-  /// In en, this message translates to:
-  /// **'Employee'**
-  String get trainingStaffRoleEmployee;
-
-  /// No description provided for @trainingStaffRoleEmployeeTrainer.
-  ///
-  /// In en, this message translates to:
-  /// **'Employee / Trainer'**
-  String get trainingStaffRoleEmployeeTrainer;
 
   /// No description provided for @trainingStaffRoleTrainer.
   ///

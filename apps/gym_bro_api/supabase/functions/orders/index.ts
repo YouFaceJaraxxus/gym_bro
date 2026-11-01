@@ -2,6 +2,7 @@ import { type Kysely, sql, type Transaction } from "npm:kysely@^0.27";
 import { db } from "../_shared/config.ts";
 import { canStaffShop, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
 import { notify } from "../_shared/notify.ts";
+import { businessTeamIds } from "../_shared/business.ts";
 import { paymentsCurrency, refundPaymentIntent, stripeEnabled, stripeRequest } from "../_shared/stripe.ts";
 import type { Database, OrderStatus } from "../../types/schema/public.ts";
 
@@ -135,11 +136,8 @@ async function loadOrder(id: string) {
   return (await withItems([row]))[0];
 }
 
-async function shopStaffIds(shopId: string): Promise<string[]> {
-  const rows = await db.selectFrom("shop_owner").select("user_id").where("shop_id", "=", shopId)
-    .union(db.selectFrom("shop_vendor").select("user_id").where("shop_id", "=", shopId))
-    .execute();
-  return rows.map((r) => r.user_id);
+function shopStaffIds(shopId: string): Promise<string[]> {
+  return businessTeamIds(shopId, ["owner", "staff"]);
 }
 
 function formatMoney(amount: string | number): string {
@@ -225,8 +223,9 @@ Deno.serve(async (req: Request) => {
   // ── GET /orders/shops — storefront: every shop + active item count ───────────
   if (route.name === "shops" && req.method === "GET") {
     const rows = await db
-      .selectFrom("shop")
-      .innerJoin("business as b", "b.id", "shop.id")
+      .selectFrom("business as b")
+      .where("b.has_shop", "=", true)
+      .where("b.status", "=", "approved")
       .select([
         "b.id",
         "b.name",
@@ -273,8 +272,9 @@ Deno.serve(async (req: Request) => {
       wanted.set(line.shop_item_id, (wanted.get(line.shop_item_id) ?? 0) + qty);
     }
 
-    const shop = await db.selectFrom("shop").innerJoin("business as b", "b.id", "shop.id")
-      .select(["b.id", "b.name"]).where("shop.id", "=", shop_id).executeTakeFirst();
+    const shop = await db.selectFrom("business as b")
+      .select(["b.id", "b.name"]).where("b.id", "=", shop_id).where("b.has_shop", "=", true)
+      .where("b.status", "=", "approved").executeTakeFirst();
     if (!shop) return jsonError("Shop not found", 400);
 
     let orderId: string;

@@ -1,34 +1,45 @@
-class UserRoleEntry {
+import 'business.dart';
+
+/// A gym membership row of a search result.
+class MemberEntry {
   final String id;
-  final String
-  type; // 'member' | 'employee' | 'employee_trainer' | 'trainer' | 'gym_owner' | 'shop_owner' | 'shop_vendor'
-  final String? gymId;
-  final String? shopId;
+  final String gymId;
 
-  const UserRoleEntry({
-    required this.id,
-    required this.type,
-    this.gymId,
-    this.shopId,
-  });
+  const MemberEntry({required this.id, required this.gymId});
 
-  factory UserRoleEntry.fromJson(Map<String, dynamic> json, String type) =>
-      UserRoleEntry(
-        id: json['id'] as String,
-        type: type,
-        gymId: json['gym_id'] as String?,
-        shopId: json['shop_id'] as String?,
-      );
+  factory MemberEntry.fromJson(Map<String, dynamic> json) => MemberEntry(
+    id: json['id'] as String,
+    gymId: json['gym_id'] as String,
+  );
 }
 
+/// A role (held or offered) on a business's team, from a search result.
+class TeamEntry {
+  final String businessId;
+  final BusinessRole role;
+
+  /// 'active' or 'invited'.
+  final String status;
+
+  const TeamEntry({
+    required this.businessId,
+    required this.role,
+    required this.status,
+  });
+
+  bool get isActive => status == 'active';
+}
+
+/// A row of GET /search-users (owners, staff and super users only).
 class UserSearchResult {
   final String id;
   final String username;
   final String email;
   final String name;
   final String lastName;
-  final String role;
-  final List<UserRoleEntry> roleEntries;
+  final bool isTrainer;
+  final List<MemberEntry> memberEntries;
+  final List<TeamEntry> teamEntries;
 
   const UserSearchResult({
     required this.id,
@@ -36,41 +47,41 @@ class UserSearchResult {
     required this.email,
     required this.name,
     required this.lastName,
-    required this.role,
-    required this.roleEntries,
+    this.isTrainer = false,
+    this.memberEntries = const [],
+    this.teamEntries = const [],
   });
 
   String get fullName => '$name $lastName'.trim();
 
+  /// Whether they hold [role] (accepted, not just invited) anywhere.
+  bool holds(BusinessRole role) =>
+      teamEntries.any((e) => e.role == role && e.isActive);
+
   factory UserSearchResult.fromJson(Map<String, dynamic> json) {
-    final entries = <UserRoleEntry>[];
-
-    void add(String type, Object? raw) {
-      if (raw is List) {
-        for (final e in raw) {
-          if (e is Map<String, dynamic>) {
-            entries.add(UserRoleEntry.fromJson(e, type));
-          }
-        }
-      }
-    }
-
-    add('member', json['member_entries']);
-    add('employee', json['employee_entries']);
-    add('employee_trainer', json['employee_trainer_entries']);
-    add('trainer', json['trainer_entries']);
-    add('gym_owner', json['gym_owner_entries']);
-    add('shop_owner', json['shop_owner_entries']);
-    add('shop_vendor', json['shop_vendor_entries']);
+    List<Map<String, dynamic>> rows(Object? raw) => [
+      if (raw is List)
+        for (final e in raw)
+          if (e is Map<String, dynamic>) e,
+    ];
 
     return UserSearchResult(
       id: json['id'] as String,
       username: json['username'] as String,
-      email: json['email'] as String,
+      email: json['email'] as String? ?? '',
       name: json['name'] as String,
       lastName: json['last_name'] as String,
-      role: json['role'] as String? ?? 'member',
-      roleEntries: entries,
+      isTrainer: json['is_trainer'] as bool? ?? false,
+      memberEntries: rows(json['member_entries']).map(MemberEntry.fromJson).toList(),
+      teamEntries: [
+        for (final e in rows(json['team_entries']))
+          if (BusinessRole.tryParse(e['role'] as String?) case final role?)
+            TeamEntry(
+              businessId: e['business_id'] as String,
+              role: role,
+              status: e['status'] as String? ?? 'active',
+            ),
+      ],
     );
   }
 }

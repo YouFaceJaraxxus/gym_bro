@@ -2,8 +2,8 @@
 // End-to-end auth flows, driven through the API and the local Mailpit inbox
 // the way the app does it: self sign-up (+ confirmation), password recovery
 // via the emailed link, refresh/logout/change-password, email change, gym /
-// shop invites activated with the 6-digit code (members, employees, vendors),
-// staff invites to existing users accepted/declined through notifications,
+// shop invites activated with the 6-digit code (members, gym staff, shop
+// staff), team invites to existing users accepted/declined,
 // the notifications inbox, per-account data (settings, devices, uploads),
 // impersonation, Google sign-in and account deletion.
 //
@@ -97,7 +97,7 @@ Deno.test({
   async fn(t) {
     const { check, assertAll } = checker();
     const { member, owner, trainer, employee, superU, vendor, gym } = await seededUsers();
-    const shop = ((await call("GET", "/businesses", owner.token)).data as any[]).find((b) => b.type === "shop" && b.name === PEAK);
+    const shop = ((await call("GET", "/businesses", owner.token)).data as any[]).find((b) => b.has_shop && b.name === PEAK);
     const tag = crypto.randomUUID().slice(0, 8);
 
     // The self-signup account ("S") carried through most steps.
@@ -107,7 +107,7 @@ Deno.test({
     let sId: string | undefined;
     let sToken: string | undefined; // a live session for S
     let sPassword = "Start-123";
-    // Invited accounts: member, employee, shop vendor.
+    // Invited accounts: member, gym staff, shop staff.
     const mEmail = `it-invite-m-${tag}@example.com`;
     const eEmail = `it-invite-e-${tag}@example.com`;
     const vEmail = `it-invite-v-${tag}@example.com`;
@@ -131,18 +131,16 @@ Deno.test({
         check("signup with a 5-char password is 400", weak.status === 400, `status ${weak.status}`);
         const badEmail = await call("POST", "/users/signup", undefined, { ...full, email: `not-an-email-${tag}` });
         check("signup with an invalid email is 400", badEmail.status === 400, `status ${badEmail.status} ${short(badEmail.data)}`);
-        const badRole = await call("POST", "/users/signup", superU.token, { ...full, role: "wizard" });
-        check("super user signup with an unknown role is 400", badRole.status === 400, `status ${badRole.status}`);
 
         const created = await call("POST", "/users/signup", undefined, full);
         sId = created.data?.user?.id;
         if (sId) createdIds.add(sId);
         const u = created.data?.user ?? {};
         check(
-          "anonymous signup creates the account (201, profile echoes the fields, default role member, no session)",
+          "anonymous signup creates the account (201, profile echoes the fields, a plain user, no session)",
           created.status === 201 && u.email === sEmail && u.username === sProfile.username && u.name === sProfile.name &&
-            u.last_name === sProfile.last_name && u.role === "member" && !!u.auth_id && created.data.role_assignment === null &&
-            !created.data.access_token,
+            u.last_name === sProfile.last_name && u.is_super_user === false && u.is_trainer === false && !!u.auth_id &&
+            !("role" in u) && !created.data.access_token,
           short(created.data),
         );
 
@@ -209,7 +207,8 @@ Deno.test({
         check(
           "sign in with the new password: profile matches what was signed up with",
           signedIn.status === 200 && !!signedIn.data.access_token && !!signedIn.data.refresh_token && p.id === sId && p.email === sEmail &&
-            p.username === sProfile.username && p.name === sProfile.name && p.last_name === sProfile.last_name && p.role === "member",
+            p.username === sProfile.username && p.name === sProfile.name && p.last_name === sProfile.last_name &&
+            p.is_trainer === false && p.is_super_user === false && Array.isArray(p.businesses) && p.businesses.length === 0 && p.pending_invites === 0,
           `status ${signedIn.status} ${short(p)}`,
         );
         if (signedIn.status === 200) sToken = signedIn.data.access_token;
@@ -424,68 +423,89 @@ Deno.test({
         assertAll();
       });
 
-      await t.step("6. employee and shop-vendor invites by email", async () => {
-        const denied = await call("POST", "/employees", employee.token, {
-          gym_id: gym.id, email: `it-badinv-${tag}@example.com`, name: "X", last_name: "Y", username: `it_badinv_${tag}`,
+      await t.step("6. team invites by email: gym staff and shop staff", async () => {
+        const denied = await call("POST", `/businesses/${gym.id}/team`, employee.token, {
+          role: "staff", email: `it-badinv-${tag}@example.com`, name: "X", last_name: "Y", username: `it_badinv_${tag}`,
         });
-        check("an employee can't invite staff", denied.status === 403, `status ${denied.status}`);
+        check("staff can't invite to the team", denied.status === 403, `status ${denied.status}`);
 
-        // Employee
+        // Gym staff
         const eUser = `it_inve_${tag}`;
-        const inv = await call("POST", "/employees", owner.token, { gym_id: gym.id, email: eEmail, name: "Eli", last_name: `Invite${tag}`, username: eUser, employee_type: "employee" });
+        const inv = await call("POST", `/businesses/${gym.id}/team`, owner.token, { role: "staff", email: eEmail, name: "Eli", last_name: `Invite${tag}`, username: eUser });
         ids.e = inv.data?.user_id;
         if (ids.e) createdIds.add(ids.e);
-        check("owner invites a new email as an employee (201)", inv.status === 201 && !!ids.e, `status ${inv.status} ${short(inv.data)}`);
+        check("owner invites a new email as staff (201)", inv.status === 201 && inv.data.invited === true && !!ids.e, `status ${inv.status} ${short(inv.data)}`);
         const byTrainer = await call("POST", "/users/resend-invite", trainer.token, { email: eEmail });
-        check("a trainer can't resend the employee invite", byTrainer.status === 403, `status ${byTrainer.status}`);
+        check("a trainer can't resend the staff invite", byTrainer.status === 403, `status ${byTrainer.status}`);
         const eMail = (await waitForMail(eEmail, 1))[0];
         const eCode = codeIn(eMail);
-        check("the employee invite email carries a code", !!eCode, eMail?.subject ?? "no mail");
+        check("the staff invite email carries a code", !!eCode, eMail?.subject ?? "no mail");
         const eOk = await call("POST", "/users/verify-invite", undefined, { email: eEmail, token: eCode, password: "Staff-123" });
         check(
-          "verify-invite activates the employee (role employee)",
-          eOk.status === 200 && eOk.data.profile?.id === ids.e && eOk.data.profile?.role === "employee",
+          "verify-invite activates the account; the team invite still waits for an answer",
+          eOk.status === 200 && eOk.data.profile?.id === ids.e && eOk.data.profile?.pending_invites === 1 &&
+            (eOk.data.profile?.businesses as any[])?.length === 0,
           `status ${eOk.status} ${short(eOk.data?.profile ?? eOk.data)}`,
         );
-        // (Read with the owner's session: verify-invite's own session is revoked, see step 5.)
-        const eRows = await call("GET", `/employees?user_id=${ids.e}`, owner.token);
-        check("the new employee is on the gym's staff", eRows.status === 200 && (eRows.data as any[]).some((r) => r.gym_id === gym.id), short(eRows.data));
+        const eLogin = await signinRaw(eEmail, "Staff-123");
+        const eInvites = await call("GET", "/businesses/invites", eLogin.data?.access_token);
+        check(
+          "they see the invite (business, role, who sent it)",
+          eInvites.status === 200 && (eInvites.data as any[]).some((i) => i.business_id === gym.id && i.role === "staff" && i.inviter_id === owner.profile.id),
+          short(eInvites.data),
+        );
+        const eNote = ((await call("GET", "/notifications?page_size=50", eLogin.data?.access_token)).data?.items ?? [] as any[])
+          .find((n: any) => n.type === "business_invite" && n.metadata?.business_id === gym.id);
+        check("…and the business_invite notification for it", eNote?.metadata?.invite_status === "pending" && eNote.metadata.role === "staff", short(eNote));
+        const eAccept = await call("POST", `/businesses/${gym.id}/invites/staff/accept`, eLogin.data?.access_token);
+        check("they accept and are staff at the gym", eAccept.status === 200 && JSON.stringify(eAccept.data.my_roles) === JSON.stringify(["staff"]), short(eAccept.data?.my_roles));
+        const eTeam = await call("GET", `/businesses/${gym.id}/team`, owner.token);
+        check(
+          "the new staff member is on the gym's team",
+          eTeam.status === 200 && (eTeam.data as any[]).some((p) => p.user_id === ids.e && p.roles.some((r: any) => r.role === "staff" && r.status === "active")),
+          short(eTeam.data),
+        );
 
-        // Shop vendor
+        // Shop staff
         const vUser = `it_invv_${tag}`;
-        const vInv = await call("POST", "/shop-vendors", owner.token, { shop_id: shop?.id, email: vEmail, name: "Vic", last_name: `Invite${tag}`, username: vUser });
+        const vInv = await call("POST", `/businesses/${shop?.id}/team`, owner.token, { role: "staff", email: vEmail, name: "Vic", last_name: `Invite${tag}`, username: vUser });
         ids.v = vInv.data?.user_id;
         if (ids.v) createdIds.add(ids.v);
-        check("shop owner invites a new email as a vendor (201)", vInv.status === 201 && vInv.data.shop_id === shop?.id, `status ${vInv.status} ${short(vInv.data)}`);
-        for (const [who, s] of [["fellow vendor", vendor], ["gym employee", employee]] as const) {
+        check("shop owner invites a new email as shop staff (201)", vInv.status === 201 && vInv.data.invited === true && !!ids.v, `status ${vInv.status} ${short(vInv.data)}`);
+        for (const [who, s] of [["gym staff member", employee], ["member", member]] as const) {
           const r = await call("POST", "/users/resend-invite", s.token, { email: vEmail });
           check(`a ${who} can't resend a shop invite`, r.status === 403, `status ${r.status}`);
         }
         await waitForMail(vEmail, 1);
         await sleep(1_100);
-        const byOwner = await call("POST", "/users/resend-invite", owner.token, { email: vEmail });
-        check("the shop owner resends the vendor invite", byOwner.status === 200, `status ${byOwner.status} ${short(byOwner.data)}`);
+        const byStaff = await call("POST", "/users/resend-invite", vendor.token, { email: vEmail });
+        check("the shop's own staff resend the invite", byStaff.status === 200, `status ${byStaff.status} ${short(byStaff.data)}`);
         const vMails = await waitForMail(vEmail, 2);
         const vOk = await call("POST", "/users/verify-invite", undefined, { email: vEmail, token: codeIn(vMails[0]), password: "Vend-123" });
-        check(
-          "verify-invite activates the vendor (role shop_vendor)",
-          vOk.status === 200 && vOk.data.profile?.id === ids.v && vOk.data.profile?.role === "shop_vendor",
-          `status ${vOk.status} ${short(vOk.data?.profile ?? vOk.data)}`,
-        );
-        const vRows = await call("GET", `/shop-vendors?user_id=${ids.v}`, owner.token);
-        check("the new vendor is on the shop's vendor list", vRows.status === 200 && (vRows.data as any[]).some((r) => r.shop_id === shop?.id), short(vRows.data));
+        check("verify-invite activates the shop staff account", vOk.status === 200 && vOk.data.profile?.id === ids.v, `status ${vOk.status} ${short(vOk.data?.profile ?? vOk.data)}`);
+        const vLogin = await signinRaw(vEmail, "Vend-123");
+        const vNote = ((await call("GET", "/notifications?page_size=50", vLogin.data?.access_token)).data?.items ?? [] as any[])
+          .find((n: any) => n.type === "business_invite" && n.metadata?.business_id === shop?.id && n.metadata?.invite_status === "pending");
+        const vAccept = await call("POST", `/notifications/${vNote?.id}/accept`, vLogin.data?.access_token);
+        check("they accept from the notification", vAccept.status === 200 && vAccept.data.metadata?.invite_status === "accepted", `status ${vAccept.status} ${short(vAccept.data)}`);
+        const vTeam = await call("GET", `/businesses/${shop?.id}/team`, owner.token);
+        check("the new shop staff member is on the shop's team", (vTeam.data as any[])?.some((p) => p.user_id === ids.v), short(vTeam.data));
         assertAll();
       });
 
-      await t.step("7. staff invites to an existing account: decline, accept, owner notified, search", async () => {
+      await t.step("7. team invites to an existing account: decline, accept, owner notified, search", async () => {
         if (!sToken || !sId) throw new Error("no session for the signup account");
         const invitesOf = async () =>
           ((await call("GET", "/notifications?page_size=50", sToken)).data?.items ?? []) as any[];
+        const myRoles = async (businessId: string) =>
+          (((await call("GET", "/users/me", sToken)).data?.businesses ?? []) as any[]).find((b) => b.id === businessId)?.roles ?? [];
 
-        const inv1 = await call("POST", "/employees", owner.token, { user_id: sId, gym_id: gym.id, employee_type: "employee" });
-        check("owner invites an existing account as employee (pending notification)", inv1.status === 200 && inv1.data.invited === true, `status ${inv1.status} ${short(inv1.data)}`);
-        const n1 = (await invitesOf()).find((n) => n.type === "employee_gym_invite" && n.metadata?.gym_id === gym.id && n.metadata?.invite_status === "pending");
-        check("the account gets an employee_gym_invite", !!n1 && n1.metadata.employee_type === "employee" && n1.metadata.inviter_id === owner.profile.id, short(n1));
+        const inv1 = await call("POST", `/businesses/${gym.id}/team`, owner.token, { user_id: sId, role: "staff" });
+        check("owner invites an existing account as staff (pending notification)", inv1.status === 201 && inv1.data.invited === true, `status ${inv1.status} ${short(inv1.data)}`);
+        const n1 = (await invitesOf()).find((n) => n.type === "business_invite" && n.metadata?.business_id === gym.id && n.metadata?.invite_status === "pending");
+        check("the account gets a business_invite", !!n1 && n1.metadata.role === "staff" && n1.metadata.inviter_id === owner.profile.id, short(n1));
+        const counted = await call("GET", "/users/me", sToken);
+        check("the profile counts it as a pending invite", counted.data?.pending_invites === 1, short(counted.data));
 
         const othersAccept = await call("POST", `/notifications/${n1?.id}/accept`, member.token);
         check("someone else can't accept the invite", othersAccept.status === 403, `status ${othersAccept.status}`);
@@ -495,43 +515,44 @@ Deno.test({
         check("decline marks the invite declined and read", declined.status === 200 && declined.data.metadata?.invite_status === "declined" && declined.data.is_read === true, short(declined.data));
         const lateAccept = await call("POST", `/notifications/${n1?.id}/accept`, sToken);
         check("a declined invite can't be accepted (409)", lateAccept.status === 409, `status ${lateAccept.status}`);
-        const notEmployee = await call("GET", `/employees?user_id=${sId}`, owner.token);
-        check("declining adds no employee row", notEmployee.status === 200 && (notEmployee.data as any[]).length === 0, short(notEmployee.data));
+        const team = await call("GET", `/businesses/${gym.id}/team`, owner.token);
+        check("declining leaves them off the team (no invite left either)", team.status === 200 && !(team.data as any[]).some((p) => p.user_id === sId), short(team.data));
         const missingAccept = await call("POST", `/notifications/${crypto.randomUUID()}/accept`, sToken);
         check("accepting an unknown notification is 404", missingAccept.status === 404, `status ${missingAccept.status}`);
 
-        await call("POST", "/employees", owner.token, { user_id: sId, gym_id: gym.id, employee_type: "employee" });
-        const n2 = (await invitesOf()).find((n) => n.type === "employee_gym_invite" && n.metadata?.invite_status === "pending");
+        await call("POST", `/businesses/${gym.id}/team`, owner.token, { user_id: sId, role: "staff" });
+        const n2 = (await invitesOf()).find((n) => n.type === "business_invite" && n.metadata?.invite_status === "pending");
         const accepted = await call("POST", `/notifications/${n2?.id}/accept`, sToken);
         check("accepting the second invite marks it accepted", accepted.status === 200 && accepted.data.metadata?.invite_status === "accepted", `status ${accepted.status} ${short(accepted.data)}`);
-        const staff = await call("GET", `/employees?gym_id=${gym.id}`, owner.token);
-        check("the account is now an employee of the gym", (staff.data as any[]).some((r) => r.user_id === sId), `n=${(staff.data as any[])?.length}`);
-        const meRole = await call("GET", "/users/me", sToken);
-        check("their role becomes employee", meRole.data?.role === "employee", short(meRole.data));
+        check("the account is now staff at the gym", JSON.stringify(await myRoles(gym.id)) === JSON.stringify(["staff"]), JSON.stringify(await myRoles(gym.id)));
         const twice = await call("POST", `/notifications/${n2?.id}/accept`, sToken);
         check("an accepted invite can't be accepted again (409)", twice.status === 409, `status ${twice.status}`);
-        const reinvite = await call("POST", "/employees", owner.token, { user_id: sId, gym_id: gym.id, employee_type: "employee" });
-        check("inviting an existing employee again is 409", reinvite.status === 409, `status ${reinvite.status}`);
+        const reinvite = await call("POST", `/businesses/${gym.id}/team`, owner.token, { user_id: sId, role: "staff" });
+        check("inviting existing staff again is 409", reinvite.status === 409, `status ${reinvite.status}`);
         const ownerNotes = (await call("GET", "/notifications?page_size=50", owner.token)).data?.items ?? [];
-        check("the owner gets employee_join", ownerNotes.some((n: any) => n.type === "employee_join" && n.metadata?.user_id === sId), `n=${ownerNotes.length}`);
+        check(
+          "the owner gets business_join",
+          ownerNotes.some((n: any) => n.type === "business_join" && n.metadata?.user_id === sId && n.metadata?.business_id === gym.id && n.metadata?.role === "staff"),
+          `n=${ownerNotes.length}`,
+        );
 
-        const vInv = await call("POST", "/shop-vendors", owner.token, { user_id: sId, shop_id: shop?.id });
-        check("shop owner invites the account as a vendor", vInv.status === 200 && vInv.data.invited === true, `status ${vInv.status} ${short(vInv.data)}`);
-        const vn = (await invitesOf()).find((n) => n.type === "vendor_shop_invite" && n.metadata?.shop_id === shop?.id && n.metadata?.invite_status === "pending");
-        const vAccepted = await call("POST", `/notifications/${vn?.id}/accept`, sToken);
-        check("accepting the vendor invite", vAccepted.status === 200 && vAccepted.data.metadata?.invite_status === "accepted", `status ${vAccepted.status} ${short(vAccepted.data)}`);
-        const vendors = await call("GET", `/shop-vendors?shop_id=${shop?.id}`, owner.token);
-        check("the account is now a vendor of the shop", (vendors.data as any[]).some((r) => r.user_id === sId), `n=${(vendors.data as any[])?.length}`);
+        const vInv = await call("POST", `/businesses/${shop?.id}/team`, owner.token, { user_id: sId, role: "staff" });
+        check("shop owner invites the account as shop staff", vInv.status === 201 && vInv.data.invited === true, `status ${vInv.status} ${short(vInv.data)}`);
+        const vAccepted = await call("POST", `/businesses/${shop?.id}/invites/staff/accept`, sToken);
+        check("accepting it from the business's invite route", vAccepted.status === 200 && vAccepted.data.my_roles?.includes("staff"), `status ${vAccepted.status} ${short(vAccepted.data)}`);
+        const vNote = (await invitesOf()).find((n) => n.type === "business_invite" && n.metadata?.business_id === shop?.id);
+        check("…marks its notification accepted too", vNote?.metadata?.invite_status === "accepted", short(vNote));
+        check("the account is now staff at the shop", JSON.stringify(await myRoles(shop?.id)) === JSON.stringify(["staff"]), JSON.stringify(await myRoles(shop?.id)));
         const ownerNotes2 = (await call("GET", "/notifications?page_size=50", owner.token)).data?.items ?? [];
-        check("the shop owner gets vendor_join", ownerNotes2.some((n: any) => n.type === "vendor_join" && n.metadata?.user_id === sId), `n=${ownerNotes2.length}`);
+        check("the shop owner gets business_join", ownerNotes2.some((n: any) => n.type === "business_join" && n.metadata?.user_id === sId && n.metadata?.business_id === shop?.id), `n=${ownerNotes2.length}`);
 
-        // Staff directory search (results carry role rows).
+        // Staff directory search (results carry gym memberships and team roles).
         const found = await call("GET", `/search-users?q=${encodeURIComponent(sProfile.username)}`, owner.token);
         const hit = (found.data as any[])?.find((u) => u.id === sId);
         check(
-          "owner finds the account by username, with its employee and vendor rows",
-          found.status === 200 && !!hit && hit.email === sNewEmail && hit.employee_entries.some((e: any) => e.gym_id === gym.id) &&
-            hit.shop_vendor_entries.some((e: any) => e.shop_id === shop?.id),
+          "owner finds the account by username, with its team roles",
+          found.status === 200 && !!hit && hit.email === sNewEmail && hit.is_trainer === false && Array.isArray(hit.member_entries) &&
+            [gym.id, shop?.id].every((b) => hit.team_entries.some((e: any) => e.business_id === b && e.role === "staff" && e.status === "active")),
           short(hit ?? found.data),
         );
         const byLast = await call("GET", `/search-users?q=${encodeURIComponent(`ivy ${sProfile.last_name}`)}`, employee.token);
@@ -717,7 +738,7 @@ Deno.test({
           const own = await call("GET", "/users/me", sToken);
           check("the account's own session survives", own.status === 200, `status ${own.status}`);
         }
-        for (const [who, s] of [["gym owner", owner], ["employee", employee]] as const) {
+        for (const [who, s] of [["gym owner", owner], ["staff member", employee]] as const) {
           const r = await call("POST", "/users/impersonate", s.token, { user_id: sId });
           check(`a ${who} can't impersonate`, r.status === 403 && !r.data.access_token, `status ${r.status}`);
         }
@@ -746,9 +767,13 @@ Deno.test({
           check("its sessions stop working", stale.status === 401, `status ${stale.status}`);
           const again = await call("DELETE", `/users/${deletedId}`, superU.token);
           check("deleting it again is 404", again.status === 404, `status ${again.status}`);
-          const emp = await call("GET", `/employees?user_id=${deletedId}`, owner.token);
-          const ven = await call("GET", `/shop-vendors?user_id=${deletedId}`, owner.token);
-          check("its employee and vendor rows are gone", (emp.data as any[])?.length === 0 && (ven.data as any[])?.length === 0, `${short(emp.data)} ${short(ven.data)}`);
+          const gymTeam = await call("GET", `/businesses/${gym.id}/team`, owner.token);
+          const shopTeam = await call("GET", `/businesses/${shop?.id}/team`, owner.token);
+          check(
+            "its team roles are gone",
+            gymTeam.status === 200 && shopTeam.status === 200 && ![...gymTeam.data, ...shopTeam.data].some((p: any) => p.user_id === deletedId),
+            `${gymTeam.status} ${shopTeam.status}`,
+          );
           const rows = await sql<{ auth: number; devices: number; notes: number; settings: number }>(
             `SELECT (SELECT COUNT(*)::int FROM auth.users WHERE email = ANY($2)) AS auth,
                     (SELECT COUNT(*)::int FROM device_token WHERE user_id = $1) AS devices,

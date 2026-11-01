@@ -668,8 +668,9 @@ Deno.test({
         check("member edits session notes", notes.status === 200 && notes.data.notes === "felt good" && !!notes.data.trainer_name, short(notes.data));
         const badEnd = await call("PUT", `/training-sessions/${sid}`, member.token, { ended_at: "not a time" });
         check("invalid ended_at is 400", badEnd.status === 400, `status ${badEnd.status}`);
-        const coachPut = await call("PUT", `/training-sessions/${sid}`, trainer.token, { notes: "x" });
-        check("trainer can't edit the member's session", coachPut.status === 403, `status ${coachPut.status}`);
+        // The trainer on the session runs it with the member, so may edit it.
+        const coachPut = await call("PUT", `/training-sessions/${sid}`, trainer.token, { notes: "felt good" });
+        check("the session's trainer can edit it", coachPut.status === 200 && coachPut.data.notes === "felt good", `status ${coachPut.status}`);
         const putMissing = await call("PUT", `/training-sessions/${crypto.randomUUID()}`, member.token, { notes: "x" });
         check("updating an unknown session is 404", putMissing.status === 404, `status ${putMissing.status}`);
         const end = await call("POST", `/training-sessions/${sid}/end`, member.token);
@@ -685,8 +686,8 @@ Deno.test({
         check("set edit body must be an object", arrayBody.status === 400, `status ${arrayBody.status}`);
         const setMissing = await call("PUT", `/training-sessions/sets/${crypto.randomUUID()}`, member.token, { note: "x" });
         check("editing an unknown set log is 404", setMissing.status === 404, `status ${setMissing.status}`);
-        const coachDelSet = await call("DELETE", `/training-sessions/sets/${setId}`, trainer.token);
-        check("trainer can't delete the member's set", coachDelSet.status === 403, `status ${coachDelSet.status}`);
+        const vendorDelSet = await call("DELETE", `/training-sessions/sets/${setId}`, vendor.token);
+        check("someone not on the session can't delete its sets", vendorDelSet.status === 403, `status ${vendorDelSet.status}`);
         const setsMissing = await call("POST", `/training-sessions/${crypto.randomUUID()}/sets`, member.token, { exercise_id: exerciseId });
         check("logging into an unknown session is 404", setsMissing.status === 404, `status ${setsMissing.status}`);
         const vendorSet = await call("POST", `/training-sessions/${sid}/sets`, vendor.token, { exercise_id: exerciseId });

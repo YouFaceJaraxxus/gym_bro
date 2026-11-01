@@ -16,14 +16,11 @@ import '../utils/device_timezone.dart';
 // calendar. Used by RoutineDetailPage and MealPlanDetailPage, and by the
 // "Myself" option of the coach assign flows.
 
-/// Roles that can also assign routines and meal plans to members they coach.
-bool isCoachRole(UserRole? role) => const {
-  UserRole.owner,
-  UserRole.trainer,
-  UserRole.employee,
-  UserRole.employeeTrainer,
-  UserRole.superUser,
-}.contains(role);
+/// Whether [profile] may also assign routines and meal plans to people they
+/// coach: trainers, anyone on the team of an approved gym, and super users.
+bool canCoach(UserProfile? profile) =>
+    profile != null &&
+    (profile.isSuperUser || profile.isTrainer || profile.workGyms.isNotEmpty);
 
 enum EnrolKind { routine, mealPlan }
 

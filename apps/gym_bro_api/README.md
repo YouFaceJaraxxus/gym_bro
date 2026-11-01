@@ -23,15 +23,67 @@ the environment or `.env.local` / `.env`. Users seeded earlier keep their old
 password; `./scripts/setup_db.sh --seed-only --reset-passwords` sets them to
 the current one.
 
-| Email | Role |
+| Email | Who |
 |---|---|
-| marcus.bennett@example.com | Owner of Ironclad Fitness |
-| elena.vasquez@example.com | Trainer |
-| priya.nair@example.com | Employee |
+| marcus.bennett@example.com | Owner of Ironclad Fitness (gym) and Peak Performance Supply Co. (shop) |
+| elena.vasquez@example.com | Trainer at Ironclad Fitness |
+| priya.nair@example.com | Staff (front desk) at Ironclad Fitness |
 | liam.oconnor@example.com | Member (friends, chats, posts) |
 | sofia.rossi@example.com | Member with a private account |
-| ravi.deshmukh@example.com | Shop vendor |
-| chloe.anderson@example.com | Super user |
+| ravi.deshmukh@example.com | Staff at Peak Performance Supply Co. |
+| chloe.anderson@example.com | Super user (reviews business applications) |
+| andrew.foster@example.com | Owner of and trainer at Coastal Barbell Club (a gym with a shop) |
+| aisha.mohammed@example.com | Staff and trainer at Ironclad Fitness |
+| kenji.tanaka@example.com | Ironclad member whose own gym, Tanaka Judo & Conditioning, is pending review |
+
+There are more seeded people (Summit Strength Collective and Trailhead in
+Denver, Coastal in San Diego); `scripts/seed_data.json` has the full cast.
+
+## Roles and businesses
+
+Nobody has a single account type (migration 000023):
+
+- **Everyone is a user**: gym memberships, programmes, meal plans, social.
+- **Trainer mode** (`users.is_trainer`): switched on with
+  `PUT /users/me/trainer {enabled}`, or by accepting a gym's trainer invite.
+  No gym needed; switching it off also leaves every gym they train at.
+- **Super user** (`users.is_super_user`): platform admin. Reviews businesses
+  and can make others super users (`PUT /users/:id {is_super_user}`).
+- **Businesses** are a gym, a shop or both (`has_gym`, `has_shop`), with a
+  public profile people can follow. Anyone can apply (`POST /businesses`); it
+  stays `pending` until a super user approves it (`GET /businesses/review`,
+  `POST /businesses/:id/review {status, note}`; a rejected one can be fixed
+  and resubmitted). Owner tools only work once it is `approved`.
+- **The team** (`business_member`): `owner`, `staff` or `trainer` at a
+  business, several roles per person allowed. Owners invite
+  (`POST /businesses/:id/team {user_id | email, role}`) and the person
+  accepts or declines (`POST /businesses/:id/invites/:role/accept|decline`, or
+  the `business_invite` notification). Owners manage the team, pricing, the
+  gym/shop sides and deleting it; staff do the front desk, the shop, the
+  profile and posts; trainers post and coach the gym's members. Anyone can
+  leave (`DELETE /businesses/:id/team/:userId?role=`) except the last owner.
+- Profiles (`/social/users/:id`) show "Owner of" and "Trainer at" (approved
+  businesses only); staff roles are never shown. `GET /users/me` (and sign-in)
+  include the caller's `businesses` with their roles and `pending_invites`.
+- **Training sessions** follow the trainer↔client link, not gyms: a trainer
+  logs a session for someone they coach (`POST /training-sessions {user_id}`,
+  an accepted client or a member of a gym they work at) and becomes its
+  trainer, which lets them edit it and its sets too.
+- Super users pass every permission check, and `GET /businesses?all=1` lists
+  every business.
+
+### Database console
+
+`/admin/tables` (super users only) reads and writes any table in `public`,
+driven by the Postgres catalog: list tables with columns, keys and row
+counts; browse rows (`?q=` free text, `?where=` exact JSON filters); insert,
+update and delete by primary key (`?pk=` JSON). Before a delete,
+`GET /admin/tables/:t/row/impact` lists what cascades, what gets set to null
+and what blocks it; `DELETE` needs `expected` (the number of rows the admin
+confirmed, so a stale confirmation can't delete more) and `force: true` to
+remove the blockers first. Deleting a `users` row also deletes their login.
+`admin_audit_log` and `_schema_migrations` are read-only; every write is
+logged in `admin_audit_log`. In the app: Home → Admin → Database.
 
 ## Social, chat and media
 

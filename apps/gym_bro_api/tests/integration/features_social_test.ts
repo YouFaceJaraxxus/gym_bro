@@ -27,7 +27,7 @@ Deno.test({
   async fn(t) {
     const { check, assertAll } = checker();
     // The seeded gym owner also owns the vendor's shop (Peak Performance).
-    const { member, trainer, vendor, superU, owner: shopOwner } = await seededUsers();
+    const { member, trainer, vendor, superU, owner: shopOwner, shop } = await seededUsers();
     const stamp = Date.now();
 
     await t.step("8. food diary", async () => {
@@ -182,7 +182,7 @@ Deno.test({
     await t.step("9. posts: likes and comments", async () => {
       let postId: string | null = null;
       try {
-        const shopId = ((await call("GET", `/shop-vendors?user_id=${vendor.profile.id}`, vendor.token)).data as any[])?.[0]?.shop_id;
+        const shopId = shop?.id;
         const post = await call("POST", "/posts", vendor.token, { business_id: shopId, content: `Integration test post ${stamp}` });
         postId = post.data?.id ?? null;
         check("vendor posts on their shop", post.status === 201 && post.data.like_count === 0 && post.data.comment_count === 0, short(post.data));
@@ -232,9 +232,12 @@ Deno.test({
         const ownerList = await call("GET", `/posts/${postId}/comments`, shopOwner.token);
         const ownerRow = (ownerList.data as any[])?.find((c) => c.id === modComment.data?.id);
         check("shop owner sees can_delete on others' comments", ownerRow?.can_delete === true && ownerRow?.can_edit === false, short(ownerRow));
+        const memberMod = await call("DELETE", `/posts/comments/${modComment.data?.id}`, member.token);
+        check("someone outside the shop's team can't moderate comments", memberMod.status === 403, `status ${memberMod.status}`);
         const vendorMod = await call("DELETE", `/posts/comments/${modComment.data?.id}`, vendor.token);
-        check("vendor (not owner) can't moderate comments", vendorMod.status === 403, `status ${vendorMod.status}`);
-        const ownerMod = await call("DELETE", `/posts/comments/${modComment.data?.id}`, shopOwner.token);
+        check("shop staff moderate (delete) a comment", vendorMod.status === 204, `status ${vendorMod.status}`);
+        const modComment2 = await call("POST", `/posts/${postId}/comments`, trainer.token, { body: "second!" });
+        const ownerMod = await call("DELETE", `/posts/comments/${modComment2.data?.id}`, shopOwner.token);
         check("shop owner moderates (deletes) a comment", ownerMod.status === 204, `status ${ownerMod.status}`);
         const trainerDel = await call("DELETE", `/posts/comments/${comment.data.id}`, trainer.token);
         check("unrelated user can't delete the comment", trainerDel.status === 403, `status ${trainerDel.status}`);
@@ -268,8 +271,8 @@ Deno.test({
 /** A gym (with posts) the caller isn't a member or staff of. */
 async function gymNotJoinedBy(token: string, superToken: string): Promise<string> {
   const mine = new Set(((await call("GET", "/check-ins/gyms", token)).data as any[]).map((g) => g.gym_id));
-  const all = (await call("GET", "/businesses?type=gym", superToken)).data as any[];
-  for (const g of (Array.isArray(all) ? all : []).filter((b) => b.type === "gym" && !mine.has(b.id))) {
+  const all = (await call("GET", "/businesses/search?side=gym&limit=50", superToken)).data as any[];
+  for (const g of (Array.isArray(all) ? all : []).filter((b) => b.has_gym && !mine.has(b.id))) {
     const posts = await call("GET", `/posts?business_id=${g.id}&page_size=1`);
     if ((posts.data as any[])?.length) return g.id;
   }

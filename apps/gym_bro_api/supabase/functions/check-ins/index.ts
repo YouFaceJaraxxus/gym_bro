@@ -2,7 +2,8 @@ import { sql } from "npm:kysely@^0.27";
 import { db } from "../_shared/config.ts";
 import { type Caller, canStaffGym, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
 import { optionalSecret } from "../_shared/notify.ts";
-import { pgCode } from "../_shared/roles.ts";
+import { teamBusinessIdsSql } from "../_shared/business.ts";
+import { pgCode } from "../_shared/business.ts";
 
 // Gym check-ins. A member shows a short-lived signed QR token
 // (GET /check-ins/token); front-desk staff scan it (POST /check-ins {token}) or
@@ -135,10 +136,10 @@ async function isMember(userId: string, gymId: string): Promise<boolean> {
 
 async function gymName(gymId: string): Promise<string | null> {
   const row = await db
-    .selectFrom("gym")
-    .innerJoin("business", "business.id", "gym.id")
+    .selectFrom("business")
     .select("business.name")
-    .where("gym.id", "=", gymId)
+    .where("business.id", "=", gymId)
+    .where("business.has_gym", "=", true)
     .executeTakeFirst();
   return row?.name ?? null;
 }
@@ -252,14 +253,12 @@ async function handler(req: Request): Promise<Response> {
     const rows = await sql<{ gym_id: string; name: string; logo: string | null; is_member: boolean; is_staff: boolean }>`
       SELECT b.id AS gym_id, b.name, b.logo,
         EXISTS (SELECT 1 FROM member m WHERE m.gym_id = b.id AND m.user_id = ${caller.id}) AS is_member,
-        (EXISTS (SELECT 1 FROM gym_owner o WHERE o.gym_id = b.id AND o.user_id = ${caller.id})
-          OR EXISTS (SELECT 1 FROM employee e WHERE e.gym_id = b.id AND e.user_id = ${caller.id})
-          OR EXISTS (SELECT 1 FROM employee_trainer et WHERE et.gym_id = b.id AND et.user_id = ${caller.id})) AS is_staff
-      FROM gym g JOIN business b ON b.id = g.id
-      WHERE EXISTS (SELECT 1 FROM member m WHERE m.gym_id = g.id AND m.user_id = ${caller.id})
-         OR EXISTS (SELECT 1 FROM gym_owner o WHERE o.gym_id = g.id AND o.user_id = ${caller.id})
-         OR EXISTS (SELECT 1 FROM employee e WHERE e.gym_id = g.id AND e.user_id = ${caller.id})
-         OR EXISTS (SELECT 1 FROM employee_trainer et WHERE et.gym_id = g.id AND et.user_id = ${caller.id})
+        b.id IN (${teamBusinessIdsSql(caller.id, ["owner", "staff"])}) AS is_staff
+      FROM business b
+      WHERE b.has_gym AND b.status = 'approved' AND (
+        EXISTS (SELECT 1 FROM member m WHERE m.gym_id = b.id AND m.user_id = ${caller.id})
+        OR b.id IN (${teamBusinessIdsSql(caller.id, ["owner", "staff"])})
+      )
       ORDER BY is_member DESC, b.name
     `.execute(db);
     return json(rows.rows);

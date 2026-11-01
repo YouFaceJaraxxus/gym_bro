@@ -19,6 +19,191 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accessUnavailable => 'No longer available · it was deleted';
 
   @override
+  String get adminDbAddRow => 'Add row';
+
+  @override
+  String adminDbDeleteAction(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Delete $count rows',
+      one: 'Delete 1 row',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adminDbDeleteMessage(String table) {
+    return 'This can\'t be undone. Type the table name ($table) to confirm.';
+  }
+
+  @override
+  String get adminDbDeleteRow => 'Delete row';
+
+  @override
+  String adminDbDeleteTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Delete $count rows?',
+      one: 'Delete this row?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminDbDeleteUserNote => 'Their login account is deleted too.';
+
+  @override
+  String adminDbDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Deleted $count rows',
+      one: 'Deleted 1 row',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adminDbFilterTables(int count) {
+    return 'Filter $count tables';
+  }
+
+  @override
+  String get adminDbForce => 'Also delete what\'s in the way';
+
+  @override
+  String adminDbForceHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows',
+      one: '1 row',
+    );
+    return 'Deletes those rows and everything under them first: $_temp0 in total besides this one.';
+  }
+
+  @override
+  String get adminDbHasDefault => 'empty = default';
+
+  @override
+  String get adminDbImpactBlocking =>
+      'In the way (the delete is refused while these exist)';
+
+  @override
+  String adminDbImpactDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows',
+      one: '1 row',
+    );
+    return 'Deleted with it ($_temp0)';
+  }
+
+  @override
+  String get adminDbImpactIntro => 'Deleting this row also affects other data:';
+
+  @override
+  String get adminDbImpactNothing => 'Nothing else points at this row.';
+
+  @override
+  String get adminDbImpactNulled => 'Left in place, link emptied';
+
+  @override
+  String get adminDbImpactTitle => 'Before you delete';
+
+  @override
+  String get adminDbInsert => 'Insert';
+
+  @override
+  String get adminDbInserted => 'Row added';
+
+  @override
+  String get adminDbInvalidJson => 'Not valid JSON';
+
+  @override
+  String get adminDbLoadMore => 'Load more';
+
+  @override
+  String get adminDbNeedsJsonArray => 'Needs a JSON array, e.g. [\"a\", \"b\"]';
+
+  @override
+  String adminDbNewRow(String table) {
+    return 'New $table row';
+  }
+
+  @override
+  String get adminDbOnDeleteCascade => 'deleted with it';
+
+  @override
+  String get adminDbOnDeleteRestrict => 'block deleting it';
+
+  @override
+  String get adminDbOnDeleteSetNull => 'emptied when it\'s deleted';
+
+  @override
+  String adminDbOpenReferenced(String table) {
+    return 'Open in $table';
+  }
+
+  @override
+  String adminDbRefSummary(int count, String action) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows',
+      one: '1 row',
+    );
+    return '$_temp0 · $action';
+  }
+
+  @override
+  String get adminDbReferencedBy => 'Referenced by';
+
+  @override
+  String get adminDbReviewSubtitle => 'Verify new gyms and shops as real';
+
+  @override
+  String get adminDbSave => 'Save';
+
+  @override
+  String get adminDbSaved => 'Saved';
+
+  @override
+  String get adminDbSearchRows => 'Search text columns or paste an id';
+
+  @override
+  String get adminDbSetNull => 'Set to NULL';
+
+  @override
+  String get adminDbSetValue => 'Enter a value';
+
+  @override
+  String adminDbShowing(int shown, int total) {
+    return 'Showing $shown of $total';
+  }
+
+  @override
+  String adminDbTableSummary(int rows, int columns) {
+    String _temp0 = intl.Intl.pluralLogic(
+      rows,
+      locale: localeName,
+      other: '$rows rows',
+      one: '1 row',
+    );
+    return '$_temp0 · $columns columns';
+  }
+
+  @override
+  String get adminDbTitle => 'Database';
+
+  @override
+  String get adminDbWarning =>
+      'You\'re editing live data directly. Changes skip the app\'s checks and can\'t be undone; every change is logged.';
+
+  @override
   String get appTitle => 'Gym Bro';
 
   @override
@@ -422,9 +607,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get businessCheckInYesterday => 'Yesterday';
 
   @override
-  String get businessGymAddEmployee => 'Add employee';
-
-  @override
   String get businessGymAddExistingUser => 'Add existing user';
 
   @override
@@ -433,18 +615,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get businessGymAddMember => 'Add member';
-
-  @override
-  String get businessGymAllGyms => 'All gyms';
-
-  @override
-  String get businessGymAllMembersTitle => 'All members';
-
-  @override
-  String get businessGymAllStaffTitle => 'All staff';
-
-  @override
-  String get businessGymAlreadyEmployee => 'Already an employee at this gym';
 
   @override
   String get businessGymAlreadyMember => 'Already a member';
@@ -465,20 +635,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get businessGymCancelMembershipTitle => 'Cancel membership?';
-
-  @override
-  String get businessGymChange => 'Change';
-
-  @override
-  String businessGymChangeRoleMessage(String name, String role, String gym) {
-    return 'Change $name\'s role to $role at $gym?';
-  }
-
-  @override
-  String get businessGymChangeRoleTitle => 'Change role?';
-
-  @override
-  String get businessGymClearSearch => 'Clear search';
 
   @override
   String businessGymDeleteMembershipMessage(String type) {
@@ -503,9 +659,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get businessGymDetailManageMembershipTypes =>
       'Manage membership types';
-
-  @override
-  String get businessGymDetailManageStaff => 'Manage staff';
 
   @override
   String get businessGymDetailMembers => 'Members';
@@ -543,37 +696,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get businessGymDetailSchedule => 'Schedule';
 
   @override
-  String get businessGymDetailStaff => 'Staff';
-
-  @override
-  String businessGymDetailStaffCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count staff members',
-      one: '1 staff member',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get businessGymDuration => 'Duration';
-
-  @override
-  String get businessGymEditEmployee => 'Edit employee';
 
   @override
   String get businessGymEditMember => 'Edit member';
 
   @override
   String get businessGymEmail => 'Email';
-
-  @override
-  String get businessGymEmailAlreadyEmployed =>
-      'This email is already employed at this gym';
-
-  @override
-  String get businessGymEmployeeActions => 'Employee actions';
 
   @override
   String get businessGymExtend => 'Extend';
@@ -587,33 +716,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get businessGymFilterAll => 'All';
-
-  @override
   String get businessGymFirstName => 'First name';
 
   @override
   String get businessGymFormAddLogo => 'Add logo';
 
   @override
-  String get businessGymFormCreate => 'Create business';
-
-  @override
   String get businessGymFormDelete => 'Delete business';
-
-  @override
-  String get businessGymFormDeleteGymAction => 'Delete gym';
-
-  @override
-  String get businessGymFormDeleteGymMessage =>
-      'This permanently deletes the gym with all its members, staff, membership types, memberships, invoices and posts.';
-
-  @override
-  String get businessGymFormDeleteShopAction => 'Delete shop';
-
-  @override
-  String get businessGymFormDeleteShopMessage =>
-      'This permanently deletes the shop with all its items, vendors and posts.';
 
   @override
   String businessGymFormDeleteTitle(String name) {
@@ -645,19 +754,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get businessGymFormTitleEdit => 'Edit business';
 
   @override
-  String get businessGymFormTitleNew => 'New business';
-
-  @override
   String get businessGymFormTo => 'To';
-
-  @override
-  String get businessGymFormType => 'Type';
-
-  @override
-  String get businessGymFormTypeGym => 'Gym';
-
-  @override
-  String get businessGymFormTypeShop => 'Shop';
 
   @override
   String get businessGymFormWorkingDays => 'Working days';
@@ -669,9 +766,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get businessGymGym => 'Gym';
 
   @override
-  String get businessGymInviteAndAdd => 'Invite & add';
-
-  @override
   String get businessGymInviteMemberTitle => 'Invite member';
 
   @override
@@ -679,10 +773,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get businessGymInviteNewMemberHint => 'Send an invite link by email';
-
-  @override
-  String get businessGymInviteNewUserPrompt =>
-      'Can\'t find them? Invite a new user';
 
   @override
   String get businessGymInviteResent => 'Invite resent';
@@ -735,9 +825,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get businessGymNoMembersFound => 'No members found';
-
-  @override
   String get businessGymNoMembersYet => 'No members yet';
 
   @override
@@ -748,12 +835,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get businessGymNoMembershipTypes =>
       'This gym has no membership types yet — add one first.';
-
-  @override
-  String get businessGymNoStaffFound => 'No staff found';
-
-  @override
-  String get businessGymNoStaffYet => 'No staff yet';
 
   @override
   String businessGymPlusMonths(int months) {
@@ -785,51 +866,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get businessGymRemoveMemberTitle => 'Remove member?';
 
   @override
-  String get businessGymRemoveStaffMessage =>
-      'This will remove them from this gym.';
-
-  @override
-  String get businessGymRemoveStaffTitle => 'Remove staff member?';
-
-  @override
   String get businessGymResendInvite => 'Resend invite';
-
-  @override
-  String get businessGymRole => 'Role';
-
-  @override
-  String businessGymRoleChangedTo(String role) {
-    return 'Role changed to $role';
-  }
-
-  @override
-  String get businessGymRoleEmployee => 'Employee';
-
-  @override
-  String get businessGymRoleEmployeeTrainer => 'Employee trainer';
-
-  @override
-  String get businessGymRoleEmployeeTrainerShort => 'Emp. trainer';
 
   @override
   String get businessGymRoleMember => 'Member';
 
   @override
-  String get businessGymRoleVendor => 'Vendor';
-
-  @override
-  String get businessGymSearchMembersHint => 'Search members…';
-
-  @override
-  String get businessGymSearchStaffHint => 'Search staff…';
-
-  @override
   String get businessGymSendInvite => 'Send invite';
-
-  @override
-  String businessGymStaffTitle(String gym) {
-    return '$gym — Staff';
-  }
 
   @override
   String get businessGymStatusActive => 'Active';
@@ -885,16 +928,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get businessMgmtAddType => 'Add type';
 
   @override
-  String get businessMgmtAddVendor => 'Add vendor';
-
-  @override
   String get businessMgmtAll => 'All';
 
   @override
   String get businessMgmtAllGyms => 'All gyms';
-
-  @override
-  String get businessMgmtAlreadyVendor => 'Already a vendor for this shop';
 
   @override
   String get businessMgmtAutoRenewOn => 'Auto-renew on';
@@ -947,20 +984,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get businessMgmtEditVendor => 'Edit vendor';
-
-  @override
-  String get businessMgmtEmail => 'Email';
-
-  @override
-  String get businessMgmtEmailAlreadyVendor =>
-      'This email is already a vendor for this shop';
-
-  @override
   String get businessMgmtExtendOrBuy => 'Extend or buy a membership';
-
-  @override
-  String get businessMgmtFirstName => 'First name';
 
   @override
   String get businessMgmtGym => 'Gym';
@@ -975,18 +999,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get businessMgmtInvalidNumber => 'Enter a valid number';
-
-  @override
-  String get businessMgmtInviteAndAddVendor => 'Invite & add vendor';
-
-  @override
-  String get businessMgmtInviteNewUser => 'Can\'t find them? Invite a new user';
-
-  @override
-  String get businessMgmtInviteResent => 'Invite resent';
-
-  @override
-  String get businessMgmtInviteResentSuccess => 'Invite resent successfully';
 
   @override
   String get businessMgmtInvoice => 'Invoice';
@@ -1021,12 +1033,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get businessMgmtItems => 'Items';
 
   @override
-  String get businessMgmtLastName => 'Last name';
-
-  @override
-  String get businessMgmtManage => 'Manage';
-
-  @override
   String get businessMgmtMarkPaid => 'Mark paid';
 
   @override
@@ -1051,11 +1057,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get businessMgmtMonthlyCost => 'Monthly cost';
-
-  @override
-  String businessMgmtMoreCount(int count) {
-    return '+ $count more';
-  }
 
   @override
   String get businessMgmtName => 'Name';
@@ -1094,9 +1095,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get businessMgmtNoUnpaidInvoices => 'No unpaid invoices';
-
-  @override
-  String get businessMgmtNoVendorsYet => 'No vendors yet';
 
   @override
   String get businessMgmtNoVoidInvoices => 'No void invoices';
@@ -1145,45 +1143,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get businessMgmtRemove => 'Remove';
-
-  @override
-  String get businessMgmtRemoveFromShop => 'Remove from shop';
-
-  @override
-  String businessMgmtRemoveVendorFromShopMessage(String name, String shopName) {
-    return 'This will remove $name from $shopName.';
-  }
-
-  @override
-  String get businessMgmtRemoveVendorMessage =>
-      'This will remove them from this shop.';
-
-  @override
-  String get businessMgmtRemoveVendorTitle => 'Remove vendor?';
-
-  @override
   String get businessMgmtRenewMembership => 'Renew membership';
 
   @override
   String get businessMgmtRenewsMonthly => 'Renews automatically every month';
 
   @override
-  String get businessMgmtResendInvite => 'Resend invite';
-
-  @override
   String get businessMgmtSaveChanges => 'Save changes';
-
-  @override
-  String get businessMgmtShop => 'Shop';
-
-  @override
-  String businessMgmtShopVendorsTitle(String shopName) {
-    return '$shopName — Vendors';
-  }
-
-  @override
-  String get businessMgmtStaffVendors => 'Staff / Vendors';
 
   @override
   String get businessMgmtTurnOff => 'Turn off';
@@ -1221,15 +1187,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0 · $amount due';
   }
-
-  @override
-  String get businessMgmtUsername => 'Username';
-
-  @override
-  String get businessMgmtVendor => 'Vendor';
-
-  @override
-  String get businessMgmtVendorActions => 'Vendor actions';
 
   @override
   String get businessOrderStatusCancelled => 'Cancelled';
@@ -3024,6 +2981,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customersJustAdd => 'Just add';
 
   @override
+  String get customersLogPastSession => 'Log a past session';
+
+  @override
   String get customersNoActiveClasses =>
       'You have no active classes to invite them to yet.';
 
@@ -3086,6 +3046,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customersSearch => 'Search customers';
+
+  @override
+  String customersSessionWith(String name) {
+    return 'With $name';
+  }
+
+  @override
+  String get customersStartSession => 'Start a session';
+
+  @override
+  String get customersStartSessionSubtitle =>
+      'Track it live; it\'s saved to their sessions with you as the trainer';
 
   @override
   String get customersStatusAccepted => 'Customer';
@@ -5814,9 +5786,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Nothing on this day. Tap an hour to log a workout or a meal.';
 
   @override
-  String get planScheduleHubSubtitle => 'Your classes, workouts and meals';
-
-  @override
   String get planSkip => 'Skip';
 
   @override
@@ -6387,6 +6356,568 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reactionWow => 'Wow';
 
   @override
+  String get rolesBecameTrainer =>
+      'You\'re a trainer now. Your trainer tools are on Home.';
+
+  @override
+  String get rolesBecomeTrainerBody =>
+      'You\'ll get trainer tools in your Home menu: classes, timetables and clients. To show up as a trainer at a gym, its owner invites you and you accept.';
+
+  @override
+  String get rolesBecomeTrainerConfirm => 'Become a trainer';
+
+  @override
+  String get rolesBecomeTrainerTitle => 'Become a trainer?';
+
+  @override
+  String get rolesFormApply => 'Send for review';
+
+  @override
+  String get rolesFormBio => 'About';
+
+  @override
+  String get rolesFormDeleteMessage =>
+      'This permanently deletes the business with its members, memberships, invoices, products, team and posts.';
+
+  @override
+  String get rolesFormGymHint => 'Memberships, classes, check-ins';
+
+  @override
+  String get rolesFormIntro =>
+      'Tell people about your gym or shop. Our team checks every new business before it goes live; you can finish the profile meanwhile.';
+
+  @override
+  String get rolesFormPhone => 'Phone';
+
+  @override
+  String get rolesFormPickSide => 'Pick gym, shop or both';
+
+  @override
+  String get rolesFormShopHint => 'Products and orders';
+
+  @override
+  String get rolesFormSides => 'What it is';
+
+  @override
+  String get rolesFormSidesHint =>
+      'A business can be both. You can switch either on or off later.';
+
+  @override
+  String get rolesFormSubmittedBody =>
+      'We\'ll let you know when it\'s approved. Until then you can find it under My gyms & shops and keep editing its profile.';
+
+  @override
+  String get rolesFormSubmittedTitle => 'Sent for review';
+
+  @override
+  String get rolesFormWebsite => 'Website';
+
+  @override
+  String get rolesFormWebsiteInvalid => 'Start with http:// or https://';
+
+  @override
+  String get rolesHubBuyMembershipSubtitle => 'Join a gym or renew';
+
+  @override
+  String get rolesHubFindSubtitle => 'Search by name or place';
+
+  @override
+  String get rolesHubMyGyms => 'My gyms';
+
+  @override
+  String get rolesInviteAccept => 'Accept';
+
+  @override
+  String get rolesInviteDecline => 'Decline';
+
+  @override
+  String rolesInviteToJoin(String business, String role) {
+    return '$business invited you to join as $role.';
+  }
+
+  @override
+  String rolesInvitedAs(String role) {
+    return 'Invited · $role';
+  }
+
+  @override
+  String rolesInvitesAs(String role) {
+    return 'Join as $role';
+  }
+
+  @override
+  String get rolesInvitesDeclined => 'Invite declined';
+
+  @override
+  String get rolesInvitesEmpty => 'No open invites';
+
+  @override
+  String rolesInvitesFrom(String name, String role) {
+    return '$name invited you to join as $role';
+  }
+
+  @override
+  String rolesInvitesJoined(String business) {
+    return 'You joined $business';
+  }
+
+  @override
+  String get rolesInvitesTitle => 'Team invites';
+
+  @override
+  String get rolesInvitesTrainerNote =>
+      'Accepting turns on your trainer tools and lists you as a trainer there.';
+
+  @override
+  String get rolesKindGym => 'Gym';
+
+  @override
+  String get rolesKindGymAndShop => 'Gym & shop';
+
+  @override
+  String get rolesKindShop => 'Shop';
+
+  @override
+  String get rolesManage => 'Manage';
+
+  @override
+  String get rolesManageBlockedTitle => 'Blocked';
+
+  @override
+  String get rolesManageEditProfile => 'Edit profile';
+
+  @override
+  String get rolesManageEditProfileSubtitle =>
+      'Name, logo, about, hours, contact';
+
+  @override
+  String get rolesManageGymDashboard => 'Gym dashboard';
+
+  @override
+  String get rolesManageGymDashboardSubtitle =>
+      'Members, memberships, invoices, schedule, check-ins';
+
+  @override
+  String get rolesManageLeave => 'Leave team';
+
+  @override
+  String get rolesManageLeaveBody =>
+      'You\'ll lose every role you have here. An owner can invite you again.';
+
+  @override
+  String rolesManageLeaveTitle(String business) {
+    return 'Leave $business?';
+  }
+
+  @override
+  String get rolesManagePendingBody =>
+      'Our team is checking this business. You can finish the profile meanwhile; the team, memberships, products and posts unlock once it\'s approved.';
+
+  @override
+  String get rolesManagePendingTitle => 'Waiting for review';
+
+  @override
+  String get rolesManagePosts => 'Posts';
+
+  @override
+  String get rolesManagePostsSubtitle => 'Post as the business';
+
+  @override
+  String get rolesManageProductsSubtitle => 'Add and edit what you sell';
+
+  @override
+  String get rolesManageProfileGroup => 'Profile & team';
+
+  @override
+  String get rolesManageRejectedHint =>
+      'Fix what\'s mentioned above in the profile, then send it again.';
+
+  @override
+  String get rolesManageRejectedTitle => 'Not approved';
+
+  @override
+  String get rolesManageResubmit => 'Send for review again';
+
+  @override
+  String get rolesManageResubmitted => 'Sent for review';
+
+  @override
+  String get rolesManageScheduleSubtitle => 'Classes and shifts at this gym';
+
+  @override
+  String get rolesManageTeam => 'Team';
+
+  @override
+  String get rolesManageTeamSubtitle => 'Who runs this place';
+
+  @override
+  String get rolesManageTeamSubtitleOwner =>
+      'Invite staff, trainers and co-owners';
+
+  @override
+  String get rolesManageViewProfile => 'View profile';
+
+  @override
+  String get rolesMenuAdmin => 'Admin';
+
+  @override
+  String get rolesMenuBecomeTrainer => 'Become a trainer';
+
+  @override
+  String get rolesMenuBecomeTrainerSubtitle =>
+      'Classes, clients and coaching tools for the people you train';
+
+  @override
+  String get rolesMenuBuyMembership => 'Buy a membership';
+
+  @override
+  String get rolesMenuDoMore => 'Do more';
+
+  @override
+  String rolesMenuInvitesBanner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You have $count team invites',
+      one: 'You\'re invited to join a team',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rolesMenuInvitesReview => 'Review';
+
+  @override
+  String get rolesMenuMemberships => 'Memberships & orders';
+
+  @override
+  String get rolesMenuMyBusinesses => 'My gyms & shops';
+
+  @override
+  String get rolesMenuMyShifts => 'My shifts';
+
+  @override
+  String get rolesMenuNutrition => 'Nutrition';
+
+  @override
+  String get rolesMenuOwnerOverview => 'Owner overview';
+
+  @override
+  String get rolesMenuRegisterBusiness => 'Register a gym or shop';
+
+  @override
+  String get rolesMenuRegisterBusinessSubtitle =>
+      'Our team checks it before it goes live';
+
+  @override
+  String get rolesMenuRegisterBusinessSubtitleAdmin =>
+      'Goes live straight away';
+
+  @override
+  String get rolesMenuReviewQueue => 'Verification requests';
+
+  @override
+  String get rolesMenuTrainer => 'Trainer';
+
+  @override
+  String get rolesMenuTrainerClasses => 'My classes';
+
+  @override
+  String get rolesMenuTrainerClients => 'Clients';
+
+  @override
+  String get rolesMenuTrainerSessions => 'Coached sessions';
+
+  @override
+  String get rolesMenuTrainerTimetables => 'Timetables';
+
+  @override
+  String get rolesMenuTraining => 'Training';
+
+  @override
+  String get rolesMiscManageTeam => 'Manage team';
+
+  @override
+  String get rolesMiscMember => 'Member';
+
+  @override
+  String get rolesMiscOwner => 'Owner';
+
+  @override
+  String get rolesMiscOwnerOf => 'Owner of';
+
+  @override
+  String get rolesMiscStaff => 'Staff';
+
+  @override
+  String get rolesMiscSuperUser => 'Super user';
+
+  @override
+  String get rolesMiscSuperUserHint => 'Reviews businesses and manages users';
+
+  @override
+  String get rolesMiscTeam => 'Team';
+
+  @override
+  String rolesMiscTeamCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count on the team',
+      one: '1 on the team',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rolesMiscTeamHint =>
+      'Owners, staff and trainers, and open invites';
+
+  @override
+  String get rolesMiscTrainer => 'Trainer';
+
+  @override
+  String get rolesMiscTrainerAt => 'Trainer at';
+
+  @override
+  String get rolesProfileAllPosts => 'See all';
+
+  @override
+  String get rolesProfileFollow => 'Follow';
+
+  @override
+  String rolesProfileFollowers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count followers',
+      one: '1 follower',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rolesProfileFollowing => 'Following';
+
+  @override
+  String get rolesProfileMemberships => 'Memberships';
+
+  @override
+  String get rolesProfileOwners => 'Owners';
+
+  @override
+  String get rolesProfilePosts => 'Posts';
+
+  @override
+  String get rolesProfileProducts => 'Products';
+
+  @override
+  String get rolesProfileTrainers => 'Trainers';
+
+  @override
+  String get rolesProfileYouAre => 'You\'re';
+
+  @override
+  String rolesReviewApplied(String date) {
+    return 'Applied $date';
+  }
+
+  @override
+  String get rolesReviewApprove => 'Approve';
+
+  @override
+  String get rolesReviewBlock => 'Block';
+
+  @override
+  String rolesReviewBlockTitle(String business) {
+    return 'Block $business?';
+  }
+
+  @override
+  String rolesReviewDone(String business, String status) {
+    return '$business: $status';
+  }
+
+  @override
+  String get rolesReviewEmpty => 'Nothing here';
+
+  @override
+  String rolesReviewNote(String note) {
+    return 'Note: $note';
+  }
+
+  @override
+  String get rolesReviewReason => 'Reason';
+
+  @override
+  String get rolesReviewReasonHint => 'The owner sees this';
+
+  @override
+  String get rolesReviewReject => 'Reject';
+
+  @override
+  String rolesReviewRejectTitle(String business) {
+    return 'Reject $business?';
+  }
+
+  @override
+  String get rolesReviewUnblock => 'Approve again';
+
+  @override
+  String get rolesRoleCoOwner => 'Co-owner';
+
+  @override
+  String get rolesRoleOwner => 'Owner';
+
+  @override
+  String get rolesRoleStaff => 'Staff';
+
+  @override
+  String get rolesRoleTrainer => 'Trainer';
+
+  @override
+  String get rolesSearchAll => 'All';
+
+  @override
+  String get rolesSearchEmpty => 'Nothing found';
+
+  @override
+  String get rolesSearchHint => 'Name or location';
+
+  @override
+  String get rolesSearchTitle => 'Find gyms & shops';
+
+  @override
+  String get rolesSettingsStopTrainer => 'Stop';
+
+  @override
+  String rolesSettingsStopTrainerBody(String gyms) {
+    return 'You\'ll also stop being a trainer at $gyms. Your clients and classes stay.';
+  }
+
+  @override
+  String get rolesSettingsStopTrainerTitle => 'Stop being a trainer?';
+
+  @override
+  String get rolesSettingsTrainer => 'I\'m a trainer';
+
+  @override
+  String get rolesSettingsTrainerSubtitle => 'Trainer tools in your Home menu';
+
+  @override
+  String get rolesStatusApproved => 'Approved';
+
+  @override
+  String get rolesStatusBlocked => 'Blocked';
+
+  @override
+  String get rolesStatusPending => 'Pending review';
+
+  @override
+  String get rolesStatusRejected => 'Not approved';
+
+  @override
+  String rolesTeamActionsFor(String name) {
+    return 'Actions for $name';
+  }
+
+  @override
+  String rolesTeamAddRoleSelf(String role) {
+    return 'Make me $role too';
+  }
+
+  @override
+  String get rolesTeamByEmail => 'By email';
+
+  @override
+  String get rolesTeamByEmailHint =>
+      'Someone already on Gym Bro just needs their email. For someone new, add their name and a username too; they\'ll get an email to set up their account, then the invite.';
+
+  @override
+  String rolesTeamCancelInvite(String role) {
+    return 'Cancel $role invite';
+  }
+
+  @override
+  String get rolesTeamEmail => 'Email';
+
+  @override
+  String get rolesTeamExplainer =>
+      'Owners and trainers show on the public profile; staff don\'t. New people join once they accept the invite.';
+
+  @override
+  String get rolesTeamFindPerson => 'On Gym Bro';
+
+  @override
+  String get rolesTeamFirstName => 'First name';
+
+  @override
+  String get rolesTeamInvite => 'Invite';
+
+  @override
+  String rolesTeamInviteAs(String role) {
+    return 'Invite as $role';
+  }
+
+  @override
+  String get rolesTeamInviteRole => 'As';
+
+  @override
+  String get rolesTeamInviteSent => 'Invite sent';
+
+  @override
+  String rolesTeamInviteTitle(String business) {
+    return 'Invite to $business';
+  }
+
+  @override
+  String get rolesTeamLastName => 'Last name';
+
+  @override
+  String get rolesTeamOwnerHint =>
+      'Everything an owner can do, including the team, pricing and deleting the business.';
+
+  @override
+  String rolesTeamRemoveAs(String role) {
+    return 'Remove as $role';
+  }
+
+  @override
+  String get rolesTeamRoleAdded => 'Role added';
+
+  @override
+  String get rolesTeamSendInvite => 'Send invite';
+
+  @override
+  String get rolesTeamStaffHint =>
+      'Front desk and shop: members, memberships, invoices, products, orders and the profile. Not shown on the profile.';
+
+  @override
+  String rolesTeamStopBeing(String role) {
+    return 'Stop being $role';
+  }
+
+  @override
+  String rolesTeamTitle(String business) {
+    return 'Team · $business';
+  }
+
+  @override
+  String get rolesTeamTrainerHint =>
+      'Teaches classes, coaches members and posts. Shown as \"Trainer at\" on their profile.';
+
+  @override
+  String get rolesTeamUsername => 'Username';
+
+  @override
+  String rolesTeamYou(String name) {
+    return '$name (you)';
+  }
+
+  @override
+  String get rolesVerified => 'Verified by Gym Bro';
+
+  @override
   String get settingsLanguage => 'Language';
 
   @override
@@ -6638,22 +7169,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellActivateInviteTitle => 'Activate invite';
 
   @override
-  String get shellAddBusiness => 'Add business';
-
-  @override
   String get shellAddUser => 'Add user';
-
-  @override
-  String get shellAdminBusinessesSubtitle => 'Manage gyms & shops';
-
-  @override
-  String get shellAdminInvoicesSubtitle => 'View all membership invoices';
-
-  @override
-  String get shellAdminPanel => 'Admin panel';
-
-  @override
-  String get shellAdminUsersSubtitle => 'Manage all accounts';
 
   @override
   String get shellAlreadyYourEmail => 'That\'s already your email';
@@ -6722,9 +7238,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellCheckEmailTitle => 'Check your email';
 
   @override
-  String get shellChooseShop => 'Choose a shop';
-
-  @override
   String get shellClearSearch => 'Clear search';
 
   @override
@@ -6783,11 +7296,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String shellEditBusiness(String name) {
-    return 'Edit $name';
-  }
-
-  @override
   String shellEditUser(String name) {
     return 'Edit $name';
   }
@@ -6819,18 +7327,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Google sign-in is not supported on this device';
 
   @override
-  String get shellGyms => 'Gyms';
-
-  @override
   String get shellHaveAccountLogIn => 'Already have an account? Log in';
 
   @override
   String get shellHaveInviteCode => 'Have an invite code?';
-
-  @override
-  String shellHello(String name) {
-    return 'Hello, $name';
-  }
 
   @override
   String get shellHidePassword => 'Hide password';
@@ -6879,46 +7379,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellHubClassesSubtitle => 'Browse and book group classes';
 
   @override
-  String get shellHubCommunity => 'Community';
-
-  @override
-  String shellHubCommunityOpenFailed(String error) {
-    return 'Couldn\'t open community: $error';
-  }
-
-  @override
-  String get shellHubCommunitySubtitle =>
-      'Posts and announcements from your gym';
-
-  @override
   String get shellHubExercises => 'Exercises';
-
-  @override
-  String get shellHubExercisesSubtitle => 'Browse and manage exercises';
 
   @override
   String get shellHubFoodDiary => 'Food diary';
 
   @override
-  String get shellHubFoodDiarySubtitle => 'Log meals and track macros';
-
-  @override
   String get shellHubMealPlans => 'Meal plans';
-
-  @override
-  String get shellHubMealPlansSubtitle => 'Food, recipes and nutrition';
-
-  @override
-  String get shellHubNotLinked => 'You\'re not linked to a gym or shop yet';
 
   @override
   String get shellHubProgress => 'Progress';
 
   @override
   String get shellHubSessions => 'Sessions';
-
-  @override
-  String get shellHubSessionsSubtitle => 'Log and review your sessions';
 
   @override
   String get shellHubStore => 'Store';
@@ -6928,9 +7401,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellHubWorkouts => 'Workouts';
-
-  @override
-  String get shellHubWorkoutsSubtitle => 'Trainings and routines';
 
   @override
   String get shellImageAddPhoto => 'Add photo';
@@ -7026,20 +7496,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellMarkAllRead => 'Mark all read';
 
   @override
-  String shellMemberCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count members',
-      one: '1 member',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get shellMembersYouCoach => 'Members you coach';
-
-  @override
   String get shellMuteBilling => 'Billing';
 
   @override
@@ -7130,38 +7586,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellNoAccountSignUp => 'Don\'t have an account? Sign up';
 
   @override
-  String get shellNoBusinesses => 'No businesses yet';
-
-  @override
-  String get shellNoCoachedMembers => 'No members at the gyms you coach at yet';
-
-  @override
   String shellNoLongerMember(String name) {
     return '$name is no longer a member';
-  }
-
-  @override
-  String shellNoMembersMatch(String query) {
-    return 'No members match \"$query\"';
   }
 
   @override
   String get shellNoNotifications => 'No notifications yet';
 
   @override
-  String get shellNoSessionsToday => 'No sessions with you today';
-
-  @override
   String get shellNoUsers => 'No users yet';
 
   @override
   String get shellNoUsersFound => 'No users found';
-
-  @override
-  String get shellNotAVendor => 'You\'re not a vendor at any shop yet';
-
-  @override
-  String get shellNotAssignedToGym => 'Not assigned to any gym yet';
 
   @override
   String get shellNotificationUnread => 'Unread';
@@ -7183,11 +7619,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellOr => 'or';
-
-  @override
-  String shellOrdersForShop(String shop) {
-    return 'Orders · $shop';
-  }
 
   @override
   String get shellOwnerAllInvoices => 'All invoices';
@@ -7231,49 +7662,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellResetPasswordTitle => 'Reset password';
 
   @override
-  String get shellRole => 'Role';
-
-  @override
-  String get shellRoleEmployee => 'Employee';
-
-  @override
-  String get shellRoleEmployeeTrainer => 'Employee / Trainer';
-
-  @override
-  String get shellRoleEmployeeTrainerShort => 'Emp. trainer';
-
-  @override
-  String get shellRoleGymOwner => 'Gym owner';
-
-  @override
-  String get shellRoleMember => 'Member';
-
-  @override
-  String get shellRoleOwner => 'Owner';
-
-  @override
-  String get shellRoleShopOwner => 'Shop owner';
-
-  @override
-  String get shellRoleShopVendor => 'Shop vendor';
-
-  @override
-  String get shellRoleSuperUser => 'Super user';
-
-  @override
-  String get shellRoleTrainer => 'Trainer';
-
-  @override
-  String get shellRoleVendor => 'Vendor';
-
-  @override
   String get shellSaveChanges => 'Save changes';
-
-  @override
-  String get shellScanCheckIns => 'Scan check-ins';
-
-  @override
-  String get shellSearchMembers => 'Search members';
 
   @override
   String get shellSendLink => 'Send link';
@@ -7283,11 +7672,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellSendResetLink => 'Send reset link';
-
-  @override
-  String shellSessionStartedInProgress(String time) {
-    return 'Started $time · in progress';
-  }
 
   @override
   String get shellSetNewPassword => 'Set new password';
@@ -7317,9 +7701,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellSettingsWeight => 'Weight';
-
-  @override
-  String get shellShops => 'Shops';
 
   @override
   String get shellShowMore => 'Show more';
@@ -7410,9 +7791,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellStatsUnpaidInvoices => 'Unpaid invoices';
 
   @override
-  String get shellTabBusinesses => 'Businesses';
-
-  @override
   String get shellTabClasses => 'Classes';
 
   @override
@@ -7428,13 +7806,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellTabHome => 'Home';
 
   @override
-  String get shellTabMembers => 'Members';
-
-  @override
   String get shellTabMembership => 'Membership';
-
-  @override
-  String get shellTabMyShop => 'My Shop';
 
   @override
   String get shellTabProfile => 'Profile';
@@ -7506,9 +7878,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellTimeNow => 'now';
 
   @override
-  String get shellTodaysSessions => 'Today\'s sessions';
-
-  @override
   String shellTypeToConfirm(String text) {
     return 'Type $text to confirm.';
   }
@@ -7532,17 +7901,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellUserSearchHint => 'Search by name or username';
-
-  @override
-  String shellWelcome(String name) {
-    return 'Welcome, $name';
-  }
-
-  @override
-  String get shellYourGym => 'Your gym';
-
-  @override
-  String get shellYourGyms => 'Your gyms';
 
   @override
   String socialActiveAgo(String when) {
@@ -9870,12 +10228,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trainingSideRight => 'Right';
-
-  @override
-  String get trainingStaffRoleEmployee => 'Employee';
-
-  @override
-  String get trainingStaffRoleEmployeeTrainer => 'Employee / Trainer';
 
   @override
   String get trainingStaffRoleTrainer => 'Trainer';

@@ -25,11 +25,14 @@ class _UserFormPageState extends State<UserFormPage> {
   late final TextEditingController _emailCtrl;
   final _passwordCtrl = TextEditingController();
 
-  late UserRole _role;
+  late bool _isSuperUser;
   bool _loading = false;
   String? _error;
 
   bool get _isEditing => widget.user != null;
+
+  bool get _isEditingSelf =>
+      _isEditing && widget.user!.id == AuthManager.instance.profile?.id;
 
   /// A super user editing someone else (who isn't a super user) can sign in
   /// as them for support.
@@ -38,10 +41,10 @@ class _UserFormPageState extends State<UserFormPage> {
     final target = widget.user;
     return target != null &&
         me != null &&
-        me.role == UserRole.superUser &&
+        me.isSuperUser &&
         !AuthManager.instance.isImpersonating &&
         target.id != me.id &&
-        target.role != UserRole.superUser;
+        !target.isSuperUser;
   }
 
   Future<void> _impersonate() async {
@@ -94,7 +97,7 @@ class _UserFormPageState extends State<UserFormPage> {
     _lastNameCtrl = TextEditingController(text: u?.lastName ?? '');
     _usernameCtrl = TextEditingController(text: u?.username ?? '');
     _emailCtrl = TextEditingController(text: u?.email ?? '');
-    _role = u?.role ?? UserRole.member;
+    _isSuperUser = u?.isSuperUser ?? false;
   }
 
   @override
@@ -119,23 +122,27 @@ class _UserFormPageState extends State<UserFormPage> {
       final token = await AuthManager.instance.getValidToken();
 
       if (_isEditing) {
-        await _api.updateUser(token, widget.user!.id, {
+        final user = widget.user!;
+        await _api.updateUser(token, user.id, {
           'name': _nameCtrl.text.trim(),
           'last_name': _lastNameCtrl.text.trim(),
           'username': _usernameCtrl.text.trim(),
           'email': _emailCtrl.text.trim(),
-          'role': _role.apiValue,
+          if (_isSuperUser != user.isSuperUser) 'is_super_user': _isSuperUser,
         });
       } else {
-        await _api.createUser(
+        // Signup has no admin flag: a new super user is promoted right after.
+        final created = await _api.createUser(
           token,
           email: _emailCtrl.text.trim(),
           password: _passwordCtrl.text,
           username: _usernameCtrl.text.trim(),
           name: _nameCtrl.text.trim(),
           lastName: _lastNameCtrl.text.trim(),
-          role: _role.apiValue,
         );
+        if (_isSuperUser) {
+          await _api.updateUser(token, created.id, {'is_super_user': true});
+        }
       }
 
       if (mounted) Navigator.pop(context, true);
@@ -213,20 +220,16 @@ class _UserFormPageState extends State<UserFormPage> {
                 ),
               ],
               const SizedBox(height: 16),
-              DropdownButtonFormField<UserRole>(
-                key: ValueKey(_role),
-                initialValue: _role,
-                decoration: InputDecoration(labelText: l10n.shellRole),
-                items: [
-                  for (final role in UserRole.values)
-                    DropdownMenuItem(
-                      value: role,
-                      child: Text(role.label(l10n)),
-                    ),
-                ],
-                onChanged: (v) {
-                  if (v != null) setState(() => _role = v);
-                },
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: const Icon(Icons.admin_panel_settings_outlined),
+                title: Text(l10n.rolesMiscSuperUser),
+                subtitle: Text(l10n.rolesMiscSuperUserHint),
+                value: _isSuperUser,
+                // Super users can't remove their own access.
+                onChanged: _isEditingSelf && widget.user!.isSuperUser
+                    ? null
+                    : (v) => setState(() => _isSuperUser = v),
               ),
               const SizedBox(height: 24),
               if (_error != null)

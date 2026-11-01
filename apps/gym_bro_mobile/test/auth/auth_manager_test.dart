@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_bro_mobile/models/business.dart';
 import 'package:gym_bro_mobile/models/user_profile.dart';
 import 'package:gym_bro_mobile/services/auth_manager.dart';
 import 'package:http/http.dart' as http;
@@ -59,11 +60,13 @@ void main() {
   group('setSession', () {
     test('stores tokens, expiry and profile in memory and in secure storage', () async {
       final before = DateTime.now();
-      await auth.setSession(signinJson(), profileData: profileJson(role: 'owner'));
+      await auth.setSession(signinJson(), profileData: profileJson(businesses: [myBusinessJson(roles: ['owner', 'trainer'])], pendingInvites: 1));
 
       expect(auth.hasSession, isTrue);
       expect(auth.profile!.id, '8d0b05de-7c18-441b-9536-aaa042eaeaaa');
-      expect(auth.profile!.role, UserRole.owner);
+      expect(auth.profile!.businesses.single.roles, [BusinessRole.owner, BusinessRole.trainer]);
+      expect(auth.profile!.workGyms.single.name, 'Ironclad Fitness');
+      expect(auth.profile!.pendingInvites, 1);
       expect(auth.profile!.lastName, "O'Connor");
       expect(auth.isImpersonating, isFalse);
 
@@ -74,7 +77,10 @@ void main() {
       expect(expiresAt.difference(before).inSeconds, closeTo(3600, 2));
       final storedProfile = jsonDecode(s['user_profile']!) as Map<String, dynamic>;
       expect(storedProfile['id'], '8d0b05de-7c18-441b-9536-aaa042eaeaaa');
-      expect(storedProfile['role'], 'owner');
+      expect(storedProfile['businesses'], [
+        containsPair('roles', ['owner', 'trainer']),
+      ], reason: 'businesses survive a restart');
+      expect(storedProfile['pending_invites'], 1);
       expect(storedProfile['username'], 'liamoconnor');
 
       // Token is valid: no refresh needed.
@@ -140,11 +146,12 @@ void main() {
     });
 
     test('a valid stored session is restored without a refresh', () async {
-      FlutterSecureStorage.setMockInitialValues(_stored(profile: profileJson(role: 'trainer')));
+      FlutterSecureStorage.setMockInitialValues(_stored(profile: profileJson(isTrainer: true, businesses: [myBusinessJson(roles: ['trainer'])])));
 
       expect(await auth.tryRestoreSession(), isTrue);
       expect(auth.hasSession, isTrue);
-      expect(auth.profile!.role, UserRole.trainer);
+      expect(auth.profile!.isTrainer, isTrue);
+      expect(auth.profile!.businessesAs(BusinessRole.trainer).single.id, 'ff453a60-28ca-4cdd-a919-c6ecd344ab65');
       expect(await auth.getValidToken(), 'stored-access');
       expect(authCalls(), isEmpty);
     });
@@ -306,7 +313,7 @@ void main() {
 
     Future<void> signInAsAdmin() => auth.setSession(
           signinJson(accessToken: 'admin-access', refreshToken: 'admin-refresh'),
-          profileData: profileJson(id: 'u-admin', username: 'chloe', role: 'super_user'),
+          profileData: profileJson(id: 'u-admin', username: 'chloe', isSuperUser: true),
         );
 
     test('start keeps the admin session aside (persisted) and switches to the user', () async {
@@ -317,7 +324,7 @@ void main() {
       expect(auth.isImpersonating, isTrue);
       expect(auth.profile!.id, 'u-member');
       expect(auth.adminProfile!.id, 'u-admin');
-      expect(auth.adminProfile!.role, UserRole.superUser);
+      expect(auth.adminProfile!.isSuperUser, isTrue);
       expect(await auth.getValidToken(), 'imp-access');
 
       final s = await storage();
@@ -382,7 +389,7 @@ void main() {
       backend.on('POST /users/logout', ok('', 204));
       backend.on('POST /users/refresh', err(400, 'Invalid Refresh Token'));
       await auth.setSession(signinJson(accessToken: 'admin-access', refreshToken: 'admin-refresh', expiresIn: 10),
-          profileData: profileJson(id: 'u-admin', role: 'super_user'));
+          profileData: profileJson(id: 'u-admin', isSuperUser: true));
       await auth.startImpersonation(impersonated());
 
       expect(await auth.stopImpersonation(), isFalse);
@@ -401,7 +408,7 @@ void main() {
           'access_token': 'admin-access',
           'refresh_token': 'admin-refresh',
           'expires_at': _msFromNow(const Duration(hours: 1)),
-          'profile': profileJson(id: 'u-admin', role: 'super_user'),
+          'profile': profileJson(id: 'u-admin', isSuperUser: true),
         },
       ));
 
@@ -422,7 +429,7 @@ void main() {
           'access_token': 'admin-access',
           'refresh_token': 'admin-refresh',
           'expires_at': _msFromNow(const Duration(hours: 1)),
-          'profile': profileJson(id: 'u-admin', role: 'super_user'),
+          'profile': profileJson(id: 'u-admin', isSuperUser: true),
         },
       ));
 

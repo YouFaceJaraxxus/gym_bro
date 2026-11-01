@@ -18,6 +18,201 @@ class AppLocalizationsSr extends AppLocalizations {
   String get accessUnavailable => 'Više nije dostupno · obrisano je';
 
   @override
+  String get adminDbAddRow => 'Dodaj red';
+
+  @override
+  String adminDbDeleteAction(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Obriši $count redova',
+      few: 'Obriši $count reda',
+      one: 'Obriši 1 red',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adminDbDeleteMessage(String table) {
+    return 'Ovo se ne može poništiti. Upišite naziv tabele ($table) za potvrdu.';
+  }
+
+  @override
+  String get adminDbDeleteRow => 'Obriši red';
+
+  @override
+  String adminDbDeleteTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Obrisati $count redova?',
+      few: 'Obrisati $count reda?',
+      one: 'Obrisati ovaj red?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminDbDeleteUserNote => 'Briše se i njihov nalog za prijavu.';
+
+  @override
+  String adminDbDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Obrisano $count redova',
+      few: 'Obrisana $count reda',
+      one: 'Obrisan 1 red',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adminDbFilterTables(int count) {
+    return 'Filtriraj $count tabela';
+  }
+
+  @override
+  String get adminDbForce => 'Obriši i ono što smeta';
+
+  @override
+  String adminDbForceHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count redova',
+      few: '$count reda',
+      one: '1 red',
+    );
+    return 'Prvo briše te redove i sve ispod njih: ukupno $_temp0 pored ovog.';
+  }
+
+  @override
+  String get adminDbHasDefault => 'prazno = podrazumevano';
+
+  @override
+  String get adminDbImpactBlocking =>
+      'Smeta (brisanje se odbija dok ovo postoji)';
+
+  @override
+  String adminDbImpactDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count redova',
+      few: '$count reda',
+      one: '1 red',
+    );
+    return 'Briše se zajedno ($_temp0)';
+  }
+
+  @override
+  String get adminDbImpactIntro =>
+      'Brisanje ovog reda utiče i na druge podatke:';
+
+  @override
+  String get adminDbImpactNothing => 'Ništa drugo ne upućuje na ovaj red.';
+
+  @override
+  String get adminDbImpactNulled => 'Ostaje, veza se prazni';
+
+  @override
+  String get adminDbImpactTitle => 'Pre brisanja';
+
+  @override
+  String get adminDbInsert => 'Dodaj';
+
+  @override
+  String get adminDbInserted => 'Red je dodat';
+
+  @override
+  String get adminDbInvalidJson => 'Nije ispravan JSON';
+
+  @override
+  String get adminDbLoadMore => 'Učitaj još';
+
+  @override
+  String get adminDbNeedsJsonArray =>
+      'Potreban je JSON niz, npr. [\"a\", \"b\"]';
+
+  @override
+  String adminDbNewRow(String table) {
+    return 'Novi red: $table';
+  }
+
+  @override
+  String get adminDbOnDeleteCascade => 'brišu se zajedno';
+
+  @override
+  String get adminDbOnDeleteRestrict => 'sprečavaju brisanje';
+
+  @override
+  String get adminDbOnDeleteSetNull => 'prazne se pri brisanju';
+
+  @override
+  String adminDbOpenReferenced(String table) {
+    return 'Otvori u $table';
+  }
+
+  @override
+  String adminDbRefSummary(int count, String action) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count redova',
+      few: '$count reda',
+      one: '1 red',
+    );
+    return '$_temp0 · $action';
+  }
+
+  @override
+  String get adminDbReferencedBy => 'Povezano iz';
+
+  @override
+  String get adminDbReviewSubtitle =>
+      'Potvrdite da su nove teretane i prodavnice stvarne';
+
+  @override
+  String get adminDbSave => 'Sačuvaj';
+
+  @override
+  String get adminDbSaved => 'Sačuvano';
+
+  @override
+  String get adminDbSearchRows => 'Pretraži tekstualne kolone ili nalepi id';
+
+  @override
+  String get adminDbSetNull => 'Postavi na NULL';
+
+  @override
+  String get adminDbSetValue => 'Unesi vrednost';
+
+  @override
+  String adminDbShowing(int shown, int total) {
+    return 'Prikazano $shown od $total';
+  }
+
+  @override
+  String adminDbTableSummary(int rows, int columns) {
+    String _temp0 = intl.Intl.pluralLogic(
+      rows,
+      locale: localeName,
+      other: '$rows redova',
+      few: '$rows reda',
+      one: '1 red',
+    );
+    return '$_temp0 · $columns kolona';
+  }
+
+  @override
+  String get adminDbTitle => 'Baza podataka';
+
+  @override
+  String get adminDbWarning =>
+      'Direktno menjate žive podatke. Izmene zaobilaze provere aplikacije i ne mogu se poništiti; svaka izmena se beleži.';
+
+  @override
   String get appTitle => 'Gym Bro';
 
   @override
@@ -426,9 +621,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get businessCheckInYesterday => 'Juče';
 
   @override
-  String get businessGymAddEmployee => 'Dodaj zaposlenog';
-
-  @override
   String get businessGymAddExistingUser => 'Dodaj postojećeg korisnika';
 
   @override
@@ -437,18 +629,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get businessGymAddMember => 'Dodaj člana';
-
-  @override
-  String get businessGymAllGyms => 'Sve teretane';
-
-  @override
-  String get businessGymAllMembersTitle => 'Svi članovi';
-
-  @override
-  String get businessGymAllStaffTitle => 'Celo osoblje';
-
-  @override
-  String get businessGymAlreadyEmployee => 'Već radi u ovoj teretani';
 
   @override
   String get businessGymAlreadyMember => 'Već je član';
@@ -469,20 +649,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get businessGymCancelMembershipTitle => 'Otkazati članarinu?';
-
-  @override
-  String get businessGymChange => 'Promeni';
-
-  @override
-  String businessGymChangeRoleMessage(String name, String role, String gym) {
-    return 'Promeniti ulogu korisnika $name u „$role“ u teretani $gym?';
-  }
-
-  @override
-  String get businessGymChangeRoleTitle => 'Promeniti ulogu?';
-
-  @override
-  String get businessGymClearSearch => 'Obriši pretragu';
 
   @override
   String businessGymDeleteMembershipMessage(String type) {
@@ -507,9 +673,6 @@ class AppLocalizationsSr extends AppLocalizations {
   @override
   String get businessGymDetailManageMembershipTypes =>
       'Upravljaj vrstama članarina';
-
-  @override
-  String get businessGymDetailManageStaff => 'Upravljaj osobljem';
 
   @override
   String get businessGymDetailMembers => 'Članovi';
@@ -548,38 +711,13 @@ class AppLocalizationsSr extends AppLocalizations {
   String get businessGymDetailSchedule => 'Raspored';
 
   @override
-  String get businessGymDetailStaff => 'Osoblje';
-
-  @override
-  String businessGymDetailStaffCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count zaposlenih',
-      few: '$count zaposlena',
-      one: '$count zaposleni',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get businessGymDuration => 'Trajanje';
-
-  @override
-  String get businessGymEditEmployee => 'Izmeni zaposlenog';
 
   @override
   String get businessGymEditMember => 'Izmeni člana';
 
   @override
   String get businessGymEmail => 'Imejl';
-
-  @override
-  String get businessGymEmailAlreadyEmployed =>
-      'Ovaj imejl već pripada zaposlenom u ovoj teretani';
-
-  @override
-  String get businessGymEmployeeActions => 'Radnje za zaposlenog';
 
   @override
   String get businessGymExtend => 'Produži';
@@ -593,33 +731,13 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
-  String get businessGymFilterAll => 'Sve';
-
-  @override
   String get businessGymFirstName => 'Ime';
 
   @override
   String get businessGymFormAddLogo => 'Dodaj logo';
 
   @override
-  String get businessGymFormCreate => 'Kreiraj biznis';
-
-  @override
   String get businessGymFormDelete => 'Obriši biznis';
-
-  @override
-  String get businessGymFormDeleteGymAction => 'Obriši teretanu';
-
-  @override
-  String get businessGymFormDeleteGymMessage =>
-      'Ovim se trajno briše teretana sa svim članovima, osobljem, vrstama članarina, članarinama, fakturama i objavama.';
-
-  @override
-  String get businessGymFormDeleteShopAction => 'Obriši prodavnicu';
-
-  @override
-  String get businessGymFormDeleteShopMessage =>
-      'Ovim se trajno briše prodavnica sa svim artiklima, prodavcima i objavama.';
 
   @override
   String businessGymFormDeleteTitle(String name) {
@@ -650,19 +768,7 @@ class AppLocalizationsSr extends AppLocalizations {
   String get businessGymFormTitleEdit => 'Izmeni biznis';
 
   @override
-  String get businessGymFormTitleNew => 'Novi biznis';
-
-  @override
   String get businessGymFormTo => 'Do';
-
-  @override
-  String get businessGymFormType => 'Vrsta';
-
-  @override
-  String get businessGymFormTypeGym => 'Teretana';
-
-  @override
-  String get businessGymFormTypeShop => 'Prodavnica';
 
   @override
   String get businessGymFormWorkingDays => 'Radni dani';
@@ -674,9 +780,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get businessGymGym => 'Teretana';
 
   @override
-  String get businessGymInviteAndAdd => 'Pozovi i dodaj';
-
-  @override
   String get businessGymInviteMemberTitle => 'Pozovi člana';
 
   @override
@@ -684,10 +787,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get businessGymInviteNewMemberHint => 'Pošalji link za poziv imejlom';
-
-  @override
-  String get businessGymInviteNewUserPrompt =>
-      'Nema ih u pretrazi? Pozovi novog korisnika';
 
   @override
   String get businessGymInviteResent => 'Pozivnica je ponovo poslata';
@@ -742,9 +841,6 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
-  String get businessGymNoMembersFound => 'Nema pronađenih članova';
-
-  @override
   String get businessGymNoMembersYet => 'Još nema članova';
 
   @override
@@ -755,12 +851,6 @@ class AppLocalizationsSr extends AppLocalizations {
   @override
   String get businessGymNoMembershipTypes =>
       'Ova teretana još nema vrste članarina — prvo dodaj jednu.';
-
-  @override
-  String get businessGymNoStaffFound => 'Nema pronađenog osoblja';
-
-  @override
-  String get businessGymNoStaffYet => 'Još nema osoblja';
 
   @override
   String businessGymPlusMonths(int months) {
@@ -793,51 +883,13 @@ class AppLocalizationsSr extends AppLocalizations {
   String get businessGymRemoveMemberTitle => 'Ukloniti člana?';
 
   @override
-  String get businessGymRemoveStaffMessage =>
-      'Zaposleni će biti uklonjen iz ove teretane.';
-
-  @override
-  String get businessGymRemoveStaffTitle => 'Ukloniti zaposlenog?';
-
-  @override
   String get businessGymResendInvite => 'Ponovo pošalji pozivnicu';
-
-  @override
-  String get businessGymRole => 'Uloga';
-
-  @override
-  String businessGymRoleChangedTo(String role) {
-    return 'Uloga promenjena: $role';
-  }
-
-  @override
-  String get businessGymRoleEmployee => 'Zaposleni';
-
-  @override
-  String get businessGymRoleEmployeeTrainer => 'Zaposleni trener';
-
-  @override
-  String get businessGymRoleEmployeeTrainerShort => 'Zap. trener';
 
   @override
   String get businessGymRoleMember => 'Član';
 
   @override
-  String get businessGymRoleVendor => 'Prodavac';
-
-  @override
-  String get businessGymSearchMembersHint => 'Pretraži članove…';
-
-  @override
-  String get businessGymSearchStaffHint => 'Pretraži osoblje…';
-
-  @override
   String get businessGymSendInvite => 'Pošalji pozivnicu';
-
-  @override
-  String businessGymStaffTitle(String gym) {
-    return '$gym — Osoblje';
-  }
 
   @override
   String get businessGymStatusActive => 'Aktivna';
@@ -893,16 +945,10 @@ class AppLocalizationsSr extends AppLocalizations {
   String get businessMgmtAddType => 'Dodaj vrstu';
 
   @override
-  String get businessMgmtAddVendor => 'Dodaj prodavca';
-
-  @override
   String get businessMgmtAll => 'Sve';
 
   @override
   String get businessMgmtAllGyms => 'Sve teretane';
-
-  @override
-  String get businessMgmtAlreadyVendor => 'Već je prodavac u ovoj prodavnici';
 
   @override
   String get businessMgmtAutoRenewOn => 'Automatsko obnavljanje uključeno';
@@ -957,20 +1003,7 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
-  String get businessMgmtEditVendor => 'Izmeni prodavca';
-
-  @override
-  String get businessMgmtEmail => 'Email';
-
-  @override
-  String get businessMgmtEmailAlreadyVendor =>
-      'Ovaj email već pripada prodavcu ove prodavnice';
-
-  @override
   String get businessMgmtExtendOrBuy => 'Produži ili kupi članarinu';
-
-  @override
-  String get businessMgmtFirstName => 'Ime';
 
   @override
   String get businessMgmtGym => 'Teretana';
@@ -985,20 +1018,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get businessMgmtInvalidNumber => 'Unesi ispravan broj';
-
-  @override
-  String get businessMgmtInviteAndAddVendor => 'Pozovi i dodaj prodavca';
-
-  @override
-  String get businessMgmtInviteNewUser =>
-      'Nema ih u pretrazi? Pozovi novog korisnika';
-
-  @override
-  String get businessMgmtInviteResent => 'Pozivnica ponovo poslata';
-
-  @override
-  String get businessMgmtInviteResentSuccess =>
-      'Pozivnica je uspešno ponovo poslata';
 
   @override
   String get businessMgmtInvoice => 'Faktura';
@@ -1034,12 +1053,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get businessMgmtItems => 'Artikli';
 
   @override
-  String get businessMgmtLastName => 'Prezime';
-
-  @override
-  String get businessMgmtManage => 'Upravljaj';
-
-  @override
   String get businessMgmtMarkPaid => 'Označi kao plaćenu';
 
   @override
@@ -1064,11 +1077,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get businessMgmtMonthlyCost => 'Mesečna cena';
-
-  @override
-  String businessMgmtMoreCount(int count) {
-    return '+ još $count';
-  }
 
   @override
   String get businessMgmtName => 'Naziv';
@@ -1107,9 +1115,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get businessMgmtNoUnpaidInvoices => 'Nema neplaćenih faktura';
-
-  @override
-  String get businessMgmtNoVendorsYet => 'Još nema prodavaca';
 
   @override
   String get businessMgmtNoVoidInvoices => 'Nema poništenih faktura';
@@ -1158,24 +1163,6 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
-  String get businessMgmtRemove => 'Ukloni';
-
-  @override
-  String get businessMgmtRemoveFromShop => 'Ukloni iz prodavnice';
-
-  @override
-  String businessMgmtRemoveVendorFromShopMessage(String name, String shopName) {
-    return 'Korisnik $name biće uklonjen iz prodavnice $shopName.';
-  }
-
-  @override
-  String get businessMgmtRemoveVendorMessage =>
-      'Ova osoba će biti uklonjena iz ove prodavnice.';
-
-  @override
-  String get businessMgmtRemoveVendorTitle => 'Ukloniti prodavca?';
-
-  @override
   String get businessMgmtRenewMembership => 'Obnovi članarinu';
 
   @override
@@ -1183,21 +1170,7 @@ class AppLocalizationsSr extends AppLocalizations {
       'Automatski se obnavlja svakog meseca';
 
   @override
-  String get businessMgmtResendInvite => 'Ponovo pošalji pozivnicu';
-
-  @override
   String get businessMgmtSaveChanges => 'Sačuvaj izmene';
-
-  @override
-  String get businessMgmtShop => 'Prodavnica';
-
-  @override
-  String businessMgmtShopVendorsTitle(String shopName) {
-    return '$shopName — prodavci';
-  }
-
-  @override
-  String get businessMgmtStaffVendors => 'Osoblje / prodavci';
 
   @override
   String get businessMgmtTurnOff => 'Isključi';
@@ -1237,15 +1210,6 @@ class AppLocalizationsSr extends AppLocalizations {
     );
     return '$_temp0 · za plaćanje $amount';
   }
-
-  @override
-  String get businessMgmtUsername => 'Korisničko ime';
-
-  @override
-  String get businessMgmtVendor => 'Prodavac';
-
-  @override
-  String get businessMgmtVendorActions => 'Opcije prodavca';
 
   @override
   String get businessOrderStatusCancelled => 'Otkazano';
@@ -3024,6 +2988,9 @@ class AppLocalizationsSr extends AppLocalizations {
   String get customersJustAdd => 'Samo dodaj';
 
   @override
+  String get customersLogPastSession => 'Unesi prošli trening';
+
+  @override
   String get customersNoActiveClasses =>
       'Još nemaš aktivnih časova na koje možeš da ih pozoveš.';
 
@@ -3084,6 +3051,18 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get customersSearch => 'Pretraži klijente';
+
+  @override
+  String customersSessionWith(String name) {
+    return 'Sa: $name';
+  }
+
+  @override
+  String get customersStartSession => 'Započni trening';
+
+  @override
+  String get customersStartSessionSubtitle =>
+      'Prati ga uživo; čuva se u njihovim treninzima sa tobom kao trenerom';
 
   @override
   String get customersStatusAccepted => 'Klijent';
@@ -5832,9 +5811,6 @@ class AppLocalizationsSr extends AppLocalizations {
       'Ništa za ovaj dan. Dodirni sat da upišeš trening ili obrok.';
 
   @override
-  String get planScheduleHubSubtitle => 'Tvoji časovi, treninzi i obroci';
-
-  @override
   String get planSkip => 'Preskoči';
 
   @override
@@ -6418,6 +6394,573 @@ class AppLocalizationsSr extends AppLocalizations {
   String get reactionWow => 'Vau';
 
   @override
+  String get rolesBecameTrainer =>
+      'Sada ste trener. Trenerski alati su na početnoj.';
+
+  @override
+  String get rolesBecomeTrainerBody =>
+      'Dobićete trenerske alate u početnom meniju: časove, rasporede i klijente. Da biste bili navedeni kao trener u teretani, vlasnik vas poziva, a vi prihvatate.';
+
+  @override
+  String get rolesBecomeTrainerConfirm => 'Postani trener';
+
+  @override
+  String get rolesBecomeTrainerTitle => 'Postati trener?';
+
+  @override
+  String get rolesFormApply => 'Pošalji na proveru';
+
+  @override
+  String get rolesFormBio => 'O nama';
+
+  @override
+  String get rolesFormDeleteMessage =>
+      'Ovo trajno briše biznis sa članovima, članarinama, fakturama, proizvodima, timom i objavama.';
+
+  @override
+  String get rolesFormGymHint => 'Članarine, časovi, prijave';
+
+  @override
+  String get rolesFormIntro =>
+      'Predstavite svoju teretanu ili prodavnicu. Naš tim proverava svaki novi biznis pre nego što postane vidljiv; profil možete dovršiti u međuvremenu.';
+
+  @override
+  String get rolesFormPhone => 'Telefon';
+
+  @override
+  String get rolesFormPickSide => 'Izaberite teretanu, prodavnicu ili oboje';
+
+  @override
+  String get rolesFormShopHint => 'Proizvodi i porudžbine';
+
+  @override
+  String get rolesFormSides => 'Šta je';
+
+  @override
+  String get rolesFormSidesHint =>
+      'Biznis može biti oboje. Bilo koje možete uključiti ili isključiti kasnije.';
+
+  @override
+  String get rolesFormSubmittedBody =>
+      'Javićemo vam kada bude odobreno. Do tada ga možete naći u odeljku Moje teretane i prodavnice i nastaviti da uređujete profil.';
+
+  @override
+  String get rolesFormSubmittedTitle => 'Poslato na proveru';
+
+  @override
+  String get rolesFormWebsite => 'Veb-sajt';
+
+  @override
+  String get rolesFormWebsiteInvalid => 'Počnite sa http:// ili https://';
+
+  @override
+  String get rolesHubBuyMembershipSubtitle => 'Učlanite se ili produžite';
+
+  @override
+  String get rolesHubFindSubtitle => 'Pretraga po nazivu ili mestu';
+
+  @override
+  String get rolesHubMyGyms => 'Moje teretane';
+
+  @override
+  String get rolesInviteAccept => 'Prihvati';
+
+  @override
+  String get rolesInviteDecline => 'Odbij';
+
+  @override
+  String rolesInviteToJoin(String business, String role) {
+    return '$business vas poziva da se pridružite kao $role.';
+  }
+
+  @override
+  String rolesInvitedAs(String role) {
+    return 'Pozvan · $role';
+  }
+
+  @override
+  String rolesInvitesAs(String role) {
+    return 'Pridružite se kao: $role';
+  }
+
+  @override
+  String get rolesInvitesDeclined => 'Poziv je odbijen';
+
+  @override
+  String get rolesInvitesEmpty => 'Nema otvorenih poziva';
+
+  @override
+  String rolesInvitesFrom(String name, String role) {
+    return '$name vas poziva da se pridružite kao: $role';
+  }
+
+  @override
+  String rolesInvitesJoined(String business) {
+    return 'Pridružili ste se: $business';
+  }
+
+  @override
+  String get rolesInvitesTitle => 'Pozivi u tim';
+
+  @override
+  String get rolesInvitesTrainerNote =>
+      'Prihvatanjem uključujete trenerske alate i bićete navedeni kao trener tamo.';
+
+  @override
+  String get rolesKindGym => 'Teretana';
+
+  @override
+  String get rolesKindGymAndShop => 'Teretana i prodavnica';
+
+  @override
+  String get rolesKindShop => 'Prodavnica';
+
+  @override
+  String get rolesManage => 'Upravljaj';
+
+  @override
+  String get rolesManageBlockedTitle => 'Blokirano';
+
+  @override
+  String get rolesManageEditProfile => 'Uredi profil';
+
+  @override
+  String get rolesManageEditProfileSubtitle =>
+      'Naziv, logo, opis, radno vreme, kontakt';
+
+  @override
+  String get rolesManageGymDashboard => 'Kontrolna tabla teretane';
+
+  @override
+  String get rolesManageGymDashboardSubtitle =>
+      'Članovi, članarine, fakture, raspored, prijave';
+
+  @override
+  String get rolesManageLeave => 'Napusti tim';
+
+  @override
+  String get rolesManageLeaveBody =>
+      'Izgubićete sve uloge koje ovde imate. Vlasnik vas može ponovo pozvati.';
+
+  @override
+  String rolesManageLeaveTitle(String business) {
+    return 'Napustiti $business?';
+  }
+
+  @override
+  String get rolesManagePendingBody =>
+      'Naš tim proverava ovaj biznis. U međuvremenu možete dovršiti profil; tim, članarine, proizvodi i objave se otključavaju nakon odobrenja.';
+
+  @override
+  String get rolesManagePendingTitle => 'Čeka proveru';
+
+  @override
+  String get rolesManagePosts => 'Objave';
+
+  @override
+  String get rolesManagePostsSubtitle => 'Objavljujte u ime biznisa';
+
+  @override
+  String get rolesManageProductsSubtitle =>
+      'Dodajte i uređujte ono što prodajete';
+
+  @override
+  String get rolesManageProfileGroup => 'Profil i tim';
+
+  @override
+  String get rolesManageRejectedHint =>
+      'Ispravite navedeno u profilu, pa pošaljite ponovo.';
+
+  @override
+  String get rolesManageRejectedTitle => 'Nije odobreno';
+
+  @override
+  String get rolesManageResubmit => 'Ponovo pošalji na proveru';
+
+  @override
+  String get rolesManageResubmitted => 'Poslato na proveru';
+
+  @override
+  String get rolesManageScheduleSubtitle => 'Časovi i smene u ovoj teretani';
+
+  @override
+  String get rolesManageTeam => 'Tim';
+
+  @override
+  String get rolesManageTeamSubtitle => 'Ko vodi ovo mesto';
+
+  @override
+  String get rolesManageTeamSubtitleOwner =>
+      'Pozovite osoblje, trenere i suvlasnike';
+
+  @override
+  String get rolesManageViewProfile => 'Prikaži profil';
+
+  @override
+  String get rolesMenuAdmin => 'Administracija';
+
+  @override
+  String get rolesMenuBecomeTrainer => 'Postani trener';
+
+  @override
+  String get rolesMenuBecomeTrainerSubtitle =>
+      'Časovi, klijenti i alati za ljude koje treniraš';
+
+  @override
+  String get rolesMenuBuyMembership => 'Kupi članarinu';
+
+  @override
+  String get rolesMenuDoMore => 'Uradi više';
+
+  @override
+  String rolesMenuInvitesBanner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Imate $count poziva u tim',
+      few: 'Imate $count poziva u tim',
+      one: 'Pozvani ste da se pridružite timu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rolesMenuInvitesReview => 'Pogledaj';
+
+  @override
+  String get rolesMenuMemberships => 'Članarine i porudžbine';
+
+  @override
+  String get rolesMenuMyBusinesses => 'Moje teretane i prodavnice';
+
+  @override
+  String get rolesMenuMyShifts => 'Moje smene';
+
+  @override
+  String get rolesMenuNutrition => 'Ishrana';
+
+  @override
+  String get rolesMenuOwnerOverview => 'Pregled za vlasnike';
+
+  @override
+  String get rolesMenuRegisterBusiness => 'Registruj teretanu ili prodavnicu';
+
+  @override
+  String get rolesMenuRegisterBusinessSubtitle =>
+      'Naš tim je proverava pre nego što postane vidljiva';
+
+  @override
+  String get rolesMenuRegisterBusinessSubtitleAdmin => 'Odmah postaje vidljiva';
+
+  @override
+  String get rolesMenuReviewQueue => 'Zahtevi za verifikaciju';
+
+  @override
+  String get rolesMenuTrainer => 'Trener';
+
+  @override
+  String get rolesMenuTrainerClasses => 'Moji časovi';
+
+  @override
+  String get rolesMenuTrainerClients => 'Klijenti';
+
+  @override
+  String get rolesMenuTrainerSessions => 'Vođeni treninzi';
+
+  @override
+  String get rolesMenuTrainerTimetables => 'Rasporedi';
+
+  @override
+  String get rolesMenuTraining => 'Trening';
+
+  @override
+  String get rolesMiscManageTeam => 'Upravljaj timom';
+
+  @override
+  String get rolesMiscMember => 'Član';
+
+  @override
+  String get rolesMiscOwner => 'Vlasnik';
+
+  @override
+  String get rolesMiscOwnerOf => 'Vlasnik:';
+
+  @override
+  String get rolesMiscStaff => 'Osoblje';
+
+  @override
+  String get rolesMiscSuperUser => 'Super korisnik';
+
+  @override
+  String get rolesMiscSuperUserHint =>
+      'Odobrava biznise i upravlja korisnicima';
+
+  @override
+  String get rolesMiscTeam => 'Tim';
+
+  @override
+  String rolesMiscTeamCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count članova tima',
+      few: '$count člana tima',
+      one: '1 član tima',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rolesMiscTeamHint =>
+      'Vlasnici, osoblje i treneri, i otvorene pozivnice';
+
+  @override
+  String get rolesMiscTrainer => 'Trener';
+
+  @override
+  String get rolesMiscTrainerAt => 'Trener u';
+
+  @override
+  String get rolesProfileAllPosts => 'Prikaži sve';
+
+  @override
+  String get rolesProfileFollow => 'Prati';
+
+  @override
+  String rolesProfileFollowers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pratilaca',
+      few: '$count pratioca',
+      one: '1 pratilac',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rolesProfileFollowing => 'Pratite';
+
+  @override
+  String get rolesProfileMemberships => 'Članarine';
+
+  @override
+  String get rolesProfileOwners => 'Vlasnici';
+
+  @override
+  String get rolesProfilePosts => 'Objave';
+
+  @override
+  String get rolesProfileProducts => 'Proizvodi';
+
+  @override
+  String get rolesProfileTrainers => 'Treneri';
+
+  @override
+  String get rolesProfileYouAre => 'Vi ste';
+
+  @override
+  String rolesReviewApplied(String date) {
+    return 'Prijavljeno $date';
+  }
+
+  @override
+  String get rolesReviewApprove => 'Odobri';
+
+  @override
+  String get rolesReviewBlock => 'Blokiraj';
+
+  @override
+  String rolesReviewBlockTitle(String business) {
+    return 'Blokirati $business?';
+  }
+
+  @override
+  String rolesReviewDone(String business, String status) {
+    return '$business: $status';
+  }
+
+  @override
+  String get rolesReviewEmpty => 'Ovde nema ničega';
+
+  @override
+  String rolesReviewNote(String note) {
+    return 'Napomena: $note';
+  }
+
+  @override
+  String get rolesReviewReason => 'Razlog';
+
+  @override
+  String get rolesReviewReasonHint => 'Vlasnik vidi ovo';
+
+  @override
+  String get rolesReviewReject => 'Odbij';
+
+  @override
+  String rolesReviewRejectTitle(String business) {
+    return 'Odbiti $business?';
+  }
+
+  @override
+  String get rolesReviewUnblock => 'Ponovo odobri';
+
+  @override
+  String get rolesRoleCoOwner => 'Suvlasnik';
+
+  @override
+  String get rolesRoleOwner => 'Vlasnik';
+
+  @override
+  String get rolesRoleStaff => 'Osoblje';
+
+  @override
+  String get rolesRoleTrainer => 'Trener';
+
+  @override
+  String get rolesSearchAll => 'Sve';
+
+  @override
+  String get rolesSearchEmpty => 'Ništa nije pronađeno';
+
+  @override
+  String get rolesSearchHint => 'Naziv ili lokacija';
+
+  @override
+  String get rolesSearchTitle => 'Pronađi teretane i prodavnice';
+
+  @override
+  String get rolesSettingsStopTrainer => 'Prestani';
+
+  @override
+  String rolesSettingsStopTrainerBody(String gyms) {
+    return 'Prestaćete da budete trener i u: $gyms. Klijenti i časovi ostaju.';
+  }
+
+  @override
+  String get rolesSettingsStopTrainerTitle => 'Prestati da budete trener?';
+
+  @override
+  String get rolesSettingsTrainer => 'Ja sam trener';
+
+  @override
+  String get rolesSettingsTrainerSubtitle =>
+      'Trenerski alati u početnom meniju';
+
+  @override
+  String get rolesStatusApproved => 'Odobreno';
+
+  @override
+  String get rolesStatusBlocked => 'Blokirano';
+
+  @override
+  String get rolesStatusPending => 'Čeka proveru';
+
+  @override
+  String get rolesStatusRejected => 'Nije odobreno';
+
+  @override
+  String rolesTeamActionsFor(String name) {
+    return 'Radnje za $name';
+  }
+
+  @override
+  String rolesTeamAddRoleSelf(String role) {
+    return 'Dodaj mi i ulogu: $role';
+  }
+
+  @override
+  String get rolesTeamByEmail => 'Putem e-pošte';
+
+  @override
+  String get rolesTeamByEmailHint =>
+      'Za nekoga ko je već na Gym Bro dovoljna je e-pošta. Za novu osobu dodajte i ime i korisničko ime; dobiće e-poruku za pravljenje naloga, a zatim poziv.';
+
+  @override
+  String rolesTeamCancelInvite(String role) {
+    return 'Otkaži poziv: $role';
+  }
+
+  @override
+  String get rolesTeamEmail => 'E-pošta';
+
+  @override
+  String get rolesTeamExplainer =>
+      'Vlasnici i treneri se vide na javnom profilu, osoblje ne. Novi ljudi se pridružuju kada prihvate poziv.';
+
+  @override
+  String get rolesTeamFindPerson => 'Na Gym Bro';
+
+  @override
+  String get rolesTeamFirstName => 'Ime';
+
+  @override
+  String get rolesTeamInvite => 'Pozovi';
+
+  @override
+  String rolesTeamInviteAs(String role) {
+    return 'Pozovi kao: $role';
+  }
+
+  @override
+  String get rolesTeamInviteRole => 'Kao';
+
+  @override
+  String get rolesTeamInviteSent => 'Poziv je poslat';
+
+  @override
+  String rolesTeamInviteTitle(String business) {
+    return 'Poziv u $business';
+  }
+
+  @override
+  String get rolesTeamLastName => 'Prezime';
+
+  @override
+  String get rolesTeamOwnerHint =>
+      'Sve što vlasnik može, uključujući tim, cene i brisanje biznisa.';
+
+  @override
+  String rolesTeamRemoveAs(String role) {
+    return 'Ukloni kao: $role';
+  }
+
+  @override
+  String get rolesTeamRoleAdded => 'Uloga je dodata';
+
+  @override
+  String get rolesTeamSendInvite => 'Pošalji poziv';
+
+  @override
+  String get rolesTeamStaffHint =>
+      'Recepcija i prodavnica: članovi, članarine, fakture, proizvodi, porudžbine i profil. Ne prikazuje se na profilu.';
+
+  @override
+  String rolesTeamStopBeing(String role) {
+    return 'Prestani da budeš: $role';
+  }
+
+  @override
+  String rolesTeamTitle(String business) {
+    return 'Tim · $business';
+  }
+
+  @override
+  String get rolesTeamTrainerHint =>
+      'Drži časove, trenira članove i objavljuje. Na profilu piše \"Trener u\".';
+
+  @override
+  String get rolesTeamUsername => 'Korisničko ime';
+
+  @override
+  String rolesTeamYou(String name) {
+    return '$name (vi)';
+  }
+
+  @override
+  String get rolesVerified => 'Verifikovao Gym Bro';
+
+  @override
   String get settingsLanguage => 'Jezik';
 
   @override
@@ -6672,23 +7215,7 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellActivateInviteTitle => 'Aktiviraj pozivnicu';
 
   @override
-  String get shellAddBusiness => 'Dodaj biznis';
-
-  @override
   String get shellAddUser => 'Dodaj korisnika';
-
-  @override
-  String get shellAdminBusinessesSubtitle =>
-      'Upravljaj teretanama i prodavnicama';
-
-  @override
-  String get shellAdminInvoicesSubtitle => 'Pregled svih faktura za članarine';
-
-  @override
-  String get shellAdminPanel => 'Admin panel';
-
-  @override
-  String get shellAdminUsersSubtitle => 'Upravljaj svim nalozima';
 
   @override
   String get shellAlreadyYourEmail => 'To je već tvoj imejl';
@@ -6758,9 +7285,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellCheckEmailTitle => 'Proveri imejl';
 
   @override
-  String get shellChooseShop => 'Izaberi prodavnicu';
-
-  @override
   String get shellClearSearch => 'Obriši pretragu';
 
   @override
@@ -6819,11 +7343,6 @@ class AppLocalizationsSr extends AppLocalizations {
   }
 
   @override
-  String shellEditBusiness(String name) {
-    return 'Izmeni $name';
-  }
-
-  @override
   String shellEditUser(String name) {
     return 'Izmeni korisnika $name';
   }
@@ -6855,18 +7374,10 @@ class AppLocalizationsSr extends AppLocalizations {
       'Prijava preko Google naloga nije podržana na ovom uređaju';
 
   @override
-  String get shellGyms => 'Teretane';
-
-  @override
   String get shellHaveAccountLogIn => 'Već imaš nalog? Prijavi se';
 
   @override
   String get shellHaveInviteCode => 'Imaš kod pozivnice?';
-
-  @override
-  String shellHello(String name) {
-    return 'Zdravo, $name';
-  }
 
   @override
   String get shellHidePassword => 'Sakrij lozinku';
@@ -6916,47 +7427,19 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellHubClassesSubtitle => 'Pregledaj i rezerviši grupne časove';
 
   @override
-  String get shellHubCommunity => 'Zajednica';
-
-  @override
-  String shellHubCommunityOpenFailed(String error) {
-    return 'Zajednica nije mogla da se otvori: $error';
-  }
-
-  @override
-  String get shellHubCommunitySubtitle =>
-      'Objave i obaveštenja iz tvoje teretane';
-
-  @override
   String get shellHubExercises => 'Vežbe';
-
-  @override
-  String get shellHubExercisesSubtitle => 'Pregledaj i uređuj vežbe';
 
   @override
   String get shellHubFoodDiary => 'Dnevnik ishrane';
 
   @override
-  String get shellHubFoodDiarySubtitle => 'Beleži obroke i prati makroe';
-
-  @override
   String get shellHubMealPlans => 'Planovi ishrane';
-
-  @override
-  String get shellHubMealPlansSubtitle => 'Namirnice, recepti i ishrana';
-
-  @override
-  String get shellHubNotLinked =>
-      'Još nisi povezan ni sa jednom teretanom ili prodavnicom';
 
   @override
   String get shellHubProgress => 'Napredak';
 
   @override
   String get shellHubSessions => 'Sesije';
-
-  @override
-  String get shellHubSessionsSubtitle => 'Beleži i pregledaj svoje sesije';
 
   @override
   String get shellHubStore => 'Prodavnica';
@@ -6966,9 +7449,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellHubWorkouts => 'Treninzi';
-
-  @override
-  String get shellHubWorkoutsSubtitle => 'Treninzi i rutine';
 
   @override
   String get shellImageAddPhoto => 'Dodaj fotografiju';
@@ -7064,21 +7544,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellMarkAllRead => 'Označi sve kao pročitano';
 
   @override
-  String shellMemberCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count članova',
-      few: '$count člana',
-      one: '$count član',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get shellMembersYouCoach => 'Članovi koje treniraš';
-
-  @override
   String get shellMuteBilling => 'Plaćanja';
 
   @override
@@ -7167,39 +7632,18 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellNoAccountSignUp => 'Nemaš nalog? Registruj se';
 
   @override
-  String get shellNoBusinesses => 'Još nema biznisa';
-
-  @override
-  String get shellNoCoachedMembers =>
-      'Još nema članova u teretanama u kojima treniraš';
-
-  @override
   String shellNoLongerMember(String name) {
     return '$name više nije član';
-  }
-
-  @override
-  String shellNoMembersMatch(String query) {
-    return 'Nijedan član ne odgovara pretrazi „$query“';
   }
 
   @override
   String get shellNoNotifications => 'Još nema obaveštenja';
 
   @override
-  String get shellNoSessionsToday => 'Danas nemaš treninge';
-
-  @override
   String get shellNoUsers => 'Još nema korisnika';
 
   @override
   String get shellNoUsersFound => 'Nema pronađenih korisnika';
-
-  @override
-  String get shellNotAVendor => 'Još nisi prodavac ni u jednoj prodavnici';
-
-  @override
-  String get shellNotAssignedToGym => 'Još nisi dodeljen nijednoj teretani';
 
   @override
   String get shellNotificationUnread => 'Nepročitano';
@@ -7224,11 +7668,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellOr => 'ili';
-
-  @override
-  String shellOrdersForShop(String shop) {
-    return 'Porudžbine · $shop';
-  }
 
   @override
   String get shellOwnerAllInvoices => 'Sve fakture';
@@ -7271,49 +7710,7 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellResetPasswordTitle => 'Resetovanje lozinke';
 
   @override
-  String get shellRole => 'Uloga';
-
-  @override
-  String get shellRoleEmployee => 'Zaposleni';
-
-  @override
-  String get shellRoleEmployeeTrainer => 'Zaposleni / trener';
-
-  @override
-  String get shellRoleEmployeeTrainerShort => 'Zap. trener';
-
-  @override
-  String get shellRoleGymOwner => 'Vlasnik teretane';
-
-  @override
-  String get shellRoleMember => 'Član';
-
-  @override
-  String get shellRoleOwner => 'Vlasnik';
-
-  @override
-  String get shellRoleShopOwner => 'Vlasnik prodavnice';
-
-  @override
-  String get shellRoleShopVendor => 'Prodavac';
-
-  @override
-  String get shellRoleSuperUser => 'Super korisnik';
-
-  @override
-  String get shellRoleTrainer => 'Trener';
-
-  @override
-  String get shellRoleVendor => 'Prodavac';
-
-  @override
   String get shellSaveChanges => 'Sačuvaj izmene';
-
-  @override
-  String get shellScanCheckIns => 'Skeniraj dolaske';
-
-  @override
-  String get shellSearchMembers => 'Pretraži članove';
 
   @override
   String get shellSendLink => 'Pošalji link';
@@ -7323,11 +7720,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellSendResetLink => 'Pošalji link za resetovanje';
-
-  @override
-  String shellSessionStartedInProgress(String time) {
-    return 'Počeo u $time · u toku';
-  }
 
   @override
   String get shellSetNewPassword => 'Postavi novu lozinku';
@@ -7357,9 +7749,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellSettingsWeight => 'Težina';
-
-  @override
-  String get shellShops => 'Prodavnice';
 
   @override
   String get shellShowMore => 'Prikaži još';
@@ -7451,9 +7840,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellStatsUnpaidInvoices => 'Neplaćene fakture';
 
   @override
-  String get shellTabBusinesses => 'Biznisi';
-
-  @override
   String get shellTabClasses => 'Časovi';
 
   @override
@@ -7469,13 +7855,7 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellTabHome => 'Početna';
 
   @override
-  String get shellTabMembers => 'Članovi';
-
-  @override
   String get shellTabMembership => 'Članarina';
-
-  @override
-  String get shellTabMyShop => 'Moja prodavnica';
 
   @override
   String get shellTabProfile => 'Profil';
@@ -7550,9 +7930,6 @@ class AppLocalizationsSr extends AppLocalizations {
   String get shellTimeNow => 'sada';
 
   @override
-  String get shellTodaysSessions => 'Današnji treninzi';
-
-  @override
   String shellTypeToConfirm(String text) {
     return 'Ukucaj $text za potvrdu.';
   }
@@ -7576,17 +7953,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get shellUserSearchHint => 'Pretraži po imenu ili korisničkom imenu';
-
-  @override
-  String shellWelcome(String name) {
-    return 'Dobro došao, $name';
-  }
-
-  @override
-  String get shellYourGym => 'Tvoja teretana';
-
-  @override
-  String get shellYourGyms => 'Tvoje teretane';
 
   @override
   String socialActiveAgo(String when) {
@@ -9957,12 +10323,6 @@ class AppLocalizationsSr extends AppLocalizations {
 
   @override
   String get trainingSideRight => 'Desna';
-
-  @override
-  String get trainingStaffRoleEmployee => 'Zaposleni';
-
-  @override
-  String get trainingStaffRoleEmployeeTrainer => 'Zaposleni / trener';
 
   @override
   String get trainingStaffRoleTrainer => 'Trener';
@@ -10265,6 +10625,201 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get accessUnavailable => 'Više nije dostupno · obrisano je';
 
   @override
+  String get adminDbAddRow => 'Dodaj red';
+
+  @override
+  String adminDbDeleteAction(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Obriši $count redova',
+      few: 'Obriši $count reda',
+      one: 'Obriši 1 red',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adminDbDeleteMessage(String table) {
+    return 'Ovo se ne može poništiti. Upišite naziv tabele ($table) za potvrdu.';
+  }
+
+  @override
+  String get adminDbDeleteRow => 'Obriši red';
+
+  @override
+  String adminDbDeleteTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Obrisati $count redova?',
+      few: 'Obrisati $count reda?',
+      one: 'Obrisati ovaj red?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get adminDbDeleteUserNote => 'Briše se i njihov nalog za prijavu.';
+
+  @override
+  String adminDbDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Obrisano $count redova',
+      few: 'Obrisana $count reda',
+      one: 'Obrisan 1 red',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String adminDbFilterTables(int count) {
+    return 'Filtriraj $count tabela';
+  }
+
+  @override
+  String get adminDbForce => 'Obriši i ono što smeta';
+
+  @override
+  String adminDbForceHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count redova',
+      few: '$count reda',
+      one: '1 red',
+    );
+    return 'Prvo briše te redove i sve ispod njih: ukupno $_temp0 pored ovog.';
+  }
+
+  @override
+  String get adminDbHasDefault => 'prazno = podrazumevano';
+
+  @override
+  String get adminDbImpactBlocking =>
+      'Smeta (brisanje se odbija dok ovo postoji)';
+
+  @override
+  String adminDbImpactDeleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count redova',
+      few: '$count reda',
+      one: '1 red',
+    );
+    return 'Briše se zajedno ($_temp0)';
+  }
+
+  @override
+  String get adminDbImpactIntro =>
+      'Brisanje ovog reda utiče i na druge podatke:';
+
+  @override
+  String get adminDbImpactNothing => 'Ništa drugo ne upućuje na ovaj red.';
+
+  @override
+  String get adminDbImpactNulled => 'Ostaje, veza se prazni';
+
+  @override
+  String get adminDbImpactTitle => 'Pre brisanja';
+
+  @override
+  String get adminDbInsert => 'Dodaj';
+
+  @override
+  String get adminDbInserted => 'Red je dodat';
+
+  @override
+  String get adminDbInvalidJson => 'Nije ispravan JSON';
+
+  @override
+  String get adminDbLoadMore => 'Učitaj još';
+
+  @override
+  String get adminDbNeedsJsonArray =>
+      'Potreban je JSON niz, npr. [\"a\", \"b\"]';
+
+  @override
+  String adminDbNewRow(String table) {
+    return 'Novi red: $table';
+  }
+
+  @override
+  String get adminDbOnDeleteCascade => 'brišu se zajedno';
+
+  @override
+  String get adminDbOnDeleteRestrict => 'sprečavaju brisanje';
+
+  @override
+  String get adminDbOnDeleteSetNull => 'prazne se pri brisanju';
+
+  @override
+  String adminDbOpenReferenced(String table) {
+    return 'Otvori u $table';
+  }
+
+  @override
+  String adminDbRefSummary(int count, String action) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count redova',
+      few: '$count reda',
+      one: '1 red',
+    );
+    return '$_temp0 · $action';
+  }
+
+  @override
+  String get adminDbReferencedBy => 'Povezano iz';
+
+  @override
+  String get adminDbReviewSubtitle =>
+      'Potvrdite da su nove teretane i prodavnice stvarne';
+
+  @override
+  String get adminDbSave => 'Sačuvaj';
+
+  @override
+  String get adminDbSaved => 'Sačuvano';
+
+  @override
+  String get adminDbSearchRows => 'Pretraži tekstualne kolone ili nalepi id';
+
+  @override
+  String get adminDbSetNull => 'Postavi na NULL';
+
+  @override
+  String get adminDbSetValue => 'Unesi vrednost';
+
+  @override
+  String adminDbShowing(int shown, int total) {
+    return 'Prikazano $shown od $total';
+  }
+
+  @override
+  String adminDbTableSummary(int rows, int columns) {
+    String _temp0 = intl.Intl.pluralLogic(
+      rows,
+      locale: localeName,
+      other: '$rows redova',
+      few: '$rows reda',
+      one: '1 red',
+    );
+    return '$_temp0 · $columns kolona';
+  }
+
+  @override
+  String get adminDbTitle => 'Baza podataka';
+
+  @override
+  String get adminDbWarning =>
+      'Direktno menjate žive podatke. Izmene zaobilaze provere aplikacije i ne mogu se poništiti; svaka izmena se beleži.';
+
+  @override
   String get appTitle => 'Gym Bro';
 
   @override
@@ -10673,9 +11228,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get businessCheckInYesterday => 'Juče';
 
   @override
-  String get businessGymAddEmployee => 'Dodaj zaposlenog';
-
-  @override
   String get businessGymAddExistingUser => 'Dodaj postojećeg korisnika';
 
   @override
@@ -10684,18 +11236,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get businessGymAddMember => 'Dodaj člana';
-
-  @override
-  String get businessGymAllGyms => 'Sve teretane';
-
-  @override
-  String get businessGymAllMembersTitle => 'Svi članovi';
-
-  @override
-  String get businessGymAllStaffTitle => 'Celo osoblje';
-
-  @override
-  String get businessGymAlreadyEmployee => 'Već radi u ovoj teretani';
 
   @override
   String get businessGymAlreadyMember => 'Već je član';
@@ -10716,20 +11256,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get businessGymCancelMembershipTitle => 'Otkazati članarinu?';
-
-  @override
-  String get businessGymChange => 'Promeni';
-
-  @override
-  String businessGymChangeRoleMessage(String name, String role, String gym) {
-    return 'Promeniti ulogu korisnika $name u „$role“ u teretani $gym?';
-  }
-
-  @override
-  String get businessGymChangeRoleTitle => 'Promeniti ulogu?';
-
-  @override
-  String get businessGymClearSearch => 'Obriši pretragu';
 
   @override
   String businessGymDeleteMembershipMessage(String type) {
@@ -10754,9 +11280,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   @override
   String get businessGymDetailManageMembershipTypes =>
       'Upravljaj vrstama članarina';
-
-  @override
-  String get businessGymDetailManageStaff => 'Upravljaj osobljem';
 
   @override
   String get businessGymDetailMembers => 'Članovi';
@@ -10795,38 +11318,13 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get businessGymDetailSchedule => 'Raspored';
 
   @override
-  String get businessGymDetailStaff => 'Osoblje';
-
-  @override
-  String businessGymDetailStaffCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count zaposlenih',
-      few: '$count zaposlena',
-      one: '$count zaposleni',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get businessGymDuration => 'Trajanje';
-
-  @override
-  String get businessGymEditEmployee => 'Izmeni zaposlenog';
 
   @override
   String get businessGymEditMember => 'Izmeni člana';
 
   @override
   String get businessGymEmail => 'Imejl';
-
-  @override
-  String get businessGymEmailAlreadyEmployed =>
-      'Ovaj imejl već pripada zaposlenom u ovoj teretani';
-
-  @override
-  String get businessGymEmployeeActions => 'Radnje za zaposlenog';
 
   @override
   String get businessGymExtend => 'Produži';
@@ -10840,33 +11338,13 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
-  String get businessGymFilterAll => 'Sve';
-
-  @override
   String get businessGymFirstName => 'Ime';
 
   @override
   String get businessGymFormAddLogo => 'Dodaj logo';
 
   @override
-  String get businessGymFormCreate => 'Kreiraj biznis';
-
-  @override
   String get businessGymFormDelete => 'Obriši biznis';
-
-  @override
-  String get businessGymFormDeleteGymAction => 'Obriši teretanu';
-
-  @override
-  String get businessGymFormDeleteGymMessage =>
-      'Ovim se trajno briše teretana sa svim članovima, osobljem, vrstama članarina, članarinama, fakturama i objavama.';
-
-  @override
-  String get businessGymFormDeleteShopAction => 'Obriši prodavnicu';
-
-  @override
-  String get businessGymFormDeleteShopMessage =>
-      'Ovim se trajno briše prodavnica sa svim artiklima, prodavcima i objavama.';
 
   @override
   String businessGymFormDeleteTitle(String name) {
@@ -10897,19 +11375,7 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get businessGymFormTitleEdit => 'Izmeni biznis';
 
   @override
-  String get businessGymFormTitleNew => 'Novi biznis';
-
-  @override
   String get businessGymFormTo => 'Do';
-
-  @override
-  String get businessGymFormType => 'Vrsta';
-
-  @override
-  String get businessGymFormTypeGym => 'Teretana';
-
-  @override
-  String get businessGymFormTypeShop => 'Prodavnica';
 
   @override
   String get businessGymFormWorkingDays => 'Radni dani';
@@ -10921,9 +11387,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get businessGymGym => 'Teretana';
 
   @override
-  String get businessGymInviteAndAdd => 'Pozovi i dodaj';
-
-  @override
   String get businessGymInviteMemberTitle => 'Pozovi člana';
 
   @override
@@ -10931,10 +11394,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get businessGymInviteNewMemberHint => 'Pošalji link za poziv imejlom';
-
-  @override
-  String get businessGymInviteNewUserPrompt =>
-      'Nema ih u pretrazi? Pozovi novog korisnika';
 
   @override
   String get businessGymInviteResent => 'Pozivnica je ponovo poslata';
@@ -10989,9 +11448,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
-  String get businessGymNoMembersFound => 'Nema pronađenih članova';
-
-  @override
   String get businessGymNoMembersYet => 'Još nema članova';
 
   @override
@@ -11002,12 +11458,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   @override
   String get businessGymNoMembershipTypes =>
       'Ova teretana još nema vrste članarina — prvo dodaj jednu.';
-
-  @override
-  String get businessGymNoStaffFound => 'Nema pronađenog osoblja';
-
-  @override
-  String get businessGymNoStaffYet => 'Još nema osoblja';
 
   @override
   String businessGymPlusMonths(int months) {
@@ -11040,51 +11490,13 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get businessGymRemoveMemberTitle => 'Ukloniti člana?';
 
   @override
-  String get businessGymRemoveStaffMessage =>
-      'Zaposleni će biti uklonjen iz ove teretane.';
-
-  @override
-  String get businessGymRemoveStaffTitle => 'Ukloniti zaposlenog?';
-
-  @override
   String get businessGymResendInvite => 'Ponovo pošalji pozivnicu';
-
-  @override
-  String get businessGymRole => 'Uloga';
-
-  @override
-  String businessGymRoleChangedTo(String role) {
-    return 'Uloga promenjena: $role';
-  }
-
-  @override
-  String get businessGymRoleEmployee => 'Zaposleni';
-
-  @override
-  String get businessGymRoleEmployeeTrainer => 'Zaposleni trener';
-
-  @override
-  String get businessGymRoleEmployeeTrainerShort => 'Zap. trener';
 
   @override
   String get businessGymRoleMember => 'Član';
 
   @override
-  String get businessGymRoleVendor => 'Prodavac';
-
-  @override
-  String get businessGymSearchMembersHint => 'Pretraži članove…';
-
-  @override
-  String get businessGymSearchStaffHint => 'Pretraži osoblje…';
-
-  @override
   String get businessGymSendInvite => 'Pošalji pozivnicu';
-
-  @override
-  String businessGymStaffTitle(String gym) {
-    return '$gym — Osoblje';
-  }
 
   @override
   String get businessGymStatusActive => 'Aktivna';
@@ -11140,16 +11552,10 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get businessMgmtAddType => 'Dodaj vrstu';
 
   @override
-  String get businessMgmtAddVendor => 'Dodaj prodavca';
-
-  @override
   String get businessMgmtAll => 'Sve';
 
   @override
   String get businessMgmtAllGyms => 'Sve teretane';
-
-  @override
-  String get businessMgmtAlreadyVendor => 'Već je prodavac u ovoj prodavnici';
 
   @override
   String get businessMgmtAutoRenewOn => 'Automatsko obnavljanje uključeno';
@@ -11204,20 +11610,7 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
-  String get businessMgmtEditVendor => 'Izmeni prodavca';
-
-  @override
-  String get businessMgmtEmail => 'Email';
-
-  @override
-  String get businessMgmtEmailAlreadyVendor =>
-      'Ovaj email već pripada prodavcu ove prodavnice';
-
-  @override
   String get businessMgmtExtendOrBuy => 'Produži ili kupi članarinu';
-
-  @override
-  String get businessMgmtFirstName => 'Ime';
 
   @override
   String get businessMgmtGym => 'Teretana';
@@ -11232,20 +11625,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get businessMgmtInvalidNumber => 'Unesi ispravan broj';
-
-  @override
-  String get businessMgmtInviteAndAddVendor => 'Pozovi i dodaj prodavca';
-
-  @override
-  String get businessMgmtInviteNewUser =>
-      'Nema ih u pretrazi? Pozovi novog korisnika';
-
-  @override
-  String get businessMgmtInviteResent => 'Pozivnica ponovo poslata';
-
-  @override
-  String get businessMgmtInviteResentSuccess =>
-      'Pozivnica je uspešno ponovo poslata';
 
   @override
   String get businessMgmtInvoice => 'Faktura';
@@ -11281,12 +11660,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get businessMgmtItems => 'Artikli';
 
   @override
-  String get businessMgmtLastName => 'Prezime';
-
-  @override
-  String get businessMgmtManage => 'Upravljaj';
-
-  @override
   String get businessMgmtMarkPaid => 'Označi kao plaćenu';
 
   @override
@@ -11311,11 +11684,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get businessMgmtMonthlyCost => 'Mesečna cena';
-
-  @override
-  String businessMgmtMoreCount(int count) {
-    return '+ još $count';
-  }
 
   @override
   String get businessMgmtName => 'Naziv';
@@ -11354,9 +11722,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get businessMgmtNoUnpaidInvoices => 'Nema neplaćenih faktura';
-
-  @override
-  String get businessMgmtNoVendorsYet => 'Još nema prodavaca';
 
   @override
   String get businessMgmtNoVoidInvoices => 'Nema poništenih faktura';
@@ -11405,24 +11770,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
-  String get businessMgmtRemove => 'Ukloni';
-
-  @override
-  String get businessMgmtRemoveFromShop => 'Ukloni iz prodavnice';
-
-  @override
-  String businessMgmtRemoveVendorFromShopMessage(String name, String shopName) {
-    return 'Korisnik $name biće uklonjen iz prodavnice $shopName.';
-  }
-
-  @override
-  String get businessMgmtRemoveVendorMessage =>
-      'Ova osoba će biti uklonjena iz ove prodavnice.';
-
-  @override
-  String get businessMgmtRemoveVendorTitle => 'Ukloniti prodavca?';
-
-  @override
   String get businessMgmtRenewMembership => 'Obnovi članarinu';
 
   @override
@@ -11430,21 +11777,7 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
       'Automatski se obnavlja svakog meseca';
 
   @override
-  String get businessMgmtResendInvite => 'Ponovo pošalji pozivnicu';
-
-  @override
   String get businessMgmtSaveChanges => 'Sačuvaj izmene';
-
-  @override
-  String get businessMgmtShop => 'Prodavnica';
-
-  @override
-  String businessMgmtShopVendorsTitle(String shopName) {
-    return '$shopName — prodavci';
-  }
-
-  @override
-  String get businessMgmtStaffVendors => 'Osoblje / prodavci';
 
   @override
   String get businessMgmtTurnOff => 'Isključi';
@@ -11484,15 +11817,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
     );
     return '$_temp0 · za plaćanje $amount';
   }
-
-  @override
-  String get businessMgmtUsername => 'Korisničko ime';
-
-  @override
-  String get businessMgmtVendor => 'Prodavac';
-
-  @override
-  String get businessMgmtVendorActions => 'Opcije prodavca';
 
   @override
   String get businessOrderStatusCancelled => 'Otkazano';
@@ -13271,6 +13595,9 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get customersJustAdd => 'Samo dodaj';
 
   @override
+  String get customersLogPastSession => 'Unesi prošli trening';
+
+  @override
   String get customersNoActiveClasses =>
       'Još nemaš aktivnih časova na koje možeš da ih pozoveš.';
 
@@ -13331,6 +13658,18 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get customersSearch => 'Pretraži klijente';
+
+  @override
+  String customersSessionWith(String name) {
+    return 'Sa: $name';
+  }
+
+  @override
+  String get customersStartSession => 'Započni trening';
+
+  @override
+  String get customersStartSessionSubtitle =>
+      'Prati ga uživo; čuva se u njihovim treninzima sa tobom kao trenerom';
 
   @override
   String get customersStatusAccepted => 'Klijent';
@@ -16079,9 +16418,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
       'Ništa za ovaj dan. Dodirni sat da upišeš trening ili obrok.';
 
   @override
-  String get planScheduleHubSubtitle => 'Tvoji časovi, treninzi i obroci';
-
-  @override
   String get planSkip => 'Preskoči';
 
   @override
@@ -16665,6 +17001,573 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get reactionWow => 'Vau';
 
   @override
+  String get rolesBecameTrainer =>
+      'Sada ste trener. Trenerski alati su na početnoj.';
+
+  @override
+  String get rolesBecomeTrainerBody =>
+      'Dobićete trenerske alate u početnom meniju: časove, rasporede i klijente. Da biste bili navedeni kao trener u teretani, vlasnik vas poziva, a vi prihvatate.';
+
+  @override
+  String get rolesBecomeTrainerConfirm => 'Postani trener';
+
+  @override
+  String get rolesBecomeTrainerTitle => 'Postati trener?';
+
+  @override
+  String get rolesFormApply => 'Pošalji na proveru';
+
+  @override
+  String get rolesFormBio => 'O nama';
+
+  @override
+  String get rolesFormDeleteMessage =>
+      'Ovo trajno briše biznis sa članovima, članarinama, fakturama, proizvodima, timom i objavama.';
+
+  @override
+  String get rolesFormGymHint => 'Članarine, časovi, prijave';
+
+  @override
+  String get rolesFormIntro =>
+      'Predstavite svoju teretanu ili prodavnicu. Naš tim proverava svaki novi biznis pre nego što postane vidljiv; profil možete dovršiti u međuvremenu.';
+
+  @override
+  String get rolesFormPhone => 'Telefon';
+
+  @override
+  String get rolesFormPickSide => 'Izaberite teretanu, prodavnicu ili oboje';
+
+  @override
+  String get rolesFormShopHint => 'Proizvodi i porudžbine';
+
+  @override
+  String get rolesFormSides => 'Šta je';
+
+  @override
+  String get rolesFormSidesHint =>
+      'Biznis može biti oboje. Bilo koje možete uključiti ili isključiti kasnije.';
+
+  @override
+  String get rolesFormSubmittedBody =>
+      'Javićemo vam kada bude odobreno. Do tada ga možete naći u odeljku Moje teretane i prodavnice i nastaviti da uređujete profil.';
+
+  @override
+  String get rolesFormSubmittedTitle => 'Poslato na proveru';
+
+  @override
+  String get rolesFormWebsite => 'Veb-sajt';
+
+  @override
+  String get rolesFormWebsiteInvalid => 'Počnite sa http:// ili https://';
+
+  @override
+  String get rolesHubBuyMembershipSubtitle => 'Učlanite se ili produžite';
+
+  @override
+  String get rolesHubFindSubtitle => 'Pretraga po nazivu ili mestu';
+
+  @override
+  String get rolesHubMyGyms => 'Moje teretane';
+
+  @override
+  String get rolesInviteAccept => 'Prihvati';
+
+  @override
+  String get rolesInviteDecline => 'Odbij';
+
+  @override
+  String rolesInviteToJoin(String business, String role) {
+    return '$business vas poziva da se pridružite kao $role.';
+  }
+
+  @override
+  String rolesInvitedAs(String role) {
+    return 'Pozvan · $role';
+  }
+
+  @override
+  String rolesInvitesAs(String role) {
+    return 'Pridružite se kao: $role';
+  }
+
+  @override
+  String get rolesInvitesDeclined => 'Poziv je odbijen';
+
+  @override
+  String get rolesInvitesEmpty => 'Nema otvorenih poziva';
+
+  @override
+  String rolesInvitesFrom(String name, String role) {
+    return '$name vas poziva da se pridružite kao: $role';
+  }
+
+  @override
+  String rolesInvitesJoined(String business) {
+    return 'Pridružili ste se: $business';
+  }
+
+  @override
+  String get rolesInvitesTitle => 'Pozivi u tim';
+
+  @override
+  String get rolesInvitesTrainerNote =>
+      'Prihvatanjem uključujete trenerske alate i bićete navedeni kao trener tamo.';
+
+  @override
+  String get rolesKindGym => 'Teretana';
+
+  @override
+  String get rolesKindGymAndShop => 'Teretana i prodavnica';
+
+  @override
+  String get rolesKindShop => 'Prodavnica';
+
+  @override
+  String get rolesManage => 'Upravljaj';
+
+  @override
+  String get rolesManageBlockedTitle => 'Blokirano';
+
+  @override
+  String get rolesManageEditProfile => 'Uredi profil';
+
+  @override
+  String get rolesManageEditProfileSubtitle =>
+      'Naziv, logo, opis, radno vreme, kontakt';
+
+  @override
+  String get rolesManageGymDashboard => 'Kontrolna tabla teretane';
+
+  @override
+  String get rolesManageGymDashboardSubtitle =>
+      'Članovi, članarine, fakture, raspored, prijave';
+
+  @override
+  String get rolesManageLeave => 'Napusti tim';
+
+  @override
+  String get rolesManageLeaveBody =>
+      'Izgubićete sve uloge koje ovde imate. Vlasnik vas može ponovo pozvati.';
+
+  @override
+  String rolesManageLeaveTitle(String business) {
+    return 'Napustiti $business?';
+  }
+
+  @override
+  String get rolesManagePendingBody =>
+      'Naš tim proverava ovaj biznis. U međuvremenu možete dovršiti profil; tim, članarine, proizvodi i objave se otključavaju nakon odobrenja.';
+
+  @override
+  String get rolesManagePendingTitle => 'Čeka proveru';
+
+  @override
+  String get rolesManagePosts => 'Objave';
+
+  @override
+  String get rolesManagePostsSubtitle => 'Objavljujte u ime biznisa';
+
+  @override
+  String get rolesManageProductsSubtitle =>
+      'Dodajte i uređujte ono što prodajete';
+
+  @override
+  String get rolesManageProfileGroup => 'Profil i tim';
+
+  @override
+  String get rolesManageRejectedHint =>
+      'Ispravite navedeno u profilu, pa pošaljite ponovo.';
+
+  @override
+  String get rolesManageRejectedTitle => 'Nije odobreno';
+
+  @override
+  String get rolesManageResubmit => 'Ponovo pošalji na proveru';
+
+  @override
+  String get rolesManageResubmitted => 'Poslato na proveru';
+
+  @override
+  String get rolesManageScheduleSubtitle => 'Časovi i smene u ovoj teretani';
+
+  @override
+  String get rolesManageTeam => 'Tim';
+
+  @override
+  String get rolesManageTeamSubtitle => 'Ko vodi ovo mesto';
+
+  @override
+  String get rolesManageTeamSubtitleOwner =>
+      'Pozovite osoblje, trenere i suvlasnike';
+
+  @override
+  String get rolesManageViewProfile => 'Prikaži profil';
+
+  @override
+  String get rolesMenuAdmin => 'Administracija';
+
+  @override
+  String get rolesMenuBecomeTrainer => 'Postani trener';
+
+  @override
+  String get rolesMenuBecomeTrainerSubtitle =>
+      'Časovi, klijenti i alati za ljude koje treniraš';
+
+  @override
+  String get rolesMenuBuyMembership => 'Kupi članarinu';
+
+  @override
+  String get rolesMenuDoMore => 'Uradi više';
+
+  @override
+  String rolesMenuInvitesBanner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Imate $count poziva u tim',
+      few: 'Imate $count poziva u tim',
+      one: 'Pozvani ste da se pridružite timu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rolesMenuInvitesReview => 'Pogledaj';
+
+  @override
+  String get rolesMenuMemberships => 'Članarine i porudžbine';
+
+  @override
+  String get rolesMenuMyBusinesses => 'Moje teretane i prodavnice';
+
+  @override
+  String get rolesMenuMyShifts => 'Moje smene';
+
+  @override
+  String get rolesMenuNutrition => 'Ishrana';
+
+  @override
+  String get rolesMenuOwnerOverview => 'Pregled za vlasnike';
+
+  @override
+  String get rolesMenuRegisterBusiness => 'Registruj teretanu ili prodavnicu';
+
+  @override
+  String get rolesMenuRegisterBusinessSubtitle =>
+      'Naš tim je proverava pre nego što postane vidljiva';
+
+  @override
+  String get rolesMenuRegisterBusinessSubtitleAdmin => 'Odmah postaje vidljiva';
+
+  @override
+  String get rolesMenuReviewQueue => 'Zahtevi za verifikaciju';
+
+  @override
+  String get rolesMenuTrainer => 'Trener';
+
+  @override
+  String get rolesMenuTrainerClasses => 'Moji časovi';
+
+  @override
+  String get rolesMenuTrainerClients => 'Klijenti';
+
+  @override
+  String get rolesMenuTrainerSessions => 'Vođeni treninzi';
+
+  @override
+  String get rolesMenuTrainerTimetables => 'Rasporedi';
+
+  @override
+  String get rolesMenuTraining => 'Trening';
+
+  @override
+  String get rolesMiscManageTeam => 'Upravljaj timom';
+
+  @override
+  String get rolesMiscMember => 'Član';
+
+  @override
+  String get rolesMiscOwner => 'Vlasnik';
+
+  @override
+  String get rolesMiscOwnerOf => 'Vlasnik:';
+
+  @override
+  String get rolesMiscStaff => 'Osoblje';
+
+  @override
+  String get rolesMiscSuperUser => 'Super korisnik';
+
+  @override
+  String get rolesMiscSuperUserHint =>
+      'Odobrava biznise i upravlja korisnicima';
+
+  @override
+  String get rolesMiscTeam => 'Tim';
+
+  @override
+  String rolesMiscTeamCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count članova tima',
+      few: '$count člana tima',
+      one: '1 član tima',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rolesMiscTeamHint =>
+      'Vlasnici, osoblje i treneri, i otvorene pozivnice';
+
+  @override
+  String get rolesMiscTrainer => 'Trener';
+
+  @override
+  String get rolesMiscTrainerAt => 'Trener u';
+
+  @override
+  String get rolesProfileAllPosts => 'Prikaži sve';
+
+  @override
+  String get rolesProfileFollow => 'Prati';
+
+  @override
+  String rolesProfileFollowers(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pratilaca',
+      few: '$count pratioca',
+      one: '1 pratilac',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rolesProfileFollowing => 'Pratite';
+
+  @override
+  String get rolesProfileMemberships => 'Članarine';
+
+  @override
+  String get rolesProfileOwners => 'Vlasnici';
+
+  @override
+  String get rolesProfilePosts => 'Objave';
+
+  @override
+  String get rolesProfileProducts => 'Proizvodi';
+
+  @override
+  String get rolesProfileTrainers => 'Treneri';
+
+  @override
+  String get rolesProfileYouAre => 'Vi ste';
+
+  @override
+  String rolesReviewApplied(String date) {
+    return 'Prijavljeno $date';
+  }
+
+  @override
+  String get rolesReviewApprove => 'Odobri';
+
+  @override
+  String get rolesReviewBlock => 'Blokiraj';
+
+  @override
+  String rolesReviewBlockTitle(String business) {
+    return 'Blokirati $business?';
+  }
+
+  @override
+  String rolesReviewDone(String business, String status) {
+    return '$business: $status';
+  }
+
+  @override
+  String get rolesReviewEmpty => 'Ovde nema ničega';
+
+  @override
+  String rolesReviewNote(String note) {
+    return 'Napomena: $note';
+  }
+
+  @override
+  String get rolesReviewReason => 'Razlog';
+
+  @override
+  String get rolesReviewReasonHint => 'Vlasnik vidi ovo';
+
+  @override
+  String get rolesReviewReject => 'Odbij';
+
+  @override
+  String rolesReviewRejectTitle(String business) {
+    return 'Odbiti $business?';
+  }
+
+  @override
+  String get rolesReviewUnblock => 'Ponovo odobri';
+
+  @override
+  String get rolesRoleCoOwner => 'Suvlasnik';
+
+  @override
+  String get rolesRoleOwner => 'Vlasnik';
+
+  @override
+  String get rolesRoleStaff => 'Osoblje';
+
+  @override
+  String get rolesRoleTrainer => 'Trener';
+
+  @override
+  String get rolesSearchAll => 'Sve';
+
+  @override
+  String get rolesSearchEmpty => 'Ništa nije pronađeno';
+
+  @override
+  String get rolesSearchHint => 'Naziv ili lokacija';
+
+  @override
+  String get rolesSearchTitle => 'Pronađi teretane i prodavnice';
+
+  @override
+  String get rolesSettingsStopTrainer => 'Prestani';
+
+  @override
+  String rolesSettingsStopTrainerBody(String gyms) {
+    return 'Prestaćete da budete trener i u: $gyms. Klijenti i časovi ostaju.';
+  }
+
+  @override
+  String get rolesSettingsStopTrainerTitle => 'Prestati da budete trener?';
+
+  @override
+  String get rolesSettingsTrainer => 'Ja sam trener';
+
+  @override
+  String get rolesSettingsTrainerSubtitle =>
+      'Trenerski alati u početnom meniju';
+
+  @override
+  String get rolesStatusApproved => 'Odobreno';
+
+  @override
+  String get rolesStatusBlocked => 'Blokirano';
+
+  @override
+  String get rolesStatusPending => 'Čeka proveru';
+
+  @override
+  String get rolesStatusRejected => 'Nije odobreno';
+
+  @override
+  String rolesTeamActionsFor(String name) {
+    return 'Radnje za $name';
+  }
+
+  @override
+  String rolesTeamAddRoleSelf(String role) {
+    return 'Dodaj mi i ulogu: $role';
+  }
+
+  @override
+  String get rolesTeamByEmail => 'Putem e-pošte';
+
+  @override
+  String get rolesTeamByEmailHint =>
+      'Za nekoga ko je već na Gym Bro dovoljna je e-pošta. Za novu osobu dodajte i ime i korisničko ime; dobiće e-poruku za pravljenje naloga, a zatim poziv.';
+
+  @override
+  String rolesTeamCancelInvite(String role) {
+    return 'Otkaži poziv: $role';
+  }
+
+  @override
+  String get rolesTeamEmail => 'E-pošta';
+
+  @override
+  String get rolesTeamExplainer =>
+      'Vlasnici i treneri se vide na javnom profilu, osoblje ne. Novi ljudi se pridružuju kada prihvate poziv.';
+
+  @override
+  String get rolesTeamFindPerson => 'Na Gym Bro';
+
+  @override
+  String get rolesTeamFirstName => 'Ime';
+
+  @override
+  String get rolesTeamInvite => 'Pozovi';
+
+  @override
+  String rolesTeamInviteAs(String role) {
+    return 'Pozovi kao: $role';
+  }
+
+  @override
+  String get rolesTeamInviteRole => 'Kao';
+
+  @override
+  String get rolesTeamInviteSent => 'Poziv je poslat';
+
+  @override
+  String rolesTeamInviteTitle(String business) {
+    return 'Poziv u $business';
+  }
+
+  @override
+  String get rolesTeamLastName => 'Prezime';
+
+  @override
+  String get rolesTeamOwnerHint =>
+      'Sve što vlasnik može, uključujući tim, cene i brisanje biznisa.';
+
+  @override
+  String rolesTeamRemoveAs(String role) {
+    return 'Ukloni kao: $role';
+  }
+
+  @override
+  String get rolesTeamRoleAdded => 'Uloga je dodata';
+
+  @override
+  String get rolesTeamSendInvite => 'Pošalji poziv';
+
+  @override
+  String get rolesTeamStaffHint =>
+      'Recepcija i prodavnica: članovi, članarine, fakture, proizvodi, porudžbine i profil. Ne prikazuje se na profilu.';
+
+  @override
+  String rolesTeamStopBeing(String role) {
+    return 'Prestani da budeš: $role';
+  }
+
+  @override
+  String rolesTeamTitle(String business) {
+    return 'Tim · $business';
+  }
+
+  @override
+  String get rolesTeamTrainerHint =>
+      'Drži časove, trenira članove i objavljuje. Na profilu piše \"Trener u\".';
+
+  @override
+  String get rolesTeamUsername => 'Korisničko ime';
+
+  @override
+  String rolesTeamYou(String name) {
+    return '$name (vi)';
+  }
+
+  @override
+  String get rolesVerified => 'Verifikovao Gym Bro';
+
+  @override
   String get settingsLanguage => 'Jezik';
 
   @override
@@ -16919,23 +17822,7 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellActivateInviteTitle => 'Aktiviraj pozivnicu';
 
   @override
-  String get shellAddBusiness => 'Dodaj biznis';
-
-  @override
   String get shellAddUser => 'Dodaj korisnika';
-
-  @override
-  String get shellAdminBusinessesSubtitle =>
-      'Upravljaj teretanama i prodavnicama';
-
-  @override
-  String get shellAdminInvoicesSubtitle => 'Pregled svih faktura za članarine';
-
-  @override
-  String get shellAdminPanel => 'Admin panel';
-
-  @override
-  String get shellAdminUsersSubtitle => 'Upravljaj svim nalozima';
 
   @override
   String get shellAlreadyYourEmail => 'To je već tvoj imejl';
@@ -17005,9 +17892,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellCheckEmailTitle => 'Proveri imejl';
 
   @override
-  String get shellChooseShop => 'Izaberi prodavnicu';
-
-  @override
   String get shellClearSearch => 'Obriši pretragu';
 
   @override
@@ -17066,11 +17950,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   }
 
   @override
-  String shellEditBusiness(String name) {
-    return 'Izmeni $name';
-  }
-
-  @override
   String shellEditUser(String name) {
     return 'Izmeni korisnika $name';
   }
@@ -17102,18 +17981,10 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
       'Prijava preko Google naloga nije podržana na ovom uređaju';
 
   @override
-  String get shellGyms => 'Teretane';
-
-  @override
   String get shellHaveAccountLogIn => 'Već imaš nalog? Prijavi se';
 
   @override
   String get shellHaveInviteCode => 'Imaš kod pozivnice?';
-
-  @override
-  String shellHello(String name) {
-    return 'Zdravo, $name';
-  }
 
   @override
   String get shellHidePassword => 'Sakrij lozinku';
@@ -17163,47 +18034,19 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellHubClassesSubtitle => 'Pregledaj i rezerviši grupne časove';
 
   @override
-  String get shellHubCommunity => 'Zajednica';
-
-  @override
-  String shellHubCommunityOpenFailed(String error) {
-    return 'Zajednica nije mogla da se otvori: $error';
-  }
-
-  @override
-  String get shellHubCommunitySubtitle =>
-      'Objave i obaveštenja iz tvoje teretane';
-
-  @override
   String get shellHubExercises => 'Vežbe';
-
-  @override
-  String get shellHubExercisesSubtitle => 'Pregledaj i uređuj vežbe';
 
   @override
   String get shellHubFoodDiary => 'Dnevnik ishrane';
 
   @override
-  String get shellHubFoodDiarySubtitle => 'Beleži obroke i prati makroe';
-
-  @override
   String get shellHubMealPlans => 'Planovi ishrane';
-
-  @override
-  String get shellHubMealPlansSubtitle => 'Namirnice, recepti i ishrana';
-
-  @override
-  String get shellHubNotLinked =>
-      'Još nisi povezan ni sa jednom teretanom ili prodavnicom';
 
   @override
   String get shellHubProgress => 'Napredak';
 
   @override
   String get shellHubSessions => 'Sesije';
-
-  @override
-  String get shellHubSessionsSubtitle => 'Beleži i pregledaj svoje sesije';
 
   @override
   String get shellHubStore => 'Prodavnica';
@@ -17213,9 +18056,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellHubWorkouts => 'Treninzi';
-
-  @override
-  String get shellHubWorkoutsSubtitle => 'Treninzi i rutine';
 
   @override
   String get shellImageAddPhoto => 'Dodaj fotografiju';
@@ -17311,21 +18151,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellMarkAllRead => 'Označi sve kao pročitano';
 
   @override
-  String shellMemberCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count članova',
-      few: '$count člana',
-      one: '$count član',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get shellMembersYouCoach => 'Članovi koje treniraš';
-
-  @override
   String get shellMuteBilling => 'Plaćanja';
 
   @override
@@ -17414,39 +18239,18 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellNoAccountSignUp => 'Nemaš nalog? Registruj se';
 
   @override
-  String get shellNoBusinesses => 'Još nema biznisa';
-
-  @override
-  String get shellNoCoachedMembers =>
-      'Još nema članova u teretanama u kojima treniraš';
-
-  @override
   String shellNoLongerMember(String name) {
     return '$name više nije član';
-  }
-
-  @override
-  String shellNoMembersMatch(String query) {
-    return 'Nijedan član ne odgovara pretrazi „$query“';
   }
 
   @override
   String get shellNoNotifications => 'Još nema obaveštenja';
 
   @override
-  String get shellNoSessionsToday => 'Danas nemaš treninge';
-
-  @override
   String get shellNoUsers => 'Još nema korisnika';
 
   @override
   String get shellNoUsersFound => 'Nema pronađenih korisnika';
-
-  @override
-  String get shellNotAVendor => 'Još nisi prodavac ni u jednoj prodavnici';
-
-  @override
-  String get shellNotAssignedToGym => 'Još nisi dodeljen nijednoj teretani';
 
   @override
   String get shellNotificationUnread => 'Nepročitano';
@@ -17471,11 +18275,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellOr => 'ili';
-
-  @override
-  String shellOrdersForShop(String shop) {
-    return 'Porudžbine · $shop';
-  }
 
   @override
   String get shellOwnerAllInvoices => 'Sve fakture';
@@ -17518,49 +18317,7 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellResetPasswordTitle => 'Resetovanje lozinke';
 
   @override
-  String get shellRole => 'Uloga';
-
-  @override
-  String get shellRoleEmployee => 'Zaposleni';
-
-  @override
-  String get shellRoleEmployeeTrainer => 'Zaposleni / trener';
-
-  @override
-  String get shellRoleEmployeeTrainerShort => 'Zap. trener';
-
-  @override
-  String get shellRoleGymOwner => 'Vlasnik teretane';
-
-  @override
-  String get shellRoleMember => 'Član';
-
-  @override
-  String get shellRoleOwner => 'Vlasnik';
-
-  @override
-  String get shellRoleShopOwner => 'Vlasnik prodavnice';
-
-  @override
-  String get shellRoleShopVendor => 'Prodavac';
-
-  @override
-  String get shellRoleSuperUser => 'Super korisnik';
-
-  @override
-  String get shellRoleTrainer => 'Trener';
-
-  @override
-  String get shellRoleVendor => 'Prodavac';
-
-  @override
   String get shellSaveChanges => 'Sačuvaj izmene';
-
-  @override
-  String get shellScanCheckIns => 'Skeniraj dolaske';
-
-  @override
-  String get shellSearchMembers => 'Pretraži članove';
 
   @override
   String get shellSendLink => 'Pošalji link';
@@ -17570,11 +18327,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellSendResetLink => 'Pošalji link za resetovanje';
-
-  @override
-  String shellSessionStartedInProgress(String time) {
-    return 'Počeo u $time · u toku';
-  }
 
   @override
   String get shellSetNewPassword => 'Postavi novu lozinku';
@@ -17604,9 +18356,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellSettingsWeight => 'Težina';
-
-  @override
-  String get shellShops => 'Prodavnice';
 
   @override
   String get shellShowMore => 'Prikaži još';
@@ -17698,9 +18447,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellStatsUnpaidInvoices => 'Neplaćene fakture';
 
   @override
-  String get shellTabBusinesses => 'Biznisi';
-
-  @override
   String get shellTabClasses => 'Časovi';
 
   @override
@@ -17716,13 +18462,7 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellTabHome => 'Početna';
 
   @override
-  String get shellTabMembers => 'Članovi';
-
-  @override
   String get shellTabMembership => 'Članarina';
-
-  @override
-  String get shellTabMyShop => 'Moja prodavnica';
 
   @override
   String get shellTabProfile => 'Profil';
@@ -17797,9 +18537,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get shellTimeNow => 'sada';
 
   @override
-  String get shellTodaysSessions => 'Današnji treninzi';
-
-  @override
   String shellTypeToConfirm(String text) {
     return 'Ukucaj $text za potvrdu.';
   }
@@ -17823,17 +18560,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get shellUserSearchHint => 'Pretraži po imenu ili korisničkom imenu';
-
-  @override
-  String shellWelcome(String name) {
-    return 'Dobro došao, $name';
-  }
-
-  @override
-  String get shellYourGym => 'Tvoja teretana';
-
-  @override
-  String get shellYourGyms => 'Tvoje teretane';
 
   @override
   String socialActiveAgo(String when) {
@@ -20204,12 +20930,6 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
 
   @override
   String get trainingSideRight => 'Desna';
-
-  @override
-  String get trainingStaffRoleEmployee => 'Zaposleni';
-
-  @override
-  String get trainingStaffRoleEmployeeTrainer => 'Zaposleni / trener';
 
   @override
   String get trainingStaffRoleTrainer => 'Trener';

@@ -1,6 +1,8 @@
+import 'business.dart';
+
 enum NotificationType {
-  employeeGymInvite('employee_gym_invite'),
-  vendorShopInvite('vendor_shop_invite'),
+  /// Invited to a gym's or shop's team (metadata: business_id, role).
+  businessInvite('business_invite'),
   memberInvite('member_invite'),
   news('news'),
   events('events'),
@@ -13,8 +15,12 @@ enum NotificationType {
   invoiceIssued('invoice_issued'),
   memberSubscriptionExtended('member_subscription_extended'),
   memberJoin('member_join'),
-  employeeJoin('employee_join'),
-  vendorJoin('vendor_join'),
+
+  /// Someone accepted an invite to my business's team.
+  businessJoin('business_join'),
+
+  /// A super user approved, rejected or blocked my business.
+  businessReview('business_review'),
   postComment('post_comment'),
   shiftAssigned('shift_assigned'),
   orderUpdate('order_update'),
@@ -58,10 +64,7 @@ enum NotificationType {
     return null;
   }
 
-  bool get isInvite =>
-      this == employeeGymInvite ||
-      this == vendorShopInvite ||
-      this == memberInvite;
+  bool get isInvite => this == businessInvite || this == memberInvite;
 }
 
 enum InviteStatus { pending, accepted, declined }
@@ -99,9 +102,20 @@ class AppNotification {
 
   String? get gymId => metadata?['gym_id'] as String?;
   String? get shopId => metadata?['shop_id'] as String?;
+
+  /// The business a team invite, join or review is about.
+  String? get businessId =>
+      (metadata?['business_id'] ?? metadata?['gym_id'] ?? metadata?['shop_id'])
+          as String?;
   String? get entityName =>
-      (metadata?['gym_name'] ?? metadata?['shop_name']) as String?;
-  String? get employeeType => metadata?['employee_type'] as String?;
+      (metadata?['business_name'] ??
+              metadata?['gym_name'] ??
+              metadata?['shop_name'])
+          as String?;
+
+  /// The role a team invite offers.
+  BusinessRole? get businessRole =>
+      BusinessRole.tryParse(metadata?['role'] as String?);
 
   factory AppNotification.fromJson(Map<String, dynamic> json) =>
       AppNotification(

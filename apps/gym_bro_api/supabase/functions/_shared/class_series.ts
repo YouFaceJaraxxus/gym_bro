@@ -291,10 +291,7 @@ export async function canInvite(inviterId: string, userId: string, gymId?: strin
         SELECT 1 FROM member m WHERE m.user_id = ${userId} AND m.gym_id IN (
           ${
     gymId ? sql`SELECT ${gymId}::uuid` : sql`
-            SELECT gym_id FROM trainer WHERE user_id = ${inviterId}
-            UNION SELECT gym_id FROM employee_trainer WHERE user_id = ${inviterId}
-            UNION SELECT gym_id FROM employee WHERE user_id = ${inviterId}
-            UNION SELECT gym_id FROM gym_owner WHERE user_id = ${inviterId}`
+            SELECT business_id FROM business_member WHERE user_id = ${inviterId} AND status = 'active'`
   }
         )
       )

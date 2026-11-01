@@ -8,16 +8,11 @@ import type {
 
 // ── Enums ─────────────────────────────────────────────────────────────────────
 
-export type UserRole =
-  | "owner"
-  | "trainer"
-  | "employee"
-  | "employee_trainer"
-  | "member"
-  | "super_user"
-  | "shop_vendor";
+export type BusinessStatus = "pending" | "approved" | "rejected" | "blocked";
 
-export type BusinessType = "gym" | "shop";
+export type BusinessRole = "owner" | "staff" | "trainer";
+
+export type BusinessMemberStatus = "invited" | "active";
 
 export type InvoiceStatus = "unpaid" | "paid" | "void";
 
@@ -80,7 +75,10 @@ export type NotificationType =
   | "mention"
   | "photo_tag"
   | "story_reaction"
-  | "story_mention";
+  | "story_mention"
+  | "business_invite"
+  | "business_join"
+  | "business_review";
 
 export type ReactionType =
   | "like"
@@ -199,7 +197,9 @@ export interface UsersTable {
   password: ColumnType<string, string | undefined, string>;
   name: string;
   last_name: string;
-  role: Generated<UserRole>; // DB default: 'member'
+  is_super_user: Generated<boolean>;
+  // Switched on by the user (or by accepting a gym's trainer invite).
+  is_trainer: Generated<boolean>;
   avatar_url: string | null;
   // Links to auth.users. Null for rows created outside the auth flow.
   auth_id: ColumnType<string | null, string | null | undefined, string | null>;
@@ -229,60 +229,44 @@ export interface BusinessTable {
   working_hours_from: string; // TIME as HH:MM:SS string
   working_hours_to: string;
   working_weekdays: number[]; // ISO weekday ints 1–7
-  type: BusinessType;
   latitude: Generated<number | null>;
   longitude: Generated<number | null>;
+  // A business is a gym, a shop or both (at least one).
+  has_gym: Generated<boolean>;
+  has_shop: Generated<boolean>;
+  // Owner tools only work once a super user approves it.
+  status: Generated<BusinessStatus>;
+  review_note: Generated<string | null>;
+  reviewed_by: Generated<string | null>;
+  reviewed_at: Generated<string | null>;
+  bio: Generated<string | null>;
+  website: Generated<string | null>;
+  phone: Generated<string | null>;
+  created_by: Generated<string | null>;
+  created_at: Generated<string>;
 }
 
-export interface GymTable {
-  id: string; // FK → business.id (also PK)
-}
-
-export interface ShopTable {
-  id: string; // FK → business.id (also PK)
-}
-
-export interface TrainerTable {
-  id: Generated<string>;
+// What someone is at a business. Invited until they accept.
+export interface BusinessMemberTable {
+  business_id: string;
   user_id: string;
-  gym_id: string;
+  role: BusinessRole;
+  status: Generated<BusinessMemberStatus>;
+  invited_by: string | null;
+  created_at: Generated<string>;
+  joined_at: Generated<string | null>;
+}
+
+export interface BusinessFollowTable {
+  user_id: string;
+  business_id: string;
+  created_at: Generated<string>;
 }
 
 export interface MemberTable {
   id: Generated<string>;
   user_id: string;
   gym_id: string;
-}
-
-export interface EmployeeTable {
-  id: Generated<string>;
-  user_id: string;
-  gym_id: string;
-}
-
-export interface EmployeeTrainerTable {
-  id: Generated<string>;
-  user_id: string;
-  gym_id: string;
-  trainer_id: string | null; // FK → trainer.id
-}
-
-export interface GymOwnerTable {
-  id: Generated<string>;
-  user_id: string;
-  gym_id: string;
-}
-
-export interface ShopOwnerTable {
-  id: Generated<string>;
-  user_id: string;
-  shop_id: string;
-}
-
-export interface ShopVendorTable {
-  id: Generated<string>;
-  user_id: string;
-  shop_id: string;
 }
 
 export interface GymMembershipTypeTable {
@@ -733,7 +717,6 @@ export interface PostImageTable {
 }
 
 // ── Database ──────────────────────────────────────────────────────────────────
-
 
 // ── 000012: product features ──────────────────────────────────────────────────
 
@@ -1254,15 +1237,9 @@ export interface UserNoteTable {
 export interface Database {
   users: UsersTable;
   business: BusinessTable;
-  gym: GymTable;
-  shop: ShopTable;
-  trainer: TrainerTable;
+  business_member: BusinessMemberTable;
+  business_follow: BusinessFollowTable;
   member: MemberTable;
-  employee: EmployeeTable;
-  employee_trainer: EmployeeTrainerTable;
-  gym_owner: GymOwnerTable;
-  shop_owner: ShopOwnerTable;
-  shop_vendor: ShopVendorTable;
   gym_membership_type: GymMembershipTypeTable;
   membership: MembershipTable;
   membership_invoice: MembershipInvoiceTable;
@@ -1357,41 +1334,12 @@ export type Business = Selectable<BusinessTable>;
 export type BusinessInsert = Insertable<BusinessTable>;
 export type BusinessUpdate = Updateable<BusinessTable>;
 
-export type Gym = Selectable<GymTable>;
-export type GymInsert = Insertable<GymTable>;
-export type GymUpdate = Updateable<GymTable>;
-
-export type Shop = Selectable<ShopTable>;
-export type ShopInsert = Insertable<ShopTable>;
-export type ShopUpdate = Updateable<ShopTable>;
-
-export type Trainer = Selectable<TrainerTable>;
-export type TrainerInsert = Insertable<TrainerTable>;
-export type TrainerUpdate = Updateable<TrainerTable>;
+export type BusinessMember = Selectable<BusinessMemberTable>;
+export type BusinessMemberInsert = Insertable<BusinessMemberTable>;
 
 export type Member = Selectable<MemberTable>;
 export type MemberInsert = Insertable<MemberTable>;
 export type MemberUpdate = Updateable<MemberTable>;
-
-export type Employee = Selectable<EmployeeTable>;
-export type EmployeeInsert = Insertable<EmployeeTable>;
-export type EmployeeUpdate = Updateable<EmployeeTable>;
-
-export type EmployeeTrainer = Selectable<EmployeeTrainerTable>;
-export type EmployeeTrainerInsert = Insertable<EmployeeTrainerTable>;
-export type EmployeeTrainerUpdate = Updateable<EmployeeTrainerTable>;
-
-export type GymOwner = Selectable<GymOwnerTable>;
-export type GymOwnerInsert = Insertable<GymOwnerTable>;
-export type GymOwnerUpdate = Updateable<GymOwnerTable>;
-
-export type ShopOwner = Selectable<ShopOwnerTable>;
-export type ShopOwnerInsert = Insertable<ShopOwnerTable>;
-export type ShopOwnerUpdate = Updateable<ShopOwnerTable>;
-
-export type ShopVendor = Selectable<ShopVendorTable>;
-export type ShopVendorInsert = Insertable<ShopVendorTable>;
-export type ShopVendorUpdate = Updateable<ShopVendorTable>;
 
 export type GymMembershipType = Selectable<GymMembershipTypeTable>;
 export type GymMembershipTypeInsert = Insertable<GymMembershipTypeTable>;

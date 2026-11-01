@@ -4,7 +4,6 @@ import '../l10n/l10n.dart';
 import '../models/coaching.dart';
 import '../models/meal_plan.dart';
 import '../models/training_session.dart';
-import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/meal_plan_assign.dart';
@@ -309,7 +308,7 @@ class _MemberProgressPageState extends State<MemberProgressPage> {
       ];
     }
     final me = AuthManager.instance.profile;
-    final isSuper = me?.role == UserRole.superUser;
+    final isSuper = me?.isSuperUser ?? false;
     return [
       ..._routines.map((a) {
         final byMe = me != null && a.assignedById == me.id;
@@ -406,7 +405,7 @@ class _MemberProgressPageState extends State<MemberProgressPage> {
       ];
     }
     final me = AuthManager.instance.profile;
-    final isSuper = me?.role == UserRole.superUser;
+    final isSuper = me?.isSuperUser ?? false;
     return _assignments.map((a) {
       final byMe = me != null && a.assignedById == me.id;
       return AssignmentCard(

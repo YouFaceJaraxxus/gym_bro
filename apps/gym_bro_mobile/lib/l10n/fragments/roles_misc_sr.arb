@@ -1,0 +1,14 @@
+{
+  "rolesMiscSuperUser": "Super korisnik",
+  "rolesMiscSuperUserHint": "Odobrava biznise i upravlja korisnicima",
+  "rolesMiscTrainer": "Trener",
+  "rolesMiscTrainerAt": "Trener u",
+  "rolesMiscOwnerOf": "Vlasnik:",
+  "rolesMiscOwner": "Vlasnik",
+  "rolesMiscStaff": "Osoblje",
+  "rolesMiscMember": "Član",
+  "rolesMiscTeam": "Tim",
+  "rolesMiscTeamHint": "Vlasnici, osoblje i treneri, i otvorene pozivnice",
+  "rolesMiscManageTeam": "Upravljaj timom",
+  "rolesMiscTeamCount": "{count, plural, =1{1 član tima} few{{count} člana tima} other{{count} članova tima}}"
+}

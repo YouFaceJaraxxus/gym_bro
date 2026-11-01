@@ -71,18 +71,6 @@ export function pushOnly(userIds: string[], n: NotificationInput): void {
   schedulePush(unique.map((user_id) => ({ id: "", user_id })), n);
 }
 
-/** User ids of everyone who owns the gym. */
-export async function gymOwnerIds(gymId: string): Promise<string[]> {
-  const rows = await db.selectFrom("gym_owner").select("user_id").where("gym_id", "=", gymId).execute();
-  return rows.map((r) => r.user_id);
-}
-
-/** User ids of everyone who owns the shop. */
-export async function shopOwnerIds(shopId: string): Promise<string[]> {
-  const rows = await db.selectFrom("shop_owner").select("user_id").where("shop_id", "=", shopId).execute();
-  return rows.map((r) => r.user_id);
-}
-
 export async function businessName(businessId: string): Promise<string> {
   const row = await db.selectFrom("business").select("name").where("id", "=", businessId).executeTakeFirst();
   return row?.name ?? "the business";

@@ -1,6 +1,7 @@
 import { type Kysely, type RawBuilder, sql } from "npm:kysely@^0.27";
 import { db } from "../_shared/config.ts";
 import { canCoachAtGym, canManageGym, forbidden, json, jsonError, requireCaller } from "../_shared/auth.ts";
+import { teamBusinessIdsSql } from "../_shared/business.ts";
 import { notify } from "../_shared/notify.ts";
 import type { Database } from "../../types/schema/public.ts";
 
@@ -50,12 +51,10 @@ function startOfWeekUtc(now = new Date()): Date {
   return new Date(d.getTime() - dow * DAY_MS);
 }
 
-/** True when the user works at the gym as an employee, employee-trainer or trainer. */
+/** True when the user works at the gym as staff or a trainer. */
 async function isGymStaff(userId: string, gymId: string): Promise<boolean> {
-  const { rows } = await sql<{ ok: number }>`
-    SELECT 1 AS ok FROM employee WHERE user_id = ${userId} AND gym_id = ${gymId}
-    UNION SELECT 1 FROM employee_trainer WHERE user_id = ${userId} AND gym_id = ${gymId}
-    UNION SELECT 1 FROM trainer WHERE user_id = ${userId} AND gym_id = ${gymId}
+  const { rows } = await sql<{ business_id: string }>`
+    SELECT business_id FROM (${teamBusinessIdsSql(userId, ["staff", "trainer"])}) t WHERE business_id = ${gymId}
   `.execute(db);
   return rows.length > 0;
 }
@@ -161,9 +160,8 @@ async function handler(req: Request): Promise<Response> {
       SELECT u.id AS user_id, u.name, u.last_name, u.avatar_url,
         ARRAY_AGG(DISTINCT r.role ORDER BY r.role) AS roles
       FROM (
-        SELECT user_id, 'employee' AS role FROM employee WHERE gym_id = ${gymId}
-        UNION ALL SELECT user_id, 'employee_trainer' FROM employee_trainer WHERE gym_id = ${gymId}
-        UNION ALL SELECT user_id, 'trainer' FROM trainer WHERE gym_id = ${gymId}
+        SELECT user_id, role::text AS role FROM business_member
+        WHERE business_id = ${gymId} AND status = 'active' AND role IN ('staff', 'trainer')
       ) r
       JOIN users u ON u.id = r.user_id
       GROUP BY u.id

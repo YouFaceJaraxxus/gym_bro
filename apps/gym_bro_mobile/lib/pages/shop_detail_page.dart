@@ -2,31 +2,26 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../models/payment.dart';
 import '../models/shop_item.dart';
-import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import 'business/business_team_page.dart';
 import 'posts_page.dart';
 import 'shop/order_widgets.dart' show PaymentsConfigCache;
 import 'shop/shop_orders_page.dart';
 import 'shop_item_form_page.dart';
-import 'shop_vendors_page.dart';
 
 class ShopDetailPage extends StatefulWidget {
   const ShopDetailPage({
     super.key,
     required this.shopId,
     required this.shopName,
-    this.vendorMode = false,
     this.embedded = false,
   });
 
   final String shopId;
   final String shopName;
 
-  /// Shop vendors can add/edit/delete items but cannot manage vendors.
-  final bool vendorMode;
-
-  /// Rendered inside another Scaffold (e.g. the vendor's "My Shop" tab):
+  /// Rendered inside another Scaffold (e.g. a business dashboard tab):
   /// no app bar; the shop name and Posts action move into the content.
   final bool embedded;
 
@@ -37,7 +32,6 @@ class ShopDetailPage extends StatefulWidget {
 class _ShopDetailPageState extends State<ShopDetailPage> {
   final _api = ApiService();
   List<ShopItem> _items = [];
-  List<UserProfile> _vendors = [];
   String _currency = PaymentsConfigCache.current.currency;
   bool _loading = true;
   String? _error;
@@ -57,16 +51,12 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
       final token = await AuthManager.instance.getValidToken();
       final results = await Future.wait([
         _api.getShopItems(token, shopId: widget.shopId),
-        _api.getShopVendors(token, shopId: widget.shopId),
         PaymentsConfigCache.get(_api, token),
       ]);
       if (mounted) {
         setState(() {
-          _currency = (results[2] as PaymentsConfig).currency;
+          _currency = (results[1] as PaymentsConfig).currency;
           _items = results[0] as List<ShopItem>;
-          _vendors = (results[1] as List<Map<String, dynamic>>)
-              .map((r) => UserProfile.fromJson(r))
-              .toList();
           _loading = false;
         });
       }
@@ -246,80 +236,33 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
                 onTap: _openOrders,
               ),
             ),
-            // ── Staff / Vendors section ───────────────────────────────────
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  l10n.businessMgmtStaffVendors,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                if (!widget.vendorMode)
-                  TextButton.icon(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ShopVendorsPage(
-                            shopId: widget.shopId,
-                            shopName: widget.shopName,
-                          ),
-                        ),
-                      );
-                      _load();
-                    },
-                    icon: const Icon(Icons.open_in_new, size: 16),
-                    label: Text(l10n.businessMgmtManage),
+            // ── Team ──────────────────────────────────────────────────────
+            Card(
+              margin: const EdgeInsets.only(bottom: 20),
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.secondaryContainer,
+                  child: Icon(
+                    Icons.badge_outlined,
+                    color: Theme.of(context).colorScheme.onSecondaryContainer,
                   ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            if (_vendors.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.storefront_outlined,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      l10n.businessMgmtNoVendorsYet,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                    ),
-                  ],
                 ),
-              )
-            else
-              for (final v in _vendors.take(5))
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: ExcludeSemantics(
-                    child: CircleAvatar(
-                      child: Text(
-                        v.name.isNotEmpty ? v.name[0].toUpperCase() : '?',
-                      ),
+                title: Text(l10n.rolesMiscTeam),
+                subtitle: Text(l10n.rolesMiscTeamHint),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BusinessTeamPage(
+                      businessId: widget.shopId,
+                      businessName: widget.shopName,
                     ),
-                  ),
-                  title: Text(v.fullName),
-                  subtitle: Text(v.email),
-                ),
-            if (_vendors.length > 5)
-              Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  l10n.businessMgmtMoreCount(_vendors.length - 5),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
-
-            const SizedBox(height: 24),
+            ),
 
             // ── Items section ─────────────────────────────────────────────
             Text(

@@ -1,5 +1,8 @@
 import type { User } from "jsr:@supabase/supabase-js@2";
 import { db, supabaseAdmin } from "./config.ts";
+import type { BusinessRole } from "../../types/schema/public.ts";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // ── Responses ─────────────────────────────────────────────────────────────────
 
@@ -26,7 +29,8 @@ export async function requireAuth(req: Request): Promise<{ user: User | null; er
 export type Caller = {
   authUser: User;
   id: string; // public.users.id
-  role: string;
+  is_super_user: boolean;
+  is_trainer: boolean;
   name: string;
   last_name: string;
   email: string;
@@ -43,93 +47,119 @@ export async function requireCaller(
   if (!user) return { response: jsonError(error ?? "Unauthorized", 401) };
   const profile = await db
     .selectFrom("users")
-    .select(["id", "role", "name", "last_name", "email"])
+    .select(["id", "is_super_user", "is_trainer", "name", "last_name", "email"])
     .where("auth_id", "=", user.id)
     .executeTakeFirst();
   if (!profile) return { response: jsonError("Profile not found", 404) };
   return { caller: { authUser: user, ...profile } };
 }
 
-export function isSuperUser(caller: Pick<Caller, "role">): boolean {
-  return caller.role === "super_user";
+export function isSuperUser(caller: Pick<Caller, "is_super_user">): boolean {
+  return caller.is_super_user;
 }
 
 export const forbidden = (message = "You don't have permission to do this") => jsonError(message, 403);
 
 // ── Business permissions ──────────────────────────────────────────────────────
-// Per-business roles live in the join tables; users.role is only trusted for
-// super_user. gym.id and shop.id are the same UUID as business.id.
+// What someone may do at a business comes from their active business_member
+// rows, and only while the business is approved:
+// * owner:   everything (team, pricing, gym/shop sides, deleting it)
+// * staff:   profile, posts, members, memberships and billing, shop items and orders
+// * trainer: posts, the classes they teach, coaching the gym's members
+// gym_id / shop_id columns hold business ids. A gym check also needs has_gym,
+// a shop check has_shop.
 
-async function hasRow(
-  table: "gym_owner" | "employee" | "employee_trainer" | "trainer" | "member",
-  userId: string,
-  gymId: string,
+type Side = "gym" | "shop" | "any";
+
+async function hasBusinessRole(
+  caller: Caller,
+  businessId: string,
+  roles: BusinessRole[],
+  side: Side,
 ): Promise<boolean> {
+  if (isSuperUser(caller)) return true;
+  if (!UUID_RE.test(businessId)) return false;
   const row = await db
-    .selectFrom(table)
-    .select("id")
-    .where("user_id", "=", userId)
-    .where("gym_id", "=", gymId)
+    .selectFrom("business_member as m")
+    .innerJoin("business as b", "b.id", "m.business_id")
+    .select("m.role")
+    .where("m.user_id", "=", caller.id)
+    .where("m.business_id", "=", businessId)
+    .where("m.status", "=", "active")
+    .where("m.role", "in", roles)
+    .where("b.status", "=", "approved")
+    .$if(side === "gym", (q) => q.where("b.has_gym", "=", true))
+    .$if(side === "shop", (q) => q.where("b.has_shop", "=", true))
     .executeTakeFirst();
   return !!row;
 }
 
-/** Owner of the gym, or super user. Can manage staff, pricing and the business itself. */
-export async function canManageGym(caller: Caller, gymId: string): Promise<boolean> {
-  if (isSuperUser(caller)) return true;
-  return await hasRow("gym_owner", caller.id, gymId);
+/** Owner of the business (gym or shop), or super user. Team, sides, deleting it. */
+export function canManageBusiness(caller: Caller, businessId: string): Promise<boolean> {
+  return hasBusinessRole(caller, businessId, ["owner"], "any");
 }
 
-/** Owner, employee or employee-trainer at the gym. Front-desk work: members, memberships, invoices. */
-export async function canStaffGym(caller: Caller, gymId: string): Promise<boolean> {
-  if (await canManageGym(caller, gymId)) return true;
-  return (await hasRow("employee", caller.id, gymId)) ||
-    (await hasRow("employee_trainer", caller.id, gymId));
+/**
+ * Owner or staff: may edit the business profile. An owner may also while it
+ * is pending or rejected (to fix it before review), but not once blocked.
+ */
+export async function canEditBusinessProfile(caller: Caller, businessId: string): Promise<boolean> {
+  if (await hasBusinessRole(caller, businessId, ["owner", "staff"], "any")) return true;
+  if (!UUID_RE.test(businessId)) return false;
+  const row = await db
+    .selectFrom("business_member as m")
+    .innerJoin("business as b", "b.id", "m.business_id")
+    .select("m.role")
+    .where("m.user_id", "=", caller.id)
+    .where("m.business_id", "=", businessId)
+    .where("m.status", "=", "active")
+    .where("m.role", "=", "owner")
+    .where("b.status", "in", ["pending", "rejected"])
+    .executeTakeFirst();
+  return !!row;
 }
 
-/** Anyone who coaches at the gym: trainers and employee-trainers, plus front-desk staff. */
-export async function canCoachAtGym(caller: Caller, gymId: string): Promise<boolean> {
-  if (await canStaffGym(caller, gymId)) return true;
-  return hasRow("trainer", caller.id, gymId);
+/** Anyone on the team (owner, staff, trainer): may post as the business. */
+export function canPostAsBusiness(caller: Caller, businessId: string): Promise<boolean> {
+  return hasBusinessRole(caller, businessId, ["owner", "staff", "trainer"], "any");
 }
 
-/** Gyms where the caller is owner, employee or employee-trainer (a subquery). */
+/** Owner of the gym, or super user. Pricing (membership types) and shifts. */
+export function canManageGym(caller: Caller, gymId: string): Promise<boolean> {
+  return hasBusinessRole(caller, gymId, ["owner"], "gym");
+}
+
+/** Owner or staff at the gym. Front-desk work: members, memberships, invoices, check-ins. */
+export function canStaffGym(caller: Caller, gymId: string): Promise<boolean> {
+  return hasBusinessRole(caller, gymId, ["owner", "staff"], "gym");
+}
+
+/** Anyone who works at the gym, trainers included: classes and coaching its members. */
+export function canCoachAtGym(caller: Caller, gymId: string): Promise<boolean> {
+  return hasBusinessRole(caller, gymId, ["owner", "staff", "trainer"], "gym");
+}
+
+/** Gyms where the caller is owner or staff (a subquery of business ids). */
 export function staffedGymIds(caller: Caller) {
   return db
-    .selectFrom("gym_owner")
-    .select("gym_id")
-    .where("user_id", "=", caller.id)
-    .union(db.selectFrom("employee").select("gym_id").where("user_id", "=", caller.id))
-    .union(db.selectFrom("employee_trainer").select("gym_id").where("user_id", "=", caller.id));
+    .selectFrom("business_member as m")
+    .innerJoin("business as b", "b.id", "m.business_id")
+    .select("m.business_id as gym_id")
+    .where("m.user_id", "=", caller.id)
+    .where("m.status", "=", "active")
+    .where("m.role", "in", ["owner", "staff"])
+    .where("b.status", "=", "approved")
+    .where("b.has_gym", "=", true);
 }
 
 /** Owner of the shop, or super user. */
-export async function canManageShop(caller: Caller, shopId: string): Promise<boolean> {
-  if (isSuperUser(caller)) return true;
-  const row = await db
-    .selectFrom("shop_owner")
-    .select("id")
-    .where("user_id", "=", caller.id)
-    .where("shop_id", "=", shopId)
-    .executeTakeFirst();
-  return !!row;
+export function canManageShop(caller: Caller, shopId: string): Promise<boolean> {
+  return hasBusinessRole(caller, shopId, ["owner"], "shop");
 }
 
-/** Shop owner or vendor. Can manage the shop's items. */
-export async function canStaffShop(caller: Caller, shopId: string): Promise<boolean> {
-  if (await canManageShop(caller, shopId)) return true;
-  const row = await db
-    .selectFrom("shop_vendor")
-    .select("id")
-    .where("user_id", "=", caller.id)
-    .where("shop_id", "=", shopId)
-    .executeTakeFirst();
-  return !!row;
-}
-
-/** Owner of the business (gym or shop), or super user. */
-export async function canManageBusiness(caller: Caller, businessId: string): Promise<boolean> {
-  return (await canManageGym(caller, businessId)) || (await canManageShop(caller, businessId));
+/** Shop owner or staff. Items and orders. */
+export function canStaffShop(caller: Caller, shopId: string): Promise<boolean> {
+  return hasBusinessRole(caller, shopId, ["owner", "staff"], "shop");
 }
 
 /** The gym a membership type belongs to. */
@@ -154,16 +184,18 @@ export async function gymIdForMembership(membershipId: string): Promise<string |
 }
 
 /**
- * True when the caller coaches or staffs at any gym where `userId` is a member.
- * Used for trainer access to a client's sessions and meal plans.
+ * True when the caller coaches or staffs at any gym where `userId` is a member,
+ * or is a trainer `userId` accepted as theirs. Used for trainer access to a
+ * client's sessions and meal plans.
  */
 export async function coachesUser(caller: Caller, userId: string): Promise<boolean> {
   if (isSuperUser(caller)) return true;
-  // Customers who accepted the caller as their trainer.
-  const customer = await db.selectFrom("trainer_customer").select("user_id")
-    .where("trainer_id", "=", caller.id).where("user_id", "=", userId).where("status", "=", "accepted")
-    .executeTakeFirst();
-  if (customer) return true;
+  if (caller.is_trainer) {
+    const customer = await db.selectFrom("trainer_customer").select("user_id")
+      .where("trainer_id", "=", caller.id).where("user_id", "=", userId).where("status", "=", "accepted")
+      .executeTakeFirst();
+    if (customer) return true;
+  }
   const gyms = await db
     .selectFrom("member")
     .select("gym_id")
@@ -182,18 +214,20 @@ export function canEditAuthored(caller: Caller, authorId: string | null): boolea
 }
 
 /**
- * True when the caller owns or staffs at least one gym or shop (or is a super
- * user). Gates user lookup endpoints that expose emails.
+ * True when the caller is on the team of at least one approved gym or shop
+ * (or is a super user). Gates user lookup endpoints that expose emails.
  */
 export async function staffsAnyBusiness(caller: Caller): Promise<boolean> {
   if (isSuperUser(caller)) return true;
-  for (
-    const table of ["gym_owner", "employee", "employee_trainer", "trainer", "shop_owner", "shop_vendor"] as const
-  ) {
-    const row = await db.selectFrom(table).select("id").where("user_id", "=", caller.id).executeTakeFirst();
-    if (row) return true;
-  }
-  return false;
+  const row = await db
+    .selectFrom("business_member as m")
+    .innerJoin("business as b", "b.id", "m.business_id")
+    .select("m.role")
+    .where("m.user_id", "=", caller.id)
+    .where("m.status", "=", "active")
+    .where("b.status", "=", "approved")
+    .executeTakeFirst();
+  return !!row;
 }
 
 /**

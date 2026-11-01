@@ -4,7 +4,6 @@ import '../l10n/l10n.dart';
 import '../models/coaching.dart';
 import '../models/training.dart';
 import '../models/training_session.dart';
-import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../services/settings_service.dart';
@@ -333,6 +332,9 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
     final session = _session!;
     final profile = AuthManager.instance.profile;
     final isOwner = profile != null && profile.id == session.userId;
+    // The trainer who ran it edits it too (shared as a post: the athlete only).
+    final canEdit = isOwner ||
+        (profile != null && profile.isTrainer && session.trainerId == profile.id);
 
     return PopScope(
       canPop: false,
@@ -344,7 +346,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
           title: Text(l10n.trainingSessionDetailTitle),
           actions: [
             if (isOwner && !session.isActive) SharePostButton(target: workoutShareTarget(session)),
-            if (isOwner)
+            if (canEdit)
               IconButton(
                 tooltip: l10n.trainingSessionDeleteTooltip,
                 icon: const Icon(Icons.delete_outline),
@@ -417,7 +419,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                if (isOwner)
+                if (canEdit)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Text(
@@ -436,8 +438,8 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
                   return _SetLogCard(
                     title: title,
                     setLog: setLog,
-                    onEdit: isOwner ? () => _editSet(setLog, title) : null,
-                    onDelete: isOwner ? () => _deleteSet(setLog) : null,
+                    onEdit: canEdit ? () => _editSet(setLog, title) : null,
+                    onDelete: canEdit ? () => _deleteSet(setLog) : null,
                   );
                 }),
               ],
@@ -455,7 +457,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> {
     final text = Theme.of(context).textTheme;
     final count = _commentsLoading && _comments.isEmpty ? session.commentCount : _comments.length;
     final me = AuthManager.instance.profile;
-    final isSuper = me?.role == UserRole.superUser;
+    final isSuper = me?.isSuperUser ?? false;
     final l10n = context.l10n;
     return [
       Row(

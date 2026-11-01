@@ -30,7 +30,11 @@ class LogWorkoutPage extends StatefulWidget {
     this.planEntryId,
     this.initialTrainingId,
     this.initialMinutes,
+    this.clientId,
   });
+
+  /// A trainer logging a session for someone they coach.
+  final String? clientId;
 
   final DateTime start;
   final String? planEntryId;
@@ -210,6 +214,7 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
     return {
       'training_id': _training?.id,
       'plan_entry_id': ?widget.planEntryId,
+      'user_id': ?widget.clientId,
       'started_at': _start.toUtc().toIso8601String(),
       'ended_at': _start.add(Duration(minutes: _minutes)).toUtc().toIso8601String(),
       'notes': notes.isEmpty ? null : notes,

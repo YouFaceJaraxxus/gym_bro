@@ -40,7 +40,6 @@
     }
   },
   "planScheduleEmptyDay": "Nothing on this day. Tap an hour to log a workout or a meal.",
-  "planScheduleHubSubtitle": "Your classes, workouts and meals",
   "planLogWorkout": "Log workout",
   "planLogWorkoutHint": "Exercises, sets and weights",
   "planLogMeal": "Log meal",

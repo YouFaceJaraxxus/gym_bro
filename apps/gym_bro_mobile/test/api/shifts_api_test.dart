@@ -1,4 +1,6 @@
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_bro_mobile/l10n/app_localizations.dart';
 import 'package:gym_bro_mobile/services/api_service.dart';
 import 'package:http/http.dart' as http;
 
@@ -149,14 +151,14 @@ void main() {
               'name': 'Aisha',
               'last_name': 'Mohammed',
               'avatar_url': 'https://api.dicebear.com/9.x/avataaars/png?seed=aishamohammed&size=256',
-              'roles': ['employee_trainer'],
+              'roles': ['trainer'],
             },
             {
               'user_id': 'u-priya',
               'name': 'Priya',
               'last_name': 'Nair',
               'avatar_url': null,
-              'roles': ['employee', 'trainer'],
+              'roles': ['staff', 'trainer'],
             },
           ],
         }),
@@ -177,9 +179,12 @@ void main() {
       expect(s.staff[0].lastName, 'Mohammed');
       expect(s.staff[0].fullName, 'Aisha Mohammed');
       expect(s.staff[0].avatarUrl, startsWith('https://api.dicebear.com/'));
-      expect(s.staff[0].roles, ['employee_trainer']);
+      expect(s.staff[0].roles, ['trainer']);
       expect(s.staff[1].avatarUrl, isNull);
-      expect(s.staff[1].roles, ['employee', 'trainer']);
+      expect(s.staff[1].roles, ['staff', 'trainer']);
+      final en = lookupAppLocalizations(const Locale('en'));
+      expect(s.staff[0].roleLabel(en), 'Trainer');
+      expect(s.staff[1].roleLabel(en), 'Staff, Trainer');
     });
 
     test('a viewer (can_manage false) parses', () async {

@@ -104,8 +104,9 @@ class MentionSuggestion {
   /// People only.
   final String? username;
 
-  /// Businesses only: 'gym' or 'shop'.
-  final String? businessType;
+  /// Businesses only: which sides it has (a business can be both).
+  final bool hasGym;
+  final bool hasShop;
 
   const MentionSuggestion({
     required this.kind,
@@ -114,8 +115,12 @@ class MentionSuggestion {
     this.subtitle,
     this.imageUrl,
     this.username,
-    this.businessType,
+    this.hasGym = false,
+    this.hasShop = false,
   });
+
+  /// A business with only a shop side (shown as a shop, not a gym).
+  bool get isShopOnly => hasShop && !hasGym;
 
   Mention get mention => Mention(kind: kind, id: id, label: label);
 
@@ -132,7 +137,8 @@ class MentionSuggestion {
       subtitle: json['subtitle'] as String?,
       imageUrl: json['image_url'] as String?,
       username: username,
-      businessType: json['business_type'] as String?,
+      hasGym: json['has_gym'] as bool? ?? false,
+      hasShop: json['has_shop'] as bool? ?? false,
     );
   }
 }

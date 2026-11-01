@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../models/meal_plan.dart';
-import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
 import '../widgets/meal_plan_assign.dart';
@@ -174,14 +173,14 @@ class _MealPlanDetailPageState extends State<MealPlanDetailPage> {
 
     final plan = _plan!;
     final profile = AuthManager.instance.profile;
-    final isSuper = profile?.role == UserRole.superUser;
+    final isSuper = profile?.isSuperUser ?? false;
     final isAuthor =
         profile != null && plan.authorId != null && profile.id == plan.authorId;
     final canEdit = isSuper || (isAuthor && !plan.isSystem);
     // Anyone can start a public plan (or their own) themselves; coaches can
     // also assign it to members they coach.
     final canEnrol = plan.isPublic || isAuthor || isSuper;
-    final canAssign = canEnrol && isCoachRole(profile?.role);
+    final canAssign = canEnrol && canCoach(profile);
 
     final plannedDays = plan.days.where((d) => d.dailyMealPlan != null).toList();
     double avg(double Function(DailyMealPlan d) f) => plannedDays.isEmpty

@@ -14,7 +14,7 @@ Deno.test({
     const trainer = await signin("elena.vasquez@example.com");
 
     const ownerBiz = await call("GET", "/businesses", owner.token);
-    const gym = (ownerBiz.data as any[]).find((b) => b.type === "gym");
+    const gym = (ownerBiz.data as any[]).find((b) => b.has_gym);
     check("owner lists own businesses", ownerBiz.status === 200 && !!gym, `status ${ownerBiz.status}`);
     assertAll();
 
@@ -29,14 +29,29 @@ Deno.test({
     });
 
     await t.step("2. self-assigned super user", async () => {
+      const stamp = Date.now();
       const selfRole = await call("POST", "/users/signup", undefined, {
-        email: `smoke-${Date.now()}@example.com`, password: "secret123", username: `smoke${Date.now()}`, name: "S", last_name: "T", role: "super_user",
+        email: `smoke-${stamp}@example.com`, password: "secret123", username: `smoke${stamp}`, name: "S", last_name: "T",
+        role: "super_user", is_super_user: true, is_trainer: true,
       });
-      check("signup with role is refused without a super user token", selfRole.status === 403, `status ${selfRole.status}`);
+      try {
+        check(
+          "signup ignores role / is_super_user / is_trainer",
+          selfRole.status === 201 && selfRole.data.user?.is_super_user === false && selfRole.data.user?.is_trainer === false,
+          `status ${selfRole.status} ${short(selfRole.data?.user)}`,
+        );
+      } finally {
+        if (selfRole.data?.user?.id) {
+          const superU = await signin("chloe.anderson@example.com");
+          await call("DELETE", `/users/${selfRole.data.user.id}`, superU.token);
+        }
+      }
       const putOther = await call("PUT", `/users/${owner.profile.id}`, member.token, { name: "pwned" });
       check("member can't edit another user", putOther.status === 403, `status ${putOther.status}`);
-      const putRole = await call("PUT", `/users/${member.profile.id}`, member.token, { role: "super_user" });
-      check("member can't change own role", putRole.status === 403, `status ${putRole.status}`);
+      const putRole = await call("PUT", `/users/${member.profile.id}`, member.token, { is_super_user: true });
+      check("member can't make themselves a super user", putRole.status === 403, `status ${putRole.status}`);
+      const putTrainer = await call("PUT", `/users/${member.profile.id}`, member.token, { is_trainer: true });
+      check("is_trainer isn't set through PUT /users/:id", putTrainer.status === 403, `status ${putTrainer.status}`);
       const putSelf = await call("PUT", `/users/${member.profile.id}`, member.token, { name: member.profile.name });
       check("member can edit own name", putSelf.status === 200, `status ${putSelf.status}`);
       const delOther = await call("DELETE", `/users/${owner.profile.id}`, member.token);
@@ -57,12 +72,16 @@ Deno.test({
     await t.step("4. ownership checks", async () => {
       const bizPut = await call("PUT", `/businesses/${gym.id}`, member.token, { name: "pwned gym" });
       check("member can't edit a gym", bizPut.status === 403, `status ${bizPut.status}`);
-      const ownerGrant = await call("POST", "/gym-owners", member.token, { user_id: member.profile.id, gym_id: gym.id });
-      check("member can't make themselves gym owner", ownerGrant.status === 403, `status ${ownerGrant.status}`);
-      const trainerGrant = await call("POST", "/trainers", member.token, { user_id: member.profile.id, gym_id: gym.id });
-      check("member can't make themselves trainer", trainerGrant.status === 403, `status ${trainerGrant.status}`);
-      const empAdd = await call("POST", "/employees", member.token, { user_id: trainer.profile.id, gym_id: gym.id });
-      check("member can't add employees", empAdd.status === 403, `status ${empAdd.status}`);
+      for (const role of ["owner", "staff", "trainer"]) {
+        const grant = await call("POST", `/businesses/${gym.id}/team`, member.token, { user_id: member.profile.id, role });
+        check(`member can't add themselves to the team as ${role}`, grant.status === 403, `status ${grant.status}`);
+      }
+      const empAdd = await call("POST", `/businesses/${gym.id}/team`, trainer.token, { user_id: member.profile.id, role: "staff" });
+      check("a trainer can't invite staff", empAdd.status === 403, `status ${empAdd.status}`);
+      const selfAccept = await call("POST", `/businesses/${gym.id}/invites/owner/accept`, member.token);
+      check("accepting an invite nobody sent is 404", selfAccept.status === 404, `status ${selfAccept.status}`);
+      const review = await call("POST", `/businesses/${gym.id}/review`, owner.token, { status: "blocked", note: "x" });
+      check("an owner can't review businesses", review.status === 403, `status ${review.status}`);
       const types = await call("GET", `/gym-membership-types?gym_id=${gym.id}`, owner.token);
       const typeId = (types.data as any[])?.[0]?.id;
       if (typeId) {
@@ -70,8 +89,8 @@ Deno.test({
         check("member can't change membership prices", typePut.status === 403, `status ${typePut.status}`);
       }
       const forged = await call("POST", "/notifications", member.token, {
-        user_id: member.profile.id, type: "employee_gym_invite", title: "x", body: "x",
-        metadata: { invite_status: "pending", gym_id: gym.id, employee_type: "employee_trainer" },
+        user_id: member.profile.id, type: "business_invite", title: "x", body: "x",
+        metadata: { invite_status: "pending", business_id: gym.id, role: "owner" },
       });
       check("member can't create notifications", forged.status === 403, `status ${forged.status}`);
       const othersNotifs = await call("GET", `/notifications?user_id=${owner.profile.id}`, member.token);

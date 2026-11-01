@@ -88,7 +88,7 @@ Map<String, dynamic> _businessPostJson() => {
       ],
       'kind': 'business',
       'author': null,
-      'business': {'id': 'g1', 'name': 'Ironclad Fitness', 'logo': null, 'type': 'gym'},
+      'business': {'id': 'g1', 'name': 'Ironclad Fitness', 'logo': null, 'has_gym': false, 'has_shop': true},
       'reactions': {'counts': {}, 'total': 0, 'top': []},
       'my_reaction': null,
       'comment_count': '0',
@@ -228,7 +228,8 @@ void main() {
       expect(p.business!.id, 'g1');
       expect(p.business!.name, 'Ironclad Fitness');
       expect(p.business!.logo, isNull);
-      expect(p.business!.type, 'gym');
+      expect((p.business!.hasGym, p.business!.hasShop), (false, true));
+      expect(p.business!.isShopOnly, isTrue);
       expect(p.images.single.url, 'https://picsum.photos/seed/pool/800/600');
       expect(p.images.single.mediaType, 'image');
       expect(p.commentCount, 0);
