@@ -1,0 +1,218 @@
+{
+  "streakTierBronze": "Bronze",
+  "streakTierSilver": "Silver",
+  "streakTierGold": "Gold",
+  "streakTierRuby": "Ruby",
+  "streakTierEmerald": "Emerald",
+  "streakTierSapphire": "Sapphire",
+  "streakTierDiamond": "Diamond",
+  "streakTitle": "Workout streak",
+  "streakLoadFailed": "Couldn't load your streak.",
+  "streakSettingsTitle": "Streak settings",
+  "streakTargetLabel": "Weekly target",
+  "streakTargetHelp": "In weeks without planned workouts, this many workouts keep your streak going.",
+  "streakTargetLess": "Fewer",
+  "streakTargetMore": "More",
+  "streakTargetValue": "{count, plural, =1{1 workout a week} other{{count} workouts a week}}",
+  "@streakTargetValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakShowOnBoards": "Show me on gym boards",
+  "streakShowOnBoardsHelp": "Members of your gyms see your streak and rank.",
+  "streakWorkoutsInARow": "{count, plural, =1{workout in a row} other{workouts in a row}}",
+  "@streakWorkoutsInARow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakNone": "No streak yet. Log a workout to start one!",
+  "streakBest": "Best: {count}",
+  "@streakBest": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakAtRiskTitle": "Your streak is at risk",
+  "streakAtRiskToday": "{name} is planned for today.",
+  "@streakAtRiskToday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "streakAtRiskYesterday": "Yesterday's {name} isn't logged yet. You have until midnight.",
+  "@streakAtRiskYesterday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "streakAtRiskWeek": "{count, plural, =1{1 more workout this week keeps it going.} other{{count} more workouts this week keep it going.}}",
+  "@streakAtRiskWeek": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakPlannedWorkout": "a workout",
+  "streakThisWeek": "This week",
+  "streakWeekPlannedDone": "Every planned workout done. Perfect week!",
+  "streakWeekPlannedLeft": "{count, plural, =1{1 planned workout left} other{{count} planned workouts left}}",
+  "@streakWeekPlannedLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakWeekTargetDone": "{done, plural, =1{1 workout, target reached} other{{done} workouts, target reached}}",
+  "@streakWeekTargetDone": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      }
+    }
+  },
+  "streakWeekTargetLeft": "{done} of {required} workouts",
+  "@streakWeekTargetLeft": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    }
+  },
+  "streakFreezes": "{count, plural, =0{No freezes} =1{1 freeze} other{{count} freezes}}",
+  "@streakFreezes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakFreezesHelp": "A freeze saves your streak when you miss a workout. Earn one for every perfect week (up to {max}).",
+  "@streakFreezesHelp": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "streakNextBadge": "Next: {tier}",
+  "@streakNextBadge": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "streakToGo": "{count, plural, =1{1 more workout to reach {at}} other{{count} more workouts to reach {at}}}",
+  "@streakToGo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "at": {
+        "type": "int"
+      }
+    }
+  },
+  "streakBadges": "Badges",
+  "streakBadgeAt": "{count} in a row",
+  "@streakBadgeAt": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakGymBoards": "Gym boards",
+  "streakRankOf": "#{rank} of {total}",
+  "@streakRankOf": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "streakRankAt": "#{rank} at {gym}",
+  "@streakRankAt": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "streakHistory": "History",
+  "streakEventTier": "{tier} badge earned ({streak} in a row)",
+  "@streakEventTier": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      },
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+  "streakEventFreezeEarned": "Perfect week, freeze earned",
+  "streakEventFreezeUsed": "A freeze saved your {streak}-workout streak",
+  "@streakEventFreezeUsed": {
+    "placeholders": {
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+  "streakEventBroken": "{streak}-workout streak ended",
+  "@streakEventBroken": {
+    "placeholders": {
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+  "streakRulesTitle": "How streaks work",
+  "streakRuleCount": "Your streak counts finished workouts with at least one logged set, not days.",
+  "streakRulePlanned": "Planned workouts must be done on their day. Skipping one, or letting its day pass, ends the streak.",
+  "streakRuleTarget": "In weeks with nothing planned, reach your weekly target. The week you start in is prorated.",
+  "streakRuleLate": "Forgot to log? You have until the end of the next day.",
+  "streakRuleFreezes": "A banked freeze is used automatically instead of losing your streak.",
+  "streakRuleBadges": "Badges: Bronze 10, Silver 50, Gold 100, Ruby 200, Emerald 365, Sapphire 500, Diamond 1000. Your avatar shows your current badge; every badge you've earned stays on your profile.",
+  "streakProgressTile": "Workout streak",
+  "streakProgressHintNone": "Log a workout to start",
+  "streakProgressHintRisk": "Train today to keep it",
+  "streakProgressHintOk": "On track this week",
+  "streakSkipTitle": "Skip this workout?",
+  "streakSkipBody": "{count, plural, =0{Skipping a planned workout ends your streak.} =1{Skipping uses your freeze to keep your streak.} other{Skipping uses one of your {count} freezes to keep your streak.}}",
+  "@streakSkipBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakSkipConfirm": "Skip anyway",
+  "streakProfileBadges": "Streak badges",
+  "streakMuteLabel": "Streak",
+  "streakMuteDescription": "Reminders when your streak is at risk, freezes, new badges"
+}

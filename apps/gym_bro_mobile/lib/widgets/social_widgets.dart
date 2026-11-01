@@ -8,8 +8,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
 import '../l10n/l10n.dart';
+import '../models/streak.dart';
 import '../services/media_upload.dart';
 import 'app_bottom_sheet.dart';
+import 'streak_widgets.dart';
 
 /// Shared building blocks for people, chat and posts: avatars with an
 /// online dot, the "typing…" dots, private-media images/videos and the
@@ -25,7 +27,18 @@ class UserAvatar extends StatelessWidget {
   /// Green dot at the bottom right (active now).
   final bool online;
 
-  const UserAvatar({super.key, this.url, required this.initials, this.radius = 20, this.online = false});
+  /// Their streak badge at the bottom right (the online dot moves left).
+  /// Left out on avatars too small to show it.
+  final StreakTier? streakTier;
+
+  const UserAvatar({
+    super.key,
+    this.url,
+    required this.initials,
+    this.radius = 20,
+    this.online = false,
+    this.streakTier,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +52,21 @@ class UserAvatar extends StatelessWidget {
         style: TextStyle(color: cs.onPrimaryContainer, fontWeight: FontWeight.w600, fontSize: radius * 0.7),
       ),
     );
-    if (!online) return avatar;
+    final tier = radius >= 14 ? streakTier : null;
+    if (!online && tier == null) return avatar;
     final dot = (radius * 0.55).clamp(8.0, 16.0);
     return Stack(clipBehavior: Clip.none, children: [
       avatar,
+      if (tier != null)
+        Positioned(
+          right: -2,
+          bottom: -2,
+          child: StreakGemBadge(tier: tier, size: (radius * 0.75).clamp(14.0, 30.0)),
+        ),
+      if (online)
       Positioned(
-        right: -1,
+        right: tier == null ? -1 : null,
+        left: tier == null ? null : -1,
         bottom: -1,
         child: Container(
           width: dot,

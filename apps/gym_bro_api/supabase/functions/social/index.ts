@@ -266,13 +266,15 @@ async function buildProfile(caller: Caller, u: ProfileRow) {
 async function decorateUsers<T extends { id: string }>(caller: Caller, users: T[]) {
   const rels = await relationships(caller.id, users.map((u) => u.id));
   const extra = users.length
-    ? await db.selectFrom("users").select(["id", "bio", "is_private"]).where("id", "in", users.map((u) => u.id)).execute()
+    ? await db.selectFrom("users").select(["id", "bio", "is_private", "streak_tier"])
+      .where("id", "in", users.map((u) => u.id)).execute()
     : [];
   const byId = new Map(extra.map((e) => [e.id, e]));
   return users.map((u) => ({
     ...u,
     bio: byId.get(u.id)?.bio ?? null,
     is_private: byId.get(u.id)?.is_private ?? false,
+    streak_tier: byId.get(u.id)?.streak_tier ?? null,
     relationship: u.id === caller.id ? null : rels.get(u.id) ?? null,
   }));
 }

@@ -539,7 +539,7 @@ class _PostCardState extends State<PostCard> with SingleTickerProviderStateMixin
       avatar = UserAvatar(url: business.logo, initials: _initialsOf(business.name), radius: 18);
     } else {
       title = author?.fullName.isNotEmpty == true ? author!.fullName : l10n.nutritionDeletedUser;
-      avatar = UserAvatar(url: author?.avatarUrl, initials: author?.initials ?? '?', radius: 18);
+      avatar = UserAvatar(url: author?.avatarUrl, initials: author?.initials ?? '?', radius: 18, streakTier: author?.streakTier);
     }
 
     final meta = <String>[

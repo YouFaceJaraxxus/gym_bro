@@ -1,6 +1,6 @@
 import { sql } from "npm:kysely@^0.27";
 import { db } from "./config.ts";
-import type { ReactionType } from "../../types/schema/public.ts";
+import type { ReactionType, StreakTier } from "../../types/schema/public.ts";
 
 // Social graph rules shared by the social, chat and posts functions.
 //
@@ -43,7 +43,7 @@ export const REACTION_EMOJI: Record<ReactionType, string> = {
 };
 
 /** Columns of another user that anyone may see. */
-export const PUBLIC_USER_COLS = ["id", "username", "name", "last_name", "avatar_url"] as const;
+export const PUBLIC_USER_COLS = ["id", "username", "name", "last_name", "avatar_url", "streak_tier"] as const;
 
 export type UserSummary = {
   id: string;
@@ -51,6 +51,7 @@ export type UserSummary = {
   name: string;
   last_name: string;
   avatar_url: string | null;
+  streak_tier: StreakTier | null;
 };
 
 export async function userSummaries(ids: (string | null | undefined)[]): Promise<Record<string, UserSummary>> {

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../l10n/app_localizations.dart';
 import 'reaction.dart';
+import 'streak.dart';
 
 /// Minimal public profile attached to posts and comments.
 class SocialUser {
@@ -12,12 +13,16 @@ class SocialUser {
   final String lastName;
   final String? avatarUrl;
 
+  /// Their current workout streak's badge, shown on the avatar.
+  final StreakTier? streakTier;
+
   const SocialUser({
     required this.id,
     this.username = '',
     required this.name,
     required this.lastName,
     this.avatarUrl,
+    this.streakTier,
   });
 
   String get fullName => '$name $lastName'.trim();
@@ -35,6 +40,7 @@ class SocialUser {
     name: json['name'] as String? ?? '',
     lastName: json['last_name'] as String? ?? '',
     avatarUrl: json['avatar_url'] as String?,
+    streakTier: StreakTier.fromApi(json['streak_tier']),
   );
 
   static SocialUser? maybeFromJson(Object? json) =>

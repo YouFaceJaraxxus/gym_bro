@@ -5,6 +5,7 @@ import '../models/social.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../widgets/profile_streak_row.dart';
 import '../widgets/social_widgets.dart';
 import 'home/home_widgets.dart';
 import 'archive/archive_page.dart';
@@ -398,6 +399,7 @@ class _SocialHeaderCard extends StatelessWidget {
               const SizedBox(height: 10),
               Text(bio, maxLines: 2, overflow: TextOverflow.ellipsis, style: text.bodyMedium),
             ],
+            ProfileStreakRow(userId: profile.id, isMe: true),
             const SizedBox(height: 8),
             if (error != null && s == null)
               Row(

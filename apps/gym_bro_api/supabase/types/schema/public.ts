@@ -78,7 +78,8 @@ export type NotificationType =
   | "story_mention"
   | "business_invite"
   | "business_join"
-  | "business_review";
+  | "business_review"
+  | "streak";
 
 export type ReactionType =
   | "like"
@@ -219,6 +220,8 @@ export interface UsersTable {
   location_updated_at: Generated<string | null>;
   // "https://…" shown as a link on the profile.
   website: Generated<string | null>;
+  // The current workout streak's badge (see _shared/streaks.ts).
+  streak_tier: Generated<StreakTier | null>;
 }
 
 export interface BusinessTable {
@@ -739,6 +742,11 @@ export interface UserSettingsTable {
   weight_unit: Generated<"kg" | "lb">;
   theme_mode: Generated<"system" | "light" | "dark">;
   locale: string | null;
+  // Workouts a week that count as "on track" in weeks without planned ones.
+  weekly_workout_target: Generated<number>;
+  show_on_gym_boards: Generated<boolean>;
+  // IANA zone the app last reported; streak days are counted in it.
+  timezone: string | null;
   updated_at: Generated<string>;
 }
 
@@ -1234,6 +1242,34 @@ export interface UserNoteTable {
   expires_at: Generated<string>;
 }
 
+export type StreakTier = "bronze" | "silver" | "gold" | "ruby" | "emerald" | "sapphire" | "diamond";
+export type StreakEventKind = "freeze_earned" | "freeze_used" | "broken" | "tier";
+
+export interface WorkoutStreakTable {
+  user_id: string;
+  settled_current: Generated<number>;
+  settled_since: string | null;
+  settled_through: string | null;
+  current: Generated<number>;
+  since: string | null;
+  best: Generated<number>;
+  freezes: Generated<number>;
+  timezone: Generated<string>;
+  reminded_on: string | null;
+  updated_at: Generated<string>;
+}
+
+export interface StreakEventTable {
+  id: Generated<string>;
+  user_id: string;
+  kind: StreakEventKind;
+  on_date: string;
+  streak: number;
+  tier: StreakTier | null;
+  plan_entry_id: string | null;
+  created_at: Generated<string>;
+}
+
 export interface Database {
   users: UsersTable;
   business: BusinessTable;
@@ -1322,6 +1358,8 @@ export interface Database {
   user_mute: UserMuteTable;
   close_friend: CloseFriendTable;
   user_note: UserNoteTable;
+  workout_streak: WorkoutStreakTable;
+  streak_event: StreakEventTable;
 }
 
 // ── CRUD helpers ──────────────────────────────────────────────────────────────

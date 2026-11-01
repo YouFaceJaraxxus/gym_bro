@@ -4,8 +4,10 @@ import '../../l10n/l10n.dart';
 import '../../models/food_log.dart';
 import '../../models/meal_plan.dart';
 import '../../models/plan_entry.dart';
+import '../../models/streak.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../utils/device_timezone.dart';
 import '../../widgets/calendar_view.dart';
 import '../../widgets/link_access_note.dart';
 import '../../widgets/training_picker_sheet.dart';
@@ -19,6 +21,7 @@ import '../routine_detail_page.dart';
 import '../session_detail_page.dart';
 import '../training_detail_page.dart';
 import '../../widgets/app_bottom_sheet.dart';
+import '../../widgets/streak_widgets.dart';
 
 // Sheets the Schedule calendar opens: an empty hour (log a workout or a meal
 // there), a planned workout or meal (details, confirm, log differently, edit,
@@ -255,6 +258,12 @@ Future<bool> _runPlanAction(
         return updated != null;
       case _PlanAction.skip:
         final token = await AuthManager.instance.getValidToken();
+        if (entry.kind == PlanEntryKind.workout &&
+            entry.userId == AuthManager.instance.profile?.id &&
+            context.mounted &&
+            !await _confirmSkipWorkout(context, api, token)) {
+          return false;
+        }
         await api.skipPlanEntry(token, entry.id);
         messenger.showSnackBar(SnackBar(content: Text(l10n.planSkippedSnack)));
         return true;
@@ -1010,4 +1019,30 @@ Future<bool> showMealLogsSheet(BuildContext context, MealLogItem item) async {
     MaterialPageRoute(builder: (_) => FoodDiaryPage(initialDate: item.date)),
   );
   return true;
+}
+
+/// Skipping a planned workout costs a freeze or ends the streak: says which,
+/// and asks. True to go ahead (also when there's no streak to lose).
+Future<bool> _confirmSkipWorkout(BuildContext context, ApiService api, String token) async {
+  final StreakStatus streak;
+  try {
+    streak = await api.getStreak(token, tz: await deviceTimezone());
+  } catch (_) {
+    return true;
+  }
+  if (streak.current == 0 || !context.mounted) return true;
+  final l10n = context.l10n;
+  final yes = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      icon: const StreakFlame(size: 36),
+      title: Text(l10n.streakSkipTitle),
+      content: Text(l10n.streakSkipBody(streak.freezes)),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l10n.commonCancel)),
+        FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l10n.streakSkipConfirm)),
+      ],
+    ),
+  );
+  return yes == true;
 }

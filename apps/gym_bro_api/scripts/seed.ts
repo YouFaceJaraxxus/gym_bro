@@ -1952,6 +1952,8 @@ async function logTrainingSession(
       training_id: trainingIdByName.get(trainingName)!,
       started_at: iso(startedMs),
       ended_at: iso(startedMs + durationMinutes * MIN_MS),
+      // Logged as it happened, so it counts towards streaks.
+      created_at: iso(startedMs + durationMinutes * MIN_MS),
       notes: rng.pick(sessionNotePool),
     })
     .returning(["id"])

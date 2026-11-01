@@ -11,6 +11,7 @@ import {
 } from "../_shared/auth.ts";
 import { notify } from "../_shared/notify.ts";
 import { userDropRows } from "../_shared/progress.ts";
+import { streakAfterWorkout } from "../_shared/streaks.ts";
 import { libraryAccess } from "../_shared/shares.ts";
 import type {
   BodySide,
@@ -307,6 +308,18 @@ function readCommentBody(body: unknown): string | null {
   return trimmed && trimmed.length <= 4000 ? trimmed : null;
 }
 
+// ── Streak ────────────────────────────────────────────────────────────────────
+
+/** The athlete's streak after a workout changed; a failure here never fails the workout. */
+async function streakOrNull(userId: string) {
+  try {
+    return await streakAfterWorkout(userId);
+  } catch (err) {
+    console.error("streak refresh failed", userId, err);
+    return null;
+  }
+}
+
 // ── Postgres error mapping ────────────────────────────────────────────────────
 
 function pgErrorResponse(e: unknown): Response {
@@ -491,7 +504,8 @@ async function handler(req: Request): Promise<Response> {
     });
 
     if (forClient) await notifyClient(caller, athleteId, sessionId);
-    return json(await fetchSessionDetail(sessionId), 201);
+    const detail = await fetchSessionDetail(sessionId);
+    return json(endedAt ? { ...detail, streak: await streakOrNull(athleteId) } : detail, 201);
   }
 
   // ── PUT /training-sessions/:id — update session (end time, notes) ─────────────
@@ -517,6 +531,7 @@ async function handler(req: Request): Promise<Response> {
       .where("id", "=", id)
       .returning([...SESSION_COLS, COMMENT_COUNT, TRAINER_NAME, TRAINING_NAME])
       .executeTakeFirst();
+    if (body?.ended_at !== undefined) await streakOrNull(session.user_id);
 
     return json(updated);
   }
@@ -539,7 +554,7 @@ async function handler(req: Request): Promise<Response> {
       .where("ended_at", "is", null)
       .execute();
 
-    return json(await fetchSessionDetail(id));
+    return json({ ...(await fetchSessionDetail(id)), streak: await streakOrNull(session.user_id) });
   }
 
   // ── POST /training-sessions/:id/sets — log a set ──────────────────────────────
@@ -764,6 +779,7 @@ async function handler(req: Request): Promise<Response> {
     if (!canWriteSession(caller, session)) return forbidden();
 
     await db.deleteFrom("training_session").where("id", "=", id).execute();
+    await streakOrNull(session.user_id);
     return new Response(null, { status: 204 });
   }
 

@@ -104,6 +104,8 @@ class SettingsService {
     // Pass [useSystemLocale] to go back to the device language.
     Locale? locale,
     bool useSystemLocale = false,
+    int? weeklyWorkoutTarget,
+    bool? showOnGymBoards,
   }) async {
     final previous = settings.value;
     final changes = <String, dynamic>{
@@ -113,6 +115,8 @@ class SettingsService {
       if (mutedTypes != null) 'muted_types': mutedTypes.toList()..sort(),
       if (locale != null) 'locale': localeToTag(locale),
       if (useSystemLocale) 'locale': null,
+      'weekly_workout_target': ?weeklyWorkoutTarget,
+      'show_on_gym_boards': ?showOnGymBoards,
     };
     if (changes.isEmpty) return;
 
@@ -123,6 +127,8 @@ class SettingsService {
       mutedTypes: mutedTypes,
       locale: locale == null ? null : localeToTag(locale),
       clearLocale: useSystemLocale,
+      weeklyWorkoutTarget: weeklyWorkoutTarget,
+      showOnGymBoards: showOnGymBoards,
     );
     _apply(next);
     try {

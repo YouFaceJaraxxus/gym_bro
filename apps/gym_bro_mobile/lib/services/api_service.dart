@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/foundation.dart' show ValueNotifier, visibleForTesting;
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import '../models/admin_db.dart';
@@ -34,6 +34,7 @@ import '../models/plan_entry.dart';
 import '../models/reaction.dart';
 import '../models/shared_content.dart';
 import '../models/story.dart';
+import '../models/streak.dart';
 import '../config.dart';
 import 'auth_manager.dart';
 import 'offline/offline_support.dart';
@@ -57,6 +58,7 @@ part 'api/drafts_api.dart';
 part 'api/plans_api.dart';
 part 'api/post_tags_api.dart';
 part 'api/stories_api.dart';
+part 'api/streaks_api.dart';
 
 // Set with --dart-define=API_BASE_URL=... (see lib/config.dart / README.md).
 final _base = AppConfig.apiBaseUrl;
@@ -722,6 +724,7 @@ class ApiService {
       body: jsonEncode(data),
     );
     _check(r);
+    streakChanges.value++;
     return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
   }
 
@@ -761,6 +764,7 @@ class ApiService {
       headers: _headers(token),
     );
     if (r.statusCode >= 400 && r.statusCode != 204) _check(r);
+    streakChanges.value++;
   }
 
   // ── Food Items ───────────────────────────────────────────────────────────────
@@ -1296,6 +1300,7 @@ class ApiService {
       headers: _headers(token),
     );
     _check(r);
+    streakChanges.value++;
     return TrainingSession.fromJson(jsonDecode(r.body) as Map<String, dynamic>);
   }
 

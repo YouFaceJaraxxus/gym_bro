@@ -46,7 +46,11 @@ enum NotificationType {
   storyReaction('story_reaction'),
 
   /// Someone @mentioned me in their story.
-  storyMention('story_mention');
+  storyMention('story_mention'),
+
+  /// My workout streak: at risk, saved by a freeze, ended, or a new badge
+  /// (metadata.kind: at_risk | freeze_used | broken | tier).
+  streak('streak');
 
   const NotificationType(this.apiValue);
 

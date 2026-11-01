@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../models/check_in.dart';
+import '../models/social.dart';
+import '../models/streak.dart';
 import '../models/user_profile.dart';
 import '../services/api_service.dart';
 import '../services/auth_manager.dart';
+import '../utils/device_timezone.dart';
+import '../widgets/gym_board_card.dart';
 import 'business/business_profile_page.dart';
 import 'business/business_search_page.dart';
 import 'business/business_widgets.dart';
 import 'checkin/member_check_in_page.dart';
 import 'shop/buy_membership_page.dart';
 import 'shop/storefront_page.dart';
+import 'streaks/gym_board_page.dart';
 
 /// The Gym tab: places. The gyms the user is a member of (to their profile),
-/// checking in, buying a membership, the store, and finding gyms and shops.
+/// their gym boards, checking in, buying a membership, the store, and finding
+/// gyms and shops.
 /// Personal tools (workouts, nutrition, …) live in the Home menu.
 class GymHubPage extends StatefulWidget {
   const GymHubPage({super.key, this.profile});
@@ -27,6 +33,15 @@ class _GymHubPageState extends State<GymHubPage> {
   /// Gyms the user is a member of; null while loading.
   List<CheckInGym>? _gyms;
 
+  /// My streak and gym ranks, for the board cards; null until loaded.
+  StreakStatus? _streak;
+
+  /// The first gym's top three, for its card.
+  List<SocialUser> _leaders = const [];
+
+  /// At most this many gyms get a board card.
+  static const _maxBoardCards = 3;
+
   @override
   void initState() {
     super.initState();
@@ -37,11 +52,39 @@ class _GymHubPageState extends State<GymHubPage> {
     try {
       final token = await AuthManager.instance.getValidToken();
       final rows = await ApiService().getCheckInGyms(token);
-      if (mounted) setState(() => _gyms = rows.where((g) => g.isMember).toList());
+      final gyms = rows.where((g) => g.isMember).toList();
+      if (mounted) setState(() => _gyms = gyms);
+      if (gyms.isNotEmpty) await _loadBoards(gyms.first.gymId);
     } catch (_) {
       // The list just stays empty; everything else on the hub works.
-      if (mounted) setState(() => _gyms = const []);
+      if (mounted) setState(() => _gyms ??= const []);
     }
+  }
+
+  Future<void> _loadBoards(String firstGymId) async {
+    try {
+      final token = await AuthManager.instance.getValidToken();
+      final tz = await deviceTimezone();
+      final api = ApiService();
+      final board = api.getGymBoard(token, firstGymId, GymBoardKind.streak, tz: tz).then<GymBoard?>((b) => b,
+          onError: (_) => null);
+      final streak = await api.getStreak(token, tz: tz);
+      final leaders = [for (final e in (await board)?.entries.take(3) ?? const <GymBoardEntry>[]) ?e.user];
+      if (!mounted) return;
+      setState(() {
+        _streak = streak;
+        _leaders = leaders;
+      });
+    } catch (_) {
+      // No board cards; the rest of the hub doesn't depend on them.
+    }
+  }
+
+  GymRank? _rankAt(String gymId) {
+    for (final r in _streak?.ranks ?? const <GymRank>[]) {
+      if (r.gymId == gymId) return r;
+    }
+    return null;
   }
 
   void _push(Widget page) =>
@@ -97,6 +140,17 @@ class _GymHubPageState extends State<GymHubPage> {
               ),
             ),
             const SizedBox(height: 16),
+            if (_streak != null)
+              for (final (i, g) in gyms.take(_maxBoardCards).indexed) ...[
+                GymBoardCard(
+                  gymName: g.name,
+                  rank: _rankAt(g.gymId),
+                  streak: _streak!.current,
+                  leaders: i == 0 ? _leaders : const [],
+                  onTap: () => _push(GymBoardPage(gymId: g.gymId, gymName: g.name)),
+                ),
+                const SizedBox(height: 14),
+              ],
             _HubCard(
               icon: Icons.qr_code_2,
               label: l10n.shellHubCheckIn,

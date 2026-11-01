@@ -1299,6 +1299,74 @@
       }
     }
   },
+  "@gymBoardCardNoRank": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@gymBoardCardRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@gymBoardCheckInsValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@gymBoardGapCheckIns": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "@gymBoardGapWorkouts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "@gymBoardNotMember": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@gymBoardWorkoutsValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@gymBoardYourRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
   "@mediaBatchNote": {
     "placeholders": {
       "count": {
@@ -2921,6 +2989,161 @@
       }
     }
   },
+  "@streakAtRiskToday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@streakAtRiskWeek": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakAtRiskYesterday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@streakBadgeAt": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakBest": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakEventBroken": {
+    "placeholders": {
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakEventFreezeUsed": {
+    "placeholders": {
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakEventTier": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      },
+      "streak": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakFreezes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakFreezesHelp": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakNextBadge": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "@streakRankAt": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@streakRankOf": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakSkipBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakTargetValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakToGo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "at": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakWeekPlannedLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakWeekTargetDone": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakWeekTargetLeft": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    }
+  },
+  "@streakWorkoutsInARow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "@tagsLimit": {
     "placeholders": {
       "count": {
@@ -3798,6 +4021,88 @@
   "@trainingWorkoutsSetCount": {
     "placeholders": {
       "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@workoutCompleteForClient": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutCompleteMilestone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@workoutCompleteMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@workoutCompleteRankClimb": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutCompleteRankUp": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@workoutCompleteTierUnlocked": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutCompleteTierUnlockedBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@workoutCompleteToNextTier": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "@workoutCompleteWeekPlanned": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@workoutCompleteWeekTarget": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "required": {
         "type": "int"
       }
     }
@@ -4756,6 +5061,34 @@
   "feedVisibilityPublic": "Public",
   "feedVisibilityPublicHint": "Anyone can see this post",
   "feedWriteReplyHint": "Write a reply…",
+  "gymBoardCardNoRank": "See who's leading at {gym}",
+  "gymBoardCardRank": "#{rank} of {total} at {gym}",
+  "gymBoardCheckInsValue": "{count, plural, =1{1 check-in} other{{count} check-ins}}",
+  "gymBoardEmpty": "Nobody here yet. Be the first!",
+  "gymBoardGapCheckIns": "{count, plural, =1{1 more check-in} other{{count} more check-ins}} to pass #{rank}",
+  "gymBoardGapWorkouts": "{count, plural, =1{1 more workout} other{{count} more workouts}} to pass #{rank}",
+  "gymBoardInfoHide": "Rather not appear? Turn off \"Show me on gym boards\" in Settings.",
+  "gymBoardInfoMembers": "Only the gym's active members appear here, and only members and the gym's team can see it.",
+  "gymBoardInfoPeriod": "Workouts and Check-ins count the last 30 days.",
+  "gymBoardInfoStreak": "Streak ranks the workouts in a row you have right now. Skipping a planned workout, or missing your weekly target, ends a streak unless a freeze covers it.",
+  "gymBoardInfoTitle": "How gym boards work",
+  "gymBoardInfoTooltip": "How boards work",
+  "gymBoardLoadFailed": "Couldn't load the board.",
+  "gymBoardNotMember": "Gym boards are for {gym}'s members.",
+  "gymBoardNotOnCheckIns": "Check in at the gym to get on this board.",
+  "gymBoardNotOnStreak": "Finish a workout to start a streak and join the board.",
+  "gymBoardNotOnWorkouts": "Log a workout to get on this board.",
+  "gymBoardPeriodLast30": "Last 30 days",
+  "gymBoardPeriodStreak": "Workouts in a row, right now",
+  "gymBoardTabCheckIns": "Check-ins",
+  "gymBoardTabStreak": "Streak",
+  "gymBoardTabWorkouts": "Workouts",
+  "gymBoardTiedAhead": "Tied with the people ahead. One more moves you up!",
+  "gymBoardTitle": "Gym board",
+  "gymBoardWorkoutsValue": "{count, plural, =1{1 workout} other{{count} workouts}}",
+  "gymBoardYou": "You",
+  "gymBoardYouLead": "You're on top. Defend it!",
+  "gymBoardYourRank": "You're #{rank}",
   "mediaAdjustBrightness": "Brightness",
   "mediaAdjustContrast": "Contrast",
   "mediaAdjustFade": "Fade",
@@ -6096,6 +6429,67 @@
   "storyUnlike": "Unlike",
   "storyViewsCount": "{count, plural, =0{No views yet} =1{1 view} other{{count} views}}",
   "storyYourStory": "Your story",
+  "streakAtRiskTitle": "Your streak is at risk",
+  "streakAtRiskToday": "{name} is planned for today.",
+  "streakAtRiskWeek": "{count, plural, =1{1 more workout this week keeps it going.} other{{count} more workouts this week keep it going.}}",
+  "streakAtRiskYesterday": "Yesterday's {name} isn't logged yet. You have until midnight.",
+  "streakBadgeAt": "{count} in a row",
+  "streakBadges": "Badges",
+  "streakBest": "Best: {count}",
+  "streakEventBroken": "{streak}-workout streak ended",
+  "streakEventFreezeEarned": "Perfect week, freeze earned",
+  "streakEventFreezeUsed": "A freeze saved your {streak}-workout streak",
+  "streakEventTier": "{tier} badge earned ({streak} in a row)",
+  "streakFreezes": "{count, plural, =0{No freezes} =1{1 freeze} other{{count} freezes}}",
+  "streakFreezesHelp": "A freeze saves your streak when you miss a workout. Earn one for every perfect week (up to {max}).",
+  "streakGymBoards": "Gym boards",
+  "streakHistory": "History",
+  "streakLoadFailed": "Couldn't load your streak.",
+  "streakMuteDescription": "Reminders when your streak is at risk, freezes, new badges",
+  "streakMuteLabel": "Streak",
+  "streakNextBadge": "Next: {tier}",
+  "streakNone": "No streak yet. Log a workout to start one!",
+  "streakPlannedWorkout": "a workout",
+  "streakProfileBadges": "Streak badges",
+  "streakProgressHintNone": "Log a workout to start",
+  "streakProgressHintOk": "On track this week",
+  "streakProgressHintRisk": "Train today to keep it",
+  "streakProgressTile": "Workout streak",
+  "streakRankAt": "#{rank} at {gym}",
+  "streakRankOf": "#{rank} of {total}",
+  "streakRuleBadges": "Badges: Bronze 10, Silver 50, Gold 100, Ruby 200, Emerald 365, Sapphire 500, Diamond 1000. Your avatar shows your current badge; every badge you've earned stays on your profile.",
+  "streakRuleCount": "Your streak counts finished workouts with at least one logged set, not days.",
+  "streakRuleFreezes": "A banked freeze is used automatically instead of losing your streak.",
+  "streakRuleLate": "Forgot to log? You have until the end of the next day.",
+  "streakRulePlanned": "Planned workouts must be done on their day. Skipping one, or letting its day pass, ends the streak.",
+  "streakRuleTarget": "In weeks with nothing planned, reach your weekly target. The week you start in is prorated.",
+  "streakRulesTitle": "How streaks work",
+  "streakSettingsTitle": "Streak settings",
+  "streakShowOnBoards": "Show me on gym boards",
+  "streakShowOnBoardsHelp": "Members of your gyms see your streak and rank.",
+  "streakSkipBody": "{count, plural, =0{Skipping a planned workout ends your streak.} =1{Skipping uses your freeze to keep your streak.} other{Skipping uses one of your {count} freezes to keep your streak.}}",
+  "streakSkipConfirm": "Skip anyway",
+  "streakSkipTitle": "Skip this workout?",
+  "streakTargetHelp": "In weeks without planned workouts, this many workouts keep your streak going.",
+  "streakTargetLabel": "Weekly target",
+  "streakTargetLess": "Fewer",
+  "streakTargetMore": "More",
+  "streakTargetValue": "{count, plural, =1{1 workout a week} other{{count} workouts a week}}",
+  "streakThisWeek": "This week",
+  "streakTierBronze": "Bronze",
+  "streakTierDiamond": "Diamond",
+  "streakTierEmerald": "Emerald",
+  "streakTierGold": "Gold",
+  "streakTierRuby": "Ruby",
+  "streakTierSapphire": "Sapphire",
+  "streakTierSilver": "Silver",
+  "streakTitle": "Workout streak",
+  "streakToGo": "{count, plural, =1{1 more workout to reach {at}} other{{count} more workouts to reach {at}}}",
+  "streakWeekPlannedDone": "Every planned workout done. Perfect week!",
+  "streakWeekPlannedLeft": "{count, plural, =1{1 planned workout left} other{{count} planned workouts left}}",
+  "streakWeekTargetDone": "{done, plural, =1{1 workout, target reached} other{{done} workouts, target reached}}",
+  "streakWeekTargetLeft": "{done} of {required} workouts",
+  "streakWorkoutsInARow": "{count, plural, =1{workout in a row} other{workouts in a row}}",
   "tagsDone": "Done",
   "tagsDragHint": "Drag a name to move it, tap the photo to tag someone else",
   "tagsKindGym": "Gym",
@@ -6678,6 +7072,29 @@
   "trainingWorkoutsTabTrainings": "Trainings",
   "trainingWorkoutsTitle": "Workouts",
   "trainingWorkoutsToMeEmpty": "No routines assigned to you yet.\nYour coach's assignments show up here.",
+  "workoutCompleteDone": "Done",
+  "workoutCompleteDuration": "Duration",
+  "workoutCompleteForClient": "Logged for {name}",
+  "workoutCompleteFreezes": "Streak freezes",
+  "workoutCompleteMilestone": "{count} workouts in a row!",
+  "workoutCompleteMinutes": "{minutes} min",
+  "workoutCompleteNotCounted": "This workout doesn't count towards your streak. Workouts count when they've happened and are logged by the end of the next day.",
+  "workoutCompletePrs": "PRs",
+  "workoutCompleteRankClimb": "#{rank} at {gym}",
+  "workoutCompleteRankUp": "{count, plural, =1{Up 1 place on the streak board} other{Up {count} places on the streak board}}",
+  "workoutCompleteSets": "Sets",
+  "workoutCompleteShare": "Share workout",
+  "workoutCompleteStreakLabel": "workout streak",
+  "workoutCompleteSubtitle": "Great work. Every rep counts.",
+  "workoutCompleteTierUnlocked": "{tier} unlocked!",
+  "workoutCompleteTierUnlockedBody": "{count} workouts in a row. Your new badge shows on your avatar.",
+  "workoutCompleteTitle": "Workout complete!",
+  "workoutCompleteToNextTier": "{count, plural, =1{1 more workout to {tier}} other{{count} more workouts to {tier}}}",
+  "workoutCompleteViewStreak": "View streak",
+  "workoutCompleteVolume": "Volume",
+  "workoutCompleteWeekOnTrack": "On track",
+  "workoutCompleteWeekPlanned": "This week: {done} of {total} planned workouts",
+  "workoutCompleteWeekTarget": "This week: {done} of {required} workouts",
   "workoutLogAddExercise": "Add exercise",
   "workoutLogAddToTrainings": "Add to trainings",
   "workoutLogAddToTrainingsMessage": "Save these exercises, sets and weights as a training so you can log or start it again in one tap.",

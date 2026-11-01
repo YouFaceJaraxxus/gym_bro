@@ -574,7 +574,7 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
               child: GestureDetector(
                 onTap: widget.onOpenAuthor,
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  UserAvatar(url: author.avatarUrl, initials: author.initials, radius: 16),
+                  UserAvatar(url: author.avatarUrl, initials: author.initials, radius: 16, streakTier: author.streakTier),
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(

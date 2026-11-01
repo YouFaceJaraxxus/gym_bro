@@ -4,6 +4,7 @@ import { json, jsonError } from "../_shared/auth.ts";
 import { notify, optionalSecret } from "../_shared/notify.ts";
 import { removeObjects } from "../_shared/media.ts";
 import { topUpSeries } from "../_shared/class_series.ts";
+import { addDays, isoDow, refreshStreak } from "../_shared/streaks.ts";
 
 // Scheduled maintenance, called by pg_cron every 15 minutes (see
 // sql/cron.sql) with the shared CRON_SECRET in the x-cron-secret header.
@@ -11,6 +12,9 @@ import { topUpSeries } from "../_shared/class_series.ts";
 // Every step is idempotent, so a missed or doubled run is harmless.
 
 const CLASS_REMINDER_WINDOW_MINUTES = 75;
+const STREAK_BATCH = 300;
+/** Local hour of the "streak at risk" reminder. */
+const STREAK_REMINDER_HOUR = 19;
 
 /** Compares two strings in time independent of where they differ. */
 function safeEqual(a: string, b: string): boolean {
@@ -141,6 +145,60 @@ async function sweepAbandonedUploads(): Promise<number> {
   return stale.length;
 }
 
+/**
+ * Settles the streaks whose days closed since they were last brought up to
+ * date (so gym boards and avatar badges reflect misses), oldest first.
+ */
+async function settleStreaks(): Promise<number> {
+  const due = await db
+    .selectFrom("workout_streak")
+    .select("user_id")
+    .where(sql<boolean>`settled_through IS NULL
+      OR settled_through < (now() AT TIME ZONE timezone)::date - 2`)
+    .orderBy(sql`settled_through`, sql`ASC NULLS FIRST`)
+    .limit(STREAK_BATCH)
+    .execute();
+  for (const r of due) await refreshStreak(r.user_id);
+  return due.length;
+}
+
+/**
+ * Once a day in the evening: a nudge for everyone whose streak needs a
+ * workout today (a planned one still open, or a weekly target that only
+ * works out if they train every remaining day).
+ */
+async function sendStreakReminders(): Promise<number> {
+  const due = await db
+    .selectFrom("workout_streak")
+    .select(["user_id"])
+    .where("current", ">", 0)
+    .where(sql<boolean>`EXTRACT(HOUR FROM now() AT TIME ZONE timezone) = ${STREAK_REMINDER_HOUR}`)
+    .where(sql<boolean>`reminded_on IS DISTINCT FROM (now() AT TIME ZONE timezone)::date`)
+    .limit(STREAK_BATCH)
+    .execute();
+  let sent = 0;
+  for (const r of due) {
+    const s = await refreshStreak(r.user_id);
+    await db.updateTable("workout_streak").set({ reminded_on: s.today }).where("user_id", "=", r.user_id).execute();
+    const daysLeft = 8 - isoDow(s.today);
+    const planned = s.at_risk.find((e) => e.day === s.today) ?? s.at_risk.find((e) => e.day === addDays(s.today, -1));
+    const weekly = !s.week.planned && s.week_remaining > 0 && s.week_remaining >= daysLeft;
+    if (s.current === 0 || (!planned && !weekly)) continue;
+    await notify([r.user_id], {
+      type: "streak",
+      title: `Your ${s.current}-workout streak is at risk 🔥`,
+      body: planned
+        ? planned.day === s.today
+          ? `${planned.name ?? "Today's workout"} is still waiting. Log it before midnight to keep your streak.`
+          : `Yesterday's ${planned.name ?? "workout"} isn't logged yet. You have until midnight.`
+        : `${s.week_remaining} more workout${s.week_remaining === 1 ? "" : "s"} this week keeps your streak going.`,
+      metadata: { kind: "at_risk", streak: s.current, plan_entry_id: planned?.id ?? null },
+    });
+    sent++;
+  }
+  return sent;
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -168,6 +226,10 @@ Deno.serve(async (req: Request) => {
       step = "class_sessions";
       // Keeps every class timetable 90 days ahead.
       const class_sessions_created = await topUpSeries(500);
+      step = "settle_streaks";
+      const streaks_settled = await settleStreaks();
+      step = "streak_reminders";
+      const streak_reminders = await sendStreakReminders();
 
       return json({
         memberships_expired,
@@ -175,6 +237,8 @@ Deno.serve(async (req: Request) => {
         class_reminders,
         abandoned_uploads_removed,
         class_sessions_created,
+        streaks_settled,
+        streak_reminders,
         duration_ms: Date.now() - started,
       });
     } catch (err) {

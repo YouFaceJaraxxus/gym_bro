@@ -17,12 +17,20 @@ class UserSettings {
 
   final String? locale;
 
+  /// Workouts a week that keep a streak going in weeks with nothing planned.
+  final int weeklyWorkoutTarget;
+
+  /// Appear on the boards of gyms I'm a member of.
+  final bool showOnGymBoards;
+
   const UserSettings({
     this.pushEnabled = true,
     this.mutedTypes = const {},
     this.weightUnit = 'kg',
     this.themeMode = 'system',
     this.locale,
+    this.weeklyWorkoutTarget = 3,
+    this.showOnGymBoards = true,
   });
 
   static const defaults = UserSettings();
@@ -39,6 +47,8 @@ class UserSettings {
           _ => 'system',
         },
         locale: json['locale'] as String?,
+        weeklyWorkoutTarget: int.tryParse('${json['weekly_workout_target']}') ?? 3,
+        showOnGymBoards: json['show_on_gym_boards'] as bool? ?? true,
       );
 
   Map<String, dynamic> toJson() => {
@@ -47,6 +57,8 @@ class UserSettings {
         'weight_unit': weightUnit,
         'theme_mode': themeMode,
         'locale': locale,
+        'weekly_workout_target': weeklyWorkoutTarget,
+        'show_on_gym_boards': showOnGymBoards,
       };
 
   UserSettings copyWith({
@@ -56,6 +68,8 @@ class UserSettings {
     String? themeMode,
     String? locale,
     bool clearLocale = false,
+    int? weeklyWorkoutTarget,
+    bool? showOnGymBoards,
   }) =>
       UserSettings(
         pushEnabled: pushEnabled ?? this.pushEnabled,
@@ -63,5 +77,7 @@ class UserSettings {
         weightUnit: weightUnit ?? this.weightUnit,
         themeMode: themeMode ?? this.themeMode,
         locale: clearLocale ? null : (locale ?? this.locale),
+        weeklyWorkoutTarget: weeklyWorkoutTarget ?? this.weeklyWorkoutTarget,
+        showOnGymBoards: showOnGymBoards ?? this.showOnGymBoards,
       );
 }

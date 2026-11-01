@@ -4,6 +4,7 @@ import '../../models/business.dart';
 import '../../models/user_profile.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
+import '../../widgets/home_streak_card.dart';
 import '../admin/db_console_page.dart';
 import '../business/business_invites_page.dart';
 import '../business/business_manage_page.dart';
@@ -54,6 +55,7 @@ class _HomeMenuPageState extends State<HomeMenuPage> {
 
   /// Businesses waiting for review (super users only).
   int _pendingReviews = 0;
+  final _streak = GlobalKey<HomeStreakCardState>();
 
   @override
   void initState() {
@@ -142,12 +144,13 @@ class _HomeMenuPageState extends State<HomeMenuPage> {
 
     return RefreshIndicator(
       onRefresh: () async {
-        await widget.onRefresh();
+        await Future.wait([widget.onRefresh(), if (_streak.currentState != null) _streak.currentState!.refresh()]);
         await _loadReviewCount();
       },
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
+          HomeStreakCard(key: _streak),
           if (p.pendingInvites > 0) ...[
             _InviteBanner(
               count: p.pendingInvites,

@@ -43,7 +43,7 @@ class PersonTile extends StatelessWidget {
     final name = person.fullName.isEmpty ? person.username : person.fullName;
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-      leading: UserAvatar(url: person.avatarUrl, initials: person.initials, radius: 22, online: online),
+      leading: UserAvatar(url: person.avatarUrl, initials: person.initials, radius: 22, online: online, streakTier: person.streakTier),
       title: Row(
         children: [
           Flexible(

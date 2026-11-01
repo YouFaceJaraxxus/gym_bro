@@ -10,6 +10,7 @@ import '../widgets/exercise_picker_sheet.dart';
 import '../widgets/share_post.dart';
 import '../widgets/training_picker_sheet.dart';
 import 'training_form_page.dart';
+import 'workout_complete_page.dart';
 
 /// Logs a workout at [start] (e.g. the hour tapped on the Schedule calendar);
 /// it may be in the past or ahead of time.
@@ -22,7 +23,8 @@ import 'training_form_page.dart';
 /// fills in its sets as planned; otherwise the user adds exercises. Saving
 /// creates the whole session in one request. When it didn't follow one of the
 /// user's own trainings, a dialog offers to save the exercises as a new
-/// training (opens [TrainingFormPage] prefilled). Pops true once logged.
+/// training (opens [TrainingFormPage] prefilled). Pops true once logged;
+/// when it grew my streak, [WorkoutCompletePage] follows.
 class LogWorkoutPage extends StatefulWidget {
   const LogWorkoutPage({
     super.key,
@@ -260,6 +262,8 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
       if (!mounted) return;
       final me = AuthManager.instance.profile?.id;
       final ownTraining = _training != null && me != null && _training!.authorId == me;
+      // My own workout that moved my streak gets the summary (with "Share").
+      final celebrate = widget.clientId == null && session.streak?.grew == true;
       if (!ownTraining && await _offerToSaveAsTraining()) {
         await navigator.push<Training>(
           MaterialPageRoute(
@@ -267,11 +271,17 @@ class _LogWorkoutPageState extends State<LogWorkoutPage> {
             builder: (_) => TrainingFormPage(template: _asTemplate()),
           ),
         );
-      } else {
+      } else if (!celebrate) {
         // With "Share" (left out while it's still in the future).
         showLoggedWithShare(messenger, navigator, message: l10n.workoutLogSaved, target: workoutShareTarget(session));
       }
       navigator.pop(true);
+      if (celebrate) {
+        navigator.push(MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (_) => WorkoutCompletePage(session: session),
+        ));
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {

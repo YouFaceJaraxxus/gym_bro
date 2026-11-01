@@ -3403,6 +3403,137 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedWriteReplyHint => 'Write a reply…';
 
   @override
+  String gymBoardCardNoRank(String gym) {
+    return 'See who\'s leading at $gym';
+  }
+
+  @override
+  String gymBoardCardRank(int rank, int total, String gym) {
+    return '#$rank of $total at $gym';
+  }
+
+  @override
+  String gymBoardCheckInsValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count check-ins',
+      one: '1 check-in',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gymBoardEmpty => 'Nobody here yet. Be the first!';
+
+  @override
+  String gymBoardGapCheckIns(int count, int rank) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more check-ins',
+      one: '1 more check-in',
+    );
+    return '$_temp0 to pass #$rank';
+  }
+
+  @override
+  String gymBoardGapWorkouts(int count, int rank) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more workouts',
+      one: '1 more workout',
+    );
+    return '$_temp0 to pass #$rank';
+  }
+
+  @override
+  String get gymBoardInfoHide =>
+      'Rather not appear? Turn off \"Show me on gym boards\" in Settings.';
+
+  @override
+  String get gymBoardInfoMembers =>
+      'Only the gym\'s active members appear here, and only members and the gym\'s team can see it.';
+
+  @override
+  String get gymBoardInfoPeriod =>
+      'Workouts and Check-ins count the last 30 days.';
+
+  @override
+  String get gymBoardInfoStreak =>
+      'Streak ranks the workouts in a row you have right now. Skipping a planned workout, or missing your weekly target, ends a streak unless a freeze covers it.';
+
+  @override
+  String get gymBoardInfoTitle => 'How gym boards work';
+
+  @override
+  String get gymBoardInfoTooltip => 'How boards work';
+
+  @override
+  String get gymBoardLoadFailed => 'Couldn\'t load the board.';
+
+  @override
+  String gymBoardNotMember(String gym) {
+    return 'Gym boards are for $gym\'s members.';
+  }
+
+  @override
+  String get gymBoardNotOnCheckIns =>
+      'Check in at the gym to get on this board.';
+
+  @override
+  String get gymBoardNotOnStreak =>
+      'Finish a workout to start a streak and join the board.';
+
+  @override
+  String get gymBoardNotOnWorkouts => 'Log a workout to get on this board.';
+
+  @override
+  String get gymBoardPeriodLast30 => 'Last 30 days';
+
+  @override
+  String get gymBoardPeriodStreak => 'Workouts in a row, right now';
+
+  @override
+  String get gymBoardTabCheckIns => 'Check-ins';
+
+  @override
+  String get gymBoardTabStreak => 'Streak';
+
+  @override
+  String get gymBoardTabWorkouts => 'Workouts';
+
+  @override
+  String get gymBoardTiedAhead =>
+      'Tied with the people ahead. One more moves you up!';
+
+  @override
+  String get gymBoardTitle => 'Gym board';
+
+  @override
+  String gymBoardWorkoutsValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count workouts',
+      one: '1 workout',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gymBoardYou => 'You';
+
+  @override
+  String get gymBoardYouLead => 'You\'re on top. Defend it!';
+
+  @override
+  String gymBoardYourRank(int rank) {
+    return 'You\'re #$rank';
+  }
+
+  @override
   String get mediaAdjustBrightness => 'Brightness';
 
   @override
@@ -8207,6 +8338,289 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storyYourStory => 'Your story';
 
   @override
+  String get streakAtRiskTitle => 'Your streak is at risk';
+
+  @override
+  String streakAtRiskToday(String name) {
+    return '$name is planned for today.';
+  }
+
+  @override
+  String streakAtRiskWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more workouts this week keep it going.',
+      one: '1 more workout this week keeps it going.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakAtRiskYesterday(String name) {
+    return 'Yesterday\'s $name isn\'t logged yet. You have until midnight.';
+  }
+
+  @override
+  String streakBadgeAt(int count) {
+    return '$count in a row';
+  }
+
+  @override
+  String get streakBadges => 'Badges';
+
+  @override
+  String streakBest(int count) {
+    return 'Best: $count';
+  }
+
+  @override
+  String streakEventBroken(int streak) {
+    return '$streak-workout streak ended';
+  }
+
+  @override
+  String get streakEventFreezeEarned => 'Perfect week, freeze earned';
+
+  @override
+  String streakEventFreezeUsed(int streak) {
+    return 'A freeze saved your $streak-workout streak';
+  }
+
+  @override
+  String streakEventTier(String tier, int streak) {
+    return '$tier badge earned ($streak in a row)';
+  }
+
+  @override
+  String streakFreezes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count freezes',
+      one: '1 freeze',
+      zero: 'No freezes',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakFreezesHelp(int max) {
+    return 'A freeze saves your streak when you miss a workout. Earn one for every perfect week (up to $max).';
+  }
+
+  @override
+  String get streakGymBoards => 'Gym boards';
+
+  @override
+  String get streakHistory => 'History';
+
+  @override
+  String get streakLoadFailed => 'Couldn\'t load your streak.';
+
+  @override
+  String get streakMuteDescription =>
+      'Reminders when your streak is at risk, freezes, new badges';
+
+  @override
+  String get streakMuteLabel => 'Streak';
+
+  @override
+  String streakNextBadge(String tier) {
+    return 'Next: $tier';
+  }
+
+  @override
+  String get streakNone => 'No streak yet. Log a workout to start one!';
+
+  @override
+  String get streakPlannedWorkout => 'a workout';
+
+  @override
+  String get streakProfileBadges => 'Streak badges';
+
+  @override
+  String get streakProgressHintNone => 'Log a workout to start';
+
+  @override
+  String get streakProgressHintOk => 'On track this week';
+
+  @override
+  String get streakProgressHintRisk => 'Train today to keep it';
+
+  @override
+  String get streakProgressTile => 'Workout streak';
+
+  @override
+  String streakRankAt(int rank, String gym) {
+    return '#$rank at $gym';
+  }
+
+  @override
+  String streakRankOf(int rank, int total) {
+    return '#$rank of $total';
+  }
+
+  @override
+  String get streakRuleBadges =>
+      'Badges: Bronze 10, Silver 50, Gold 100, Ruby 200, Emerald 365, Sapphire 500, Diamond 1000. Your avatar shows your current badge; every badge you\'ve earned stays on your profile.';
+
+  @override
+  String get streakRuleCount =>
+      'Your streak counts finished workouts with at least one logged set, not days.';
+
+  @override
+  String get streakRuleFreezes =>
+      'A banked freeze is used automatically instead of losing your streak.';
+
+  @override
+  String get streakRuleLate =>
+      'Forgot to log? You have until the end of the next day.';
+
+  @override
+  String get streakRulePlanned =>
+      'Planned workouts must be done on their day. Skipping one, or letting its day pass, ends the streak.';
+
+  @override
+  String get streakRuleTarget =>
+      'In weeks with nothing planned, reach your weekly target. The week you start in is prorated.';
+
+  @override
+  String get streakRulesTitle => 'How streaks work';
+
+  @override
+  String get streakSettingsTitle => 'Streak settings';
+
+  @override
+  String get streakShowOnBoards => 'Show me on gym boards';
+
+  @override
+  String get streakShowOnBoardsHelp =>
+      'Members of your gyms see your streak and rank.';
+
+  @override
+  String streakSkipBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Skipping uses one of your $count freezes to keep your streak.',
+      one: 'Skipping uses your freeze to keep your streak.',
+      zero: 'Skipping a planned workout ends your streak.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get streakSkipConfirm => 'Skip anyway';
+
+  @override
+  String get streakSkipTitle => 'Skip this workout?';
+
+  @override
+  String get streakTargetHelp =>
+      'In weeks without planned workouts, this many workouts keep your streak going.';
+
+  @override
+  String get streakTargetLabel => 'Weekly target';
+
+  @override
+  String get streakTargetLess => 'Fewer';
+
+  @override
+  String get streakTargetMore => 'More';
+
+  @override
+  String streakTargetValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count workouts a week',
+      one: '1 workout a week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get streakThisWeek => 'This week';
+
+  @override
+  String get streakTierBronze => 'Bronze';
+
+  @override
+  String get streakTierDiamond => 'Diamond';
+
+  @override
+  String get streakTierEmerald => 'Emerald';
+
+  @override
+  String get streakTierGold => 'Gold';
+
+  @override
+  String get streakTierRuby => 'Ruby';
+
+  @override
+  String get streakTierSapphire => 'Sapphire';
+
+  @override
+  String get streakTierSilver => 'Silver';
+
+  @override
+  String get streakTitle => 'Workout streak';
+
+  @override
+  String streakToGo(int count, int at) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more workouts to reach $at',
+      one: '1 more workout to reach $at',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get streakWeekPlannedDone =>
+      'Every planned workout done. Perfect week!';
+
+  @override
+  String streakWeekPlannedLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count planned workouts left',
+      one: '1 planned workout left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakWeekTargetDone(int done) {
+    String _temp0 = intl.Intl.pluralLogic(
+      done,
+      locale: localeName,
+      other: '$done workouts, target reached',
+      one: '1 workout, target reached',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakWeekTargetLeft(int done, int required) {
+    return '$done of $required workouts';
+  }
+
+  @override
+  String streakWorkoutsInARow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'workouts in a row',
+      one: 'workout in a row',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get tagsDone => 'Done';
 
   @override
@@ -10320,6 +10734,108 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get trainingWorkoutsToMeEmpty =>
       'No routines assigned to you yet.\nYour coach\'s assignments show up here.';
+
+  @override
+  String get workoutCompleteDone => 'Done';
+
+  @override
+  String get workoutCompleteDuration => 'Duration';
+
+  @override
+  String workoutCompleteForClient(String name) {
+    return 'Logged for $name';
+  }
+
+  @override
+  String get workoutCompleteFreezes => 'Streak freezes';
+
+  @override
+  String workoutCompleteMilestone(int count) {
+    return '$count workouts in a row!';
+  }
+
+  @override
+  String workoutCompleteMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get workoutCompleteNotCounted =>
+      'This workout doesn\'t count towards your streak. Workouts count when they\'ve happened and are logged by the end of the next day.';
+
+  @override
+  String get workoutCompletePrs => 'PRs';
+
+  @override
+  String workoutCompleteRankClimb(int rank, String gym) {
+    return '#$rank at $gym';
+  }
+
+  @override
+  String workoutCompleteRankUp(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Up $count places on the streak board',
+      one: 'Up 1 place on the streak board',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workoutCompleteSets => 'Sets';
+
+  @override
+  String get workoutCompleteShare => 'Share workout';
+
+  @override
+  String get workoutCompleteStreakLabel => 'workout streak';
+
+  @override
+  String get workoutCompleteSubtitle => 'Great work. Every rep counts.';
+
+  @override
+  String workoutCompleteTierUnlocked(String tier) {
+    return '$tier unlocked!';
+  }
+
+  @override
+  String workoutCompleteTierUnlockedBody(int count) {
+    return '$count workouts in a row. Your new badge shows on your avatar.';
+  }
+
+  @override
+  String get workoutCompleteTitle => 'Workout complete!';
+
+  @override
+  String workoutCompleteToNextTier(int count, String tier) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more workouts to $tier',
+      one: '1 more workout to $tier',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workoutCompleteViewStreak => 'View streak';
+
+  @override
+  String get workoutCompleteVolume => 'Volume';
+
+  @override
+  String get workoutCompleteWeekOnTrack => 'On track';
+
+  @override
+  String workoutCompleteWeekPlanned(int done, int total) {
+    return 'This week: $done of $total planned workouts';
+  }
+
+  @override
+  String workoutCompleteWeekTarget(int done, int required) {
+    return 'This week: $done of $required workouts';
+  }
 
   @override
   String get workoutLogAddExercise => 'Add exercise';

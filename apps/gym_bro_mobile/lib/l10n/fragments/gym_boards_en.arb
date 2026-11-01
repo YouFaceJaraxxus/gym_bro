@@ -1,0 +1,98 @@
+{
+  "gymBoardTitle": "Gym board",
+  "gymBoardTabStreak": "Streak",
+  "gymBoardTabWorkouts": "Workouts",
+  "gymBoardTabCheckIns": "Check-ins",
+  "gymBoardPeriodStreak": "Workouts in a row, right now",
+  "gymBoardPeriodLast30": "Last 30 days",
+  "gymBoardWorkoutsValue": "{count, plural, =1{1 workout} other{{count} workouts}}",
+  "@gymBoardWorkoutsValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gymBoardCheckInsValue": "{count, plural, =1{1 check-in} other{{count} check-ins}}",
+  "@gymBoardCheckInsValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "gymBoardYou": "You",
+  "gymBoardYourRank": "You're #{rank}",
+  "@gymBoardYourRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "gymBoardYouLead": "You're on top. Defend it!",
+  "gymBoardGapWorkouts": "{count, plural, =1{1 more workout} other{{count} more workouts}} to pass #{rank}",
+  "@gymBoardGapWorkouts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "gymBoardGapCheckIns": "{count, plural, =1{1 more check-in} other{{count} more check-ins}} to pass #{rank}",
+  "@gymBoardGapCheckIns": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "gymBoardTiedAhead": "Tied with the people ahead. One more moves you up!",
+  "gymBoardNotOnStreak": "Finish a workout to start a streak and join the board.",
+  "gymBoardNotOnWorkouts": "Log a workout to get on this board.",
+  "gymBoardNotOnCheckIns": "Check in at the gym to get on this board.",
+  "gymBoardEmpty": "Nobody here yet. Be the first!",
+  "gymBoardNotMember": "Gym boards are for {gym}'s members.",
+  "@gymBoardNotMember": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "gymBoardLoadFailed": "Couldn't load the board.",
+  "gymBoardInfoTooltip": "How boards work",
+  "gymBoardInfoTitle": "How gym boards work",
+  "gymBoardInfoStreak": "Streak ranks the workouts in a row you have right now. Skipping a planned workout, or missing your weekly target, ends a streak unless a freeze covers it.",
+  "gymBoardInfoPeriod": "Workouts and Check-ins count the last 30 days.",
+  "gymBoardInfoMembers": "Only the gym's active members appear here, and only members and the gym's team can see it.",
+  "gymBoardInfoHide": "Rather not appear? Turn off \"Show me on gym boards\" in Settings.",
+  "gymBoardCardRank": "#{rank} of {total} at {gym}",
+  "@gymBoardCardRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "gymBoardCardNoRank": "See who's leading at {gym}",
+  "@gymBoardCardNoRank": {
+    "placeholders": {
+      "gym": {
+        "type": "String"
+      }
+    }
+  }
+}

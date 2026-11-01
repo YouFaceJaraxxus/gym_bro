@@ -13,6 +13,7 @@ import {
   type Caller,
 } from "../_shared/auth.ts";
 import { myBusinesses, pendingInviteCount, pgCode } from "../_shared/business.ts";
+import { isTimezone } from "../_shared/plans.ts";
 import type { AuthSession, NotificationType, UserInsert, UserUpdate } from "../../types/schema/public.ts";
 
 const SAFE_COLUMNS = [
@@ -62,6 +63,7 @@ const NOTIFICATION_TYPES: readonly NotificationType[] = [
   "group_added",
   "post_reaction",
   "comment_reply",
+  "streak",
 ];
 
 const WEIGHT_UNITS = ["kg", "lb"] as const;
@@ -73,6 +75,9 @@ type SettingsBody = {
   weight_unit: (typeof WEIGHT_UNITS)[number];
   theme_mode: (typeof THEME_MODES)[number];
   locale: string | null;
+  weekly_workout_target: number;
+  show_on_gym_boards: boolean;
+  timezone: string | null;
 };
 
 const DEFAULT_SETTINGS: SettingsBody = {
@@ -81,6 +86,9 @@ const DEFAULT_SETTINGS: SettingsBody = {
   weight_unit: "kg",
   theme_mode: "system",
   locale: null,
+  weekly_workout_target: 3,
+  show_on_gym_boards: true,
+  timezone: null,
 };
 
 // ── Auth helpers ──────────────────────────────────────────────────────────────
@@ -217,6 +225,9 @@ async function loadSettings(userId: string): Promise<SettingsBody & { updated_at
       "weight_unit",
       "theme_mode",
       "locale",
+      "weekly_workout_target",
+      "show_on_gym_boards",
+      "timezone",
       "updated_at",
     ])
     .where("user_id", "=", userId)
@@ -228,7 +239,16 @@ async function loadSettings(userId: string): Promise<SettingsBody & { updated_at
 /** Validates a partial settings body. Returns the fields to write, or an error message. */
 function parseSettings(body: Record<string, unknown>): Partial<SettingsBody> | string {
   const out: Partial<SettingsBody> = {};
-  const known = ["push_enabled", "muted_types", "weight_unit", "theme_mode", "locale"];
+  const known = [
+    "push_enabled",
+    "muted_types",
+    "weight_unit",
+    "theme_mode",
+    "locale",
+    "weekly_workout_target",
+    "show_on_gym_boards",
+    "timezone",
+  ];
   const unknown = Object.keys(body).filter((k) => !known.includes(k) && k !== "updated_at" && k !== "user_id");
   if (unknown.length > 0) return `Unknown settings: ${unknown.join(", ")}`;
 
@@ -261,6 +281,22 @@ function parseSettings(body: Record<string, unknown>): Partial<SettingsBody> | s
       return "locale must be a language tag like 'en' or 'pt-BR', or null";
     }
     out.locale = locale as string | null;
+  }
+  if ("weekly_workout_target" in body) {
+    const t = body.weekly_workout_target;
+    if (typeof t !== "number" || !Number.isInteger(t) || t < 1 || t > 14) {
+      return "weekly_workout_target must be a whole number from 1 to 14";
+    }
+    out.weekly_workout_target = t;
+  }
+  if ("show_on_gym_boards" in body) {
+    if (typeof body.show_on_gym_boards !== "boolean") return "show_on_gym_boards must be a boolean";
+    out.show_on_gym_boards = body.show_on_gym_boards;
+  }
+  if ("timezone" in body) {
+    const tz = body.timezone;
+    if (tz !== null && (typeof tz !== "string" || !isTimezone(tz))) return "timezone must be an IANA zone or null";
+    out.timezone = tz as string | null;
   }
   return out;
 }
@@ -727,7 +763,8 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── PUT /users/me/settings ───────────────────────────────────────────────────
-  // Partial update: {push_enabled?, muted_types?, weight_unit?, theme_mode?, locale?}.
+  // Partial update: {push_enabled?, muted_types?, weight_unit?, theme_mode?, locale?,
+  // weekly_workout_target?, show_on_gym_boards?, timezone?}.
   // Returns the full settings after the write.
   if (req.method === "PUT" && pathname === "/users/me/settings") {
     const body = await req.json().catch(() => null);

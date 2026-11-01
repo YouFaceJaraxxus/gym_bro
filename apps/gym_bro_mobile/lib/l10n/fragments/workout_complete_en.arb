@@ -1,0 +1,107 @@
+{
+  "workoutCompleteTitle": "Workout complete!",
+  "workoutCompleteSubtitle": "Great work. Every rep counts.",
+  "workoutCompleteForClient": "Logged for {name}",
+  "@workoutCompleteForClient": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutCompleteDuration": "Duration",
+  "workoutCompleteMinutes": "{minutes} min",
+  "@workoutCompleteMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutCompleteSets": "Sets",
+  "workoutCompleteVolume": "Volume",
+  "workoutCompletePrs": "PRs",
+  "workoutCompleteStreakLabel": "workout streak",
+  "workoutCompleteTierUnlocked": "{tier} unlocked!",
+  "@workoutCompleteTierUnlocked": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutCompleteTierUnlockedBody": "{count} workouts in a row. Your new badge shows on your avatar.",
+  "@workoutCompleteTierUnlockedBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutCompleteMilestone": "{count} workouts in a row!",
+  "@workoutCompleteMilestone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutCompleteToNextTier": "{count, plural, =1{1 more workout to {tier}} other{{count} more workouts to {tier}}}",
+  "@workoutCompleteToNextTier": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutCompleteFreezes": "Streak freezes",
+  "workoutCompleteWeekPlanned": "This week: {done} of {total} planned workouts",
+  "@workoutCompleteWeekPlanned": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutCompleteWeekTarget": "This week: {done} of {required} workouts",
+  "@workoutCompleteWeekTarget": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "required": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutCompleteWeekOnTrack": "On track",
+  "workoutCompleteRankClimb": "#{rank} at {gym}",
+  "@workoutCompleteRankClimb": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      },
+      "gym": {
+        "type": "String"
+      }
+    }
+  },
+  "workoutCompleteRankUp": "{count, plural, =1{Up 1 place on the streak board} other{Up {count} places on the streak board}}",
+  "@workoutCompleteRankUp": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutCompleteNotCounted": "This workout doesn't count towards your streak. Workouts count when they've happened and are logged by the end of the next day.",
+  "workoutCompleteViewStreak": "View streak",
+  "workoutCompleteShare": "Share workout",
+  "workoutCompleteDone": "Done"
+}

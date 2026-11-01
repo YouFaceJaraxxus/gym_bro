@@ -23,6 +23,7 @@ import '../pages/shop/order_detail_page.dart';
 import '../pages/shop/storefront_page.dart';
 import '../pages/shop/storefront_shop_page.dart';
 import '../pages/stories/story_viewer_page.dart';
+import '../pages/streaks/streak_page.dart';
 import 'api_service.dart';
 import 'auth_manager.dart';
 
@@ -142,6 +143,9 @@ class NotificationRouter {
           }
         }
         await push(PostsPage(businessId: businessId, businessName: name));
+
+      case 'streak':
+        await push(const StreakPage());
 
       case 'session_comment':
         final sessionId = str('session_id');

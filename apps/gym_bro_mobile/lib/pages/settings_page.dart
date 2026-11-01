@@ -7,6 +7,7 @@ import '../services/auth_manager.dart';
 import '../services/push_service.dart';
 import '../services/settings_service.dart';
 import '../l10n/l10n.dart';
+import 'streaks/streak_page.dart';
 import 'typed_confirm_dialog.dart';
 
 /// A group of notification types muted together from Settings.
@@ -38,6 +39,7 @@ enum _MuteCategory {
     'training_update',
     'session_comment',
   ]),
+  streaks(Icons.local_fire_department_outlined, ['streak']),
   staff(Icons.badge_outlined, [
     'shift_assigned',
     'member_join',
@@ -59,6 +61,7 @@ enum _MuteCategory {
     _MuteCategory.social => l10n.shellMuteSocial,
     _MuteCategory.messages => l10n.shellMuteMessages,
     _MuteCategory.coaching => l10n.shellMuteCoaching,
+    _MuteCategory.streaks => l10n.streakMuteLabel,
     _MuteCategory.staff => l10n.shellMuteStaff,
   };
 
@@ -70,6 +73,7 @@ enum _MuteCategory {
     _MuteCategory.social => l10n.shellMuteSocialDescription,
     _MuteCategory.messages => l10n.shellMuteMessagesDescription,
     _MuteCategory.coaching => l10n.shellMuteCoachingDescription,
+    _MuteCategory.streaks => l10n.streakMuteDescription,
     _MuteCategory.staff => l10n.shellMuteStaffDescription,
   };
 }
@@ -390,6 +394,27 @@ class _SettingsPageState extends State<SettingsPage> {
                       onSelectionChanged: (v) =>
                           _save(() => _settings.update(weightUnit: v.first)),
                     ),
+                  ),
+                ],
+              ),
+
+              // ── Streak ───────────────────────────────────────────────────
+              _SectionTitle(l10n.streakTitle),
+              _SettingCard(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.flag_outlined),
+                    title: Text(l10n.streakTargetLabel),
+                    subtitle: Text(l10n.streakTargetValue(s.weeklyWorkoutTarget)),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => showStreakSettingsSheet(context),
+                  ),
+                  SwitchListTile(
+                    secondary: const Icon(Icons.leaderboard_outlined),
+                    title: Text(l10n.streakShowOnBoards),
+                    subtitle: Text(l10n.streakShowOnBoardsHelp),
+                    value: s.showOnGymBoards,
+                    onChanged: (v) => _save(() => _settings.update(showOnGymBoards: v)),
                   ),
                 ],
               ),

@@ -1,5 +1,7 @@
 // People: profiles, relationships, discovery (API: /social/*).
 
+import 'streak.dart';
+
 /// Minimal public card of a user (lists, search results, chat members).
 class PersonSummary {
   final String id;
@@ -7,6 +9,9 @@ class PersonSummary {
   final String name;
   final String lastName;
   final String? avatarUrl;
+
+  /// Their current streak badge, on avatars.
+  final StreakTier? streakTier;
 
   /// Present on list rows from /social/* (null elsewhere).
   final String? bio;
@@ -21,6 +26,7 @@ class PersonSummary {
     required this.name,
     required this.lastName,
     this.avatarUrl,
+    this.streakTier,
     this.bio,
     this.isPrivate = false,
     this.relationship,
@@ -41,6 +47,7 @@ class PersonSummary {
     name: json['name'] as String? ?? '',
     lastName: json['last_name'] as String? ?? '',
     avatarUrl: json['avatar_url'] as String?,
+    streakTier: StreakTier.fromApi(json['streak_tier']),
     bio: json['bio'] as String?,
     isPrivate: json['is_private'] as bool? ?? false,
     relationship: Relationship.maybeFromJson(json['relationship']),
@@ -55,6 +62,7 @@ class PersonSummary {
     name: name,
     lastName: lastName,
     avatarUrl: avatarUrl,
+    streakTier: streakTier,
     bio: bio,
     isPrivate: isPrivate,
     relationship: relationship ?? this.relationship,
@@ -216,6 +224,9 @@ class PublicProfile {
   final String name;
   final String lastName;
   final String? avatarUrl;
+
+  /// Their current streak badge, on the avatar.
+  final StreakTier? streakTier;
   final String? bio;
   final List<String> interests;
 
@@ -266,6 +277,7 @@ class PublicProfile {
     required this.name,
     required this.lastName,
     this.avatarUrl,
+    this.streakTier,
     this.bio,
     this.interests = const [],
     this.isTrainer = false,
@@ -298,7 +310,7 @@ class PublicProfile {
   String? get websiteLabel => website?.replaceFirst(RegExp(r'^https?://', caseSensitive: false), '').replaceFirst(RegExp(r'/$'), '');
 
   PersonSummary get summary =>
-      PersonSummary(id: id, username: username, name: name, lastName: lastName, avatarUrl: avatarUrl, bio: bio, isPrivate: isPrivate, relationship: relationship);
+      PersonSummary(id: id, username: username, name: name, lastName: lastName, avatarUrl: avatarUrl, streakTier: streakTier, bio: bio, isPrivate: isPrivate, relationship: relationship);
 
   factory PublicProfile.fromJson(Map<String, dynamic> json) {
     final mutual = json['mutual_friends'] as Map<String, dynamic>? ?? const {};
@@ -308,6 +320,7 @@ class PublicProfile {
       name: json['name'] as String? ?? '',
       lastName: json['last_name'] as String? ?? '',
       avatarUrl: json['avatar_url'] as String?,
+      streakTier: StreakTier.fromApi(json['streak_tier']),
       bio: json['bio'] as String?,
       interests: (json['interests'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
       isTrainer: json['is_trainer'] as bool? ?? false,

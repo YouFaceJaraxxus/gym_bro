@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../l10n/l10n.dart';
 import '../../models/progress.dart';
+import '../../models/streak.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_manager.dart';
 import '../../services/settings_service.dart';
+import '../../utils/device_timezone.dart';
 import '../../widgets/sparkline.dart';
+import '../streaks/streak_page.dart';
 import 'body_measurements_tab.dart';
 import 'exercise_progress_page.dart';
 import 'progress_format.dart';
@@ -74,6 +77,10 @@ class _TrainingTabState extends State<_TrainingTab> with AutomaticKeepAliveClien
   final _search = TextEditingController();
   ProgressSummary? _summary;
   List<ExerciseProgress> _exercises = [];
+
+  /// The workout streak; null until loaded (or if it couldn't be).
+  StreakSummary? _streak;
+  bool _streakAtRisk = false;
   bool _loading = true;
   String? _error;
 
@@ -109,12 +116,32 @@ class _TrainingTabState extends State<_TrainingTab> with AutomaticKeepAliveClien
         _exercises = results[1] as List<ExerciseProgress>;
         _loading = false;
       });
+      _loadStreak(token);
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _error = e.toString().replaceFirst('Exception: ', '');
         _loading = false;
       });
+    }
+  }
+
+  Future<void> _loadStreak(String token) async {
+    try {
+      final me = widget.userId == null || widget.userId == AuthManager.instance.profile?.id;
+      if (me) {
+        final status = await _api.getStreak(token, tz: await deviceTimezone());
+        if (!mounted) return;
+        setState(() {
+          _streak = StreakSummary.of(status, AuthManager.instance.profile?.id ?? '');
+          _streakAtRisk = status.needsWorkoutToday;
+        });
+      } else {
+        final streak = await _api.getUserStreak(token, widget.userId!);
+        if (mounted) setState(() => _streak = streak);
+      }
+    } catch (_) {
+      // The tile just stays empty.
     }
   }
 
@@ -196,15 +223,21 @@ class _TrainingTabState extends State<_TrainingTab> with AutomaticKeepAliveClien
                 label: l10n.trainingProgressStatVolume30d,
                 value: formatVolume(s.volume30dKg, locale),
               ),
-              _StatTile(
-                icon: Icons.local_fire_department_outlined,
-                label: l10n.trainingProgressStatStreak,
-                value: l10n.trainingProgressStreakWeeks(s.streakWeeks),
-                hint: s.streakWeeks == 0
-                    ? l10n.trainingProgressStreakStart
-                    : s.trainedThisWeek
-                    ? l10n.trainingProgressStreakDone
-                    : l10n.trainingProgressStreakKeep,
+              InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: widget.userId == null
+                    ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StreakPage()))
+                    : null,
+                child: _StatTile(
+                  icon: Icons.local_fire_department_outlined,
+                  label: l10n.streakProgressTile,
+                  value: _streak == null ? '–' : '${_streak!.current}',
+                  hint: _streak == null || _streak!.current == 0
+                      ? l10n.streakProgressHintNone
+                      : _streakAtRisk
+                      ? l10n.streakProgressHintRisk
+                      : l10n.streakProgressHintOk,
+                ),
               ),
             ],
           ),

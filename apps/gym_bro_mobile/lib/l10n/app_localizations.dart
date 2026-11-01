@@ -5449,6 +5449,174 @@ abstract class AppLocalizations {
   /// **'Write a reply…'**
   String get feedWriteReplyHint;
 
+  /// No description provided for @gymBoardCardNoRank.
+  ///
+  /// In en, this message translates to:
+  /// **'See who\'s leading at {gym}'**
+  String gymBoardCardNoRank(String gym);
+
+  /// No description provided for @gymBoardCardRank.
+  ///
+  /// In en, this message translates to:
+  /// **'#{rank} of {total} at {gym}'**
+  String gymBoardCardRank(int rank, int total, String gym);
+
+  /// No description provided for @gymBoardCheckInsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 check-in} other{{count} check-ins}}'**
+  String gymBoardCheckInsValue(int count);
+
+  /// No description provided for @gymBoardEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody here yet. Be the first!'**
+  String get gymBoardEmpty;
+
+  /// No description provided for @gymBoardGapCheckIns.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more check-in} other{{count} more check-ins}} to pass #{rank}'**
+  String gymBoardGapCheckIns(int count, int rank);
+
+  /// No description provided for @gymBoardGapWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more workout} other{{count} more workouts}} to pass #{rank}'**
+  String gymBoardGapWorkouts(int count, int rank);
+
+  /// No description provided for @gymBoardInfoHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Rather not appear? Turn off \"Show me on gym boards\" in Settings.'**
+  String get gymBoardInfoHide;
+
+  /// No description provided for @gymBoardInfoMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the gym\'s active members appear here, and only members and the gym\'s team can see it.'**
+  String get gymBoardInfoMembers;
+
+  /// No description provided for @gymBoardInfoPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts and Check-ins count the last 30 days.'**
+  String get gymBoardInfoPeriod;
+
+  /// No description provided for @gymBoardInfoStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak ranks the workouts in a row you have right now. Skipping a planned workout, or missing your weekly target, ends a streak unless a freeze covers it.'**
+  String get gymBoardInfoStreak;
+
+  /// No description provided for @gymBoardInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How gym boards work'**
+  String get gymBoardInfoTitle;
+
+  /// No description provided for @gymBoardInfoTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'How boards work'**
+  String get gymBoardInfoTooltip;
+
+  /// No description provided for @gymBoardLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load the board.'**
+  String get gymBoardLoadFailed;
+
+  /// No description provided for @gymBoardNotMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym boards are for {gym}\'s members.'**
+  String gymBoardNotMember(String gym);
+
+  /// No description provided for @gymBoardNotOnCheckIns.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in at the gym to get on this board.'**
+  String get gymBoardNotOnCheckIns;
+
+  /// No description provided for @gymBoardNotOnStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish a workout to start a streak and join the board.'**
+  String get gymBoardNotOnStreak;
+
+  /// No description provided for @gymBoardNotOnWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a workout to get on this board.'**
+  String get gymBoardNotOnWorkouts;
+
+  /// No description provided for @gymBoardPeriodLast30.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get gymBoardPeriodLast30;
+
+  /// No description provided for @gymBoardPeriodStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts in a row, right now'**
+  String get gymBoardPeriodStreak;
+
+  /// No description provided for @gymBoardTabCheckIns.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-ins'**
+  String get gymBoardTabCheckIns;
+
+  /// No description provided for @gymBoardTabStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak'**
+  String get gymBoardTabStreak;
+
+  /// No description provided for @gymBoardTabWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts'**
+  String get gymBoardTabWorkouts;
+
+  /// No description provided for @gymBoardTiedAhead.
+  ///
+  /// In en, this message translates to:
+  /// **'Tied with the people ahead. One more moves you up!'**
+  String get gymBoardTiedAhead;
+
+  /// No description provided for @gymBoardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym board'**
+  String get gymBoardTitle;
+
+  /// No description provided for @gymBoardWorkoutsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 workout} other{{count} workouts}}'**
+  String gymBoardWorkoutsValue(int count);
+
+  /// No description provided for @gymBoardYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get gymBoardYou;
+
+  /// No description provided for @gymBoardYouLead.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re on top. Defend it!'**
+  String get gymBoardYouLead;
+
+  /// No description provided for @gymBoardYourRank.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re #{rank}'**
+  String gymBoardYourRank(int rank);
+
   /// No description provided for @mediaAdjustBrightness.
   ///
   /// In en, this message translates to:
@@ -13489,6 +13657,372 @@ abstract class AppLocalizations {
   /// **'Your story'**
   String get storyYourStory;
 
+  /// No description provided for @streakAtRiskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your streak is at risk'**
+  String get streakAtRiskTitle;
+
+  /// No description provided for @streakAtRiskToday.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is planned for today.'**
+  String streakAtRiskToday(String name);
+
+  /// No description provided for @streakAtRiskWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more workout this week keeps it going.} other{{count} more workouts this week keep it going.}}'**
+  String streakAtRiskWeek(int count);
+
+  /// No description provided for @streakAtRiskYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday\'s {name} isn\'t logged yet. You have until midnight.'**
+  String streakAtRiskYesterday(String name);
+
+  /// No description provided for @streakBadgeAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} in a row'**
+  String streakBadgeAt(int count);
+
+  /// No description provided for @streakBadges.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges'**
+  String get streakBadges;
+
+  /// No description provided for @streakBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Best: {count}'**
+  String streakBest(int count);
+
+  /// No description provided for @streakEventBroken.
+  ///
+  /// In en, this message translates to:
+  /// **'{streak}-workout streak ended'**
+  String streakEventBroken(int streak);
+
+  /// No description provided for @streakEventFreezeEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect week, freeze earned'**
+  String get streakEventFreezeEarned;
+
+  /// No description provided for @streakEventFreezeUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'A freeze saved your {streak}-workout streak'**
+  String streakEventFreezeUsed(int streak);
+
+  /// No description provided for @streakEventTier.
+  ///
+  /// In en, this message translates to:
+  /// **'{tier} badge earned ({streak} in a row)'**
+  String streakEventTier(String tier, int streak);
+
+  /// No description provided for @streakFreezes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No freezes} =1{1 freeze} other{{count} freezes}}'**
+  String streakFreezes(int count);
+
+  /// No description provided for @streakFreezesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A freeze saves your streak when you miss a workout. Earn one for every perfect week (up to {max}).'**
+  String streakFreezesHelp(int max);
+
+  /// No description provided for @streakGymBoards.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym boards'**
+  String get streakGymBoards;
+
+  /// No description provided for @streakHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get streakHistory;
+
+  /// No description provided for @streakLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your streak.'**
+  String get streakLoadFailed;
+
+  /// No description provided for @streakMuteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders when your streak is at risk, freezes, new badges'**
+  String get streakMuteDescription;
+
+  /// No description provided for @streakMuteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak'**
+  String get streakMuteLabel;
+
+  /// No description provided for @streakNextBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {tier}'**
+  String streakNextBadge(String tier);
+
+  /// No description provided for @streakNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No streak yet. Log a workout to start one!'**
+  String get streakNone;
+
+  /// No description provided for @streakPlannedWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'a workout'**
+  String get streakPlannedWorkout;
+
+  /// No description provided for @streakProfileBadges.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak badges'**
+  String get streakProfileBadges;
+
+  /// No description provided for @streakProgressHintNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a workout to start'**
+  String get streakProgressHintNone;
+
+  /// No description provided for @streakProgressHintOk.
+  ///
+  /// In en, this message translates to:
+  /// **'On track this week'**
+  String get streakProgressHintOk;
+
+  /// No description provided for @streakProgressHintRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Train today to keep it'**
+  String get streakProgressHintRisk;
+
+  /// No description provided for @streakProgressTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout streak'**
+  String get streakProgressTile;
+
+  /// No description provided for @streakRankAt.
+  ///
+  /// In en, this message translates to:
+  /// **'#{rank} at {gym}'**
+  String streakRankAt(int rank, String gym);
+
+  /// No description provided for @streakRankOf.
+  ///
+  /// In en, this message translates to:
+  /// **'#{rank} of {total}'**
+  String streakRankOf(int rank, int total);
+
+  /// No description provided for @streakRuleBadges.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges: Bronze 10, Silver 50, Gold 100, Ruby 200, Emerald 365, Sapphire 500, Diamond 1000. Your avatar shows your current badge; every badge you\'ve earned stays on your profile.'**
+  String get streakRuleBadges;
+
+  /// No description provided for @streakRuleCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Your streak counts finished workouts with at least one logged set, not days.'**
+  String get streakRuleCount;
+
+  /// No description provided for @streakRuleFreezes.
+  ///
+  /// In en, this message translates to:
+  /// **'A banked freeze is used automatically instead of losing your streak.'**
+  String get streakRuleFreezes;
+
+  /// No description provided for @streakRuleLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot to log? You have until the end of the next day.'**
+  String get streakRuleLate;
+
+  /// No description provided for @streakRulePlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Planned workouts must be done on their day. Skipping one, or letting its day pass, ends the streak.'**
+  String get streakRulePlanned;
+
+  /// No description provided for @streakRuleTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'In weeks with nothing planned, reach your weekly target. The week you start in is prorated.'**
+  String get streakRuleTarget;
+
+  /// No description provided for @streakRulesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How streaks work'**
+  String get streakRulesTitle;
+
+  /// No description provided for @streakSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak settings'**
+  String get streakSettingsTitle;
+
+  /// No description provided for @streakShowOnBoards.
+  ///
+  /// In en, this message translates to:
+  /// **'Show me on gym boards'**
+  String get streakShowOnBoards;
+
+  /// No description provided for @streakShowOnBoardsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Members of your gyms see your streak and rank.'**
+  String get streakShowOnBoardsHelp;
+
+  /// No description provided for @streakSkipBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Skipping a planned workout ends your streak.} =1{Skipping uses your freeze to keep your streak.} other{Skipping uses one of your {count} freezes to keep your streak.}}'**
+  String streakSkipBody(int count);
+
+  /// No description provided for @streakSkipConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip anyway'**
+  String get streakSkipConfirm;
+
+  /// No description provided for @streakSkipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip this workout?'**
+  String get streakSkipTitle;
+
+  /// No description provided for @streakTargetHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'In weeks without planned workouts, this many workouts keep your streak going.'**
+  String get streakTargetHelp;
+
+  /// No description provided for @streakTargetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly target'**
+  String get streakTargetLabel;
+
+  /// No description provided for @streakTargetLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer'**
+  String get streakTargetLess;
+
+  /// No description provided for @streakTargetMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get streakTargetMore;
+
+  /// No description provided for @streakTargetValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 workout a week} other{{count} workouts a week}}'**
+  String streakTargetValue(int count);
+
+  /// No description provided for @streakThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get streakThisWeek;
+
+  /// No description provided for @streakTierBronze.
+  ///
+  /// In en, this message translates to:
+  /// **'Bronze'**
+  String get streakTierBronze;
+
+  /// No description provided for @streakTierDiamond.
+  ///
+  /// In en, this message translates to:
+  /// **'Diamond'**
+  String get streakTierDiamond;
+
+  /// No description provided for @streakTierEmerald.
+  ///
+  /// In en, this message translates to:
+  /// **'Emerald'**
+  String get streakTierEmerald;
+
+  /// No description provided for @streakTierGold.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold'**
+  String get streakTierGold;
+
+  /// No description provided for @streakTierRuby.
+  ///
+  /// In en, this message translates to:
+  /// **'Ruby'**
+  String get streakTierRuby;
+
+  /// No description provided for @streakTierSapphire.
+  ///
+  /// In en, this message translates to:
+  /// **'Sapphire'**
+  String get streakTierSapphire;
+
+  /// No description provided for @streakTierSilver.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver'**
+  String get streakTierSilver;
+
+  /// No description provided for @streakTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout streak'**
+  String get streakTitle;
+
+  /// No description provided for @streakToGo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more workout to reach {at}} other{{count} more workouts to reach {at}}}'**
+  String streakToGo(int count, int at);
+
+  /// No description provided for @streakWeekPlannedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Every planned workout done. Perfect week!'**
+  String get streakWeekPlannedDone;
+
+  /// No description provided for @streakWeekPlannedLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 planned workout left} other{{count} planned workouts left}}'**
+  String streakWeekPlannedLeft(int count);
+
+  /// No description provided for @streakWeekTargetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{done, plural, =1{1 workout, target reached} other{{done} workouts, target reached}}'**
+  String streakWeekTargetDone(int done);
+
+  /// No description provided for @streakWeekTargetLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {required} workouts'**
+  String streakWeekTargetLeft(int done, int required);
+
+  /// No description provided for @streakWorkoutsInARow.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{workout in a row} other{workouts in a row}}'**
+  String streakWorkoutsInARow(int count);
+
   /// No description provided for @tagsDone.
   ///
   /// In en, this message translates to:
@@ -16984,6 +17518,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No routines assigned to you yet.\nYour coach\'s assignments show up here.'**
   String get trainingWorkoutsToMeEmpty;
+
+  /// No description provided for @workoutCompleteDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get workoutCompleteDone;
+
+  /// No description provided for @workoutCompleteDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get workoutCompleteDuration;
+
+  /// No description provided for @workoutCompleteForClient.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged for {name}'**
+  String workoutCompleteForClient(String name);
+
+  /// No description provided for @workoutCompleteFreezes.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak freezes'**
+  String get workoutCompleteFreezes;
+
+  /// No description provided for @workoutCompleteMilestone.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} workouts in a row!'**
+  String workoutCompleteMilestone(int count);
+
+  /// No description provided for @workoutCompleteMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String workoutCompleteMinutes(int minutes);
+
+  /// No description provided for @workoutCompleteNotCounted.
+  ///
+  /// In en, this message translates to:
+  /// **'This workout doesn\'t count towards your streak. Workouts count when they\'ve happened and are logged by the end of the next day.'**
+  String get workoutCompleteNotCounted;
+
+  /// No description provided for @workoutCompletePrs.
+  ///
+  /// In en, this message translates to:
+  /// **'PRs'**
+  String get workoutCompletePrs;
+
+  /// No description provided for @workoutCompleteRankClimb.
+  ///
+  /// In en, this message translates to:
+  /// **'#{rank} at {gym}'**
+  String workoutCompleteRankClimb(int rank, String gym);
+
+  /// No description provided for @workoutCompleteRankUp.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Up 1 place on the streak board} other{Up {count} places on the streak board}}'**
+  String workoutCompleteRankUp(int count);
+
+  /// No description provided for @workoutCompleteSets.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets'**
+  String get workoutCompleteSets;
+
+  /// No description provided for @workoutCompleteShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share workout'**
+  String get workoutCompleteShare;
+
+  /// No description provided for @workoutCompleteStreakLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'workout streak'**
+  String get workoutCompleteStreakLabel;
+
+  /// No description provided for @workoutCompleteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Great work. Every rep counts.'**
+  String get workoutCompleteSubtitle;
+
+  /// No description provided for @workoutCompleteTierUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{tier} unlocked!'**
+  String workoutCompleteTierUnlocked(String tier);
+
+  /// No description provided for @workoutCompleteTierUnlockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} workouts in a row. Your new badge shows on your avatar.'**
+  String workoutCompleteTierUnlockedBody(int count);
+
+  /// No description provided for @workoutCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout complete!'**
+  String get workoutCompleteTitle;
+
+  /// No description provided for @workoutCompleteToNextTier.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more workout to {tier}} other{{count} more workouts to {tier}}}'**
+  String workoutCompleteToNextTier(int count, String tier);
+
+  /// No description provided for @workoutCompleteViewStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'View streak'**
+  String get workoutCompleteViewStreak;
+
+  /// No description provided for @workoutCompleteVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get workoutCompleteVolume;
+
+  /// No description provided for @workoutCompleteWeekOnTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'On track'**
+  String get workoutCompleteWeekOnTrack;
+
+  /// No description provided for @workoutCompleteWeekPlanned.
+  ///
+  /// In en, this message translates to:
+  /// **'This week: {done} of {total} planned workouts'**
+  String workoutCompleteWeekPlanned(int done, int total);
+
+  /// No description provided for @workoutCompleteWeekTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'This week: {done} of {required} workouts'**
+  String workoutCompleteWeekTarget(int done, int required);
 
   /// No description provided for @workoutLogAddExercise.
   ///

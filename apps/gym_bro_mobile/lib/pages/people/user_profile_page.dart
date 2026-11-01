@@ -11,6 +11,7 @@ import '../../services/auth_manager.dart';
 import '../../widgets/open_url.dart';
 import '../../widgets/person_tile.dart';
 import '../../widgets/post_grid.dart';
+import '../../widgets/profile_streak_row.dart';
 import '../../widgets/share_sheet.dart';
 import '../../widgets/social_widgets.dart';
 import '../chat/chat_launcher.dart';
@@ -81,7 +82,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
   /// Their live stories (the avatar ring), then the profile again for the ring.
   Future<void> _openStories(PublicProfile p) async {
     await openUserStories(context, [
-      SocialUser(id: p.id, username: p.username, name: p.name, lastName: p.lastName, avatarUrl: p.avatarUrl),
+      SocialUser(id: p.id, username: p.username, name: p.name, lastName: p.lastName, avatarUrl: p.avatarUrl, streakTier: p.streakTier),
     ]);
     if (mounted) _load();
   }
@@ -665,7 +666,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 radius: 42,
                 ring: StoryRingAvatar.ringFor(hasStory: p.hasStory, hasUnseen: p.hasUnseenStory),
                 onTap: p.hasStory ? () => _openStories(p) : null,
-                child: UserAvatar(url: p.avatarUrl, initials: initials, radius: 42, online: isActiveNow(p.lastActiveAt)),
+                child: UserAvatar(url: p.avatarUrl, initials: initials, radius: 42, online: isActiveNow(p.lastActiveAt), streakTier: p.streakTier),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -725,6 +726,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             const SizedBox(height: 6),
             _ExpandableBio(text: p.bio!.trim()),
           ],
+          if (!_blocked) ProfileStreakRow(key: ValueKey('streak-$_refreshGen'), userId: p.id, isMe: _isMe),
           if (p.website != null && !locked) ...[
             const SizedBox(height: 4),
             InkWell(

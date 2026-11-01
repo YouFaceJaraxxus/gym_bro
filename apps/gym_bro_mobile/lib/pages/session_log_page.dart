@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../l10n/l10n.dart';
 import '../models/exercise.dart';
 import '../models/training.dart';
@@ -12,16 +14,16 @@ import '../utils/one_rep_max.dart';
 import '../widgets/exercise_picker_sheet.dart';
 import '../widgets/plate_calculator_sheet.dart';
 import '../widgets/rest_timer.dart';
-import '../widgets/share_post.dart';
 import '../widgets/app_bottom_sheet.dart';
+import 'workout_complete_page.dart';
 
 /// Active workout logging screen.
 /// Pass [training] for a structured session following a program,
 /// or null for a free-form ad-hoc session.
 ///
-/// After each logged set a rest countdown starts; a "New PR!" snackbar shows
-/// when the API reports a personal record; sets logged offline stay visible
-/// as pending until the outbox syncs them.
+/// After each logged set a rest countdown starts; a trophy pops up when the
+/// API reports a personal record; sets logged offline stay visible as
+/// pending until the outbox syncs them. Finishing opens [WorkoutCompletePage].
 ///
 /// A trainer passes [clientId] (and [clientName]) to run the session for
 /// someone they coach; it's saved as the client's, with the trainer on it.
@@ -51,6 +53,10 @@ class _SessionLogPageState extends State<SessionLogPage> {
   bool _finishing = false;
   String? _error;
 
+  /// PRs reported this session, for the summary.
+  int _prCount = 0;
+  OverlayEntry? _prOverlay;
+
   // Live elapsed time
   late final Timer _timer;
   Duration _elapsed = Duration.zero;
@@ -75,6 +81,8 @@ class _SessionLogPageState extends State<SessionLogPage> {
   void dispose() {
     _timer.cancel();
     _rest.dispose();
+    _prOverlay?.remove();
+    _prOverlay = null;
     super.dispose();
   }
 
@@ -131,9 +139,12 @@ class _SessionLogPageState extends State<SessionLogPage> {
       _rest.skip();
       if (!mounted) return;
       final navigator = Navigator.of(context);
-      final l10n = context.l10n;
       navigator.pop(true);
-      showLoggedWithShare(messenger, navigator, message: l10n.postShareWorkoutFinished, target: workoutShareTarget(ended));
+      // Sharing lives on the summary now.
+      navigator.push(MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => WorkoutCompletePage(session: ended, prCount: _prCount, clientName: widget.clientName),
+      ));
     } catch (e) {
       if (!mounted) return;
       setState(() => _finishing = false);
@@ -159,7 +170,6 @@ class _SessionLogPageState extends State<SessionLogPage> {
     _rest.start(restSeconds != null && restSeconds > 0 ? restSeconds : null);
 
     final messenger = ScaffoldMessenger.of(context);
-    final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     if (queued) {
       messenger.showSnackBar(SnackBar(
@@ -176,25 +186,25 @@ class _SessionLogPageState extends State<SessionLogPage> {
     if (result != null && result.isPr) {
       final name = exerciseName(result.prExerciseId);
       final e1rm = result.prE1rm;
-      messenger.showSnackBar(SnackBar(
-        backgroundColor: cs.tertiaryContainer,
-        duration: const Duration(seconds: 5),
-        content: Row(
-          children: [
-            Icon(Icons.emoji_events, color: cs.onTertiaryContainer),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                e1rm != null
-                    ? l10n.trainingLogNewPrWithE1rm(name, _settings.formatWeight(e1rm))
-                    : l10n.trainingLogNewPr(name),
-                style: TextStyle(color: cs.onTertiaryContainer, fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        ),
-      ));
+      _prCount++;
+      _celebratePr(e1rm != null
+          ? l10n.trainingLogNewPrWithE1rm(name, _settings.formatWeight(e1rm))
+          : l10n.trainingLogNewPr(name));
     }
+  }
+
+  /// A trophy popping up over the page for a moment, with a thump.
+  void _celebratePr(String message) {
+    HapticFeedback.heavyImpact();
+    _prOverlay?.remove();
+    final entry = OverlayEntry(builder: (_) => _PrCelebration(message: message));
+    _prOverlay = entry;
+    Overlay.of(context).insert(entry);
+    Future.delayed(_PrCelebration.duration, () {
+      if (_prOverlay != entry) return;
+      entry.remove();
+      _prOverlay = null;
+    });
   }
 
   String get _elapsedLabel {
@@ -1019,4 +1029,72 @@ class _LoggedDrop {
         'weight_kg_actual': weightKg,
         'side': side.apiValue,
       };
+}
+
+// ── PR celebration ────────────────────────────────────────────────────────────
+
+/// A gold trophy bouncing in with [message], fading away after [duration].
+/// Lets taps through to the page underneath.
+class _PrCelebration extends StatelessWidget {
+  final String message;
+
+  static const duration = Duration(milliseconds: 1800);
+  static const _gold = Color(0xFFF2B921);
+  static const _goldLight = Color(0xFFFFE795);
+
+  const _PrCelebration({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    final calm = MediaQuery.of(context).disableAnimations;
+    Widget trophy = const Icon(Icons.emoji_events_rounded, size: 64, color: _gold);
+    if (!calm) {
+      trophy = trophy
+          .animate()
+          .scale(begin: const Offset(0.2, 0.2), duration: 650.ms, curve: Curves.elasticOut)
+          .then(delay: 100.ms)
+          .shimmer(duration: 700.ms, color: _goldLight);
+    }
+    Widget card = Material(
+      color: cs.tertiaryContainer,
+      elevation: 6,
+      borderRadius: BorderRadius.circular(24),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            trophy,
+            const SizedBox(height: 10),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: text.titleMedium?.copyWith(color: cs.onTertiaryContainer, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!calm) {
+      card = card
+          .animate()
+          .fadeIn(duration: 150.ms)
+          .slideY(begin: 0.2, end: 0, duration: 300.ms, curve: Curves.easeOutBack)
+          .then(delay: 1150.ms)
+          .fadeOut(duration: 200.ms);
+    }
+    return IgnorePointer(
+      child: SafeArea(
+        child: Align(
+          alignment: const Alignment(0, -0.4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: card,
+          ),
+        ),
+      ),
+    );
+  }
 }

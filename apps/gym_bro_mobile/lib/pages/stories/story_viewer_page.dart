@@ -654,7 +654,7 @@ class _ReelViewState extends State<_ReelView> with TickerProviderStateMixin {
     final time = story.isLive ? _ago(l10n, story.createdAt) : MaterialLocalizations.of(context).formatMediumDate(story.createdAt);
     final title = widget.reel.title;
     return Row(children: [
-      UserAvatar(url: author?.avatarUrl, initials: author?.initials ?? '?', radius: 16),
+      UserAvatar(url: author?.avatarUrl, initials: author?.initials ?? '?', radius: 16, streakTier: author?.streakTier),
       const SizedBox(width: 8),
       Flexible(
         child: Text(

@@ -3411,6 +3411,141 @@ class AppLocalizationsSr extends AppLocalizations {
   String get feedWriteReplyHint => 'Napiši odgovor…';
 
   @override
+  String gymBoardCardNoRank(String gym) {
+    return 'Pogledaj ko vodi u $gym';
+  }
+
+  @override
+  String gymBoardCardRank(int rank, int total, String gym) {
+    return '#$rank od $total u $gym';
+  }
+
+  @override
+  String gymBoardCheckInsValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dolazaka',
+      few: '$count dolaska',
+      one: '1 dolazak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gymBoardEmpty => 'Još nikog nema. Budi prvi!';
+
+  @override
+  String gymBoardGapCheckIns(int count, int rank) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dolazaka',
+      few: '$count dolaska',
+      one: '1 dolazak',
+    );
+    return 'Još $_temp0 do mesta #$rank';
+  }
+
+  @override
+  String gymBoardGapWorkouts(int count, int rank) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treninga',
+      few: '$count treninga',
+      one: '1 trening',
+    );
+    return 'Još $_temp0 do mesta #$rank';
+  }
+
+  @override
+  String get gymBoardInfoHide =>
+      'Ne želiš da se pojavljuješ? Isključi \"Prikaži me na tablama teretana\" u Podešavanjima.';
+
+  @override
+  String get gymBoardInfoMembers =>
+      'Ovde se pojavljuju samo aktivni članovi teretane, a vide je samo članovi i tim teretane.';
+
+  @override
+  String get gymBoardInfoPeriod =>
+      'Treninzi i Dolasci broje poslednjih 30 dana.';
+
+  @override
+  String get gymBoardInfoStreak =>
+      'Niz rangira koliko treninga zaredom trenutno imaš. Preskočen planirani trening ili nedostignut nedeljni cilj prekida niz, osim ako ga zamrzavanje ne pokrije.';
+
+  @override
+  String get gymBoardInfoTitle => 'Kako rade table teretane';
+
+  @override
+  String get gymBoardInfoTooltip => 'Kako table rade';
+
+  @override
+  String get gymBoardLoadFailed => 'Tabla nije učitana.';
+
+  @override
+  String gymBoardNotMember(String gym) {
+    return 'Table teretane su za članove teretane $gym.';
+  }
+
+  @override
+  String get gymBoardNotOnCheckIns =>
+      'Prijavi dolazak u teretanu da bi ušao na ovu tablu.';
+
+  @override
+  String get gymBoardNotOnStreak =>
+      'Završi trening, započni niz i uđi na tablu.';
+
+  @override
+  String get gymBoardNotOnWorkouts => 'Upiši trening da bi ušao na ovu tablu.';
+
+  @override
+  String get gymBoardPeriodLast30 => 'Poslednjih 30 dana';
+
+  @override
+  String get gymBoardPeriodStreak => 'Treninga zaredom, trenutno';
+
+  @override
+  String get gymBoardTabCheckIns => 'Dolasci';
+
+  @override
+  String get gymBoardTabStreak => 'Niz';
+
+  @override
+  String get gymBoardTabWorkouts => 'Treninzi';
+
+  @override
+  String get gymBoardTiedAhead =>
+      'Izjednačen si sa onima ispred. Još jedan i penješ se!';
+
+  @override
+  String get gymBoardTitle => 'Tabla teretane';
+
+  @override
+  String gymBoardWorkoutsValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treninga',
+      few: '$count treninga',
+      one: '1 trening',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gymBoardYou => 'Ti';
+
+  @override
+  String get gymBoardYouLead => 'Ti si na vrhu. Odbrani mesto!';
+
+  @override
+  String gymBoardYourRank(int rank) {
+    return 'Ti si #$rank';
+  }
+
+  @override
   String get mediaAdjustBrightness => 'Osvetljenost';
 
   @override
@@ -8263,6 +8398,298 @@ class AppLocalizationsSr extends AppLocalizations {
   String get storyYourStory => 'Tvoja priča';
 
   @override
+  String get streakAtRiskTitle => 'Tvoj niz je u opasnosti';
+
+  @override
+  String streakAtRiskToday(String name) {
+    return '$name je planiran za danas.';
+  }
+
+  @override
+  String streakAtRiskWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Još $count treninga ove nedelje ga održava.',
+      few: 'Još $count treninga ove nedelje ga održavaju.',
+      one: 'Još $count trening ove nedelje ga održava.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakAtRiskYesterday(String name) {
+    return 'Jučerašnji $name još nije upisan. Imaš vremena do ponoći.';
+  }
+
+  @override
+  String streakBadgeAt(int count) {
+    return '$count zaredom';
+  }
+
+  @override
+  String get streakBadges => 'Bedževi';
+
+  @override
+  String streakBest(int count) {
+    return 'Najbolji: $count';
+  }
+
+  @override
+  String streakEventBroken(int streak) {
+    return 'Niz od $streak treninga je prekinut';
+  }
+
+  @override
+  String get streakEventFreezeEarned =>
+      'Savršena nedelja, dobijeno zamrzavanje';
+
+  @override
+  String streakEventFreezeUsed(int streak) {
+    return 'Zamrzavanje je sačuvalo tvoj niz od $streak treninga';
+  }
+
+  @override
+  String streakEventTier(String tier, int streak) {
+    return 'Osvojen bedž $tier ($streak zaredom)';
+  }
+
+  @override
+  String streakFreezes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zamrzavanja',
+      few: '$count zamrzavanja',
+      one: '$count zamrzavanje',
+      zero: 'Nema zamrzavanja',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakFreezesHelp(int max) {
+    return 'Zamrzavanje čuva tvoj niz kada propustiš trening. Dobijaš jedno za svaku savršenu nedelju (najviše $max).';
+  }
+
+  @override
+  String get streakGymBoards => 'Tabele teretana';
+
+  @override
+  String get streakHistory => 'Istorija';
+
+  @override
+  String get streakLoadFailed => 'Nije moguće učitati tvoj niz.';
+
+  @override
+  String get streakMuteDescription =>
+      'Podsetnici kada je niz u opasnosti, zamrzavanja, novi bedževi';
+
+  @override
+  String get streakMuteLabel => 'Niz treninga';
+
+  @override
+  String streakNextBadge(String tier) {
+    return 'Sledeće: $tier';
+  }
+
+  @override
+  String get streakNone => 'Još nemaš niz. Upiši trening i započni ga!';
+
+  @override
+  String get streakPlannedWorkout => 'trening';
+
+  @override
+  String get streakProfileBadges => 'Bedževi niza';
+
+  @override
+  String get streakProgressHintNone => 'Upiši trening da započneš';
+
+  @override
+  String get streakProgressHintOk => 'Na dobrom si putu ove nedelje';
+
+  @override
+  String get streakProgressHintRisk => 'Treniraj danas da ga održiš';
+
+  @override
+  String get streakProgressTile => 'Niz treninga';
+
+  @override
+  String streakRankAt(int rank, String gym) {
+    return '#$rank u $gym';
+  }
+
+  @override
+  String streakRankOf(int rank, int total) {
+    return '#$rank od $total';
+  }
+
+  @override
+  String get streakRuleBadges =>
+      'Bedževi: Bronza 10, Srebro 50, Zlato 100, Rubin 200, Smaragd 365, Safir 500, Dijamant 1000. Avatar prikazuje trenutni bedž; svi osvojeni bedževi ostaju na profilu.';
+
+  @override
+  String get streakRuleCount =>
+      'Niz broji završene treninge sa bar jednom upisanom serijom, a ne dane.';
+
+  @override
+  String get streakRuleFreezes =>
+      'Sačuvano zamrzavanje se koristi automatski umesto da izgubiš niz.';
+
+  @override
+  String get streakRuleLate =>
+      'Zaboravio si da upišeš? Imaš vremena do kraja sledećeg dana.';
+
+  @override
+  String get streakRulePlanned =>
+      'Planirani treninzi moraju biti odrađeni tog dana. Preskakanje ili propuštanje prekida niz.';
+
+  @override
+  String get streakRuleTarget =>
+      'U nedeljama bez plana, ispuni nedeljni cilj. Nedelja u kojoj počinješ se računa srazmerno.';
+
+  @override
+  String get streakRulesTitle => 'Kako nizovi funkcionišu';
+
+  @override
+  String get streakSettingsTitle => 'Podešavanja niza';
+
+  @override
+  String get streakShowOnBoards => 'Prikaži me na tabelama teretane';
+
+  @override
+  String get streakShowOnBoardsHelp =>
+      'Članovi tvojih teretana vide tvoj niz i plasman.';
+
+  @override
+  String streakSkipBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Preskakanje troši jedno od tvojih $count zamrzavanja da sačuva niz.',
+      one: 'Preskakanje troši tvoje zamrzavanje da sačuva niz.',
+      zero: 'Preskakanje planiranog treninga prekida tvoj niz.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get streakSkipConfirm => 'Ipak preskoči';
+
+  @override
+  String get streakSkipTitle => 'Preskočiti ovaj trening?';
+
+  @override
+  String get streakTargetHelp =>
+      'U nedeljama bez planiranih treninga, ovoliko treninga održava tvoj niz.';
+
+  @override
+  String get streakTargetLabel => 'Nedeljni cilj';
+
+  @override
+  String get streakTargetLess => 'Manje';
+
+  @override
+  String get streakTargetMore => 'Više';
+
+  @override
+  String streakTargetValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treninga nedeljno',
+      few: '$count treninga nedeljno',
+      one: '$count trening nedeljno',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get streakThisWeek => 'Ove nedelje';
+
+  @override
+  String get streakTierBronze => 'Bronza';
+
+  @override
+  String get streakTierDiamond => 'Dijamant';
+
+  @override
+  String get streakTierEmerald => 'Smaragd';
+
+  @override
+  String get streakTierGold => 'Zlato';
+
+  @override
+  String get streakTierRuby => 'Rubin';
+
+  @override
+  String get streakTierSapphire => 'Safir';
+
+  @override
+  String get streakTierSilver => 'Srebro';
+
+  @override
+  String get streakTitle => 'Niz treninga';
+
+  @override
+  String streakToGo(int count, int at) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Još $count treninga do $at',
+      few: 'Još $count treninga do $at',
+      one: 'Još $count trening do $at',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get streakWeekPlannedDone =>
+      'Svi planirani treninzi su odrađeni. Savršena nedelja!';
+
+  @override
+  String streakWeekPlannedLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ostalo je $count planiranih treninga',
+      few: 'Ostala su $count planirana treninga',
+      one: 'Ostao je $count planirani trening',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakWeekTargetDone(int done) {
+    String _temp0 = intl.Intl.pluralLogic(
+      done,
+      locale: localeName,
+      other: '$done treninga, cilj ispunjen',
+      few: '$done treninga, cilj ispunjen',
+      one: '$done trening, cilj ispunjen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakWeekTargetLeft(int done, int required) {
+    return '$done od $required treninga';
+  }
+
+  @override
+  String streakWorkoutsInARow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'treninga zaredom',
+      few: 'treninga zaredom',
+      one: 'trening zaredom',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get tagsDone => 'Gotovo';
 
   @override
@@ -10423,6 +10850,110 @@ class AppLocalizationsSr extends AppLocalizations {
   @override
   String get trainingWorkoutsToMeEmpty =>
       'Još ti nije dodeljen nijedan program.\nOvde se prikazuju programi koje ti dodeli trener.';
+
+  @override
+  String get workoutCompleteDone => 'Gotovo';
+
+  @override
+  String get workoutCompleteDuration => 'Trajanje';
+
+  @override
+  String workoutCompleteForClient(String name) {
+    return 'Upisano za: $name';
+  }
+
+  @override
+  String get workoutCompleteFreezes => 'Zamrzavanja niza';
+
+  @override
+  String workoutCompleteMilestone(int count) {
+    return '$count treninga zaredom!';
+  }
+
+  @override
+  String workoutCompleteMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get workoutCompleteNotCounted =>
+      'Ovaj trening se ne računa u niz. Treninzi se računaju kad su se već desili i upisani su do kraja sledećeg dana.';
+
+  @override
+  String get workoutCompletePrs => 'Rekordi';
+
+  @override
+  String workoutCompleteRankClimb(int rank, String gym) {
+    return '#$rank u: $gym';
+  }
+
+  @override
+  String workoutCompleteRankUp(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Gore $count mesta na tabeli nizova',
+      few: 'Gore $count mesta na tabeli nizova',
+      one: 'Gore 1 mesto na tabeli nizova',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workoutCompleteSets => 'Serije';
+
+  @override
+  String get workoutCompleteShare => 'Podeli trening';
+
+  @override
+  String get workoutCompleteStreakLabel => 'treninga zaredom';
+
+  @override
+  String get workoutCompleteSubtitle => 'Odlično. Svako ponavljanje se računa.';
+
+  @override
+  String workoutCompleteTierUnlocked(String tier) {
+    return '$tier otključan!';
+  }
+
+  @override
+  String workoutCompleteTierUnlockedBody(int count) {
+    return '$count treninga zaredom. Nova značka se vidi na tvom avataru.';
+  }
+
+  @override
+  String get workoutCompleteTitle => 'Trening završen!';
+
+  @override
+  String workoutCompleteToNextTier(int count, String tier) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Još $count treninga do: $tier',
+      few: 'Još $count treninga do: $tier',
+      one: 'Još 1 trening do: $tier',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workoutCompleteViewStreak => 'Pogledaj niz';
+
+  @override
+  String get workoutCompleteVolume => 'Obim';
+
+  @override
+  String get workoutCompleteWeekOnTrack => 'Na dobrom putu';
+
+  @override
+  String workoutCompleteWeekPlanned(int done, int total) {
+    return 'Ove nedelje: $done od $total planiranih treninga';
+  }
+
+  @override
+  String workoutCompleteWeekTarget(int done, int required) {
+    return 'Ove nedelje: $done od $required treninga';
+  }
 
   @override
   String get workoutLogAddExercise => 'Dodaj vežbu';
@@ -14018,6 +14549,141 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get feedWriteReplyHint => 'Napiši odgovor…';
 
   @override
+  String gymBoardCardNoRank(String gym) {
+    return 'Pogledaj ko vodi u $gym';
+  }
+
+  @override
+  String gymBoardCardRank(int rank, int total, String gym) {
+    return '#$rank od $total u $gym';
+  }
+
+  @override
+  String gymBoardCheckInsValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dolazaka',
+      few: '$count dolaska',
+      one: '1 dolazak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gymBoardEmpty => 'Još nikog nema. Budi prvi!';
+
+  @override
+  String gymBoardGapCheckIns(int count, int rank) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dolazaka',
+      few: '$count dolaska',
+      one: '1 dolazak',
+    );
+    return 'Još $_temp0 do mesta #$rank';
+  }
+
+  @override
+  String gymBoardGapWorkouts(int count, int rank) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treninga',
+      few: '$count treninga',
+      one: '1 trening',
+    );
+    return 'Još $_temp0 do mesta #$rank';
+  }
+
+  @override
+  String get gymBoardInfoHide =>
+      'Ne želiš da se pojavljuješ? Isključi \"Prikaži me na tablama teretana\" u Podešavanjima.';
+
+  @override
+  String get gymBoardInfoMembers =>
+      'Ovde se pojavljuju samo aktivni članovi teretane, a vide je samo članovi i tim teretane.';
+
+  @override
+  String get gymBoardInfoPeriod =>
+      'Treninzi i Dolasci broje poslednjih 30 dana.';
+
+  @override
+  String get gymBoardInfoStreak =>
+      'Niz rangira koliko treninga zaredom trenutno imaš. Preskočen planirani trening ili nedostignut nedeljni cilj prekida niz, osim ako ga zamrzavanje ne pokrije.';
+
+  @override
+  String get gymBoardInfoTitle => 'Kako rade table teretane';
+
+  @override
+  String get gymBoardInfoTooltip => 'Kako table rade';
+
+  @override
+  String get gymBoardLoadFailed => 'Tabla nije učitana.';
+
+  @override
+  String gymBoardNotMember(String gym) {
+    return 'Table teretane su za članove teretane $gym.';
+  }
+
+  @override
+  String get gymBoardNotOnCheckIns =>
+      'Prijavi dolazak u teretanu da bi ušao na ovu tablu.';
+
+  @override
+  String get gymBoardNotOnStreak =>
+      'Završi trening, započni niz i uđi na tablu.';
+
+  @override
+  String get gymBoardNotOnWorkouts => 'Upiši trening da bi ušao na ovu tablu.';
+
+  @override
+  String get gymBoardPeriodLast30 => 'Poslednjih 30 dana';
+
+  @override
+  String get gymBoardPeriodStreak => 'Treninga zaredom, trenutno';
+
+  @override
+  String get gymBoardTabCheckIns => 'Dolasci';
+
+  @override
+  String get gymBoardTabStreak => 'Niz';
+
+  @override
+  String get gymBoardTabWorkouts => 'Treninzi';
+
+  @override
+  String get gymBoardTiedAhead =>
+      'Izjednačen si sa onima ispred. Još jedan i penješ se!';
+
+  @override
+  String get gymBoardTitle => 'Tabla teretane';
+
+  @override
+  String gymBoardWorkoutsValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treninga',
+      few: '$count treninga',
+      one: '1 trening',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get gymBoardYou => 'Ti';
+
+  @override
+  String get gymBoardYouLead => 'Ti si na vrhu. Odbrani mesto!';
+
+  @override
+  String gymBoardYourRank(int rank) {
+    return 'Ti si #$rank';
+  }
+
+  @override
   String get mediaAdjustBrightness => 'Osvetljenost';
 
   @override
@@ -18870,6 +19536,298 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   String get storyYourStory => 'Tvoja priča';
 
   @override
+  String get streakAtRiskTitle => 'Tvoj niz je u opasnosti';
+
+  @override
+  String streakAtRiskToday(String name) {
+    return '$name je planiran za danas.';
+  }
+
+  @override
+  String streakAtRiskWeek(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Još $count treninga ove nedelje ga održava.',
+      few: 'Još $count treninga ove nedelje ga održavaju.',
+      one: 'Još $count trening ove nedelje ga održava.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakAtRiskYesterday(String name) {
+    return 'Jučerašnji $name još nije upisan. Imaš vremena do ponoći.';
+  }
+
+  @override
+  String streakBadgeAt(int count) {
+    return '$count zaredom';
+  }
+
+  @override
+  String get streakBadges => 'Bedževi';
+
+  @override
+  String streakBest(int count) {
+    return 'Najbolji: $count';
+  }
+
+  @override
+  String streakEventBroken(int streak) {
+    return 'Niz od $streak treninga je prekinut';
+  }
+
+  @override
+  String get streakEventFreezeEarned =>
+      'Savršena nedelja, dobijeno zamrzavanje';
+
+  @override
+  String streakEventFreezeUsed(int streak) {
+    return 'Zamrzavanje je sačuvalo tvoj niz od $streak treninga';
+  }
+
+  @override
+  String streakEventTier(String tier, int streak) {
+    return 'Osvojen bedž $tier ($streak zaredom)';
+  }
+
+  @override
+  String streakFreezes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zamrzavanja',
+      few: '$count zamrzavanja',
+      one: '$count zamrzavanje',
+      zero: 'Nema zamrzavanja',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakFreezesHelp(int max) {
+    return 'Zamrzavanje čuva tvoj niz kada propustiš trening. Dobijaš jedno za svaku savršenu nedelju (najviše $max).';
+  }
+
+  @override
+  String get streakGymBoards => 'Tabele teretana';
+
+  @override
+  String get streakHistory => 'Istorija';
+
+  @override
+  String get streakLoadFailed => 'Nije moguće učitati tvoj niz.';
+
+  @override
+  String get streakMuteDescription =>
+      'Podsetnici kada je niz u opasnosti, zamrzavanja, novi bedževi';
+
+  @override
+  String get streakMuteLabel => 'Niz treninga';
+
+  @override
+  String streakNextBadge(String tier) {
+    return 'Sledeće: $tier';
+  }
+
+  @override
+  String get streakNone => 'Još nemaš niz. Upiši trening i započni ga!';
+
+  @override
+  String get streakPlannedWorkout => 'trening';
+
+  @override
+  String get streakProfileBadges => 'Bedževi niza';
+
+  @override
+  String get streakProgressHintNone => 'Upiši trening da započneš';
+
+  @override
+  String get streakProgressHintOk => 'Na dobrom si putu ove nedelje';
+
+  @override
+  String get streakProgressHintRisk => 'Treniraj danas da ga održiš';
+
+  @override
+  String get streakProgressTile => 'Niz treninga';
+
+  @override
+  String streakRankAt(int rank, String gym) {
+    return '#$rank u $gym';
+  }
+
+  @override
+  String streakRankOf(int rank, int total) {
+    return '#$rank od $total';
+  }
+
+  @override
+  String get streakRuleBadges =>
+      'Bedževi: Bronza 10, Srebro 50, Zlato 100, Rubin 200, Smaragd 365, Safir 500, Dijamant 1000. Avatar prikazuje trenutni bedž; svi osvojeni bedževi ostaju na profilu.';
+
+  @override
+  String get streakRuleCount =>
+      'Niz broji završene treninge sa bar jednom upisanom serijom, a ne dane.';
+
+  @override
+  String get streakRuleFreezes =>
+      'Sačuvano zamrzavanje se koristi automatski umesto da izgubiš niz.';
+
+  @override
+  String get streakRuleLate =>
+      'Zaboravio si da upišeš? Imaš vremena do kraja sledećeg dana.';
+
+  @override
+  String get streakRulePlanned =>
+      'Planirani treninzi moraju biti odrađeni tog dana. Preskakanje ili propuštanje prekida niz.';
+
+  @override
+  String get streakRuleTarget =>
+      'U nedeljama bez plana, ispuni nedeljni cilj. Nedelja u kojoj počinješ se računa srazmerno.';
+
+  @override
+  String get streakRulesTitle => 'Kako nizovi funkcionišu';
+
+  @override
+  String get streakSettingsTitle => 'Podešavanja niza';
+
+  @override
+  String get streakShowOnBoards => 'Prikaži me na tabelama teretane';
+
+  @override
+  String get streakShowOnBoardsHelp =>
+      'Članovi tvojih teretana vide tvoj niz i plasman.';
+
+  @override
+  String streakSkipBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Preskakanje troši jedno od tvojih $count zamrzavanja da sačuva niz.',
+      one: 'Preskakanje troši tvoje zamrzavanje da sačuva niz.',
+      zero: 'Preskakanje planiranog treninga prekida tvoj niz.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get streakSkipConfirm => 'Ipak preskoči';
+
+  @override
+  String get streakSkipTitle => 'Preskočiti ovaj trening?';
+
+  @override
+  String get streakTargetHelp =>
+      'U nedeljama bez planiranih treninga, ovoliko treninga održava tvoj niz.';
+
+  @override
+  String get streakTargetLabel => 'Nedeljni cilj';
+
+  @override
+  String get streakTargetLess => 'Manje';
+
+  @override
+  String get streakTargetMore => 'Više';
+
+  @override
+  String streakTargetValue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treninga nedeljno',
+      few: '$count treninga nedeljno',
+      one: '$count trening nedeljno',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get streakThisWeek => 'Ove nedelje';
+
+  @override
+  String get streakTierBronze => 'Bronza';
+
+  @override
+  String get streakTierDiamond => 'Dijamant';
+
+  @override
+  String get streakTierEmerald => 'Smaragd';
+
+  @override
+  String get streakTierGold => 'Zlato';
+
+  @override
+  String get streakTierRuby => 'Rubin';
+
+  @override
+  String get streakTierSapphire => 'Safir';
+
+  @override
+  String get streakTierSilver => 'Srebro';
+
+  @override
+  String get streakTitle => 'Niz treninga';
+
+  @override
+  String streakToGo(int count, int at) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Još $count treninga do $at',
+      few: 'Još $count treninga do $at',
+      one: 'Još $count trening do $at',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get streakWeekPlannedDone =>
+      'Svi planirani treninzi su odrađeni. Savršena nedelja!';
+
+  @override
+  String streakWeekPlannedLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ostalo je $count planiranih treninga',
+      few: 'Ostala su $count planirana treninga',
+      one: 'Ostao je $count planirani trening',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakWeekTargetDone(int done) {
+    String _temp0 = intl.Intl.pluralLogic(
+      done,
+      locale: localeName,
+      other: '$done treninga, cilj ispunjen',
+      few: '$done treninga, cilj ispunjen',
+      one: '$done trening, cilj ispunjen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakWeekTargetLeft(int done, int required) {
+    return '$done od $required treninga';
+  }
+
+  @override
+  String streakWorkoutsInARow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'treninga zaredom',
+      few: 'treninga zaredom',
+      one: 'trening zaredom',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get tagsDone => 'Gotovo';
 
   @override
@@ -21030,6 +21988,110 @@ class AppLocalizationsSrLatn extends AppLocalizationsSr {
   @override
   String get trainingWorkoutsToMeEmpty =>
       'Još ti nije dodeljen nijedan program.\nOvde se prikazuju programi koje ti dodeli trener.';
+
+  @override
+  String get workoutCompleteDone => 'Gotovo';
+
+  @override
+  String get workoutCompleteDuration => 'Trajanje';
+
+  @override
+  String workoutCompleteForClient(String name) {
+    return 'Upisano za: $name';
+  }
+
+  @override
+  String get workoutCompleteFreezes => 'Zamrzavanja niza';
+
+  @override
+  String workoutCompleteMilestone(int count) {
+    return '$count treninga zaredom!';
+  }
+
+  @override
+  String workoutCompleteMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get workoutCompleteNotCounted =>
+      'Ovaj trening se ne računa u niz. Treninzi se računaju kad su se već desili i upisani su do kraja sledećeg dana.';
+
+  @override
+  String get workoutCompletePrs => 'Rekordi';
+
+  @override
+  String workoutCompleteRankClimb(int rank, String gym) {
+    return '#$rank u: $gym';
+  }
+
+  @override
+  String workoutCompleteRankUp(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Gore $count mesta na tabeli nizova',
+      few: 'Gore $count mesta na tabeli nizova',
+      one: 'Gore 1 mesto na tabeli nizova',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workoutCompleteSets => 'Serije';
+
+  @override
+  String get workoutCompleteShare => 'Podeli trening';
+
+  @override
+  String get workoutCompleteStreakLabel => 'treninga zaredom';
+
+  @override
+  String get workoutCompleteSubtitle => 'Odlično. Svako ponavljanje se računa.';
+
+  @override
+  String workoutCompleteTierUnlocked(String tier) {
+    return '$tier otključan!';
+  }
+
+  @override
+  String workoutCompleteTierUnlockedBody(int count) {
+    return '$count treninga zaredom. Nova značka se vidi na tvom avataru.';
+  }
+
+  @override
+  String get workoutCompleteTitle => 'Trening završen!';
+
+  @override
+  String workoutCompleteToNextTier(int count, String tier) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Još $count treninga do: $tier',
+      few: 'Još $count treninga do: $tier',
+      one: 'Još 1 trening do: $tier',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get workoutCompleteViewStreak => 'Pogledaj niz';
+
+  @override
+  String get workoutCompleteVolume => 'Obim';
+
+  @override
+  String get workoutCompleteWeekOnTrack => 'Na dobrom putu';
+
+  @override
+  String workoutCompleteWeekPlanned(int done, int total) {
+    return 'Ove nedelje: $done od $total planiranih treninga';
+  }
+
+  @override
+  String workoutCompleteWeekTarget(int done, int required) {
+    return 'Ove nedelje: $done od $required treninga';
+  }
 
   @override
   String get workoutLogAddExercise => 'Dodaj vežbu';

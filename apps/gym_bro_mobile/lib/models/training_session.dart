@@ -1,4 +1,5 @@
 import '../l10n/app_localizations.dart';
+import 'streak.dart';
 import 'training.dart';
 
 class SessionDropLog {
@@ -144,6 +145,10 @@ class TrainingSession {
   final DateTime updatedAt;
   final int commentCount;
 
+  /// How finishing (or logging) this session moved the athlete's streak;
+  /// only on those responses.
+  final StreakUpdate? streak;
+
   const TrainingSession({
     required this.id,
     required this.userId,
@@ -159,6 +164,7 @@ class TrainingSession {
     required this.createdAt,
     required this.updatedAt,
     this.commentCount = 0,
+    this.streak,
   });
 
   factory TrainingSession.fromJson(Map<String, dynamic> json) {
@@ -182,6 +188,7 @@ class TrainingSession {
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       commentCount: int.tryParse(json['comment_count']?.toString() ?? '') ?? 0,
+      streak: StreakUpdate.maybeFromJson(json['streak']),
     );
   }
 
